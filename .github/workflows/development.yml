@@ -38,10 +38,16 @@ jobs:
               fi
               export PATH="/usr/bin/go/bin:$PATH"
               go build
+              if [ ! -f ./bff ]; then
+                echo "Go build "bff" file does not exist!"
+                exit 1
+              fi
+              cp ./bff ../../
               if ! command -v pm2 &> /dev/null; then
                 echo "PM2 is not installed. Installing PM2..."
                 npm install pm2@latest -g
               fi
+              cd ../../
               pm2 delete sss-erp-bff
               pm2 start ./bff --name "sss-erp-bff" --watch
               pm2 save

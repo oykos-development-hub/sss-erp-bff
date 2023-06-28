@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "title": "Sef IT sektora",
+    "abbreviation": "SITS",
+    "description": "description",
+    "requirements": "requirements",
+    "serial_number": "r3w4f23",
+    "is_judge": false,
+    "is_judge_president": false,
+    "color": "#3498db",
+    "icon": "https://example.com/icons/sss.png"
+  },
+  {
+    "id": 2,
+    "title": "Sudija",
+    "abbreviation": "SUKN",
+    "description": "description",
+    "requirements": "requirements",
+    "serial_number": "4f3f",
+    "is_judge": true,
+    "is_judge_president": false,
+    "color": "#3498db",
+    "icon": "https://example.com/icons/sss.png"
+  },
+  {
+    "id": 3,
+    "title": "Sekretar sudije",
+    "abbreviation": "SESUKN",
+    "description": "description",
+    "requirements": "requirements",
+    "serial_number": "4f3f2d23",
+    "is_judge": false,
+    "is_judge_president": false,
+    "color": "#3498db",
+    "icon": "https://example.com/icons/sss.png"
+  },
+  {
+    "id": 4,
+    "title": "Predsjednik suda",
+    "abbreviation": "JUSUKN",
+    "description": "description",
+    "requirements": "requirements",
+    "serial_number": "hj657h4h",
+    "is_judge": false,
+    "is_judge_president": true,
+    "color": "#3498db",
+    "icon": "https://example.com/icons/sss.png"
+  },
+  {
+    "id": 5,
+    "title": "Samostalni savjetnik za IT - III",
+    "abbreviation": "SSIT-3",
+    "description": "test 123",
+    "requirements": "requirements",
+    "serial_number": "",
+    "is_judge": false,
+    "is_judge_president": false,
+    "color": "#3498db",
+    "icon": "https://example.com/icons/st.png"
+  },
+  {
+    "id": 72756,
+    "title": "Sudija II",
+    "abbreviation": "SUD-2",
+    "description": "Sudija broj 2",
+    "requirements": "requirements",
+    "serial_number": "384jer8g3",
+    "is_judge": true,
+    "is_judge_president": false,
+    "color": "#3498db",
+    "icon": "https://example.com/icons/st.png"
+  },
+  {
+    "id": 54371,
+    "title": "Predsjednik suda 2",
+    "abbreviation": "PRSUD-2",
+    "description": "Predsjednik suda 2 broj 2",
+    "requirements": "requirements",
+    "serial_number": "bdfv3r",
+    "is_judge": true,
+    "is_judge_president": true,
+    "color": "#3498db",
+    "icon": "https://example.com/icons/st.png"
+  }
+]

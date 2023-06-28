@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "parent_job_position_id": 0,
+    "parent_organization_unit_id": 0,
+    "title": "IT Admin",
+    "abbreviation": "ITA",
+    "serial_number": "ITA-001",
+    "is_judge": false,
+    "is_judge_president": false,
+    "color": "#337ab7",
+    "icon": "https://example.com/icons/it_admin.png"
+  }
+]

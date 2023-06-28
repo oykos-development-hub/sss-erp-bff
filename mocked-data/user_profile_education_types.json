@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "title": "Osnovna škola",
+    "abbreviation": "OŠ",
+    "value": "osnovnoškolsko obrazovanje",
+    "description": "Obrazovanje koje se stiče završetkom osnovne škole.",
+    "color": "#f44336",
+    "icon": "book"
+  },
+  {
+    "id": 2,
+    "title": "Srednja škola",
+    "abbreviation": "SŠ",
+    "value": "srednjoškolsko obrazovanje",
+    "description": "Obrazovanje koje se stiče završetkom srednje škole.",
+    "color": "#2196f3",
+    "icon": "book"
+  },
+  {
+    "id": 3,
+    "title": "Fakultet",
+    "abbreviation": "F",
+    "value": "visokoškolsko obrazovanje",
+    "description": "Obrazovanje koje se stiče završetkom fakulteta.",
+    "color": "#9c27b0",
+    "icon": "book"
+  },
+  {
+    "id": 4,
+    "title": "Master",
+    "abbreviation": "M",
+    "value": "postdiplomsko obrazovanje",
+    "description": "Obrazovanje koje se stiče završetkom master studija.",
+    "color": "#4caf50",
+    "icon": "book"
+  }
+]

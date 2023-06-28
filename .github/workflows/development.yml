@@ -38,5 +38,11 @@ jobs:
               fi
               export PATH="/usr/bin/go/bin:$PATH"
               go build
-              ./bff
+              if ! command -v pm2 &> /dev/null; then
+                echo "PM2 is not installed. Installing PM2..."
+                npm install pm2@latest -g
+              fi
+              pm2 start bff --name "my-go-server" --watch
+              pm2 save
+              
               

@@ -36,8 +36,7 @@ jobs:
                 source ~/.bashrc
                 rm go1.20.linux-amd64.tar.gz
               fi
-              echo 'export PATH=$PATH:/usr/bin/go/bin' >> ~/.bashrc
-              source ~/.bashrc
+              export PATH="/usr/bin/go/bin:$PATH"  # Set the PATH to include the location of Go
               go build
               ./bff
               

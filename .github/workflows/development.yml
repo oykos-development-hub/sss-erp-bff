@@ -30,14 +30,14 @@ jobs:
     steps:
       - uses: appleboy/ssh-action@master
         with:
-            host: ${{secrets.SSH_HOST}}
-            username: ${{secrets.SSH_USER}}
+            host: $SSH_HOST
+            username: $SSH_USER
             password: ${{secrets.SSH_PASSPHRASE}}
             script: |
-              cd /var/www/vhosts/oykos.me/${{secrets.GIT_REPO}}.oykos.me
+              cd /var/www/vhosts/oykos.me/$GIT_REPO.oykos.me
               [ -d "./github" ] && echo "Existing github directory" || mkdir github
               cd github
-              rm -rf ./${{secrets.GIT_REPO}}
-              git clone https://oykos-development-hub:${{secrets.GIT_ACCESS_TOKEN}}@github.com/oykos-development-hub/${{secrets.GIT_REPO}}.git
-              cd ./${{secrets.GIT_REPO}}
+              rm -rf ./$GIT_REPO
+              git clone https://oykos-development-hub:${{secrets.GIT_ACCESS_TOKEN}}@github.com/oykos-development-hub/$GIT_REPO.git
+              cd ./$GIT_REPO
               

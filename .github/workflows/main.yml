@@ -1,0 +1,43 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Deploy to development server
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [development]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  check-and-install-go:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check if Go is installed
+        run: go version || echo "Go is not installed"
+
+      - name: Install Go
+        run: |
+          if ! command -v go &> /dev/null; then
+            sudo apt update
+            sudo apt install -y golang
+          fi
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+            host: ${{secrets.SSH_HOST}}
+            username: ${{secrets.SSH_USER}}
+            password: ${{secrets.SSH_PASSPHRASE}}
+            script: |
+              cd /var/www/vhosts/oykos.me/${{secrets.GIT_REPO}}.oykos.me
+              [ -d "./github" ] && echo "Existing github directory" || mkdir github
+              cd github
+              rm -rf ./${{secrets.GIT_REPO}}
+              git clone https://oykos-development-hub:${{secrets.GIT_ACCESS_TOKEN}}@github.com/oykos-development-hub/${{secrets.GIT_REPO}}.git
+              cd ./${{secrets.GIT_REPO}}
+              

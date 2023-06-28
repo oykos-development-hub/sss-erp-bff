@@ -42,7 +42,8 @@ jobs:
                 echo "PM2 is not installed. Installing PM2..."
                 npm install pm2@latest -g
               fi
-              pm2 start bff --name "my-go-server" --watch
+              pm2 delete sss-erp-bff
+              pm2 start ./bff --name "sss-erp-bff" --watch
               pm2 save
               
               

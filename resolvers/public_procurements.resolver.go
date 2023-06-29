@@ -47,21 +47,22 @@ func PopulateStatus(plan map[string]interface{}, isAdmin bool, organizationUnitI
 		if len(organizationUnitArticles) > 0 {
 			for _, procurementData := range organizationUnitArticles {
 				procurement := procurementData.(map[string]interface{})
-				var procurementArticles = procurement["articles"].([]interface{})
+				if articles, ok := procurement["articles"].([]interface{}); ok {
+					var procurementArticles = articles
+					if len(procurementArticles) > 0 {
+						for _, procurementArticle := range procurementArticles {
+							article := procurementArticle.(map[string]interface{})
 
-				if len(procurementArticles) > 0 {
-					for _, procurementArticle := range procurementArticles {
-						article := procurementArticle.(map[string]interface{})
+							if shared.IsInteger(article["amount"]) && article["amount"].(int) > 0 {
+								isSentOnRevision = true
+								isRejected = false
+								isAccepted = false
 
-						if shared.IsInteger(article["amount"]) && article["amount"].(int) > 0 {
-							isSentOnRevision = true
-							isRejected = false
-							isAccepted = false
-
-							if article["is_rejected"] == true || article["status"] == "rejected" {
-								isRejected = true
-							} else if article["status"] == "accepted" {
-								isAccepted = true
+								if article["is_rejected"] == true || article["status"] == "rejected" {
+									isRejected = true
+								} else if article["status"] == "accepted" {
+									isAccepted = true
+								}
 							}
 						}
 					}

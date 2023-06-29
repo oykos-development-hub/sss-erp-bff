@@ -210,7 +210,7 @@ var BasicInventoryInsertType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"item": &graphql.Field{
-			Type: BasicInventoryDetailsItemType,
+			Type: graphql.NewList(BasicInventoryDetailsItemType),
 		},
 	},
 })

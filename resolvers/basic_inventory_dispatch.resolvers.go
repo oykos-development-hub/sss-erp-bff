@@ -9,7 +9,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchItems []interface{}, id int, typeDispatch string, sourceOrganizationUnitId int, accepted ...interface{}) []interface{} {
+func PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchItems []interface{}, id int, typeDispatch string, sourceUserProfileId int, status ...interface{}) []interface{} {
 	var items []interface{}
 	for _, item := range basicInventoryDispatchItems {
 		var mergedItem = shared.WriteStructToInterface(item)
@@ -21,27 +21,19 @@ func PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchItems []
 			continue
 		}
 
-		// Filtering by type
+		// Filtering by status
 		if shared.IsString(typeDispatch) && len(typeDispatch) > 0 && typeDispatch != mergedItem["type"] {
 			continue
 		}
 
-		// Filtering by sourceOrganizationUnitId
-		if shared.IsInteger(sourceOrganizationUnitId) && sourceOrganizationUnitId != 0 && sourceOrganizationUnitId != mergedItem["source_organization_unit_id"].(int) {
+		// Filtering by sourceUserProfileId
+		if shared.IsInteger(sourceUserProfileId) && sourceUserProfileId != 0 && id != mergedItem["source_user_profile_id"] {
 			continue
 		}
 
-		// Filtering by accepted
-		if len(accepted) > 0 && accepted[0] != "null" {
-			var IsAccepted bool
-			if accepted[0] == "true" {
-				IsAccepted = true
-			} else {
-				IsAccepted = false
-			}
-			if IsAccepted != mergedItem["is_accepted"].(bool) && mergedItem["type"] != "revers" {
-				continue
-			}
+		// Filtering by sourceUserProfileId
+		if len(status) > 0 && status[0] != nil && status[0] != mergedItem["is_accepted"] && mergedItem["type"] == "revers" {
+			continue
 		}
 
 		if shared.IsInteger(mergedItem["target_user_profile_id"]) && mergedItem["target_user_profile_id"].(int) > 0 {
@@ -186,11 +178,11 @@ var BasicInventoryDispatchOverviewResolver = func(params graphql.ResolveParams) 
 	var items []interface{}
 	var total int
 	var typeDispatch string
-	var sourceOrganizationUnitId int
-	var id int
+	var sourceUserProfileId int
 
 	page := params.Args["page"]
 	size := params.Args["size"]
+	id := params.Args["id"]
 
 	if params.Args["id"] == nil {
 		id = 0
@@ -204,10 +196,10 @@ var BasicInventoryDispatchOverviewResolver = func(params graphql.ResolveParams) 
 		typeDispatch = params.Args["type"].(string)
 	}
 
-	if params.Args["source_organization_unit_id"] == nil {
-		sourceOrganizationUnitId = 0
+	if params.Args["source_user_profile_id"] == nil {
+		sourceUserProfileId = 0
 	} else {
-		sourceOrganizationUnitId = params.Args["source_organization_unit_id"].(int)
+		sourceUserProfileId = params.Args["source_user_profile_id"].(int)
 	}
 
 	BasicInventoryDispatchType := &structs.BasicInventoryDispatchItem{}
@@ -219,7 +211,7 @@ var BasicInventoryDispatchOverviewResolver = func(params graphql.ResolveParams) 
 	}
 
 	// Populate data for each Basic Inventory Depreciation Types
-	items = PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchData, id, typeDispatch, sourceOrganizationUnitId, params.Args["accepted"])
+	items = PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchData, id.(int), typeDispatch, sourceUserProfileId, params.Args["status"])
 
 	total = len(items)
 
@@ -272,8 +264,7 @@ var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (i
 			fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
 		}
 
-		updatedDataItems := make([]interface{}, len(basicInventoryDispatchItemsData))
-		copy(updatedDataItems, basicInventoryDispatchItemsData)
+		var updatedDataItems = append(basicInventoryDispatchItemsData)
 		if len(data.InventoryId) > 0 {
 			for _, item := range data.InventoryId {
 				basicInventoryDispatchItem := structs.BasicInventoryDispatchItemsItem{

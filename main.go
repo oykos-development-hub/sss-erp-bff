@@ -22,14 +22,11 @@ func extractTokenFromHeader(headerValue string) string {
 
 func extractTokenMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// define key value
-		const tokenKey string = "token"
-
 		authHeader := r.Header.Get("Authorization")
 		// Extract the token value from the header
 		token := extractTokenFromHeader(authHeader)
 		// Store the token value in the request context
-		ctx := context.WithValue(r.Context(), tokenKey, token)
+		ctx := context.WithValue(r.Context(), "token", token)
 		r = r.WithContext(ctx)
 		// Call the next handler
 		next.ServeHTTP(w, r)
@@ -180,5 +177,5 @@ func main() {
 	graphqlHandler := extractTokenMiddleware(corsHandler(h))
 	// Start your HTTP server with the CORS-enabled handler
 	http.Handle("/", graphqlHandler)
-	_ = http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", nil)
 }

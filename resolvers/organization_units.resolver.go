@@ -5,14 +5,20 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-
 	"github.com/graphql-go/graphql"
+	"reflect"
 )
 
 func PopulateOrganizationUnitItemProperties(organizationUnits []interface{}) []interface{} {
 	var items []interface{}
 
 	for _, item := range organizationUnits {
+		// # Organization Unit
+		itemValue := reflect.ValueOf(item)
+
+		if itemValue.Kind() == reflect.Ptr {
+			itemValue = itemValue.Elem()
+		}
 
 		var mergedItem = shared.WriteStructToInterface(item)
 		// Fetching children Organization Units
@@ -60,7 +66,7 @@ var OrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interfa
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	OrganizationUnitType := &structs.OrganizationUnits{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	organizationUnitData, organizationUnitDataErr := shared.ReadJson("http://localhost:8080/mocked-data/organization_units.json", OrganizationUnitType)
@@ -77,7 +83,7 @@ var OrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interfa
 
 	var updatedData = append(organizationUnitData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/organization_units.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/organization_units.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -100,7 +106,7 @@ var OrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interfa
 		organizationUnitData = shared.FilterByProperty(organizationUnitData, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/organization_units.json"), organizationUnitData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/organization_units.json"), organizationUnitData)
 
 	return map[string]interface{}{
 		"status":  "success",

@@ -5,7 +5,6 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-
 	"github.com/graphql-go/graphql"
 )
 
@@ -40,7 +39,7 @@ var JobTenderTypeInsertResolver = func(params graphql.ResolveParams) (interface{
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	JobTenderTypeType := &structs.JobTenderTypes{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	JobTenderTypeData, JobTenderTypeDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_types.json", JobTenderTypeType)
@@ -57,7 +56,7 @@ var JobTenderTypeInsertResolver = func(params graphql.ResolveParams) (interface{
 
 	var updatedData = append(JobTenderTypeData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_types.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_types.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -80,7 +79,7 @@ var JobTenderTypeDeleteResolver = func(params graphql.ResolveParams) (interface{
 		JobTenderTypeData = shared.FilterByProperty(JobTenderTypeData, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_types.json"), JobTenderTypeData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_types.json"), JobTenderTypeData)
 
 	return map[string]interface{}{
 		"status":  "success",

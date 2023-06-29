@@ -146,12 +146,6 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"target_user_profile": &graphql.Field{
 			Type: DropdownItemType,
 		},
-		"target_organization_unit": &graphql.Field{
-			Type: DropdownItemType,
-		},
-		"organization_unit": &graphql.Field{
-			Type: DropdownItemType,
-		},
 		"gross_price": &graphql.Field{
 			Type: graphql.Int,
 		},
@@ -210,7 +204,7 @@ var BasicInventoryInsertType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"item": &graphql.Field{
-			Type: graphql.NewList(BasicInventoryDetailsItemType),
+			Type: BasicInventoryDetailsItemType,
 		},
 	},
 })

@@ -5,7 +5,6 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-
 	"github.com/graphql-go/graphql"
 )
 
@@ -61,7 +60,7 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 			var relatedAbsentItemData = shared.WriteStructToInterface(relatedAbsentItem)
 			var relatedAbsentType = shared.FindByProperty(vacationTypes, "Id", relatedAbsentItemData["vacation_type_id"])
 
-			if len(relatedAbsentType) > 0 {
+			if relatedAbsentType != nil && len(relatedAbsentType) > 0 {
 				var relatedAbsentTypeData = shared.WriteStructToInterface(relatedAbsentType[0])
 
 				relatedAbsentItemData["vacation_type"] = map[string]interface{}{
@@ -106,7 +105,7 @@ var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interf
 	VacationType := &structs.Vacation{}
 	RelocationType := &structs.Relocation{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	vacationTypeId := data.VacationTypeId
@@ -134,7 +133,7 @@ var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interf
 
 	var updatedData = append(absentDataItems, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+absentItemEndpoint+".json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+absentItemEndpoint+".json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -174,7 +173,7 @@ var UserProfileAbsentDeleteResolver = func(params graphql.ResolveParams) (interf
 	}
 
 	fmt.Printf("\n absentDataItems %s\n", absentDataItems)
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+absentItemEndpoint+".json"), absentDataItems)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+absentItemEndpoint+".json"), absentDataItems)
 
 	return map[string]interface{}{
 		"status":  "success",

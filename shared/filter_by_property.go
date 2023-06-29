@@ -17,9 +17,10 @@ func FilterByProperty(collection []interface{}, property string, value interface
 	var filteredData []interface{}
 
 	for _, item := range collection {
-		switch item := item.(type) {
+		switch item.(type) {
 		case map[string]interface{}:
-			if item[property] != value {
+			m := item.(map[string]interface{})
+			if m[property] != value {
 				filteredData = append(filteredData, item)
 			}
 		default:

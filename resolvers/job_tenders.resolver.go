@@ -5,15 +5,20 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"reflect"
-
 	"github.com/graphql-go/graphql"
+	"reflect"
 )
 
 func PopulateJobTenderItemProperties(jobTenders []interface{}, id int, organizationUnitId int, typeParam string, isActive ...interface{}) []interface{} {
 	var items []interface{}
 
 	for _, item := range jobTenders {
+		// # Job Tender
+		itemValue := reflect.ValueOf(item)
+
+		if itemValue.Kind() == reflect.Ptr {
+			itemValue = itemValue.Elem()
+		}
 
 		var mergedItem = shared.WriteStructToInterface(item)
 
@@ -65,7 +70,7 @@ func PopulateJobTenderItemProperties(jobTenders []interface{}, id int, organizat
 
 		var relatedJobPosition = shared.FetchByProperty("job_position", "Id", relatedJobPositionInOrganizationUnitValue.FieldByName("JobPositionId").Interface())
 
-		if len(relatedJobPosition) > 0 {
+		if relatedJobPosition != nil && len(relatedJobPosition) > 0 {
 			relatedJobPositionValue := reflect.ValueOf(relatedJobPosition[0])
 
 			if relatedJobPositionValue.Kind() == reflect.Ptr {
@@ -88,6 +93,12 @@ func PopulateJobTenderApplicationProperties(jobTenderApplications []interface{},
 	var items []interface{}
 
 	for _, item := range jobTenderApplications {
+		// # Job Tender Application
+		itemValue := reflect.ValueOf(item)
+
+		if itemValue.Kind() == reflect.Ptr {
+			itemValue = itemValue.Elem()
+		}
 
 		var mergedItem = shared.WriteStructToInterface(item)
 		// Filtering by ID
@@ -175,6 +186,8 @@ var JobTendersOverviewResolver = func(params graphql.ResolveParams) (interface{}
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", JobTendersDataErr)
 	}
 
+	total = len(JobTendersData)
+
 	// Populate data for each Job Tender with Organization Unit and Job Position
 	items = PopulateJobTenderItemProperties(JobTendersData, id, organizationUnitId, typeParam.(string), params.Args["active"])
 
@@ -224,7 +237,7 @@ var JobTenderInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	JobTenderType := &structs.JobTenders{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	jobTenderData, jobTenderDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tenders.json", JobTenderType)
@@ -246,7 +259,7 @@ var JobTenderInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	var updatedData = append(jobTenderData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tenders.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tenders.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -269,7 +282,7 @@ var JobTenderDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 		jobTenderData = shared.FilterByProperty(jobTenderData, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tenders.json"), jobTenderData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tenders.json"), jobTenderData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -303,6 +316,8 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", JobTenderApplicationsDataErr)
 	}
 
+	total = len(JobTenderApplicationsData)
+
 	// Populate data for each Job Tender with Organization Unit and Job Position
 	items = PopulateJobTenderApplicationProperties(JobTenderApplicationsData, id, jobTenderId)
 
@@ -327,7 +342,7 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	JobTenderApplicationType := &structs.JobTenderApplications{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_applications.json", JobTenderApplicationType)
@@ -349,7 +364,7 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 
 	var updatedData = append(JobTenderApplicationData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_applications.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_applications.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -372,7 +387,7 @@ var JobTenderApplicationDeleteResolver = func(params graphql.ResolveParams) (int
 		JobTenderApplicationData = shared.FilterByProperty(JobTenderApplicationData, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_applications.json"), JobTenderApplicationData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_applications.json"), JobTenderApplicationData)
 
 	return map[string]interface{}{
 		"status":  "success",

@@ -59,7 +59,7 @@ var BasicInventoryInsertField = &graphql.Field{
 	Description: "Creates new or alter existing Basic Inventory",
 	Args: graphql.FieldConfigArgument{
 		"data": &graphql.ArgumentConfig{
-			Type: graphql.NewList(mutations.BasicInventoryInsertMutation),
+			Type: graphql.NewNonNull(mutations.BasicInventoryInsertMutation),
 		},
 	},
 	Resolve: resolvers.BasicInventoryInsertResolver,

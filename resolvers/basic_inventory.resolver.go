@@ -69,38 +69,6 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 			}
 		}
 
-		if mergedItem["organization_unit_id"].(int) > 0 {
-			var relatedOfficesOrganizationUnit = shared.FetchByProperty(
-				"organization_unit",
-				"Id",
-				mergedItem["organization_unit_id"],
-			)
-			if len(relatedOfficesOrganizationUnit) > 0 {
-				var relatedOrganizationUnit = shared.WriteStructToInterface(relatedOfficesOrganizationUnit[0])
-
-				mergedItem["organization_unit"] = map[string]interface{}{
-					"title": relatedOrganizationUnit["title"],
-					"id":    relatedOrganizationUnit["id"],
-				}
-			}
-		}
-
-		if mergedItem["target_organization_unit_id"].(int) > 0 {
-			var relatedOfficesOrganizationUnit = shared.FetchByProperty(
-				"organization_unit",
-				"Id",
-				mergedItem["target_organization_unit_id"],
-			)
-			if len(relatedOfficesOrganizationUnit) > 0 {
-				var relatedOrganizationUnit = shared.WriteStructToInterface(relatedOfficesOrganizationUnit[0])
-
-				mergedItem["target_organization_unit"] = map[string]interface{}{
-					"title": relatedOrganizationUnit["title"],
-					"id":    relatedOrganizationUnit["id"],
-				}
-			}
-		}
-
 		if shared.IsInteger(mergedItem["class_type_id"]) && mergedItem["class_type_id"].(int) > 0 {
 			var relatedInventoryClassType = shared.FetchByProperty(
 				"inventory_class_type",
@@ -181,7 +149,6 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 				mergedItem["real_estate"] = map[string]interface{}{
 					"id":                         relatedRealEstate["id"],
 					"title":                      relatedRealEstate["title"],
-					"type_id":                    relatedRealEstate["type_id"],
 					"square_area":                relatedRealEstate["square_area"],
 					"land_serial_number":         relatedRealEstate["land_serial_number"],
 					"estate_serial_number":       relatedRealEstate["estate_serial_number"],
@@ -189,9 +156,6 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 					"ownership_scope":            relatedRealEstate["ownership_scope"],
 					"ownership_investment_scope": relatedRealEstate["ownership_investment_scope"],
 					"limitations_description":    relatedRealEstate["limitations_description"],
-					"property_document":          relatedRealEstate["property_document"],
-					"limitation_id":              relatedRealEstate["limitation_id"],
-					"document":                   relatedRealEstate["document"],
 					"file_id":                    relatedRealEstate["file_id"],
 				}
 			}
@@ -391,65 +355,60 @@ var BasicInventoryDetailsResolver = func(params graphql.ResolveParams) (interfac
 
 var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
-	var dataArray []structs.BasicInventoryInsertItem
+	var data structs.BasicInventoryInsertItem
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	BasicInventoryType := &structs.BasicInventoryInsertItem{}
-	var results []interface{}
-	_ = json.Unmarshal(dataBytes, &dataArray)
 
-	if len(dataArray) > 0 {
-		for _, data := range dataArray {
-			itemId := data.Id
+	_ = json.Unmarshal(dataBytes, &data)
 
-			basicInventoryData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
+	itemId := data.Id
 
-			if err != nil {
-				fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
-			}
+	basicInventoryData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
 
-			if shared.IsInteger(itemId) && itemId != 0 {
-				basicInventoryData = shared.FilterByProperty(basicInventoryData, "Id", itemId)
-			} else {
-				data.Id = shared.GetRandomNumber()
-			}
-			if data.Type == "immovable" && data.RealEstate != nil && shared.IsString(data.RealEstate.Title) && data.RealEstate.Title != "" {
-				RealEstateType := &structs.BasicInventoryRealEstatesItem{}
-				realEstateData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_real_estates.json", RealEstateType)
-
-				if err != nil {
-					fmt.Printf("Fetching Basic Inventory Real Estates failed because of this error - %s.\n", err)
-				}
-
-				realEstateItemId := data.RealEstate.Id
-
-				if shared.IsInteger(realEstateItemId) && realEstateItemId != 0 {
-					realEstateData = shared.FilterByProperty(realEstateData, "Id", realEstateItemId)
-				} else {
-					data.RealEstate.Id = shared.GetRandomNumber()
-				}
-
-				data.RealEstateId = data.RealEstate.Id
-				var updatedDataRealEstate = append(realEstateData, data.RealEstate)
-				_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_real_estates.json"), updatedDataRealEstate)
-
-			}
-
-			data.RealEstate = nil
-
-			var updatedData = append(basicInventoryData, data)
-
-			// Populate data for each Basic Inventory
-			sliceData := []interface{}{data}
-			var populatedData = PopulateBasicInventoryItemProperties(sliceData, data.OrganizationUnitId, itemId, "", 0, 0, "", "", 0)
-			results = append(results, populatedData[0])
-
-			_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_items.json"), updatedData)
-
-		}
+	if err != nil {
+		fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
 	}
+
+	sliceData := []interface{}{data}
+
+	// Populate data for each Basic Inventory
+	var populatedData = PopulateBasicInventoryItemProperties(sliceData, data.OrganizationUnitId, itemId, "", 0, 0, "", "", 0)
+
+	if shared.IsInteger(itemId) && itemId != 0 {
+		basicInventoryData = shared.FilterByProperty(basicInventoryData, "Id", itemId)
+	} else {
+		data.Id = shared.GetRandomNumber()
+	}
+	if data.Type == "immovable" && data.RealEstate != nil && shared.IsString(data.RealEstate.Title) && data.RealEstate.Title != "" {
+		RealEstateType := &structs.BasicInventoryRealEstatesItem{}
+		realEstateData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_real_estates.json", RealEstateType)
+
+		if err != nil {
+			fmt.Printf("Fetching Basic Inventory Real Estates failed because of this error - %s.\n", err)
+		}
+
+		realEstateItemId := data.RealEstate.Id
+
+		if shared.IsInteger(realEstateItemId) && realEstateItemId != 0 {
+			realEstateData = shared.FilterByProperty(realEstateData, "Id", realEstateItemId)
+		} else {
+			data.RealEstate.Id = shared.GetRandomNumber()
+		}
+
+		data.RealEstateId = data.RealEstate.Id
+		var updatedDataRealEstate = append(realEstateData, data.RealEstate)
+		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_real_estates.json"), updatedDataRealEstate)
+	}
+
+	data.RealEstate = nil
+
+	var updatedData = append(basicInventoryData, data)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_items.json"), updatedData)
+
 	return map[string]interface{}{
 		"status":  "success",
 		"message": "You updated this item!",
-		"item":    results,
+		"item":    populatedData[0],
 	}, nil
 }

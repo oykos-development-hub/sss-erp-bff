@@ -56,7 +56,7 @@ var SettingsDropdownInsertResolver = func(params graphql.ResolveParams) (interfa
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	SettingsDropdownType := &structs.SettingsDropdown{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
@@ -79,7 +79,7 @@ var SettingsDropdownInsertResolver = func(params graphql.ResolveParams) (interfa
 
 		var updatedData = append(SettingsDropdownData, data)
 
-		shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+entity.(string)+".json"), updatedData)
+		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+entity.(string)+".json"), updatedData)
 
 		status = "success"
 		item = data
@@ -114,7 +114,7 @@ var SettingsDropdownDeleteResolver = func(params graphql.ResolveParams) (interfa
 			SettingsDropdownData = shared.FilterByProperty(SettingsDropdownData, "Id", itemId)
 		}
 
-		shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+entity.(string)+".json"), SettingsDropdownData)
+		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+entity.(string)+".json"), SettingsDropdownData)
 
 		status = "success"
 	}

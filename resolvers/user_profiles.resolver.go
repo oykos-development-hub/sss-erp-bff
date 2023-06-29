@@ -5,8 +5,9 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"github.com/graphql-go/graphql"
 	"reflect"
+
+	"github.com/graphql-go/graphql"
 )
 
 func UpdateRelatedUserAccount(userAccountId int, newData map[string]interface{}) map[string]interface{} {
@@ -16,12 +17,6 @@ func UpdateRelatedUserAccount(userAccountId int, newData map[string]interface{})
 
 	// # Related User Account
 	if len(relatedUserAccount) > 0 {
-		relatedUserAccountValue := reflect.ValueOf(relatedUserAccount[0])
-
-		if relatedUserAccountValue.Kind() == reflect.Ptr {
-			relatedUserAccountValue = relatedUserAccountValue.Elem()
-		}
-
 		var userAccountData = shared.WriteStructToInterface(relatedUserAccount[0])
 
 		allUserAccounts = shared.FilterByProperty(allUserAccounts, "Id", userAccountData["id"])
@@ -36,7 +31,7 @@ func UpdateRelatedUserAccount(userAccountId int, newData map[string]interface{})
 
 	var updatedData = append(allUserAccounts, newData)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_accounts.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_accounts.json"), updatedData)
 
 	return newData
 }
@@ -59,8 +54,6 @@ var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface
 	if UserProfilesDataErr != nil {
 		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
 	}
-
-	total = len(UserProfilesData)
 
 	// Fetch User Account data for each User Profile
 	for _, item := range UserProfilesData {
@@ -441,8 +434,8 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	UserProfileBasicType := &structs.UserProfiles{}
 
-	json.Unmarshal(dataBytes, &data)
-	json.Unmarshal(dataBytes, &dataStruct)
+	_ = json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &dataStruct)
 
 	itemId := dataStruct.Id
 	userProfileBasicData, userProfileBasicDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfileBasicType)
@@ -479,7 +472,7 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 
 	var updatedData = append(userProfileBasicData, newData)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profiles.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profiles.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -563,7 +556,7 @@ var UserProfileEducationInsertResolver = func(params graphql.ResolveParams) (int
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	EducationType := &structs.Education{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	educationData, educationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/educations.json", EducationType)
@@ -580,7 +573,7 @@ var UserProfileEducationInsertResolver = func(params graphql.ResolveParams) (int
 
 	var updatedData = append(educationData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/educations.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/educations.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -603,7 +596,7 @@ var UserProfileEducationDeleteResolver = func(params graphql.ResolveParams) (int
 		educationData = shared.FilterByProperty(educationData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/educations.json"), educationData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/educations.json"), educationData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -659,7 +652,7 @@ var UserProfileExperienceInsertResolver = func(params graphql.ResolveParams) (in
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	ExperienceType := &structs.Experience{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	ExperienceData, ExperienceDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_experiences.json", ExperienceType)
@@ -676,7 +669,7 @@ var UserProfileExperienceInsertResolver = func(params graphql.ResolveParams) (in
 
 	var updatedData = append(ExperienceData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_experiences.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_experiences.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -699,7 +692,7 @@ var UserProfileExperienceDeleteResolver = func(params graphql.ResolveParams) (in
 		ExperienceData = shared.FilterByProperty(ExperienceData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_experiences.json"), ExperienceData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_experiences.json"), ExperienceData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -755,7 +748,7 @@ var UserProfileFamilyInsertResolver = func(params graphql.ResolveParams) (interf
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	FamilyType := &structs.Family{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	FamilyData, FamilyDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_family.json", FamilyType)
@@ -772,7 +765,7 @@ var UserProfileFamilyInsertResolver = func(params graphql.ResolveParams) (interf
 
 	var updatedData = append(FamilyData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_family.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_family.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -795,7 +788,7 @@ var UserProfileFamilyDeleteResolver = func(params graphql.ResolveParams) (interf
 		FamilyData = shared.FilterByProperty(FamilyData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_family.json"), FamilyData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_family.json"), FamilyData)
 
 	return map[string]interface{}{
 		"status":  "success",

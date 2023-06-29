@@ -5,6 +5,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -56,7 +57,7 @@ var UserProfileEvaluationResolver = func(params graphql.ResolveParams) (interfac
 			var relatedEvaluationItemData = shared.WriteStructToInterface(relatedEvaluationItem)
 			var relatedEvaluationType = shared.FindByProperty(evaluationTypes, "Id", relatedEvaluationItemData["evaluation_type_id"])
 
-			if relatedEvaluationType != nil && len(relatedEvaluationType) > 0 {
+			if len(relatedEvaluationType) > 0 {
 				var relatedEvaluationData = shared.WriteStructToInterface(relatedEvaluationType[0])
 
 				relatedEvaluationItemData["evaluation_type"] = map[string]interface{}{
@@ -82,7 +83,7 @@ var UserProfileEvaluationInsertResolver = func(params graphql.ResolveParams) (in
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	EvaluationType := &structs.Evaluation{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	evaluationData, evaluationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_evaluations.json", EvaluationType)
@@ -99,7 +100,7 @@ var UserProfileEvaluationInsertResolver = func(params graphql.ResolveParams) (in
 
 	var updatedData = append(evaluationData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_evaluations.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_evaluations.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -122,7 +123,7 @@ var UserProfileEvaluationDeleteResolver = func(params graphql.ResolveParams) (in
 		evaluationData = shared.FilterByProperty(evaluationData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_evaluations.json"), evaluationData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_evaluations.json"), evaluationData)
 
 	return map[string]interface{}{
 		"status":  "success",

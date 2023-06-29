@@ -5,8 +5,9 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"github.com/graphql-go/graphql"
 	"reflect"
+
+	"github.com/graphql-go/graphql"
 )
 
 func PopulateRevisionItemProperties(revisions []interface{}, filters ...int) []interface{} {
@@ -74,12 +75,6 @@ func PopulateRevisionItemProperties(revisions []interface{}, filters ...int) []i
 		)
 
 		if len(relatedRevisorUserProfile) > 0 {
-			relatedRevisorUserProfileValue := reflect.ValueOf(relatedRevisorUserProfile[0])
-
-			if relatedRevisorUserProfileValue.Kind() == reflect.Ptr {
-				relatedRevisorUserProfileValue = relatedRevisorUserProfileValue.Elem()
-			}
-
 			var relatedRevisor = shared.WriteStructToInterface(relatedRevisorUserProfile[0])
 
 			mergedItem["revisor_user_profile"] = map[string]interface{}{
@@ -117,12 +112,6 @@ func PopulateRevisionItemProperties(revisions []interface{}, filters ...int) []i
 			)
 
 			if len(responsibleUserProfile) > 0 {
-				responsibleUserProfileValue := reflect.ValueOf(responsibleUserProfile[0])
-
-				if responsibleUserProfileValue.Kind() == reflect.Ptr {
-					responsibleUserProfileValue = responsibleUserProfileValue.Elem()
-				}
-
 				var responsibleUser = shared.WriteStructToInterface(responsibleUserProfile[0])
 
 				mergedItem["responsible_user_profile"] = map[string]interface{}{
@@ -147,12 +136,6 @@ func PopulateRevisionItemProperties(revisions []interface{}, filters ...int) []i
 			)
 
 			if len(implementationUserProfile) > 0 {
-				implementationUserProfileValue := reflect.ValueOf(implementationUserProfile[0])
-
-				if implementationUserProfileValue.Kind() == reflect.Ptr {
-					implementationUserProfileValue = implementationUserProfileValue.Elem()
-				}
-
 				var implementationUser = shared.WriteStructToInterface(implementationUserProfile[0])
 
 				mergedItem["implementation_user_profile"] = map[string]interface{}{
@@ -205,10 +188,9 @@ var RevisionsOverviewResolver = func(params graphql.ResolveParams) (interface{},
 		fmt.Printf("Fetching Revisions failed because of this error - %s.\n", RevisionsDataErr)
 	}
 
-	total = len(RevisionsData)
-
 	// Populate data for each Revision with Revision Type, Revision User, Responsible User, Implementation User, Organization Unit
 	items = PopulateRevisionItemProperties(RevisionsData, id, organizationUnitId, revisorUserProfileId)
+
 	// All Revisor User Profile
 	var revisorUserProfiles = shared.FetchByProperty(
 		"user_profile",
@@ -275,7 +257,7 @@ var RevisionInsertResolver = func(params graphql.ResolveParams) (interface{}, er
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	RevisionType := &structs.Revision{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	revisionData, revisionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/revisions.json", RevisionType)
@@ -296,7 +278,7 @@ var RevisionInsertResolver = func(params graphql.ResolveParams) (interface{}, er
 
 	var updatedData = append(revisionData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/revisions.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/revisions.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -319,7 +301,7 @@ var RevisionDeleteResolver = func(params graphql.ResolveParams) (interface{}, er
 		revisionData = shared.FilterByProperty(revisionData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/revisions.json"), revisionData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/revisions.json"), revisionData)
 
 	return map[string]interface{}{
 		"status":  "success",

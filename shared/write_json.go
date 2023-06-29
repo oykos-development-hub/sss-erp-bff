@@ -3,7 +3,7 @@ package shared
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"os"
 )
 
 func WriteJson(path string, data []interface{}) error {
@@ -20,7 +20,7 @@ func WriteJson(path string, data []interface{}) error {
 		return errors.New("Argument 'data' cannot be converted to JSON object!")
 	}
 	// Write the JSON data to a file
-	err = ioutil.WriteFile(path, jsonData, 0644)
+	err = os.WriteFile(path, jsonData, 0644)
 
 	if err != nil {
 		return errors.New("Data cannot be writen to a file on provided path!")

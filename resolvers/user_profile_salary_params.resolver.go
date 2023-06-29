@@ -5,6 +5,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -56,7 +57,7 @@ var UserProfileSalaryParamsInsertResolver = func(params graphql.ResolveParams) (
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	SalaryParamsType := &structs.SalaryParams{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	SalaryParamsData, SalaryParamsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_salary_params.json", SalaryParamsType)
@@ -73,7 +74,7 @@ var UserProfileSalaryParamsInsertResolver = func(params graphql.ResolveParams) (
 
 	var updatedData = append(SalaryParamsData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_salary_params.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_salary_params.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -96,7 +97,7 @@ var UserProfileSalaryParamsDeleteResolver = func(params graphql.ResolveParams) (
 		SalaryParamsData = shared.FilterByProperty(SalaryParamsData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_salary_params.json"), SalaryParamsData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_salary_params.json"), SalaryParamsData)
 
 	return map[string]interface{}{
 		"status":  "success",

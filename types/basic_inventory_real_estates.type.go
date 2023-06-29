@@ -11,6 +11,9 @@ var BasicInventoryRealEstatesItemType = graphql.NewObject(graphql.ObjectConfig{
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},
+		"type_id": &graphql.Field{
+			Type: graphql.String,
+		},
 		"square_area": &graphql.Field{
 			Type: graphql.Int,
 		},
@@ -30,6 +33,15 @@ var BasicInventoryRealEstatesItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"limitations_description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"property_document": &graphql.Field{
+			Type: graphql.String,
+		},
+		"limitation_id": &graphql.Field{
+			Type: graphql.String,
+		},
+		"document": &graphql.Field{
 			Type: graphql.String,
 		},
 		"file_id": &graphql.Field{

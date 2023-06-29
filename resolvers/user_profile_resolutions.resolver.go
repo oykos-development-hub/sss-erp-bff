@@ -5,6 +5,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -56,7 +57,7 @@ var UserProfileResolutionResolver = func(params graphql.ResolveParams) (interfac
 			var relatedResolutionItemData = shared.WriteStructToInterface(relatedResolutionItem)
 			var relatedResolutionType = shared.FindByProperty(resolutionTypes, "Id", relatedResolutionItemData["resolution_type_id"])
 
-			if relatedResolutionType != nil && len(relatedResolutionType) > 0 {
+			if len(relatedResolutionType) > 0 {
 				var relatedResolutionData = shared.WriteStructToInterface(relatedResolutionType[0])
 
 				relatedResolutionItemData["resolution_type"] = map[string]interface{}{
@@ -82,7 +83,7 @@ var UserProfileResolutionInsertResolver = func(params graphql.ResolveParams) (in
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	ResolutionType := &structs.Resolution{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	resolutionData, resolutionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_resolutions.json", ResolutionType)
@@ -99,7 +100,7 @@ var UserProfileResolutionInsertResolver = func(params graphql.ResolveParams) (in
 
 	var updatedData = append(resolutionData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_resolutions.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_resolutions.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -122,7 +123,7 @@ var UserProfileResolutionDeleteResolver = func(params graphql.ResolveParams) (in
 		resolutionData = shared.FilterByProperty(resolutionData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_resolutions.json"), resolutionData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_resolutions.json"), resolutionData)
 
 	return map[string]interface{}{
 		"status":  "success",

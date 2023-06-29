@@ -5,6 +5,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -56,7 +57,7 @@ var UserProfileForeignerInsertResolver = func(params graphql.ResolveParams) (int
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	ForeignerType := &structs.Foreigners{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	ForeignerData, ForeignerDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_foreigners.json", ForeignerType)
@@ -73,7 +74,7 @@ var UserProfileForeignerInsertResolver = func(params graphql.ResolveParams) (int
 
 	var updatedData = append(ForeignerData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_foreigners.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_foreigners.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -96,7 +97,7 @@ var UserProfileForeignerDeleteResolver = func(params graphql.ResolveParams) (int
 		ForeignerData = shared.FilterByProperty(ForeignerData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_foreigners.json"), ForeignerData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_foreigners.json"), ForeignerData)
 
 	return map[string]interface{}{
 		"status":  "success",

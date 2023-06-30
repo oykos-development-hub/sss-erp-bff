@@ -180,5 +180,5 @@ func main() {
 	graphqlHandler := extractTokenMiddleware(corsHandler(h))
 	// Start your HTTP server with the CORS-enabled handler
 	http.Handle("/", graphqlHandler)
-	_ = http.ListenAndServe(":80", nil)
+	_ = http.ListenAndServe(":8080", nil)
 }

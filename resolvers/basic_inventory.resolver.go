@@ -180,7 +180,6 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 
 				mergedItem["real_estate"] = map[string]interface{}{
 					"id":                         relatedRealEstate["id"],
-					"title":                      relatedRealEstate["title"],
 					"type_id":                    relatedRealEstate["type_id"],
 					"square_area":                relatedRealEstate["square_area"],
 					"land_serial_number":         relatedRealEstate["land_serial_number"],
@@ -412,7 +411,7 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 			} else {
 				data.Id = shared.GetRandomNumber()
 			}
-			if data.Type == "immovable" && data.RealEstate != nil && shared.IsString(data.RealEstate.Title) && data.RealEstate.Title != "" {
+			if data.Type == "immovable" && data.RealEstate != nil && shared.IsString(data.RealEstate.TypeId) && data.RealEstate.TypeId != "" {
 				RealEstateType := &structs.BasicInventoryRealEstatesItem{}
 				realEstateData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_real_estates.json", RealEstateType)
 

@@ -215,7 +215,7 @@
     "id": 32,
     "parent_id": 3,
     "read": true,
-    "route": "/procurements/contract",
+    "route": "/procurements/contracts",
     "title": "Ugovori",
     "update": true
   }

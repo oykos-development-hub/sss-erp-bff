@@ -1,7 +1,6 @@
 [
   {
     "id": 1,
-    "title": "Test",
     "type_id": "Test",
     "square_area": 1,
     "land_serial_number": "Test",
@@ -17,7 +16,6 @@
   },
   {
     "id": 5,
-    "title": "Zagoric test",
     "type_id": "Test",
     "square_area": 5,
     "land_serial_number": "5231",
@@ -33,7 +31,6 @@
   },
   {
     "id": 28772,
-    "title": "test",
     "type_id": "NNS",
     "square_area": 1,
     "land_serial_number": "231324",

@@ -116,9 +116,6 @@ var RealEstateInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"title": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"type_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

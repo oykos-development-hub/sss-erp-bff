@@ -242,7 +242,7 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 			if len(basicInventoryDispatchItemsData) > 0 {
 				for _, i := range basicInventoryDispatchItemsData {
 					if m, ok := i.(*structs.BasicInventoryDispatchItemsItem); ok {
-						basicInventoryDispatchItem := PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchData, m.DispatchId, "", 0)
+						basicInventoryDispatchItem := PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchData, m.DispatchId, "", 0, organizationUnitId)
 						if len(basicInventoryDispatchItem) > 0 {
 							movements, ok := mergedItem["movements"].([]interface{})
 							if ok {
@@ -273,6 +273,8 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	var search string
 	var sourceType string
 	var depreciationTypeId int
+
+	var authToken = params.Context.Value("token").(string)
 
 	if params.Args["id"] == nil {
 		id = 0
@@ -316,11 +318,17 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 		depreciationTypeId = params.Args["depreciation_type_id"].(int)
 	}
 
-	if params.Args["organization_unit_id"] == nil {
-		organizationUnitId = 0
+	if authToken == "sss" {
+		organizationUnitId = 1
 	} else {
-		organizationUnitId = params.Args["organization_unit_id"].(int)
+		organizationUnitId = 2
 	}
+
+	// if params.Args["organization_unit_id"] == nil {
+	// 	organizationUnitId = 0
+	// } else {
+	// 	organizationUnitId = params.Args["organization_unit_id"].(int)
+	// }
 
 	page := params.Args["page"]
 	size := params.Args["size"]
@@ -365,11 +373,18 @@ var BasicInventoryDetailsResolver = func(params graphql.ResolveParams) (interfac
 		id = params.Args["id"].(int)
 	}
 
-	if params.Args["organization_unit_id"] == nil {
-		organizationUnitId = 0
+	var authToken = params.Context.Value("token").(string)
+	if authToken == "sss" {
+		organizationUnitId = 1
 	} else {
-		organizationUnitId = params.Args["organization_unit_id"].(int)
+		organizationUnitId = 2
 	}
+
+	// if params.Args["organization_unit_id"] == nil {
+	// 	organizationUnitId = 0
+	// } else {
+	// 	organizationUnitId = params.Args["organization_unit_id"].(int)
+	// }
 
 	BasicInventoryDetailsType := &structs.BasicInventoryDetailsItem{}
 	BasicInventoryDetailsData, BasicInventoryDataErr := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryDetailsType)
@@ -393,12 +408,21 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 	var dataArray []structs.BasicInventoryInsertItem
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	BasicInventoryType := &structs.BasicInventoryInsertItem{}
+	var organizationUnitId int
 	var results []interface{}
 	_ = json.Unmarshal(dataBytes, &dataArray)
+
+	var authToken = params.Context.Value("token").(string)
+	if authToken == "sss" {
+		organizationUnitId = 1
+	} else {
+		organizationUnitId = 2
+	}
 
 	if len(dataArray) > 0 {
 		for _, data := range dataArray {
 			itemId := data.Id
+			data.OrganizationUnitId = organizationUnitId
 
 			basicInventoryData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
 

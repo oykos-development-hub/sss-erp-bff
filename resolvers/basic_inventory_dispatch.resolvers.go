@@ -259,13 +259,6 @@ var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (i
 
 	itemId := data.Id
 	targetOrganizationUnitId := data.TargetOrganizationUnitId
-	var organizationUnitId int
-	var authToken = params.Context.Value("token").(string)
-	if authToken == "sss" {
-		organizationUnitId = 1
-	} else {
-		organizationUnitId = 2
-	}
 
 	basicInventoryDispatchData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch.json", BasicInventoryDispatchType)
 
@@ -352,7 +345,7 @@ var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (i
 	sliceData := []interface{}{data}
 
 	// Populate data for each Basic Inventory
-	var populatedData = PopulateBasicInventoryDispatchItemProperties(sliceData, itemId, "", 0, organizationUnitId)
+	var populatedData = PopulateBasicInventoryDispatchItemProperties(sliceData, itemId, "", 0, 0)
 
 	return map[string]interface{}{
 		"status":  "success",

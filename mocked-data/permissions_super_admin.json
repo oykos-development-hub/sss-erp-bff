@@ -175,7 +175,7 @@
     "id": 551,
     "parent_id": 55,
     "read": true,
-    "route": "/hr/job-tenders",
+    "route": "/hr/job-tenders/job-tenders-list",
     "title": "Pregled svih oglasa",
     "update": true
   },
@@ -185,7 +185,7 @@
     "id": 552,
     "parent_id": 55,
     "read": true,
-    "route": "/hr/job-tender-applications",
+    "route": "/hr/job-tenders/job-tender-applications",
     "title": "Pregled svih kandidata",
     "update": true
   },

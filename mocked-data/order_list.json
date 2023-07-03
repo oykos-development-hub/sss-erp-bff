@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "data_order": "2021-09-14T14:00:00.000000Z",
+    "total_price": 0,
+    "public_procurement_id": 1,
+    "supplier_id": 1,
+    "status": "Created",
+    "date_system": "",
+    "invoice_date": "2021-09-14T14:00:00.000000Z",
+    "invoice_number": "248192730521"
+  },
+  {
+    "id": 66947,
+    "data_order": "2022-02-01T00:00:00Z",
+    "total_price": 0,
+    "public_procurement_id": 1,
+    "supplier_id": 0,
+    "status": "Created",
+    "date_system": "",
+    "invoice_date": "",
+    "invoice_number": ""
+  }
+]

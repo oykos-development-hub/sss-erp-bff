@@ -104,6 +104,9 @@ func main() {
 			"basicInventoryDepreciationTypes_Delete":          fields.BasicInventoryDepreciationTypesDeleteField,
 			"officesOfOrganizationUnits_Insert":               fields.OfficesOfOrganizationUnitInsertField,
 			"officesOfOrganizationUnits_Delete":               fields.OfficesOfOrganizationUnitDeleteField,
+			"orderList_Insert":                                fields.OrderListInsertField,
+			"orderList_Receive":                               fields.OrderListReceiveField,
+			"orderList_Movement":                              fields.OrderListAssetMovementField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -150,6 +153,8 @@ func main() {
 			"basicInventoryRealEstates_Overview":                 fields.BasicInventoryRealEstatesOverviewField,
 			"officesOfOrganizationUnits_Overview":                fields.OfficesOfOrganizationUnitOverviewField,
 			"basicInventoryDispatch_Overview":                    fields.BasicInventoryDispatchOverviewField,
+			"orderList_Overview":                                 fields.OrderListOverviewField,
+			"orderProcurementAvailableList_Overview":             fields.OrderProcurementAvailableField,
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

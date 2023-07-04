@@ -56,6 +56,6 @@ type OrderReceiveItem struct {
 }
 
 type OrderAssetMovementItem struct {
-	OrderId  int `json:"id"`
+	OrderId  int `json:"order_id"`
 	OfficeId int `json:"office_id"`
 }

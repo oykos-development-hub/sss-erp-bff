@@ -523,7 +523,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 	newItem := structs.OrderListItem{}
 
 	for _, item := range order {
-		if updateOrder, ok := item.(structs.OrderListItem); ok {
+		if updateOrder, ok := item.(*structs.OrderListItem); ok {
 			newItem.Id = updateOrder.Id
 			newItem.DataOrder = updateOrder.DataOrder
 			newItem.TotalPrice = updateOrder.TotalPrice

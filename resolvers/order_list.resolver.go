@@ -478,19 +478,18 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	order := shared.FindByProperty(orderListData, "Id", data.OrderId)
 	orderListData = shared.FilterByProperty(orderListData, "Id", data.OrderId)
 	newItem := structs.OrderListItem{}
-	currentTime := time.Now().UTC()
-	timeString := currentTime.Format("2006-01-02 15:04:05")
+
 	for _, item := range order {
-		if updateOrder, ok := item.(structs.OrderListItem); ok {
+		if updateOrder, ok := item.(*structs.OrderListItem); ok {
 			newItem.Id = updateOrder.Id
 			newItem.DataOrder = updateOrder.DataOrder
 			newItem.TotalPrice = updateOrder.TotalPrice
 			newItem.PublicProcurementId = updateOrder.PublicProcurementId
 			newItem.SupplierId = updateOrder.SupplierId
 			newItem.Status = "Received"
-			newItem.DateSystem = updateOrder.DateSystem
-			newItem.InvoiceDate = timeString
-			newItem.InvoiceNumber = updateOrder.InvoiceNumber
+			newItem.DateSystem = data.DateSystem
+			newItem.InvoiceDate = data.InvoiceDate
+			newItem.InvoiceNumber = data.InvoiceNumber
 		}
 	}
 
@@ -522,8 +521,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 	order := shared.FindByProperty(orderListData, "Id", data.OrderId)
 	orderListData = shared.FilterByProperty(orderListData, "Id", data.OrderId)
 	newItem := structs.OrderListItem{}
-	currentTime := time.Now().UTC()
-	timeString := currentTime.Format("2006-01-02 15:04:05")
+
 	for _, item := range order {
 		if updateOrder, ok := item.(structs.OrderListItem); ok {
 			newItem.Id = updateOrder.Id
@@ -536,7 +534,6 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			newItem.InvoiceDate = updateOrder.InvoiceDate
 			newItem.InvoiceNumber = updateOrder.InvoiceNumber
 			newItem.OfficeId = data.OfficeId
-			newItem.MovementDate = timeString
 		}
 	}
 

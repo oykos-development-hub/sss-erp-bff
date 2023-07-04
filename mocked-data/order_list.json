@@ -48,6 +48,7 @@
     "date_system": "",
     "invoice_date": "",
     "invoice_number": "",
+    "movement_date": "",
     "office_id": 0,
     "organization_unit_id": 0
   }

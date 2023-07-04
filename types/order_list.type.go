@@ -31,6 +31,15 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		"office": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"invoice_date": &graphql.Field{
+			Type: graphql.String,
+		},
+		"invoice_number": &graphql.Field{
+			Type: graphql.String,
+		},
+		"movement_date": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })
 

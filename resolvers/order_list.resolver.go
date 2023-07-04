@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -385,9 +386,12 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 		}
 	}
 
+	currentTime := time.Now().UTC()
+	timeString := currentTime.Format("2006-01-02 15:04:05")
+
 	newItem := structs.OrderListItem{
 		Id:                  data.Id,
-		DataOrder:           data.DataOrder,
+		DataOrder:           timeString,
 		TotalPrice:          totalPrice,
 		PublicProcurementId: data.PublicProcurementId,
 		SupplierId:          data.SupplierId,
@@ -474,6 +478,8 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	order := shared.FindByProperty(orderListData, "Id", data.OrderId)
 	orderListData = shared.FilterByProperty(orderListData, "Id", data.OrderId)
 	newItem := structs.OrderListItem{}
+	currentTime := time.Now().UTC()
+	timeString := currentTime.Format("2006-01-02 15:04:05")
 	for _, item := range order {
 		if updateOrder, ok := item.(structs.OrderListItem); ok {
 			newItem.Id = updateOrder.Id
@@ -483,7 +489,7 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 			newItem.SupplierId = updateOrder.SupplierId
 			newItem.Status = "Received"
 			newItem.DateSystem = updateOrder.DateSystem
-			newItem.InvoiceDate = updateOrder.InvoiceDate
+			newItem.InvoiceDate = timeString
 			newItem.InvoiceNumber = updateOrder.InvoiceNumber
 		}
 	}
@@ -516,6 +522,8 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 	order := shared.FindByProperty(orderListData, "Id", data.OrderId)
 	orderListData = shared.FilterByProperty(orderListData, "Id", data.OrderId)
 	newItem := structs.OrderListItem{}
+	currentTime := time.Now().UTC()
+	timeString := currentTime.Format("2006-01-02 15:04:05")
 	for _, item := range order {
 		if updateOrder, ok := item.(structs.OrderListItem); ok {
 			newItem.Id = updateOrder.Id
@@ -528,6 +536,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			newItem.InvoiceDate = updateOrder.InvoiceDate
 			newItem.InvoiceNumber = updateOrder.InvoiceNumber
 			newItem.OfficeId = data.OfficeId
+			newItem.MovementDate = timeString
 		}
 	}
 

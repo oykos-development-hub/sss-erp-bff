@@ -12,6 +12,7 @@ type OrderListItem struct {
 	InvoiceNumber       string `json:"invoice_number"`
 	OrganizationUnitId  int    `json:"organization_unit_id"`
 	OfficeId            int    `json:"office_id"`
+	MovementDate        string `json:"movement_date"`
 }
 
 type OrderProcurementArticleItem struct {

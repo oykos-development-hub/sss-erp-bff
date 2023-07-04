@@ -11,7 +11,7 @@ type OrderListItem struct {
 	InvoiceDate         string `json:"invoice_date"`
 	InvoiceNumber       string `json:"invoice_number"`
 	OrganizationUnitId  int    `json:"organization_unit_id"`
-	UserProfileId       int    `json:"user_profile_id"`
+	OfficeId            int    `json:"office_id"`
 }
 
 type OrderProcurementArticleItem struct {
@@ -57,7 +57,6 @@ type OrderReceiveItem struct {
 }
 
 type OrderAssetMovementItem struct {
-	OrderId            int `json:"id"`
-	OrganizationUnitId int `json:"organization_unit_id"`
-	UserProfileId      int `json:"user_profile_id"`
+	OrderId  int `json:"id"`
+	OfficeId int `json:"office_id"`
 }

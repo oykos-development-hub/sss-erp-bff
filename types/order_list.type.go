@@ -28,10 +28,7 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		"articles": &graphql.Field{
 			Type: graphql.NewList(OrderListProcurementAvailableArticlesType),
 		},
-		"user_profile": &graphql.Field{
-			Type: DropdownItemType,
-		},
-		"organization_unit": &graphql.Field{
+		"office": &graphql.Field{
 			Type: DropdownItemType,
 		},
 	},
@@ -69,30 +66,6 @@ var OrderProcurementAvailableType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"items": &graphql.Field{
 			Type: graphql.NewList(OrderListProcurementAvailableArticlesType),
-		},
-	},
-})
-
-var OrderItemType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "OrderItem",
-	Fields: graphql.Fields{
-		"id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"data_order": &graphql.Field{
-			Type: graphql.String,
-		},
-		"total_price": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"public_procurement": &graphql.Field{
-			Type: OrderListPublicProcurementArticlesType,
-		},
-		"supplier": &graphql.Field{
-			Type: DropdownItemType,
-		},
-		"status": &graphql.Field{
-			Type: graphql.String,
 		},
 	},
 })

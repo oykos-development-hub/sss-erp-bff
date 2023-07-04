@@ -53,10 +53,7 @@ var OrderListAssetMovementMutation = graphql.NewInputObject(graphql.InputObjectC
 		"order_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"organization_unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
-		},
-		"user_profile_id": &graphql.InputObjectFieldConfig{
+		"office_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 	},

@@ -15,7 +15,7 @@ func PopulateOrderListItemProperties(OrderList []interface{}, id int, supplierId
 	var items []interface{}
 
 	for _, item := range OrderList {
-
+		var totalPrice int
 		var mergedItem = shared.WriteStructToInterface(item)
 
 		// Filtering by ID
@@ -43,25 +43,6 @@ func PopulateOrderListItemProperties(OrderList []interface{}, id int, supplierId
 			continue
 		}
 
-		if shared.IsInteger(mergedItem["supplier_id"]) && mergedItem["supplier_id"] != 0 {
-			var relatedSuppliers = shared.FetchByProperty(
-				"suppliers",
-				"Id",
-				mergedItem["supplier_id"],
-			)
-
-			if len(relatedSuppliers) > 0 {
-				for _, supplierData := range relatedSuppliers {
-					var supplier = shared.WriteStructToInterface(supplierData)
-
-					mergedItem["supplier"] = map[string]interface{}{
-						"id":    supplier["id"],
-						"title": supplier["title"],
-					}
-				}
-			}
-		}
-
 		if shared.IsInteger(mergedItem["public_procurement_id"]) && mergedItem["public_procurement_id"] != 0 {
 			var relatedProcurement = shared.FetchByProperty(
 				"procurement",
@@ -77,95 +58,103 @@ func PopulateOrderListItemProperties(OrderList []interface{}, id int, supplierId
 						"id":    procurement["id"],
 						"title": procurement["title"],
 					}
+
 				}
 			}
 		}
 
-		if shared.IsInteger(mergedItem["organization_unit_id"]) && mergedItem["organization_unit_id"] != 0 {
-			var relatedOrganizationUnit = shared.FetchByProperty(
-				"organization_unit",
+		if shared.IsInteger(mergedItem["office_id"]) && mergedItem["office_id"].(int) > 0 {
+			var relatedInventoryOffice = shared.FetchByProperty(
+				"offices_of_organization_units",
 				"Id",
-				mergedItem["organization_unit_id"],
+				mergedItem["office_id"],
 			)
+			if len(relatedInventoryOffice) > 0 {
+				var relatedOffice = shared.WriteStructToInterface(relatedInventoryOffice[0])
 
-			if len(relatedOrganizationUnit) > 0 {
-				for _, organizationUnitData := range relatedOrganizationUnit {
-					var organizationUnit = shared.WriteStructToInterface(organizationUnitData)
-
-					mergedItem["organization_unit"] = map[string]interface{}{
-						"id":    organizationUnit["id"],
-						"title": organizationUnit["title"],
-					}
+				mergedItem["office"] = map[string]interface{}{
+					"title": relatedOffice["title"],
+					"id":    relatedOffice["id"],
 				}
 			}
 		}
 
-		if shared.IsInteger(mergedItem["user_profile_id"]) && mergedItem["user_profile_id"] != 0 {
-			var relatedUserProfile = shared.FetchByProperty(
-				"user_profile",
-				"Id",
-				mergedItem["user_profile_id"],
+		if shared.IsInteger(id) && id > 0 && shared.IsInteger(publicProcurementId) && publicProcurementId > 0 {
+			var relatedOrderProcurementArticle = shared.FetchByProperty(
+				"order_procurement_article",
+				"OrderId",
+				id,
 			)
-
-			if len(relatedUserProfile) > 0 {
-				for _, userProfileData := range relatedUserProfile {
-					var userProfile = shared.WriteStructToInterface(userProfileData)
-
-					mergedItem["user_profile"] = map[string]interface{}{
-						"id":    userProfile["id"],
-						"title": userProfile["first_name"].(string) + " " + userProfile["last_name"].(string),
-					}
-				}
-			}
-		}
-
-		if shared.IsInteger(publicProcurementId) && publicProcurementId > 0 {
-
 			// get all with publicProcurementId in public_procurement_contract.json
-			mergedItem["articles"] = GetProcurementArticles(publicProcurementId)
+			mergedItem["articles"], supplierId = GetProcurementArticles(publicProcurementId)
+
+			if shared.IsInteger(supplierId) && supplierId != 0 {
+				var relatedSuppliers = shared.FetchByProperty(
+					"suppliers",
+					"Id",
+					supplierId,
+				)
+
+				if len(relatedSuppliers) > 0 {
+					for _, supplierData := range relatedSuppliers {
+						var supplier = shared.WriteStructToInterface(supplierData)
+
+						mergedItem["supplier"] = map[string]interface{}{
+							"id":    supplier["id"],
+							"title": supplier["title"],
+						}
+					}
+				}
+			}
 			// check articles exist in order_procurement_article
 			if articles, ok := mergedItem["articles"].([]interface{}); ok {
 				for _, item := range articles {
 					if article, ok := item.(structs.OrderArticleItem); ok {
-						var relatedOrderProcurementArticle = shared.FetchByProperty(
-							"order_procurement_article",
-							"ArticleId",
-							article.Id,
-						)
 						if len(relatedOrderProcurementArticle) > 0 {
 							for _, itemOrderArticle := range relatedOrderProcurementArticle {
 								//if article use in other order, deduct amount to get Available articles
 								if orderArticle, ok := itemOrderArticle.(*structs.OrderProcurementArticleItem); ok {
-									article.TotalPrice = article.TotalPrice * (article.Amount - orderArticle.Amount) / article.Amount
-									article.Amount = orderArticle.Amount
-									articles = shared.FilterByProperty(articles, "Id", article.Id)
-									mergedItem["articles"] = append(articles, article)
+									if article.Id == orderArticle.ArticleId {
+										article.TotalPrice = article.TotalPrice * (article.Amount - orderArticle.Amount) / article.Amount
+										totalPrice = totalPrice + article.TotalPrice
+										article.Amount = orderArticle.Amount
+										articles = shared.FilterByProperty(articles, "Id", article.Id)
+										articles = append(articles, article)
+									}
 								}
 							}
 						}
 					}
 				}
+				mergedItem["articles"] = make([]interface{}, len(articles))
+				copy(mergedItem["articles"].([]interface{}), articles)
 			}
 
 		}
+		mergedItem["total_price"] = totalPrice
 		items = append(items, mergedItem)
 	}
 
 	return items
 }
 
-func GetProcurementArticles(publicProcurementId int) []interface{} {
+func GetProcurementArticles(publicProcurementId int) ([]interface{}, int) {
 	items := []interface{}{}
+	var supplierId int
 	var relatedPublicProcurementContract = shared.FetchByProperty(
 		"public_procurement_contract",
 		"PublicProcurementId",
 		publicProcurementId,
 	)
+
 	// check public_procurement_contract
 	if len(relatedPublicProcurementContract) > 0 {
+
 		// for public_procurement_contract
 		for _, contract := range relatedPublicProcurementContract {
+
 			if contract, ok := contract.(*structs.PublicProcurementContract); ok {
+				supplierId = contract.SupplierId
 				// get all articles_contract from public_procurement_contract_articles with public_procurement_contract_id
 				var relatedPublicProcurementContractArticles = shared.FetchByProperty(
 					"public_procurement_contract_articles",
@@ -241,7 +230,7 @@ func GetProcurementArticles(publicProcurementId int) []interface{} {
 			}
 		}
 	}
-	return items
+	return items, supplierId
 }
 
 var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -432,7 +421,7 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 		publicProcurementId = params.Args["public_procurement_id"].(int)
 	}
 
-	items = GetProcurementArticles(publicProcurementId)
+	items, _ = GetProcurementArticles(publicProcurementId)
 
 	for _, item := range items {
 		if article, ok := item.(structs.OrderArticleItem); ok {
@@ -538,8 +527,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			newItem.DateSystem = updateOrder.DateSystem
 			newItem.InvoiceDate = updateOrder.InvoiceDate
 			newItem.InvoiceNumber = updateOrder.InvoiceNumber
-			newItem.OrganizationUnitId = data.OrganizationUnitId
-			newItem.UserProfileId = data.UserProfileId
+			newItem.OfficeId = data.OfficeId
 		}
 	}
 

@@ -8,7 +8,9 @@
     "status": "Created",
     "date_system": "",
     "invoice_date": "2021-09-14T14:00:00.000000Z",
-    "invoice_number": "248192730521"
+    "invoice_number": "248192730521",
+    "office_id": 0,
+    "organization_unit_id": 0
   },
   {
     "id": 66947,
@@ -19,6 +21,34 @@
     "status": "Created",
     "date_system": "",
     "invoice_date": "",
-    "invoice_number": ""
+    "invoice_number": "",
+    "office_id": 0,
+    "organization_unit_id": 0
+  },
+  {
+    "id": 96957,
+    "data_order": "2022-02-01T00:00:00Z",
+    "total_price": 0,
+    "public_procurement_id": 3,
+    "supplier_id": 0,
+    "status": "Created",
+    "date_system": "",
+    "invoice_date": "",
+    "invoice_number": "",
+    "office_id": 0,
+    "organization_unit_id": 0
+  },
+  {
+    "id": 45135,
+    "data_order": "2022-02-01T00:00:00Z",
+    "total_price": 0,
+    "public_procurement_id": 3,
+    "supplier_id": 0,
+    "status": "Created",
+    "date_system": "",
+    "invoice_date": "",
+    "invoice_number": "",
+    "office_id": 0,
+    "organization_unit_id": 0
   }
 ]

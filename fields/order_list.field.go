@@ -80,3 +80,14 @@ var OrderProcurementAvailableField = &graphql.Field{
 	},
 	Resolve: resolvers.OrderProcurementAvailableResolver,
 }
+
+var OrderListDeleteField = &graphql.Field{
+	Type:        types.OrderListReceiveType,
+	Description: "Delete existing Order",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.OrderListDeleteResolver,
+}

@@ -546,3 +546,32 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 		"message": "You Asset Movement this order!",
 	}, nil
 }
+
+var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	OrderListItemType := &structs.OrderListItem{}
+	orderListData, err := shared.ReadJson("http://localhost:8080/mocked-data/order_list.json", OrderListItemType)
+
+	if err != nil {
+		fmt.Printf("Fetching Inventory Dispatch Delete failed because of this error - %s.\n", err)
+	}
+
+	if shared.IsInteger(itemId) && itemId != 0 {
+		orderListData = shared.FilterByProperty(orderListData, "Id", itemId)
+	}
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/order_list.json"), orderListData)
+
+	OrderProcurementArticleItemType := &structs.OrderProcurementArticleItem{}
+	orderProcurementArticleData, err := shared.ReadJson("http://localhost:8080/mocked-data/order_procurement_article.json", OrderProcurementArticleItemType)
+
+	removeOrderProcurementArticleData := shared.FilterByProperty(orderProcurementArticleData, "OrderId", itemId)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/order_procurement_article.json"), removeOrderProcurementArticleData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
+	}, nil
+}

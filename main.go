@@ -107,6 +107,7 @@ func main() {
 			"orderList_Insert":                                fields.OrderListInsertField,
 			"orderList_Receive":                               fields.OrderListReceiveField,
 			"orderList_Movement":                              fields.OrderListAssetMovementField,
+			"orderList_Delete":                                fields.OrderListDeleteField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{

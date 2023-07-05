@@ -1,8 +1,1 @@
-[
-  { "id": 1, "order_id": 1, "article_id": 1, "amount": 5 },
-  { "id": 49019, "order_id": 66947, "article_id": 1, "amount": 5 },
-  { "id": 77446, "order_id": 96957, "article_id": 2, "amount": 2 },
-  { "id": 77447, "order_id": 96957, "article_id": 3, "amount": 7 },
-  { "id": 7518, "order_id": 45135, "article_id": 2, "amount": 2 },
-  { "id": 7519, "order_id": 45135, "article_id": 3, "amount": 7 }
-]
+[{"id":1,"order_id":1,"article_id":1,"amount":5},{"id":49019,"order_id":66947,"article_id":1,"amount":5},{"id":7518,"order_id":45135,"article_id":2,"amount":2},{"id":7519,"order_id":45135,"article_id":3,"amount":7}]

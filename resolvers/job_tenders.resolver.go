@@ -169,7 +169,7 @@ var JobTendersOverviewResolver = func(params graphql.ResolveParams) (interface{}
 	typeParam := params.Args["type"]
 
 	JobTendersType := &structs.JobTenders{}
-	JobTendersData, JobTendersDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tenders.json", JobTendersType)
+	JobTendersData, JobTendersDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTendersType)
 
 	if JobTendersDataErr != nil {
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", JobTendersDataErr)
@@ -195,7 +195,7 @@ var JobTendersOverviewResolver = func(params graphql.ResolveParams) (interface{}
 
 var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	JobTenderType := &structs.JobTenders{}
-	JobTenderData, JobTenderDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tenders.json", JobTenderType)
+	JobTenderData, JobTenderDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTenderType)
 
 	var id int
 	if params.Args["id"] == nil {
@@ -227,7 +227,7 @@ var JobTenderInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	jobTenderData, jobTenderDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tenders.json", JobTenderType)
+	jobTenderData, jobTenderDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTenderType)
 
 	if jobTenderDataErr != nil {
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", jobTenderDataErr)
@@ -259,7 +259,7 @@ var JobTenderDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JobTenderType := &structs.JobTenders{}
-	jobTenderData, jobTenderDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tenders.json", JobTenderType)
+	jobTenderData, jobTenderDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTenderType)
 
 	if jobTenderDataErr != nil {
 		fmt.Printf("Fetching Job Tender failed because of this error - %s.\n", jobTenderDataErr)
@@ -297,7 +297,7 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 	size := params.Args["size"]
 
 	JobTenderApplicationsType := &structs.JobTenderApplications{}
-	JobTenderApplicationsData, JobTenderApplicationsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_applications.json", JobTenderApplicationsType)
+	JobTenderApplicationsData, JobTenderApplicationsDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_applications.json", JobTenderApplicationsType)
 
 	if JobTenderApplicationsDataErr != nil {
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", JobTenderApplicationsDataErr)
@@ -330,7 +330,7 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_applications.json", JobTenderApplicationType)
+	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_applications.json", JobTenderApplicationType)
 
 	if JobTenderApplicationDataErr != nil {
 		fmt.Printf("Fetching Job Tender Applications failed because of this error - %s.\n", JobTenderApplicationDataErr)
@@ -362,7 +362,7 @@ var JobTenderApplicationDeleteResolver = func(params graphql.ResolveParams) (int
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JobTenderApplicationType := &structs.JobTenderApplications{}
-	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_applications.json", JobTenderApplicationType)
+	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_applications.json", JobTenderApplicationType)
 
 	if JobTenderApplicationDataErr != nil {
 		fmt.Printf("Fetching Job Tender Applications failed because of this error - %s.\n", JobTenderApplicationDataErr)

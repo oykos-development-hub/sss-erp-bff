@@ -358,7 +358,7 @@ var JudgeNormInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	judgeNormData, judgeNormDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_norms.json", JudgeNormType)
+	judgeNormData, judgeNormDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_norms.json", JudgeNormType)
 
 	if judgeNormDataErr != nil {
 		fmt.Printf("Fetching Judge Norms failed because of this error - %s.\n", judgeNormDataErr)
@@ -385,7 +385,7 @@ var JudgeNormDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JudgeNormType := &structs.JudgeNorms{}
-	judgeNormData, judgeNormDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_norms.json", JudgeNormType)
+	judgeNormData, judgeNormDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_norms.json", JudgeNormType)
 
 	if judgeNormDataErr != nil {
 		fmt.Printf("Fetching Judge Norm failed because of this error - %s.\n", judgeNormDataErr)
@@ -419,7 +419,7 @@ var JudgeResolutionsResolver = func(params graphql.ResolveParams) (interface{}, 
 	}
 
 	JudgeResolutionsType := &structs.JudgeResolutions{}
-	JudgeResolutionsData, JudgeResolutionsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_resolutions.json", JudgeResolutionsType)
+	JudgeResolutionsData, JudgeResolutionsDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolutions.json", JudgeResolutionsType)
 
 	if JudgeResolutionsDataErr != nil {
 		fmt.Printf("Fetching Judge Resolutions failed because of this error - %s.\n", JudgeResolutionsDataErr)
@@ -453,8 +453,8 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 
 	var resolutionItems = data.Items
 	itemId := data.Id
-	judgeResolutionData, judgeResolutionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_resolutions.json", JudgeResolutionType)
-	judgeResolutionItemsData, judgeResolutionItemsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_resolution_items.json", JudgeResolutionItemType)
+	judgeResolutionData, judgeResolutionDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolutions.json", JudgeResolutionType)
+	judgeResolutionItemsData, judgeResolutionItemsDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolution_items.json", JudgeResolutionItemType)
 
 	if judgeResolutionDataErr != nil {
 		fmt.Printf("Fetching Judge Resolutions failed because of this error - %s.\n", judgeResolutionDataErr)
@@ -511,8 +511,8 @@ var JudgeResolutionDeleteResolver = func(params graphql.ResolveParams) (interfac
 	JudgeResolutionType := &structs.JudgeResolutions{}
 	JudgeResolutionItemType := &structs.JudgeResolutionItems{}
 
-	judgeResolutionData, judgeResolutionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_resolutions.json", JudgeResolutionType)
-	judgeResolutionItemsData, judgeResolutionItemsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_resolution_items.json", JudgeResolutionItemType)
+	judgeResolutionData, judgeResolutionDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolutions.json", JudgeResolutionType)
+	judgeResolutionItemsData, judgeResolutionItemsDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolution_items.json", JudgeResolutionItemType)
 
 	if judgeResolutionDataErr != nil {
 		fmt.Printf("Fetching Resolutions failed because of this error - %s.\n", judgeResolutionDataErr)

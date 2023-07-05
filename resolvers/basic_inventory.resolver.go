@@ -215,7 +215,7 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 		if shared.IsInteger(id) && id != 0 && id == mergedItem["id"] {
 
 			BasicInventoryAssessmentsType := &structs.BasicInventoryAssessmentsTypesItem{}
-			basicInventoryAssessmentsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_assessments.json", BasicInventoryAssessmentsType)
+			basicInventoryAssessmentsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_assessments.json", BasicInventoryAssessmentsType)
 
 			if err != nil {
 				fmt.Printf("Fetching Basic Inventory Assessments failed because of this error - %s.\n", err)
@@ -224,14 +224,14 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 			mergedItem["assessments"] = PopulateBasicInventoryAssessmentsItemProperties(basicInventoryAssessmentsData, 0, id)
 
 			BasicInventoryDispatchType := &structs.BasicInventoryDispatchItem{}
-			basicInventoryDispatchData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch.json", BasicInventoryDispatchType)
+			basicInventoryDispatchData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch.json", BasicInventoryDispatchType)
 
 			if err != nil {
 				fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", err)
 			}
 
 			BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
-			basicInventoryDispatchItemsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
+			basicInventoryDispatchItemsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
 
 			if err != nil {
 				fmt.Printf("Fetching Basic Inventory Dispatch Items failed because of this error - %s.\n", err)
@@ -334,7 +334,7 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	size := params.Args["size"]
 
 	BasicInventoryType := &structs.BasicInventoryItem{}
-	BasicInventoryData, BasicInventoryDataErr := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
+	BasicInventoryData, BasicInventoryDataErr := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
 
 	if BasicInventoryDataErr != nil {
 		fmt.Printf("Fetching Basic Inventory failed because of this error - %s.\n", BasicInventoryDataErr)
@@ -387,7 +387,7 @@ var BasicInventoryDetailsResolver = func(params graphql.ResolveParams) (interfac
 	// }
 
 	BasicInventoryDetailsType := &structs.BasicInventoryDetailsItem{}
-	BasicInventoryDetailsData, BasicInventoryDataErr := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryDetailsType)
+	BasicInventoryDetailsData, BasicInventoryDataErr := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryDetailsType)
 
 	if BasicInventoryDataErr != nil {
 		fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", BasicInventoryDataErr)
@@ -424,7 +424,7 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 			itemId := data.Id
 			data.OrganizationUnitId = organizationUnitId
 
-			basicInventoryData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
+			basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
 
 			if err != nil {
 				fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
@@ -437,7 +437,7 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 			}
 			if data.Type == "immovable" && data.RealEstate != nil && shared.IsString(data.RealEstate.TypeId) && data.RealEstate.TypeId != "" {
 				RealEstateType := &structs.BasicInventoryRealEstatesItem{}
-				realEstateData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_real_estates.json", RealEstateType)
+				realEstateData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_real_estates.json", RealEstateType)
 
 				if err != nil {
 					fmt.Printf("Fetching Basic Inventory Real Estates failed because of this error - %s.\n", err)

@@ -29,7 +29,7 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 	}
 
 	UserProfilesType := &structs.UserProfiles{}
-	UserProfilesData, UserProfilesDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfilesType)
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
 	if UserProfilesDataErr != nil {
 		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
@@ -119,7 +119,7 @@ var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interf
 		absentItemEndpoint = "user_profile_relocations"
 	}
 
-	absentData, absentDataErr := shared.ReadJson("http://localhost:8080/mocked-data/"+absentItemEndpoint+".json", absentItemType)
+	absentData, absentDataErr := shared.ReadJson(shared.GetDataRoot()+"/"+absentItemEndpoint+".json", absentItemType)
 
 	if absentDataErr != nil {
 		fmt.Printf("Fetching User Profile's absent items failed because of this error - %s.\n", absentDataErr)
@@ -161,7 +161,7 @@ var UserProfileAbsentDeleteResolver = func(params graphql.ResolveParams) (interf
 		absentItemEndpoint = "user_profile_relocations"
 	}
 
-	absentData, absentDataErr := shared.ReadJson("http://localhost:8080/mocked-data/"+absentItemEndpoint+".json", absentItemType)
+	absentData, absentDataErr := shared.ReadJson(shared.GetDataRoot()+"/"+absentItemEndpoint+".json", absentItemType)
 
 	if absentDataErr != nil {
 		fmt.Printf("Fetching User Profile's absent items failed because of this error - %s.\n", absentDataErr)

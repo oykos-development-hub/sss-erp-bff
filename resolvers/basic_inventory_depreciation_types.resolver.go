@@ -41,7 +41,7 @@ var BasicInventoryDepreciationTypesOverviewResolver = func(params graphql.Resolv
 	size := params.Args["size"]
 
 	BasicInventoryDepreciationTypesType := &structs.BasicInventoryDepreciationTypesItem{}
-	BasicInventoryDepreciationTypesData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_depreciation_types.json", BasicInventoryDepreciationTypesType)
+	BasicInventoryDepreciationTypesData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_depreciation_types.json", BasicInventoryDepreciationTypesType)
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
@@ -75,7 +75,7 @@ var BasicInventoryDepreciationTypesInsertResolver = func(params graphql.ResolveP
 
 	itemId := data.Id
 
-	BasicInventoryDepreciationTypesData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_depreciation_types.json", BasicInventoryDepreciationTypesType)
+	BasicInventoryDepreciationTypesData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_depreciation_types.json", BasicInventoryDepreciationTypesType)
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
@@ -107,7 +107,7 @@ var BasicInventoryDepreciationTypesDeleteResolver = func(params graphql.ResolveP
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	BasicInventoryDepreciationTypesType := &structs.BasicInventoryDepreciationTypesItem{}
-	BasicInventoryDepreciationTypesData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_depreciation_types.json", BasicInventoryDepreciationTypesType)
+	BasicInventoryDepreciationTypesData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_depreciation_types.json", BasicInventoryDepreciationTypesType)
 
 	if err != nil {
 		fmt.Printf("Fetching Inventory Depreciation Types Delete failed because of this error - %s.\n", err)

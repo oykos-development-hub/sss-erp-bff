@@ -49,7 +49,7 @@ var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface
 	size := params.Args["size"]
 
 	UserProfilesType := &structs.UserProfiles{}
-	UserProfilesData, UserProfilesDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfilesType)
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
 	if UserProfilesDataErr != nil {
 		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
@@ -266,7 +266,7 @@ var UserProfileBasicResolver = func(params graphql.ResolveParams) (interface{}, 
 	}
 
 	UserProfilesType := &structs.UserProfiles{}
-	UserProfilesData, UserProfilesDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfilesType)
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
 	if UserProfilesDataErr != nil {
 		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
@@ -438,7 +438,7 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 	_ = json.Unmarshal(dataBytes, &dataStruct)
 
 	itemId := dataStruct.Id
-	userProfileBasicData, userProfileBasicDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfileBasicType)
+	userProfileBasicData, userProfileBasicDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfileBasicType)
 
 	if userProfileBasicDataErr != nil {
 		fmt.Printf("Fetching User Profile's Basic data failed because of this error - %s.\n", userProfileBasicDataErr)
@@ -496,7 +496,7 @@ var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface
 	}
 
 	UserProfilesType := &structs.UserProfiles{}
-	UserProfilesData, UserProfilesDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfilesType)
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
 	if UserProfilesDataErr != nil {
 		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
@@ -559,7 +559,7 @@ var UserProfileEducationInsertResolver = func(params graphql.ResolveParams) (int
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	educationData, educationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/educations.json", EducationType)
+	educationData, educationDataErr := shared.ReadJson(shared.GetDataRoot()+"/educations.json", EducationType)
 
 	if educationDataErr != nil {
 		fmt.Printf("Fetching User Profile's education failed because of this error - %s.\n", educationDataErr)
@@ -586,7 +586,7 @@ var UserProfileEducationDeleteResolver = func(params graphql.ResolveParams) (int
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	EducationType := &structs.Education{}
-	educationData, educationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/educations.json", EducationType)
+	educationData, educationDataErr := shared.ReadJson(shared.GetDataRoot()+"/educations.json", EducationType)
 
 	if educationDataErr != nil {
 		fmt.Printf("Fetching User Profile's Education failed because of this error - %s.\n", educationDataErr)
@@ -617,7 +617,7 @@ var UserProfileExperienceResolver = func(params graphql.ResolveParams) (interfac
 	}
 
 	UserProfilesType := &structs.UserProfiles{}
-	UserProfilesData, UserProfilesDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfilesType)
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
 	if UserProfilesDataErr != nil {
 		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
@@ -655,7 +655,7 @@ var UserProfileExperienceInsertResolver = func(params graphql.ResolveParams) (in
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	ExperienceData, ExperienceDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_experiences.json", ExperienceType)
+	ExperienceData, ExperienceDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_experiences.json", ExperienceType)
 
 	if ExperienceDataErr != nil {
 		fmt.Printf("Fetching User Profile's Experience failed because of this error - %s.\n", ExperienceDataErr)
@@ -682,7 +682,7 @@ var UserProfileExperienceDeleteResolver = func(params graphql.ResolveParams) (in
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	ExperienceType := &structs.Experience{}
-	ExperienceData, ExperienceDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_experiences.json", ExperienceType)
+	ExperienceData, ExperienceDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_experiences.json", ExperienceType)
 
 	if ExperienceDataErr != nil {
 		fmt.Printf("Fetching User Profile's Experience failed because of this error - %s.\n", ExperienceDataErr)
@@ -713,7 +713,7 @@ var UserProfileFamilyResolver = func(params graphql.ResolveParams) (interface{},
 	}
 
 	UserProfilesType := &structs.UserProfiles{}
-	UserProfilesData, UserProfilesDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfilesType)
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
 	if UserProfilesDataErr != nil {
 		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
@@ -751,7 +751,7 @@ var UserProfileFamilyInsertResolver = func(params graphql.ResolveParams) (interf
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	FamilyData, FamilyDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_family.json", FamilyType)
+	FamilyData, FamilyDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_family.json", FamilyType)
 
 	if FamilyDataErr != nil {
 		fmt.Printf("Fetching User Profile's Family failed because of this error - %s.\n", FamilyDataErr)
@@ -778,7 +778,7 @@ var UserProfileFamilyDeleteResolver = func(params graphql.ResolveParams) (interf
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	FamilyType := &structs.Family{}
-	FamilyData, FamilyDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_family.json", FamilyType)
+	FamilyData, FamilyDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_family.json", FamilyType)
 
 	if FamilyDataErr != nil {
 		fmt.Printf("Fetching User Profile's Family failed because of this error - %s.\n", FamilyDataErr)

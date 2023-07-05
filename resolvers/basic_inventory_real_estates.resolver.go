@@ -40,7 +40,7 @@ var BasicInventoryRealEstatesOverviewResolver = func(params graphql.ResolveParam
 	size := params.Args["size"]
 
 	BasicInventoryRealEstatesType := &structs.BasicInventoryRealEstatesItem{}
-	BasicInventoryRealEstatesData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_real_estates.json", BasicInventoryRealEstatesType)
+	BasicInventoryRealEstatesData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_real_estates.json", BasicInventoryRealEstatesType)
 
 	if err != nil {
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", err)

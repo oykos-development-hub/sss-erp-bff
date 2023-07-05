@@ -135,7 +135,7 @@ func PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchItems []
 
 		if shared.IsInteger(id) && id != 0 && id == mergedItem["id"] {
 			BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
-			basicInventoryDispatchItemsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
+			basicInventoryDispatchItemsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
 
 			if err != nil {
 				fmt.Printf("Fetching Basic Inventory Dispatch Items failed because of this error - %s.\n", err)
@@ -144,7 +144,7 @@ func PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchItems []
 			basicInventoryDispatchItemsData = shared.FindByProperty(basicInventoryDispatchItemsData, "DispatchId", id)
 
 			BasicInventoryType := &structs.BasicInventoryInsertItem{}
-			basicInventoryData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
+			basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
 
 			if err != nil {
 				fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
@@ -207,7 +207,7 @@ var BasicInventoryDispatchOverviewResolver = func(params graphql.ResolveParams) 
 	}
 
 	BasicInventoryDispatchType := &structs.BasicInventoryDispatchItem{}
-	basicInventoryDispatchData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch.json", BasicInventoryDispatchType)
+	basicInventoryDispatchData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch.json", BasicInventoryDispatchType)
 
 	if err != nil {
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", err)
@@ -252,7 +252,7 @@ var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (i
 	itemId := data.Id
 	targetOrganizationUnitId := data.TargetOrganizationUnitId
 
-	basicInventoryDispatchData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch.json", BasicInventoryDispatchType)
+	basicInventoryDispatchData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch.json", BasicInventoryDispatchType)
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Dispatch failed because of this error - %s.\n", err)
@@ -265,14 +265,14 @@ var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (i
 	} else {
 		data.Id = shared.GetRandomNumber()
 		BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
-		basicInventoryDispatchItemsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
+		basicInventoryDispatchItemsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
 
 		if err != nil {
 			fmt.Printf("Fetching Basic Inventory Dispatch Items failed because of this error - %s.\n", err)
 		}
 
 		BasicInventoryType := &structs.BasicInventoryInsertItem{}
-		basicInventoryData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
+		basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
 
 		if err != nil {
 			fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
@@ -317,7 +317,7 @@ var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (i
 			targetInventoryUserId = 0
 		}
 		BasicInventoryType := &structs.BasicInventoryInsertItem{}
-		basicInventoryData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
+		basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
 		if err != nil {
 			fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
 		}
@@ -352,7 +352,7 @@ var BasicInventoryDispatchDeleteResolver = func(params graphql.ResolveParams) (i
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	BasicInventoryDispatchType := &structs.BasicInventoryDispatchItem{}
-	basicInventoryDispatchData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch.json", BasicInventoryDispatchType)
+	basicInventoryDispatchData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch.json", BasicInventoryDispatchType)
 
 	if err != nil {
 		fmt.Printf("Fetching Inventory Dispatch Delete failed because of this error - %s.\n", err)
@@ -365,13 +365,13 @@ var BasicInventoryDispatchDeleteResolver = func(params graphql.ResolveParams) (i
 	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_dispatch.json"), basicInventoryDispatchData)
 
 	BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
-	basicInventoryDispatchItemsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
+	basicInventoryDispatchItemsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
 
 	removeItemsDispatchItemsData := shared.FindByProperty(basicInventoryDispatchItemsData, "DispatchId", itemId)
 
 	if len(removeItemsDispatchItemsData) > 0 {
 		BasicInventoryType := &structs.BasicInventoryInsertItem{}
-		basicInventoryData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
+		basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
 
 		if err != nil {
 			fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
@@ -427,7 +427,7 @@ var BasicInventoryDispatchAcceptResolver = func(params graphql.ResolveParams) (i
 		return nil, nil
 	}
 
-	basicInventoryDispatchData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch.json", BasicInventoryDispatchType)
+	basicInventoryDispatchData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch.json", BasicInventoryDispatchType)
 
 	if err != nil {
 		fmt.Printf("Fetching Inventory Dispatch failed because of this error - %s.\n", err)
@@ -451,7 +451,7 @@ var BasicInventoryDispatchAcceptResolver = func(params graphql.ResolveParams) (i
 	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_dispatch.json"), updateData)
 
 	BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
-	basicInventoryDispatchItemsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
+	basicInventoryDispatchItemsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Dispatch Items failed because of this error - %s.\n", err)
 	}
@@ -459,7 +459,7 @@ var BasicInventoryDispatchAcceptResolver = func(params graphql.ResolveParams) (i
 
 	BasicInventoryType := &structs.BasicInventoryInsertItem{}
 
-	basicInventoryData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
+	basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)

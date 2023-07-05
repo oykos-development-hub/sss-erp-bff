@@ -13,7 +13,7 @@ var JobPositionsResolver = func(params graphql.ResolveParams) (interface{}, erro
 	id := params.Args["id"]
 	search := params.Args["search"]
 	JobPositionType := &structs.JobPositions{}
-	JobPositionData, JobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_positions.json", JobPositionType)
+	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions.json", JobPositionType)
 
 	if JobPositionDataErr != nil {
 		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
@@ -43,7 +43,7 @@ var JobPositionInsertResolver = func(params graphql.ResolveParams) (interface{},
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	JobPositionData, JobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_positions.json", JobPositionType)
+	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions.json", JobPositionType)
 
 	if JobPositionDataErr != nil {
 		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
@@ -70,7 +70,7 @@ var JobPositionDeleteResolver = func(params graphql.ResolveParams) (interface{},
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JobPositionType := &structs.JobPositions{}
-	JobPositionData, JobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_positions.json", JobPositionType)
+	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions.json", JobPositionType)
 
 	if JobPositionDataErr != nil {
 		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
@@ -97,7 +97,7 @@ var JobPositionInOrganizationUnitInsertResolver = func(params graphql.ResolvePar
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	JobPositionData, JobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_positions_in_organization_units.json", JobPositionType)
+	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions_in_organization_units.json", JobPositionType)
 
 	if JobPositionDataErr != nil {
 		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
@@ -124,7 +124,7 @@ var JobPositionInOrganizationUnitDeleteResolver = func(params graphql.ResolvePar
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JobPositionType := &structs.JobPositionsInOrganizationUnits{}
-	JobPositionData, JobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_positions_in_organization_units.json", JobPositionType)
+	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions_in_organization_units.json", JobPositionType)
 
 	if JobPositionDataErr != nil {
 		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
@@ -152,7 +152,7 @@ var EmployeeInOrganizationUnitInsertResolver = func(params graphql.ResolveParams
 
 	itemId := data.Id
 	userProfileId := data.UserProfileId
-	EmployeeData, EmployeeDataErr := shared.ReadJson("http://localhost:8080/mocked-data/employees_in_organization_units.json", EmployeeType)
+	EmployeeData, EmployeeDataErr := shared.ReadJson(shared.GetDataRoot()+"/employees_in_organization_units.json", EmployeeType)
 
 	if EmployeeDataErr != nil {
 		fmt.Printf("Fetching Employees failed because of this error - %s.\n", EmployeeDataErr)
@@ -191,7 +191,7 @@ var EmployeeInOrganizationUnitDeleteResolver = func(params graphql.ResolveParams
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	EmployeeType := &structs.EmployeesInOrganizationUnits{}
-	EmployeeData, EmployeeDataErr := shared.ReadJson("http://localhost:8080/mocked-data/employees_in_organization_units.json", EmployeeType)
+	EmployeeData, EmployeeDataErr := shared.ReadJson(shared.GetDataRoot()+"/employees_in_organization_units.json", EmployeeType)
 
 	if EmployeeDataErr != nil {
 		fmt.Printf("Fetching Employees failed because of this error - %s.\n", EmployeeDataErr)

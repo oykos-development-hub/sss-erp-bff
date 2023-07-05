@@ -182,7 +182,7 @@ var RevisionsOverviewResolver = func(params graphql.ResolveParams) (interface{},
 	size := params.Args["size"]
 
 	RevisionsType := &structs.Revision{}
-	RevisionsData, RevisionsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/revisions.json", RevisionsType)
+	RevisionsData, RevisionsDataErr := shared.ReadJson(shared.GetDataRoot()+"/revisions.json", RevisionsType)
 
 	if RevisionsDataErr != nil {
 		fmt.Printf("Fetching Revisions failed because of this error - %s.\n", RevisionsDataErr)
@@ -228,7 +228,7 @@ var RevisionsOverviewResolver = func(params graphql.ResolveParams) (interface{},
 
 var RevisionResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	RevisionType := &structs.Revision{}
-	RevisionData, RevisionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/revisions.json", RevisionType)
+	RevisionData, RevisionDataErr := shared.ReadJson(shared.GetDataRoot()+"/revisions.json", RevisionType)
 
 	var id int
 	if params.Args["id"] == nil {
@@ -260,7 +260,7 @@ var RevisionInsertResolver = func(params graphql.ResolveParams) (interface{}, er
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	revisionData, revisionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/revisions.json", RevisionType)
+	revisionData, revisionDataErr := shared.ReadJson(shared.GetDataRoot()+"/revisions.json", RevisionType)
 
 	if revisionDataErr != nil {
 		fmt.Printf("Fetching Revision failed because of this error - %s.\n", revisionDataErr)
@@ -291,7 +291,7 @@ var RevisionDeleteResolver = func(params graphql.ResolveParams) (interface{}, er
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	RevisionType := &structs.Revision{}
-	revisionData, revisionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/revisions.json", RevisionType)
+	revisionData, revisionDataErr := shared.ReadJson(shared.GetDataRoot()+"/revisions.json", RevisionType)
 
 	if revisionDataErr != nil {
 		fmt.Printf("Fetching User Profile's Revision failed because of this error - %s.\n", revisionDataErr)

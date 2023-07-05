@@ -185,7 +185,7 @@ var SystematizationsOverviewResolver = func(params graphql.ResolveParams) (inter
 	size := params.Args["size"]
 
 	SystematizationsType := &structs.Systematization{}
-	SystematizationsData, SystematizationsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/systematizations.json", SystematizationsType)
+	SystematizationsData, SystematizationsDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationsType)
 
 	if SystematizationsDataErr != nil {
 		fmt.Printf("Fetching Systematizations failed because of this error - %s.\n", SystematizationsDataErr)
@@ -211,7 +211,7 @@ var SystematizationsOverviewResolver = func(params graphql.ResolveParams) (inter
 
 var SystematizationResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	SystematizationType := &structs.Systematization{}
-	SystematizationData, SystematizationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/systematizations.json", SystematizationType)
+	SystematizationData, SystematizationDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationType)
 
 	var id int
 	if params.Args["id"] == nil {
@@ -243,7 +243,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	systematizationData, systematizationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/systematizations.json", SystematizationType)
+	systematizationData, systematizationDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationType)
 
 	if systematizationDataErr != nil {
 		fmt.Printf("Fetching Systematization failed because of this error - %s.\n", systematizationDataErr)
@@ -273,7 +273,7 @@ var SystematizationDeleteResolver = func(params graphql.ResolveParams) (interfac
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	SystematizationType := &structs.Systematization{}
-	systematizationData, systematizationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/systematizations.json", SystematizationType)
+	systematizationData, systematizationDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationType)
 
 	if systematizationDataErr != nil {
 		fmt.Printf("Fetching User Profile's Systematization failed because of this error - %s.\n", systematizationDataErr)

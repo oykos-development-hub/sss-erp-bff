@@ -117,7 +117,7 @@ var UserAccountBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	userAccountData, userAccountDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_accounts.json", UserAccountType)
+	userAccountData, userAccountDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_accounts.json", UserAccountType)
 
 	if userAccountDataErr != nil {
 		fmt.Printf("Fetching User Accounts failed because of this error - %s.\n", userAccountDataErr)
@@ -146,7 +146,7 @@ var UserAccountDeleteResolver = func(params graphql.ResolveParams) (interface{},
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	UserAccountType := &structs.UserAccounts{}
-	userAccountData, userAccountDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_accounts.json", UserAccountType)
+	userAccountData, userAccountDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_accounts.json", UserAccountType)
 
 	if userAccountDataErr != nil {
 		fmt.Printf("Fetching User Accounts failed because of this error - %s.\n", userAccountDataErr)

@@ -276,7 +276,7 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 	size := params.Args["size"]
 
 	OrderListType := &structs.OrderListItem{}
-	OrderListData, err := shared.ReadJson("http://localhost:8080/mocked-data/order_list.json", OrderListType)
+	OrderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
 
 	if err != nil {
 		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
@@ -310,7 +310,7 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	orderListData, err := shared.ReadJson("http://localhost:8080/mocked-data/order_list.json", OrderListItemType)
+	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListItemType)
 
 	if err != nil {
 		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
@@ -327,7 +327,7 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	var interfaceArticles []interface{}
 
 	OrderProcurementArticleItemType := &structs.OrderProcurementArticleItem{}
-	orderProcurementArticleData, err := shared.ReadJson("http://localhost:8080/mocked-data/order_procurement_article.json", OrderProcurementArticleItemType)
+	orderProcurementArticleData, err := shared.ReadJson(shared.GetDataRoot()+"/order_procurement_article.json", OrderProcurementArticleItemType)
 
 	if err != nil {
 		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
@@ -469,7 +469,7 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	orderListData, err := shared.ReadJson("http://localhost:8080/mocked-data/order_list.json", OrderListType)
+	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
 
 	if err != nil {
 		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
@@ -512,7 +512,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	orderListData, err := shared.ReadJson("http://localhost:8080/mocked-data/order_list.json", OrderListType)
+	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
 
 	if err != nil {
 		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
@@ -551,7 +551,7 @@ var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	OrderListItemType := &structs.OrderListItem{}
-	orderListData, err := shared.ReadJson("http://localhost:8080/mocked-data/order_list.json", OrderListItemType)
+	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListItemType)
 
 	if err != nil {
 		fmt.Printf("Fetching Inventory Dispatch Delete failed because of this error - %s.\n", err)
@@ -564,7 +564,7 @@ var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/order_list.json"), orderListData)
 
 	OrderProcurementArticleItemType := &structs.OrderProcurementArticleItem{}
-	orderProcurementArticleData, err := shared.ReadJson("http://localhost:8080/mocked-data/order_procurement_article.json", OrderProcurementArticleItemType)
+	orderProcurementArticleData, err := shared.ReadJson(shared.GetDataRoot()+"/order_procurement_article.json", OrderProcurementArticleItemType)
 
 	removeOrderProcurementArticleData := shared.FilterByProperty(orderProcurementArticleData, "OrderId", itemId)
 

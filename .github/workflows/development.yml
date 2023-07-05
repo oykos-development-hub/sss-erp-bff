@@ -42,6 +42,7 @@ jobs:
                 echo "Go build "bff" file does not exist!"
                 exit 1
               fi
+              rm -rf ../../bff
               cp ./bff ../../
               if ! command -v pm2 &> /dev/null; then
                 echo "PM2 is not installed. Installing PM2..."

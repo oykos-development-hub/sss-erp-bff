@@ -133,22 +133,6 @@ func PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchItems []
 			}
 		}
 
-		if mergedItem["target_organization_unit_id"] != mergedItem["source_organization_unit_id"] {
-			if mergedItem["type"] == "revers" {
-				mergedItem["type"] = "Revers"
-			}
-
-			if mergedItem["type"] == "return-revers" {
-				mergedItem["type"] = "Return revers"
-			}
-		}
-
-		if mergedItem["target_organization_unit_id"] == mergedItem["source_organization_unit_id"] && shared.IsInteger(mergedItem["office_id"]) && mergedItem["office_id"].(int) > 0 && mergedItem["type"] == "allocation" {
-			mergedItem["type"] = "Allocation"
-		} else if mergedItem["target_user_profile_id"].(int) == 0 && mergedItem["type"] == "return" {
-			mergedItem["type"] = "Return"
-		}
-
 		if shared.IsInteger(id) && id != 0 && id == mergedItem["id"] {
 			BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
 			basicInventoryDispatchItemsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)

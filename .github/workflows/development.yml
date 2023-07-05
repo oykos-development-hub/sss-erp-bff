@@ -49,7 +49,7 @@ jobs:
               fi
               cd ../../
               pm2 delete sss-erp-bff
-              pm2 start ./bff --name "sss-erp-bff" --watch
+              pm2 start ./bff --name "sss-erp-bff" --watch --env development
               pm2 save
               
               

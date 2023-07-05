@@ -56,7 +56,7 @@ var OfficesOfOrganizationUnitOverviewResolver = func(params graphql.ResolveParam
 	}
 
 	OfficesOfOrganizationUnitType := &structs.OfficesOfOrganizationUnitItem{}
-	OfficesOfOrganizationUnitData, err := shared.ReadJson(shared.GetDataRoot()+"/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
+	OfficesOfOrganizationUnitData, err := shared.ReadJson("http://localhost:8080/mocked-data/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
 
 	if err != nil {
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", err)
@@ -85,7 +85,7 @@ var OfficesOfOrganizationUnitInsertResolver = func(params graphql.ResolveParams)
 
 	itemId := data.Id
 
-	OfficesOfOrganizationUnitData, err := shared.ReadJson(shared.GetDataRoot()+"/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
+	OfficesOfOrganizationUnitData, err := shared.ReadJson("http://localhost:8080/mocked-data/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
 
 	if err != nil {
 		fmt.Printf("Fetching Offices Of Organization Unit failed because of this error - %s.\n", err)
@@ -117,7 +117,7 @@ var OfficesOfOrganizationUnitDeleteResolver = func(params graphql.ResolveParams)
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	OfficesOfOrganizationUnitType := &structs.OfficesOfOrganizationUnitItem{}
-	OfficesOfOrganizationUnitData, err := shared.ReadJson(shared.GetDataRoot()+"/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
+	OfficesOfOrganizationUnitData, err := shared.ReadJson("http://localhost:8080/mocked-data/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
 
 	if err != nil {
 		fmt.Printf("Fetching Inventory Depreciation Types Delete failed because of this error - %s.\n", err)

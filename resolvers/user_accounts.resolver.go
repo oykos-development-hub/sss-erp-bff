@@ -5,7 +5,6 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-
 	"github.com/graphql-go/graphql"
 )
 
@@ -47,7 +46,7 @@ func PopulateUserAccountProperties(userAccounts []interface{}, filters ...interf
 			user["role_id"],
 		)
 
-		if len(relatedRole) > 0 {
+		if relatedRole != nil && len(relatedRole) > 0 {
 			for _, role := range relatedRole {
 				var roleData = shared.WriteStructToInterface(role)
 				roleItem := make(map[string]interface{})
@@ -89,7 +88,7 @@ var UserAccountsOverviewResolver = func(params graphql.ResolveParams) (interface
 		"",
 	)
 
-	if len(userAccounts) > 0 {
+	if userAccounts != nil && len(userAccounts) > 0 {
 		items = PopulateUserAccountProperties(userAccounts, itemId, isActive, email)
 	}
 
@@ -114,10 +113,10 @@ var UserAccountBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	UserAccountType := &structs.UserAccounts{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	userAccountData, userAccountDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_accounts.json", UserAccountType)
+	userAccountData, userAccountDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_accounts.json", UserAccountType)
 
 	if userAccountDataErr != nil {
 		fmt.Printf("Fetching User Accounts failed because of this error - %s.\n", userAccountDataErr)
@@ -131,7 +130,7 @@ var UserAccountBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 
 	var updatedData = append(userAccountData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_accounts.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_accounts.json"), updatedData)
 
 	var populatedItems = PopulateUserAccountProperties([]interface{}{data})
 
@@ -146,7 +145,7 @@ var UserAccountDeleteResolver = func(params graphql.ResolveParams) (interface{},
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	UserAccountType := &structs.UserAccounts{}
-	userAccountData, userAccountDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_accounts.json", UserAccountType)
+	userAccountData, userAccountDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_accounts.json", UserAccountType)
 
 	if userAccountDataErr != nil {
 		fmt.Printf("Fetching User Accounts failed because of this error - %s.\n", userAccountDataErr)
@@ -156,7 +155,7 @@ var UserAccountDeleteResolver = func(params graphql.ResolveParams) (interface{},
 		userAccountData = shared.FilterByProperty(userAccountData, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_accounts.json"), userAccountData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_accounts.json"), userAccountData)
 
 	return map[string]interface{}{
 		"status":  "success",

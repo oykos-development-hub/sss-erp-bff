@@ -22,7 +22,7 @@ var SettingsDropdownResolver = func(params graphql.ResolveParams) (interface{}, 
 	}
 
 	if shared.IsString(entity) && len(entity.(string)) > 0 {
-		SettingsDropdownData, SettingsDropdownDataErr := shared.ReadJson(shared.GetDataRoot()+"/"+entity.(string)+".json", SettingsDropdownType)
+		SettingsDropdownData, SettingsDropdownDataErr := shared.ReadJson("http://localhost:8080/mocked-data/"+entity.(string)+".json", SettingsDropdownType)
 
 		if SettingsDropdownDataErr != nil {
 			fmt.Printf("Fetching "+entity.(string)+" failed because of this error - %s.\n", SettingsDropdownDataErr)
@@ -56,7 +56,7 @@ var SettingsDropdownInsertResolver = func(params graphql.ResolveParams) (interfa
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	SettingsDropdownType := &structs.SettingsDropdown{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
@@ -65,7 +65,7 @@ var SettingsDropdownInsertResolver = func(params graphql.ResolveParams) (interfa
 	}
 
 	if shared.IsString(entity) && len(entity.(string)) > 0 {
-		SettingsDropdownData, SettingsDropdownDataErr := shared.ReadJson(shared.GetDataRoot()+"/"+entity.(string)+".json", SettingsDropdownType)
+		SettingsDropdownData, SettingsDropdownDataErr := shared.ReadJson("http://localhost:8080/mocked-data/"+entity.(string)+".json", SettingsDropdownType)
 
 		if SettingsDropdownDataErr != nil {
 			fmt.Printf("Fetching "+entity.(string)+" failed because of this error - %s.\n", SettingsDropdownDataErr)
@@ -79,7 +79,7 @@ var SettingsDropdownInsertResolver = func(params graphql.ResolveParams) (interfa
 
 		var updatedData = append(SettingsDropdownData, data)
 
-		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+entity.(string)+".json"), updatedData)
+		shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+entity.(string)+".json"), updatedData)
 
 		status = "success"
 		item = data
@@ -104,7 +104,7 @@ var SettingsDropdownDeleteResolver = func(params graphql.ResolveParams) (interfa
 	}
 
 	if shared.IsString(entity) && len(entity.(string)) > 0 {
-		SettingsDropdownData, SettingsDropdownDataErr := shared.ReadJson(shared.GetDataRoot()+"/"+entity.(string)+".json", SettingsDropdownType)
+		SettingsDropdownData, SettingsDropdownDataErr := shared.ReadJson("http://localhost:8080/mocked-data/"+entity.(string)+".json", SettingsDropdownType)
 
 		if SettingsDropdownDataErr != nil {
 			fmt.Printf("Fetching "+entity.(string)+" failed because of this error - %s.\n", SettingsDropdownDataErr)
@@ -114,7 +114,7 @@ var SettingsDropdownDeleteResolver = func(params graphql.ResolveParams) (interfa
 			SettingsDropdownData = shared.FilterByProperty(SettingsDropdownData, "Id", itemId)
 		}
 
-		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+entity.(string)+".json"), SettingsDropdownData)
+		shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+entity.(string)+".json"), SettingsDropdownData)
 
 		status = "success"
 	}

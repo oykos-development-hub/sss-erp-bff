@@ -5,7 +5,6 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-
 	"github.com/graphql-go/graphql"
 )
 
@@ -13,7 +12,7 @@ var JobPositionsResolver = func(params graphql.ResolveParams) (interface{}, erro
 	id := params.Args["id"]
 	search := params.Args["search"]
 	JobPositionType := &structs.JobPositions{}
-	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions.json", JobPositionType)
+	JobPositionData, JobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_positions.json", JobPositionType)
 
 	if JobPositionDataErr != nil {
 		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
@@ -40,10 +39,10 @@ var JobPositionInsertResolver = func(params graphql.ResolveParams) (interface{},
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	JobPositionType := &structs.JobPositions{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions.json", JobPositionType)
+	JobPositionData, JobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_positions.json", JobPositionType)
 
 	if JobPositionDataErr != nil {
 		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
@@ -57,7 +56,7 @@ var JobPositionInsertResolver = func(params graphql.ResolveParams) (interface{},
 
 	var updatedData = append(JobPositionData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -70,7 +69,7 @@ var JobPositionDeleteResolver = func(params graphql.ResolveParams) (interface{},
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JobPositionType := &structs.JobPositions{}
-	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions.json", JobPositionType)
+	JobPositionData, JobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_positions.json", JobPositionType)
 
 	if JobPositionDataErr != nil {
 		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
@@ -80,7 +79,7 @@ var JobPositionDeleteResolver = func(params graphql.ResolveParams) (interface{},
 		JobPositionData = shared.FilterByProperty(JobPositionData, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions.json"), JobPositionData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions.json"), JobPositionData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -94,10 +93,10 @@ var JobPositionInOrganizationUnitInsertResolver = func(params graphql.ResolvePar
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	JobPositionType := &structs.JobPositionsInOrganizationUnits{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions_in_organization_units.json", JobPositionType)
+	JobPositionData, JobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_positions_in_organization_units.json", JobPositionType)
 
 	if JobPositionDataErr != nil {
 		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
@@ -111,7 +110,7 @@ var JobPositionInOrganizationUnitInsertResolver = func(params graphql.ResolvePar
 
 	var updatedData = append(JobPositionData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions_in_organization_units.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions_in_organization_units.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -124,7 +123,7 @@ var JobPositionInOrganizationUnitDeleteResolver = func(params graphql.ResolvePar
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JobPositionType := &structs.JobPositionsInOrganizationUnits{}
-	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions_in_organization_units.json", JobPositionType)
+	JobPositionData, JobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_positions_in_organization_units.json", JobPositionType)
 
 	if JobPositionDataErr != nil {
 		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
@@ -134,7 +133,7 @@ var JobPositionInOrganizationUnitDeleteResolver = func(params graphql.ResolvePar
 		JobPositionData = shared.FilterByProperty(JobPositionData, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions_in_organization_units.json"), JobPositionData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions_in_organization_units.json"), JobPositionData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -148,11 +147,11 @@ var EmployeeInOrganizationUnitInsertResolver = func(params graphql.ResolveParams
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	EmployeeType := &structs.EmployeesInOrganizationUnits{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	userProfileId := data.UserProfileId
-	EmployeeData, EmployeeDataErr := shared.ReadJson(shared.GetDataRoot()+"/employees_in_organization_units.json", EmployeeType)
+	EmployeeData, EmployeeDataErr := shared.ReadJson("http://localhost:8080/mocked-data/employees_in_organization_units.json", EmployeeType)
 
 	if EmployeeDataErr != nil {
 		fmt.Printf("Fetching Employees failed because of this error - %s.\n", EmployeeDataErr)
@@ -172,13 +171,14 @@ var EmployeeInOrganizationUnitInsertResolver = func(params graphql.ResolveParams
 	)
 
 	if len(relatedUserProfile) > 0 {
-		userProfile := shared.WriteStructToInterface(relatedUserProfile[0])
+		var userProfile map[string]interface{}
+		userProfile = shared.WriteStructToInterface(relatedUserProfile[0])
 		data.UserAccountId = userProfile["user_account_id"].(int)
 	}
 
 	var updatedData = append(EmployeeData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/employees_in_organization_units.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/employees_in_organization_units.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -191,7 +191,7 @@ var EmployeeInOrganizationUnitDeleteResolver = func(params graphql.ResolveParams
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	EmployeeType := &structs.EmployeesInOrganizationUnits{}
-	EmployeeData, EmployeeDataErr := shared.ReadJson(shared.GetDataRoot()+"/employees_in_organization_units.json", EmployeeType)
+	EmployeeData, EmployeeDataErr := shared.ReadJson("http://localhost:8080/mocked-data/employees_in_organization_units.json", EmployeeType)
 
 	if EmployeeDataErr != nil {
 		fmt.Printf("Fetching Employees failed because of this error - %s.\n", EmployeeDataErr)
@@ -201,7 +201,7 @@ var EmployeeInOrganizationUnitDeleteResolver = func(params graphql.ResolveParams
 		EmployeeData = shared.FilterByProperty(EmployeeData, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/employees_in_organization_units.json"), EmployeeData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/employees_in_organization_units.json"), EmployeeData)
 
 	return map[string]interface{}{
 		"status":  "success",

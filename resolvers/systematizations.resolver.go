@@ -5,8 +5,8 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-
 	"github.com/graphql-go/graphql"
+	"reflect"
 )
 
 func PopulateSystematizationItemProperties(systematizations []interface{}, filters ...int) []interface{} {
@@ -22,6 +22,12 @@ func PopulateSystematizationItemProperties(systematizations []interface{}, filte
 	}
 
 	for _, item := range systematizations {
+		// # Systematization
+		itemValue := reflect.ValueOf(item)
+
+		if itemValue.Kind() == reflect.Ptr {
+			itemValue = itemValue.Elem()
+		}
 
 		var mergedItem = shared.WriteStructToInterface(item)
 
@@ -66,7 +72,7 @@ func PopulateSystematizationItemProperties(systematizations []interface{}, filte
 					var unitData = unit.(map[string]interface{})
 					var childrenData = unitData["children"].([]interface{})
 
-					if unitData["id"] == organizationUnit["id"] && len(childrenData) > 0 {
+					if unitData["id"] == organizationUnit["id"] && childrenData != nil && len(childrenData) > 0 {
 						// # Related Organization Unit sectors
 						for _, sector := range childrenData {
 							var sectorItem = shared.WriteStructToInterface(sector)
@@ -185,11 +191,13 @@ var SystematizationsOverviewResolver = func(params graphql.ResolveParams) (inter
 	size := params.Args["size"]
 
 	SystematizationsType := &structs.Systematization{}
-	SystematizationsData, SystematizationsDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationsType)
+	SystematizationsData, SystematizationsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/systematizations.json", SystematizationsType)
 
 	if SystematizationsDataErr != nil {
 		fmt.Printf("Fetching Systematizations failed because of this error - %s.\n", SystematizationsDataErr)
 	}
+
+	total = len(SystematizationsData)
 
 	// Populate data for each Systematization with Organization Unit, User Profile, Sectors and Job Positions
 	items = PopulateSystematizationItemProperties(SystematizationsData, id, organizationUnitId)
@@ -211,7 +219,7 @@ var SystematizationsOverviewResolver = func(params graphql.ResolveParams) (inter
 
 var SystematizationResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	SystematizationType := &structs.Systematization{}
-	SystematizationData, SystematizationDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationType)
+	SystematizationData, SystematizationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/systematizations.json", SystematizationType)
 
 	var id int
 	if params.Args["id"] == nil {
@@ -240,10 +248,10 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	SystematizationType := &structs.Systematization{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	systematizationData, systematizationDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationType)
+	systematizationData, systematizationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/systematizations.json", SystematizationType)
 
 	if systematizationDataErr != nil {
 		fmt.Printf("Fetching Systematization failed because of this error - %s.\n", systematizationDataErr)
@@ -260,7 +268,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 	var populatedData = PopulateSystematizationItemProperties(sliceData, data.Id)
 	var updatedData = append(systematizationData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/systematizations.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/systematizations.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -273,7 +281,7 @@ var SystematizationDeleteResolver = func(params graphql.ResolveParams) (interfac
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	SystematizationType := &structs.Systematization{}
-	systematizationData, systematizationDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationType)
+	systematizationData, systematizationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/systematizations.json", SystematizationType)
 
 	if systematizationDataErr != nil {
 		fmt.Printf("Fetching User Profile's Systematization failed because of this error - %s.\n", systematizationDataErr)
@@ -283,7 +291,7 @@ var SystematizationDeleteResolver = func(params graphql.ResolveParams) (interfac
 		systematizationData = shared.FilterByProperty(systematizationData, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/systematizations.json"), systematizationData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/systematizations.json"), systematizationData)
 
 	return map[string]interface{}{
 		"status":  "success",

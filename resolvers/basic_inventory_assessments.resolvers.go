@@ -71,7 +71,7 @@ var BasicInventoryAssessmentsInsertResolver = func(params graphql.ResolveParams)
 	itemId := data.Id
 	data.Active = true
 
-	basicInventoryAssessmentsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_assessments.json", BasicInventoryAssessmentsType)
+	basicInventoryAssessmentsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_assessments.json", BasicInventoryAssessmentsType)
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Assessments failed because of this error - %s.\n", err)
@@ -109,7 +109,7 @@ var BasicInventoryAssessmentDeleteResolver = func(params graphql.ResolveParams) 
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	BasicInventoryAssessmentsType := &structs.BasicInventoryAssessmentsTypesItem{}
-	basicInventoryAssessmentsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_assessments.json", BasicInventoryAssessmentsType)
+	basicInventoryAssessmentsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_assessments.json", BasicInventoryAssessmentsType)
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Assessment Delete failed because of this error - %s.\n", err)

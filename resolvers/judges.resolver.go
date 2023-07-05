@@ -5,9 +5,8 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"reflect"
-
 	"github.com/graphql-go/graphql"
+	"reflect"
 )
 
 func PopulateResolutionItemProperties(resolutions []interface{}, id int, year string) []interface{} {
@@ -42,7 +41,7 @@ func PopulateResolutionItemProperties(resolutions []interface{}, id int, year st
 		)
 		var mergedResolutionItems []interface{}
 
-		if len(relatedResolutionItems) > 0 {
+		if relatedResolutionItems != nil && len(relatedResolutionItems) > 0 {
 			for _, resolutionItem := range relatedResolutionItems {
 				var mergedResolutionItem = shared.WriteStructToInterface(resolutionItem)
 				var availableSlotsJudges = mergedResolutionItem["available_slots_judges"].(int)
@@ -59,7 +58,7 @@ func PopulateResolutionItemProperties(resolutions []interface{}, id int, year st
 					mergedResolutionItem["organization_unit_id"],
 				)
 
-				if len(relatedOrganizationUnit) > 0 {
+				if relatedOrganizationUnit != nil && len(relatedOrganizationUnit) > 0 {
 					for _, organizationUnit := range relatedOrganizationUnit {
 						var mergedOrganizationUnit = shared.WriteStructToInterface(organizationUnit)
 
@@ -77,7 +76,7 @@ func PopulateResolutionItemProperties(resolutions []interface{}, id int, year st
 							mergedOrganizationUnit["id"],
 						)
 
-						if len(jobPositionsInOrganizationUnit) > 0 {
+						if jobPositionsInOrganizationUnit != nil && len(jobPositionsInOrganizationUnit) > 0 {
 							for _, jobPositionInOrganizationUnit := range jobPositionsInOrganizationUnit {
 								var jobPositionData = shared.WriteStructToInterface(jobPositionInOrganizationUnit)
 
@@ -88,7 +87,7 @@ func PopulateResolutionItemProperties(resolutions []interface{}, id int, year st
 									jobPositionData["job_position_id"],
 								)
 
-								if len(relatedJobPosition) > 0 {
+								if relatedJobPosition != nil && len(relatedJobPosition) > 0 {
 									for _, jobPositionItem := range relatedJobPosition {
 										var jobPosition = shared.WriteStructToInterface(jobPositionItem)
 										// # Employees for Job Position
@@ -175,7 +174,7 @@ func PopulateJudgeItemProperties(judgeJobPositions []interface{}, isPresident bo
 			position["id"],
 		)
 
-		if len(relatedJobPositions) > 0 {
+		if relatedJobPositions != nil && len(relatedJobPositions) > 0 {
 			for _, relatedJobPosition := range relatedJobPositions {
 				var relatedPosition = shared.WriteStructToInterface(relatedJobPosition)
 				var employeeJobPositions = shared.FetchByProperty(
@@ -190,7 +189,7 @@ func PopulateJudgeItemProperties(judgeJobPositions []interface{}, isPresident bo
 				)
 				var relatedOrganizationUnit map[string]interface{}
 
-				if len(relatedOrganizationUnits) > 0 {
+				if relatedOrganizationUnits != nil && len(relatedOrganizationUnits) > 0 {
 					relatedOrganizationUnit = shared.WriteStructToInterface(relatedOrganizationUnits[0])
 
 					if shared.IsInteger(organizationUnitId) && organizationUnitId > 0 && organizationUnitId != relatedOrganizationUnit["id"] {
@@ -200,7 +199,7 @@ func PopulateJudgeItemProperties(judgeJobPositions []interface{}, isPresident bo
 					continue
 				}
 
-				if len(employeeJobPositions) > 0 {
+				if employeeJobPositions != nil && len(employeeJobPositions) > 0 {
 					for _, employeeJobPosition := range employeeJobPositions {
 						var employeePosition = shared.WriteStructToInterface(employeeJobPosition)
 						var userAccounts = shared.FetchByProperty(
@@ -209,7 +208,7 @@ func PopulateJudgeItemProperties(judgeJobPositions []interface{}, isPresident bo
 							employeePosition["user_account_id"],
 						)
 
-						if len(userAccounts) > 0 {
+						if userAccounts != nil && len(userAccounts) > 0 {
 							for _, userAccount := range userAccounts {
 								var account = shared.WriteStructToInterface(userAccount)
 								var userProfiles = shared.FetchByProperty(
@@ -218,7 +217,7 @@ func PopulateJudgeItemProperties(judgeJobPositions []interface{}, isPresident bo
 									account["id"],
 								)
 
-								if len(userProfiles) > 0 {
+								if userProfiles != nil && len(userProfiles) > 0 {
 									for _, userProfile := range userProfiles {
 										var profile = shared.WriteStructToInterface(userProfile)
 
@@ -243,7 +242,7 @@ func PopulateJudgeItemProperties(judgeJobPositions []interface{}, isPresident bo
 											profile["id"],
 										)
 
-										if len(judgeNorms) > 0 {
+										if judgeNorms != nil && len(judgeNorms) > 0 {
 											judgeItem["norms"] = judgeNorms
 										}
 
@@ -315,10 +314,10 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 		true,
 	)
 
-	if len(judgeJobPositions) > 0 {
+	if judgeJobPositions != nil && len(judgeJobPositions) > 0 {
 		judges = PopulateJudgeItemProperties(judgeJobPositions, false, userProfileId, organizationUnitId, search)
 	}
-	if len(judgePresidentJobPositions) > 0 {
+	if judgePresidentJobPositions != nil && len(judgePresidentJobPositions) > 0 {
 		judgePresidents = PopulateJudgeItemProperties(judgePresidentJobPositions, true, userProfileId, organizationUnitId, search)
 	}
 
@@ -355,10 +354,10 @@ var JudgeNormInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	JudgeNormType := &structs.JudgeNorms{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	judgeNormData, judgeNormDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_norms.json", JudgeNormType)
+	judgeNormData, judgeNormDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_norms.json", JudgeNormType)
 
 	if judgeNormDataErr != nil {
 		fmt.Printf("Fetching Judge Norms failed because of this error - %s.\n", judgeNormDataErr)
@@ -372,7 +371,7 @@ var JudgeNormInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	var updatedData = append(judgeNormData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_norms.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_norms.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -385,7 +384,7 @@ var JudgeNormDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JudgeNormType := &structs.JudgeNorms{}
-	judgeNormData, judgeNormDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_norms.json", JudgeNormType)
+	judgeNormData, judgeNormDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_norms.json", JudgeNormType)
 
 	if judgeNormDataErr != nil {
 		fmt.Printf("Fetching Judge Norm failed because of this error - %s.\n", judgeNormDataErr)
@@ -395,7 +394,7 @@ var JudgeNormDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 		judgeNormData = shared.FilterByProperty(judgeNormData, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_norms.json"), judgeNormData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_norms.json"), judgeNormData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -419,7 +418,7 @@ var JudgeResolutionsResolver = func(params graphql.ResolveParams) (interface{}, 
 	}
 
 	JudgeResolutionsType := &structs.JudgeResolutions{}
-	JudgeResolutionsData, JudgeResolutionsDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolutions.json", JudgeResolutionsType)
+	JudgeResolutionsData, JudgeResolutionsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_resolutions.json", JudgeResolutionsType)
 
 	if JudgeResolutionsDataErr != nil {
 		fmt.Printf("Fetching Judge Resolutions failed because of this error - %s.\n", JudgeResolutionsDataErr)
@@ -449,12 +448,12 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 	JudgeResolutionType := &structs.JudgeResolutions{}
 	JudgeResolutionItemType := &structs.JudgeResolutionItems{}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	json.Unmarshal(dataBytes, &data)
 
 	var resolutionItems = data.Items
 	itemId := data.Id
-	judgeResolutionData, judgeResolutionDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolutions.json", JudgeResolutionType)
-	judgeResolutionItemsData, judgeResolutionItemsDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolution_items.json", JudgeResolutionItemType)
+	judgeResolutionData, judgeResolutionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_resolutions.json", JudgeResolutionType)
+	judgeResolutionItemsData, judgeResolutionItemsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_resolution_items.json", JudgeResolutionItemType)
 
 	if judgeResolutionDataErr != nil {
 		fmt.Printf("Fetching Judge Resolutions failed because of this error - %s.\n", judgeResolutionDataErr)
@@ -471,7 +470,7 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 
 	var parsedData = shared.WriteStructToInterface(data)
 
-	if len(resolutionItems) > 0 {
+	if resolutionItems != nil && len(resolutionItems) > 0 {
 		for _, resolutionItem := range resolutionItems {
 			var resolutionItemData = shared.WriteStructToInterface(resolutionItem)
 
@@ -491,8 +490,8 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 
 	var updatedData = append(judgeResolutionData, parsedData)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolutions.json"), updatedData)
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolution_items.json"), judgeResolutionItemsData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolutions.json"), updatedData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolution_items.json"), judgeResolutionItemsData)
 
 	parsedData["items"] = judgeResolutionItemsData
 
@@ -511,8 +510,8 @@ var JudgeResolutionDeleteResolver = func(params graphql.ResolveParams) (interfac
 	JudgeResolutionType := &structs.JudgeResolutions{}
 	JudgeResolutionItemType := &structs.JudgeResolutionItems{}
 
-	judgeResolutionData, judgeResolutionDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolutions.json", JudgeResolutionType)
-	judgeResolutionItemsData, judgeResolutionItemsDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolution_items.json", JudgeResolutionItemType)
+	judgeResolutionData, judgeResolutionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_resolutions.json", JudgeResolutionType)
+	judgeResolutionItemsData, judgeResolutionItemsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/judge_resolution_items.json", JudgeResolutionItemType)
 
 	if judgeResolutionDataErr != nil {
 		fmt.Printf("Fetching Resolutions failed because of this error - %s.\n", judgeResolutionDataErr)
@@ -526,8 +525,8 @@ var JudgeResolutionDeleteResolver = func(params graphql.ResolveParams) (interfac
 		judgeResolutionItemsData = shared.FilterByProperty(judgeResolutionItemsData, "ResolutionId", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolutions.json"), judgeResolutionData)
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolution_items.json"), judgeResolutionItemsData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolutions.json"), judgeResolutionData)
+	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolution_items.json"), judgeResolutionItemsData)
 
 	return map[string]interface{}{
 		"status":  "success",

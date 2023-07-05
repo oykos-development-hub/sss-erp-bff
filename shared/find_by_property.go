@@ -17,9 +17,10 @@ func FindByProperty(collection []interface{}, property string, value interface{}
 	var matches []interface{}
 
 	for _, item := range collection {
-		switch item := item.(type) {
+		switch item.(type) {
 		case map[string]interface{}:
-			if v, ok := item[property]; ok && v == value {
+			m := item.(map[string]interface{})
+			if v, ok := m[property]; ok && v == value {
 				matches = append(matches, item)
 			}
 		default:
@@ -30,7 +31,7 @@ func FindByProperty(collection []interface{}, property string, value interface{}
 			v := s.FieldByName(property)
 
 			if v.IsValid() {
-				sourceValue := v.Interface()
+				var sourceValue = v.Interface()
 
 				if isValueString {
 					if (!containValue && sourceValue == value) || (containValue && StringContains(sourceValue.(string), value.(string))) {

@@ -135,9 +135,6 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 	case "inventory_class_type":
 		endpoint = "settings_dropdown_options.json"
 		entityStruct = &structs.SettingsDropdown{}
-	case "order_procurement_article":
-		endpoint = "order_procurement_article.json"
-		entityStruct = &structs.OrderProcurementArticleItem{}
 	}
 
 	entityData, entityDataErr := ReadJson("http://localhost:8080/mocked-data/"+endpoint, entityStruct)

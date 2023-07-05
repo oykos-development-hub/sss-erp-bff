@@ -50,9 +50,6 @@ var BasicInventoryInsertMutation = graphql.NewInputObject(graphql.InputObjectCon
 		"target_user_profile_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"organization_unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
-		},
 		"unit": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
@@ -116,7 +113,7 @@ var RealEstateInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"type_id": &graphql.InputObjectFieldConfig{
+		"title": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"square_area": &graphql.InputObjectFieldConfig{
@@ -138,15 +135,6 @@ var RealEstateInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"limitations_description": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"property_document": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"limitation_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"document": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{

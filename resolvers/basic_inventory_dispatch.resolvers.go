@@ -252,8 +252,16 @@ var BasicInventoryDispatchOverviewResolver = func(params graphql.ResolveParams) 
 var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.BasicInventoryDispatchItem
+	var organizationUnitId int
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	BasicInventoryDispatchType := &structs.BasicInventoryDispatchItem{}
+
+	var authToken = params.Context.Value("token").(string)
+	if authToken == "sss" {
+		organizationUnitId = 1
+	} else {
+		organizationUnitId = 2
+	}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
@@ -265,6 +273,8 @@ var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (i
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Dispatch failed because of this error - %s.\n", err)
 	}
+
+	data.SourceOrganizationUnitId = organizationUnitId
 
 	if shared.IsInteger(itemId) && itemId != 0 {
 		basicInventoryDispatchData = shared.FilterByProperty(basicInventoryDispatchData, "Id", itemId)

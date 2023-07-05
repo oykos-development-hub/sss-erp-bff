@@ -164,6 +164,9 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"source": &graphql.Field{
 			Type: graphql.String,
 		},
+		"serial_number": &graphql.Field{
+			Type: graphql.String,
+		},
 		"active": &graphql.Field{
 			Type: graphql.Boolean,
 		},

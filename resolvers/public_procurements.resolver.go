@@ -37,31 +37,32 @@ func PopulateStatus(plan map[string]interface{}, isAdmin bool, organizationUnitI
 		plan["id"],
 	)
 
-	if conversionTargetPlans != nil && len(conversionTargetPlans) > 0 {
+	if len(conversionTargetPlans) > 0 {
 		isConverted = true
 	}
 
 	if organizationUnitId > 0 {
 		var organizationUnitArticles = GetOrganizationUnitArticles(plan["id"].(int), organizationUnitId)
 
-		if organizationUnitArticles != nil && len(organizationUnitArticles) > 0 {
+		if len(organizationUnitArticles) > 0 {
 			for _, procurementData := range organizationUnitArticles {
 				procurement := procurementData.(map[string]interface{})
-				var procurementArticles = procurement["articles"].([]interface{})
+				if articles, ok := procurement["articles"].([]interface{}); ok {
+					var procurementArticles = articles
+					if len(procurementArticles) > 0 {
+						for _, procurementArticle := range procurementArticles {
+							article := procurementArticle.(map[string]interface{})
 
-				if procurementArticles != nil && len(procurementArticles) > 0 {
-					for _, procurementArticle := range procurementArticles {
-						article := procurementArticle.(map[string]interface{})
+							if shared.IsInteger(article["amount"]) && article["amount"].(int) > 0 {
+								isSentOnRevision = true
+								isRejected = false
+								isAccepted = false
 
-						if shared.IsInteger(article["amount"]) && article["amount"].(int) > 0 {
-							isSentOnRevision = true
-							isRejected = false
-							isAccepted = false
-
-							if article["is_rejected"] == true || article["status"] == "rejected" {
-								isRejected = true
-							} else if article["status"] == "accepted" {
-								isAccepted = true
+								if article["is_rejected"] == true || article["status"] == "rejected" {
+									isRejected = true
+								} else if article["status"] == "accepted" {
+									isAccepted = true
+								}
 							}
 						}
 					}
@@ -223,7 +224,7 @@ func GetOrganizationUnitArticles(planId int, unitId int) []interface{} {
 				"title": plan["title"],
 			}
 
-			if procurement["articles"] != nil && len(procurementArticles) > 0 {
+			if len(procurementArticles) > 0 {
 				items = append(items, procurement)
 			}
 		}
@@ -254,7 +255,7 @@ func PopulateContractArticleProperties(contractArticles []interface{}, filters .
 			article["public_procurement_article_id"],
 		)
 
-		if relatedArticles != nil && len(relatedArticles) > 0 {
+		if len(relatedArticles) > 0 {
 			for _, relatedArticleData := range relatedArticles {
 				var relatedArticle = shared.WriteStructToInterface(relatedArticleData)
 
@@ -273,7 +274,7 @@ func PopulateContractArticleProperties(contractArticles []interface{}, filters .
 			article["public_procurement_contract_id"],
 		)
 
-		if relatedContracts != nil && len(relatedContracts) > 0 {
+		if len(relatedContracts) > 0 {
 			for _, contractData := range relatedContracts {
 				var contract = shared.WriteStructToInterface(contractData)
 
@@ -325,7 +326,7 @@ func PopulateContractItemProperties(contracts []interface{}, filters ...interfac
 			contract["supplier_id"],
 		)
 
-		if relatedSuppliers != nil && len(relatedSuppliers) > 0 {
+		if len(relatedSuppliers) > 0 {
 			for _, supplierData := range relatedSuppliers {
 				var supplier = shared.WriteStructToInterface(supplierData)
 
@@ -342,7 +343,7 @@ func PopulateContractItemProperties(contracts []interface{}, filters ...interfac
 			contract["public_procurement_id"],
 		)
 
-		if relatedProcurement != nil && len(relatedProcurement) > 0 {
+		if len(relatedProcurement) > 0 {
 			for _, procurementData := range relatedProcurement {
 				var procurement = shared.WriteStructToInterface(procurementData)
 
@@ -381,7 +382,7 @@ func PopulateProcurementLimitProperties(limits []interface{}, filters ...interfa
 			limit["organization_unit_id"],
 		)
 
-		if relatedOrganizationUnit != nil && len(relatedOrganizationUnit) > 0 {
+		if len(relatedOrganizationUnit) > 0 {
 			for _, unitData := range relatedOrganizationUnit {
 				var unit = shared.WriteStructToInterface(unitData)
 
@@ -398,7 +399,7 @@ func PopulateProcurementLimitProperties(limits []interface{}, filters ...interfa
 			limit["public_procurement_id"],
 		)
 
-		if relatedProcurement != nil && len(relatedProcurement) > 0 {
+		if len(relatedProcurement) > 0 {
 			for _, procurementData := range relatedProcurement {
 				var procurement = shared.WriteStructToInterface(procurementData)
 
@@ -437,7 +438,7 @@ func PopulateProcurementArticleProperties(articles []interface{}, filters ...int
 			article["budget_indent_id"],
 		)
 
-		if relatedIndent != nil && len(relatedIndent) > 0 {
+		if len(relatedIndent) > 0 {
 			for _, indentData := range relatedIndent {
 				var indent = shared.WriteStructToInterface(indentData)
 
@@ -454,7 +455,7 @@ func PopulateProcurementArticleProperties(articles []interface{}, filters ...int
 			article["public_procurement_id"],
 		)
 
-		if relatedProcurement != nil && len(relatedProcurement) > 0 {
+		if len(relatedProcurement) > 0 {
 			for _, procurementData := range relatedProcurement {
 				var procurement = shared.WriteStructToInterface(procurementData)
 
@@ -497,7 +498,7 @@ func PopulateProcurementItemProperties(procurements []interface{}, filters ...in
 			procurement["budget_indent_id"],
 		)
 
-		if relatedIndent != nil && len(relatedIndent) > 0 {
+		if len(relatedIndent) > 0 {
 			for _, indentData := range relatedIndent {
 				var indent = shared.WriteStructToInterface(indentData)
 
@@ -514,7 +515,7 @@ func PopulateProcurementItemProperties(procurements []interface{}, filters ...in
 			procurement["plan_id"],
 		)
 
-		if relatedPlan != nil && len(relatedPlan) > 0 {
+		if len(relatedPlan) > 0 {
 			for _, planData := range relatedPlan {
 				var plan = shared.WriteStructToInterface(planData)
 
@@ -607,7 +608,7 @@ func PopulatePlanItemProperties(plans []interface{}, filters ...interface{}) []i
 				plan["pre_budget_id"],
 			)
 
-			if relatedPreBudgetPlan != nil && len(relatedPreBudgetPlan) > 0 {
+			if len(relatedPreBudgetPlan) > 0 {
 				for _, preBudgetPlanData := range relatedPreBudgetPlan {
 					var preBudgetPlan = shared.WriteStructToInterface(preBudgetPlanData)
 
@@ -661,7 +662,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 		"",
 	)
 
-	if plans != nil && len(plans) > 0 {
+	if len(plans) > 0 {
 		items = PopulatePlanItemProperties(plans, isPreBudget, year, status, authToken)
 	}
 
@@ -713,7 +714,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 	var data structs.PublicProcurementPlan
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
@@ -731,7 +732,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 
 	var updatedData = append(items, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_plans.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_plans.json"), updatedData)
 
 	var populatedData = PopulatePlanItemProperties(
 		[]interface{}{data},
@@ -762,7 +763,7 @@ var PublicProcurementPlanDeleteResolver = func(params graphql.ResolveParams) (in
 		items = shared.FilterByProperty(items, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_plans.json"), items)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_plans.json"), items)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -795,7 +796,7 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 	var data structs.PublicProcurementItem
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
@@ -813,7 +814,7 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 
 	var updatedData = append(items, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_items.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_items.json"), updatedData)
 
 	var populatedData = PopulateProcurementItemProperties([]interface{}{data})
 
@@ -838,7 +839,7 @@ var PublicProcurementPlanItemDeleteResolver = func(params graphql.ResolveParams)
 		items = shared.FilterByProperty(items, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_items.json"), items)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_items.json"), items)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -871,7 +872,7 @@ var PublicProcurementPlanItemLimitInsertResolver = func(params graphql.ResolvePa
 	var data structs.PublicProcurementLimit
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
@@ -889,7 +890,7 @@ var PublicProcurementPlanItemLimitInsertResolver = func(params graphql.ResolvePa
 
 	var updatedData = append(items, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_organization_unit_limits.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_organization_unit_limits.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -903,7 +904,7 @@ var PublicProcurementPlanItemArticleInsertResolver = func(params graphql.Resolve
 	var data structs.PublicProcurementArticle
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
@@ -921,7 +922,7 @@ var PublicProcurementPlanItemArticleInsertResolver = func(params graphql.Resolve
 
 	var updatedData = append(items, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_articles.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_articles.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -944,7 +945,7 @@ var PublicProcurementPlanItemArticleDeleteResolver = func(params graphql.Resolve
 		items = shared.FilterByProperty(items, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_articles.json"), items)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_articles.json"), items)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -1034,7 +1035,7 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 	var data structs.PublicProcurementOrganizationUnitArticle
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
@@ -1052,7 +1053,7 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 
 	var updatedData = append(items, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_organization_unit_articles.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_organization_unit_articles.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -1091,7 +1092,7 @@ var PublicProcurementContractsOverviewResolver = func(params graphql.ResolvePara
 		"",
 	)
 
-	if contracts != nil && len(contracts) > 0 {
+	if len(contracts) > 0 {
 		items = PopulateContractItemProperties(contracts, id, procurementId, supplierId)
 	}
 
@@ -1115,7 +1116,7 @@ var PublicProcurementContractInsertResolver = func(params graphql.ResolveParams)
 	var data structs.PublicProcurementContract
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
@@ -1133,7 +1134,7 @@ var PublicProcurementContractInsertResolver = func(params graphql.ResolveParams)
 
 	var updatedData = append(items, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_contracts.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_contracts.json"), updatedData)
 
 	var populatedData = PopulateContractItemProperties([]interface{}{data})
 
@@ -1158,7 +1159,7 @@ var PublicProcurementContractDeleteResolver = func(params graphql.ResolveParams)
 		items = shared.FilterByProperty(items, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_contracts.json"), items)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_contracts.json"), items)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -1182,7 +1183,7 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 		"",
 	)
 
-	if contractArticles != nil && len(contractArticles) > 0 {
+	if len(contractArticles) > 0 {
 		items = PopulateContractArticleProperties(contractArticles, contractId)
 	}
 
@@ -1201,7 +1202,7 @@ var PublicProcurementContractArticleInsertResolver = func(params graphql.Resolve
 	var data structs.PublicProcurementContractArticle
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
@@ -1219,7 +1220,7 @@ var PublicProcurementContractArticleInsertResolver = func(params graphql.Resolve
 
 	var updatedData = append(items, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_contract_articles.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_contract_articles.json"), updatedData)
 
 	var populatedData = PopulateContractArticleProperties([]interface{}{data})
 

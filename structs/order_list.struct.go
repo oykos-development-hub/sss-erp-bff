@@ -12,6 +12,7 @@ type OrderListItem struct {
 	InvoiceNumber       string `json:"invoice_number"`
 	OrganizationUnitId  int    `json:"organization_unit_id"`
 	OfficeId            int    `json:"office_id"`
+	DescriptionReceive  string `json:"description_receive"`
 }
 
 type OrderProcurementArticleItem struct {
@@ -49,10 +50,11 @@ type OrderArticleInsertItem struct {
 }
 
 type OrderReceiveItem struct {
-	OrderId       int    `json:"order_id"`
-	DateSystem    string `json:"date_system"`
-	InvoiceDate   string `json:"invoice_date"`
-	InvoiceNumber string `json:"invoice_number"`
+	OrderId            int    `json:"order_id"`
+	DateSystem         string `json:"date_system"`
+	InvoiceDate        string `json:"invoice_date"`
+	InvoiceNumber      string `json:"invoice_number"`
+	DescriptionReceive string `json:"description_receive"`
 }
 
 type OrderAssetMovementItem struct {

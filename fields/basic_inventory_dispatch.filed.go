@@ -24,11 +24,11 @@ var BasicInventoryDispatchOverviewField = &graphql.Field{
 		"type": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
-		"source_user_profile_id": &graphql.ArgumentConfig{
+		"source_organization_unit_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
-		"status": &graphql.ArgumentConfig{
-			Type: graphql.Boolean,
+		"accepted": &graphql.ArgumentConfig{
+			Type: graphql.String,
 		},
 	},
 	Resolve: resolvers.BasicInventoryDispatchOverviewResolver,

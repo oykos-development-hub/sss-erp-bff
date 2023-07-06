@@ -5,6 +5,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -21,7 +22,7 @@ var UserProfileForeignerResolver = func(params graphql.ResolveParams) (interface
 	}
 
 	UserProfilesType := &structs.UserProfiles{}
-	UserProfilesData, UserProfilesDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfilesType)
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
 	if UserProfilesDataErr != nil {
 		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
@@ -56,10 +57,10 @@ var UserProfileForeignerInsertResolver = func(params graphql.ResolveParams) (int
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	ForeignerType := &structs.Foreigners{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	ForeignerData, ForeignerDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_foreigners.json", ForeignerType)
+	ForeignerData, ForeignerDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_foreigners.json", ForeignerType)
 
 	if ForeignerDataErr != nil {
 		fmt.Printf("Fetching User Profile's Foreigner failed because of this error - %s.\n", ForeignerDataErr)
@@ -73,7 +74,7 @@ var UserProfileForeignerInsertResolver = func(params graphql.ResolveParams) (int
 
 	var updatedData = append(ForeignerData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_foreigners.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_foreigners.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -86,7 +87,7 @@ var UserProfileForeignerDeleteResolver = func(params graphql.ResolveParams) (int
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	ForeignerType := &structs.Foreigners{}
-	ForeignerData, ForeignerDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_foreigners.json", ForeignerType)
+	ForeignerData, ForeignerDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_foreigners.json", ForeignerType)
 
 	if ForeignerDataErr != nil {
 		fmt.Printf("Fetching User Profile's Foreigner failed because of this error - %s.\n", ForeignerDataErr)
@@ -96,7 +97,7 @@ var UserProfileForeignerDeleteResolver = func(params graphql.ResolveParams) (int
 		ForeignerData = shared.FilterByProperty(ForeignerData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_foreigners.json"), ForeignerData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_foreigners.json"), ForeignerData)
 
 	return map[string]interface{}{
 		"status":  "success",

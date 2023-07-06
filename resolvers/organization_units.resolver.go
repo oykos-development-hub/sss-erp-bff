@@ -5,20 +5,14 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+
 	"github.com/graphql-go/graphql"
-	"reflect"
 )
 
 func PopulateOrganizationUnitItemProperties(organizationUnits []interface{}) []interface{} {
 	var items []interface{}
 
 	for _, item := range organizationUnits {
-		// # Organization Unit
-		itemValue := reflect.ValueOf(item)
-
-		if itemValue.Kind() == reflect.Ptr {
-			itemValue = itemValue.Elem()
-		}
 
 		var mergedItem = shared.WriteStructToInterface(item)
 		// Fetching children Organization Units
@@ -34,7 +28,7 @@ var OrganizationUnitsResolver = func(params graphql.ResolveParams) (interface{},
 	id := params.Args["id"]
 	search := params.Args["search"]
 	OrganizationUnitType := &structs.OrganizationUnits{}
-	organizationUnitsData, organizationUnitDataErr := shared.ReadJson("http://localhost:8080/mocked-data/organization_units.json", OrganizationUnitType)
+	organizationUnitsData, organizationUnitDataErr := shared.ReadJson(shared.GetDataRoot()+"/organization_units.json", OrganizationUnitType)
 	var organizationUnitData []interface{}
 
 	if organizationUnitDataErr != nil {
@@ -66,10 +60,10 @@ var OrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interfa
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	OrganizationUnitType := &structs.OrganizationUnits{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	organizationUnitData, organizationUnitDataErr := shared.ReadJson("http://localhost:8080/mocked-data/organization_units.json", OrganizationUnitType)
+	organizationUnitData, organizationUnitDataErr := shared.ReadJson(shared.GetDataRoot()+"/organization_units.json", OrganizationUnitType)
 
 	if organizationUnitDataErr != nil {
 		fmt.Printf("Fetching organization units failed because of this error - %s.\n", organizationUnitDataErr)
@@ -83,7 +77,7 @@ var OrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interfa
 
 	var updatedData = append(organizationUnitData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/organization_units.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/organization_units.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -96,7 +90,7 @@ var OrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interfa
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	OrganizationUnitType := &structs.OrganizationUnits{}
-	organizationUnitData, organizationUnitDataErr := shared.ReadJson("http://localhost:8080/mocked-data/organization_units.json", OrganizationUnitType)
+	organizationUnitData, organizationUnitDataErr := shared.ReadJson(shared.GetDataRoot()+"/organization_units.json", OrganizationUnitType)
 
 	if organizationUnitDataErr != nil {
 		fmt.Printf("Fetching organization units failed because of this error - %s.\n", organizationUnitDataErr)
@@ -106,7 +100,7 @@ var OrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interfa
 		organizationUnitData = shared.FilterByProperty(organizationUnitData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/organization_units.json"), organizationUnitData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/organization_units.json"), organizationUnitData)
 
 	return map[string]interface{}{
 		"status":  "success",

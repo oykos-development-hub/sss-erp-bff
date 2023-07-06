@@ -69,6 +69,38 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 			}
 		}
 
+		if mergedItem["organization_unit_id"].(int) > 0 {
+			var relatedOfficesOrganizationUnit = shared.FetchByProperty(
+				"organization_unit",
+				"Id",
+				mergedItem["organization_unit_id"],
+			)
+			if len(relatedOfficesOrganizationUnit) > 0 {
+				var relatedOrganizationUnit = shared.WriteStructToInterface(relatedOfficesOrganizationUnit[0])
+
+				mergedItem["organization_unit"] = map[string]interface{}{
+					"title": relatedOrganizationUnit["title"],
+					"id":    relatedOrganizationUnit["id"],
+				}
+			}
+		}
+
+		if mergedItem["target_organization_unit_id"].(int) > 0 {
+			var relatedOfficesOrganizationUnit = shared.FetchByProperty(
+				"organization_unit",
+				"Id",
+				mergedItem["target_organization_unit_id"],
+			)
+			if len(relatedOfficesOrganizationUnit) > 0 {
+				var relatedOrganizationUnit = shared.WriteStructToInterface(relatedOfficesOrganizationUnit[0])
+
+				mergedItem["target_organization_unit"] = map[string]interface{}{
+					"title": relatedOrganizationUnit["title"],
+					"id":    relatedOrganizationUnit["id"],
+				}
+			}
+		}
+
 		if shared.IsInteger(mergedItem["class_type_id"]) && mergedItem["class_type_id"].(int) > 0 {
 			var relatedInventoryClassType = shared.FetchByProperty(
 				"inventory_class_type",
@@ -148,7 +180,7 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 
 				mergedItem["real_estate"] = map[string]interface{}{
 					"id":                         relatedRealEstate["id"],
-					"title":                      relatedRealEstate["title"],
+					"type_id":                    relatedRealEstate["type_id"],
 					"square_area":                relatedRealEstate["square_area"],
 					"land_serial_number":         relatedRealEstate["land_serial_number"],
 					"estate_serial_number":       relatedRealEstate["estate_serial_number"],
@@ -156,6 +188,9 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 					"ownership_scope":            relatedRealEstate["ownership_scope"],
 					"ownership_investment_scope": relatedRealEstate["ownership_investment_scope"],
 					"limitations_description":    relatedRealEstate["limitations_description"],
+					"property_document":          relatedRealEstate["property_document"],
+					"limitation_id":              relatedRealEstate["limitation_id"],
+					"document":                   relatedRealEstate["document"],
 					"file_id":                    relatedRealEstate["file_id"],
 				}
 			}
@@ -180,7 +215,7 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 		if shared.IsInteger(id) && id != 0 && id == mergedItem["id"] {
 
 			BasicInventoryAssessmentsType := &structs.BasicInventoryAssessmentsTypesItem{}
-			basicInventoryAssessmentsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_assessments.json", BasicInventoryAssessmentsType)
+			basicInventoryAssessmentsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_assessments.json", BasicInventoryAssessmentsType)
 
 			if err != nil {
 				fmt.Printf("Fetching Basic Inventory Assessments failed because of this error - %s.\n", err)
@@ -189,14 +224,14 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 			mergedItem["assessments"] = PopulateBasicInventoryAssessmentsItemProperties(basicInventoryAssessmentsData, 0, id)
 
 			BasicInventoryDispatchType := &structs.BasicInventoryDispatchItem{}
-			basicInventoryDispatchData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch.json", BasicInventoryDispatchType)
+			basicInventoryDispatchData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch.json", BasicInventoryDispatchType)
 
 			if err != nil {
 				fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", err)
 			}
 
 			BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
-			basicInventoryDispatchItemsData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
+			basicInventoryDispatchItemsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
 
 			if err != nil {
 				fmt.Printf("Fetching Basic Inventory Dispatch Items failed because of this error - %s.\n", err)
@@ -207,7 +242,7 @@ func PopulateBasicInventoryItemProperties(basicInventoryItems []interface{}, org
 			if len(basicInventoryDispatchItemsData) > 0 {
 				for _, i := range basicInventoryDispatchItemsData {
 					if m, ok := i.(*structs.BasicInventoryDispatchItemsItem); ok {
-						basicInventoryDispatchItem := PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchData, m.DispatchId, "", 0)
+						basicInventoryDispatchItem := PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchData, m.DispatchId, "", 0, organizationUnitId)
 						if len(basicInventoryDispatchItem) > 0 {
 							movements, ok := mergedItem["movements"].([]interface{})
 							if ok {
@@ -238,6 +273,8 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	var search string
 	var sourceType string
 	var depreciationTypeId int
+
+	var authToken = params.Context.Value("token").(string)
 
 	if params.Args["id"] == nil {
 		id = 0
@@ -281,17 +318,23 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 		depreciationTypeId = params.Args["depreciation_type_id"].(int)
 	}
 
-	if params.Args["organization_unit_id"] == nil {
-		organizationUnitId = 0
+	if authToken == "sss" {
+		organizationUnitId = 1
 	} else {
-		organizationUnitId = params.Args["organization_unit_id"].(int)
+		organizationUnitId = 2
 	}
+
+	// if params.Args["organization_unit_id"] == nil {
+	// 	organizationUnitId = 0
+	// } else {
+	// 	organizationUnitId = params.Args["organization_unit_id"].(int)
+	// }
 
 	page := params.Args["page"]
 	size := params.Args["size"]
 
 	BasicInventoryType := &structs.BasicInventoryItem{}
-	BasicInventoryData, BasicInventoryDataErr := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
+	BasicInventoryData, BasicInventoryDataErr := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
 
 	if BasicInventoryDataErr != nil {
 		fmt.Printf("Fetching Basic Inventory failed because of this error - %s.\n", BasicInventoryDataErr)
@@ -330,14 +373,21 @@ var BasicInventoryDetailsResolver = func(params graphql.ResolveParams) (interfac
 		id = params.Args["id"].(int)
 	}
 
-	if params.Args["organization_unit_id"] == nil {
-		organizationUnitId = 0
+	var authToken = params.Context.Value("token").(string)
+	if authToken == "sss" {
+		organizationUnitId = 1
 	} else {
-		organizationUnitId = params.Args["organization_unit_id"].(int)
+		organizationUnitId = 2
 	}
 
+	// if params.Args["organization_unit_id"] == nil {
+	// 	organizationUnitId = 0
+	// } else {
+	// 	organizationUnitId = params.Args["organization_unit_id"].(int)
+	// }
+
 	BasicInventoryDetailsType := &structs.BasicInventoryDetailsItem{}
-	BasicInventoryDetailsData, BasicInventoryDataErr := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryDetailsType)
+	BasicInventoryDetailsData, BasicInventoryDataErr := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryDetailsType)
 
 	if BasicInventoryDataErr != nil {
 		fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", BasicInventoryDataErr)
@@ -355,60 +405,74 @@ var BasicInventoryDetailsResolver = func(params graphql.ResolveParams) (interfac
 
 var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
-	var data structs.BasicInventoryInsertItem
+	var dataArray []structs.BasicInventoryInsertItem
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	BasicInventoryType := &structs.BasicInventoryInsertItem{}
+	var organizationUnitId int
+	var results []interface{}
+	_ = json.Unmarshal(dataBytes, &dataArray)
 
-	_ = json.Unmarshal(dataBytes, &data)
-
-	itemId := data.Id
-
-	basicInventoryData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_items.json", BasicInventoryType)
-
-	if err != nil {
-		fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
-	}
-
-	sliceData := []interface{}{data}
-
-	// Populate data for each Basic Inventory
-	var populatedData = PopulateBasicInventoryItemProperties(sliceData, data.OrganizationUnitId, itemId, "", 0, 0, "", "", 0)
-
-	if shared.IsInteger(itemId) && itemId != 0 {
-		basicInventoryData = shared.FilterByProperty(basicInventoryData, "Id", itemId)
+	var authToken = params.Context.Value("token").(string)
+	if authToken == "sss" {
+		organizationUnitId = 1
 	} else {
-		data.Id = shared.GetRandomNumber()
-	}
-	if data.Type == "immovable" && data.RealEstate != nil && shared.IsString(data.RealEstate.Title) && data.RealEstate.Title != "" {
-		RealEstateType := &structs.BasicInventoryRealEstatesItem{}
-		realEstateData, err := shared.ReadJson("http://localhost:8080/mocked-data/basic_inventory_real_estates.json", RealEstateType)
-
-		if err != nil {
-			fmt.Printf("Fetching Basic Inventory Real Estates failed because of this error - %s.\n", err)
-		}
-
-		realEstateItemId := data.RealEstate.Id
-
-		if shared.IsInteger(realEstateItemId) && realEstateItemId != 0 {
-			realEstateData = shared.FilterByProperty(realEstateData, "Id", realEstateItemId)
-		} else {
-			data.RealEstate.Id = shared.GetRandomNumber()
-		}
-
-		data.RealEstateId = data.RealEstate.Id
-		var updatedDataRealEstate = append(realEstateData, data.RealEstate)
-		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_real_estates.json"), updatedDataRealEstate)
+		organizationUnitId = 2
 	}
 
-	data.RealEstate = nil
+	if len(dataArray) > 0 {
+		for _, data := range dataArray {
+			itemId := data.Id
+			data.OrganizationUnitId = organizationUnitId
 
-	var updatedData = append(basicInventoryData, data)
+			basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_items.json"), updatedData)
+			if err != nil {
+				fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
+			}
 
+			if shared.IsInteger(itemId) && itemId != 0 {
+				basicInventoryData = shared.FilterByProperty(basicInventoryData, "Id", itemId)
+			} else {
+				data.Id = shared.GetRandomNumber()
+			}
+			if data.Type == "immovable" && data.RealEstate != nil && shared.IsString(data.RealEstate.TypeId) && data.RealEstate.TypeId != "" {
+				RealEstateType := &structs.BasicInventoryRealEstatesItem{}
+				realEstateData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_real_estates.json", RealEstateType)
+
+				if err != nil {
+					fmt.Printf("Fetching Basic Inventory Real Estates failed because of this error - %s.\n", err)
+				}
+
+				realEstateItemId := data.RealEstate.Id
+
+				if shared.IsInteger(realEstateItemId) && realEstateItemId != 0 {
+					realEstateData = shared.FilterByProperty(realEstateData, "Id", realEstateItemId)
+				} else {
+					data.RealEstate.Id = shared.GetRandomNumber()
+				}
+
+				data.RealEstateId = data.RealEstate.Id
+				var updatedDataRealEstate = append(realEstateData, data.RealEstate)
+				_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_real_estates.json"), updatedDataRealEstate)
+
+			}
+
+			data.RealEstate = nil
+
+			var updatedData = append(basicInventoryData, data)
+
+			// Populate data for each Basic Inventory
+			sliceData := []interface{}{data}
+			var populatedData = PopulateBasicInventoryItemProperties(sliceData, data.OrganizationUnitId, itemId, "", 0, 0, "", "", 0)
+			results = append(results, populatedData[0])
+
+			_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_items.json"), updatedData)
+
+		}
+	}
 	return map[string]interface{}{
 		"status":  "success",
 		"message": "You updated this item!",
-		"item":    populatedData[0],
+		"item":    results,
 	}, nil
 }

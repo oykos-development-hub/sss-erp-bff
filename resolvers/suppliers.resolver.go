@@ -4,6 +4,7 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -31,7 +32,7 @@ var SuppliersOverviewResolver = func(params graphql.ResolveParams) (interface{},
 		"",
 	)
 
-	if suppliers != nil && len(suppliers) > 0 {
+	if len(suppliers) > 0 {
 		for _, supplierItem := range suppliers {
 			var supplier = shared.WriteStructToInterface(supplierItem)
 
@@ -68,7 +69,7 @@ var SuppliersInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	var data structs.Suppliers
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
@@ -86,7 +87,7 @@ var SuppliersInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	var updatedData = append(items, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/suppliers.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/suppliers.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -109,7 +110,7 @@ var SuppliersDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 		items = shared.FilterByProperty(items, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/suppliers.json"), items)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/suppliers.json"), items)
 
 	return map[string]interface{}{
 		"status":  "success",

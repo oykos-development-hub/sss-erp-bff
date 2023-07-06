@@ -5,6 +5,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -12,7 +13,7 @@ var JobTenderTypesResolver = func(params graphql.ResolveParams) (interface{}, er
 	id := params.Args["id"]
 	search := params.Args["search"]
 	JobTenderTypeType := &structs.JobTenderTypes{}
-	JobTenderTypeData, JobTenderTypeDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_types.json", JobTenderTypeType)
+	JobTenderTypeData, JobTenderTypeDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_types.json", JobTenderTypeType)
 
 	if JobTenderTypeDataErr != nil {
 		fmt.Printf("Fetching Job Tender types failed because of this error - %s.\n", JobTenderTypeDataErr)
@@ -39,10 +40,10 @@ var JobTenderTypeInsertResolver = func(params graphql.ResolveParams) (interface{
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	JobTenderTypeType := &structs.JobTenderTypes{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	JobTenderTypeData, JobTenderTypeDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_types.json", JobTenderTypeType)
+	JobTenderTypeData, JobTenderTypeDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_types.json", JobTenderTypeType)
 
 	if JobTenderTypeDataErr != nil {
 		fmt.Printf("Fetching Job Tender types failed because of this error - %s.\n", JobTenderTypeDataErr)
@@ -56,7 +57,7 @@ var JobTenderTypeInsertResolver = func(params graphql.ResolveParams) (interface{
 
 	var updatedData = append(JobTenderTypeData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_types.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_types.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -69,7 +70,7 @@ var JobTenderTypeDeleteResolver = func(params graphql.ResolveParams) (interface{
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JobTenderTypeType := &structs.JobTenderTypes{}
-	JobTenderTypeData, JobTenderTypeDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_types.json", JobTenderTypeType)
+	JobTenderTypeData, JobTenderTypeDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_types.json", JobTenderTypeType)
 
 	if JobTenderTypeDataErr != nil {
 		fmt.Printf("Fetching Job Tender types failed because of this error - %s.\n", JobTenderTypeDataErr)
@@ -79,7 +80,7 @@ var JobTenderTypeDeleteResolver = func(params graphql.ResolveParams) (interface{
 		JobTenderTypeData = shared.FilterByProperty(JobTenderTypeData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_types.json"), JobTenderTypeData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_types.json"), JobTenderTypeData)
 
 	return map[string]interface{}{
 		"status":  "success",

@@ -5,6 +5,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -23,7 +24,7 @@ var UserProfileEvaluationResolver = func(params graphql.ResolveParams) (interfac
 	}
 
 	UserProfilesType := &structs.UserProfiles{}
-	UserProfilesData, UserProfilesDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfilesType)
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
 	if UserProfilesDataErr != nil {
 		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
@@ -56,7 +57,7 @@ var UserProfileEvaluationResolver = func(params graphql.ResolveParams) (interfac
 			var relatedEvaluationItemData = shared.WriteStructToInterface(relatedEvaluationItem)
 			var relatedEvaluationType = shared.FindByProperty(evaluationTypes, "Id", relatedEvaluationItemData["evaluation_type_id"])
 
-			if relatedEvaluationType != nil && len(relatedEvaluationType) > 0 {
+			if len(relatedEvaluationType) > 0 {
 				var relatedEvaluationData = shared.WriteStructToInterface(relatedEvaluationType[0])
 
 				relatedEvaluationItemData["evaluation_type"] = map[string]interface{}{
@@ -82,10 +83,10 @@ var UserProfileEvaluationInsertResolver = func(params graphql.ResolveParams) (in
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	EvaluationType := &structs.Evaluation{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	evaluationData, evaluationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_evaluations.json", EvaluationType)
+	evaluationData, evaluationDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_evaluations.json", EvaluationType)
 
 	if evaluationDataErr != nil {
 		fmt.Printf("Fetching User Profile's evaluation failed because of this error - %s.\n", evaluationDataErr)
@@ -99,7 +100,7 @@ var UserProfileEvaluationInsertResolver = func(params graphql.ResolveParams) (in
 
 	var updatedData = append(evaluationData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_evaluations.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_evaluations.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -112,7 +113,7 @@ var UserProfileEvaluationDeleteResolver = func(params graphql.ResolveParams) (in
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	EvaluationType := &structs.Evaluation{}
-	evaluationData, evaluationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_evaluations.json", EvaluationType)
+	evaluationData, evaluationDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_evaluations.json", EvaluationType)
 
 	if evaluationDataErr != nil {
 		fmt.Printf("Fetching User Profile's Evaluation failed because of this error - %s.\n", evaluationDataErr)
@@ -122,7 +123,7 @@ var UserProfileEvaluationDeleteResolver = func(params graphql.ResolveParams) (in
 		evaluationData = shared.FilterByProperty(evaluationData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_evaluations.json"), evaluationData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_evaluations.json"), evaluationData)
 
 	return map[string]interface{}{
 		"status":  "success",

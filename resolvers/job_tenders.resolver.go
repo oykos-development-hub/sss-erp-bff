@@ -5,20 +5,15 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"github.com/graphql-go/graphql"
 	"reflect"
+
+	"github.com/graphql-go/graphql"
 )
 
 func PopulateJobTenderItemProperties(jobTenders []interface{}, id int, organizationUnitId int, typeParam string, isActive ...interface{}) []interface{} {
 	var items []interface{}
 
 	for _, item := range jobTenders {
-		// # Job Tender
-		itemValue := reflect.ValueOf(item)
-
-		if itemValue.Kind() == reflect.Ptr {
-			itemValue = itemValue.Elem()
-		}
 
 		var mergedItem = shared.WriteStructToInterface(item)
 
@@ -70,7 +65,7 @@ func PopulateJobTenderItemProperties(jobTenders []interface{}, id int, organizat
 
 		var relatedJobPosition = shared.FetchByProperty("job_position", "Id", relatedJobPositionInOrganizationUnitValue.FieldByName("JobPositionId").Interface())
 
-		if relatedJobPosition != nil && len(relatedJobPosition) > 0 {
+		if len(relatedJobPosition) > 0 {
 			relatedJobPositionValue := reflect.ValueOf(relatedJobPosition[0])
 
 			if relatedJobPositionValue.Kind() == reflect.Ptr {
@@ -93,12 +88,6 @@ func PopulateJobTenderApplicationProperties(jobTenderApplications []interface{},
 	var items []interface{}
 
 	for _, item := range jobTenderApplications {
-		// # Job Tender Application
-		itemValue := reflect.ValueOf(item)
-
-		if itemValue.Kind() == reflect.Ptr {
-			itemValue = itemValue.Elem()
-		}
 
 		var mergedItem = shared.WriteStructToInterface(item)
 		// Filtering by ID
@@ -180,13 +169,11 @@ var JobTendersOverviewResolver = func(params graphql.ResolveParams) (interface{}
 	typeParam := params.Args["type"]
 
 	JobTendersType := &structs.JobTenders{}
-	JobTendersData, JobTendersDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tenders.json", JobTendersType)
+	JobTendersData, JobTendersDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTendersType)
 
 	if JobTendersDataErr != nil {
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", JobTendersDataErr)
 	}
-
-	total = len(JobTendersData)
 
 	// Populate data for each Job Tender with Organization Unit and Job Position
 	items = PopulateJobTenderItemProperties(JobTendersData, id, organizationUnitId, typeParam.(string), params.Args["active"])
@@ -208,7 +195,7 @@ var JobTendersOverviewResolver = func(params graphql.ResolveParams) (interface{}
 
 var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	JobTenderType := &structs.JobTenders{}
-	JobTenderData, JobTenderDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tenders.json", JobTenderType)
+	JobTenderData, JobTenderDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTenderType)
 
 	var id int
 	if params.Args["id"] == nil {
@@ -237,10 +224,10 @@ var JobTenderInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	JobTenderType := &structs.JobTenders{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	jobTenderData, jobTenderDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tenders.json", JobTenderType)
+	jobTenderData, jobTenderDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTenderType)
 
 	if jobTenderDataErr != nil {
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", jobTenderDataErr)
@@ -259,7 +246,7 @@ var JobTenderInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	var updatedData = append(jobTenderData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tenders.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tenders.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -272,7 +259,7 @@ var JobTenderDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JobTenderType := &structs.JobTenders{}
-	jobTenderData, jobTenderDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tenders.json", JobTenderType)
+	jobTenderData, jobTenderDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTenderType)
 
 	if jobTenderDataErr != nil {
 		fmt.Printf("Fetching Job Tender failed because of this error - %s.\n", jobTenderDataErr)
@@ -282,7 +269,7 @@ var JobTenderDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 		jobTenderData = shared.FilterByProperty(jobTenderData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tenders.json"), jobTenderData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tenders.json"), jobTenderData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -310,13 +297,11 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 	size := params.Args["size"]
 
 	JobTenderApplicationsType := &structs.JobTenderApplications{}
-	JobTenderApplicationsData, JobTenderApplicationsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_applications.json", JobTenderApplicationsType)
+	JobTenderApplicationsData, JobTenderApplicationsDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_applications.json", JobTenderApplicationsType)
 
 	if JobTenderApplicationsDataErr != nil {
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", JobTenderApplicationsDataErr)
 	}
-
-	total = len(JobTenderApplicationsData)
 
 	// Populate data for each Job Tender with Organization Unit and Job Position
 	items = PopulateJobTenderApplicationProperties(JobTenderApplicationsData, id, jobTenderId)
@@ -342,10 +327,10 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	JobTenderApplicationType := &structs.JobTenderApplications{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_applications.json", JobTenderApplicationType)
+	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_applications.json", JobTenderApplicationType)
 
 	if JobTenderApplicationDataErr != nil {
 		fmt.Printf("Fetching Job Tender Applications failed because of this error - %s.\n", JobTenderApplicationDataErr)
@@ -364,7 +349,7 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 
 	var updatedData = append(JobTenderApplicationData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_applications.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_applications.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -377,7 +362,7 @@ var JobTenderApplicationDeleteResolver = func(params graphql.ResolveParams) (int
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	JobTenderApplicationType := &structs.JobTenderApplications{}
-	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_tender_applications.json", JobTenderApplicationType)
+	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_applications.json", JobTenderApplicationType)
 
 	if JobTenderApplicationDataErr != nil {
 		fmt.Printf("Fetching Job Tender Applications failed because of this error - %s.\n", JobTenderApplicationDataErr)
@@ -387,7 +372,7 @@ var JobTenderApplicationDeleteResolver = func(params graphql.ResolveParams) (int
 		JobTenderApplicationData = shared.FilterByProperty(JobTenderApplicationData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_applications.json"), JobTenderApplicationData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_applications.json"), JobTenderApplicationData)
 
 	return map[string]interface{}{
 		"status":  "success",

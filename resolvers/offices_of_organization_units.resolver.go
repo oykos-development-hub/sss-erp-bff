@@ -9,7 +9,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func PopulateOfficesOfOrganizationUnitItemProperties(basicInventoryItems []interface{}, id int) []interface{} {
+func PopulateOfficesOfOrganizationUnitItemProperties(basicInventoryItems []interface{}, id int, organizationUnitId int, search string) []interface{} {
 	var items []interface{}
 
 	for _, item := range basicInventoryItems {
@@ -18,6 +18,16 @@ func PopulateOfficesOfOrganizationUnitItemProperties(basicInventoryItems []inter
 
 		// Filtering by ID
 		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+			continue
+		}
+
+		// Filtering by organizationUnitId
+		if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 && organizationUnitId != mergedItem["organization_unit_id"] {
+			continue
+		}
+
+		// Filtering by status
+		if shared.IsString(search) && len(search) > 0 && !shared.StringContains(mergedItem["title"].(string), search) {
 			continue
 		}
 
@@ -49,21 +59,36 @@ var OfficesOfOrganizationUnitOverviewResolver = func(params graphql.ResolveParam
 	var items []interface{}
 	var total int
 	var id int
+	var organizationUnitId int
+	var search string
+
 	if params.Args["id"] == nil {
 		id = 0
 	} else {
 		id = params.Args["id"].(int)
 	}
 
+	if params.Args["organization_unit_id"] == nil {
+		organizationUnitId = 0
+	} else {
+		organizationUnitId = params.Args["organization_unit_id"].(int)
+	}
+
+	if params.Args["search"] == nil {
+		search = ""
+	} else {
+		search = params.Args["search"].(string)
+	}
+
 	OfficesOfOrganizationUnitType := &structs.OfficesOfOrganizationUnitItem{}
-	OfficesOfOrganizationUnitData, err := shared.ReadJson("http://localhost:8080/mocked-data/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
+	OfficesOfOrganizationUnitData, err := shared.ReadJson(shared.GetDataRoot()+"/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
 
 	if err != nil {
 		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", err)
 	}
 
 	// Populate data for each Basic Inventory Depreciation Types
-	items = PopulateOfficesOfOrganizationUnitItemProperties(OfficesOfOrganizationUnitData, id)
+	items = PopulateOfficesOfOrganizationUnitItemProperties(OfficesOfOrganizationUnitData, id, organizationUnitId, search)
 
 	total = len(items)
 
@@ -85,7 +110,7 @@ var OfficesOfOrganizationUnitInsertResolver = func(params graphql.ResolveParams)
 
 	itemId := data.Id
 
-	OfficesOfOrganizationUnitData, err := shared.ReadJson("http://localhost:8080/mocked-data/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
+	OfficesOfOrganizationUnitData, err := shared.ReadJson(shared.GetDataRoot()+"/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
 
 	if err != nil {
 		fmt.Printf("Fetching Offices Of Organization Unit failed because of this error - %s.\n", err)
@@ -104,7 +129,7 @@ var OfficesOfOrganizationUnitInsertResolver = func(params graphql.ResolveParams)
 	sliceData := []interface{}{data}
 
 	// Populate data for each Basic Inventory
-	var populatedData = PopulateOfficesOfOrganizationUnitItemProperties(sliceData, itemId)
+	var populatedData = PopulateOfficesOfOrganizationUnitItemProperties(sliceData, itemId, 0, "")
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -117,7 +142,7 @@ var OfficesOfOrganizationUnitDeleteResolver = func(params graphql.ResolveParams)
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	OfficesOfOrganizationUnitType := &structs.OfficesOfOrganizationUnitItem{}
-	OfficesOfOrganizationUnitData, err := shared.ReadJson("http://localhost:8080/mocked-data/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
+	OfficesOfOrganizationUnitData, err := shared.ReadJson(shared.GetDataRoot()+"/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
 
 	if err != nil {
 		fmt.Printf("Fetching Inventory Depreciation Types Delete failed because of this error - %s.\n", err)

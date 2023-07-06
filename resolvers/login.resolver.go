@@ -35,35 +35,35 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	}
 
 	PermissionsType := &structs.Permissions{}
-	permissionsData, permissionsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/permissions_super_admin.json", PermissionsType)
+	permissionsData, permissionsDataErr := shared.ReadJson(shared.GetDataRoot()+"/permissions_super_admin.json", PermissionsType)
 
 	if permissionsDataErr != nil {
 		fmt.Printf("Fetching permissions failed because of this error - %s.\n", permissionsDataErr)
 	}
 
 	ContractsType := &structs.Contracts{}
-	contractsData, contractsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/contract_unlimited_type.json", ContractsType)
+	contractsData, contractsDataErr := shared.ReadJson(shared.GetDataRoot()+"/contract_unlimited_type.json", ContractsType)
 
 	if contractsDataErr != nil {
 		fmt.Printf("Fetching contracts failed because of this error - %s.\n", contractsDataErr)
 	}
 
 	EngagementsType := &structs.EngagementType{}
-	engagementsData, engagementsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/engagement_officer_type.json", EngagementsType)
+	engagementsData, engagementsDataErr := shared.ReadJson(shared.GetDataRoot()+"/engagement_officer_type.json", EngagementsType)
 
 	if engagementsDataErr != nil {
 		fmt.Printf("Fetching engagements failed because of this error - %s.\n", engagementsDataErr)
 	}
 
 	JobPositionType := &structs.JobPositions{}
-	jobPositionData, jobPositionDataErr := shared.ReadJson("http://localhost:8080/mocked-data/job_position_it_admin.json", JobPositionType)
+	jobPositionData, jobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_position_it_admin.json", JobPositionType)
 
 	if jobPositionDataErr != nil {
 		fmt.Printf("Fetching job positions failed because of this error - %s.\n", jobPositionDataErr)
 	}
 
 	OrganizationUnitType := &structs.OrganizationUnits{}
-	organizationUnitData, organizationUnitDataErr := shared.ReadJson("http://localhost:8080/mocked-data/organization_unit_sss.json", OrganizationUnitType)
+	organizationUnitData, organizationUnitDataErr := shared.ReadJson(shared.GetDataRoot()+"/organization_unit_sss.json", OrganizationUnitType)
 
 	if organizationUnitDataErr != nil {
 		fmt.Printf("Fetching organization units failed because of this error - %s.\n", organizationUnitDataErr)

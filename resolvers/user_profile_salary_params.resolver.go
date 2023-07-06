@@ -5,6 +5,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -21,7 +22,7 @@ var UserProfileSalaryParamsResolver = func(params graphql.ResolveParams) (interf
 	}
 
 	UserProfilesType := &structs.UserProfiles{}
-	UserProfilesData, UserProfilesDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profiles.json", UserProfilesType)
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
 	if UserProfilesDataErr != nil {
 		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
@@ -56,10 +57,10 @@ var UserProfileSalaryParamsInsertResolver = func(params graphql.ResolveParams) (
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	SalaryParamsType := &structs.SalaryParams{}
 
-	json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	SalaryParamsData, SalaryParamsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_salary_params.json", SalaryParamsType)
+	SalaryParamsData, SalaryParamsDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_salary_params.json", SalaryParamsType)
 
 	if SalaryParamsDataErr != nil {
 		fmt.Printf("Fetching User Profile's SalaryParams failed because of this error - %s.\n", SalaryParamsDataErr)
@@ -73,7 +74,7 @@ var UserProfileSalaryParamsInsertResolver = func(params graphql.ResolveParams) (
 
 	var updatedData = append(SalaryParamsData, data)
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_salary_params.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_salary_params.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -86,7 +87,7 @@ var UserProfileSalaryParamsDeleteResolver = func(params graphql.ResolveParams) (
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 	SalaryParamsType := &structs.SalaryParams{}
-	SalaryParamsData, SalaryParamsDataErr := shared.ReadJson("http://localhost:8080/mocked-data/user_profile_salary_params.json", SalaryParamsType)
+	SalaryParamsData, SalaryParamsDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_salary_params.json", SalaryParamsType)
 
 	if SalaryParamsDataErr != nil {
 		fmt.Printf("Fetching User Profile's SalaryParams failed because of this error - %s.\n", SalaryParamsDataErr)
@@ -96,7 +97,7 @@ var UserProfileSalaryParamsDeleteResolver = func(params graphql.ResolveParams) (
 		SalaryParamsData = shared.FilterByProperty(SalaryParamsData, "Id", itemId)
 	}
 
-	shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_salary_params.json"), SalaryParamsData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_salary_params.json"), SalaryParamsData)
 
 	return map[string]interface{}{
 		"status":  "success",

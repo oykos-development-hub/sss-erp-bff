@@ -490,6 +490,7 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 			newItem.DateSystem = data.DateSystem
 			newItem.InvoiceDate = data.InvoiceDate
 			newItem.InvoiceNumber = data.InvoiceNumber
+			newItem.DescriptionReceive = data.DescriptionReceive
 		}
 	}
 

@@ -5,6 +5,12 @@ import "github.com/graphql-go/graphql"
 var BasicInventoryDispatchMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "BasicInventoryDispatchMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"type": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"source_user_profile_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

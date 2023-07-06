@@ -535,6 +535,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			newItem.InvoiceDate = updateOrder.InvoiceDate
 			newItem.InvoiceNumber = updateOrder.InvoiceNumber
 			newItem.OfficeId = data.OfficeId
+			newItem.RecipientUserId = data.RecipientUserId
 		}
 	}
 

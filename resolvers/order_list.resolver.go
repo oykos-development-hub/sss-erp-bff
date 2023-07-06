@@ -80,6 +80,23 @@ func PopulateOrderListItemProperties(OrderList []interface{}, id int, supplierId
 			}
 		}
 
+		//recipient_user
+		if shared.IsInteger(mergedItem["recipient_user_id"]) && mergedItem["recipient_user_id"].(int) > 0 {
+			var relatedProfileInterface = shared.FetchByProperty(
+				"user_profile",
+				"Id",
+				mergedItem["recipient_user_id"],
+			)
+			if len(relatedProfileInterface) > 0 {
+				var userProfileInterface = shared.WriteStructToInterface(relatedProfileInterface[0])
+
+				mergedItem["recipient_user"] = map[string]interface{}{
+					"title": userProfileInterface["first_name"].(string) + " " + userProfileInterface["last_name"].(string),
+					"id":    userProfileInterface["id"],
+				}
+			}
+		}
+
 		if shared.IsInteger(id) && id > 0 && shared.IsInteger(publicProcurementId) && publicProcurementId > 0 {
 			var relatedOrderProcurementArticle = shared.FetchByProperty(
 				"order_procurement_article",

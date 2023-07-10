@@ -49,9 +49,9 @@ jobs:
                 npm install pm2@latest -g
               fi
               cd ../../
-              pm2 delete sss-erp-bff
-              pm2 save
-              pm2 start ./bff --name "sss-erp-bff" --watch --env ENVIRONMENT=development
+              pm2 delete ${{vars.GIT_REPO}}
+              echo "module.exports = { apps: [ { name: '${{vars.GIT_REPO}}', script: './bff', args: 'development', watch: true, } ] };" > ecosystem.config.js
+              pm2 start ecosystem.config.js
               pm2 save
               
               

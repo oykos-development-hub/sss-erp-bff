@@ -2,16 +2,17 @@ package main
 
 import (
 	"bff/fields"
+	"bytes"
 	"context"
 	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"strings"
-
 	"github.com/gorilla/handlers"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"strings"
 )
 
 func extractTokenFromHeader(headerValue string) string {
@@ -42,14 +43,40 @@ func extractTokenMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func errorHandlerMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Create a buffer to capture the response
+		buf := &bytes.Buffer{}
+		responseWriter := httptest.NewRecorder()
+		// Replace the original response writer with the recorder
+		defer func() {
+			// Check for errors in the response
+			if responseWriter.Code >= http.StatusBadRequest {
+				// Handle the error by logging or returning a custom error message
+				log.Println("HTTP error:", responseWriter.Code, buf.String())
+			}
+			// Copy the response from the recorder to the original writer
+			for key, values := range responseWriter.Header() {
+				w.Header()[key] = values
+			}
+			w.WriteHeader(responseWriter.Code)
+			_, _ = buf.WriteTo(w)
+		}()
+		// Replace the response writer with the buffer
+		responseWriter.Body = buf
+		// Pass the modified response writer to the next handler
+		next.ServeHTTP(responseWriter, r)
+	})
+}
+
 func main() {
 	// Open the log file for writing
-	err := os.MkdirAll("/var/log", 0777)
+	err := os.MkdirAll("./log", 0777)
 	if err != nil {
-		fmt.Println("Greška pri stvaranju direktorija:", err)
+		fmt.Println("Failed to create a log directory:", err)
 		return
 	}
-	logFile, err := os.OpenFile("/var/log/sss-erp-bff.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("./log/sss-erp-bff.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatal("Failed to open log file:", err)
 	}
@@ -190,8 +217,9 @@ func main() {
 	}
 	// Create a GraphQL HTTP handler
 	h := handler.New(&handler.Config{
-		Schema: &schema,
-		Pretty: true,
+		Schema:   &schema,
+		Pretty:   true,
+		GraphiQL: true,
 	})
 
 	// Create a new HTTP handler function to serve the JSON files
@@ -204,7 +232,7 @@ func main() {
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
 	// Insert the custom middleware handler
-	graphqlHandler := extractTokenMiddleware(corsHandler(h))
+	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(h)))
 	// Start your HTTP server with the CORS-enabled handler
 	http.Handle("/", graphqlHandler)
 	_ = http.ListenAndServe(":8080", nil)

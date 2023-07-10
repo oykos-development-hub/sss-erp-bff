@@ -46,6 +46,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 
 	if contractsDataErr != nil {
 		fmt.Printf("Fetching contracts failed because of this error - %s.\n", contractsDataErr)
+		contractsData = []interface{}{}
 	}
 
 	EngagementsType := &structs.EngagementType{}
@@ -53,6 +54,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 
 	if engagementsDataErr != nil {
 		fmt.Printf("Fetching engagements failed because of this error - %s.\n", engagementsDataErr)
+		engagementsData = []interface{}{}
 	}
 
 	JobPositionType := &structs.JobPositions{}
@@ -60,6 +62,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 
 	if jobPositionDataErr != nil {
 		fmt.Printf("Fetching job positions failed because of this error - %s.\n", jobPositionDataErr)
+		jobPositionData = []interface{}{}
 	}
 
 	OrganizationUnitType := &structs.OrganizationUnits{}
@@ -67,6 +70,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 
 	if organizationUnitDataErr != nil {
 		fmt.Printf("Fetching organization units failed because of this error - %s.\n", organizationUnitDataErr)
+		organizationUnitData = []interface{}{}
 	}
 
 	return map[string]interface{}{

@@ -97,6 +97,25 @@ func PopulateOrderListItemProperties(OrderList []interface{}, id int, supplierId
 			}
 		}
 
+		if shared.IsInteger(mergedItem["supplier_id"]) && mergedItem["supplier_id"] != 0 {
+			var relatedSuppliers = shared.FetchByProperty(
+				"suppliers",
+				"Id",
+				mergedItem["supplier_id"],
+			)
+
+			if len(relatedSuppliers) > 0 {
+				for _, supplierData := range relatedSuppliers {
+					var supplier = shared.WriteStructToInterface(supplierData)
+
+					mergedItem["supplier"] = map[string]interface{}{
+						"id":    supplier["id"],
+						"title": supplier["title"],
+					}
+				}
+			}
+		}
+
 		if shared.IsInteger(id) && id > 0 && shared.IsInteger(publicProcurementId) && publicProcurementId > 0 {
 			var relatedOrderProcurementArticle = shared.FetchByProperty(
 				"order_procurement_article",
@@ -104,26 +123,8 @@ func PopulateOrderListItemProperties(OrderList []interface{}, id int, supplierId
 				id,
 			)
 			// get all with publicProcurementId in public_procurement_contract.json
-			publicProcurementArticles, supplierId := GetProcurementArticles(publicProcurementId)
+			publicProcurementArticles := GetProcurementArticles(publicProcurementId)
 
-			if shared.IsInteger(supplierId) && supplierId != 0 {
-				var relatedSuppliers = shared.FetchByProperty(
-					"suppliers",
-					"Id",
-					supplierId,
-				)
-
-				if len(relatedSuppliers) > 0 {
-					for _, supplierData := range relatedSuppliers {
-						var supplier = shared.WriteStructToInterface(supplierData)
-
-						mergedItem["supplier"] = map[string]interface{}{
-							"id":    supplier["id"],
-							"title": supplier["title"],
-						}
-					}
-				}
-			}
 			if len(relatedOrderProcurementArticle) > 0 {
 				// check articles exist in order_procurement_article
 				for _, item := range publicProcurementArticles {
@@ -154,9 +155,8 @@ func PopulateOrderListItemProperties(OrderList []interface{}, id int, supplierId
 	return items
 }
 
-func GetProcurementArticles(publicProcurementId int) ([]interface{}, int) {
+func GetProcurementArticles(publicProcurementId int) []interface{} {
 	items := []interface{}{}
-	var supplierId int
 	var relatedPublicProcurementContract = shared.FetchByProperty(
 		"public_procurement_contract",
 		"PublicProcurementId",
@@ -170,7 +170,6 @@ func GetProcurementArticles(publicProcurementId int) ([]interface{}, int) {
 		for _, contract := range relatedPublicProcurementContract {
 
 			if contract, ok := contract.(*structs.PublicProcurementContract); ok {
-				supplierId = contract.SupplierId
 				// get all articles_contract from public_procurement_contract_articles with public_procurement_contract_id
 				var relatedPublicProcurementContractArticles = shared.FetchByProperty(
 					"public_procurement_contract_articles",
@@ -246,7 +245,7 @@ func GetProcurementArticles(publicProcurementId int) ([]interface{}, int) {
 			}
 		}
 	}
-	return items, supplierId
+	return items
 }
 
 var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -319,6 +318,8 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.OrderListInsertItem
+	var supplierId int
+
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	OrderListItemType := &structs.OrderListItem{}
 
@@ -377,6 +378,7 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 						"PublicProcurementContractId",
 						contract.Id,
 					)
+					supplierId = contract.SupplierId
 					if len(relatedPublicProcurementContractArticles) > 0 {
 						// for public_procurement_contract_articles
 						for _, contractArticles := range relatedPublicProcurementContractArticles {
@@ -409,7 +411,7 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 		DateOrder:           timeString,
 		TotalPrice:          totalPrice,
 		PublicProcurementId: data.PublicProcurementId,
-		SupplierId:          data.SupplierId,
+		SupplierId:          supplierId,
 		Status:              "Created",
 	}
 
@@ -440,7 +442,7 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 		publicProcurementId = params.Args["public_procurement_id"].(int)
 	}
 
-	items, _ = GetProcurementArticles(publicProcurementId)
+	items = GetProcurementArticles(publicProcurementId)
 
 	for _, item := range items {
 		if article, ok := item.(structs.OrderArticleItem); ok {

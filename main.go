@@ -3,6 +3,7 @@ package main
 import (
 	"bff/fields"
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -22,7 +23,7 @@ func extractTokenFromHeader(headerValue string) string {
 	if len(split) == 2 && split[0] == "Bearer" {
 		return split[1]
 	}
-	return ""
+	return "" // Return an empty token if the header format is invalid or empty
 }
 
 func extractTokenMiddleware(next http.Handler) http.Handler {
@@ -43,6 +44,11 @@ func extractTokenMiddleware(next http.Handler) http.Handler {
 
 func main() {
 	// Open the log file for writing
+	err := os.MkdirAll("/var/log", 0777)
+	if err != nil {
+		fmt.Println("Greška pri stvaranju direktorija:", err)
+		return
+	}
 	logFile, err := os.OpenFile("/var/log/sss-erp-bff.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatal("Failed to open log file:", err)
@@ -51,7 +57,6 @@ func main() {
 	log.SetOutput(logFile)
 	// Redirect standard error to the log file
 	os.Stderr = logFile
-
 	mutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{

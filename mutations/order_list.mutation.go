@@ -8,7 +8,7 @@ var OrderListInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"data_order": &graphql.InputObjectFieldConfig{
+		"date_order": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"total_price": &graphql.InputObjectFieldConfig{

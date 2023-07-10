@@ -408,7 +408,7 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	newItem := structs.OrderListItem{
 		Id:                  data.Id,
-		DataOrder:           timeString,
+		DateOrder:           timeString,
 		TotalPrice:          totalPrice,
 		PublicProcurementId: data.PublicProcurementId,
 		SupplierId:          data.SupplierId,
@@ -499,7 +499,7 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	for _, item := range order {
 		if updateOrder, ok := item.(*structs.OrderListItem); ok {
 			newItem.Id = updateOrder.Id
-			newItem.DataOrder = updateOrder.DataOrder
+			newItem.DateOrder = updateOrder.DateOrder
 			newItem.TotalPrice = updateOrder.TotalPrice
 			newItem.PublicProcurementId = updateOrder.PublicProcurementId
 			newItem.SupplierId = updateOrder.SupplierId
@@ -543,7 +543,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 	for _, item := range order {
 		if updateOrder, ok := item.(*structs.OrderListItem); ok {
 			newItem.Id = updateOrder.Id
-			newItem.DataOrder = updateOrder.DataOrder
+			newItem.DateOrder = updateOrder.DateOrder
 			newItem.TotalPrice = updateOrder.TotalPrice
 			newItem.PublicProcurementId = updateOrder.PublicProcurementId
 			newItem.SupplierId = updateOrder.SupplierId

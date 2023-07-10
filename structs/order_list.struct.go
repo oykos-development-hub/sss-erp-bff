@@ -2,7 +2,7 @@ package structs
 
 type OrderListItem struct {
 	Id                  int    `json:"id"`
-	DataOrder           string `json:"data_order"`
+	DateOrder           string `json:"date_order"`
 	TotalPrice          int    `json:"total_price"`
 	PublicProcurementId int    `json:"public_procurement_id"`
 	SupplierId          int    `json:"supplier_id"`
@@ -39,7 +39,7 @@ type OrderArticleItem struct {
 
 type OrderListInsertItem struct {
 	Id                  int                      `json:"id"`
-	DataOrder           string                   `json:"data_order"`
+	DateOrder           string                   `json:"date_order"`
 	PublicProcurementId int                      `json:"public_procurement_id"`
 	SupplierId          int                      `json:"supplier_id"`
 	Articles            []OrderArticleInsertItem `json:"articles"`

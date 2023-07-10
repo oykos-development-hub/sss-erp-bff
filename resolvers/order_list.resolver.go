@@ -564,6 +564,34 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 	}, nil
 }
 
+var RecipientUsersResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var items []interface{}
+	var total int
+
+	relatedInventoryUserProfile := shared.FetchByProperty(
+		"user_profile",
+		"",
+		"",
+	)
+	// Populating User Profile data
+	if len(relatedInventoryUserProfile) > 0 {
+		for _, item := range relatedInventoryUserProfile {
+			var relatedUserProfile = shared.WriteStructToInterface(item)
+			item := map[string]interface{}{
+				"title": relatedUserProfile["first_name"].(string) + " " + relatedUserProfile["last_name"].(string),
+				"id":    relatedUserProfile["id"],
+			}
+			items = append(items, item)
+		}
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
+	}, nil
+}
 var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]

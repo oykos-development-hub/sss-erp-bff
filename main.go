@@ -156,6 +156,7 @@ func main() {
 			"basicInventoryDispatch_Overview":                    fields.BasicInventoryDispatchOverviewField,
 			"orderList_Overview":                                 fields.OrderListOverviewField,
 			"orderProcurementAvailableList_Overview":             fields.OrderProcurementAvailableField,
+			"recipientUsers_Overview":                            fields.RecipientUsersField,
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

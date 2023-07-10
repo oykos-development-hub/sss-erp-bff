@@ -168,3 +168,21 @@ var OrderListAssetMovementType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var RecipientUsersType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "RecipientUsersOverview",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(DropdownItemType),
+		},
+	},
+})

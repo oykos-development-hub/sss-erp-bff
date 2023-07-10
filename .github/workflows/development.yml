@@ -51,7 +51,7 @@ jobs:
               cd ../../
               pm2 delete sss-erp-bff
               pm2 save
-              pm2 start ./bff --name "sss-erp-bff" --watch -- --ENVIRONMENT development
+              pm2 start ./bff --name "sss-erp-bff" --watch --env ENVIRONMENT=development
               pm2 save
               
               

@@ -104,7 +104,7 @@ func PopulateOrderListItemProperties(OrderList []interface{}, id int, supplierId
 				id,
 			)
 			// get all with publicProcurementId in public_procurement_contract.json
-			mergedItem["articles"], supplierId = GetProcurementArticles(publicProcurementId)
+			publicProcurementArticles, supplierId := GetProcurementArticles(publicProcurementId)
 
 			if shared.IsInteger(supplierId) && supplierId != 0 {
 				var relatedSuppliers = shared.FetchByProperty(
@@ -124,28 +124,26 @@ func PopulateOrderListItemProperties(OrderList []interface{}, id int, supplierId
 					}
 				}
 			}
-			// check articles exist in order_procurement_article
-			if articles, ok := mergedItem["articles"].([]interface{}); ok {
-				for _, item := range articles {
+			if len(relatedOrderProcurementArticle) > 0 {
+				// check articles exist in order_procurement_article
+				for _, item := range publicProcurementArticles {
 					if article, ok := item.(structs.OrderArticleItem); ok {
-						if len(relatedOrderProcurementArticle) > 0 {
-							for _, itemOrderArticle := range relatedOrderProcurementArticle {
-								//if article use in other order, deduct amount to get Available articles
-								if orderArticle, ok := itemOrderArticle.(*structs.OrderProcurementArticleItem); ok {
-									if article.Id == orderArticle.ArticleId {
-										article.TotalPrice = article.TotalPrice * (article.Amount - orderArticle.Amount) / article.Amount
-										totalPrice = totalPrice + article.TotalPrice
-										article.Amount = orderArticle.Amount
-										articles = shared.FilterByProperty(articles, "Id", article.Id)
-										articles = append(articles, article)
-									}
+						for _, itemOrderArticle := range relatedOrderProcurementArticle {
+							//if article use in other order, deduct amount to get Available articles
+							if orderArticle, ok := itemOrderArticle.(*structs.OrderProcurementArticleItem); ok {
+								if article.Id == orderArticle.ArticleId {
+									article.TotalPrice = article.TotalPrice * (article.Amount - orderArticle.Amount) / article.Amount
+									totalPrice = totalPrice + article.TotalPrice
+									article.Amount = orderArticle.Amount
+									publicProcurementArticles = shared.FilterByProperty(publicProcurementArticles, "Id", article.Id)
+									publicProcurementArticles = append(publicProcurementArticles, article)
 								}
 							}
 						}
 					}
+					mergedItem["articles"] = make([]interface{}, len(publicProcurementArticles))
+					copy(mergedItem["articles"].([]interface{}), publicProcurementArticles)
 				}
-				mergedItem["articles"] = make([]interface{}, len(articles))
-				copy(mergedItem["articles"].([]interface{}), articles)
 			}
 
 		}

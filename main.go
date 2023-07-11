@@ -3,21 +3,74 @@ package main
 import (
 	"bff/config"
 	"bff/fields"
-	"context"
-	"net/http"
-	"strings"
-
 	"bytes"
+	"context"
 	"fmt"
-	"log"
 
+	"log"
+	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 
 	"github.com/gorilla/handlers"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
 )
+
+func extractTokenFromHeader(headerValue string) string {
+	if headerValue == "" {
+		return ""
+	}
+	// Assuming the Authorization header follows the "Bearer <token>" format
+	split := strings.Split(headerValue, " ")
+	if len(split) == 2 && split[0] == "Bearer" {
+		return split[1]
+	}
+	return "" // Return an empty token if the header format is invalid or empty
+}
+
+func extractTokenMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// define key value
+		const tokenKey string = "token"
+
+		authHeader := r.Header.Get("Authorization")
+		// Extract the token value from the header
+		token := extractTokenFromHeader(authHeader)
+		// Store the token value in the request context
+		ctx := context.WithValue(r.Context(), tokenKey, token)
+		r = r.WithContext(ctx)
+		// Call the next handler
+		next.ServeHTTP(w, r)
+	})
+}
+
+func errorHandlerMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Create a buffer to capture the response
+		buf := &bytes.Buffer{}
+		responseWriter := httptest.NewRecorder()
+		// Replace the original response writer with the recorder
+		defer func() {
+			// Check for errors in the response
+			if responseWriter.Code >= http.StatusBadRequest {
+				// Handle the error by logging or returning a custom error message
+				log.Println("HTTP error:", responseWriter.Code, buf.String())
+			}
+			// Copy the response from the recorder to the original writer
+			for key, values := range responseWriter.Header() {
+				w.Header()[key] = values
+			}
+			w.WriteHeader(responseWriter.Code)
+			_, _ = buf.WriteTo(w)
+		}()
+		// Replace the response writer with the buffer
+		responseWriter.Body = buf
+		// Pass the modified response writer to the next handler
+		next.ServeHTTP(responseWriter, r)
+	})
+}
 
 func main() {
 	// Open the log file for writing
@@ -34,7 +87,6 @@ func main() {
 	log.SetOutput(logFile)
 	// Redirect standard error to the log file
 	os.Stderr = logFile
-
 	mutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{
@@ -194,13 +246,9 @@ func main() {
 	)
 	// Insert the custom middleware handler
 	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(addResponseWriterToContext(h))))
-
 	// Start your HTTP server with the CORS-enabled handler
-	http.Handle("/", corsHandler(addResponseWriterToContext(h)))
+	http.Handle("/", graphqlHandler)
 	_ = http.ListenAndServe(":8080", nil)
-	if err != nil {
-		panic(err)
-	}
 }
 
 func addResponseWriterToContext(next http.Handler) http.Handler {
@@ -214,68 +262,6 @@ func addResponseWriterToContext(next http.Handler) http.Handler {
 		}
 		ctx = context.WithValue(ctx, config.HttpHeadersKey, headers)
 		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
-	})
-}
-
-func addResponseWriterToContext(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), config.HttpResponseWriterKey, w)
-		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
-	})
-}
-
-func errorHandlerMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Create a buffer to capture the response
-		buf := &bytes.Buffer{}
-		responseWriter := httptest.NewRecorder()
-		// Replace the original response writer with the recorder
-		defer func() {
-			// Check for errors in the response
-			if responseWriter.Code >= http.StatusBadRequest {
-				// Handle the error by logging or returning a custom error message
-				log.Println("HTTP error:", responseWriter.Code, buf.String())
-			}
-			// Copy the response from the recorder to the original writer
-			for key, values := range responseWriter.Header() {
-				w.Header()[key] = values
-			}
-			w.WriteHeader(responseWriter.Code)
-			_, _ = buf.WriteTo(w)
-		}()
-		// Replace the response writer with the buffer
-		responseWriter.Body = buf
-		// Pass the modified response writer to the next handler
-		next.ServeHTTP(responseWriter, r)
-	})
-}
-
-func extractTokenFromHeader(headerValue string) string {
-	if headerValue == "" {
-		return ""
-	}
-	// Assuming the Authorization header follows the "Bearer <token>" format
-	split := strings.Split(headerValue, " ")
-	if len(split) == 2 && split[0] == "Bearer" {
-		return split[1]
-	}
-	return "" // Return an empty token if the header format is invalid or empty
-}
-
-func extractTokenMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// define key value
-		const tokenKey string = "token"
-
-		authHeader := r.Header.Get("Authorization")
-		// Extract the token value from the header
-		token := extractTokenFromHeader(authHeader)
-		// Store the token value in the request context
-		ctx := context.WithValue(r.Context(), tokenKey, token)
-		r = r.WithContext(ctx)
-		// Call the next handler
 		next.ServeHTTP(w, r)
 	})
 }

@@ -20,7 +20,7 @@ var UserAccountsOverviewResolver = func(params graphql.ResolveParams) (interface
 	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
-	is_active, isActiveOk := params.Args["is_active"].(bool)
+	isActive, isActiveOk := params.Args["is_active"].(bool)
 	email, emailOk := params.Args["email"].(string)
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
@@ -44,7 +44,7 @@ var UserAccountsOverviewResolver = func(params graphql.ResolveParams) (interface
 			input.Size = &sizeNum
 		}
 		if isActiveOk {
-			input.IsActive = &is_active
+			input.IsActive = &isActive
 		}
 		if emailOk && email != "" {
 			input.Email = &email

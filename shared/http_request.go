@@ -9,13 +9,6 @@ import (
 	"net/http"
 )
 
-func ErrorResponse(message string) dto.Response {
-	return dto.Response{
-		Status:  "error",
-		Message: message,
-	}
-}
-
 type APIError struct {
 	StatusCode int
 	Message    string      `json:"error"`
@@ -86,9 +79,6 @@ func MakeAPIRequest(method, url string, data interface{}, response interface{}, 
 		}
 
 		return nil, apiError
-	}
-	if response == nil {
-		response = &Response{}
 	}
 
 	if len(body) > 0 && response != nil {

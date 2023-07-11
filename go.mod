@@ -13,8 +13,3 @@ require (
 	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/joho/godotenv v1.5.1
 )
-
-require (
-	github.com/felixge/httpsnoop v1.0.1 // indirect
-	github.com/joho/godotenv v1.5.1
-)

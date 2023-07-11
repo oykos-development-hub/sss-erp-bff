@@ -36,17 +36,3 @@ type JobPositionsInSectorResponse struct {
 	Icon             string `json:"icon"`
 	AvailableSlots   int    `json:"available_slots"`
 }
-
-type JobPositionsInSectorResponse struct {
-	Id               int    `json:"id"`
-	Title            string `json:"title"`
-	Abbreviation     string `json:"abbreviation"`
-	Description      string `json:"description"`
-	Requirements     string `json:"requirements"`
-	SerialNumber     string `json:"serial_number"`
-	IsJudge          bool   `json:"is_judge"`
-	IsJudgePresident bool   `json:"is_judge_president"`
-	Color            string `json:"color"`
-	Icon             string `json:"icon"`
-	AvailableSlots   int    `json:"available_slots"`
-}

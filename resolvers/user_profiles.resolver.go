@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/graphql-go/graphql"
 )
@@ -19,11 +20,11 @@ var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface
 	)
 
 	id := params.Args["id"]
-	page := params.Args["page"]
-	size := params.Args["size"]
-	organization_unit_id := params.Args["organization_unit_id"]
-	job_position_id := params.Args["job_position_id"]
-	is_active, isActiveOk := params.Args["is_active"].(bool)
+	page := params.Args["page"].(int)
+	size := params.Args["size"].(int)
+	organizationUnitID := params.Args["organization_unit_id"]
+	jobPositionId := params.Args["job_position_id"]
+	isActive, isActiveOk := params.Args["is_active"].(bool)
 	name, nameOk := params.Args["name"].(string)
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
@@ -45,29 +46,6 @@ var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface
 		total = 1
 	} else {
 		input := dto.GetUserProfilesInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
-			pageNum := page.(int)
-			input.Page = &pageNum
-		}
-		if shared.IsInteger(size) && size.(int) > 0 {
-			sizeNum := size.(int)
-			input.Size = &sizeNum
-		}
-		if shared.IsInteger(organization_unit_id) && organization_unit_id.(int) > 0 {
-			organizationUnitID := organization_unit_id.(int)
-			input.OrganizationUnitID = &organizationUnitID
-		}
-		if shared.IsInteger(job_position_id) && job_position_id.(int) > 0 {
-			jobPositionID := job_position_id.(int)
-			input.JobPositionID = &jobPositionID
-		}
-		if isActiveOk {
-			input.IsActive = &is_active
-		}
-		if nameOk && name != "" {
-			input.Name = &name
-		}
-
 		profiles, err := getUserProfiles(&input)
 		if err != nil {
 			return dto.Response{
@@ -76,26 +54,51 @@ var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface
 			}, nil
 		}
 
-		for _, userProfile := range profiles.Data {
-			resItem, err := buildUserProfileOverviewResponse(&userProfile)
+		total = len(profiles)
+		for _, userProfile := range profiles {
+			resItem, err := buildUserProfileOverviewResponse(userProfile)
 			if err != nil {
 				return dto.Response{
 					Status:  "error",
 					Message: err.Error(),
 				}, nil
 			}
+
+			if isActiveOk &&
+				resItem.Active != isActive {
+				total--
+				continue
+			}
+			if nameOk && name != "" && !strings.Contains(strings.ToLower(resItem.FirstName), strings.ToLower(name)) && !strings.Contains(strings.ToLower(resItem.LastName), strings.ToLower(name)) {
+				total--
+				continue
+			}
+			if shared.IsInteger(organizationUnitID) && organizationUnitID.(int) > 0 &&
+				resItem.OrganizationUnit.Id != organizationUnitID {
+				total--
+				continue
+			}
+			if shared.IsInteger(jobPositionId) && jobPositionId.(int) > 0 &&
+				resItem.JobPosition.Id != jobPositionId {
+				total--
+				continue
+			}
+
 			items = append(items, *resItem)
 		}
-
-		total = profiles.Total
 	}
 
+	paginatedItems, err := shared.Paginate(items, page, size)
+	if err != nil {
+		fmt.Printf("Error paginating items: %v", err)
+	}
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
+		Items:   paginatedItems,
 		Total:   total,
-		Items:   items,
 	}, nil
+
 }
 
 var UserProfileContractsResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -729,14 +732,14 @@ func createUserProfile(user structs.UserProfiles) (*structs.UserProfiles, error)
 	return &res.Data, nil
 }
 
-func getUserProfiles(input *dto.GetUserProfilesInput) (*dto.GetUserProfileListResponseMS, error) {
+func getUserProfiles(input *dto.GetUserProfilesInput) ([]*structs.UserProfiles, error) {
 	res := &dto.GetUserProfileListResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT, input, res)
 	if err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	return res.Data, nil
 }
 
 func getUserProfileById(id int) (*structs.UserProfiles, error) {
@@ -928,35 +931,6 @@ func deleteEmployeeFamilyMember(id int) error {
 func getEmployeeFamilyMembers(employeeID int) ([]*structs.Family, error) {
 	res := &dto.GetEmployeeFamilyMemberListResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(employeeID)+"/family-members", nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func createEmployeeSalaryParams(salaries *structs.SalaryParams) (*structs.SalaryParams, error) {
-	res := dto.GetEmployeeSalaryParamsResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.SALARIES, salaries, &res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func deleteSalaryParams(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.SALARIES+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func updateEmployeeSalaryParams(id int, salaries *structs.SalaryParams) (*structs.SalaryParams, error) {
-	res := dto.GetEmployeeSalaryParamsResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.SALARIES+"/"+strconv.Itoa(id), salaries, &res)
 	if err != nil {
 		return nil, err
 	}

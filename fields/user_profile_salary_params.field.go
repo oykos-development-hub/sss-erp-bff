@@ -4,6 +4,7 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -12,10 +13,7 @@ var UserProfileSalaryParamsField = &graphql.Field{
 	Description: "Returns a data of User Profile for displaying inside SalaryParams tab",
 	Args: graphql.FieldConfigArgument{
 		"user_profile_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"user_account_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.UserProfileSalaryParamsResolver,
@@ -37,7 +35,7 @@ var UserProfileSalaryParamsDeleteField = &graphql.Field{
 	Description: "Deletes existing User Profile's SalaryParams",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.UserProfileSalaryParamsDeleteResolver,

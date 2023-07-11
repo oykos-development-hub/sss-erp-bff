@@ -1,73 +1,23 @@
 package main
 
 import (
+	"bff/config"
 	"bff/fields"
-	"bytes"
 	"context"
+	"net/http"
+	"strings"
+
+	"bytes"
 	"fmt"
+	"log"
+
+	"net/http/httptest"
+	"os"
+
 	"github.com/gorilla/handlers"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
-	"log"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"strings"
 )
-
-func extractTokenFromHeader(headerValue string) string {
-	if headerValue == "" {
-		return ""
-	}
-	// Assuming the Authorization header follows the "Bearer <token>" format
-	split := strings.Split(headerValue, " ")
-	if len(split) == 2 && split[0] == "Bearer" {
-		return split[1]
-	}
-	return "" // Return an empty token if the header format is invalid or empty
-}
-
-func extractTokenMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// define key value
-		const tokenKey string = "token"
-
-		authHeader := r.Header.Get("Authorization")
-		// Extract the token value from the header
-		token := extractTokenFromHeader(authHeader)
-		// Store the token value in the request context
-		ctx := context.WithValue(r.Context(), tokenKey, token)
-		r = r.WithContext(ctx)
-		// Call the next handler
-		next.ServeHTTP(w, r)
-	})
-}
-
-func errorHandlerMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Create a buffer to capture the response
-		buf := &bytes.Buffer{}
-		responseWriter := httptest.NewRecorder()
-		// Replace the original response writer with the recorder
-		defer func() {
-			// Check for errors in the response
-			if responseWriter.Code >= http.StatusBadRequest {
-				// Handle the error by logging or returning a custom error message
-				log.Println("HTTP error:", responseWriter.Code, buf.String())
-			}
-			// Copy the response from the recorder to the original writer
-			for key, values := range responseWriter.Header() {
-				w.Header()[key] = values
-			}
-			w.WriteHeader(responseWriter.Code)
-			_, _ = buf.WriteTo(w)
-		}()
-		// Replace the response writer with the buffer
-		responseWriter.Body = buf
-		// Pass the modified response writer to the next handler
-		next.ServeHTTP(responseWriter, r)
-	})
-}
 
 func main() {
 	// Open the log file for writing
@@ -84,6 +34,7 @@ func main() {
 	log.SetOutput(logFile)
 	// Redirect standard error to the log file
 	os.Stderr = logFile
+
 	mutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{
@@ -108,6 +59,9 @@ func main() {
 			"systematizations_Insert":                         fields.SystematizationInsertField,
 			"systematizations_Delete":                         fields.SystematizationDeleteField,
 			"userProfile_Basic_Insert":                        fields.UserProfileBasicInsertField,
+			"userProfile_Update":                              fields.UserProfileUpdateField,
+			"userProfile_Contract_Insert":                     fields.UserProfileContractInsertField,
+			"userProfile_Contract_Delete":                     fields.UserProfileContractDeleteField,
 			"userProfile_Education_Insert":                    fields.UserProfileEducationInsertField,
 			"userProfile_Education_Delete":                    fields.UserProfileEducationDeleteField,
 			"userProfile_Experience_Insert":                   fields.UserProfileExperienceInsertField,
@@ -120,6 +74,8 @@ func main() {
 			"userProfile_SalaryParams_Delete":                 fields.UserProfileSalaryParamsDeleteField,
 			"userProfile_Evaluation_Insert":                   fields.UserProfileEvaluationInsertField,
 			"userProfile_Evaluation_Delete":                   fields.UserProfileEvaluationDeleteField,
+			"absentType_Insert":                               fields.AbsentTypeInsertField,
+			"absentType_Delete":                               fields.AbsentTypeDeleteField,
 			"userProfile_Absent_Insert":                       fields.UserProfileAbsentInsertField,
 			"userProfile_Absent_Delete":                       fields.UserProfileAbsentDeleteField,
 			"userProfile_Resolution_Insert":                   fields.UserProfileResolutionInsertField,
@@ -128,6 +84,8 @@ func main() {
 			"revisions_Delete":                                fields.RevisionDeleteField,
 			"judgeNorms_Insert":                               fields.JudgeNormsInsertField,
 			"judgeNorms_Delete":                               fields.JudgeNormsDeleteField,
+			"judgeResolutions_Insert":                         fields.JudgeResolutionsInsertField,
+			"judgeResolutions_Delete":                         fields.JudgeResolutionsDeleteField,
 			"publicProcurementPlan_Insert":                    fields.PublicProcurementPlanInsertField,
 			"publicProcurementPlan_Delete":                    fields.PublicProcurementPlanDeleteField,
 			"publicProcurementPlanItem_Insert":                fields.PublicProcurementPlanItemInsertField,
@@ -162,36 +120,37 @@ func main() {
 	query := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootQuery",
 		Fields: graphql.Fields{
-			"login":                                              fields.LoginField,
-			"userAccount_Overview":                               fields.UserAccountField,
-			"settingsDropdown_Overview":                          fields.SettingsDropdownField,
-			"organizationUnits":                                  fields.OrganizationUnitsField,
-			"jobPositions":                                       fields.JobPositionsField,
-			"jobTenderTypes":                                     fields.JobTenderTypesField,
-			"jobTenders_Overview":                                fields.JobTendersOverviewField,
-			"jobTender_Details":                                  fields.JobTenderDetailsField,
-			"jobTender_Applications":                             fields.JobTenderApplicationsField,
-			"systematizations_Overview":                          fields.SystematizationsOverviewField,
-			"systematization_Details":                            fields.SystematizationDetailsField,
-			"userProfiles_Overview":                              fields.UserProfilesOverviewField,
-			"userProfile_Basic":                                  fields.UserProfileBasicField,
-			"userProfile_Education":                              fields.UserProfileEducationField,
-			"userProfile_Experience":                             fields.UserProfileExperienceField,
-			"userProfile_Family":                                 fields.UserProfileFamilyField,
-			"userProfile_Foreigner":                              fields.UserProfileForeignerField,
-			"userProfile_SalaryParams":                           fields.UserProfileSalaryParamsField,
-			"userProfile_Evaluation":                             fields.UserProfileEvaluationField,
-			"userProfile_Absent":                                 fields.UserProfileAbsentField,
-			"userProfile_Resolution":                             fields.UserProfileResolutionField,
-			"revisions_Overview":                                 fields.RevisionsOverviewField,
-			"revision_Details":                                   fields.RevisionDetailsField,
-			"judges_Overview":                                    fields.JudgesOverviewField,
-			"judgeResolutions_Overview":                          fields.JudgeResolutionsOverviewField,
-			"judgeResolution_Details":                            fields.JudgeResolutionDetailsField,
-			"publicProcurementPlans_Overview":                    fields.PublicProcurementPlansOverviewField,
-			"publicProcurementPlan_Details":                      fields.PublicProcurementPlanDetailsField,
-			"publicProcurementPlanItem_Details":                  fields.PublicProcurementPlanItemDetailsField,
-			"publicProcurementPlanItem_Limits":                   fields.PublicProcurementPlanItemLimitsField,
+			"login":                             fields.LoginField,
+			"pin":                               fields.PinField,
+			"userAccount_Overview":              fields.UserAccountField,
+			"settingsDropdown_Overview":         fields.SettingsDropdownField,
+			"organizationUnits":                 fields.OrganizationUnitsField,
+			"jobPositions":                      fields.JobPositionsField,
+			"jobTenderTypes":                    fields.JobTenderTypesField,
+			"jobTenders_Overview":               fields.JobTendersOverviewField,
+			"jobTender_Applications":            fields.JobTenderApplicationsField,
+			"systematizations_Overview":         fields.SystematizationsOverviewField,
+			"systematization_Details":           fields.SystematizationDetailsField,
+			"userProfiles_Overview":             fields.UserProfilesOverviewField,
+			"userProfile_Contracts":             fields.UserProfileContractsField,
+			"userProfile_Basic":                 fields.UserProfileBasicField,
+			"userProfile_Education":             fields.UserProfileEducationField,
+			"userProfile_Experience":            fields.UserProfileExperienceField,
+			"userProfile_Family":                fields.UserProfileFamilyField,
+			"userProfile_Foreigner":             fields.UserProfileForeignerField,
+			"userProfile_SalaryParams":          fields.UserProfileSalaryParamsField,
+			"userProfile_Evaluation":            fields.UserProfileEvaluationField,
+			"userProfile_Absent":                fields.UserProfileAbsentField,
+			"absentType":                        fields.AbsentTypeField,
+			"userProfile_Resolution":            fields.UserProfileResolutionField,
+			"revisions_Overview":                fields.RevisionsOverviewField,
+			"revision_Details":                  fields.RevisionDetailsField,
+			"judges_Overview":                   fields.JudgesOverviewField,
+			"judgeResolutions_Overview":         fields.JudgeResolutionsOverviewField,
+			"publicProcurementPlans_Overview":   fields.PublicProcurementPlansOverviewField,
+			"publicProcurementPlan_Details":     fields.PublicProcurementPlanDetailsField,
+			"publicProcurementPlanItem_Details": fields.PublicProcurementPlanItemDetailsField,
+			"publicProcurementPlanItem_Limits":  fields.PublicProcurementPlanItemLimitsField,
 			"publicProcurementOrganizationUnitArticles_Overview": fields.PublicProcurementOrganizationUnitArticlesOverviewField,
 			"publicProcurementOrganizationUnitArticles_Details":  fields.PublicProcurementOrganizationUnitArticlesDetailsField,
 			"publicProcurementContracts_Overview":                fields.PublicProcurementContractsOverviewField,
@@ -234,8 +193,89 @@ func main() {
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
 	// Insert the custom middleware handler
-	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(h)))
+	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(addResponseWriterToContext(h))))
+
 	// Start your HTTP server with the CORS-enabled handler
-	http.Handle("/", graphqlHandler)
+	http.Handle("/", corsHandler(addResponseWriterToContext(h)))
 	_ = http.ListenAndServe(":8080", nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func addResponseWriterToContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), config.HttpResponseWriterKey, w)
+		// Retrieve the Authorization header value from the request
+		authHeader := r.Header.Get("Authorization")
+		// Add the bearer token as a header in the context
+		headers := map[string]string{
+			"Authorization": authHeader,
+		}
+		ctx = context.WithValue(ctx, config.HttpHeadersKey, headers)
+		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func addResponseWriterToContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), config.HttpResponseWriterKey, w)
+		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func errorHandlerMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Create a buffer to capture the response
+		buf := &bytes.Buffer{}
+		responseWriter := httptest.NewRecorder()
+		// Replace the original response writer with the recorder
+		defer func() {
+			// Check for errors in the response
+			if responseWriter.Code >= http.StatusBadRequest {
+				// Handle the error by logging or returning a custom error message
+				log.Println("HTTP error:", responseWriter.Code, buf.String())
+			}
+			// Copy the response from the recorder to the original writer
+			for key, values := range responseWriter.Header() {
+				w.Header()[key] = values
+			}
+			w.WriteHeader(responseWriter.Code)
+			_, _ = buf.WriteTo(w)
+		}()
+		// Replace the response writer with the buffer
+		responseWriter.Body = buf
+		// Pass the modified response writer to the next handler
+		next.ServeHTTP(responseWriter, r)
+	})
+}
+
+func extractTokenFromHeader(headerValue string) string {
+	if headerValue == "" {
+		return ""
+	}
+	// Assuming the Authorization header follows the "Bearer <token>" format
+	split := strings.Split(headerValue, " ")
+	if len(split) == 2 && split[0] == "Bearer" {
+		return split[1]
+	}
+	return "" // Return an empty token if the header format is invalid or empty
+}
+
+func extractTokenMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// define key value
+		const tokenKey string = "token"
+
+		authHeader := r.Header.Get("Authorization")
+		// Extract the token value from the header
+		token := extractTokenFromHeader(authHeader)
+		// Store the token value in the request context
+		ctx := context.WithValue(r.Context(), tokenKey, token)
+		r = r.WithContext(ctx)
+		// Call the next handler
+		next.ServeHTTP(w, r)
+	})
 }

@@ -1,292 +1,282 @@
 package resolvers
 
 import (
+	"bff/config"
+	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
-func PopulateSystematizationItemProperties(systematizations []interface{}, filters ...int) []interface{} {
-	var items []interface{}
-	var id, organizationUnitId int
-
-	switch len(filters) {
-	case 1:
-		id = filters[0]
-	case 2:
-		id = filters[0]
-		organizationUnitId = filters[1]
-	}
-
-	for _, item := range systematizations {
-
-		var mergedItem = shared.WriteStructToInterface(item)
-
-		// Filtering by ID
-		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
-			continue
-		}
-		// Filtering by Organization Unit
-		if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 && organizationUnitId != mergedItem["organization_unit_id"] {
-			continue
-		}
-		// # Related user Profile
-		var relatedUserProfile = shared.FetchByProperty(
-			"user_profile",
-			"Id",
-			mergedItem["user_profile_id"],
-		)
-
-		if len(relatedUserProfile) > 0 {
-			var userProfile = shared.WriteStructToInterface(relatedUserProfile[0])
-
-			mergedItem["user_profile"] = map[string]interface{}{
-				"title": userProfile["first_name"].(string) + " " + userProfile["last_name"].(string),
-				"id":    userProfile["id"],
-			}
-		}
-
-		// # Related Organization Unit
-		var relatedOrganizationUnit = shared.FetchByProperty(
-			"organization_unit",
-			"Id",
-			mergedItem["organization_unit_id"],
-		)
-
-		if len(relatedOrganizationUnit) > 0 {
-			var organizationUnit = shared.WriteStructToInterface(relatedOrganizationUnit[0])
-			var populatedOrganizationUnitData = PopulateOrganizationUnitItemProperties(relatedOrganizationUnit)
-			var sectors []interface{}
-
-			if len(populatedOrganizationUnitData) > 0 {
-				for _, unit := range populatedOrganizationUnitData {
-					var unitData = unit.(map[string]interface{})
-					var childrenData = unitData["children"].([]interface{})
-
-					if unitData["id"] == organizationUnit["id"] && len(childrenData) > 0 {
-						// # Related Organization Unit sectors
-						for _, sector := range childrenData {
-							var sectorItem = shared.WriteStructToInterface(sector)
-							var sectorJobPositions []interface{}
-							// # Related Job Positions in sector
-							var relatedJobPositions = shared.FetchByProperty(
-								"job_positions_in_organization_units",
-								"ParentOrganizationUnitId",
-								sectorItem["id"],
-							)
-
-							if len(relatedJobPositions) > 0 {
-								for _, jobPosition := range relatedJobPositions {
-									var jobPositionItem = shared.WriteStructToInterface(jobPosition)
-									var jobPositionDetails = shared.FetchByProperty(
-										"job_position",
-										"Id",
-										jobPositionItem["job_position_id"],
-									)
-									// # Related Employees for Job Position
-									var relatedEmployeeJobPositions = shared.FetchByProperty(
-										"employees_in_organization_units",
-										"PositionInOrganizationUnitId",
-										jobPositionItem["id"],
-									)
-									var josPositionEmployees []interface{}
-
-									if len(jobPositionDetails) > 0 {
-										for _, jobPositionDetailsItem := range jobPositionDetails {
-											var jobPositionDetailsData = shared.WriteStructToInterface(jobPositionDetailsItem)
-
-											jobPositionItem["job_position"] = map[string]interface{}{
-												"title": jobPositionDetailsData["title"],
-												"id":    jobPositionDetailsData["id"],
-											}
-										}
-									}
-
-									if len(relatedEmployeeJobPositions) > 0 {
-										for _, employeeJobPosition := range relatedEmployeeJobPositions {
-											var employeeJobPositionData = shared.WriteStructToInterface(employeeJobPosition)
-											// # Related User Account
-											var relatedUserAccount = shared.FetchByProperty(
-												"user_account",
-												"Id",
-												employeeJobPositionData["user_account_id"],
-											)
-											if len(relatedUserAccount) > 0 {
-												for _, userAccount := range relatedUserAccount {
-													var userAccountData = shared.WriteStructToInterface(userAccount)
-													// # Related User Profile
-													var relatedUserProfile = shared.FetchByProperty(
-														"user_profile",
-														"UserAccountId",
-														userAccountData["id"],
-													)
-													if len(relatedUserProfile) > 0 {
-														for _, userProfile := range relatedUserProfile {
-															var userProfileData = shared.WriteStructToInterface(userProfile)
-															var employeeItem = map[string]interface{}{
-																"title":           userProfileData["first_name"].(string) + " " + userProfileData["last_name"].(string),
-																"user_profile_id": userProfileData["id"],
-																"id":              employeeJobPositionData["id"],
-															}
-															josPositionEmployees = append(josPositionEmployees, employeeItem)
-														}
-													}
-												}
-											}
-										}
-									}
-
-									jobPositionItem["employees"] = josPositionEmployees
-
-									sectorJobPositions = append(sectorJobPositions, jobPositionItem)
-								}
-							}
-
-							sectorItem["job_positions"] = sectorJobPositions
-
-							sectors = append(sectors, sectorItem)
-						}
-					}
-				}
-			}
-
-			mergedItem["organization_unit"] = map[string]interface{}{
-				"title": organizationUnit["title"],
-				"id":    organizationUnit["id"],
-			}
-			mergedItem["sectors"] = sectors
-		}
-
-		items = append(items, mergedItem)
-	}
-
-	return items
-}
-
 var SystematizationsOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var items []interface{}
-	var total int
-	var id int
-	if params.Args["id"] == nil {
-		id = 0
-	} else {
-		id = params.Args["id"].(int)
-	}
-	var organizationUnitId int
-	if params.Args["organization_unit_id"] == nil {
-		organizationUnitId = 0
-	} else {
-		organizationUnitId = params.Args["organization_unit_id"].(int)
-	}
+	var (
+		items []dto.SystematizationOverviewResponse
+		total int
+	)
+
+	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
+	organizationUnitId := params.Args["organization_unit_id"]
 
-	SystematizationsType := &structs.Systematization{}
-	SystematizationsData, SystematizationsDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationsType)
+	if id != nil && shared.IsInteger(id) && id != 0 {
+		systematization, err := getSystematizationById(id.(int))
+		if err != nil {
+			return dto.Response{
+				Status:  "error",
+				Message: err.Error(),
+			}, nil
+		}
+		systematizationResItem, err := buildSystematizationOverviewResponse(systematization)
+		if err != nil {
+			return dto.Response{
+				Status:  "error",
+				Message: err.Error(),
+			}, nil
+		}
+		items = []dto.SystematizationOverviewResponse{systematizationResItem}
+		total = 1
+	} else {
+		input := dto.GetSystematizationsInput{}
+		if shared.IsInteger(page) && page.(int) > 0 {
+			pageNum := page.(int)
+			input.Page = &pageNum
+		}
+		if shared.IsInteger(size) && size.(int) > 0 {
+			sizeNum := size.(int)
+			input.Size = &sizeNum
+		}
+		if shared.IsInteger(organizationUnitId) && organizationUnitId.(int) > 0 {
+			organizationUnitId := organizationUnitId.(int)
+			input.OrganizationUnitID = &organizationUnitId
+		}
 
-	if SystematizationsDataErr != nil {
-		fmt.Printf("Fetching Systematizations failed because of this error - %s.\n", SystematizationsDataErr)
+		systematizationsResponse, err := getSystematizations(&input)
+		if err != nil {
+			return dto.Response{
+				Status:  "error",
+				Message: err.Error(),
+			}, nil
+		}
+		for _, systematization := range systematizationsResponse.Data {
+			systematizationResItem, err := buildSystematizationOverviewResponse(&systematization)
+			if err != nil {
+				return dto.Response{
+					Status:  "error",
+					Message: err.Error(),
+				}, nil
+			}
+			items = append(items, systematizationResItem)
+		}
+		total = systematizationsResponse.Total
 	}
 
-	// Populate data for each Systematization with Organization Unit, User Profile, Sectors and Job Positions
-	items = PopulateSystematizationItemProperties(SystematizationsData, id, organizationUnitId)
-
-	total = len(items)
-
-	// Filtering by Pagination params
-	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
-		items = shared.Pagination(items, page.(int), size.(int))
-	}
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "Here's the list you asked for!",
-		"total":   total,
-		"items":   items,
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Total:   total,
+		Items:   items,
 	}, nil
 }
 
 var SystematizationResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	SystematizationType := &structs.Systematization{}
-	SystematizationData, SystematizationDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationType)
-
-	var id int
-	if params.Args["id"] == nil {
-		id = 0
-	} else {
-		id = params.Args["id"].(int)
+	id := params.Args["id"]
+	systematization, err := getSystematizationById(id.(int))
+	if err != nil {
+		return dto.Response{
+			Status:  "error",
+			Message: err.Error(),
+		}, nil
+	}
+	systematizationResItem, err := buildSystematizationOverviewResponse(systematization)
+	if err != nil {
+		return dto.Response{
+			Status:  "error",
+			Message: err.Error(),
+		}, nil
 	}
 
-	if SystematizationDataErr != nil {
-		fmt.Printf("Fetching Systematizations failed because of this error - %s.\n", SystematizationDataErr)
-	}
-
-	// Populate data for each Systematization with Organization Unit, Job Positions and Related Employees
-	var items = PopulateSystematizationItemProperties(SystematizationData, id)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "Here's the list you asked for!",
-		"items":   items,
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item:    systematizationResItem,
 	}, nil
 }
 
 var SystematizationInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.Systematization
+	var systematization *structs.Systematization
+	var err error
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	SystematizationType := &structs.Systematization{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	systematizationData, systematizationDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationType)
-
-	if systematizationDataErr != nil {
-		fmt.Printf("Fetching Systematization failed because of this error - %s.\n", systematizationDataErr)
-	}
-
 	if shared.IsInteger(itemId) && itemId != 0 {
-		systematizationData = shared.FilterByProperty(systematizationData, "Id", itemId)
+		systematization, err = updateSystematization(itemId, &data)
+		if err != nil {
+			fmt.Printf("Updating systematization failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error updating systematization data"), nil
+		}
 	} else {
-		data.Id = shared.GetRandomNumber()
+		systematization, err = createSystematization(&data)
+		if err != nil {
+			fmt.Printf("Creating systematization failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error creating systematization data"), nil
+		}
 	}
 
-	sliceData := []interface{}{data}
-	// Populate data for each Systematization with Organization Unit, Job Positions and Related Employees
-	var populatedData = PopulateSystematizationItemProperties(sliceData, data.Id)
-	var updatedData = append(systematizationData, data)
+	systematizationResItem, err := buildSystematizationOverviewResponse(systematization)
+	if err != nil {
+		return dto.Response{
+			Status:  "error",
+			Message: err.Error(),
+		}, nil
+	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/systematizations.json"), updatedData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"items":   populatedData,
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You updated this item!",
+		Item:    systematizationResItem,
 	}, nil
 }
 
 var SystematizationDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
-	SystematizationType := &structs.Systematization{}
-	systematizationData, systematizationDataErr := shared.ReadJson(shared.GetDataRoot()+"/systematizations.json", SystematizationType)
 
-	if systematizationDataErr != nil {
-		fmt.Printf("Fetching User Profile's Systematization failed because of this error - %s.\n", systematizationDataErr)
+	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
+		return shared.ErrorResponse("You must pass the item id"), nil
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		systematizationData = shared.FilterByProperty(systematizationData, "Id", itemId)
+	err := deleteSystematization(itemId.(int))
+	if err != nil {
+		fmt.Printf("Deleting systematization failed because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error deleting the id"), nil
 	}
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/systematizations.json"), systematizationData)
 
 	return map[string]interface{}{
 		"status":  "success",
 		"message": "You deleted this item!",
 	}, nil
+}
+
+func getSystematizationById(id int) (*structs.Systematization, error) {
+	res := &dto.GetSystematizationResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.SYSTEMATIZATIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func getSystematizations(input *dto.GetSystematizationsInput) (*dto.GetSystematizationsResponseMS, error) {
+	res := &dto.GetSystematizationsResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.SYSTEMATIZATIONS_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func updateSystematization(id int, data *structs.Systematization) (*structs.Systematization, error) {
+	res := &dto.GetSystematizationResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.SYSTEMATIZATIONS_ENDPOINT+"/"+strconv.Itoa(id), data, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func createSystematization(data *structs.Systematization) (*structs.Systematization, error) {
+	res := &dto.GetSystematizationResponseMS{}
+	_, err := shared.MakeAPIRequest("POST", config.SYSTEMATIZATIONS_ENDPOINT, data, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func deleteSystematization(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.SYSTEMATIZATIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildSystematizationOverviewResponse(systematization *structs.Systematization) (dto.SystematizationOverviewResponse, error) {
+	result := dto.SystematizationOverviewResponse{
+		Id:                 systematization.Id,
+		UserProfileId:      systematization.UserProfileId,
+		OrganizationUnitId: systematization.OrganizationUnitId,
+		Description:        systematization.Description,
+		SerialNumber:       systematization.SerialNumber,
+		Active:             systematization.Active,
+		FileId:             systematization.FileId,
+		DateOfActivation:   systematization.DateOfActivation,
+		Sectors:            &[]dto.OrganizationUnitsSectorResponse{},
+		CreatedAt:          systematization.CreatedAt,
+		UpdatedAt:          systematization.UpdatedAt,
+	}
+
+	// Getting Organization Unit
+	var relatedOrganizationUnit, err = getOrganizationUnitById(systematization.OrganizationUnitId)
+	if err != nil {
+		return result, err
+	}
+	result.OrganizationUnit = relatedOrganizationUnit
+
+	// Getting Sectors
+	inputOrganizationUnits := dto.GetOrganizationUnitsInput{
+		ParentID: &systematization.OrganizationUnitId,
+	}
+	organizationUnitsResponse, err := getOrganizationUnits(&inputOrganizationUnits)
+	if err != nil {
+		return result, err
+	}
+	for _, organizationUnit := range organizationUnitsResponse.Data {
+		*result.Sectors = append(*result.Sectors, *dto.ToOrganizationUnitsSectorResponse(organizationUnit))
+	}
+
+	// Getting Job positions
+	if result.Sectors != nil {
+		for i, sector := range *result.Sectors {
+			(*result.Sectors)[i].JobPositions, err = getJobPositionsForSector(sector.Id)
+			if err != nil {
+				return result, err
+			}
+		}
+	}
+
+	return result, err
+}
+
+func getJobPositionsForSector(sectorId int) (*[]structs.JobPositions, error) {
+	result := []structs.JobPositions{}
+	input := dto.GetJobPositionInOrganizationUnitsInput{
+		OrganizationUnitID: &sectorId,
+	}
+	jobPositionsInOrganizationUnitsResponse, err := getJobPositionsInOrganizationUnits(&input)
+	if err != nil {
+		return &result, err
+	}
+
+	for _, jobPositionsInOrganizationUnits := range jobPositionsInOrganizationUnitsResponse.Data {
+		getJobPositionResponse, err := getJobPositionById(jobPositionsInOrganizationUnits.JobPositionId)
+		if err != nil {
+			return &result, err
+		}
+		result = append(result, getJobPositionResponse.Data)
+	}
+
+	return &result, nil
 }

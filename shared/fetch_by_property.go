@@ -65,22 +65,19 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 		entityStruct = &structs.Evaluation{}
 	case "vacation_type", "vacation_types":
 		endpoint = "user_profile_vacation_types.json"
-		entityStruct = &structs.VacationType{}
+		entityStruct = &structs.AbsentType{}
 	case "vacation", "vacations":
 		endpoint = "user_profile_vacations.json"
-		entityStruct = &structs.Vacation{}
+		entityStruct = &structs.Absent{}
 	case "relocation", "relocations":
 		endpoint = "user_profile_relocations.json"
-		entityStruct = &structs.Relocation{}
+		entityStruct = &structs.Absent{}
 	case "resolution_type", "resolution_types":
 		endpoint = "user_profile_resolution_types.json"
 		entityStruct = &structs.ResolutionType{}
 	case "resolution", "resolutions":
 		endpoint = "user_profile_resolutions.json"
 		entityStruct = &structs.Resolution{}
-	case "revision_type", "revision_types":
-		endpoint = "revision_types.json"
-		entityStruct = &structs.RevisionType{}
 	case "revision", "revisions":
 		endpoint = "revisions.json"
 		entityStruct = &structs.Revision{}

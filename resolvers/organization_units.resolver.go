@@ -1,216 +1,109 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
-var OrganizationUnitsResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var (
-		items []dto.OrganizationUnitsOverviewResponse
-		total int
-	)
+func PopulateOrganizationUnitItemProperties(organizationUnits []interface{}) []interface{} {
+	var items []interface{}
 
-	id := params.Args["id"]
-	page := params.Args["page"]
-	size := params.Args["size"]
-	parent_id := params.Args["parent_id"]
-	search, searchOk := params.Args["search"].(string)
+	for _, item := range organizationUnits {
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		organizationUnit, err := getOrganizationUnitById(id.(int))
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
+		var mergedItem = shared.WriteStructToInterface(item)
+		// Fetching children Organization Units
+		mergedItem["children"] = shared.FetchByProperty("organization_unit", "ParentId", mergedItem["id"])
 
-		organizationUnitItem, err := buildOrganizationUnitOverviewResponse(organizationUnit)
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-		items = []dto.OrganizationUnitsOverviewResponse{*organizationUnitItem}
-		total = 1
-	} else {
-		input := dto.GetOrganizationUnitsInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
-			pageNum := page.(int)
-			input.Page = &pageNum
-		}
-		if shared.IsInteger(size) && size.(int) > 0 {
-			sizeNum := size.(int)
-			input.Size = &sizeNum
-		}
-		if shared.IsInteger(parent_id) && parent_id.(int) > 0 {
-			parentID := parent_id.(int)
-			input.ParentID = &parentID
-		}
-		if searchOk && search != "" {
-			input.Search = &search
-		}
-
-		organizationUnits, err := getOrganizationUnits(&input)
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-
-		for _, organizationUnit := range organizationUnits.Data {
-			organizationUnitItem, err := buildOrganizationUnitOverviewResponse(&organizationUnit)
-			if err != nil {
-				return dto.Response{
-					Status:  "error",
-					Message: err.Error(),
-				}, nil
-			}
-			items = append(items, *organizationUnitItem)
-		}
-		total = organizationUnits.Total
+		items = append(items, mergedItem)
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Total:   total,
-		Items:   items,
+	return items
+}
+
+var OrganizationUnitsResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"]
+	search := params.Args["search"]
+	OrganizationUnitType := &structs.OrganizationUnits{}
+	organizationUnitsData, organizationUnitDataErr := shared.ReadJson(shared.GetDataRoot()+"/organization_units.json", OrganizationUnitType)
+	var organizationUnitData []interface{}
+
+	if organizationUnitDataErr != nil {
+		fmt.Printf("Fetching organization units failed because of this error - %s.\n", organizationUnitDataErr)
+	}
+
+	organizationUnitData = organizationUnitsData
+
+	if id != nil && shared.IsInteger(id) && id != 0 {
+		organizationUnitData = shared.FindByProperty(organizationUnitData, "Id", id)
+	}
+
+	if search != nil && shared.IsString(search) {
+		organizationUnitData = shared.FindByProperty(organizationUnitData, "Title", search, true)
+	}
+
+	organizationUnitData = PopulateOrganizationUnitItemProperties(organizationUnitData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"items":   organizationUnitData,
 	}, nil
 }
 
 var OrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.OrganizationUnits
-	var organizationUnitResponse *dto.GetOrganizationUnitResponseMS
-	var err error
 	dataBytes, _ := json.Marshal(params.Args["data"])
+	OrganizationUnitType := &structs.OrganizationUnits{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		organizationUnitResponse, err = updateOrganizationUnits(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating organization unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating organization type data"), nil
-		}
-	} else {
-		organizationUnitResponse, err = createOrganizationUnits(&data)
-		if err != nil {
-			fmt.Printf("Creating organization unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating organization type data"), nil
-		}
+	organizationUnitData, organizationUnitDataErr := shared.ReadJson(shared.GetDataRoot()+"/organization_units.json", OrganizationUnitType)
+
+	if organizationUnitDataErr != nil {
+		fmt.Printf("Fetching organization units failed because of this error - %s.\n", organizationUnitDataErr)
 	}
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You updated this item!",
-		Item:    organizationUnitResponse.Data,
-	}, nil
+	if shared.IsInteger(itemId) && itemId != 0 {
+		organizationUnitData = shared.FilterByProperty(organizationUnitData, "Id", itemId)
+	} else {
+		data.Id = shared.GetRandomNumber()
+	}
 
+	var updatedData = append(organizationUnitData, data)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/organization_units.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    data,
+	}, nil
 }
 
 var OrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
+	OrganizationUnitType := &structs.OrganizationUnits{}
+	organizationUnitData, organizationUnitDataErr := shared.ReadJson(shared.GetDataRoot()+"/organization_units.json", OrganizationUnitType)
 
-	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
-		return shared.ErrorResponse("You must pass the item id"), nil
+	if organizationUnitDataErr != nil {
+		fmt.Printf("Fetching organization units failed because of this error - %s.\n", organizationUnitDataErr)
 	}
 
-	err := deleteOrganizationUnits(itemId.(int))
-	if err != nil {
-		fmt.Printf("Deleting Organization Unit failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+	if shared.IsInteger(itemId) && itemId != 0 {
+		organizationUnitData = shared.FilterByProperty(organizationUnitData, "Id", itemId)
 	}
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/organization_units.json"), organizationUnitData)
 
 	return map[string]interface{}{
 		"status":  "success",
 		"message": "You deleted this item!",
-	}, nil
-
-}
-
-func deleteOrganizationUnits(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getOrganizationUnits(input *dto.GetOrganizationUnitsInput) (*dto.GetOrganizationUnitsResponseMS, error) {
-	res := &dto.GetOrganizationUnitsResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.ORGANIZATION_UNITS_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-func getOrganizationUnitById(id int) (*structs.OrganizationUnits, error) {
-	res := &dto.GetOrganizationUnitResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func updateOrganizationUnits(id int, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error) {
-	res := &dto.GetOrganizationUnitResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), data, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-func createOrganizationUnits(data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error) {
-	res := &dto.GetOrganizationUnitResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.ORGANIZATION_UNITS_ENDPOINT, data, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-func buildOrganizationUnitOverviewResponse(
-	organizationUnits *structs.OrganizationUnits,
-) (*dto.OrganizationUnitsOverviewResponse, error) {
-	input := dto.GetOrganizationUnitsInput{}
-	input.ParentID = &organizationUnits.Id
-
-	organizationUnitsChildrenResponse, err := getOrganizationUnits(&input)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.OrganizationUnitsOverviewResponse{
-		Id:             organizationUnits.Id,
-		ParentId:       organizationUnits.ParentId,
-		NumberOfJudges: organizationUnits.NumberOfJudges,
-		Title:          organizationUnits.Title,
-		Abbreviation:   organizationUnits.Abbreviation,
-		Color:          organizationUnits.Color,
-		Description:    organizationUnits.Description,
-		Address:        *organizationUnits.Address,
-		Icon:           organizationUnits.Icon,
-		Children:       &organizationUnitsChildrenResponse.Data,
-		FolderId:       organizationUnits.FolderId,
 	}, nil
 }

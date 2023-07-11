@@ -1,124 +1,106 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
 var UserProfileSalaryParamsResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	profileId := params.Args["user_profile_id"].(int)
+	profileId := params.Args["user_profile_id"]
+	accountId := params.Args["user_account_id"]
 
-	res, err := getEmployeeSalaryParams(profileId)
-
-	if err != nil {
-		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", err)
+	if !shared.IsInteger(profileId) && !shared.IsInteger(accountId) {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "Argument 'user_profile_id' must not be empty!",
+			"item":    nil,
+		}, nil
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the item you asked for!",
-		Items:   res,
+	UserProfilesType := &structs.UserProfiles{}
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
+
+	if UserProfilesDataErr != nil {
+		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
+	}
+
+	var UserProfile = shared.FindByProperty(UserProfilesData, "Id", profileId)
+
+	if UserProfile == nil || UserProfile[0] == nil {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "User Profile not found for provided 'user_profile_id'!",
+			"item":    nil,
+		}, nil
+	}
+
+	var salaryParamsItems = shared.FetchByProperty(
+		"salary_params",
+		"UserProfileId",
+		profileId,
+	)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the item you asked for!",
+		"items":   salaryParamsItems,
 	}, nil
 }
 
 var UserProfileSalaryParamsInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var err error
-
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.SalaryParams
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
-
 	dataBytes, _ := json.Marshal(params.Args["data"])
+	SalaryParamsType := &structs.SalaryParams{}
 
-	err = json.Unmarshal(dataBytes, &data)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
-	}
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
+	SalaryParamsData, SalaryParamsDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_salary_params.json", SalaryParamsType)
+
+	if SalaryParamsDataErr != nil {
+		fmt.Printf("Fetching User Profile's SalaryParams failed because of this error - %s.\n", SalaryParamsDataErr)
+	}
+
 	if shared.IsInteger(itemId) && itemId != 0 {
-		item, err := updateEmployeeSalaryParams(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating salary params failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating salary params data"), nil
-		}
-		response.Message = "You updated this item!"
-		response.Item = item
+		SalaryParamsData = shared.FilterByProperty(SalaryParamsData, "Id", itemId)
 	} else {
-		item, err := createEmployeeSalaryParams(&data)
-		if err != nil {
-			fmt.Printf("Creating salary params failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating salary params data"), nil
-		}
-		response.Message = "You created this item!"
-		response.Item = item
+		data.Id = shared.GetRandomNumber()
 	}
 
-	return response, nil
-}
+	var updatedData = append(SalaryParamsData, data)
 
-var UserProfileSalaryParamsDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
-	err := deleteSalaryParams(itemId.(int))
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_salary_params.json"), updatedData)
 
-	if err != nil {
-		fmt.Printf("Fetching User Profile's SalaryParams failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "failed",
-			Message: "Delete User Profile's SalaryParams failed!",
-		}, nil
-	}
-
-	return dto.Response{
-		Status:  "success",
-		Message: "You deleted this item!",
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    data,
 	}, nil
 }
 
-func getEmployeeSalaryParams(userProfileID int) ([]*structs.SalaryParams, error) {
-	res := &dto.GetEmployeeSalaryParamsListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(userProfileID)+"/salaries", nil, res)
-	if err != nil {
-		return nil, err
+var UserProfileSalaryParamsDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	SalaryParamsType := &structs.SalaryParams{}
+	SalaryParamsData, SalaryParamsDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_salary_params.json", SalaryParamsType)
+
+	if SalaryParamsDataErr != nil {
+		fmt.Printf("Fetching User Profile's SalaryParams failed because of this error - %s.\n", SalaryParamsDataErr)
 	}
 
-	return res.Data, nil
-}
-
-func createEmployeeSalaryParams(salaries *structs.SalaryParams) (*structs.SalaryParams, error) {
-	res := dto.GetEmployeeSalaryParamsResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.SALARIES, salaries, &res)
-	if err != nil {
-		return nil, err
+	if shared.IsInteger(itemId) && itemId != 0 {
+		SalaryParamsData = shared.FilterByProperty(SalaryParamsData, "Id", itemId)
 	}
 
-	return res.Data, nil
-}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_salary_params.json"), SalaryParamsData)
 
-func deleteSalaryParams(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.SALARIES+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func updateEmployeeSalaryParams(id int, salaries *structs.SalaryParams) (*structs.SalaryParams, error) {
-	res := dto.GetEmployeeSalaryParamsResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.SALARIES+"/"+strconv.Itoa(id), salaries, &res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
+	}, nil
 }

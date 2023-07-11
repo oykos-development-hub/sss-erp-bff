@@ -21,6 +21,9 @@ var BasicInventoryDepreciationTypesOverviewField = &graphql.Field{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"search": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 	},
 	Resolve: resolvers.BasicInventoryDepreciationTypesOverviewResolver,
 }

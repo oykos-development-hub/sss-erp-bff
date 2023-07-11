@@ -1,432 +1,381 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"strconv"
+	"reflect"
 
 	"github.com/graphql-go/graphql"
 )
 
-var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	items := []dto.JobTenderResponseItem{}
+func PopulateJobTenderItemProperties(jobTenders []interface{}, id int, organizationUnitId int, typeParam string, isActive ...interface{}) []interface{} {
+	var items []interface{}
+
+	for _, item := range jobTenders {
+
+		var mergedItem = shared.WriteStructToInterface(item)
+
+		// Filtering by ID
+		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+			continue
+		}
+		// Filtering by Type
+		if len(typeParam) > 0 && typeParam != mergedItem["type"] {
+			continue
+		}
+		// Filtering by status
+		if len(isActive) > 0 && isActive[0] != nil && isActive[0] != mergedItem["active"] {
+			continue
+		}
+		// Filtering by Organization Unit
+		var relatedJobPositionInOrganizationUnit = shared.FetchByProperty("job_position_in_organization_unit", "Id", mergedItem["position_in_organization_unit_id"])
+
+		if relatedJobPositionInOrganizationUnit == nil || len(relatedJobPositionInOrganizationUnit) < 1 {
+			continue
+		}
+
+		relatedJobPositionInOrganizationUnitValue := reflect.ValueOf(relatedJobPositionInOrganizationUnit[0])
+
+		if relatedJobPositionInOrganizationUnitValue.Kind() == reflect.Ptr {
+			relatedJobPositionInOrganizationUnitValue = relatedJobPositionInOrganizationUnitValue.Elem()
+		}
+
+		var relatedOrganizationUnit = shared.FetchByProperty("organization_unit", "Id", relatedJobPositionInOrganizationUnitValue.FieldByName("ParentOrganizationUnitId").Interface())
+
+		if relatedOrganizationUnit == nil || len(relatedOrganizationUnit) < 1 {
+			continue
+		}
+
+		relatedOrganizationUnitValue := reflect.ValueOf(relatedOrganizationUnit[0])
+
+		if relatedOrganizationUnitValue.Kind() == reflect.Ptr {
+			relatedOrganizationUnitValue = relatedOrganizationUnitValue.Elem()
+		}
+
+		if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 && relatedOrganizationUnitValue.FieldByName("Id").Interface() != organizationUnitId {
+			continue
+		}
+
+		mergedItem["organization_unit"] = map[string]interface{}{
+			"title": relatedOrganizationUnitValue.FieldByName("Title").Interface(),
+			"id":    relatedOrganizationUnitValue.FieldByName("Id").Interface(),
+		}
+
+		var relatedJobPosition = shared.FetchByProperty("job_position", "Id", relatedJobPositionInOrganizationUnitValue.FieldByName("JobPositionId").Interface())
+
+		if len(relatedJobPosition) > 0 {
+			relatedJobPositionValue := reflect.ValueOf(relatedJobPosition[0])
+
+			if relatedJobPositionValue.Kind() == reflect.Ptr {
+				relatedJobPositionValue = relatedJobPositionValue.Elem()
+			}
+
+			mergedItem["job_position"] = map[string]interface{}{
+				"title": relatedJobPositionValue.FieldByName("Title").Interface(),
+				"id":    relatedJobPositionValue.FieldByName("Id").Interface(),
+			}
+		}
+
+		items = append(items, mergedItem)
+	}
+
+	return items
+}
+
+func PopulateJobTenderApplicationProperties(jobTenderApplications []interface{}, id int, jobTenderId int) []interface{} {
+	var items []interface{}
+
+	for _, item := range jobTenderApplications {
+
+		var mergedItem = shared.WriteStructToInterface(item)
+		// Filtering by ID
+		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+			continue
+		}
+		// Filtering by Job Tender ID
+		if shared.IsInteger(jobTenderId) && jobTenderId != 0 && jobTenderId != mergedItem["job_tender_id"] {
+			continue
+		}
+		// Populating Job Tender data
+		if shared.IsInteger(mergedItem["job_tender_id"]) && mergedItem["job_tender_id"].(int) > 0 {
+			var relatedJobTender = shared.FetchByProperty(
+				"job_tender",
+				"Id",
+				mergedItem["job_tender_id"],
+			)
+
+			if relatedJobTender == nil || len(relatedJobTender) < 1 {
+				continue
+			}
+
+			var jobTender = shared.WriteStructToInterface(relatedJobTender[0])
+
+			mergedItem["job_tender"] = map[string]interface{}{
+				"title": jobTender["serial_number"].(string),
+				"id":    jobTender["id"],
+			}
+		}
+		// Populating User Profile data
+		if shared.IsInteger(mergedItem["user_profile_id"]) && mergedItem["user_profile_id"].(int) > 0 {
+			var relatedUserProfile = shared.FetchByProperty(
+				"user_profile",
+				"Id",
+				mergedItem["user_profile_id"],
+			)
+
+			if relatedUserProfile == nil || len(relatedUserProfile) < 1 {
+				continue
+			}
+
+			var userProfile = shared.WriteStructToInterface(relatedUserProfile[0])
+
+			mergedItem["user_profile"] = map[string]interface{}{
+				"title": userProfile["first_name"].(string) + " " + userProfile["last_name"].(string),
+				"id":    userProfile["id"],
+			}
+			mergedItem["first_name"] = userProfile["first_name"].(string)
+			mergedItem["last_name"] = userProfile["last_name"].(string)
+			mergedItem["official_personal_id"] = userProfile["official_personal_id"].(string)
+			mergedItem["date_of_birth"] = userProfile["date_of_birth"].(string)
+			mergedItem["nationality"] = userProfile["nationality"].(string)
+		}
+
+		items = append(items, mergedItem)
+	}
+
+	return items
+}
+
+var JobTendersOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var items []interface{}
 	var total int
-
-	id := params.Args["id"]
-	page := params.Args["page"].(int)
-	size := params.Args["size"].(int)
-	organizationUnitID := params.Args["organization_unit_id"]
-	active := params.Args["active"]
-	typeID := params.Args["type_id"]
-
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		jobTender, err := getJobTender(id.(int))
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-		resItem, _ := buildJobTenderResponse(jobTender)
-
-		return dto.Response{
-			Status:  "success",
-			Message: "Here's the list you asked for!",
-			Items:   []dto.JobTenderResponseItem{*resItem},
-			Total:   1,
-		}, nil
-
+	var id int
+	if params.Args["id"] == nil {
+		id = 0
 	} else {
-		input := dto.GetJobTendersInput{}
-		if active != nil {
-			activeValue := active.(bool)
-			input.Active = &activeValue
-		}
-		jobTenders, err := getJobTenderList(&input)
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-		total = len(jobTenders)
-
-		for _, jobTender := range jobTenders {
-			resItem, err := buildJobTenderResponse(jobTender)
-			if err != nil {
-				return dto.Response{
-					Status:  "error",
-					Message: err.Error(),
-				}, nil
-			}
-			if organizationUnitID != nil &&
-				organizationUnitID.(int) > 0 &&
-				resItem.OrganizationUnit.Id != organizationUnitID {
-				total--
-				continue
-			}
-			if typeID != nil &&
-				typeID.(int) > 0 &&
-				resItem.Type.Id != typeID {
-				total--
-				continue
-			}
-			items = append(items, *resItem)
-		}
-
-		paginatedItems, err := shared.Paginate(items, page, size)
-		if err != nil {
-			fmt.Printf("Error paginating items: %v", err)
-		}
-		return dto.Response{
-			Status:  "success",
-			Message: "Here's the list you asked for!",
-			Items:   paginatedItems,
-			Total:   total,
-		}, nil
+		id = params.Args["id"].(int)
 	}
+	var organizationUnitId int
+	if params.Args["organization_unit_id"] == nil {
+		organizationUnitId = 0
+	} else {
+		organizationUnitId = params.Args["organization_unit_id"].(int)
+	}
+
+	page := params.Args["page"]
+	size := params.Args["size"]
+	typeParam := params.Args["type"]
+
+	JobTendersType := &structs.JobTenders{}
+	JobTendersData, JobTendersDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTendersType)
+
+	if JobTendersDataErr != nil {
+		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", JobTendersDataErr)
+	}
+
+	// Populate data for each Job Tender with Organization Unit and Job Position
+	items = PopulateJobTenderItemProperties(JobTendersData, id, organizationUnitId, typeParam.(string), params.Args["active"])
+
+	total = len(items)
+
+	// Filtering by Pagination params
+	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+		items = shared.Pagination(items, page.(int), size.(int))
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
+	}, nil
 }
 
-func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseItem, error) {
-	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(item.PositionInOrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
-	jobPosition, err := getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
-	if err != nil {
-		return nil, err
-	}
-	organizationUnit, err := getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
-	if err != nil {
-		return nil, err
+var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	JobTenderType := &structs.JobTenders{}
+	JobTenderData, JobTenderDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTenderType)
+
+	var id int
+	if params.Args["id"] == nil {
+		id = 0
+	} else {
+		id = params.Args["id"].(int)
 	}
 
-	tenderType, err := getTenderType(item.TypeID)
-	if err != nil {
-		return nil, err
+	if JobTenderDataErr != nil {
+		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", JobTenderDataErr)
 	}
 
-	res := dto.JobTenderResponseItem{
-		Id:               item.Id,
-		OrganizationUnit: *organizationUnit,
-		JobPosition:      jobPosition.Data,
-		Type:             *tenderType,
-		Description:      item.Description,
-		SerialNumber:     item.SerialNumber,
-		AvailableSlots:   item.AvailableSlots,
-		Active:           item.Active,
-		DateOfStart:      item.DateOfStart,
-		DateOfEnd:        item.DateOfEnd,
-		FileId:           item.FileId,
-		CreatedAt:        item.CreatedAt,
-		UpdatedAt:        item.UpdatedAt,
-	}
+	// Populate data for each Job Tender with Organization Unit and Job Position
+	var items = PopulateJobTenderItemProperties(JobTenderData, id, 0, "")
 
-	return &res, nil
-}
-
-func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {
-	userProfile, err := getUserProfileById(item.UserProfileId)
-	if err != nil {
-		return nil, err
-	}
-	jobTender, err := getJobTender(item.JobTenderId)
-	if err != nil {
-		return nil, err
-	}
-
-	userProfileDropdownItem := structs.SettingsDropdown{
-		Id:    userProfile.Id,
-		Title: userProfile.FirstName + " " + userProfile.LastName,
-	}
-
-	jobTenderDropdownItem := structs.SettingsDropdown{
-		Id:    jobTender.Id,
-		Title: jobTender.SerialNumber,
-	}
-
-	res := dto.JobTenderApplicationResponseItem{
-		Id:          item.Id,
-		UserProfile: userProfileDropdownItem,
-		JobTender:   jobTenderDropdownItem,
-		Active:      item.Active,
-		FileId:      item.FileId,
-		CreatedAt:   item.CreatedAt,
-		UpdatedAt:   item.UpdatedAt,
-	}
-
-	return &res, nil
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"items":   items,
+	}, nil
 }
 
 var JobTenderInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.JobTenders
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
+	JobTenderType := &structs.JobTenders{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := updateJobTender(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating Job Tender failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating Job Tender data"), nil
-		}
-		item, err := buildJobTenderResponse(res)
-		if err != nil {
-			fmt.Printf("Fetching Job Tender failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error Fetching Job Tender data"), nil
-		}
-		response.Item = item
-		response.Message = "You updated this item!"
-	} else {
-		res, err := createJobTender(&data)
-		if err != nil {
-			fmt.Printf("Creating Job Tender failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating Job Tender data"), nil
-		}
-		item, err := buildJobTenderResponse(res)
-		if err != nil {
-			fmt.Printf("Fetching Job Tender failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error Fetching Job Tender data"), nil
-		}
-		response.Item = item
-		response.Message = "You created this item!"
+	jobTenderData, jobTenderDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTenderType)
+
+	if jobTenderDataErr != nil {
+		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", jobTenderDataErr)
 	}
 
-	return response, nil
+	sliceData := []interface{}{data}
+
+	// Populate data for each Job Tender with Organization Unit and Job Position
+	var populatedData = PopulateJobTenderItemProperties(sliceData, itemId, 0, "")
+
+	if shared.IsInteger(itemId) && itemId != 0 {
+		jobTenderData = shared.FilterByProperty(jobTenderData, "Id", itemId)
+	} else {
+		data.Id = shared.GetRandomNumber()
+	}
+
+	var updatedData = append(jobTenderData, data)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tenders.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    populatedData[0],
+	}, nil
 }
 
 var JobTenderDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	JobTenderType := &structs.JobTenders{}
+	jobTenderData, jobTenderDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tenders.json", JobTenderType)
 
-	err := deleteJobTender(itemId)
-	if err != nil {
-		fmt.Printf("Deleting job tender failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+	if jobTenderDataErr != nil {
+		fmt.Printf("Fetching Job Tender failed because of this error - %s.\n", jobTenderDataErr)
 	}
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	if shared.IsInteger(itemId) && itemId != 0 {
+		jobTenderData = shared.FilterByProperty(jobTenderData, "Id", itemId)
+	}
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tenders.json"), jobTenderData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
 	}, nil
 }
 
 var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	items := []dto.JobTenderApplicationResponseItem{}
+	var items []interface{}
+	var total int
+	var id int
+	if params.Args["id"] == nil {
+		id = 0
+	} else {
+		id = params.Args["id"].(int)
+	}
+	var jobTenderId int
+	if params.Args["job_tender_id"] == nil {
+		jobTenderId = 0
+	} else {
+		jobTenderId = params.Args["job_tender_id"].(int)
+	}
 
-	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		tenderApplication, err := getTenderApplication(id.(int))
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-		resItem, _ := buildJobTenderApplicationResponse(tenderApplication)
-		items = append(items, *resItem)
-	} else {
-		input := dto.GetJobTenderApplicationsInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
-			pageNum := page.(int)
-			input.Page = &pageNum
-		}
-		if shared.IsInteger(size) && size.(int) > 0 {
-			sizeNum := size.(int)
-			input.Size = &sizeNum
-		}
+	JobTenderApplicationsType := &structs.JobTenderApplications{}
+	JobTenderApplicationsData, JobTenderApplicationsDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_applications.json", JobTenderApplicationsType)
 
-		tenderApplications, err := getTenderApplicationList(&input)
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-
-		for _, jobTender := range tenderApplications.Data {
-			resItem, err := buildJobTenderApplicationResponse(jobTender)
-			if err != nil {
-				return dto.Response{
-					Status:  "error",
-					Message: err.Error(),
-				}, nil
-			}
-			items = append(items, *resItem)
-		}
+	if JobTenderApplicationsDataErr != nil {
+		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", JobTenderApplicationsDataErr)
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   items,
+	// Populate data for each Job Tender with Organization Unit and Job Position
+	items = PopulateJobTenderApplicationProperties(JobTenderApplicationsData, id, jobTenderId)
+
+	total = len(items)
+
+	// Filtering by Pagination params
+	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+		items = shared.Pagination(items, page.(int), size.(int))
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
 	}, nil
 }
 
 var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.JobTenderApplications
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
+	JobTenderApplicationType := &structs.JobTenderApplications{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
+	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_applications.json", JobTenderApplicationType)
+
+	if JobTenderApplicationDataErr != nil {
+		fmt.Printf("Fetching Job Tender Applications failed because of this error - %s.\n", JobTenderApplicationDataErr)
+	}
+
+	sliceData := []interface{}{data}
+
+	// Populate data for each Job Tender with Organization Unit and Job Position
+	var populatedData = PopulateJobTenderApplicationProperties(sliceData, itemId, 0)
+
 	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := updateJobTenderApplication(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating Job Tender Application failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating Job Tender Application data"), nil
-		}
-
-		item, err := buildJobTenderApplicationResponse(res)
-		if err != nil {
-			fmt.Printf("Fetching Job Tender Application failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error fetching Job Tender Application data"), nil
-		}
-
-		response.Item = item
-		response.Message = "You updated this item!"
+		JobTenderApplicationData = shared.FilterByProperty(JobTenderApplicationData, "Id", itemId)
 	} else {
-		res, err := createJobTenderApplication(&data)
-		if err != nil {
-			fmt.Printf("Creating Job Tender Application failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating Job Tender Application data"), nil
-		}
-
-		item, err := buildJobTenderApplicationResponse(res)
-		if err != nil {
-			fmt.Printf("Fetching Job Tender Application failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error fetching Job Tender Application data"), nil
-		}
-
-		response.Item = item
-		response.Message = "You created this item!"
+		data.Id = shared.GetRandomNumber()
 	}
 
-	return response, nil
-}
+	var updatedData = append(JobTenderApplicationData, data)
 
-var JobTenderApplicationDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_applications.json"), updatedData)
 
-	err := deleteJobTenderApplication(itemId)
-	if err != nil {
-		fmt.Printf("Deleting Job Tender Application failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    populatedData[0],
 	}, nil
 }
 
-func createJobTender(jobTender *structs.JobTenders) (*structs.JobTenders, error) {
-	res := &dto.GetJobTenderResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.JOB_TENDERS_ENDPOINT, jobTender, res)
-	if err != nil {
-		return nil, err
+var JobTenderApplicationDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	JobTenderApplicationType := &structs.JobTenderApplications{}
+	JobTenderApplicationData, JobTenderApplicationDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_tender_applications.json", JobTenderApplicationType)
+
+	if JobTenderApplicationDataErr != nil {
+		fmt.Printf("Fetching Job Tender Applications failed because of this error - %s.\n", JobTenderApplicationDataErr)
 	}
 
-	return &res.Data, nil
-}
-
-func updateJobTender(id int, jobTender *structs.JobTenders) (*structs.JobTenders, error) {
-	res := &dto.GetJobTenderResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.JOB_TENDERS_ENDPOINT+"/"+strconv.Itoa(id), jobTender, res)
-	if err != nil {
-		return nil, err
+	if shared.IsInteger(itemId) && itemId != 0 {
+		JobTenderApplicationData = shared.FilterByProperty(JobTenderApplicationData, "Id", itemId)
 	}
 
-	return &res.Data, nil
-}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_tender_applications.json"), JobTenderApplicationData)
 
-func getJobTender(id int) (*structs.JobTenders, error) {
-	res := &dto.GetJobTenderResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.JOB_TENDERS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func getJobTenderList(input *dto.GetJobTendersInput) ([]*structs.JobTenders, error) {
-	res := &dto.GetJobTenderListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.JOB_TENDERS_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func deleteJobTender(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.JOB_TENDERS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func createJobTenderApplication(jobTender *structs.JobTenderApplications) (*structs.JobTenderApplications, error) {
-	res := &dto.GetJobTenderApplicationResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.JOB_TENDER_APPLICATIONS_ENDPOINT, jobTender, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func updateJobTenderApplication(id int, jobTender *structs.JobTenderApplications) (*structs.JobTenderApplications, error) {
-	res := &dto.GetJobTenderApplicationResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.JOB_TENDER_APPLICATIONS_ENDPOINT+"/"+strconv.Itoa(id), jobTender, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func deleteJobTenderApplication(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.JOB_TENDER_APPLICATIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getTenderApplication(id int) (*structs.JobTenderApplications, error) {
-	res := &dto.GetJobTenderApplicationResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.JOB_TENDER_APPLICATIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func getTenderApplicationList(input *dto.GetJobTenderApplicationsInput) (*dto.GetJobTenderApplicationListResponseMS, error) {
-	res := &dto.GetJobTenderApplicationListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.JOB_TENDER_APPLICATIONS_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
+	}, nil
 }

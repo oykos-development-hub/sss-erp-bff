@@ -37,14 +37,14 @@ func PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchItems []
 		}
 
 		// Filtering by accepted
-		if len(accepted) > 0 && accepted[0] != "null" {
+		if len(accepted) > 0 && accepted[0] != nil && accepted[0] != "null" {
 			var IsAccepted bool
 			if accepted[0] == "true" {
 				IsAccepted = true
 			} else {
 				IsAccepted = false
 			}
-			if IsAccepted != mergedItem["is_accepted"].(bool) && mergedItem["type"] != "revers" {
+			if IsAccepted != mergedItem["is_accepted"].(bool) {
 				continue
 			}
 		}

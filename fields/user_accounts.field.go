@@ -4,7 +4,6 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
-
 	"github.com/graphql-go/graphql"
 )
 

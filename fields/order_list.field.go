@@ -97,3 +97,25 @@ var RecipientUsersField = &graphql.Field{
 	Description: "Receive users List",
 	Resolve:     resolvers.RecipientUsersResolver,
 }
+
+var OrderListReceiveDeleteField = &graphql.Field{
+	Type:        types.OrderListReceiveDeleteType,
+	Description: "Delete Receive existing Order",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.OrderListReceiveDeleteResolver,
+}
+
+var OrderListAssetMovementDeleteField = &graphql.Field{
+	Type:        types.OrderListAssetMovementDeleteType,
+	Description: "Delete Asset Movement existing Order",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.OrderListAssetMovementDeleteResolver,
+}

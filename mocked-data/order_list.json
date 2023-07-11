@@ -11,6 +11,7 @@
     "invoice_number": "248192730521",
     "organization_unit_id": 0,
     "office_id": 0,
+    "recipient_user_id": 0,
     "description_receive": ""
   },
   {
@@ -25,6 +26,7 @@
     "invoice_number": "",
     "organization_unit_id": 0,
     "office_id": 0,
+    "recipient_user_id": 0,
     "description_receive": ""
   },
   {
@@ -39,6 +41,7 @@
     "invoice_number": "",
     "organization_unit_id": 0,
     "office_id": 0,
+    "recipient_user_id": 0,
     "description_receive": ""
   },
   {
@@ -47,12 +50,13 @@
     "total_price": 0,
     "public_procurement_id": 3,
     "supplier_id": 1,
-    "status": "Received",
+    "status": "Movement",
     "date_system": "2022-02-01T00:00:00Z",
     "invoice_date": "2022-02-01T00:00:00Z",
     "invoice_number": "432132",
     "organization_unit_id": 0,
-    "office_id": 0,
+    "office_id": 1,
+    "recipient_user_id": 1,
     "description_receive": "description"
   }
 ]

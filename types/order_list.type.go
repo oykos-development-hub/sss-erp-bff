@@ -186,3 +186,27 @@ var RecipientUsersType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var OrderListReceiveDeleteType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "OrderListReceiveDelete",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+var OrderListAssetMovementDeleteType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "OrderListAssetMovementDelete",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})

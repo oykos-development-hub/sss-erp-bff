@@ -551,6 +551,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			newItem.DateSystem = updateOrder.DateSystem
 			newItem.InvoiceDate = updateOrder.InvoiceDate
 			newItem.InvoiceNumber = updateOrder.InvoiceNumber
+			newItem.DescriptionReceive = updateOrder.DescriptionReceive
 			newItem.OfficeId = data.OfficeId
 			newItem.RecipientUserId = data.RecipientUserId
 		}
@@ -594,6 +595,7 @@ var RecipientUsersResolver = func(params graphql.ResolveParams) (interface{}, er
 		"items":   items,
 	}, nil
 }
+
 var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
@@ -620,5 +622,89 @@ var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 	return map[string]interface{}{
 		"status":  "success",
 		"message": "You deleted this item!",
+	}, nil
+}
+
+var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	OrderListType := &structs.OrderListItem{}
+
+	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
+
+	if err != nil {
+		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
+	}
+
+	order := shared.FindByProperty(orderListData, "Id", itemId)
+	orderListData = shared.FilterByProperty(orderListData, "Id", itemId)
+	newItem := structs.OrderListItem{}
+
+	for _, item := range order {
+		if updateOrder, ok := item.(*structs.OrderListItem); ok {
+			newItem.Id = updateOrder.Id
+			newItem.DateOrder = updateOrder.DateOrder
+			newItem.TotalPrice = updateOrder.TotalPrice
+			newItem.PublicProcurementId = updateOrder.PublicProcurementId
+			newItem.SupplierId = updateOrder.SupplierId
+			newItem.Status = "Created"
+			newItem.DateSystem = ""
+			newItem.InvoiceDate = ""
+			newItem.InvoiceNumber = ""
+			newItem.DescriptionReceive = ""
+			newItem.OfficeId = 0
+			newItem.RecipientUserId = 0
+		}
+	}
+
+	var updatedData = append(orderListData, newItem)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/order_list.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You delete Receive this order!",
+	}, nil
+}
+
+var OrderListAssetMovementDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	OrderListType := &structs.OrderListItem{}
+
+	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
+
+	if err != nil {
+		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
+	}
+
+	order := shared.FindByProperty(orderListData, "Id", itemId)
+	orderListData = shared.FilterByProperty(orderListData, "Id", itemId)
+	newItem := structs.OrderListItem{}
+
+	for _, item := range order {
+		if updateOrder, ok := item.(*structs.OrderListItem); ok {
+			newItem.Id = updateOrder.Id
+			newItem.DateOrder = updateOrder.DateOrder
+			newItem.TotalPrice = updateOrder.TotalPrice
+			newItem.PublicProcurementId = updateOrder.PublicProcurementId
+			newItem.SupplierId = updateOrder.SupplierId
+			newItem.Status = "Received"
+			newItem.DateSystem = updateOrder.DateSystem
+			newItem.InvoiceDate = updateOrder.InvoiceDate
+			newItem.InvoiceNumber = updateOrder.InvoiceNumber
+			newItem.DescriptionReceive = updateOrder.DescriptionReceive
+			newItem.OfficeId = 0
+			newItem.RecipientUserId = 0
+		}
+	}
+
+	var updatedData = append(orderListData, newItem)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/order_list.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You delete Asset Movement this order!",
 	}, nil
 }

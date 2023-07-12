@@ -168,24 +168,17 @@ func buildProcurementPlanResponseItem(item *structs.PublicProcurementPlan) (*dto
 }
 
 var PublicProcurementPlanDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	itemId := params.Args["id"]
+	itemId := params.Args["id"].(int)
 
-	var items = shared.FetchByProperty(
-		"public_procurement_plan",
-		"",
-		"",
-	)
-
-	if shared.IsInteger(itemId) && itemId != 0 {
-		items = shared.FilterByProperty(items, "Id", itemId)
+	err := deleteProcurementPlan(itemId)
+	if err != nil {
+		fmt.Printf("Deleting procurement plan failed because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error deleting the id"), nil
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_plans.json"), items)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You deleted this item!",
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
 	}, nil
 }
 

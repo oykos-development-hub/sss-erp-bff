@@ -89,6 +89,9 @@ var OrganizationUnitsType = graphql.NewObject(graphql.ObjectConfig{
 		"items": &graphql.Field{
 			Type: graphql.NewList(OrganizationUnitParentType),
 		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 

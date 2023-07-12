@@ -5,14 +5,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/gorilla/handlers"
-	"github.com/graphql-go/graphql"
-	"github.com/graphql-go/handler"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
+
+	"github.com/gorilla/handlers"
+	"github.com/graphql-go/graphql"
+	"github.com/graphql-go/handler"
 )
 
 func extractTokenFromHeader(headerValue string) string {
@@ -155,8 +156,8 @@ func main() {
 			"orderList_Receive":                               fields.OrderListReceiveField,
 			"orderList_Movement":                              fields.OrderListAssetMovementField,
 			"orderList_Delete":                                fields.OrderListDeleteField,
-			"orderListReceiveDelete_Delete":                   fields.OrderListReceiveDeleteField,
-			"orderListAssetMovementDelete_Delete":             fields.OrderListAssetMovementDeleteField,
+			"orderListReceive_Delete":                         fields.OrderListReceiveDeleteField,
+			"orderListAssetMovement_Delete":                   fields.OrderListAssetMovementDeleteField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{

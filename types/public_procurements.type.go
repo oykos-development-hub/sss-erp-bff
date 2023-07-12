@@ -77,8 +77,8 @@ var PublicProcurementPlanDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementPlanDetailsItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementPlanDetailsItemType,
 		},
 	},
 })

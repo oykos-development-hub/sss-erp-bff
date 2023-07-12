@@ -58,29 +58,21 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 }
 
 var PublicProcurementPlanDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var authToken = params.Context.Value("token").(string)
-	id := params.Args["id"]
+	id := params.Args["id"].(int)
 
-	if !shared.IsInteger(id) {
-		id = 0
+	plan, err := getProcurementPlan(id)
+	if err != nil {
+		return dto.Response{
+			Status:  "error",
+			Message: err.Error(),
+		}, nil
 	}
+	resItem, _ := buildProcurementPlanResponseItem(plan)
 
-	var items = PopulatePlanItemProperties(
-		shared.FetchByProperty(
-			"public_procurement_plan",
-			"Id",
-			id.(int),
-		),
-		nil,
-		"",
-		"",
-		authToken,
-	)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "Here's the list you asked for!",
-		"items":   items,
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item:    *resItem,
 	}, nil
 }
 

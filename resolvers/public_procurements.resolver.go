@@ -1,13 +1,10 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
@@ -775,86 +772,76 @@ var PublicProcurementPlanDeleteResolver = func(params graphql.ResolveParams) (in
 }
 
 var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	id := params.Args["id"].(int)
+	id := params.Args["id"]
 
-	item, err := getProcurementItem(id)
-	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+	if !shared.IsInteger(id) {
+		id = 0
 	}
 
-	resItem, _ := buildProcurementItemResponseItem(item)
-	jole, _ := json.Marshal(resItem)
-	fmt.Println(string(jole))
+	var items = PopulateProcurementItemProperties(shared.FetchByProperty(
+		"public_procurement_items",
+		"Id",
+		id.(int),
+	))
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Item:    resItem,
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"items":   items,
 	}, nil
 }
 
 var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.PublicProcurementItem
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
-
-	err := json.Unmarshal(dataBytes, &data)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating procurement plan data"), nil
-	}
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
+	var items = shared.FetchByProperty(
+		"public_procurement_item",
+		"",
+		"",
+	)
+
 	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := updateProcurementItem(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating procurement item failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating procurement  type data"), nil
-		}
-
-		resItem, _ := buildProcurementItemResponseItem(res)
-		jole, _ := json.Marshal(resItem)
-		fmt.Println(string(jole))
-
-		response.Message = "You updated this item!"
-		response.Item = resItem
+		items = shared.FilterByProperty(items, "Id", itemId)
 	} else {
-		res, err := createProcurementItem(&data)
-		if err != nil {
-			fmt.Printf("Creating procurement item failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating procurement item data"), nil
-		}
-
-		resItem, _ := buildProcurementItemResponseItem(res)
-		jole, _ := json.Marshal(resItem)
-		fmt.Println(string(jole))
-
-		response.Message = "You created this item!"
-		response.Item = resItem
+		data.Id = shared.GetRandomNumber()
 	}
+	var updatedData = append(items, data)
 
-	return response, nil
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_items.json"), updatedData)
+
+	var populatedData = PopulateProcurementItemProperties([]interface{}{data})
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"items":   populatedData,
+	}, nil
+
 }
 
 var PublicProcurementPlanItemDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
 
-	err := deleteProcurementItem(itemId)
-	if err != nil {
-		fmt.Printf("Deleting procurement item failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+	var items = shared.FetchByProperty(
+		"public_procurement_item",
+		"",
+		"",
+	)
+	if shared.IsInteger(itemId) && itemId != 0 {
+		items = shared.FilterByProperty(items, "Id", itemId)
 	}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_items.json"), items)
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
 	}, nil
 }
 
@@ -1240,66 +1227,4 @@ var PublicProcurementContractArticleInsertResolver = func(params graphql.Resolve
 		"message": "You updated this item!",
 		"items":   populatedData,
 	}, nil
-}
-
-func createProcurementItem(item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error) {
-	res := &dto.GetProcurementItemResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.ITEMS_ENDPOINT, item, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func updateProcurementItem(id int, item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error) {
-	res := &dto.GetProcurementItemResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.ITEMS_ENDPOINT+"/"+strconv.Itoa(id), item, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func deleteProcurementItem(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.ITEMS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getProcurementItem(id int) (*structs.PublicProcurementItem, error) {
-	res := &dto.GetProcurementItemResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.ITEMS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func buildProcurementItemResponseItem(item *structs.PublicProcurementItem) (*dto.ProcurementItemResponseItem, error) {
-
-	//implementirati ostale stvari vezane za odgovor????????????????
-
-	res := dto.ProcurementItemResponseItem{
-		Id:                item.Id,
-		Title:             item.Title,
-		BudgetIndentId:    item.BudgetIndentId,
-		PlanId:            item.PlanId,
-		IsOpenProcurement: item.IsOpenProcurement,
-		ArticleType:       item.ArticleType,
-		Status:            item.Status,
-		SerialNumber:      item.SerialNumber,
-		DateOfAwarding:    (*string)(item.DateOfAwarding),
-		DateOfPublishing:  (*string)(item.DateOfPublishing),
-		FileId:            item.FileId,
-		CreatedAt:         item.CreatedAt,
-		UpdatedAt:         item.UpdatedAt,
-	}
-
-	return &res, nil
 }

@@ -50,6 +50,9 @@ var JobPositionsType = graphql.NewObject(graphql.ObjectConfig{
 		"items": &graphql.Field{
 			Type: graphql.NewList(JobPositionItemType),
 		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 
@@ -153,6 +156,9 @@ var EmployeeInOrganizationUnitItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"user_account_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"user_profile_id": &graphql.Field{
 			Type: graphql.Int,
 		},
 		"position_in_organization_unit_id": &graphql.Field{

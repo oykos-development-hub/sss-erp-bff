@@ -77,8 +77,8 @@ var PublicProcurementPlanDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementPlanDetailsItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementPlanDetailsItemType,
 		},
 	},
 })
@@ -92,8 +92,8 @@ var PublicProcurementPlanInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementPlanDetailsItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementPlanDetailsItemType,
 		},
 	},
 })
@@ -284,8 +284,8 @@ var PublicProcurementPlanItemArticleInsertType = graphql.NewObject(graphql.Objec
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementPlanItemArticleItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementPlanItemArticleItemType,
 		},
 	},
 })
@@ -437,8 +437,8 @@ var PublicProcurementOrganizationUnitArticleInsertType = graphql.NewObject(graph
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementOrganizationUnitArticleItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementOrganizationUnitArticleItemType,
 		},
 	},
 })
@@ -509,8 +509,8 @@ var PublicProcurementContractsInsertType = graphql.NewObject(graphql.ObjectConfi
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementContractItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementContractItemType,
 		},
 	},
 })
@@ -593,8 +593,8 @@ var PublicProcurementContractArticleInsertType = graphql.NewObject(graphql.Objec
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementContractArticleItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementContractArticleItemType,
 		},
 	},
 })

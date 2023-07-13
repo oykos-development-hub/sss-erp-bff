@@ -9,37 +9,37 @@ var JudgeNormInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.Int,
 		},
 		"user_profile_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
-		"area": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+		"topic": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.String),
 		},
-		"norm": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"title": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.String),
 		},
-		"percentage_of_norm_decrease": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+		"number_of_norm_decrease": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"number_of_items": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"number_of_items_solved": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"evaluation_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"date_of_evaluation": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"date_of_evaluation_validity": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"relocation_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"number_of_solved_items": &graphql.InputObjectFieldConfig{
+		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
-		},
-		"start_date": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"end_date": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"evaluation": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"evaluation_valid_to": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"relocation": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
 		},
 	},
 })

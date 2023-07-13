@@ -8,10 +8,19 @@ var SettingsDropdownItemType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"entity": &graphql.Field{
+			Type: graphql.String,
+		},
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},
 		"abbreviation": &graphql.Field{
+			Type: graphql.String,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"value": &graphql.Field{
 			Type: graphql.String,
 		},
 		"color": &graphql.Field{
@@ -31,6 +40,9 @@ var SettingsDropdownType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
 		},
 		"items": &graphql.Field{
 			Type: graphql.NewList(SettingsDropdownItemType),

@@ -14,7 +14,7 @@ func ReadJson(path string, responseType interface{}) ([]interface{}, error) {
 	response := reflect.New(reflect.SliceOf(reflect.TypeOf(responseType))).Interface()
 
 	if len(path) == 0 {
-		return nil, errors.New("Argument 'path' cannot be empty!")
+		return nil, errors.New("argument 'path' cannot be empty")
 	}
 	// Read the contents of the JSON file
 	resp, err := http.Get(path)

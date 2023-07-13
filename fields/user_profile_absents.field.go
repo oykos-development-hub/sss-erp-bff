@@ -4,6 +4,7 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -12,9 +13,6 @@ var UserProfileAbsentField = &graphql.Field{
 	Description: "Returns a data of User Profile for displaying inside Absent tab",
 	Args: graphql.FieldConfigArgument{
 		"user_profile_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"user_account_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
 	},
@@ -37,9 +35,6 @@ var UserProfileAbsentDeleteField = &graphql.Field{
 	Description: "Deletes existing User Profile's Absent",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"vacation_type_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
 	},

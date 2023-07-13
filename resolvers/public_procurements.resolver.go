@@ -1,10 +1,13 @@
 package resolvers
 
 import (
+	"bff/config"
+	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
@@ -636,18 +639,70 @@ func PopulatePlanItemProperties(plans []interface{}, filters ...interface{}) []i
 	return items
 }
 
-var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
+var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var authToken = params.Context.Value("token").(string)
+	var total int
+	var year string
+	if params.Args["year"] == nil {
+		year = ""
+	} else {
+		year = params.Args["year"].(string)
+	}
+	var status string
+	if params.Args["status"] == nil {
+		status = ""
+	} else {
+		status = params.Args["status"].(string)
+	}
+	var isPreBudget = params.Args["is_pre_budget"]
+	page := params.Args["page"]
+	size := params.Args["size"]
+
+	var items []interface{}
+	var plans = shared.FetchByProperty(
+		"public_procurement_plan",
+		"",
+		"",
+	)
+
+	if len(plans) > 0 {
+		items = PopulatePlanItemProperties(plans, isPreBudget, year, status, authToken)
+	}
+
+	total = len(items)
+
+	// Filtering by Pagination params
+	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+		items = shared.Pagination(items, page.(int), size.(int))
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
+	}, nil
+}
+
+var PublicProcurementPlanDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var authToken = params.Context.Value("token").(string)
 	id := params.Args["id"]
 
 	if !shared.IsInteger(id) {
 		id = 0
 	}
 
-	var items = PopulateProcurementItemProperties(shared.FetchByProperty(
-		"public_procurement_items",
-		"Id",
-		id.(int),
-	))
+	var items = PopulatePlanItemProperties(
+		shared.FetchByProperty(
+			"public_procurement_plan",
+			"Id",
+			id.(int),
+		),
+		nil,
+		"",
+		"",
+		authToken,
+	)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -656,9 +711,10 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 	}, nil
 }
 
-var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var authToken = params.Context.Value("token").(string)
 	var projectRoot, _ = shared.GetProjectRoot()
-	var data structs.PublicProcurementItem
+	var data structs.PublicProcurementPlan
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
 	_ = json.Unmarshal(dataBytes, &data)
@@ -666,7 +722,7 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 	itemId := data.Id
 
 	var items = shared.FetchByProperty(
-		"public_procurement_item",
+		"public_procurement_plan",
 		"",
 		"",
 	)
@@ -679,9 +735,15 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 
 	var updatedData = append(items, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_items.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_plans.json"), updatedData)
 
-	var populatedData = PopulateProcurementItemProperties([]interface{}{data})
+	var populatedData = PopulatePlanItemProperties(
+		[]interface{}{data},
+		nil,
+		"",
+		"",
+		authToken,
+	)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -690,12 +752,12 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 	}, nil
 }
 
-var PublicProcurementPlanItemDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+var PublicProcurementPlanDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
 
 	var items = shared.FetchByProperty(
-		"public_procurement_item",
+		"public_procurement_plan",
 		"",
 		"",
 	)
@@ -704,11 +766,95 @@ var PublicProcurementPlanItemDeleteResolver = func(params graphql.ResolveParams)
 		items = shared.FilterByProperty(items, "Id", itemId)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_items.json"), items)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_plans.json"), items)
 
 	return map[string]interface{}{
 		"status":  "success",
 		"message": "You deleted this item!",
+	}, nil
+}
+
+var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(int)
+
+	item, err := getProcurementItem(id)
+	if err != nil {
+		return dto.Response{
+			Status:  "error",
+			Message: err.Error(),
+		}, nil
+	}
+
+	resItem, _ := buildProcurementItemResponseItem(item)
+	jole, _ := json.Marshal(resItem)
+	fmt.Println(string(jole))
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item:    resItem,
+	}, nil
+}
+
+var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.PublicProcurementItem
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	dataBytes, _ := json.Marshal(params.Args["data"])
+
+	err := json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error updating procurement plan data"), nil
+	}
+
+	itemId := data.Id
+
+	if shared.IsInteger(itemId) && itemId != 0 {
+		res, err := updateProcurementItem(itemId, &data)
+		if err != nil {
+			fmt.Printf("Updating procurement item failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error updating procurement  type data"), nil
+		}
+
+		resItem, _ := buildProcurementItemResponseItem(res)
+		jole, _ := json.Marshal(resItem)
+		fmt.Println(string(jole))
+
+		response.Message = "You updated this item!"
+		response.Item = resItem
+	} else {
+		res, err := createProcurementItem(&data)
+		if err != nil {
+			fmt.Printf("Creating procurement item failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error creating procurement item data"), nil
+		}
+
+		resItem, _ := buildProcurementItemResponseItem(res)
+		jole, _ := json.Marshal(resItem)
+		fmt.Println(string(jole))
+
+		response.Message = "You created this item!"
+		response.Item = resItem
+	}
+
+	return response, nil
+}
+
+var PublicProcurementPlanItemDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	itemId := params.Args["id"].(int)
+
+	err := deleteProcurementItem(itemId)
+	if err != nil {
+		fmt.Printf("Deleting procurement item failed because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error deleting the id"), nil
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
 	}, nil
 }
 
@@ -1094,4 +1240,66 @@ var PublicProcurementContractArticleInsertResolver = func(params graphql.Resolve
 		"message": "You updated this item!",
 		"items":   populatedData,
 	}, nil
+}
+
+func createProcurementItem(item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error) {
+	res := &dto.GetProcurementItemResponseMS{}
+	_, err := shared.MakeAPIRequest("POST", config.ITEMS_ENDPOINT, item, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func updateProcurementItem(id int, item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error) {
+	res := &dto.GetProcurementItemResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.ITEMS_ENDPOINT+"/"+strconv.Itoa(id), item, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func deleteProcurementItem(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.ITEMS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getProcurementItem(id int) (*structs.PublicProcurementItem, error) {
+	res := &dto.GetProcurementItemResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.ITEMS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func buildProcurementItemResponseItem(item *structs.PublicProcurementItem) (*dto.ProcurementItemResponseItem, error) {
+
+	//implementirati ostale stvari vezane za odgovor????????????????
+
+	res := dto.ProcurementItemResponseItem{
+		Id:                item.Id,
+		Title:             item.Title,
+		BudgetIndentId:    item.BudgetIndentId,
+		PlanId:            item.PlanId,
+		IsOpenProcurement: item.IsOpenProcurement,
+		ArticleType:       item.ArticleType,
+		Status:            item.Status,
+		SerialNumber:      item.SerialNumber,
+		DateOfAwarding:    (*string)(item.DateOfAwarding),
+		DateOfPublishing:  (*string)(item.DateOfPublishing),
+		FileId:            item.FileId,
+		CreatedAt:         item.CreatedAt,
+		UpdatedAt:         item.UpdatedAt,
+	}
+
+	return &res, nil
 }

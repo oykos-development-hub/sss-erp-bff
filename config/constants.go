@@ -49,8 +49,7 @@ var (
 	JOB_TENDER_APPLICATIONS_ENDPOINT             string
 	JUDGE_RESOLUTIONS_ENDPOINT                   string
 	JUDGE_RESOLUTION_ITEMS_ENDPOINT              string
-
-	PLANS_ENDPOINT string
+	ITEMS_ENDPOINT                               string
 )
 
 func init() {
@@ -58,18 +57,13 @@ func init() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
 	HR_MS_BASE_URL = os.Getenv("HR_MS_BASE_URL")
 	CORE_MS_BASE_URL = os.Getenv("CORE_MS_BASE_URL")
 	PROCUREMENT_MS_BASE_URL = os.Getenv("PROCUREMENT_MS_BASE_URL")
-
-	// CORE MS endpoints
 	LOGIN_ENDPOINT = CORE_MS_BASE_URL + "/users/login"
 	ROLES_ENDPOINT = CORE_MS_BASE_URL + "/roles"
 	PIN_ENDPOINT = CORE_MS_BASE_URL + "/users/validate-pin"
 	USER_ACCOUNTS_ENDPOINT = CORE_MS_BASE_URL + "/users"
-
-	// HR MS endpoints
 	USER_PROFILES_ENDPOINT = HR_MS_BASE_URL + "/user-profiles"
 	EMPLOYEE_CONTRACTS = HR_MS_BASE_URL + "/employee-contracts"
 	EMPLOYEE_EDUCATIONS = HR_MS_BASE_URL + "/employee-educations"
@@ -97,7 +91,5 @@ func init() {
 	JOB_TENDER_APPLICATIONS_ENDPOINT = HR_MS_BASE_URL + "/tender-applications-in-organization-units"
 	JUDGE_RESOLUTIONS_ENDPOINT = HR_MS_BASE_URL + "/judge-number-resolutions"
 	JUDGE_RESOLUTION_ITEMS_ENDPOINT = HR_MS_BASE_URL + "/judge-number-resolution-organization-units"
-
-	// public procurement endpoints
-	PLANS_ENDPOINT = PROCUREMENT_MS_BASE_URL + "/plans"
+	ITEMS_ENDPOINT = PROCUREMENT_MS_BASE_URL + "/items"
 }

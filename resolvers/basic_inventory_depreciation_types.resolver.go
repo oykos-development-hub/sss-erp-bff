@@ -31,6 +31,7 @@ var BasicInventoryDepreciationTypesOverviewResolver = func(params graphql.Resolv
 	var items []interface{}
 	var total int
 	var id int
+	search := params.Args["search"]
 	if params.Args["id"] == nil {
 		id = 0
 	} else {
@@ -45,6 +46,10 @@ var BasicInventoryDepreciationTypesOverviewResolver = func(params graphql.Resolv
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
+	}
+
+	if search != nil && shared.IsString(search) {
+		BasicInventoryDepreciationTypesData = shared.FindByProperty(BasicInventoryDepreciationTypesData, "Title", search, true)
 	}
 
 	// Populate data for each Basic Inventory Depreciation Types

@@ -1,31 +1,37 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"fmt"
-	"net/http"
-
 	"github.com/graphql-go/graphql"
 )
 
 var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	email := p.Args["email"].(string)
-	password := p.Args["password"].(string)
 
-	loginRes, cookies, err := loginUser(email, password)
-	if err != nil {
-		return dto.LoginResponse{
-			Status:  "error",
-			Message: err.Error(),
+	if shared.StringContains(email, "invalid") {
+		return map[string]interface{}{
+			"status":                 "error",
+			"message":                "User account not found!",
+			"role_id":                0,
+			"folder_id":              0,
+			"email":                  "",
+			"phone":                  "",
+			"token":                  "",
+			"refresh_token":          "",
+			"created_at":             "",
+			"first_name":             "",
+			"last_name":              "",
+			"birth_last_name":        "",
+			"gender":                 "",
+			"date_of_becoming_judge": "",
+			"permissions":            nil,
+			"contract":               nil,
+			"engagement":             nil,
+			"job_position":           nil,
+			"organization_unit":      nil,
 		}, nil
-	}
-
-	httpResponseWriter := p.Context.Value((config.HttpResponseWriterKey)).(http.ResponseWriter)
-	for _, cookie := range cookies {
-		http.SetCookie(httpResponseWriter, cookie)
 	}
 
 	PermissionsType := &structs.Permissions{}
@@ -67,39 +73,25 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		organizationUnitData = []interface{}{}
 	}
 
-	return dto.LoginResponse{
-		Status:              "success",
-		Message:             "Welcome!",
-		RoleId:              123,
-		FolderId:            456,
-		Email:               email,
-		Phone:               "555-555-1234",
-		Token:               loginRes.Data.Token.Token,
-		CreatedAt:           "2023-04-28T10:45:00Z",
-		FirstName:           "John",
-		LastName:            "Doe",
-		BirthLastName:       "Smith",
-		Gender:              "Male",
-		DateOfBecomingJudge: "2022-01-01",
-		Permissions:         permissionsData,
-		Contract:            contractsData[0],
-		Engagement:          engagementsData[0],
-		JobPosition:         jobPositionData[0],
-		OrganizationUnit:    organizationUnitData[0],
+	return map[string]interface{}{
+		"status":                 "success",
+		"message":                "Welcome!",
+		"role_id":                123,
+		"folder_id":              456,
+		"email":                  email,
+		"phone":                  "555-555-1234",
+		"token":                  "abc123",
+		"refresh_token":          "def456",
+		"created_at":             "2023-04-28T10:45:00Z",
+		"first_name":             "John",
+		"last_name":              "Doe",
+		"birth_last_name":        "Smith",
+		"gender":                 "Male",
+		"date_of_becoming_judge": "2022-01-01",
+		"permissions":            permissionsData,
+		"contract":               contractsData[0],
+		"engagement":             engagementsData[0],
+		"job_position":           jobPositionData[0],
+		"organization_unit":      organizationUnitData[0],
 	}, nil
-}
-
-func loginUser(email, password string) (*dto.LoginResponseMS, []*http.Cookie, error) {
-	reqBody := dto.LoginRequestMS{
-		Email:    email,
-		Password: password,
-	}
-
-	loginResponse := &dto.LoginResponseMS{}
-	cookies, err := shared.MakeAPIRequest("POST", config.LOGIN_ENDPOINT, reqBody, loginResponse)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return loginResponse, cookies, nil
 }

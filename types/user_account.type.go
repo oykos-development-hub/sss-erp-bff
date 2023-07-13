@@ -14,16 +14,13 @@ var UserAccountsOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 		"email": &graphql.Field{
 			Type: graphql.String,
 		},
-		"first_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"last_name": &graphql.Field{
-			Type: graphql.String,
-		},
 		"secondary_email": &graphql.Field{
 			Type: graphql.String,
 		},
 		"phone": &graphql.Field{
+			Type: graphql.String,
+		},
+		"password": &graphql.Field{
 			Type: graphql.String,
 		},
 		"pin": &graphql.Field{
@@ -77,8 +74,8 @@ var UserAccountInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"item": &graphql.Field{
-			Type: UserAccountsOverviewItemType,
+		"items": &graphql.Field{
+			Type: graphql.NewList(UserAccountsOverviewItemType),
 		},
 	},
 })

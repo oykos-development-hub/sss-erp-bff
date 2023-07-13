@@ -4,7 +4,6 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
-
 	"github.com/graphql-go/graphql"
 )
 
@@ -17,15 +16,6 @@ var OrganizationUnitsField = &graphql.Field{
 		},
 		"search": &graphql.ArgumentConfig{
 			Type: graphql.String,
-		},
-		"parent_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"page": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"size": &graphql.ArgumentConfig{
-			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.OrganizationUnitsResolver,

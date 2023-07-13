@@ -65,19 +65,22 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 		entityStruct = &structs.Evaluation{}
 	case "vacation_type", "vacation_types":
 		endpoint = "user_profile_vacation_types.json"
-		entityStruct = &structs.AbsentType{}
+		entityStruct = &structs.VacationType{}
 	case "vacation", "vacations":
 		endpoint = "user_profile_vacations.json"
-		entityStruct = &structs.Absent{}
+		entityStruct = &structs.Vacation{}
 	case "relocation", "relocations":
 		endpoint = "user_profile_relocations.json"
-		entityStruct = &structs.Absent{}
+		entityStruct = &structs.Relocation{}
 	case "resolution_type", "resolution_types":
 		endpoint = "user_profile_resolution_types.json"
 		entityStruct = &structs.ResolutionType{}
 	case "resolution", "resolutions":
 		endpoint = "user_profile_resolutions.json"
 		entityStruct = &structs.Resolution{}
+	case "revision_type", "revision_types":
+		endpoint = "revision_types.json"
+		entityStruct = &structs.RevisionType{}
 	case "revision", "revisions":
 		endpoint = "revisions.json"
 		entityStruct = &structs.Revision{}
@@ -137,7 +140,7 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 		entityStruct = &structs.OrderProcurementArticleItem{}
 	}
 
-	entityData, entityDataErr := ReadJson("http://localhost:8080/mocked-data/"+endpoint, entityStruct)
+	entityData, entityDataErr := ReadJson(GetDataRoot()+"/"+endpoint, entityStruct)
 
 	if entityDataErr != nil {
 		fmt.Printf("Fetching "+entity+" failed because of this error - %s.\n", entityDataErr)

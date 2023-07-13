@@ -28,10 +28,12 @@ type UserProfiles struct {
 	MaritalStatus                  string `json:"marital_status"`
 	DateOfTakingOath               string `json:"date_of_taking_oath"`
 	DateOfBecomingJudge            string `json:"date_of_becoming_judge"`
-	EngagementTypeId               *int   `json:"engagement_type_id,omitempty"`
-	RevisorRole                    bool   `json:"revisor_role"`
-	NationalMinority               string `json:"national_minority"`
-	SecondaryEmail                 string `json:"secondary_email"`
 	CreatedAt                      string `json:"created_at"`
 	UpdatedAt                      string `json:"updated_at"`
+	ActiveContract                 bool   `json:"active_contract"`
+	EngagementTypeId               int    `json:"engagement_type_id"`
+	RevisorRole                    bool   `json:"revisor_role"`
+	NationalMinority               string `json:"national_minority"`
+	PrivateEmail                   string `json:"private_email"`
+	Pin                            string `json:"pin"`
 }

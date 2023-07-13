@@ -794,8 +794,8 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.PublicProcurementItem
-
 	dataBytes, _ := json.Marshal(params.Args["data"])
+
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
@@ -811,6 +811,7 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 	} else {
 		data.Id = shared.GetRandomNumber()
 	}
+
 	var updatedData = append(items, data)
 
 	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_items.json"), updatedData)
@@ -822,7 +823,6 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 		"message": "You updated this item!",
 		"items":   populatedData,
 	}, nil
-
 }
 
 var PublicProcurementPlanItemDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -834,9 +834,11 @@ var PublicProcurementPlanItemDeleteResolver = func(params graphql.ResolveParams)
 		"",
 		"",
 	)
+
 	if shared.IsInteger(itemId) && itemId != 0 {
 		items = shared.FilterByProperty(items, "Id", itemId)
 	}
+
 	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/public_procurement_items.json"), items)
 
 	return map[string]interface{}{

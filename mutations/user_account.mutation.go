@@ -8,12 +8,6 @@ var UserAccountInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"first_name": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"last_name": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"role_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

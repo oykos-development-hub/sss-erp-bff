@@ -11,44 +11,35 @@ var JudgeNormItemType = graphql.NewObject(graphql.ObjectConfig{
 		"user_profile_id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"topic": &graphql.Field{
+		"area": &graphql.Field{
 			Type: graphql.String,
 		},
-		"title": &graphql.Field{
-			Type: graphql.String,
+		"norm": &graphql.Field{
+			Type: graphql.Int,
 		},
 		"percentage_of_norm_decrease": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"percentage_of_norm_fulfilment": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"number_of_norm_decrease": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 		"number_of_items": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"number_of_items_solved": &graphql.Field{
+		"number_of_solved_items": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"evaluation_id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"date_of_evaluation": &graphql.Field{
+		"start_date": &graphql.Field{
 			Type: graphql.String,
 		},
-		"date_of_evaluation_validity": &graphql.Field{
+		"end_date": &graphql.Field{
 			Type: graphql.String,
 		},
-		"relocation_id": &graphql.Field{
+		"evaluation": &graphql.Field{
 			Type: graphql.String,
 		},
-		// "relocation": &graphql.Field{
-		// 	Type: UserProfileAbsentItemType,
-		// },
-		"file_id": &graphql.Field{
-			Type: graphql.Int,
+		"evaluation_valid_to": &graphql.Field{
+			Type: graphql.String,
+		},
+		"relocation": &graphql.Field{
+			Type: graphql.String,
 		},
 	},
 })
@@ -72,6 +63,9 @@ var JudgesOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"last_name": &graphql.Field{
+			Type: graphql.String,
+		},
+		"evaluation": &graphql.Field{
 			Type: graphql.String,
 		},
 		"created_at": &graphql.Field{
@@ -179,9 +173,6 @@ var JudgeResolutionType = graphql.NewObject(graphql.ObjectConfig{
 		"year": &graphql.Field{
 			Type: graphql.String,
 		},
-		"active": &graphql.Field{
-			Type: graphql.Boolean,
-		},
 		"available_slots_judges": &graphql.Field{
 			Type: graphql.Int,
 		},
@@ -221,8 +212,8 @@ var JudgeResolutionsInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"item": &graphql.Field{
-			Type: JudgeResolutionType,
+		"items": &graphql.Field{
+			Type: graphql.NewList(JudgeResolutionType),
 		},
 	},
 })

@@ -33,13 +33,13 @@ var UserProfilesOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Boolean,
 		},
 		"role": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"organization_unit": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"job_position": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
@@ -59,9 +59,6 @@ var UserProfileBasicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"first_name": &graphql.Field{
 			Type: graphql.String,
 		},
-		"middle_name": &graphql.Field{
-			Type: graphql.String,
-		},
 		"last_name": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -129,6 +126,12 @@ var UserProfileBasicItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"date_of_taking_oath": &graphql.Field{
+			Type: graphql.String,
+		},
+		"date_of_start": &graphql.Field{
+			Type: graphql.String,
+		},
+		"date_of_end": &graphql.Field{
 			Type: graphql.String,
 		},
 		"date_of_becoming_judge": &graphql.Field{
@@ -146,118 +149,22 @@ var UserProfileBasicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"job_position": &graphql.Field{
 			Type: DropdownItemType,
 		},
-		"contracts": &graphql.Field{
-			Type: graphql.NewList(ContractItemType),
+		"contract_type": &graphql.Field{
+			Type: DropdownItemType,
 		},
-		"position_in_organization_unit_id": &graphql.Field{
-			Type: graphql.Int,
+		"created_at": &graphql.Field{
+			Type: graphql.String,
 		},
-		"secondary_mail": &graphql.Field{
+		"updated_at": &graphql.Field{
+			Type: graphql.String,
+		},
+		"national_minority": &graphql.Field{
+			Type: graphql.String,
+		},
+		"private_email": &graphql.Field{
 			Type: graphql.String,
 		},
 		"pin": &graphql.Field{
-			Type: graphql.String,
-		},
-		"created_at": &graphql.Field{
-			Type: graphql.String,
-		},
-		"updated_at": &graphql.Field{
-			Type: graphql.String,
-		},
-	},
-})
-
-var UserProfileItemUpdateType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileUpdateItem",
-	Fields: graphql.Fields{
-		"id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"first_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"middle_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"last_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"date_of_birth": &graphql.Field{
-			Type: graphql.String,
-		},
-		"birth_last_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"country_of_birth": &graphql.Field{
-			Type: graphql.String,
-		},
-		"city_of_birth": &graphql.Field{
-			Type: graphql.String,
-		},
-		"nationality": &graphql.Field{
-			Type: graphql.String,
-		},
-		"citizenship": &graphql.Field{
-			Type: graphql.String,
-		},
-		"address": &graphql.Field{
-			Type: graphql.String,
-		},
-		"father_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"mother_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"mother_birth_last_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"bank_account": &graphql.Field{
-			Type: graphql.String,
-		},
-		"bank_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"official_personal_id": &graphql.Field{
-			Type: graphql.String,
-		},
-		"official_personal_document_number": &graphql.Field{
-			Type: graphql.String,
-		},
-		"official_personal_document_issuer": &graphql.Field{
-			Type: graphql.String,
-		},
-		"gender": &graphql.Field{
-			Type: graphql.String,
-		},
-		"single_parent": &graphql.Field{
-			Type: graphql.Boolean,
-		},
-		"housing_done": &graphql.Field{
-			Type: graphql.Boolean,
-		},
-		"revisor_role": &graphql.Field{
-			Type: graphql.Boolean,
-		},
-		"housing_description": &graphql.Field{
-			Type: graphql.String,
-		},
-		"marital_status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"date_of_taking_oath": &graphql.Field{
-			Type: graphql.String,
-		},
-		"date_of_becoming_judge": &graphql.Field{
-			Type: graphql.String,
-		},
-		"position_in_organization_unit_id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"created_at": &graphql.Field{
-			Type: graphql.String,
-		},
-		"updated_at": &graphql.Field{
 			Type: graphql.String,
 		},
 	},
@@ -277,21 +184,6 @@ var UserProfilesOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"items": &graphql.Field{
 			Type: graphql.NewList(UserProfilesOverviewItemType),
-		},
-	},
-})
-
-var UserProfileContractsType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileContracts",
-	Fields: graphql.Fields{
-		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"message": &graphql.Field{
-			Type: graphql.String,
-		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(ContractItemType),
 		},
 	},
 })
@@ -322,48 +214,6 @@ var UserProfileBasicInsertType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"item": &graphql.Field{
 			Type: UserProfileBasicItemType,
-		},
-	},
-})
-
-var UserProfileContractInsertType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileContractsInsertType",
-	Fields: graphql.Fields{
-		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"message": &graphql.Field{
-			Type: graphql.String,
-		},
-		"item": &graphql.Field{
-			Type: ContractItemType,
-		},
-	},
-})
-
-var UserProfileContractDeleteType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileContractDelete",
-	Fields: graphql.Fields{
-		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"message": &graphql.Field{
-			Type: graphql.String,
-		},
-	},
-})
-
-var UserProfileUpdateType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileBasicUpdate",
-	Fields: graphql.Fields{
-		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"message": &graphql.Field{
-			Type: graphql.String,
-		},
-		"item": &graphql.Field{
-			Type: UserProfileItemUpdateType,
 		},
 	},
 })

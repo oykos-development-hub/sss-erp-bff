@@ -9,28 +9,28 @@ var JobTenderInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.Int,
 		},
 		"position_in_organization_unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"type": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.String,
 		},
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"serial_number": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"available_slots": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"active": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Boolean),
+			Type: graphql.Boolean,
 		},
 		"date_of_start": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"date_of_end": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
@@ -44,14 +44,38 @@ var JobTenderApplicationInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"active": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
+		"status": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"job_tender_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"user_profile_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
+		},
+		"type": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"first_name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"last_name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"official_personal_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_birth": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"nationality": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"evaluation": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_application": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,

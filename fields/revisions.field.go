@@ -4,7 +4,6 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
-
 	"github.com/graphql-go/graphql"
 )
 
@@ -23,9 +22,6 @@ var RevisionsOverviewField = &graphql.Field{
 		},
 		"organization_unit_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
-		},
-		"internal": &graphql.ArgumentConfig{
-			Type: graphql.Boolean,
 		},
 		"revisor_user_profile_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,

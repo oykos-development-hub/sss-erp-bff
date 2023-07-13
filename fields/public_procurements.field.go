@@ -4,7 +4,6 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
-
 	"github.com/graphql-go/graphql"
 )
 
@@ -13,10 +12,10 @@ var PublicProcurementPlansOverviewField = &graphql.Field{
 	Description: "Returns a data of Public Procurement Plan items",
 	Args: graphql.FieldConfigArgument{
 		"page": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"size": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"year": &graphql.ArgumentConfig{
 			Type: graphql.String,
@@ -36,7 +35,7 @@ var PublicProcurementPlanDetailsField = &graphql.Field{
 	Description: "Returns Public Procurement Plan item details",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.PublicProcurementPlanDetailsResolver,
@@ -58,7 +57,7 @@ var PublicProcurementPlanDeleteField = &graphql.Field{
 	Description: "Deletes existing Public Procurement Plan item",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.PublicProcurementPlanDeleteResolver,
@@ -69,7 +68,7 @@ var PublicProcurementPlanItemDetailsField = &graphql.Field{
 	Description: "Returns Public Procurement item details",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.PublicProcurementPlanItemDetailsResolver,
@@ -91,7 +90,7 @@ var PublicProcurementPlanItemDeleteField = &graphql.Field{
 	Description: "Deletes existing Public Procurement item",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.PublicProcurementPlanItemDeleteResolver,
@@ -102,7 +101,7 @@ var PublicProcurementPlanItemLimitsField = &graphql.Field{
 	Description: "Returns all Limits for a specific Public Procurement item",
 	Args: graphql.FieldConfigArgument{
 		"procurement_id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.PublicProcurementPlanItemLimitsResolver,
@@ -135,7 +134,7 @@ var PublicProcurementPlanItemArticleDeleteField = &graphql.Field{
 	Description: "Deletes existing Article for a specific Public Procurement item",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.PublicProcurementPlanItemArticleDeleteResolver,
@@ -187,12 +186,6 @@ var PublicProcurementContractsOverviewField = &graphql.Field{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
-		"page": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"size": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
 		"procurement_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
@@ -219,7 +212,7 @@ var PublicProcurementContractsDeleteField = &graphql.Field{
 	Description: "Deletes existing Public Procurement Contract item",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.PublicProcurementContractDeleteResolver,

@@ -8,4 +8,7 @@ require (
 	github.com/graphql-go/handler v0.2.3
 )
 
-require github.com/felixge/httpsnoop v1.0.1 // indirect
+require (
+	github.com/felixge/httpsnoop v1.0.1 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
+)

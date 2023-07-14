@@ -12,7 +12,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+var PublicProcurementPlansOverviewResolver2 = func(params graphql.ResolveParams) (interface{}, error) {
 	var authToken = params.Context.Value("token").(string)
 	var total int
 	var year string
@@ -54,6 +54,64 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 		"message": "Here's the list you asked for!",
 		"total":   total,
 		"items":   items,
+	}, nil
+}
+
+var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	items := []dto.ProcurementPlanResponseItem{}
+	var total int
+
+	page := params.Args["page"].(int)
+	size := params.Args["size"].(int)
+	status := params.Args["status"]
+	year := params.Args["year"]
+	isPreBudget := params.Args["is_pre_budget"]
+
+	input := dto.GetProcurementPlansInput{}
+
+	if year != nil && year.(string) != "" {
+		yearValue := year.(string)
+		input.Year = &yearValue
+	}
+	if isPreBudget != nil {
+		isPreBudgetValue := isPreBudget.(string)
+		input.Year = &isPreBudgetValue
+	}
+
+	plans, err := getProcurementPlanList(&input)
+	if err != nil {
+		return dto.Response{
+			Status:  "error",
+			Message: err.Error(),
+		}, nil
+	}
+	total = len(plans)
+
+	for _, plan := range plans {
+		resItem, err := buildProcurementPlanResponseItem(plan)
+		if err != nil {
+			return dto.Response{
+				Status:  "error",
+				Message: err.Error(),
+			}, nil
+		}
+		if status != nil &&
+			status.(string) == "not implemented yet" {
+			total--
+			continue
+		}
+		items = append(items, *resItem)
+	}
+
+	paginatedItems, err := shared.Paginate(items, page, size)
+	if err != nil {
+		fmt.Printf("Error paginating items: %v", err)
+	}
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   paginatedItems,
+		Total:   total,
 	}, nil
 }
 
@@ -213,7 +271,7 @@ func getProcurementPlan(id int) (*structs.PublicProcurementPlan, error) {
 	return &res.Data, nil
 }
 
-func getProcurementPlanList(input *dto.GetJobTendersInput) ([]*structs.PublicProcurementPlan, error) {
+func getProcurementPlanList(input *dto.GetProcurementPlansInput) ([]*structs.PublicProcurementPlan, error) {
 	res := &dto.GetProcurementPlanListResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.PLANS_ENDPOINT, input, res)
 	if err != nil {

@@ -6,6 +6,13 @@ type GetProcurementPlanResponseMS struct {
 	Data structs.PublicProcurementPlan `json:"data"`
 }
 
+type GetProcurementPlansInput struct {
+	Status         *bool   `json:"is_active"`
+	Year           *string `json:"year"`
+	IsPreBudget    *bool   `json:"is_pre_budget"`
+	TargetBudgetID *int    `json:"target_budget_id"`
+}
+
 type GetProcurementPlanListResponseMS struct {
 	Data []*structs.PublicProcurementPlan `json:"data"`
 }

@@ -35,7 +35,6 @@ func (jd *JSONDate) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &dateStr); err != nil {
 		return err
 	}
-	fmt.Println("eee", JSONDate(dateStr))
 
 	*jd = JSONDate(dateStr)
 	return nil

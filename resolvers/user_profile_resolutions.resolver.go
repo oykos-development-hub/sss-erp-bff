@@ -1,119 +1,132 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
 var UserProfileResolutionResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	userProfileId := params.Args["user_profile_id"].(int)
+	var resolutionItems []interface{}
 
-	resolutions, err := getEmployeeResolutions(userProfileId)
-	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
+	profileId := params.Args["user_profile_id"]
+	accountId := params.Args["user_account_id"]
+
+	if !shared.IsInteger(profileId) && !shared.IsInteger(accountId) {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "Argument 'user_profile_id' must not be empty!",
+			"item":    nil,
 		}, nil
 	}
-	items := shared.ConvertToInterfaceSlice(resolutions)
 
-	_ = hydrateSettings("ResolutionType", "ResolutionTypeId", items...)
+	UserProfilesType := &structs.UserProfiles{}
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   resolutions,
+	if UserProfilesDataErr != nil {
+		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
+	}
+
+	var UserProfile = shared.FindByProperty(UserProfilesData, "Id", profileId)
+
+	if UserProfile == nil || UserProfile[0] == nil {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "User Profile not found for provided 'user_profile_id'!",
+			"item":    nil,
+		}, nil
+	}
+
+	var resolutionTypes = shared.FetchByProperty(
+		"resolution_type",
+		"",
+		"",
+	)
+
+	var relatedResolution = shared.FetchByProperty(
+		"resolution",
+		"UserProfileId",
+		profileId,
+	)
+	// # Related Employee Resolution
+	if len(relatedResolution) > 0 {
+		for _, relatedResolutionItem := range relatedResolution {
+			var relatedResolutionItemData = shared.WriteStructToInterface(relatedResolutionItem)
+			var relatedResolutionType = shared.FindByProperty(resolutionTypes, "Id", relatedResolutionItemData["resolution_type_id"])
+
+			if len(relatedResolutionType) > 0 {
+				var relatedResolutionData = shared.WriteStructToInterface(relatedResolutionType[0])
+
+				relatedResolutionItemData["resolution_type"] = map[string]interface{}{
+					"title": relatedResolutionData["title"],
+					"id":    relatedResolutionData["id"],
+				}
+			}
+
+			resolutionItems = append(resolutionItems, relatedResolutionItemData)
+		}
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here are the items you asked for!",
+		"items":   resolutionItems,
 	}, nil
 }
 
 var UserProfileResolutionInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.Resolution
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
+	ResolutionType := &structs.Resolution{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
+	resolutionData, resolutionDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_resolutions.json", ResolutionType)
+
+	if resolutionDataErr != nil {
+		fmt.Printf("Fetching User Profile's resolution failed because of this error - %s.\n", resolutionDataErr)
+	}
+
 	if shared.IsInteger(itemId) && itemId != 0 {
-		resolutionResponse, err := updateResolution(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating employee's resolution failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating employee's resolution data"), nil
-		}
-		response.Item = resolutionResponse
-		response.Message = "You updated this item!"
+		resolutionData = shared.FilterByProperty(resolutionData, "Id", itemId)
 	} else {
-		resolutionResponse, err := createResolution(&data)
-		if err != nil {
-			fmt.Printf("Creating employee's resolution failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating employee's resolution data"), nil
-		}
-		response.Item = resolutionResponse
-		response.Message = "You created this item!"
+		data.Id = shared.GetRandomNumber()
 	}
 
-	return response, nil
-}
+	var updatedData = append(resolutionData, data)
 
-var UserProfileResolutionDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_resolutions.json"), updatedData)
 
-	err := deleteResolution(itemId)
-	if err != nil {
-		fmt.Printf("Deleting employee's resolution failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the resolution"), nil
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    data,
 	}, nil
 }
 
-func getEmployeeResolutions(employeeID int) ([]*structs.Resolution, error) {
-	res := &dto.GetResolutionListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(employeeID)+"/resolutions", nil, res)
-	if err != nil {
-		return nil, err
+var UserProfileResolutionDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	ResolutionType := &structs.Resolution{}
+	resolutionData, resolutionDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_resolutions.json", ResolutionType)
+
+	if resolutionDataErr != nil {
+		fmt.Printf("Fetching User Profile's Resolution failed because of this error - %s.\n", resolutionDataErr)
 	}
 
-	return res.Data, nil
-}
-
-func updateResolution(id int, resolution *structs.Resolution) (*structs.Resolution, error) {
-	res := &dto.GetResolutionResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.RESOLUTIONS_ENDPOINT+"/"+strconv.Itoa(id), resolution, res)
-	if err != nil {
-		return nil, err
+	if shared.IsInteger(itemId) && itemId != 0 {
+		resolutionData = shared.FilterByProperty(resolutionData, "Id", itemId)
 	}
 
-	return &res.Data, nil
-}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_resolutions.json"), resolutionData)
 
-func createResolution(resolution *structs.Resolution) (*structs.Resolution, error) {
-	res := &dto.GetResolutionResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.RESOLUTIONS_ENDPOINT, resolution, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func deleteResolution(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.RESOLUTIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
+	}, nil
 }

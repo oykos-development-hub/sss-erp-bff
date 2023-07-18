@@ -1,640 +1,536 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"strconv"
-	"sync"
-	"time"
+	"reflect"
 
 	"github.com/graphql-go/graphql"
 )
 
-var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	id := params.Args["user_profile_id"]
-	page := params.Args["page"].(int)
-	size := params.Args["size"].(int)
-	organizationUnitIdFilter := params.Args["organization_unit_id"]
+func PopulateResolutionItemProperties(resolutions []interface{}, id int, year string) []interface{} {
+	var items []interface{}
 
-	var judgesList []*dto.Judges
-	response := dto.Response{
-		Status: "success",
-	}
+	for _, item := range resolutions {
+		// # Resolution item
+		var mergedItem map[string]interface{}
 
-	isJudge := true
-	input := dto.GetJobPositionsInput{
-		IsJudge: &isJudge,
-	}
-	jobPositionsRes, err := getJobPositions(&input)
-	if err != nil {
-		return dto.ErrorResponse(err), nil
-	}
-	jobPositions := jobPositionsRes.Data
-
-	for _, jobPosition := range jobPositions {
-		input := dto.GetJobPositionInOrganizationUnitsInput{}
-		input.JobPositionID = &jobPosition.Id
-		if organizationUnitIdFilter != nil {
-			organizationUnitIdFilter := organizationUnitIdFilter.(int)
-			input.OrganizationUnitID = &organizationUnitIdFilter
-		}
-		jobPositionInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
-		if err != nil {
-			return dto.ErrorResponse(err), nil
+		if reflect.TypeOf(item).Kind() == reflect.Map {
+			mergedItem = item.(map[string]interface{})
+		} else {
+			mergedItem = shared.WriteStructToInterface(item)
 		}
 
-		for _, jobPositionInOrganizationUnit := range jobPositionInOrganizationUnits.Data {
-			input := dto.GetEmployeesInOrganizationUnitInput{
-				PositionInOrganizationUnit: &jobPositionInOrganizationUnit.Id,
-			}
-			employeeInOrganizationUnit, err := getEmployeesInOrganizationUnitList(&input)
-			if err != nil {
-				return dto.ErrorResponse(err), nil
-			}
+		var availableSlotsJudgesTotal = 0
+		var judgesNumberTotal = 0
+		var judgePresidentsNumberTotal = 0
 
-			if len(employeeInOrganizationUnit) > 0 {
-				if id != nil && id.(int) > 0 && employeeInOrganizationUnit[0].UserProfileId != id.(int) {
-					continue
-				}
-				judgeResponse, err := buildJudgeResponseItem(
-					employeeInOrganizationUnit[0].UserProfileId,
-					jobPositionInOrganizationUnit.ParentOrganizationUnitId,
-					jobPosition.Id,
+		if shared.IsInteger(id) && id > 0 && id != mergedItem["id"] {
+			continue
+		}
+		if shared.IsString(year) && len(year) > 0 && year != mergedItem["year"] {
+			continue
+		}
+
+		// # Related Resolution item
+		var relatedResolutionItems = shared.FetchByProperty(
+			"judge_resolution_item",
+			"ResolutionId",
+			mergedItem["id"],
+		)
+		var mergedResolutionItems []interface{}
+
+		if len(relatedResolutionItems) > 0 {
+			for _, resolutionItem := range relatedResolutionItems {
+				var mergedResolutionItem = shared.WriteStructToInterface(resolutionItem)
+				var availableSlotsJudges = mergedResolutionItem["available_slots_judges"].(int)
+				var employeesNumber = 0
+				var judgesNumber = 0
+				var judgesPresidentNumber = 0
+
+				availableSlotsJudgesTotal = availableSlotsJudgesTotal + availableSlotsJudges
+
+				// # Related Organization Unit
+				var relatedOrganizationUnit = shared.FetchByProperty(
+					"organization_unit",
+					"Id",
+					mergedResolutionItem["organization_unit_id"],
 				)
 
-				if err != nil {
-					return dto.ErrorResponse(err), nil
+				if len(relatedOrganizationUnit) > 0 {
+					for _, organizationUnit := range relatedOrganizationUnit {
+						var mergedOrganizationUnit = shared.WriteStructToInterface(organizationUnit)
+
+						organizationUnitField := make(map[string]interface{})
+
+						organizationUnitField["title"] = mergedOrganizationUnit["title"]
+						organizationUnitField["id"] = mergedOrganizationUnit["id"]
+
+						mergedResolutionItem["organization_unit"] = organizationUnitField
+
+						// # Job Positions in Organization Unit
+						var jobPositionsInOrganizationUnit = shared.FetchByProperty(
+							"job_positions_in_organization_units",
+							"ParentOrganizationUnitId",
+							mergedOrganizationUnit["id"],
+						)
+
+						if len(jobPositionsInOrganizationUnit) > 0 {
+							for _, jobPositionInOrganizationUnit := range jobPositionsInOrganizationUnit {
+								var jobPositionData = shared.WriteStructToInterface(jobPositionInOrganizationUnit)
+
+								// # Related Job Position
+								var relatedJobPosition = shared.FetchByProperty(
+									"job_positions",
+									"Id",
+									jobPositionData["job_position_id"],
+								)
+
+								if len(relatedJobPosition) > 0 {
+									for _, jobPositionItem := range relatedJobPosition {
+										var jobPosition = shared.WriteStructToInterface(jobPositionItem)
+										// # Employees for Job Position
+										var employeesInOrganizationUnit = shared.FetchByProperty(
+											"employees_in_organization_units",
+											"PositionInOrganizationUnitId",
+											jobPositionData["id"],
+										)
+
+										employeesNumber = employeesNumber + len(employeesInOrganizationUnit)
+
+										if jobPosition["is_judge"].(bool) {
+											// # Judges for Job Position
+											var judgesInOrganizationUnit = shared.FetchByProperty(
+												"employees_in_organization_units",
+												"PositionInOrganizationUnitId",
+												jobPositionData["id"],
+											)
+
+											judgesNumber = judgesNumber + len(judgesInOrganizationUnit)
+										} else if jobPosition["is_judge_president"].(bool) {
+											// # Judge Presidents for Job Position
+											var judgePresidentsInOrganizationUnit = shared.FetchByProperty(
+												"employees_in_organization_units",
+												"PositionInOrganizationUnitId",
+												jobPositionData["id"],
+											)
+
+											judgesPresidentNumber = judgesPresidentNumber + len(judgePresidentsInOrganizationUnit)
+										}
+									}
+								}
+							}
+						}
+					}
 				}
-				judgesList = append(judgesList, judgeResponse)
+
+				mergedResolutionItem["number_of_employees"] = employeesNumber
+				mergedResolutionItem["number_of_judges"] = judgesNumber
+				mergedResolutionItem["number_of_presidents"] = judgesPresidentNumber
+				mergedResolutionItem["number_of_relocated_judges"] = 0
+				mergedResolutionItem["number_of_suspended_judges"] = 0
+
+				judgesNumberTotal = judgesNumberTotal + judgesNumber
+				judgePresidentsNumberTotal = judgePresidentsNumberTotal + judgesPresidentNumber
+
+				mergedResolutionItems = append(mergedResolutionItems, mergedResolutionItem)
+			}
+		}
+
+		mergedItem["available_slots_judges"] = availableSlotsJudgesTotal
+		mergedItem["number_of_judges"] = judgesNumberTotal
+		mergedItem["items"] = mergedResolutionItems
+
+		items = append(items, mergedItem)
+	}
+
+	return items
+}
+
+func PopulateJudgeItemProperties(judgeJobPositions []interface{}, isPresident bool, filters ...interface{}) map[int]interface{} {
+	var userProfileId, organizationUnitId int
+	var search string
+
+	judges := make(map[int]interface{})
+
+	switch len(filters) {
+	case 1:
+		userProfileId = filters[0].(int)
+	case 2:
+		userProfileId = filters[0].(int)
+		organizationUnitId = filters[1].(int)
+	case 3:
+		userProfileId = filters[0].(int)
+		organizationUnitId = filters[1].(int)
+		search = filters[2].(string)
+	}
+
+	for _, jobPosition := range judgeJobPositions {
+		var position = shared.WriteStructToInterface(jobPosition)
+		var relatedJobPositions = shared.FetchByProperty(
+			"job_positions_in_organization_units",
+			"JobPositionId",
+			position["id"],
+		)
+
+		if len(relatedJobPositions) > 0 {
+			for _, relatedJobPosition := range relatedJobPositions {
+				var relatedPosition = shared.WriteStructToInterface(relatedJobPosition)
+				var employeeJobPositions = shared.FetchByProperty(
+					"employees_in_organization_units",
+					"PositionInOrganizationUnitId",
+					relatedPosition["id"],
+				)
+				var relatedOrganizationUnits = shared.FetchByProperty(
+					"organization_unit",
+					"Id",
+					relatedPosition["parent_organization_unit_id"],
+				)
+				var relatedOrganizationUnit map[string]interface{}
+
+				if len(relatedOrganizationUnits) > 0 {
+					relatedOrganizationUnit = shared.WriteStructToInterface(relatedOrganizationUnits[0])
+
+					if shared.IsInteger(organizationUnitId) && organizationUnitId > 0 && organizationUnitId != relatedOrganizationUnit["id"] {
+						continue
+					}
+				} else if shared.IsInteger(organizationUnitId) && organizationUnitId > 0 {
+					continue
+				}
+
+				if len(employeeJobPositions) > 0 {
+					for _, employeeJobPosition := range employeeJobPositions {
+						var employeePosition = shared.WriteStructToInterface(employeeJobPosition)
+						var userAccounts = shared.FetchByProperty(
+							"user_account",
+							"Id",
+							employeePosition["user_account_id"],
+						)
+
+						if len(userAccounts) > 0 {
+							for _, userAccount := range userAccounts {
+								var account = shared.WriteStructToInterface(userAccount)
+								var userProfiles = shared.FetchByProperty(
+									"user_profile",
+									"UserAccountId",
+									account["id"],
+								)
+
+								if len(userProfiles) > 0 {
+									for _, userProfile := range userProfiles {
+										var profile = shared.WriteStructToInterface(userProfile)
+
+										if shared.IsInteger(userProfileId) && userProfileId > 0 && userProfileId != profile["id"] {
+											continue
+										}
+										if shared.IsString(search) && len(search) > 0 {
+											UserProfileName := profile["first_name"].(string) + profile["last_name"].(string)
+
+											if !shared.StringContains(UserProfileName, search) {
+												continue
+											}
+										}
+
+										organizationUnitField := make(map[string]interface{})
+										jobPositionField := make(map[string]interface{})
+										judgeItem := make(map[string]interface{})
+
+										var judgeNorms = shared.FetchByProperty(
+											"judge_norms",
+											"UserProfileId",
+											profile["id"],
+										)
+
+										if len(judgeNorms) > 0 {
+											judgeItem["norms"] = judgeNorms
+										}
+
+										jobPositionField["title"] = position["title"]
+										jobPositionField["id"] = position["id"]
+
+										organizationUnitField["title"] = relatedOrganizationUnit["title"]
+										organizationUnitField["id"] = relatedOrganizationUnit["id"]
+
+										judgeItem["id"] = profile["id"]
+										judgeItem["is_judge_president"] = isPresident
+										judgeItem["first_name"] = profile["first_name"]
+										judgeItem["last_name"] = profile["last_name"]
+										judgeItem["evaluation"] = ""
+										judgeItem["created_at"] = profile["created_at"]
+										judgeItem["updated_at"] = profile["updated_at"]
+										judgeItem["folder_id"] = account["folder_id"]
+										judgeItem["organization_unit"] = organizationUnitField
+										judgeItem["job_position"] = jobPositionField
+
+										judges[profile["id"].(int)] = judgeItem
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 
-	response.Total = len(judgesList)
-
-	paginatedItems, err := shared.Paginate(judgesList, page, size)
-	if err != nil {
-		fmt.Printf("Error paginating items: %v", err)
-	}
-
-	response.Items = paginatedItems
-
-	return response, nil
+	return judges
 }
 
-func buildJudgeResponseItem(userProfileID, organizationUnitID, jobPositionId int) (*dto.Judges, error) {
-	userProfile, err := getUserProfileById(userProfileID)
-	if err != nil {
-		return nil, err
+var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var total int
+	var userProfileId int
+	if params.Args["user_profile_id"] == nil {
+		userProfileId = 0
+	} else {
+		userProfileId = params.Args["user_profile_id"].(int)
 	}
-	userAccount, err := GetUserAccountById(userProfile.UserAccountId)
-	if err != nil {
-		return nil, err
+	var organizationUnitId int
+	if params.Args["organization_unit_id"] == nil {
+		organizationUnitId = 0
+	} else {
+		organizationUnitId = params.Args["organization_unit_id"].(int)
+	}
+	page := params.Args["page"]
+	size := params.Args["size"]
+	search := params.Args["search"]
+
+	if !shared.IsString(search) {
+		search = ""
 	}
 
-	organizationUnit, err := getOrganizationUnitById(organizationUnitID)
-	if err != nil {
-		return nil, err
+	everyone := make(map[int]interface{})
+	judges := make(map[int]interface{})
+	judgePresidents := make(map[int]interface{})
+
+	var judgeJobPositions = shared.FetchByProperty(
+		"job_position",
+		"IsJudge",
+		true,
+	)
+	var judgePresidentJobPositions = shared.FetchByProperty(
+		"job_position",
+		"IsJudgePresident",
+		true,
+	)
+
+	if len(judgeJobPositions) > 0 {
+		judges = PopulateJudgeItemProperties(judgeJobPositions, false, userProfileId, organizationUnitId, search)
 	}
-	organizationUnitDropdown := structs.SettingsDropdown{
-		Id:    organizationUnit.Id,
-		Title: organizationUnit.Title,
+	if len(judgePresidentJobPositions) > 0 {
+		judgePresidents = PopulateJudgeItemProperties(judgePresidentJobPositions, true, userProfileId, organizationUnitId, search)
 	}
 
-	jobPosition, err := getJobPositionById(jobPositionId)
-	if err != nil {
-		return nil, err
+	for key, item := range judges {
+		everyone[key] = item
 	}
-	jobPositionDropdown := structs.SettingsDropdown{
-		Id:    jobPosition.Data.Id,
-		Title: jobPosition.Data.Title,
+	for key, item := range judgePresidents {
+		everyone[key] = item
 	}
 
-	norms, err := getJudgeNormListByEmployee(userProfile.Id)
-	if err != nil {
-		return nil, err
+	items := make([]interface{}, 0, len(everyone))
+	for _, value := range everyone {
+		items = append(items, value)
 	}
 
-	return &dto.Judges{
-		ID:               userProfile.Id,
-		FirstName:        userProfile.FirstName,
-		LastName:         userProfile.LastName,
-		IsJudgePresident: jobPosition.Data.IsJudgePresident,
-		OrganizationUnit: organizationUnitDropdown,
-		JobPosition:      jobPositionDropdown,
-		Norms:            norms,
-		FolderID:         userAccount.FolderId,
-		CreatedAt:        userProfile.CreatedAt,
-		UpdatedAt:        userProfile.UpdatedAt,
+	total = len(items)
+
+	// Filtering by Pagination params
+	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+		items = shared.Pagination(items, page.(int), size.(int))
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
 	}, nil
 }
 
 var JudgeNormInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.JudgeNorms
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
+	JudgeNormType := &structs.JudgeNorms{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := updateJudgeNorm(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating employee's norm failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating employee's norm data"), nil
-		}
-		response.Item = res
-		response.Message = "You updated this item!"
-	} else {
-		res, err := createJudgeNorm(&data)
-		if err != nil {
-			fmt.Printf("Creating employee's norm failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating employee's norm data"), nil
-		}
-		response.Item = res
-		response.Message = "You created this item!"
+	judgeNormData, judgeNormDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_norms.json", JudgeNormType)
+
+	if judgeNormDataErr != nil {
+		fmt.Printf("Fetching Judge Norms failed because of this error - %s.\n", judgeNormDataErr)
 	}
 
-	return response, nil
+	if shared.IsInteger(itemId) && itemId != 0 {
+		judgeNormData = shared.FilterByProperty(judgeNormData, "Id", itemId)
+	} else {
+		data.Id = shared.GetRandomNumber()
+	}
+
+	var updatedData = append(judgeNormData, data)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_norms.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    data,
+	}, nil
 }
 
 var JudgeNormDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	JudgeNormType := &structs.JudgeNorms{}
+	judgeNormData, judgeNormDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_norms.json", JudgeNormType)
 
-	err := deleteJudgeNorm(itemId)
-
-	if err != nil {
-		fmt.Printf("Deleting norm failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "failed",
-			Message: err.Error(),
-		}, nil
+	if judgeNormDataErr != nil {
+		fmt.Printf("Fetching Judge Norm failed because of this error - %s.\n", judgeNormDataErr)
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "You deleted this item!",
+	if shared.IsInteger(itemId) && itemId != 0 {
+		judgeNormData = shared.FilterByProperty(judgeNormData, "Id", itemId)
+	}
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_norms.json"), judgeNormData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
 	}, nil
 }
 
 var JudgeResolutionsResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var total int
+	var items []interface{}
 	id := params.Args["id"]
-	page := params.Args["page"].(int)
-	size := params.Args["size"].(int)
+	page := params.Args["page"]
+	size := params.Args["size"]
 	year := params.Args["year"]
 
-	resolutionList := []*structs.JudgeResolutions{}
-	response := dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
+	if !shared.IsString(year) {
+		year = ""
+	}
+	if !shared.IsInteger(id) {
+		id = 0
 	}
 
-	if id != nil && id.(int) > 0 {
-		resolution, err := getJudgeResolution(id.(int))
-		if err != nil {
-			return dto.ErrorResponse(err), nil
-		}
+	JudgeResolutionsType := &structs.JudgeResolutions{}
+	JudgeResolutionsData, JudgeResolutionsDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolutions.json", JudgeResolutionsType)
 
-		resolutionList = append(resolutionList, resolution)
-	} else {
-		input := dto.GetJudgeResolutionListInputMS{}
-		input.Page = &page
-		input.Size = &size
-		if year != nil && year.(string) != "" {
-			year := year.(string)
-			input.Year = &year
-		}
-		resolutions, err := getJudgeResolutionList(&input)
-		if err != nil {
-			return dto.ErrorResponse(err), nil
-		}
-		resolutionList = append(resolutionList, resolutions.Data...)
+	if JudgeResolutionsDataErr != nil {
+		fmt.Printf("Fetching Judge Resolutions failed because of this error - %s.\n", JudgeResolutionsDataErr)
 	}
 
-	resolutionResponseList, err := processResolutions(resolutionList, page, size)
-	if err != nil {
-		return dto.ErrorResponse(err), nil
+	items = PopulateResolutionItemProperties(JudgeResolutionsData, id.(int), year.(string))
+
+	total = len(JudgeResolutionsData)
+
+	// Filtering by Pagination params
+	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+		items = shared.Pagination(items, page.(int), size.(int))
 	}
 
-	response.Total = len(resolutionResponseList)
-	paginatedItems, err := shared.Paginate(resolutionResponseList, page, size)
-	if err != nil {
-		fmt.Printf("Error paginating items: %v", err)
-	}
-	response.Items = paginatedItems
-
-	return response, nil
-}
-
-func processResolutions(resolutionList []*structs.JudgeResolutions, page, size int) ([]*dto.JudgeResolutionsResponseItem, error) {
-	var resolutionResponseList []*dto.JudgeResolutionsResponseItem
-
-	// Process JudgeResolutions concurrently
-	var wg sync.WaitGroup
-	wg.Add(len(resolutionList))
-
-	for _, resolution := range resolutionList {
-		go func(resolution *structs.JudgeResolutions) {
-			defer wg.Done()
-			resolutionResponseItem, err := processJudgeResolution(resolution)
-			if err != nil {
-				fmt.Printf("Error processing JudgeResolution: %v\n", err)
-				return
-			}
-			resolutionResponseList = append(resolutionResponseList, resolutionResponseItem)
-		}(resolution)
-	}
-
-	wg.Wait()
-
-	return resolutionResponseList, nil
-}
-
-func processJudgeResolution(resolution *structs.JudgeResolutions) (*dto.JudgeResolutionsResponseItem, error) {
-	itemsInput := dto.GetJudgeResolutionItemListInputMS{
-		ResolutionID: &resolution.Id,
-	}
-	resolutionItems, err := getJudgeResolutionItemsList(&itemsInput)
-	if err != nil {
-		return nil, err
-	}
-
-	resolutionItemResponseItemList, totalNumberOfAvailableSlotsJudges, totalNumberOfJudges, err := processResolutionItems(resolutionItems)
-	if err != nil {
-		return nil, err
-	}
-
-	resolutionResponseItem := &dto.JudgeResolutionsResponseItem{
-		Id:                   resolution.Id,
-		SerialNumber:         resolution.SerialNumber,
-		Year:                 resolution.Year,
-		CreatedAt:            resolution.CreatedAt,
-		UpdatedAt:            resolution.UpdatedAt,
-		Active:               resolution.Active,
-		Items:                resolutionItemResponseItemList,
-		AvailableSlotsJudges: totalNumberOfAvailableSlotsJudges,
-		NumberOfJudges:       totalNumberOfJudges,
-	}
-
-	return resolutionResponseItem, nil
-}
-
-func processResolutionItems(resolutionItems []*structs.JudgeResolutionItems) ([]*dto.JudgeResolutionItemResponseItem, int, int, error) {
-	var resolutionItemResponseItemList []*dto.JudgeResolutionItemResponseItem
-	var totalNumberOfAvailableSlotsJudges, totalNumberOfJudges int
-
-	// Process JudgeResolutionItems concurrently
-	var wg sync.WaitGroup
-	wg.Add(len(resolutionItems))
-
-	for _, resolutionItem := range resolutionItems {
-		go func(resolutionItem *structs.JudgeResolutionItems) {
-			defer wg.Done()
-			resolutionItemResponseItem, err := buildResolutionItemResponseItem(resolutionItem)
-			if err != nil {
-				fmt.Printf("Error building ResolutionItemResponseItem: %v\n", err)
-				return
-			}
-
-			resolutionItemResponseItemList = append(resolutionItemResponseItemList, resolutionItemResponseItem)
-
-			totalNumberOfAvailableSlotsJudges += resolutionItemResponseItem.AvailableSlotsJudges
-			totalNumberOfJudges += resolutionItemResponseItem.NumberOfJudges
-		}(resolutionItem)
-	}
-
-	wg.Wait()
-
-	return resolutionItemResponseItemList, totalNumberOfAvailableSlotsJudges, totalNumberOfJudges, nil
-}
-
-func buildResolutionItemResponseItem(item *structs.JudgeResolutionItems) (*dto.JudgeResolutionItemResponseItem, error) {
-	organizationUnit, err := getOrganizationUnitById(item.OrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
-	organizationUnitDropdown := structs.SettingsDropdown{Id: organizationUnit.Id, Title: organizationUnit.Title}
-
-	numberOfJudgesInOU, numberOfPresidents, numberOfEmployees, numberOfRelocations, err := calculateEmployeeStats(organizationUnit.Id)
-	if err != nil {
-		fmt.Printf("Calculating number of presindents failed beacuse of error: %v\n", err)
-	}
-
-	return &dto.JudgeResolutionItemResponseItem{
-		Id:                       item.Id,
-		ResolutionId:             item.ResolutionId,
-		OrganizationUnit:         organizationUnitDropdown,
-		AvailableSlotsJudges:     item.NumberOfJudges,
-		AvailableSlotsPredisents: item.NumberOfPresidents,
-		NumberOfJudges:           numberOfJudgesInOU,
-		NumberOfPresidents:       numberOfPresidents,
-		NumberOfEmployees:        numberOfEmployees,
-		NumberOfSuspendedJudges:  0,
-		NumberOfRelocatedJudges:  numberOfRelocations,
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
 	}, nil
-}
-
-func calculateEmployeeStats(id int) (int, int, int, int, error) {
-	var numberOfEmployees, numberOfJudges, totalRelocations, numberOfJudgePresidents int
-
-	isActive := true
-	systematizations, err := getSystematizations(&dto.GetSystematizationsInput{Active: &isActive, OrganizationUnitID: &id})
-	if len(systematizations.Data) == 0 || systematizations.Total == 0 || err != nil {
-		return 0, 0, 0, 0, errors.New("there is no active systematization for OU")
-	}
-	systematization := systematizations.Data[0]
-
-	jobPositionsInOU, err := getJobPositionsInOrganizationUnits(&dto.GetJobPositionInOrganizationUnitsInput{SystematizationID: &systematization.Id})
-	if err != nil {
-		return 0, 0, 0, 0, err
-	}
-
-	for _, jobPositionInOU := range jobPositionsInOU.Data {
-		jobPosition, err := getJobPositionById(jobPositionInOU.JobPositionId)
-		if err != nil {
-			return 0, 0, 0, 0, err
-		}
-		employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitList(
-			&dto.GetEmployeesInOrganizationUnitInput{
-				PositionInOrganizationUnit: &jobPositionInOU.Id,
-				Active:                     &isActive,
-			},
-		)
-		if err != nil {
-			return 0, 0, 0, 0, err
-		}
-		numberOfEmployees += len(employeesInOrganizationUnit)
-
-		if jobPosition.Data.IsJudge {
-			numOfRelocatedJudges, err := getNumberOfRelocatedJudges(employeesInOrganizationUnit)
-			if err != nil {
-				return 0, 0, 0, 0, err
-			}
-			totalRelocations += numOfRelocatedJudges
-			numberOfJudges += len(employeesInOrganizationUnit)
-		}
-		if jobPosition.Data.IsJudgePresident {
-			numberOfJudgePresidents += len(employeesInOrganizationUnit)
-		}
-	}
-
-	return numberOfJudges, numberOfJudgePresidents, numberOfEmployees, totalRelocations, nil
-}
-
-func getNumberOfRelocatedJudges(employees []*structs.EmployeesInOrganizationUnits) (int, error) {
-	var numberOfRelocations int
-	for _, employee := range employees {
-		today := time.Now()
-		absents, err := getEmployeeAbsents(employee.UserProfileId, &dto.EmployeeAbsentsInput{Date: &today})
-		if err != nil {
-			return 0, err
-		}
-		for _, absent := range absents {
-			absentType, err := getAbsentTypeById(absent.AbsentTypeId)
-			if err != nil {
-				return 0, err
-			}
-			if absentType.Relocation {
-				numberOfRelocations++
-			}
-		}
-	}
-	return numberOfRelocations, nil
 }
 
 var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.JudgeResolutions
+	var projectRoot, _ = shared.GetProjectRoot()
+	var data structs.JudgeResolutionData
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
-
-	var (
-		resolution *structs.JudgeResolutions
-		err        error
-	)
+	JudgeResolutionType := &structs.JudgeResolutions{}
+	JudgeResolutionItemType := &structs.JudgeResolutionItems{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
+	var resolutionItems = data.Items
 	itemId := data.Id
+	judgeResolutionData, judgeResolutionDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolutions.json", JudgeResolutionType)
+	judgeResolutionItemsData, judgeResolutionItemsDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolution_items.json", JudgeResolutionItemType)
+
+	if judgeResolutionDataErr != nil {
+		fmt.Printf("Fetching Judge Resolutions failed because of this error - %s.\n", judgeResolutionDataErr)
+	}
+	if judgeResolutionItemsDataErr != nil {
+		fmt.Printf("Fetching Judge Resolution Items failed because of this error - %s.\n", judgeResolutionItemsDataErr)
+	}
+
 	if shared.IsInteger(itemId) && itemId != 0 {
-		judgeResolution := structs.JudgeResolutions{
-			SerialNumber: data.SerialNumber,
-			Year:         data.Year,
-			Active:       data.Active,
-		}
-		resolution, err = updateJudgeResolutions(itemId, &judgeResolution)
-		if err != nil {
-			fmt.Printf("Updating employee's norm failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating employee's norm data"), nil
-		}
-
-		updatedItems, err := insertOrUpdateResolutionItemList(data.Items, resolution.Id)
-		if err != nil {
-			return shared.ErrorResponse("Error updating judge resolution items data"), nil
-		}
-		resolution.Items = updatedItems
-		response.Message = "You updated this item!"
-
+		judgeResolutionData = shared.FilterByProperty(judgeResolutionData, "Id", itemId)
 	} else {
-		judgeResolution := structs.JudgeResolutions{
-			SerialNumber: data.SerialNumber,
-			Year:         data.Year,
-			Active:       data.Active,
-		}
-		resolution, err = createJudgeResolutions(&judgeResolution)
-		if err != nil {
-			fmt.Printf("Creating employee's norm failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating employee's norm data"), nil
-		}
-
-		updatedItems, err := insertOrUpdateResolutionItemList(data.Items, resolution.Id)
-		if err != nil {
-			return shared.ErrorResponse("Error judge resolution items data"), nil
-		}
-
-		resolution.Items = updatedItems
-		response.Message = "You created this item!"
+		data.Id = shared.GetRandomNumber()
 	}
 
-	judgeResolution, err := processJudgeResolution(resolution)
-	if err != nil {
-		return dto.ErrorResponse(err), nil
-	}
+	var parsedData = shared.WriteStructToInterface(data)
 
-	response.Item = judgeResolution
+	if len(resolutionItems) > 0 {
+		for _, resolutionItem := range resolutionItems {
+			var resolutionItemData = shared.WriteStructToInterface(resolutionItem)
 
-	return response, nil
-}
+			resolutionItemData["resolution_id"] = parsedData["id"]
 
-func insertOrUpdateResolutionItemList(items []*structs.JudgeResolutionItems, resolutionID int) ([]*structs.JudgeResolutionItems, error) {
-	var updateItemsList []*structs.JudgeResolutionItems
-	for _, item := range items {
-		judgeResolutionItem := structs.JudgeResolutionItems{
-			ResolutionId:       resolutionID,
-			OrganizationUnitId: item.OrganizationUnitId,
-			NumberOfJudges:     item.NumberOfJudges,
-			NumberOfPresidents: item.NumberOfPresidents,
-		}
-		if item.Id > 0 {
-			item, err := updateJudgeResolutionItems(item.Id, &judgeResolutionItem)
-			if err != nil {
-				fmt.Printf("Updating Judge Resolution Items failed because of this error - %s.\n", err)
-				return nil, err
+			if shared.IsInteger(resolutionItemData["id"]) && resolutionItemData["id"] != 0 {
+				judgeResolutionItemsData = shared.FilterByProperty(judgeResolutionItemsData, "Id", resolutionItemData["id"])
+			} else {
+				resolutionItemData["id"] = shared.GetRandomNumber()
 			}
-			updateItemsList = append(updateItemsList, item)
-		} else {
-			item, err := createJudgeResolutionItems(&judgeResolutionItem)
-			if err != nil {
-				fmt.Printf("Creating Judge Resolution Items failed because of this error - %s.\n", err)
-				return nil, err
-			}
-			updateItemsList = append(updateItemsList, item)
+
+			judgeResolutionItemsData = append(judgeResolutionItemsData, resolutionItemData)
 		}
 	}
-	return updateItemsList, nil
-}
 
-var JudgeResolutionDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	delete(parsedData, "items")
 
-	err := deleteJudgeResolution(itemId)
+	var updatedData = append(judgeResolutionData, parsedData)
 
-	if err != nil {
-		fmt.Printf("Deleting Judge Resolution failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "failed",
-			Message: err.Error(),
-		}, nil
-	}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolutions.json"), updatedData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolution_items.json"), judgeResolutionItemsData)
 
-	return dto.Response{
-		Status:  "success",
-		Message: "You deleted this item!",
+	parsedData["items"] = judgeResolutionItemsData
+
+	var populatedItems = PopulateResolutionItemProperties([]interface{}{parsedData}, parsedData["id"].(int), "")
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"items":   populatedItems,
 	}, nil
 }
 
-func updateJudgeNorm(id int, norm *structs.JudgeNorms) (*structs.JudgeNorms, error) {
-	res := &dto.GetJudgeNormResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.JUDGE_NORM_ENDPOINT+"/"+strconv.Itoa(id), norm, res)
-	if err != nil {
-		return nil, err
+var JudgeResolutionDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	JudgeResolutionType := &structs.JudgeResolutions{}
+	JudgeResolutionItemType := &structs.JudgeResolutionItems{}
+
+	judgeResolutionData, judgeResolutionDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolutions.json", JudgeResolutionType)
+	judgeResolutionItemsData, judgeResolutionItemsDataErr := shared.ReadJson(shared.GetDataRoot()+"/judge_resolution_items.json", JudgeResolutionItemType)
+
+	if judgeResolutionDataErr != nil {
+		fmt.Printf("Fetching Resolutions failed because of this error - %s.\n", judgeResolutionDataErr)
+	}
+	if judgeResolutionItemsDataErr != nil {
+		fmt.Printf("Fetching Resolution Items failed because of this error - %s.\n", judgeResolutionItemsDataErr)
 	}
 
-	return &res.Data, nil
-}
-
-func createJudgeNorm(norm *structs.JudgeNorms) (*structs.JudgeNorms, error) {
-	res := &dto.GetJudgeNormResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.JUDGE_NORM_ENDPOINT, norm, res)
-	if err != nil {
-		return nil, err
+	if shared.IsInteger(itemId) && itemId != 0 {
+		judgeResolutionData = shared.FilterByProperty(judgeResolutionData, "Id", itemId)
+		judgeResolutionItemsData = shared.FilterByProperty(judgeResolutionItemsData, "ResolutionId", itemId)
 	}
 
-	return &res.Data, nil
-}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolutions.json"), judgeResolutionData)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/judge_resolution_items.json"), judgeResolutionItemsData)
 
-func deleteJudgeNorm(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.JUDGE_NORM_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func updateJudgeResolutionItems(id int, item *structs.JudgeResolutionItems) (*structs.JudgeResolutionItems, error) {
-	res := &dto.GetJudgeResolutionItemResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.JUDGE_RESOLUTION_ITEMS_ENDPOINT+"/"+strconv.Itoa(id), item, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func createJudgeResolutionItems(item *structs.JudgeResolutionItems) (*structs.JudgeResolutionItems, error) {
-	res := &dto.GetJudgeResolutionItemResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.JUDGE_RESOLUTION_ITEMS_ENDPOINT, item, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func getJudgeResolutionItemsList(input *dto.GetJudgeResolutionItemListInputMS) ([]*structs.JudgeResolutionItems, error) {
-	res := &dto.GetJudgeResolutionItemListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.JUDGE_RESOLUTION_ITEMS_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func updateJudgeResolutions(id int, resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error) {
-	res := &dto.GetJudgeResolutionResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.JUDGE_RESOLUTIONS_ENDPOINT+"/"+strconv.Itoa(id), resolution, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func createJudgeResolutions(resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error) {
-	res := &dto.GetJudgeResolutionResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.JUDGE_RESOLUTIONS_ENDPOINT, resolution, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func deleteJudgeResolution(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.JUDGE_RESOLUTIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getJudgeResolutionList(input *dto.GetJudgeResolutionListInputMS) (*dto.GetJudgeResolutionListResponseMS, error) {
-	res := &dto.GetJudgeResolutionListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.JUDGE_RESOLUTIONS_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-func getJudgeResolution(id int) (*structs.JudgeResolutions, error) {
-	res := &dto.GetJudgeResolutionResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.JUDGE_RESOLUTIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func getJudgeNormListByEmployee(userProfileID int) ([]structs.JudgeNorms, error) {
-	res := &dto.GetEmployeeNormListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(userProfileID)+"/norms", nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
+	}, nil
 }

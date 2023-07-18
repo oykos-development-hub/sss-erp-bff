@@ -4,19 +4,18 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
-
 	"github.com/graphql-go/graphql"
 )
 
 var JobTendersOverviewField = &graphql.Field{
-	Type:        types.JobTenderDetailsType,
+	Type:        types.JobTendersOverviewType,
 	Description: "Returns a data of Job Tenders items",
 	Args: graphql.FieldConfigArgument{
 		"page": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"size": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
@@ -28,7 +27,18 @@ var JobTendersOverviewField = &graphql.Field{
 			Type:         graphql.Boolean,
 			DefaultValue: nil,
 		},
-		"type_id": &graphql.ArgumentConfig{
+		"type": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+	},
+	Resolve: resolvers.JobTendersOverviewResolver,
+}
+
+var JobTenderDetailsField = &graphql.Field{
+	Type:        types.JobTenderDetailsType,
+	Description: "Returns a data of Job Tender item details",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
 	},

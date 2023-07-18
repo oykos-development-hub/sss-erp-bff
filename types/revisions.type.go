@@ -69,7 +69,7 @@ var RevisionDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"revision_organization_unit": &graphql.Field{
-			Type: DropdownItemWithValueType,
+			Type: DropdownItemType,
 		},
 		"responsible_user_profile": &graphql.Field{
 			Type: DropdownItemType,
@@ -143,8 +143,8 @@ var RevisionDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"item": &graphql.Field{
-			Type: RevisionDetailsItemType,
+		"items": &graphql.Field{
+			Type: graphql.NewList(RevisionDetailsItemType),
 		},
 	},
 })

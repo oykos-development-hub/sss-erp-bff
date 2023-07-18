@@ -1,16 +1,15 @@
 package structs
 
 type Resolution struct {
-	Id                int               `json:"id"`
-	UserProfileId     int               `json:"user_profile_id"`
-	ResolutionTypeId  int               `json:"resolution_type_id"`
-	ResolutionType    *SettingsDropdown `json:"resolution_type"`
-	ResolutionPurpose string            `json:"resolution_purpose"`
-	DateOfStart       JSONDate          `json:"date_of_start"`
-	DateOfEnd         JSONDate          `json:"date_of_end"`
-	CreatedAt         string            `json:"created_at"`
-	UpdatedAt         string            `json:"updated_at"`
-	FileId            int               `json:"file_id"`
+	Id                int    `json:"id"`
+	UserProfileId     int    `json:"user_profile_id"`
+	ResolutionTypeId  int    `json:"resolution_type_id"`
+	ResolutionPurpose string `json:"resolution_purpose"`
+	DateOfStart       string `json:"date_of_start"`
+	DateOfEnd         string `json:"date_of_end"`
+	CreatedAt         string `json:"created_at"`
+	UpdatedAt         string `json:"updated_at"`
+	FileId            int    `json:"file_id"`
 }
 
 type ResolutionType struct {

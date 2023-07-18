@@ -8,22 +8,22 @@ import (
 
 func WriteJson(path string, data []interface{}) error {
 	if len(path) == 0 {
-		return errors.New("argument 'path' cannot be empty")
+		return errors.New("Argument 'path' cannot be empty!")
 	}
 	if data == nil {
-		return errors.New("argument 'data' cannot be empty")
+		return errors.New("Argument 'data' cannot be empty!")
 	}
 	// Marshal the slice to JSON
 	var jsonData, err = json.Marshal(data)
 
 	if err != nil {
-		return errors.New("argument 'data' cannot be converted to JSON object")
+		return errors.New("Argument 'data' cannot be converted to JSON object!")
 	}
 	// Write the JSON data to a file
 	err = os.WriteFile(path, jsonData, 0644)
 
 	if err != nil {
-		return errors.New("data cannot be writen to a file on provided path")
+		return errors.New("Data cannot be writen to a file on provided path!")
 	}
 
 	return nil

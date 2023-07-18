@@ -1,213 +1,126 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"reflect"
-	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
 var SettingsDropdownResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"]
-	entity := params.Args["entity"].(string)
-	page := params.Args["page"]
-	size := params.Args["size"]
-	search, searchOk := params.Args["search"].(string)
+	entity := params.Args["entity"]
+	search := params.Args["search"]
+	SettingsDropdownType := &structs.SettingsDropdown{}
+	var items []interface{}
+	var status = "error"
 
-	var (
-		items []structs.SettingsDropdown
-		total int
-	)
-
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		setting, err := getDropdownSettingById(id.(int))
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-		items = []structs.SettingsDropdown{*setting}
-		total = 1
-	} else {
-		input := dto.GetSettingsInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
-			pageNum := page.(int)
-			input.Page = &pageNum
-		}
-		if shared.IsInteger(size) && size.(int) > 0 {
-			sizeNum := size.(int)
-			input.Size = &sizeNum
-		}
-		if searchOk && search != "" {
-			input.Search = &search
-		}
-		input.Entity = entity
-
-		res, err := getDropdownSettings(&input)
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-		items = res.Data
-		total = res.Total
+	if entity.(string) == "inventory_class_type" {
+		entity = "settings_dropdown_options"
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   items,
-		Total:   total,
+	if shared.IsString(entity) && len(entity.(string)) > 0 {
+		SettingsDropdownData, SettingsDropdownDataErr := shared.ReadJson(shared.GetDataRoot()+"/"+entity.(string)+".json", SettingsDropdownType)
+
+		if SettingsDropdownDataErr != nil {
+			fmt.Printf("Fetching "+entity.(string)+" failed because of this error - %s.\n", SettingsDropdownDataErr)
+		}
+
+		if id != nil && shared.IsInteger(id) && id != 0 {
+			SettingsDropdownData = shared.FindByProperty(SettingsDropdownData, "Id", id)
+		}
+
+		if search != nil && shared.IsString(search) {
+			SettingsDropdownData = shared.FindByProperty(SettingsDropdownData, "Title", search, true)
+		}
+
+		status = "success"
+		items = SettingsDropdownData
+	}
+
+	return map[string]interface{}{
+		"status":  status,
+		"message": "Here's the list you asked for!",
+		"items":   items,
 	}, nil
 }
 
 var SettingsDropdownInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.SettingsDropdown
+	var item interface{}
+	var status = "error"
+	entity := params.Args["entity"]
 	dataBytes, _ := json.Marshal(params.Args["data"])
+	SettingsDropdownType := &structs.SettingsDropdown{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
-	response := dto.ResponseSingle{
-		Status: "success",
+	if entity.(string) == "inventory_class_type" {
+		entity = "settings_dropdown_options"
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		itemRes, err := updateDropdownSettings(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating settings failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating settings data"), nil
+	if shared.IsString(entity) && len(entity.(string)) > 0 {
+		SettingsDropdownData, SettingsDropdownDataErr := shared.ReadJson(shared.GetDataRoot()+"/"+entity.(string)+".json", SettingsDropdownType)
+
+		if SettingsDropdownDataErr != nil {
+			fmt.Printf("Fetching "+entity.(string)+" failed because of this error - %s.\n", SettingsDropdownDataErr)
 		}
-		response.Message = "You updated this item!"
-		response.Item = itemRes
 
-	} else {
-		itemRes, err := createDropdownSettings(&data)
-
-		if err != nil {
-			fmt.Printf("Creating settings failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating settings data"), nil
+		if shared.IsInteger(itemId) && itemId != 0 {
+			SettingsDropdownData = shared.FilterByProperty(SettingsDropdownData, "Id", itemId)
+		} else {
+			data.Id = shared.GetRandomNumber()
 		}
-		response.Message = "You created this item!"
-		response.Item = itemRes
+
+		var updatedData = append(SettingsDropdownData, data)
+
+		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+entity.(string)+".json"), updatedData)
+
+		status = "success"
+		item = data
 	}
 
-	return response, nil
-
-}
-
-var SettingsDropdownDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
-	entity := params.Args["entity"]
-
-	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
-		return shared.ErrorResponse("You must pass the item id"), nil
-	}
-	if !shared.IsString(entity) && !(len(entity.(string)) > 0) {
-		return shared.ErrorResponse("You must pass the entity name"), nil
-	}
-
-	err := deleteDropdownSettings(itemId.(int))
-	if err != nil {
-		fmt.Printf("Deleting "+entity.(string)+" failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	return map[string]interface{}{
+		"status":  status,
+		"message": "You updated this item!",
+		"item":    item,
 	}, nil
 }
 
-func createDropdownSettings(data *structs.SettingsDropdown) (*structs.SettingsDropdown, error) {
-	res := &dto.GetDropdownTypeResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.SETTINGS_ENDPOINT, data, res)
-	if err != nil {
-		return nil, err
+var SettingsDropdownDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	var status = "error"
+	itemId := params.Args["id"]
+	entity := params.Args["entity"]
+	SettingsDropdownType := &structs.SettingsDropdown{}
+
+	if entity.(string) == "inventory_class_type" {
+		entity = "settings_dropdown_options"
 	}
 
-	return &res.Data, nil
-}
+	if shared.IsString(entity) && len(entity.(string)) > 0 {
+		SettingsDropdownData, SettingsDropdownDataErr := shared.ReadJson(shared.GetDataRoot()+"/"+entity.(string)+".json", SettingsDropdownType)
 
-func deleteDropdownSettings(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.SETTINGS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func updateDropdownSettings(id int, data *structs.SettingsDropdown) (*structs.SettingsDropdown, error) {
-	res := &dto.GetDropdownTypeResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.SETTINGS_ENDPOINT+"/"+strconv.Itoa(id), data, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func getDropdownSettings(input *dto.GetSettingsInput) (*dto.GetDropdownTypesResponseMS, error) {
-	res := &dto.GetDropdownTypesResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.SETTINGS_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-func getDropdownSettingById(id int) (*structs.SettingsDropdown, error) {
-	res := &dto.GetDropdownTypeResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.SETTINGS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-// HydrateField is a generic function to hydrate settings to generic field
-func hydrateSettings(hydratedField string, fieldDataField string, items ...interface{}) error {
-	if len(items) == 0 {
-		return nil
-	}
-
-	for _, item := range items {
-		value := reflect.ValueOf(item)
-		if value.Kind() != reflect.Ptr {
-			return fmt.Errorf("item must be a pointer")
+		if SettingsDropdownDataErr != nil {
+			fmt.Printf("Fetching "+entity.(string)+" failed because of this error - %s.\n", SettingsDropdownDataErr)
 		}
 
-		value = value.Elem()
-		fieldDataValue := value.FieldByName(fieldDataField)
-		if !fieldDataValue.IsValid() {
-			return fmt.Errorf("fieldDataField not found in item")
+		if shared.IsInteger(itemId) && itemId != 0 {
+			SettingsDropdownData = shared.FilterByProperty(SettingsDropdownData, "Id", itemId)
 		}
 
-		for i := 0; i < value.NumField(); i++ {
-			fieldValue := value.Field(i)
-			fieldType := value.Type().Field(i)
-			if fieldType.Name == hydratedField && fieldValue.CanInterface() {
-				fieldData := fieldDataValue.Interface()
-				hydratedData, err := getDropdownSettingById(fieldData.(int))
-				if err != nil {
-					return err
-				}
-				fieldValue.Set(reflect.ValueOf(hydratedData))
-			}
-		}
+		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+entity.(string)+".json"), SettingsDropdownData)
+
+		status = "success"
 	}
 
-	return nil
+	return map[string]interface{}{
+		"status":  status,
+		"message": "You deleted this item!",
+	}, nil
 }

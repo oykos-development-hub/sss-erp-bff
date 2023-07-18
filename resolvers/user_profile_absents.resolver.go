@@ -1,244 +1,183 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"strconv"
-	"time"
 
 	"github.com/graphql-go/graphql"
 )
 
 var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var (
-		absentSummary dto.AbsentsSummary
-		usedDays      int
+	var absentItems []interface{}
+	var absentSummary = map[string]interface{}{
+		"current_available_days": 0,
+		"past_available_days":    0,
+		"used_days":              0,
+	}
+
+	profileId := params.Args["user_profile_id"]
+	accountId := params.Args["user_account_id"]
+
+	if !shared.IsInteger(profileId) && !shared.IsInteger(accountId) {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "Argument 'user_profile_id' must not be empty!",
+			"item":    nil,
+		}, nil
+	}
+
+	UserProfilesType := &structs.UserProfiles{}
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
+
+	if UserProfilesDataErr != nil {
+		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
+	}
+
+	var UserProfile = shared.FindByProperty(UserProfilesData, "Id", profileId)
+
+	if UserProfile == nil || UserProfile[0] == nil {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "User Profile not found for provided 'user_profile_id'!",
+			"item":    nil,
+		}, nil
+	}
+
+	var vacationTypes = shared.FetchByProperty(
+		"vacation_type",
+		"",
+		"",
 	)
+	var relatedVacations = shared.FetchByProperty(
+		"vacations",
+		"UserProfileId",
+		profileId,
+	)
+	// # Related Employee Vacations
+	if len(relatedVacations) > 0 {
+		for _, relatedAbsentItem := range relatedVacations {
+			var relatedAbsentItemData = shared.WriteStructToInterface(relatedAbsentItem)
+			var relatedAbsentType = shared.FindByProperty(vacationTypes, "Id", relatedAbsentItemData["vacation_type_id"])
 
-	profileId := params.Args["user_profile_id"].(int)
+			if len(relatedAbsentType) > 0 {
+				var relatedAbsentTypeData = shared.WriteStructToInterface(relatedAbsentType[0])
 
-	absents, err := getEmployeeAbsents(profileId, nil)
-	if err != nil {
-		fmt.Printf("Fetching absents failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error fetching absents"), nil
-	}
-
-	currentAvailableDays, previousYearAvailableDays, err := getNumberOfCurrentAndPreviousYearAvailableDays(profileId)
-
-	if err != nil {
-		fmt.Printf("Calculating number of vacation days failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error fetching absents"), nil
-	}
-
-	for _, absent := range absents {
-		if absent.TargetOrganizationUnitID != 0 {
-			organizationUnit, err := getOrganizationUnitById(absent.TargetOrganizationUnitID)
-			if err != nil {
-				fmt.Printf("Fetching organization unit of user profile failed because of this error - %s.\n", err)
-				return shared.ErrorResponse("Error fetching target organization unit of employee"), nil
-			}
-			absent.TargetOrganizationUnit = organizationUnit
-		}
-
-		absentType, err := getAbsentTypeById(absent.AbsentTypeId)
-		if err != nil {
-			fmt.Printf("Fetching absents types failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error fetching absent type"), nil
-		}
-		absent.AbsentType = *absentType
-
-		if absentType.AccountingDaysOff {
-			daysTakenBeforeJuly, daysTakenAfterJuly := getTakenVacationDaysBeforeAndAfterJuly(absent.DateOfStart, absent.DateOfEnd)
-
-			// Subtract vacation days taken before July from available previous year days
-			if daysTakenBeforeJuly > 0 {
-				if previousYearAvailableDays >= daysTakenBeforeJuly {
-					previousYearAvailableDays -= daysTakenBeforeJuly
-				} else {
-					// if available days from previous year are not enough, we should use current year too
-					currentAvailableDays -= daysTakenBeforeJuly - previousYearAvailableDays
-					previousYearAvailableDays = 0
+				relatedAbsentItemData["vacation_type"] = map[string]interface{}{
+					"title": relatedAbsentTypeData["title"],
+					"id":    relatedAbsentTypeData["id"],
 				}
 			}
-			// Subtract vacation days taken after July from available current year vacation days
-			if daysTakenAfterJuly > 0 {
-				currentAvailableDays -= daysTakenAfterJuly
-			}
 
-			usedDays += (daysTakenBeforeJuly + daysTakenAfterJuly)
+			absentItems = append(absentItems, relatedAbsentItemData)
 		}
 	}
 
-	absentSummary.CurrentAvailableDays = currentAvailableDays
-	absentSummary.PastAvailableDays = previousYearAvailableDays
-	absentSummary.UsedDays = usedDays
+	var relatedRelocations = shared.FetchByProperty(
+		"relocations",
+		"UserProfileId",
+		profileId,
+	)
+	// # Related Employee Relocations
+	if len(relatedRelocations) > 0 {
+		for _, relatedAbsentItem := range relatedRelocations {
+			var relatedAbsentItemData = shared.WriteStructToInterface(relatedAbsentItem)
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here arworkingDayse the items you asked for!",
-		Summary: absentSummary,
-		Items:   absents,
+			absentItems = append(absentItems, relatedAbsentItemData)
+		}
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here are the items you asked for!",
+		"summary": absentSummary,
+		"items":   absentItems,
 	}, nil
-}
-
-func getTakenVacationDaysBeforeAndAfterJuly(startDate structs.JSONDate, endDate structs.JSONDate) (int, int) {
-	start, _ := startDate.ToTime()
-	end, _ := endDate.ToTime()
-
-	currentYear := time.Now().Year()
-
-	workingDaysBeforeJuly := 0
-	workingDaysAfterJuly := 0
-
-	july := time.Date(currentYear, time.July, 1, 0, 0, 0, 0, start.Location())
-
-	for !start.After(end) {
-		if start.Year() == currentYear && start.Weekday() != time.Saturday && start.Weekday() != time.Sunday {
-			if start.After(july) {
-				workingDaysAfterJuly++
-			} else {
-				workingDaysBeforeJuly++
-			}
-		}
-		start = start.AddDate(0, 0, 1)
-	}
-
-	return workingDaysBeforeJuly, workingDaysAfterJuly
-}
-
-func getNumberOfCurrentAndPreviousYearAvailableDays(profileID int) (int, int, error) {
-	vacationDays := 0
-	pastVacationDays := 0
-	resolutions, err := getEmployeeResolutions(profileID)
-	if err != nil {
-		fmt.Println("error hydrating resolution types - " + err.Error())
-	}
-	items := shared.ConvertToInterfaceSlice(resolutions)
-	_ = hydrateSettings("ResolutionType", "ResolutionTypeId", items...)
-
-	for _, resolution := range resolutions {
-		startDate, _ := resolution.DateOfStart.ToTime()
-		if startDate.Year() != time.Now().Year() {
-			continue
-		}
-		if resolution.ResolutionType.Value == "vacation" {
-			vacationDays += getNumberOfWorkingDays(resolution.DateOfStart, resolution.DateOfEnd)
-		} else if resolution.ResolutionType.Value == "vacation_past" {
-			pastVacationDays += getNumberOfWorkingDays(resolution.DateOfStart, resolution.DateOfEnd)
-		}
-	}
-	return vacationDays, pastVacationDays, nil
-}
-
-func getNumberOfWorkingDays(startDate structs.JSONDate, endDate structs.JSONDate) int {
-	start, _ := startDate.ToTime()
-	end, _ := endDate.ToTime()
-
-	workingDays := 0
-
-	for !start.After(end) {
-		if start.Weekday() != time.Saturday && start.Weekday() != time.Sunday {
-			workingDays++
-		}
-		start = start.AddDate(0, 0, 1)
-	}
-
-	return workingDays
 }
 
 var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var err error
+	var projectRoot, _ = shared.GetProjectRoot()
+	var absentDataItems []interface{}
+	var absentItemEndpoint string
+	var absentItemType interface{}
 	var data structs.Absent
-
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
-
 	dataBytes, _ := json.Marshal(params.Args["data"])
+	VacationType := &structs.Vacation{}
+	RelocationType := &structs.Relocation{}
 
-	err = json.Unmarshal(dataBytes, &data)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Bad request: user profile absent data"), nil
-	}
+	_ = json.Unmarshal(dataBytes, &data)
 
-	if shared.IsInteger(data.Id) && data.Id != 0 {
-		item, err := updateAbsent(data.Id, &data)
-		if err != nil {
-			fmt.Printf("Updating absent failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating user profile absent data"), nil
-		}
+	itemId := data.Id
+	vacationTypeId := data.VacationTypeId
 
-		response.Message = "You updated this item!"
-		response.Item = item
+	if shared.IsInteger(vacationTypeId) && vacationTypeId != 0 {
+		absentItemType = VacationType
+		absentItemEndpoint = "user_profile_vacations"
 	} else {
-		item, err := createAbsent(&data)
-		if err != nil {
-			fmt.Printf("Creating absent failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating user profile absent data"), nil
-		}
-
-		response.Message = "You created this item!"
-		response.Item = item
+		absentItemType = RelocationType
+		absentItemEndpoint = "user_profile_relocations"
 	}
 
-	return response, nil
-}
+	absentData, absentDataErr := shared.ReadJson(shared.GetDataRoot()+"/"+absentItemEndpoint+".json", absentItemType)
 
-var UserProfileAbsentDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
-
-	err := deleteAbsent(itemId)
-	if err != nil {
-		fmt.Printf("Deleting absent failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the absent"), nil
+	if absentDataErr != nil {
+		fmt.Printf("Fetching User Profile's absent items failed because of this error - %s.\n", absentDataErr)
 	}
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	if shared.IsInteger(itemId) && itemId != 0 {
+		absentDataItems = shared.FilterByProperty(absentData, "Id", itemId)
+	} else {
+		data.Id = shared.GetRandomNumber()
+		absentDataItems = absentData
+	}
+
+	var updatedData = append(absentDataItems, data)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+absentItemEndpoint+".json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    data,
 	}, nil
 }
 
-func createAbsent(absent *structs.Absent) (*structs.Absent, error) {
-	res := &dto.GetAbsentResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.EMPLOYEE_ABSENTS, absent, res)
-	if err != nil {
-		return nil, err
+var UserProfileAbsentDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	var absentDataItems []interface{}
+	var absentItemEndpoint string
+	var absentItemType interface{}
+	itemId := params.Args["id"]
+	vacationTypeId := params.Args["vacation_type_id"]
+	VacationType := &structs.Vacation{}
+	RelocationType := &structs.Relocation{}
+	fmt.Printf("\n vacationTypeId %s\n", vacationTypeId)
+	if shared.IsInteger(vacationTypeId) && vacationTypeId != 0 {
+		absentItemType = VacationType
+		absentItemEndpoint = "user_profile_vacations"
+	} else {
+		absentItemType = RelocationType
+		absentItemEndpoint = "user_profile_relocations"
 	}
 
-	return &res.Data, nil
-}
+	absentData, absentDataErr := shared.ReadJson(shared.GetDataRoot()+"/"+absentItemEndpoint+".json", absentItemType)
 
-func updateAbsent(id int, absent *structs.Absent) (*structs.Absent, error) {
-	res := &dto.GetAbsentResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.EMPLOYEE_ABSENTS+"/"+strconv.Itoa(id), absent, res)
-	if err != nil {
-		return nil, err
+	if absentDataErr != nil {
+		fmt.Printf("Fetching User Profile's absent items failed because of this error - %s.\n", absentDataErr)
 	}
 
-	return &res.Data, nil
-}
-
-func deleteAbsent(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.EMPLOYEE_ABSENTS+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
+	if shared.IsInteger(itemId) && itemId != 0 {
+		absentDataItems = shared.FilterByProperty(absentData, "Id", itemId)
+	} else {
+		absentDataItems = absentData
 	}
 
-	return nil
-}
+	fmt.Printf("\n absentDataItems %s\n", absentDataItems)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/"+absentItemEndpoint+".json"), absentDataItems)
 
-func getEmployeeAbsents(userProfileID int, input *dto.EmployeeAbsentsInput) ([]*structs.Absent, error) {
-	res := &dto.GetAbsentListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(userProfileID)+"/absents", input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
+	}, nil
 }

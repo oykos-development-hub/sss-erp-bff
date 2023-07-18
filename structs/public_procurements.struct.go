@@ -1,18 +1,18 @@
 package structs
 
 type PublicProcurementPlan struct {
-	Id               int       `json:"id"`
-	Year             string    `json:"year"`
-	Title            string    `json:"title"`
-	Active           bool      `json:"active"`
-	SerialNumber     *string   `json:"serial_number"`
-	IsPreBudget      bool      `json:"is_pre_budget"`
-	DateOfPublishing *JSONDate `json:"date_of_publishing"`
-	DateOfClosing    *JSONDate `json:"date_of_closing"`
-	PreBudgetId      *int      `json:"pre_budget_id"`
-	CreatedAt        string    `json:"created_at"`
-	UpdatedAt        string    `json:"updated_at"`
-	FileId           *int      `json:"file_id"`
+	Id               int    `json:"id"`
+	Year             string `json:"year"`
+	Title            string `json:"title"`
+	Active           bool   `json:"active"`
+	SerialNumber     string `json:"serial_number"`
+	IsPreBudget      bool   `json:"is_pre_budget"`
+	DateOfPublishing string `json:"date_of_publishing"`
+	DateOfClosing    string `json:"date_of_closing"`
+	PreBudgetId      int    `json:"pre_budget_id"`
+	CreatedAt        string `json:"created_at"`
+	UpdatedAt        string `json:"updated_at"`
+	FileId           int    `json:"file_id"`
 }
 
 type PublicProcurementItem struct {

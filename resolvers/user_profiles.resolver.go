@@ -1,190 +1,263 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"strconv"
-	"strings"
+	"reflect"
 
 	"github.com/graphql-go/graphql"
 )
 
-var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var (
-		items []dto.UserProfileOverviewResponse
-		total int
-	)
+func UpdateRelatedUserAccount(userAccountId int, newData map[string]interface{}) map[string]interface{} {
+	var projectRoot, _ = shared.GetProjectRoot()
+	var allUserAccounts = shared.FetchByProperty("user_account", "", 0)
+	var relatedUserAccount = shared.FindByProperty(allUserAccounts, "Id", userAccountId)
 
-	id := params.Args["id"]
-	page := params.Args["page"].(int)
-	size := params.Args["size"].(int)
-	organizationUnitID := params.Args["organization_unit_id"]
-	jobPositionId := params.Args["job_position_id"]
-	isActive, isActiveOk := params.Args["is_active"].(bool)
-	name, nameOk := params.Args["name"].(string)
+	// # Related User Account
+	if len(relatedUserAccount) > 0 {
+		var userAccountData = shared.WriteStructToInterface(relatedUserAccount[0])
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		user, err := getUserProfileById(id.(int))
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-		resItem, err := buildUserProfileOverviewResponse(user)
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-		items = []dto.UserProfileOverviewResponse{*resItem}
-		total = 1
+		allUserAccounts = shared.FilterByProperty(allUserAccounts, "Id", userAccountData["id"])
+
+		newData = shared.MergeMaps(userAccountData, newData, true)
 	} else {
-		input := dto.GetUserProfilesInput{}
-		profiles, err := getUserProfiles(&input)
-		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
-		}
-
-		total = len(profiles)
-		for _, userProfile := range profiles {
-			resItem, err := buildUserProfileOverviewResponse(userProfile)
-			if err != nil {
-				return dto.Response{
-					Status:  "error",
-					Message: err.Error(),
-				}, nil
-			}
-
-			if isActiveOk &&
-				resItem.Active != isActive {
-				total--
-				continue
-			}
-			if nameOk && name != "" && !strings.Contains(strings.ToLower(resItem.FirstName), strings.ToLower(name)) && !strings.Contains(strings.ToLower(resItem.LastName), strings.ToLower(name)) {
-				total--
-				continue
-			}
-			if shared.IsInteger(organizationUnitID) && organizationUnitID.(int) > 0 &&
-				resItem.OrganizationUnit.Id != organizationUnitID {
-				total--
-				continue
-			}
-			if shared.IsInteger(jobPositionId) && jobPositionId.(int) > 0 &&
-				resItem.JobPosition.Id != jobPositionId {
-				total--
-				continue
-			}
-
-			items = append(items, *resItem)
-		}
+		newData["id"] = shared.GetRandomNumber()
+		newData["password"] = "test1234"
+		newData["pin"] = "1234"
+		newData["active"] = true
 	}
 
-	paginatedItems, err := shared.Paginate(items, page, size)
-	if err != nil {
-		fmt.Printf("Error paginating items: %v", err)
-	}
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   paginatedItems,
-		Total:   total,
-	}, nil
+	var updatedData = append(allUserAccounts, newData)
 
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_accounts.json"), updatedData)
+
+	return newData
 }
 
-var UserProfileContractsResolver = func(params graphql.ResolveParams) (interface{}, error) {
+var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var items []interface{}
+	var total int
+
 	id := params.Args["id"]
+	active := params.Args["is_active"]
+	organizationUnitId := params.Args["organization_unit_id"]
+	jobPositionId := params.Args["job_position_id"]
+	name := params.Args["name"]
+	page := params.Args["page"]
+	size := params.Args["size"]
 
-	contracts, err := getEmployeeContracts(id.(int))
-	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
-	}
-	items := shared.ConvertToInterfaceSlice(contracts)
-	_ = hydrateSettings("ContractType", "ContractTypeId", items)
+	UserProfilesType := &structs.UserProfiles{}
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   contracts,
-	}, nil
-}
-
-func buildUserProfileOverviewResponse(
-	profile *structs.UserProfiles,
-) (*dto.UserProfileOverviewResponse, error) {
-	account, err := GetUserAccountById(profile.UserAccountId)
-	if err != nil {
-		return nil, err
+	if UserProfilesDataErr != nil {
+		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
 	}
 
-	role, err := getRole(account.RoleId)
-	if err != nil {
-		return nil, err
+	// Fetch User Account data for each User Profile
+	for _, item := range UserProfilesData {
+		mergedItem := make(map[string]interface{})
+		// # User Profile
+		itemValue := reflect.ValueOf(item)
+
+		if itemValue.Kind() == reflect.Ptr {
+			itemValue = itemValue.Elem()
+		}
+
+		mergedItem["id"] = itemValue.FieldByName("Id").Interface()
+		mergedItem["first_name"] = itemValue.FieldByName("FirstName").Interface()
+		mergedItem["last_name"] = itemValue.FieldByName("LastName").Interface()
+		mergedItem["date_of_birth"] = itemValue.FieldByName("DateOfBirth").Interface()
+		mergedItem["created_at"] = itemValue.FieldByName("CreatedAt").Interface()
+		mergedItem["updated_at"] = itemValue.FieldByName("UpdatedAt").Interface()
+
+		// Filtering by name search
+		if shared.IsString(name) && len(name.(string)) > 0 {
+			UserProfileName := mergedItem["first_name"].(string) + mergedItem["last_name"].(string)
+
+			if !shared.StringContains(UserProfileName, name.(string)) {
+				continue
+			}
+		}
+
+		// # Related User Account
+		var relatedUserAccount = shared.FetchByProperty(
+			"user_account",
+			"Id",
+			itemValue.FieldByName("UserAccountId").Interface(),
+		)
+
+		if len(relatedUserAccount) < 1 {
+			// Filtering by Organization Unit or Job Position
+			if (shared.IsInteger(organizationUnitId) && organizationUnitId != 0) || (shared.IsInteger(jobPositionId) && jobPositionId != 0) {
+				continue
+			}
+		} else {
+			relatedUserAccountValue := reflect.ValueOf(relatedUserAccount[0])
+
+			if relatedUserAccountValue.Kind() == reflect.Ptr {
+				relatedUserAccountValue = relatedUserAccountValue.Elem()
+			}
+
+			mergedItem["email"] = relatedUserAccountValue.FieldByName("Email").Interface()
+			mergedItem["phone"] = relatedUserAccountValue.FieldByName("Phone").Interface()
+			mergedItem["active"] = relatedUserAccountValue.FieldByName("Active").Interface()
+
+			// # Related User Account Role
+			var relatedRole = shared.FetchByProperty(
+				"role",
+				"Id",
+				relatedUserAccountValue.FieldByName("RoleId").Interface(),
+			)
+
+			if len(relatedRole) < 1 {
+				//fmt.Printf("Fetching relatedRole returned empty array. User Profile data - %s", item)
+				// Filtering by Organization Unit or Job Position
+				if (shared.IsInteger(organizationUnitId) && organizationUnitId != 0) || (shared.IsInteger(jobPositionId) && jobPositionId != 0) {
+					continue
+				}
+			} else {
+				relatedUserAccountRoleValue := reflect.ValueOf(relatedRole[0])
+
+				if relatedUserAccountRoleValue.Kind() == reflect.Ptr {
+					relatedUserAccountRoleValue = relatedUserAccountRoleValue.Elem()
+				}
+
+				mergedItem["role"] = relatedUserAccountRoleValue.FieldByName("Title").Interface()
+			}
+
+			// # Employee in Organization Unit data
+			var EmployeeInOrganizationUnit = shared.FetchByProperty(
+				"employees_in_organization_units",
+				"UserAccountId",
+				itemValue.FieldByName("UserAccountId").Interface(),
+			)
+
+			if len(EmployeeInOrganizationUnit) < 1 {
+				//fmt.Printf("Fetching EmployeeInOrganizationUnit returned empty array. User Profile data - %s", item)
+				// Filtering by Organization Unit or Job Position
+				if (shared.IsInteger(organizationUnitId) && organizationUnitId != 0) || (shared.IsInteger(jobPositionId) && jobPositionId != 0) {
+					continue
+				}
+			} else {
+				EmployeeInOrganizationUnitValue := reflect.ValueOf(EmployeeInOrganizationUnit[0])
+
+				if EmployeeInOrganizationUnitValue.Kind() == reflect.Ptr {
+					EmployeeInOrganizationUnitValue = EmployeeInOrganizationUnitValue.Elem()
+				}
+
+				// # Job Position in Organization Unit data
+				var JobPositionInOrganizationUnit = shared.FetchByProperty(
+					"job_positions_in_organization_units",
+					"Id",
+					EmployeeInOrganizationUnitValue.FieldByName("PositionInOrganizationUnitId").Interface(),
+				)
+
+				if len(JobPositionInOrganizationUnit) < 1 {
+					//fmt.Printf("Fetching JobPositionInOrganizationUnit returned empty array. User Profile data - %s", item)
+					// Filtering by Organization Unit or Job Position
+					if (shared.IsInteger(organizationUnitId) && organizationUnitId != 0) || (shared.IsInteger(jobPositionId) && jobPositionId != 0) {
+						continue
+					}
+				} else {
+					JobPositionInOrganizationUnitValue := reflect.ValueOf(JobPositionInOrganizationUnit[0])
+
+					if JobPositionInOrganizationUnitValue.Kind() == reflect.Ptr {
+						JobPositionInOrganizationUnitValue = JobPositionInOrganizationUnitValue.Elem()
+					}
+
+					// # Related Organization Unit
+					var OrganizationUnit = shared.FetchByProperty(
+						"organization_unit",
+						"Id",
+						JobPositionInOrganizationUnitValue.FieldByName("ParentOrganizationUnitId").Interface(),
+					)
+
+					if len(OrganizationUnit) < 1 {
+						//fmt.Printf("Fetching OrganizationUnit returned empty array. User Profile data - %s", item)
+						// Filtering by Organization Unit
+						if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 {
+							continue
+						}
+					} else {
+						OrganizationUnitValue := reflect.ValueOf(OrganizationUnit[0])
+
+						if OrganizationUnitValue.Kind() == reflect.Ptr {
+							OrganizationUnitValue = OrganizationUnitValue.Elem()
+						}
+
+						mergedItem["organization_unit"] = OrganizationUnitValue.FieldByName("Title").Interface()
+
+						if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 && OrganizationUnitValue.FieldByName("Id").Interface() != organizationUnitId {
+							continue
+						}
+					}
+
+					// # Related Job Position
+					var JobPosition = shared.FetchByProperty(
+						"job_positions",
+						"Id",
+						JobPositionInOrganizationUnitValue.FieldByName("JobPositionId").Interface(),
+					)
+
+					if len(JobPosition) < 1 {
+						//fmt.Printf("Fetching JobPosition returned empty array. User Profile data - %s", item)
+						// Filtering by Job Position
+						if shared.IsInteger(jobPositionId) && jobPositionId != 0 {
+							continue
+						}
+					} else {
+						JobPositionValue := reflect.ValueOf(JobPosition[0])
+
+						if JobPositionValue.Kind() == reflect.Ptr {
+							JobPositionValue = JobPositionValue.Elem()
+						}
+
+						mergedItem["job_position"] = JobPositionValue.FieldByName("Title").Interface()
+						mergedItem["is_judge"] = JobPositionValue.FieldByName("IsJudge").Interface()
+						mergedItem["is_judge_president"] = JobPositionValue.FieldByName("IsJudgePresident").Interface()
+
+						if shared.IsInteger(jobPositionId) && jobPositionId != 0 && JobPositionValue.FieldByName("Id").Interface() != jobPositionId {
+							continue
+						}
+					}
+				}
+			}
+		}
+
+		items = append(items, mergedItem)
 	}
 
-	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(profile.Id)
-	if err != nil {
-		return nil, err
+	// Filtering by ID
+	if shared.IsInteger(id) && id != 0 {
+		items = shared.FindByProperty(items, "id", id)
+	}
+	// Filtering by User Account status
+	if active == true || active == false {
+		items = shared.FindByProperty(items, "active", active)
 	}
 
-	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
-	if err != nil {
-		return nil, err
+	total = len(items)
+
+	// Filtering by Pagination params
+	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+		items = shared.Pagination(items, page.(int), size.(int))
 	}
 
-	jobPosition, err := getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
-	if err != nil {
-		return nil, err
-	}
-
-	organizationUnit, err := getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.UserProfileOverviewResponse{
-		ID:               profile.Id,
-		FirstName:        profile.FirstName,
-		LastName:         profile.LastName,
-		DateOfBirth:      profile.DateOfBirth,
-		Email:            account.Email,
-		Phone:            account.Phone,
-		Active:           account.Active,
-		IsJudge:          jobPosition.Data.IsJudge,
-		IsJudgePresident: jobPosition.Data.IsJudgePresident,
-		Role: structs.SettingsDropdown{
-			Id:    role.Id,
-			Title: role.Title,
-		},
-		OrganizationUnit: structs.SettingsDropdown{
-			Id:    organizationUnit.Id,
-			Title: organizationUnit.Title,
-		},
-		JobPosition: structs.SettingsDropdown{
-			Id:    jobPosition.Data.Id,
-			Title: jobPosition.Data.Title,
-		},
-		CreatedAt: profile.CreatedAt,
-		UpdatedAt: profile.UpdatedAt,
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
 	}, nil
 }
 
 var UserProfileBasicResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	profileId := params.Args["user_profile_id"]
+	accountId := params.Args["user_account_id"]
 
-	if !shared.IsInteger(profileId) {
+	if !shared.IsInteger(profileId) && !shared.IsInteger(accountId) {
 		return map[string]interface{}{
 			"status":  "error",
 			"message": "Argument 'user_profile_id' must not be empty!",
@@ -192,748 +265,533 @@ var UserProfileBasicResolver = func(params graphql.ResolveParams) (interface{}, 
 		}, nil
 	}
 
-	profile, err := getUserProfileById(profileId.(int))
-	if err != nil {
-		fmt.Printf("Error getting user profile because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error getting user profile data"), nil
+	UserProfilesType := &structs.UserProfiles{}
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
+
+	if UserProfilesDataErr != nil {
+		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
 	}
 
-	res, err := buildUserProfileBasicResponse(profile)
-	if err != nil {
-		fmt.Printf("Building user response failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error building user data"), nil
+	var UserProfile = shared.FindByProperty(UserProfilesData, "Id", profileId)
+
+	if UserProfile == nil || UserProfile[0] == nil {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "User Profile not found for provided 'user_profile_id'!",
+			"item":    nil,
+		}, nil
 	}
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "Here's the item you asked for!",
-		Item:    res,
+	var item = shared.WriteStructToInterface(UserProfile[0])
+
+	accountId = item["user_account_id"]
+
+	var relatedUserAccount = shared.FetchByProperty(
+		"user_account",
+		"Id",
+		accountId,
+	)
+
+	// # Related User Account
+	if len(relatedUserAccount) > 0 {
+		relatedUserAccountValue := reflect.ValueOf(relatedUserAccount[0])
+
+		if relatedUserAccountValue.Kind() == reflect.Ptr {
+			relatedUserAccountValue = relatedUserAccountValue.Elem()
+		}
+
+		item["email"] = relatedUserAccountValue.FieldByName("Email").Interface()
+		item["phone"] = relatedUserAccountValue.FieldByName("Phone").Interface()
+
+		// # Employee in Organization Unit data
+		var EmployeeInOrganizationUnit = shared.FetchByProperty(
+			"employees_in_organization_units",
+			"UserAccountId",
+			accountId,
+		)
+
+		if len(EmployeeInOrganizationUnit) > 0 {
+			EmployeeInOrganizationUnitValue := reflect.ValueOf(EmployeeInOrganizationUnit[0])
+
+			if EmployeeInOrganizationUnitValue.Kind() == reflect.Ptr {
+				EmployeeInOrganizationUnitValue = EmployeeInOrganizationUnitValue.Elem()
+			}
+
+			// # Job Position in Organization Unit data
+			var JobPositionInOrganizationUnit = shared.FetchByProperty(
+				"job_positions_in_organization_units",
+				"Id",
+				EmployeeInOrganizationUnitValue.FieldByName("PositionInOrganizationUnitId").Interface(),
+			)
+
+			if len(JobPositionInOrganizationUnit) > 0 {
+				JobPositionInOrganizationUnitValue := reflect.ValueOf(JobPositionInOrganizationUnit[0])
+
+				if JobPositionInOrganizationUnitValue.Kind() == reflect.Ptr {
+					JobPositionInOrganizationUnitValue = JobPositionInOrganizationUnitValue.Elem()
+				}
+
+				// # Related Organization Unit
+				var OrganizationUnit = shared.FetchByProperty(
+					"organization_unit",
+					"Id",
+					JobPositionInOrganizationUnitValue.FieldByName("ParentOrganizationUnitId").Interface(),
+				)
+
+				if len(OrganizationUnit) > 0 {
+					OrganizationUnitValue := reflect.ValueOf(OrganizationUnit[0])
+
+					if OrganizationUnitValue.Kind() == reflect.Ptr {
+						OrganizationUnitValue = OrganizationUnitValue.Elem()
+					}
+
+					OrganizationUnitData := map[string]interface{}{
+						"title": OrganizationUnitValue.FieldByName("Title").Interface(),
+						"id":    OrganizationUnitValue.FieldByName("Id").Interface(),
+					}
+
+					item["organization_unit"] = OrganizationUnitData
+				}
+
+				// # Related Job Position
+				var JobPosition = shared.FetchByProperty(
+					"job_positions",
+					"Id",
+					JobPositionInOrganizationUnitValue.FieldByName("JobPositionId").Interface(),
+				)
+
+				if len(JobPosition) > 0 {
+					JobPositionValue := reflect.ValueOf(JobPosition[0])
+
+					if JobPositionValue.Kind() == reflect.Ptr {
+						JobPositionValue = JobPositionValue.Elem()
+					}
+
+					JobPositionData := map[string]interface{}{
+						"title": JobPositionValue.FieldByName("Title").Interface(),
+						"id":    JobPositionValue.FieldByName("Id").Interface(),
+					}
+
+					item["job_position"] = JobPositionData
+				}
+			}
+		}
+	}
+
+	var relatedEmployeeContract = shared.FetchByProperty(
+		"employee_contract",
+		"Id",
+		profileId,
+	)
+
+	// # Related Employee Contract
+	if len(relatedEmployeeContract) > 0 {
+		relatedEmployeeContractValue := reflect.ValueOf(relatedEmployeeContract[0])
+
+		if relatedEmployeeContractValue.Kind() == reflect.Ptr {
+			relatedEmployeeContractValue = relatedEmployeeContractValue.Elem()
+		}
+
+		item["date_of_start"] = relatedEmployeeContractValue.FieldByName("DateOfStart").Interface()
+		item["date_of_end"] = relatedEmployeeContractValue.FieldByName("DateOfEnd").Interface()
+
+		// # Employee in Organization Unit data
+		var relatedEmployeeContractType = shared.FetchByProperty(
+			"contract_type",
+			"Id",
+			relatedEmployeeContractValue.FieldByName("ContractTypeId").Interface(),
+		)
+
+		if len(relatedEmployeeContractType) > 0 {
+			relatedEmployeeContractTypeValue := reflect.ValueOf(relatedEmployeeContractType[0])
+
+			if relatedEmployeeContractTypeValue.Kind() == reflect.Ptr {
+				relatedEmployeeContractTypeValue = relatedEmployeeContractTypeValue.Elem()
+			}
+
+			ContractTypeData := map[string]interface{}{
+				"title": relatedEmployeeContractTypeValue.FieldByName("Title").Interface(),
+				"id":    relatedEmployeeContractTypeValue.FieldByName("Id").Interface(),
+			}
+
+			item["contract_type"] = ContractTypeData
+		}
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the item you asked for!",
+		"item":    item,
 	}, nil
 }
 
 var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var err error
-	var userAccountData structs.UserAccounts
-	var userProfileData structs.UserProfiles
-	var employeesInOrganizationUnits structs.EmployeesInOrganizationUnits
-	var employeeContracts dto.CreateUserProfileContractList
-
-	var userAccountRes *structs.UserAccounts
-	var userProfileRes *structs.UserProfiles
-
+	var projectRoot, _ = shared.GetProjectRoot()
+	var data map[string]interface{}
+	var dataStruct structs.UserProfiles
+	var newData map[string]interface{}
+	var userAccountId int
 	dataBytes, _ := json.Marshal(params.Args["data"])
+	UserProfileBasicType := &structs.UserProfiles{}
 
-	userAccountData.Id = userProfileData.UserAccountId
+	_ = json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &dataStruct)
 
-	err = json.Unmarshal(dataBytes, &userAccountData)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
-	}
-	err = json.Unmarshal(dataBytes, &userProfileData)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
-	}
-	err = json.Unmarshal(dataBytes, &employeesInOrganizationUnits)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
-	}
-	err = json.Unmarshal(dataBytes, &employeeContracts)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
+	itemId := dataStruct.Id
+	userProfileBasicData, userProfileBasicDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfileBasicType)
+
+	if userProfileBasicDataErr != nil {
+		fmt.Printf("Fetching User Profile's Basic data failed because of this error - %s.\n", userProfileBasicDataErr)
 	}
 
-	userAccountRes, err = CreateUserAccount(userAccountData)
-	if err != nil {
-		fmt.Printf("Creating the user account failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error creating the user account data"), nil
-	}
-
-	userProfileData.UserAccountId = userAccountRes.Id
-	userProfileRes, err = createUserProfile(userProfileData)
-	if err != nil {
-		fmt.Printf("Creating the user profile failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error creating the user profile data"), nil
-	}
-
-	for _, contractInput := range employeeContracts.Contracts {
-		contractInput.UserProfileId = userProfileRes.Id
-		_, err := createEmployeeContract(contractInput)
-		if err != nil {
-			fmt.Printf("Creating the user profile contracts failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating the user profile contracts data"), nil
-		}
-	}
-
-	employeesInOrganizationUnits.UserAccountId = userAccountRes.Id
-	employeesInOrganizationUnits.UserProfileId = userProfileRes.Id
-	employeesInOrganizationUnits.Active = true
-	_, err = createEmployeesInOrganizationUnits(&employeesInOrganizationUnits)
-	if err != nil {
-		fmt.Printf("Inserting employees in organization unit failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error creating the employees in organization unit data"), nil
-	}
-
-	res, err := buildUserProfileBasicResponse(userProfileRes)
-	if err != nil {
-		fmt.Printf("Building user response failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error getting user data"), nil
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You created this item!",
-		Item:    res,
-	}, nil
-}
-
-var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var err error
-	var userProfileData structs.UserProfiles
-	var positionInOrganizationUnitData structs.EmployeesInOrganizationUnits
-
-	dataBytes, _ := json.Marshal(params.Args["data"])
-
-	err = json.Unmarshal(dataBytes, &userProfileData)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
-	}
-
-	userProfileRes, err := updateUserProfile(userProfileData.Id, userProfileData)
-	if err != nil {
-		fmt.Printf("Creating the user profile failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error creating the user profile data"), nil
-	}
-
-	err = json.Unmarshal(dataBytes, &positionInOrganizationUnitData)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
-	}
-
-	if positionInOrganizationUnitData.PositionInOrganizationUnitId != 0 {
-		positionInOrganizationUnitData.UserProfileId = userProfileRes.Id
-		_, err := updateEmployeePositionInOrganizationUnitByProfile(userProfileData.Id, &positionInOrganizationUnitData)
-		if err != nil {
-			fmt.Printf("Inserting employees in organization unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating the employees in organization unit data"), nil
-		}
-	}
-
-	res, err := buildUserProfileBasicResponse(userProfileRes)
-	if err != nil {
-		fmt.Printf("Building user response failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error getting user data"), nil
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You updated this item!",
-		Item:    res,
-	}, nil
-}
-
-var UserProfileContractInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var err error
-	var data structs.Contracts
-
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
-
-	dataBytes, _ := json.Marshal(params.Args["data"])
-
-	err = json.Unmarshal(dataBytes, &data)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating user profile contract data"), nil
-	}
-
-	itemId := data.Id
+	// Edit existing User Profile and User Account
 	if shared.IsInteger(itemId) && itemId != 0 {
-		item, err := updateEmployeeContract(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating organization type failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating user profile contract data"), nil
-		}
-		_ = hydrateSettings("ContractType", "ContractTypeId", item)
+		var editedUserProfile = shared.FindByProperty(userProfileBasicData, "Id", itemId)
+		userProfileBasicData = shared.FilterByProperty(userProfileBasicData, "Id", itemId)
 
-		response.Message = "You updated this item!"
-		response.Item = item
+		if len(editedUserProfile) > 0 {
+			var editedUserProfileData = shared.WriteStructToInterface(editedUserProfile[0])
+			userAccountId = editedUserProfileData["user_account_id"].(int)
+
+			newData = shared.MergeMaps(editedUserProfileData, data)
+		}
 	} else {
-		item, err := createEmployeeContract(&data)
-		if err != nil {
-			fmt.Printf("Creating organization type failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating user profile contract data"), nil
-		}
-		// Hydrate the ContractType field in each contract
-		_ = hydrateSettings("ContractType", "ContractTypeId", item)
-
-		response.Message = "You created this item!"
-		response.Item = item
+		// Create User Profile and User Account
+		data["id"] = shared.GetRandomNumber()
+		newData = data
+		userAccountId = 0
 	}
 
-	return response, nil
-}
+	var newUserAccountData = shared.WriteStructToInterface(structs.UserAccounts{
+		Email: newData["email"].(string),
+		Phone: newData["phone"].(string),
+	})
+	var updatedUserAccountData = UpdateRelatedUserAccount(userAccountId, newUserAccountData)
 
-var UserProfileContractDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	newData["user_account_id"] = updatedUserAccountData["id"]
 
-	err := deleteEmployeeContract(itemId.(int))
-	if err != nil {
-		fmt.Printf("Deleting employee's contract failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the contract"), nil
-	}
+	var updatedData = append(userProfileBasicData, newData)
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profiles.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    newData,
 	}, nil
 }
 
 var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var (
-		response []dto.EducationTypeWithEducationsResponse
+	var educationGroups []interface{}
+
+	profileId := params.Args["user_profile_id"]
+	accountId := params.Args["user_account_id"]
+
+	if !shared.IsInteger(profileId) && !shared.IsInteger(accountId) {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "Argument 'user_profile_id' must not be empty!",
+			"item":    nil,
+		}, nil
+	}
+
+	UserProfilesType := &structs.UserProfiles{}
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
+
+	if UserProfilesDataErr != nil {
+		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
+	}
+
+	var UserProfile = shared.FindByProperty(UserProfilesData, "Id", profileId)
+
+	if UserProfile == nil || UserProfile[0] == nil {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "User Profile not found for provided 'user_profile_id'!",
+			"item":    nil,
+		}, nil
+	}
+
+	var educationTypes = shared.FetchByProperty(
+		"education_type",
+		"",
+		"",
 	)
 
-	userProfileID := params.Args["user_profile_id"]
+	for _, educationTypeItem := range educationTypes {
+		var educationType = shared.WriteStructToInterface(educationTypeItem)
+		var educationTypeItems []interface{}
 
-	settingsInput := dto.GetSettingsInput{
-		Entity: "education_types",
-	}
-	educationTypes, err := getDropdownSettings(&settingsInput)
-	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		educationType["items"] = educationTypeItems
+		educationGroups = append(educationGroups, educationType)
 	}
 
-	educationTypeMap := make(map[int]dto.EducationTypeWithEducationsResponse)
+	var relatedEducation = shared.FetchByProperty(
+		"education",
+		"UserProfileId",
+		profileId,
+	)
 
-	for _, educationType := range educationTypes.Data {
-		educationTypeResponse := dto.EducationTypeWithEducationsResponse{
-			ID:           educationType.Id,
-			Abbreviation: educationType.Abbreviation,
-			Title:        educationType.Title,
-			Value:        educationType.Value,
-		}
-		educationTypeMap[educationType.Id] = educationTypeResponse
-	}
+	// # Related Employee Education
+	if len(relatedEducation) > 0 {
+		for _, relatedEducationItem := range relatedEducation {
+			var educationGroupItem = shared.WriteStructToInterface(relatedEducationItem)
 
-	userProfileEducations, err := getEmployeeEducations(userProfileID.(int))
-	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
-	}
-
-	for _, education := range userProfileEducations {
-		if educationTypeResponse, ok := educationTypeMap[education.EducationTypeId]; ok {
-			educationTypeResponse.Educations = append(educationTypeResponse.Educations, education)
-			educationTypeMap[education.EducationTypeId] = educationTypeResponse
+			if educationGroupItem != nil && educationGroupItem["education_type_id"] != nil {
+				educationGroups = shared.AppendByProperty(educationGroups, "id", educationGroupItem["education_type_id"], "items", educationGroupItem)
+			}
 		}
 	}
 
-	for _, educationTypeResponse := range educationTypeMap {
-		response = append(response, educationTypeResponse)
-	}
-
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   response,
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the item you asked for!",
+		"items":   educationGroups,
 	}, nil
 }
 
 var UserProfileEducationInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.Education
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
+	EducationType := &structs.Education{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		employeeEducationResponse, err := updateEmployeeEducation(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating employee's education failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating employee's education data"), nil
-		}
-		response.Item = employeeEducationResponse
-		response.Message = "You updated this item!"
-	} else {
-		employeeEducationResponse, err := createEmployeeEducation(&data)
-		if err != nil {
-			fmt.Printf("Creating employee's education failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating employee's education data"), nil
-		}
-		response.Item = employeeEducationResponse
-		response.Message = "You created this item!"
+	educationData, educationDataErr := shared.ReadJson(shared.GetDataRoot()+"/educations.json", EducationType)
+
+	if educationDataErr != nil {
+		fmt.Printf("Fetching User Profile's education failed because of this error - %s.\n", educationDataErr)
 	}
 
-	return response, nil
+	if shared.IsInteger(itemId) && itemId != 0 {
+		educationData = shared.FilterByProperty(educationData, "Id", itemId)
+	} else {
+		data.Id = shared.GetRandomNumber()
+	}
+
+	var updatedData = append(educationData, data)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/educations.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    data,
+	}, nil
 }
 
 var UserProfileEducationDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
+	EducationType := &structs.Education{}
+	educationData, educationDataErr := shared.ReadJson(shared.GetDataRoot()+"/educations.json", EducationType)
 
-	err := deleteEmployeeEducation(itemId.(int))
-	if err != nil {
-		fmt.Printf("Deleting employee's education failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+	if educationDataErr != nil {
+		fmt.Printf("Fetching User Profile's Education failed because of this error - %s.\n", educationDataErr)
 	}
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	if shared.IsInteger(itemId) && itemId != 0 {
+		educationData = shared.FilterByProperty(educationData, "Id", itemId)
+	}
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/educations.json"), educationData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
 	}, nil
 }
 
 var UserProfileExperienceResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	userProfileID := params.Args["user_profile_id"]
+	profileId := params.Args["user_profile_id"]
+	accountId := params.Args["user_account_id"]
 
-	experiences, err := getEmployeeExperiences(userProfileID.(int))
-	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
+	if !shared.IsInteger(profileId) && !shared.IsInteger(accountId) {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "Argument 'user_profile_id' must not be empty!",
+			"item":    nil,
 		}, nil
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   experiences,
+	UserProfilesType := &structs.UserProfiles{}
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
+
+	if UserProfilesDataErr != nil {
+		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
+	}
+
+	var UserProfile = shared.FindByProperty(UserProfilesData, "Id", profileId)
+
+	if UserProfile == nil || UserProfile[0] == nil {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "User Profile not found for provided 'user_profile_id'!",
+			"item":    nil,
+		}, nil
+	}
+
+	var experienceItems = shared.FetchByProperty(
+		"experience",
+		"UserProfileId",
+		profileId,
+	)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the item you asked for!",
+		"items":   experienceItems,
 	}, nil
 }
 
 var UserProfileExperienceInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var err error
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.Experience
-
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
-
 	dataBytes, _ := json.Marshal(params.Args["data"])
-
-	err = json.Unmarshal(dataBytes, &data)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating experience data"), nil
-	}
-
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		item, err := updateExperience(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating experience failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating experience data"), nil
-		}
-		response.Message = "You updated this item!"
-		response.Item = item
-	} else {
-		item, err := createExperience(&data)
-		if err != nil {
-			fmt.Printf("Creating experience failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating experience data"), nil
-		}
-		response.Message = "You created this item!"
-		response.Item = item
-	}
-
-	return response, nil
-}
-
-var UserProfileExperienceDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
-
-	err := deleteExperience(itemId.(int))
-	if err != nil {
-		fmt.Printf("Deleting experience failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the experience"), nil
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
-	}, nil
-}
-
-var UserProfileFamilyResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	userProfileID := params.Args["user_profile_id"].(int)
-
-	familyMembers, err := getEmployeeFamilyMembers(userProfileID)
-	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
-	}
-
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   familyMembers,
-	}, nil
-}
-
-var UserProfileFamilyInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.Family
-	dataBytes, _ := json.Marshal(params.Args["data"])
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
+	ExperienceType := &structs.Experience{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := updateEmployeeFamilyMember(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating employee's family member failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating employee's family member data"), nil
-		}
-		response.Item = res
-		response.Message = "You updated this item!"
-	} else {
-		res, err := createEmployeeFamilyMember(&data)
-		if err != nil {
-			fmt.Printf("Creating employee's family member failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating employee's family member data"), nil
-		}
-		response.Item = res
-		response.Message = "You created this item!"
+	ExperienceData, ExperienceDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_experiences.json", ExperienceType)
+
+	if ExperienceDataErr != nil {
+		fmt.Printf("Fetching User Profile's Experience failed because of this error - %s.\n", ExperienceDataErr)
 	}
 
-	return response, nil
+	if shared.IsInteger(itemId) && itemId != 0 {
+		ExperienceData = shared.FilterByProperty(ExperienceData, "Id", itemId)
+	} else {
+		data.Id = shared.GetRandomNumber()
+	}
+
+	var updatedData = append(ExperienceData, data)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_experiences.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    data,
+	}, nil
+}
+
+var UserProfileExperienceDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	ExperienceType := &structs.Experience{}
+	ExperienceData, ExperienceDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_experiences.json", ExperienceType)
+
+	if ExperienceDataErr != nil {
+		fmt.Printf("Fetching User Profile's Experience failed because of this error - %s.\n", ExperienceDataErr)
+	}
+
+	if shared.IsInteger(itemId) && itemId != 0 {
+		ExperienceData = shared.FilterByProperty(ExperienceData, "Id", itemId)
+	}
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_experiences.json"), ExperienceData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
+	}, nil
+}
+
+var UserProfileFamilyResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	profileId := params.Args["user_profile_id"]
+	accountId := params.Args["user_account_id"]
+
+	if !shared.IsInteger(profileId) && !shared.IsInteger(accountId) {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "Argument 'user_profile_id' must not be empty!",
+			"item":    nil,
+		}, nil
+	}
+
+	UserProfilesType := &structs.UserProfiles{}
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
+
+	if UserProfilesDataErr != nil {
+		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
+	}
+
+	var UserProfile = shared.FindByProperty(UserProfilesData, "Id", profileId)
+
+	if UserProfile == nil || UserProfile[0] == nil {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "User Profile not found for provided 'user_profile_id'!",
+			"item":    nil,
+		}, nil
+	}
+
+	var familyItems = shared.FetchByProperty(
+		"family",
+		"UserProfileId",
+		profileId,
+	)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the item you asked for!",
+		"items":   familyItems,
+	}, nil
+}
+
+var UserProfileFamilyInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	var data structs.Family
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	FamilyType := &structs.Family{}
+
+	_ = json.Unmarshal(dataBytes, &data)
+
+	itemId := data.Id
+	FamilyData, FamilyDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_family.json", FamilyType)
+
+	if FamilyDataErr != nil {
+		fmt.Printf("Fetching User Profile's Family failed because of this error - %s.\n", FamilyDataErr)
+	}
+
+	if shared.IsInteger(itemId) && itemId != 0 {
+		FamilyData = shared.FilterByProperty(FamilyData, "Id", itemId)
+	} else {
+		data.Id = shared.GetRandomNumber()
+	}
+
+	var updatedData = append(FamilyData, data)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_family.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    data,
+	}, nil
 }
 
 var UserProfileFamilyDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
+	FamilyType := &structs.Family{}
+	FamilyData, FamilyDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_family.json", FamilyType)
 
-	err := deleteEmployeeFamilyMember(itemId.(int))
-	if err != nil {
-		fmt.Printf("Deleting Family member failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+	if FamilyDataErr != nil {
+		fmt.Printf("Fetching User Profile's Family failed because of this error - %s.\n", FamilyDataErr)
 	}
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	if shared.IsInteger(itemId) && itemId != 0 {
+		FamilyData = shared.FilterByProperty(FamilyData, "Id", itemId)
+	}
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_family.json"), FamilyData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
 	}, nil
-}
-
-func buildUserProfileBasicResponse(
-	profile *structs.UserProfiles,
-) (*dto.UserProfileBasicResponse, error) {
-	account, err := GetUserAccountById(profile.UserAccountId)
-	if err != nil {
-		return nil, err
-	}
-
-	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(profile.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
-
-	jobPosition, err := getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
-	if err != nil {
-		return nil, err
-	}
-
-	organizationUnit, err := getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
-
-	contracts, err := getEmployeeContracts(profile.Id)
-	if err != nil {
-		return nil, err
-	}
-	items := shared.ConvertToInterfaceSlice(contracts)
-	_ = hydrateSettings("ContractType", "ContractTypeId", items...)
-
-	return &dto.UserProfileBasicResponse{
-		ID:                            profile.Id,
-		FirstName:                     profile.FirstName,
-		LastName:                      profile.LastName,
-		DateOfBirth:                   profile.DateOfBirth,
-		BirthLastName:                 profile.BirthLastName,
-		CountryOfBirth:                profile.CountryOfBirth,
-		CityOfBirth:                   profile.CityOfBirth,
-		Nationality:                   profile.Nationality,
-		Citizenship:                   profile.Citizenship,
-		Address:                       profile.Address,
-		FatherName:                    profile.FatherName,
-		MotherName:                    profile.MotherName,
-		MotherBirthLastName:           profile.MotherBirthLastName,
-		BankAccount:                   profile.BankAccount,
-		BankName:                      profile.BankName,
-		OfficialPersonalID:            profile.OfficialPersonalId,
-		OfficialPersonalDocNumber:     profile.OfficialPersonalDocumentNumber,
-		OfficialPersonalDocIssuer:     profile.OfficialPersonalDocumentIssuer,
-		Gender:                        profile.Gender,
-		SingleParent:                  profile.SingleParent,
-		HousingDone:                   profile.HousingDone,
-		HousingDescription:            profile.HousingDescription,
-		RevisorRole:                   profile.RevisorRole,
-		MaritalStatus:                 profile.MaritalStatus,
-		DateOfTakingOath:              profile.DateOfTakingOath,
-		DateOfBecomingJudge:           profile.DateOfBecomingJudge,
-		Email:                         account.Email,
-		Phone:                         account.Phone,
-		OrganizationUnit:              *organizationUnit,
-		JobPosition:                   jobPosition.Data,
-		Contracts:                     contracts,
-		JobPositionInOrganizationUnit: jobPositionInOrganizationUnit.Id,
-	}, nil
-}
-
-func getEmployeeContracts(employeeID int) ([]*structs.Contracts, error) {
-	res := &dto.GetEmployeeContractListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(employeeID)+"/contracts", nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func deleteEmployeeContract(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.EMPLOYEE_CONTRACTS+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func createUserProfile(user structs.UserProfiles) (*structs.UserProfiles, error) {
-	res := &dto.GetUserProfileResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.USER_PROFILES_ENDPOINT, user, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func getUserProfiles(input *dto.GetUserProfilesInput) ([]*structs.UserProfiles, error) {
-	res := &dto.GetUserProfileListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func getUserProfileById(id int) (*structs.UserProfiles, error) {
-	res := &dto.GetUserProfileResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func DeleteUserProfile(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func updateUserProfile(userID int, user structs.UserProfiles) (*structs.UserProfiles, error) {
-	res := &dto.GetUserProfileResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(userID), user, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func updateEmployeePositionInOrganizationUnitByProfile(profileId int, data *structs.EmployeesInOrganizationUnits) (*structs.EmployeesInOrganizationUnits, error) {
-	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(profileId), data, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func getEmployeesInOrganizationUnitsByProfileId(profileId int) (*structs.EmployeesInOrganizationUnits, error) {
-	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(profileId)+"/employee-in-organization-unit", nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func getEmployeesInOrganizationUnitList(input *dto.GetEmployeesInOrganizationUnitInput) ([]*structs.EmployeesInOrganizationUnits, error) {
-	res := &dto.GetEmployeesInOrganizationUnitsListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func updateEmployeeContract(id int, contract *structs.Contracts) (*structs.Contracts, error) {
-	res := &dto.GetUserProfileContractResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.EMPLOYEE_CONTRACTS+"/"+strconv.Itoa(id), contract, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func createEmployeeContract(contract *structs.Contracts) (*structs.Contracts, error) {
-	res := &dto.GetUserProfileContractResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.EMPLOYEE_CONTRACTS, contract, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func createEmployeeEducation(education *structs.Education) (*structs.Education, error) {
-	res := &dto.GetEmployeeEducationResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.EMPLOYEE_EDUCATIONS, education, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func updateEmployeeEducation(id int, education *structs.Education) (*structs.Education, error) {
-	res := &dto.GetEmployeeEducationResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.EMPLOYEE_EDUCATIONS+"/"+strconv.Itoa(id), education, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func deleteEmployeeEducation(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.EMPLOYEE_EDUCATIONS+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getEmployeeEducations(userProfileID int) ([]structs.Education, error) {
-	res := &dto.GetEmployeeEducationListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(userProfileID)+"/educations", nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func updateExperience(id int, contract *structs.Experience) (*structs.Experience, error) {
-	res := &dto.ExperienceItemResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.EMPLOYEE_EXPERIENCES+"/"+strconv.Itoa(id), contract, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func createExperience(contract *structs.Experience) (*structs.Experience, error) {
-	res := &dto.ExperienceItemResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.EMPLOYEE_EXPERIENCES, contract, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func deleteExperience(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.EMPLOYEE_EXPERIENCES+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getEmployeeExperiences(employeeID int) ([]*structs.Experience, error) {
-	res := &dto.GetEmployeeExperienceListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(employeeID)+"/experiences", nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func createEmployeeFamilyMember(familyMember *structs.Family) (*structs.Family, error) {
-	res := &dto.GetEmployeeFamilyMemberResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.EMPLOYEE_FAMILY_MEMBERS, familyMember, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func updateEmployeeFamilyMember(id int, education *structs.Family) (*structs.Family, error) {
-	res := &dto.GetEmployeeFamilyMemberResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.EMPLOYEE_FAMILY_MEMBERS+"/"+strconv.Itoa(id), education, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func deleteEmployeeFamilyMember(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.EMPLOYEE_FAMILY_MEMBERS+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getEmployeeFamilyMembers(employeeID int) ([]*structs.Family, error) {
-	res := &dto.GetEmployeeFamilyMemberListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(employeeID)+"/family-members", nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
 }

@@ -1,1 +1,234 @@
-[{"id":1,"title":"IZDACI","parent_id":0,"serial_number":"4"},{"id":4,"title":"Neto zarade","parent_id":3,"serial_number":"411-1"},{"id":5,"title":"Porez na zarade","parent_id":3,"serial_number":"411-2"},{"id":2,"title":"TEKUĆI IZDACI","parent_id":1,"serial_number":"41"},{"id":3,"title":"Bruto zarade i doprinosi na teret poslodavca","parent_id":2,"serial_number":"411"},{"id":6,"title":"Doprinosi na teret zaposlenog","parent_id":3,"serial_number":"411-3"},{"id":10,"title":"Naknada za zimnicu","parent_id":9,"serial_number":"412-1"},{"id":11,"title":"Naknada za stanovanje i odvojen život","parent_id":9,"serial_number":"412-2"},{"id":12,"title":"Naknada za prevoz","parent_id":9,"serial_number":"412-3"},{"id":7,"title":"Doprinosi na teret poslodavca","parent_id":3,"serial_number":"411-4"},{"id":8,"title":"Opštinski prirez","parent_id":3,"serial_number":"411-5"},{"id":9,"title":"Ostala lična primanja","parent_id":2,"serial_number":"412"},{"id":15,"title":"Naknada skupstinskim poslanicima","parent_id":9,"serial_number":"412-6"},{"id":16,"title":"Ostale naknade","parent_id":9,"serial_number":"412-7"},{"id":39,"title":"Ostale naknade 1","parent_id":16,"serial_number":"412-7-4"},{"id":40,"title":"Ostale naknade 2","parent_id":16,"serial_number":"412-7-2"},{"id":41,"title":"Ostale naknade 4","parent_id":16,"serial_number":"412-7-1"},{"id":42,"title":"Ostale naknade 3","parent_id":16,"serial_number":"412-7-3"},{"id":17,"title":"Bruto zarade i doprinosi na teret poslodavca","parent_id":2,"serial_number":"413"},{"id":13,"title":"Jubilarne nagrade","parent_id":9,"serial_number":"412-4"},{"id":14,"title":"Otpremnine za tehnološke viškove","parent_id":9,"serial_number":"412-5"},{"id":18,"title":"Administrativni materijal","parent_id":17,"serial_number":"413-1"},{"id":19,"title":"Materijal za zdravstvenu zaštitu","parent_id":17,"serial_number":"413-2"},{"id":20,"title":"Materijal za posebne namjene","parent_id":17,"serial_number":"413-3"},{"id":21,"title":"Rashodi za energiju","parent_id":17,"serial_number":"413-4"},{"id":22,"title":"Rashodi za gorivo","parent_id":17,"serial_number":"413-5"},{"id":23,"title":"Ostali rashod za materijal","parent_id":17,"serial_number":"413-9"},{"id":33,"title":"Sredstva za tehnološke viškove","parent_id":24,"serial_number":"422"},{"id":34,"title":"Garantovane zarade","parent_id":33,"serial_number":"422-1"},{"id":35,"title":"Otpremnine za tehnološke viškove","parent_id":33,"serial_number":"422-2"},{"id":36,"title":"Dokup staža","parent_id":33,"serial_number":"422-3"},{"id":24,"title":"Transferi za socijalnu zaštitu","parent_id":1,"serial_number":"42"},{"id":25,"title":"Prava iz oblasti socijalne zaštite","parent_id":24,"serial_number":"421"},{"id":26,"title":"Dječiji dodaci","parent_id":25,"serial_number":"421-1"},{"id":27,"title":"Boračko invalidska zaštita","parent_id":25,"serial_number":"421-2"},{"id":28,"title":"Materijalno obezbjeđenje porodice","parent_id":25,"serial_number":"421-3"},{"id":29,"title":"Porodiljska odsustva","parent_id":25,"serial_number":"421-4"},{"id":30,"title":"Tuđa njega i pomoć","parent_id":25,"serial_number":"421-5"},{"id":31,"title":"Ishrana djece u predškolskim ustanovama","parent_id":25,"serial_number":"421-6"},{"id":32,"title":"Izdržavanje štićenika u domovima","parent_id":25,"serial_number":"421-7"},{"id":37,"title":"Naknade nezaposlenim licima","parent_id":33,"serial_number":"422-4"},{"id":38,"title":"Ostalo","parent_id":33,"serial_number":"422-4"}]
+[
+  { "id": 1, "title": "IZDACI", "parent_id": 0, "serial_number": "4" },
+  { "id": 4, "title": "Neto zarade", "parent_id": 3, "serial_number": "411-1" },
+  {
+    "id": 5,
+    "title": "Porez na zarade",
+    "parent_id": 3,
+    "serial_number": "411-2"
+  },
+  { "id": 2, "title": "TEKUĆI IZDACI", "parent_id": 1, "serial_number": "41" },
+  {
+    "id": 3,
+    "title": "Bruto zarade i doprinosi na teret poslodavca",
+    "parent_id": 2,
+    "serial_number": "411"
+  },
+  {
+    "id": 6,
+    "title": "Doprinosi na teret zaposlenog",
+    "parent_id": 3,
+    "serial_number": "411-3"
+  },
+  {
+    "id": 10,
+    "title": "Naknada za zimnicu",
+    "parent_id": 9,
+    "serial_number": "412-1"
+  },
+  {
+    "id": 11,
+    "title": "Naknada za stanovanje i odvojen život",
+    "parent_id": 9,
+    "serial_number": "412-2"
+  },
+  {
+    "id": 12,
+    "title": "Naknada za prevoz",
+    "parent_id": 9,
+    "serial_number": "412-3"
+  },
+  {
+    "id": 7,
+    "title": "Doprinosi na teret poslodavca",
+    "parent_id": 3,
+    "serial_number": "411-4"
+  },
+  {
+    "id": 8,
+    "title": "Opštinski prirez",
+    "parent_id": 3,
+    "serial_number": "411-5"
+  },
+  {
+    "id": 9,
+    "title": "Ostala lična primanja",
+    "parent_id": 2,
+    "serial_number": "412"
+  },
+  {
+    "id": 15,
+    "title": "Naknada skupstinskim poslanicima",
+    "parent_id": 9,
+    "serial_number": "412-6"
+  },
+  {
+    "id": 16,
+    "title": "Ostale naknade",
+    "parent_id": 9,
+    "serial_number": "412-7"
+  },
+  {
+    "id": 39,
+    "title": "Ostale naknade 1",
+    "parent_id": 16,
+    "serial_number": "412-7-4"
+  },
+  {
+    "id": 40,
+    "title": "Ostale naknade 2",
+    "parent_id": 16,
+    "serial_number": "412-7-2"
+  },
+  {
+    "id": 41,
+    "title": "Ostale naknade 4",
+    "parent_id": 16,
+    "serial_number": "412-7-1"
+  },
+  {
+    "id": 42,
+    "title": "Ostale naknade 3",
+    "parent_id": 16,
+    "serial_number": "412-7-3"
+  },
+  {
+    "id": 17,
+    "title": "Bruto zarade i doprinosi na teret poslodavca",
+    "parent_id": 2,
+    "serial_number": "413"
+  },
+  {
+    "id": 13,
+    "title": "Jubilarne nagrade",
+    "parent_id": 9,
+    "serial_number": "412-4"
+  },
+  {
+    "id": 14,
+    "title": "Otpremnine za tehnološke viškove",
+    "parent_id": 9,
+    "serial_number": "412-5"
+  },
+  {
+    "id": 18,
+    "title": "Administrativni materijal",
+    "parent_id": 17,
+    "serial_number": "413-1"
+  },
+  {
+    "id": 19,
+    "title": "Materijal za zdravstvenu zaštitu",
+    "parent_id": 17,
+    "serial_number": "413-2"
+  },
+  {
+    "id": 20,
+    "title": "Materijal za posebne namjene",
+    "parent_id": 17,
+    "serial_number": "413-3"
+  },
+  {
+    "id": 21,
+    "title": "Rashodi za energiju",
+    "parent_id": 17,
+    "serial_number": "413-4"
+  },
+  {
+    "id": 22,
+    "title": "Rashodi za gorivo",
+    "parent_id": 17,
+    "serial_number": "413-5"
+  },
+  {
+    "id": 23,
+    "title": "Ostali rashod za materijal",
+    "parent_id": 17,
+    "serial_number": "413-9"
+  },
+  {
+    "id": 33,
+    "title": "Sredstva za tehnološke viškove",
+    "parent_id": 24,
+    "serial_number": "422"
+  },
+  {
+    "id": 34,
+    "title": "Garantovane zarade",
+    "parent_id": 33,
+    "serial_number": "422-1"
+  },
+  {
+    "id": 35,
+    "title": "Otpremnine za tehnološke viškove",
+    "parent_id": 33,
+    "serial_number": "422-2"
+  },
+  {
+    "id": 36,
+    "title": "Dokup staža",
+    "parent_id": 33,
+    "serial_number": "422-3"
+  },
+  {
+    "id": 24,
+    "title": "Transferi za socijalnu zaštitu",
+    "parent_id": 1,
+    "serial_number": "42"
+  },
+  {
+    "id": 25,
+    "title": "Prava iz oblasti socijalne zaštite",
+    "parent_id": 24,
+    "serial_number": "421"
+  },
+  {
+    "id": 26,
+    "title": "Dječiji dodaci",
+    "parent_id": 25,
+    "serial_number": "421-1"
+  },
+  {
+    "id": 27,
+    "title": "Boračko invalidska zaštita",
+    "parent_id": 25,
+    "serial_number": "421-2"
+  },
+  {
+    "id": 28,
+    "title": "Materijalno obezbjeđenje porodice",
+    "parent_id": 25,
+    "serial_number": "421-3"
+  },
+  {
+    "id": 29,
+    "title": "Porodiljska odsustva",
+    "parent_id": 25,
+    "serial_number": "421-4"
+  },
+  {
+    "id": 30,
+    "title": "Tuđa njega i pomoć",
+    "parent_id": 25,
+    "serial_number": "421-5"
+  },
+  {
+    "id": 31,
+    "title": "Ishrana djece u predškolskim ustanovama",
+    "parent_id": 25,
+    "serial_number": "421-6"
+  },
+  {
+    "id": 32,
+    "title": "Izdržavanje štićenika u domovima",
+    "parent_id": 25,
+    "serial_number": "421-7"
+  },
+  {
+    "id": 37,
+    "title": "Naknade nezaposlenim licima",
+    "parent_id": 33,
+    "serial_number": "422-4"
+  },
+  { "id": 38, "title": "Ostalo", "parent_id": 33, "serial_number": "422-4" }
+]

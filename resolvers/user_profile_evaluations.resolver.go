@@ -1,125 +1,132 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
 var UserProfileEvaluationResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	profileId := params.Args["user_profile_id"].(int)
+	var evaluationItems []interface{}
 
-	userProfilesData, err := getEmployeeEvaluations(profileId)
-	if err != nil {
-		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", err)
+	profileId := params.Args["user_profile_id"]
+	accountId := params.Args["user_account_id"]
+
+	if !shared.IsInteger(profileId) && !shared.IsInteger(accountId) {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "Argument 'user_profile_id' must not be empty!",
+			"item":    nil,
+		}, nil
 	}
 
-	items := shared.ConvertToInterfaceSlice(userProfilesData)
-	_ = hydrateSettings("ContractType", "ContractTypeId", items)
+	UserProfilesType := &structs.UserProfiles{}
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the item you asked for!",
-		Items:   userProfilesData,
+	if UserProfilesDataErr != nil {
+		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
+	}
+
+	var UserProfile = shared.FindByProperty(UserProfilesData, "Id", profileId)
+
+	if UserProfile == nil || UserProfile[0] == nil {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "User Profile not found for provided 'user_profile_id'!",
+			"item":    nil,
+		}, nil
+	}
+
+	var evaluationTypes = shared.FetchByProperty(
+		"evaluation_type",
+		"",
+		"",
+	)
+
+	var relatedEvaluation = shared.FetchByProperty(
+		"evaluation",
+		"UserProfileId",
+		profileId,
+	)
+	// # Related Employee Evaluation
+	if len(relatedEvaluation) > 0 {
+		for _, relatedEvaluationItem := range relatedEvaluation {
+			var relatedEvaluationItemData = shared.WriteStructToInterface(relatedEvaluationItem)
+			var relatedEvaluationType = shared.FindByProperty(evaluationTypes, "Id", relatedEvaluationItemData["evaluation_type_id"])
+
+			if len(relatedEvaluationType) > 0 {
+				var relatedEvaluationData = shared.WriteStructToInterface(relatedEvaluationType[0])
+
+				relatedEvaluationItemData["evaluation_type"] = map[string]interface{}{
+					"title": relatedEvaluationData["title"],
+					"id":    relatedEvaluationData["id"],
+				}
+			}
+
+			evaluationItems = append(evaluationItems, relatedEvaluationItemData)
+		}
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the item you asked for!",
+		"items":   evaluationItems,
 	}, nil
 }
 
 var UserProfileEvaluationInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.Evaluation
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
-
 	dataBytes, _ := json.Marshal(params.Args["data"])
+	EvaluationType := &structs.Evaluation{}
 
-	err := json.Unmarshal(dataBytes, &data)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
-	}
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
+	evaluationData, evaluationDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_evaluations.json", EvaluationType)
+
+	if evaluationDataErr != nil {
+		fmt.Printf("Fetching User Profile's evaluation failed because of this error - %s.\n", evaluationDataErr)
+	}
+
 	if shared.IsInteger(itemId) && itemId != 0 {
-		item, err := updateEmployeeEvaluation(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating evaluation failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating organization type data"), nil
-		}
-		response.Message = "You updated this item!"
-		response.Item = item
+		evaluationData = shared.FilterByProperty(evaluationData, "Id", itemId)
 	} else {
-		item, err := createEmployeeEvaluation(&data)
-		if err != nil {
-			fmt.Printf("Creating evaluation failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating organization type data"), nil
-		}
-		response.Message = "You created this item!"
-		response.Item = item
+		data.Id = shared.GetRandomNumber()
 	}
 
-	return response, nil
-}
+	var updatedData = append(evaluationData, data)
 
-var UserProfileEvaluationDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_evaluations.json"), updatedData)
 
-	err := deleteEvaluation(itemId)
-
-	if err != nil {
-		fmt.Printf("Fetching User Profile's Evaluation failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "failed",
-			Message: err.Error(),
-		}, nil
-	}
-
-	return dto.Response{
-		Status:  "success",
-		Message: "You deleted this item!",
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    data,
 	}, nil
 }
 
-func getEmployeeEvaluations(userProfileID int) ([]*structs.Evaluation, error) {
-	res := &dto.GetEmployeeEvaluationListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(userProfileID)+"/evaluations", nil, res)
-	if err != nil {
-		return nil, err
+var UserProfileEvaluationDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	EvaluationType := &structs.Evaluation{}
+	evaluationData, evaluationDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_evaluations.json", EvaluationType)
+
+	if evaluationDataErr != nil {
+		fmt.Printf("Fetching User Profile's Evaluation failed because of this error - %s.\n", evaluationDataErr)
 	}
 
-	return res.Data, nil
-}
-
-func updateEmployeeEvaluation(id int, evaluation *structs.Evaluation) (*structs.Evaluation, error) {
-	res := dto.GetEvaluationResponse{}
-	_, err := shared.MakeAPIRequest("PUT", config.EVALUATIONS+"/"+strconv.Itoa(id), evaluation, &res)
-	if err != nil {
-		return nil, err
+	if shared.IsInteger(itemId) && itemId != 0 {
+		evaluationData = shared.FilterByProperty(evaluationData, "Id", itemId)
 	}
 
-	return res.Data, nil
-}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_evaluations.json"), evaluationData)
 
-func createEmployeeEvaluation(evaluation *structs.Evaluation) (*structs.Evaluation, error) {
-	res := dto.GetEvaluationResponse{}
-	_, err := shared.MakeAPIRequest("POST", config.EVALUATIONS, evaluation, &res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func deleteEvaluation(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.EVALUATIONS+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
+	}, nil
 }

@@ -11,10 +11,10 @@ var JudgeResolutionItemMutation = graphql.NewInputObject(graphql.InputObjectConf
 		"organization_unit_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"number_of_judges": &graphql.InputObjectFieldConfig{
+		"available_slots_presidents": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"number_of_presidents": &graphql.InputObjectFieldConfig{
+		"available_slots_judges": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 	},
@@ -26,8 +26,8 @@ var JudgeResolutionInsertMutation = graphql.NewInputObject(graphql.InputObjectCo
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"active": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
+		"user_profile_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
 		},
 		"serial_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

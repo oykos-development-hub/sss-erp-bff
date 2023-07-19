@@ -28,8 +28,8 @@ type JobPositionsInOrganizationUnits struct {
 	SystematizationId        int    `json:"systematization_id"`
 	ParentOrganizationUnitId int    `json:"parent_organization_unit_id"`
 	JobPositionId            int    `json:"job_position_id"`
-	ParentJobPositionId      *int   `json:"parent_job_position_id"`
-	SystemPermissionId       *int   `json:"system_permission_id"`
+	ParentJobPositionId      int    `json:"parent_job_position_id"`
+	SystemPermissionId       int    `json:"system_permission_id"`
 	Description              string `json:"description"`
 	SerialNumber             string `json:"serial_number"`
 	AvailableSlots           int    `json:"available_slots"`

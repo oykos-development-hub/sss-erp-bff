@@ -4,7 +4,6 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
-
 	"github.com/graphql-go/graphql"
 )
 
@@ -13,7 +12,10 @@ var UserProfileForeignerField = &graphql.Field{
 	Description: "Returns a data of User Profile for displaying inside Foreigner tab",
 	Args: graphql.FieldConfigArgument{
 		"user_profile_id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
+		},
+		"user_account_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.UserProfileForeignerResolver,

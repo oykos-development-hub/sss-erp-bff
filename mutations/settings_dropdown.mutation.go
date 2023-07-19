@@ -8,19 +8,10 @@ var SettingsDropdownInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"entity": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
-		},
 		"title": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
-		},
-		"abbreviation": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
-		},
-		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"value": &graphql.InputObjectFieldConfig{
+		"abbreviation": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"color": &graphql.InputObjectFieldConfig{

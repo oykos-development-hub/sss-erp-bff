@@ -1,131 +1,106 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
 var UserProfileForeignerResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	profileId := params.Args["user_profile_id"].(int)
+	profileId := params.Args["user_profile_id"]
+	accountId := params.Args["user_account_id"]
 
-	UserProfilesData, err := getEmployeeForeigners(profileId)
-
-	if err != nil {
-		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "fail",
-			Message: "Fetching User Profiles failed!",
-			Items:   nil,
+	if !shared.IsInteger(profileId) && !shared.IsInteger(accountId) {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "Argument 'user_profile_id' must not be empty!",
+			"item":    nil,
 		}, nil
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the item you asked for!",
-		Items:   UserProfilesData,
+	UserProfilesType := &structs.UserProfiles{}
+	UserProfilesData, UserProfilesDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profiles.json", UserProfilesType)
+
+	if UserProfilesDataErr != nil {
+		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", UserProfilesDataErr)
+	}
+
+	var UserProfile = shared.FindByProperty(UserProfilesData, "Id", profileId)
+
+	if UserProfile == nil || UserProfile[0] == nil {
+		return map[string]interface{}{
+			"status":  "error",
+			"message": "User Profile not found for provided 'user_profile_id'!",
+			"item":    nil,
+		}, nil
+	}
+
+	var foreignerItems = shared.FetchByProperty(
+		"foreigner",
+		"UserProfileId",
+		profileId,
+	)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the item you asked for!",
+		"items":   foreignerItems,
 	}, nil
 }
 
 var UserProfileForeignerInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var err error
-
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.Foreigners
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
-
 	dataBytes, _ := json.Marshal(params.Args["data"])
+	ForeignerType := &structs.Foreigners{}
 
-	err = json.Unmarshal(dataBytes, &data)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
-	}
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
+	ForeignerData, ForeignerDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_foreigners.json", ForeignerType)
+
+	if ForeignerDataErr != nil {
+		fmt.Printf("Fetching User Profile's Foreigner failed because of this error - %s.\n", ForeignerDataErr)
+	}
+
 	if shared.IsInteger(itemId) && itemId != 0 {
-		item, err := updateEmployeeForeigner(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating foreigner failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating foreigner data"), nil
-		}
-		response.Message = "You updated this item!"
-		response.Item = item
+		ForeignerData = shared.FilterByProperty(ForeignerData, "Id", itemId)
 	} else {
-		item, err := createEmployeeForeigner(&data)
-		if err != nil {
-			fmt.Printf("Creating foreigner failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating organization type data"), nil
-		}
-		response.Message = "You created this item!"
-		response.Item = item
+		data.Id = shared.GetRandomNumber()
 	}
 
-	return response, nil
-}
+	var updatedData = append(ForeignerData, data)
 
-var UserProfileForeignerDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_foreigners.json"), updatedData)
 
-	err := deleteForeigner(itemId.(int))
-
-	if err != nil {
-		fmt.Printf("Fetching foreigners failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "failed",
-			Message: err.Error(),
-		}, nil
-	}
-
-	return dto.Response{
-		Status:  "success",
-		Message: "You deleted this item!",
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    data,
 	}, nil
 }
 
-func getEmployeeForeigners(userProfileID int) ([]*structs.Foreigners, error) {
-	res := dto.GetEmployeeForeignersListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(userProfileID)+"/foreigners", nil, &res)
-	if err != nil {
-		return nil, err
+var UserProfileForeignerDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	ForeignerType := &structs.Foreigners{}
+	ForeignerData, ForeignerDataErr := shared.ReadJson(shared.GetDataRoot()+"/user_profile_foreigners.json", ForeignerType)
+
+	if ForeignerDataErr != nil {
+		fmt.Printf("Fetching User Profile's Foreigner failed because of this error - %s.\n", ForeignerDataErr)
 	}
 
-	return res.Data, nil
-}
-
-func updateEmployeeForeigner(id int, foreigner *structs.Foreigners) (*structs.Foreigners, error) {
-	res := dto.GetEmployeeForeignersResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.FOREIGNERS+"/"+strconv.Itoa(id), foreigner, &res)
-	if err != nil {
-		return nil, err
+	if shared.IsInteger(itemId) && itemId != 0 {
+		ForeignerData = shared.FilterByProperty(ForeignerData, "Id", itemId)
 	}
 
-	return res.Data, nil
-}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/user_profile_foreigners.json"), ForeignerData)
 
-func createEmployeeForeigner(foreigner *structs.Foreigners) (*structs.Foreigners, error) {
-	res := dto.GetEmployeeForeignersResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.FOREIGNERS, foreigner, &res)
-	//foreigners
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil
-}
-
-func deleteForeigner(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.FOREIGNERS+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
+	}, nil
 }

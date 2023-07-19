@@ -26,6 +26,9 @@ var SystematizationsOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_activation": &graphql.Field{
 			Type: graphql.String,
 		},
+		"file_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -155,6 +158,9 @@ var SystematizationDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"sectors": &graphql.Field{
 			Type: graphql.NewList(SystematizationSectorsType),
 		},
+		"file_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 
@@ -167,8 +173,8 @@ var SystematizationDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(SystematizationDetailsItemType),
+		"item": &graphql.Field{
+			Type: SystematizationDetailsItemType,
 		},
 	},
 })

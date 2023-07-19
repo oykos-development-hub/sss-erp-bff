@@ -4,6 +4,7 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -37,14 +38,22 @@ var UserProfilesOverviewField = &graphql.Field{
 	Resolve: resolvers.UserProfilesOverviewResolver,
 }
 
+var UserProfileContractsField = &graphql.Field{
+	Type:        types.UserProfileContractsType,
+	Description: "Returns a data of User Profile's contracts",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+	},
+	Resolve: resolvers.UserProfileContractsResolver,
+}
+
 var UserProfileBasicField = &graphql.Field{
 	Type:        types.UserProfileBasicType,
 	Description: "Returns a data of User Profile for displaying inside Basic tab",
 	Args: graphql.FieldConfigArgument{
 		"user_profile_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"user_account_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
 	},
@@ -62,14 +71,44 @@ var UserProfileBasicInsertField = &graphql.Field{
 	Resolve: resolvers.UserProfileBasicInsertResolver,
 }
 
+var UserProfileUpdateField = &graphql.Field{
+	Type:        types.UserProfileBasicInsertType,
+	Description: "Updates a data of User Profile",
+	Args: graphql.FieldConfigArgument{
+		"data": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(mutations.UserProfileUpdateMutation),
+		},
+	},
+	Resolve: resolvers.UserProfileUpdateResolver,
+}
+
+var UserProfileContractInsertField = &graphql.Field{
+	Type:        types.UserProfileContractInsertType,
+	Description: "Inserts or updates contract of User Profile",
+	Args: graphql.FieldConfigArgument{
+		"data": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(mutations.UserProfileContractInsertMutation),
+		},
+	},
+	Resolve: resolvers.UserProfileContractInsertResolver,
+}
+
+var UserProfileContractDeleteField = &graphql.Field{
+	Type:        types.UserProfileContractDeleteType,
+	Description: "Deletes existing User Profile's Contract",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+	},
+	Resolve: resolvers.UserProfileContractDeleteResolver,
+}
+
 var UserProfileEducationField = &graphql.Field{
 	Type:        types.UserProfileEducationType,
 	Description: "Returns a data of User Profile for displaying inside Education tab",
 	Args: graphql.FieldConfigArgument{
 		"user_profile_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"user_account_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
 	},
@@ -92,7 +131,7 @@ var UserProfileEducationDeleteField = &graphql.Field{
 	Description: "Deletes existing User Profile's Education",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.UserProfileEducationDeleteResolver,
@@ -103,9 +142,6 @@ var UserProfileExperienceField = &graphql.Field{
 	Description: "Returns a data of User Profile for displaying inside Experience tab",
 	Args: graphql.FieldConfigArgument{
 		"user_profile_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"user_account_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
 	},
@@ -139,9 +175,6 @@ var UserProfileFamilyField = &graphql.Field{
 	Description: "Returns a data of User Profile for displaying inside Family tab",
 	Args: graphql.FieldConfigArgument{
 		"user_profile_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"user_account_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
 	},

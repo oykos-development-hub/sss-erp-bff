@@ -158,8 +158,12 @@ func main() {
 			"orderList_Delete":                                fields.OrderListDeleteField,
 			"orderListReceive_Delete":                         fields.OrderListReceiveDeleteField,
 			"orderListAssetMovement_Delete":                   fields.OrderListAssetMovementDeleteField,
+			"activities_Delete":                               fields.ActivitiesDeleteField,
 			"account_Delete":                                  fields.AccountDeleteField,
+			"program_Delete":                                  fields.ProgramDeleteField,
+			"activities_Insert":                               fields.ActivitiesInsertField,
 			"account_Insert":                                  fields.AccountInsertField,
+			"program_Insert":                                  fields.ProgramInsertField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -210,6 +214,8 @@ func main() {
 			"orderProcurementAvailableList_Overview":             fields.OrderProcurementAvailableField,
 			"recipientUsers_Overview":                            fields.RecipientUsersField,
 			"account_Overview":                                   fields.AccountOverviewField,
+			"activities_Overview":                                fields.ActivitiesOverviewField,
+			"programs_Overview":                                  fields.ProgramOverviewField,
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

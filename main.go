@@ -158,6 +158,8 @@ func main() {
 			"orderList_Delete":                                fields.OrderListDeleteField,
 			"orderListReceive_Delete":                         fields.OrderListReceiveDeleteField,
 			"orderListAssetMovement_Delete":                   fields.OrderListAssetMovementDeleteField,
+			"account_Delete":                                  fields.AccountDeleteField,
+			"account_Insert":                                  fields.AccountInsertField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -207,6 +209,7 @@ func main() {
 			"orderList_Overview":                                 fields.OrderListOverviewField,
 			"orderProcurementAvailableList_Overview":             fields.OrderProcurementAvailableField,
 			"recipientUsers_Overview":                            fields.RecipientUsersField,
+			"account_Overview":                                   fields.AccountOverviewField,
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

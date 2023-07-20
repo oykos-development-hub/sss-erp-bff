@@ -161,9 +161,11 @@ func main() {
 			"activities_Delete":                               fields.ActivitiesDeleteField,
 			"account_Delete":                                  fields.AccountDeleteField,
 			"program_Delete":                                  fields.ProgramDeleteField,
+			"budget_Delete":                                   fields.BudgetDeleteField,
 			"activities_Insert":                               fields.ActivitiesInsertField,
 			"account_Insert":                                  fields.AccountInsertField,
 			"program_Insert":                                  fields.ProgramInsertField,
+			"budget_Insert":                                   fields.BudgetInsertField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -215,6 +217,7 @@ func main() {
 			"recipientUsers_Overview":                            fields.RecipientUsersField,
 			"account_Overview":                                   fields.AccountOverviewField,
 			"activities_Overview":                                fields.ActivitiesOverviewField,
+			"budget_Overview":                                    fields.BudgetOverviewField,
 			"programs_Overview":                                  fields.ProgramOverviewField,
 		},
 	})

@@ -65,6 +65,16 @@ var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 	items = AccountItemProperties(AccountData, id)
 
 	total = len(items)
+
+	if id != 0 {
+		return map[string]interface{}{
+			"status":  "success",
+			"message": "Here's the list you asked for!",
+			"total":   total,
+			"items":   items,
+		}, nil
+	}
+
 	if tree == true {
 		items, err = CreateTree(AccountData)
 		if err != nil {

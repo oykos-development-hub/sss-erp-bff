@@ -37,6 +37,9 @@ var ProgramOverviewField = &graphql.Field{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"program": &graphql.ArgumentConfig{
+			Type: graphql.Boolean,
+		},
 	},
 	Resolve: resolvers.ProgramOverviewResolver,
 }

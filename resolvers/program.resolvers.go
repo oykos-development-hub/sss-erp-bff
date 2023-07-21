@@ -9,7 +9,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func ProgramItemProperties(basicInventoryItems []interface{}, id int) []interface{} {
+func ProgramItemProperties(basicInventoryItems []interface{}, id int, program ...interface{}) []interface{} {
 	var items []interface{}
 
 	for _, item := range basicInventoryItems {
@@ -18,6 +18,16 @@ func ProgramItemProperties(basicInventoryItems []interface{}, id int) []interfac
 
 		// Filtering by ID
 		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+			continue
+		}
+
+		// Filtering by program
+		if len(program) > 0 && program[0] != nil && program[0] == true && mergedItem["parent_id"].(int) > 0 {
+			continue
+		}
+
+		// Filtering by subprogram
+		if len(program) > 0 && program[0] != nil && program[0] == false && mergedItem["parent_id"].(int) == 0 {
 			continue
 		}
 

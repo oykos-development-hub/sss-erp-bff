@@ -46,6 +46,7 @@ var BudgetOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 	var status string
 	var year string
 	var typeBudget string
+
 	if params.Args["id"] == nil {
 		id = 0
 	} else {
@@ -118,6 +119,7 @@ var BudgetInsertResolver = func(params graphql.ResolveParams) (interface{}, erro
 		BudgetData = shared.FilterByProperty(BudgetData, "Id", itemId)
 	} else {
 		data.Id = shared.GetRandomNumber()
+		data.Status = "kreiran"
 	}
 
 	var updatedData = append(BudgetData, data)
@@ -161,7 +163,7 @@ var BudgetSendResolver = func(params graphql.ResolveParams) (interface{}, error)
 			newItem.Year = updateBudget.Year
 			newItem.Source = updateBudget.Source
 			newItem.Type = updateBudget.Type
-			newItem.Status = "Poslat"
+			newItem.Status = "poslat"
 		}
 	}
 

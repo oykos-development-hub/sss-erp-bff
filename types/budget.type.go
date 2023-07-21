@@ -53,6 +53,18 @@ var BudgetDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var BudgetSendType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BudgetSend",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var BudgetInsertType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "BudgetInsert",
 	Fields: graphql.Fields{

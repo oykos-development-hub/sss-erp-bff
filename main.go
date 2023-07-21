@@ -166,6 +166,7 @@ func main() {
 			"account_Insert":                                  fields.AccountInsertField,
 			"program_Insert":                                  fields.ProgramInsertField,
 			"budget_Insert":                                   fields.BudgetInsertField,
+			"budget_Send":                                     fields.BudgetSendField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{

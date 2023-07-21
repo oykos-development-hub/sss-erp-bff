@@ -30,10 +30,27 @@ var BudgetDeleteField = &graphql.Field{
 	Resolve: resolvers.BudgetDeleteResolver,
 }
 
+var BudgetSendField = &graphql.Field{
+	Type:        types.BudgetSendType,
+	Description: "Send Budget",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.BudgetSendResolver,
+}
+
 var BudgetOverviewField = &graphql.Field{
 	Type:        types.BudgetOverviewType,
 	Description: "Returns a data of Budget items",
 	Args: graphql.FieldConfigArgument{
+		"page": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"size": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},

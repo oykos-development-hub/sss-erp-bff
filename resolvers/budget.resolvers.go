@@ -29,7 +29,7 @@ func BudgetItemProperties(basicInventoryItems []interface{}, id int, typeBudget 
 			continue
 		}
 		// Filtering by status
-		if shared.IsString(status) && len(status) > 0 && status != mergedItem["type"] {
+		if shared.IsString(status) && len(status) > 0 && status != mergedItem["status"] {
 			continue
 		}
 
@@ -133,6 +133,44 @@ var BudgetInsertResolver = func(params graphql.ResolveParams) (interface{}, erro
 		"status":  "success",
 		"message": "You updated this item!",
 		"items":   populatedData[0],
+	}, nil
+}
+
+var BudgetSendResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+
+	BudgetItemType := &structs.BudgetItem{}
+	BudgetData, err := shared.ReadJson(shared.GetDataRoot()+"/budget.json", BudgetItemType)
+
+	if err != nil {
+		fmt.Printf("Fetching Budget failed because of this error - %s.\n", err)
+		return nil, err
+	}
+	budget := shared.FindByProperty(BudgetData, "Id", itemId)
+	if len(budget) == 0 {
+		fmt.Printf("Fetching Budget failed because of this error - %s.\n", err)
+		return nil, err
+	}
+	BudgetData = shared.FilterByProperty(BudgetData, "Id", itemId)
+	newItem := structs.BudgetItem{}
+
+	for _, item := range budget {
+		if updateBudget, ok := item.(*structs.BudgetItem); ok {
+			newItem.Id = updateBudget.Id
+			newItem.Year = updateBudget.Year
+			newItem.Source = updateBudget.Source
+			newItem.Type = updateBudget.Type
+			newItem.Status = "Poslat"
+		}
+	}
+
+	var updatedData = append(BudgetData, newItem)
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/budget.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You send budget to OJ!",
 	}, nil
 }
 

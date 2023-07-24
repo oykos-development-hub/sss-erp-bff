@@ -57,6 +57,8 @@ var ProgramOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 	var items []interface{}
 	var total int
 	var id int
+
+	var program = params.Args["program"]
 	if params.Args["id"] == nil {
 		id = 0
 	} else {
@@ -74,7 +76,7 @@ var ProgramOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 	}
 
 	// Populate data for each Basic Inventory Real Estates
-	items = ProgramItemProperties(ProgramData, id)
+	items = ProgramItemProperties(ProgramData, id, program)
 
 	total = len(items)
 

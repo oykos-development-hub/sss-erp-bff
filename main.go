@@ -167,6 +167,7 @@ func main() {
 			"program_Insert":                                  fields.ProgramInsertField,
 			"budget_Insert":                                   fields.BudgetInsertField,
 			"budget_Send":                                     fields.BudgetSendField,
+			"accountBudgetActivity_Insert":                    fields.AccountBudgetActivityInsertField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -217,6 +218,7 @@ func main() {
 			"orderProcurementAvailableList_Overview":             fields.OrderProcurementAvailableField,
 			"recipientUsers_Overview":                            fields.RecipientUsersField,
 			"account_Overview":                                   fields.AccountOverviewField,
+			"accountBudgetActivity_Overview":                     fields.AccountBudgetActivityOverviewField,
 			"activities_Overview":                                fields.ActivitiesOverviewField,
 			"budget_Overview":                                    fields.BudgetOverviewField,
 			"programs_Overview":                                  fields.ProgramOverviewField,

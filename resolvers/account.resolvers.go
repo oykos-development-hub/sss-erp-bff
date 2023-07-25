@@ -38,6 +38,8 @@ var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 	var items []interface{}
 	var total int
 	var id int
+	var budgetId int
+	var activityId int
 	var tree bool
 	if params.Args["id"] == nil {
 		id = 0
@@ -49,6 +51,18 @@ var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 		tree = false
 	} else {
 		tree = params.Args["tree"].(bool)
+	}
+
+	if params.Args["budget_id"] == nil {
+		budgetId = 0
+	} else {
+		budgetId = params.Args["budget_id"].(int)
+	}
+
+	if params.Args["activity_id"] == nil {
+		activityId = 0
+	} else {
+		activityId = params.Args["activity_id"].(int)
 	}
 
 	page := params.Args["page"]
@@ -76,7 +90,7 @@ var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 	}
 
 	if tree == true {
-		items, err = CreateTree(AccountData)
+		items, err = CreateTree(AccountData, budgetId, activityId)
 		if err != nil {
 			fmt.Printf("Fetching Account failed because of this error - %s.\n", err)
 		}
@@ -215,44 +229,6 @@ func DeleteChildren(itemId int, data []interface{}) []interface{} {
 	}
 
 	return result
-}
-
-func CreateTree(nodes []interface{}) ([]interface{}, error) {
-	mappedNodes := map[int]*structs.AccountItemNode{}
-	for _, nodeInterface := range nodes {
-		if nodeMap, ok := nodeInterface.(*structs.AccountItem); ok {
-			node := &structs.AccountItemNode{
-				Id:           nodeMap.Id,
-				ParentId:     nodeMap.ParentId,
-				SerialNumber: nodeMap.SerialNumber,
-				Title:        nodeMap.Title,
-			}
-			mappedNodes[nodeMap.Id] = node
-		}
-	}
-
-	sortedNodes := make([]*structs.AccountItemNode, 0, len(mappedNodes))
-	for _, node := range mappedNodes {
-		sortedNodes = append(sortedNodes, node)
-	}
-	sort.Slice(sortedNodes, func(i, j int) bool {
-		return sortedNodes[i].SerialNumber < sortedNodes[j].SerialNumber
-	})
-
-	var rootNodes []interface{}
-	for _, node := range sortedNodes {
-		if parentNode, ok := mappedNodes[node.ParentId]; ok {
-			parentNode.Children = append(parentNode.Children, node)
-		} else {
-			rootNodes = append(rootNodes, node)
-		}
-	}
-
-	if len(rootNodes) == 0 {
-		return nil, fmt.Errorf("no root node found")
-	}
-
-	return rootNodes, nil
 }
 
 func appendChildren(result *[]interface{}, childMap map[int][]*structs.AccountItem, parentId int) {

@@ -75,6 +75,10 @@ var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 		fmt.Printf("Fetching Account failed because of this error - %s.\n", err)
 	}
 
+	if params.Args["search"] != nil {
+		AccountData = shared.FindByProperty(AccountData, "Title", params.Args["search"].(string), true)
+	}
+
 	// Populate data for each Basic Inventory Real Estates
 	items = AccountItemProperties(AccountData, id)
 

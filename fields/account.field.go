@@ -37,6 +37,9 @@ var AccountOverviewField = &graphql.Field{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"search": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 		"tree": &graphql.ArgumentConfig{
 			Type: graphql.Boolean,
 		},

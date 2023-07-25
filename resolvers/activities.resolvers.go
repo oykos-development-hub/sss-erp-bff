@@ -91,7 +91,7 @@ var ActivitiesOverviewResolver = func(params graphql.ResolveParams) (interface{}
 		fmt.Printf("Fetching Activities failed because of this error - %s.\n", err)
 	}
 
-	if params.Args["search"] == nil {
+	if params.Args["search"] != nil {
 		ActivitiesData = shared.FindByProperty(ActivitiesData, "Title", params.Args["search"].(string), true)
 	}
 	// Populate data for each Basic Inventory Real Estates

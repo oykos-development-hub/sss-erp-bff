@@ -40,6 +40,9 @@ var ProgramOverviewField = &graphql.Field{
 		"program": &graphql.ArgumentConfig{
 			Type: graphql.Boolean,
 		},
+		"search": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 	},
 	Resolve: resolvers.ProgramOverviewResolver,
 }

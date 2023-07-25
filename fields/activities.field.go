@@ -37,6 +37,12 @@ var ActivitiesOverviewField = &graphql.Field{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"search": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"organization_unit_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 	},
 	Resolve: resolvers.ActivitiesOverviewResolver,
 }

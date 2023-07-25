@@ -9,7 +9,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func ActivitiesItemProperties(basicInventoryItems []interface{}, id int) []interface{} {
+func ActivitiesItemProperties(basicInventoryItems []interface{}, id int, organizationUnitId int) []interface{} {
 	var items []interface{}
 
 	for _, item := range basicInventoryItems {
@@ -18,6 +18,11 @@ func ActivitiesItemProperties(basicInventoryItems []interface{}, id int) []inter
 
 		// Filtering by ID
 		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+			continue
+		}
+
+		// Filtering by ID
+		if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 && organizationUnitId != mergedItem["organization_unit_id"] {
 			continue
 		}
 
@@ -63,10 +68,17 @@ var ActivitiesOverviewResolver = func(params graphql.ResolveParams) (interface{}
 	var items []interface{}
 	var total int
 	var id int
+	var organizationUnitId int
 	if params.Args["id"] == nil {
 		id = 0
 	} else {
 		id = params.Args["id"].(int)
+	}
+
+	if params.Args["organization_unit_id"] == nil {
+		organizationUnitId = 0
+	} else {
+		organizationUnitId = params.Args["organization_unit_id"].(int)
 	}
 
 	page := params.Args["page"]
@@ -79,8 +91,11 @@ var ActivitiesOverviewResolver = func(params graphql.ResolveParams) (interface{}
 		fmt.Printf("Fetching Activities failed because of this error - %s.\n", err)
 	}
 
+	if params.Args["search"] == nil {
+		ActivitiesData = shared.FindByProperty(ActivitiesData, "Title", params.Args["search"].(string), true)
+	}
 	// Populate data for each Basic Inventory Real Estates
-	items = ActivitiesItemProperties(ActivitiesData, id)
+	items = ActivitiesItemProperties(ActivitiesData, id, organizationUnitId)
 
 	total = len(items)
 
@@ -126,7 +141,7 @@ var ActivityInsertResolver = func(params graphql.ResolveParams) (interface{}, er
 	sliceData := []interface{}{data}
 
 	// Populate data for each Basic Inventory
-	var populatedData = ActivitiesItemProperties(sliceData, itemId)
+	var populatedData = ActivitiesItemProperties(sliceData, itemId, 0)
 
 	return map[string]interface{}{
 		"status":  "success",

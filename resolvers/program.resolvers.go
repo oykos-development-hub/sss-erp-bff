@@ -57,7 +57,6 @@ var ProgramOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 	var items []interface{}
 	var total int
 	var id int
-
 	var program = params.Args["program"]
 	if params.Args["id"] == nil {
 		id = 0
@@ -75,6 +74,9 @@ var ProgramOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 		fmt.Printf("Fetching Program failed because of this error - %s.\n", err)
 	}
 
+	if params.Args["search"] != nil {
+		ProgramData = shared.FindByProperty(ProgramData, "Title", params.Args["search"].(string), true)
+	}
 	// Populate data for each Basic Inventory Real Estates
 	items = ProgramItemProperties(ProgramData, id, program)
 

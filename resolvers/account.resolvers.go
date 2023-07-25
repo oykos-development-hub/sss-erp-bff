@@ -167,7 +167,7 @@ var AccountInsertResolver = func(params graphql.ResolveParams) (interface{}, err
 
 var AccountDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
-	itemId := params.Args["id"]
+	itemId := params.Args["id"].(int)
 	AccountItemType := &structs.AccountItem{}
 	AccountData, err := shared.ReadJson(shared.GetDataRoot()+"/account.json", AccountItemType)
 
@@ -176,7 +176,7 @@ var AccountDeleteResolver = func(params graphql.ResolveParams) (interface{}, err
 	}
 
 	if shared.IsInteger(itemId) && itemId != 0 {
-		AccountData = shared.FilterByProperty(AccountData, "Id", itemId)
+		AccountData = DeleteChildren(itemId, AccountData)
 	}
 
 	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/account.json"), AccountData)
@@ -185,6 +185,36 @@ var AccountDeleteResolver = func(params graphql.ResolveParams) (interface{}, err
 		"status":  "success",
 		"message": "You deleted this item!",
 	}, nil
+}
+
+func DeleteChildren(itemId int, data []interface{}) []interface{} {
+	toDelete := map[int]bool{itemId: true}
+	prevLen := 0
+
+	for len(toDelete) != prevLen {
+		prevLen = len(toDelete)
+		for _, item := range data {
+			if item, ok := item.(*structs.AccountItem); ok {
+				id := item.Id
+				parentId := item.ParentId
+				if _, exists := toDelete[parentId]; exists {
+					toDelete[id] = true
+				}
+			}
+		}
+	}
+
+	var result []interface{}
+	for _, item := range data {
+		if item, ok := item.(*structs.AccountItem); ok {
+			id := item.Id
+			if _, exists := toDelete[id]; !exists {
+				result = append(result, item)
+			}
+		}
+	}
+
+	return result
 }
 
 func CreateTree(nodes []interface{}) ([]interface{}, error) {

@@ -143,6 +143,7 @@ var ProgramDeleteResolver = func(params graphql.ResolveParams) (interface{}, err
 
 	if shared.IsInteger(itemId) && itemId != 0 {
 		ProgramData = shared.FilterByProperty(ProgramData, "Id", itemId)
+		ProgramData = shared.FilterByProperty(ProgramData, "ParentId", itemId)
 	}
 
 	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/program.json"), ProgramData)

@@ -15,7 +15,7 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 	case "unit", "units", "organization_unit", "organization_units":
 		endpoint = "organization_units.json"
 		entityStruct = &structs.OrganizationUnits{}
-	case "user_account", "user_accounts":
+	case "account", "accounts", "user_account", "user_accounts":
 		endpoint = "user_accounts.json"
 		entityStruct = &structs.UserAccounts{}
 	case "profile", "profiles", "user_profile", "user_profiles":
@@ -65,22 +65,19 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 		entityStruct = &structs.Evaluation{}
 	case "vacation_type", "vacation_types":
 		endpoint = "user_profile_vacation_types.json"
-		entityStruct = &structs.VacationType{}
+		entityStruct = &structs.AbsentType{}
 	case "vacation", "vacations":
 		endpoint = "user_profile_vacations.json"
-		entityStruct = &structs.Vacation{}
+		entityStruct = &structs.Absent{}
 	case "relocation", "relocations":
 		endpoint = "user_profile_relocations.json"
-		entityStruct = &structs.Relocation{}
+		entityStruct = &structs.Absent{}
 	case "resolution_type", "resolution_types":
 		endpoint = "user_profile_resolution_types.json"
 		entityStruct = &structs.ResolutionType{}
 	case "resolution", "resolutions":
 		endpoint = "user_profile_resolutions.json"
 		entityStruct = &structs.Resolution{}
-	case "revision_type", "revision_types":
-		endpoint = "revision_types.json"
-		entityStruct = &structs.RevisionType{}
 	case "revision", "revisions":
 		endpoint = "revisions.json"
 		entityStruct = &structs.Revision{}
@@ -138,21 +135,9 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 	case "order_procurement_article":
 		endpoint = "order_procurement_article.json"
 		entityStruct = &structs.OrderProcurementArticleItem{}
-	case "accounts", "account":
-		endpoint = "account.json"
-		entityStruct = &structs.AccountItem{}
-	case "activities":
-		endpoint = "activities.json"
-		entityStruct = &structs.ActivitiesItem{}
-	case "program":
-		endpoint = "program.json"
-		entityStruct = &structs.ProgramItem{}
-	case "account_budget_activity":
-		endpoint = "account_budget_activity.json"
-		entityStruct = &structs.AccountBudgetActivityItem{}
 	}
 
-	entityData, entityDataErr := ReadJson(GetDataRoot()+"/"+endpoint, entityStruct)
+	entityData, entityDataErr := ReadJson("http://localhost:8080/mocked-data/"+endpoint, entityStruct)
 
 	if entityDataErr != nil {
 		fmt.Printf("Fetching "+entity+" failed because of this error - %s.\n", entityDataErr)

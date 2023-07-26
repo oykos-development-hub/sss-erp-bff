@@ -4,6 +4,7 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -16,6 +17,12 @@ var JobPositionsField = &graphql.Field{
 		},
 		"search": &graphql.ArgumentConfig{
 			Type: graphql.String,
+		},
+		"page": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"size": &graphql.ArgumentConfig{
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.JobPositionsResolver,

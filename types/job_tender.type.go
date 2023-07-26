@@ -15,7 +15,7 @@ var JobTenderItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"type": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"description": &graphql.Field{
 			Type: graphql.String,
@@ -47,24 +47,6 @@ var JobTenderItemType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var JobTendersOverviewType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "JobTendersOverview",
-	Fields: graphql.Fields{
-		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"message": &graphql.Field{
-			Type: graphql.String,
-		},
-		"total": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(JobTenderItemType),
-		},
-	},
-})
-
 var JobTenderDetailsType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "JobTenders",
 	Fields: graphql.Fields{
@@ -76,6 +58,9 @@ var JobTenderDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"items": &graphql.Field{
 			Type: graphql.NewList(JobTenderItemType),
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
 		},
 	},
 })
@@ -113,38 +98,14 @@ var JobTenderApplicationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"status": &graphql.Field{
-			Type: graphql.String,
+		"active": &graphql.Field{
+			Type: graphql.Boolean,
 		},
 		"job_tender": &graphql.Field{
 			Type: DropdownItemType,
 		},
 		"user_profile": &graphql.Field{
 			Type: DropdownItemType,
-		},
-		"type": &graphql.Field{
-			Type: graphql.String,
-		},
-		"first_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"last_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"official_personal_id": &graphql.Field{
-			Type: graphql.String,
-		},
-		"date_of_birth": &graphql.Field{
-			Type: graphql.String,
-		},
-		"nationality": &graphql.Field{
-			Type: graphql.String,
-		},
-		"evaluation": &graphql.Field{
-			Type: graphql.String,
-		},
-		"date_of_application": &graphql.Field{
-			Type: graphql.String,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

@@ -1,86 +1,113 @@
 package resolvers
 
 import (
+	"bff/config"
+	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
 var JobPositionsResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	id := params.Args["id"]
-	search := params.Args["search"]
-	JobPositionType := &structs.JobPositions{}
-	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions.json", JobPositionType)
+	var (
+		items []structs.JobPositions
+		total int
+	)
 
-	if JobPositionDataErr != nil {
-		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
-	}
+	id := params.Args["id"]
+	page := params.Args["page"]
+	size := params.Args["size"]
+	search, searchOk := params.Args["search"].(string)
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
-		JobPositionData = shared.FindByProperty(JobPositionData, "Id", id)
+		jobPositionResponse, err := getJobPositionById(id.(int))
+		if err != nil {
+			return dto.Response{
+				Status:  "error",
+				Message: err.Error(),
+			}, nil
+		}
+		items = []structs.JobPositions{jobPositionResponse.Data}
+		total = 1
+	} else {
+		input := dto.GetJobPositionsInput{}
+		if shared.IsInteger(page) && page.(int) > 0 {
+			pageNum := page.(int)
+			input.Page = &pageNum
+		}
+		if shared.IsInteger(size) && size.(int) > 0 {
+			sizeNum := size.(int)
+			input.Size = &sizeNum
+		}
+		if searchOk && search != "" {
+			input.Search = &search
+		}
+
+		jobPositionsResponse, err := getJobPositions(&input)
+		if err != nil {
+			return dto.Response{
+				Status:  "error",
+				Message: err.Error(),
+			}, nil
+		}
+		items = jobPositionsResponse.Data
+		total = jobPositionsResponse.Total
 	}
 
-	if search != nil && shared.IsString(search) {
-		JobPositionData = shared.FindByProperty(JobPositionData, "Title", search, true)
-	}
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "Here's the list you asked for!",
-		"items":   JobPositionData,
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Total:   total,
+		Items:   items,
 	}, nil
 }
 
 var JobPositionInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.JobPositions
+	var jobPositionResponse *dto.GetJobPositionResponseMS
+	var err error
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	JobPositionType := &structs.JobPositions{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions.json", JobPositionType)
-
-	if JobPositionDataErr != nil {
-		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
-	}
-
 	if shared.IsInteger(itemId) && itemId != 0 {
-		JobPositionData = shared.FilterByProperty(JobPositionData, "Id", itemId)
+		jobPositionResponse, err = updateJobPositions(itemId, &data)
+		if err != nil {
+			fmt.Printf("Updating organization job position failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error updating job position data"), nil
+		}
 	} else {
-		data.Id = shared.GetRandomNumber()
+		jobPositionResponse, err = createJobPositions(&data)
+		if err != nil {
+			fmt.Printf("Creating job position failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error creating job position data"), nil
+		}
 	}
 
-	var updatedData = append(JobPositionData, data)
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions.json"), updatedData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"item":    data,
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You updated this item!",
+		Item:    jobPositionResponse.Data,
 	}, nil
 }
 
 var JobPositionDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
-	JobPositionType := &structs.JobPositions{}
-	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions.json", JobPositionType)
 
-	if JobPositionDataErr != nil {
-		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
+	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
+		return shared.ErrorResponse("You must pass the item id"), nil
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		JobPositionData = shared.FilterByProperty(JobPositionData, "Id", itemId)
+	err := deleteJobPositions(itemId.(int))
+	if err != nil {
+		fmt.Printf("Deleting job position failed because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error deleting the id"), nil
 	}
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions.json"), JobPositionData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -89,52 +116,38 @@ var JobPositionDeleteResolver = func(params graphql.ResolveParams) (interface{},
 }
 
 var JobPositionInOrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.JobPositionsInOrganizationUnits
+	var jobPositionInOrganizationUnit *dto.GetJobPositionInOrganizationUnitsResponseMS
+	var err error
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	JobPositionType := &structs.JobPositionsInOrganizationUnits{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions_in_organization_units.json", JobPositionType)
-
-	if JobPositionDataErr != nil {
-		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
+	jobPositionInOrganizationUnit, err = createJobPositionsInOrganizationUnits(&data)
+	if err != nil {
+		fmt.Printf("Creating job position in organization unit failed because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error creating job position data"), nil
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		JobPositionData = shared.FilterByProperty(JobPositionData, "Id", itemId)
-	} else {
-		data.Id = shared.GetRandomNumber()
-	}
-
-	var updatedData = append(JobPositionData, data)
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions_in_organization_units.json"), updatedData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"item":    data,
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You updated this item!",
+		Item:    jobPositionInOrganizationUnit.Data,
 	}, nil
 }
 
 var JobPositionInOrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
-	JobPositionType := &structs.JobPositionsInOrganizationUnits{}
-	JobPositionData, JobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_positions_in_organization_units.json", JobPositionType)
 
-	if JobPositionDataErr != nil {
-		fmt.Printf("Fetching Job Positions failed because of this error - %s.\n", JobPositionDataErr)
+	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
+		return shared.ErrorResponse("You must pass the item id"), nil
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		JobPositionData = shared.FilterByProperty(JobPositionData, "Id", itemId)
+	err := deleteJobPositionsInOrganizationUnits(itemId.(int))
+	if err != nil {
+		fmt.Printf("Deleting job position in organization unit failed because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error deleting the id"), nil
 	}
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/job_positions_in_organization_units.json"), JobPositionData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -143,68 +156,171 @@ var JobPositionInOrganizationUnitDeleteResolver = func(params graphql.ResolvePar
 }
 
 var EmployeeInOrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.EmployeesInOrganizationUnits
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	EmployeeType := &structs.EmployeesInOrganizationUnits{}
-
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
 	_ = json.Unmarshal(dataBytes, &data)
 
+	userProfile, err := getUserProfileById(data.UserProfileId)
+	if err != nil {
+		fmt.Printf("Creating Employee In Organization Unit failed because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error updating Employee In Organization Unit data"), nil
+	}
+
+	data.UserAccountId = userProfile.UserAccountId
+
 	itemId := data.Id
-	userProfileId := data.UserProfileId
-	EmployeeData, EmployeeDataErr := shared.ReadJson(shared.GetDataRoot()+"/employees_in_organization_units.json", EmployeeType)
-
-	if EmployeeDataErr != nil {
-		fmt.Printf("Fetching Employees failed because of this error - %s.\n", EmployeeDataErr)
-	}
-
 	if shared.IsInteger(itemId) && itemId != 0 {
-		EmployeeData = shared.FilterByProperty(EmployeeData, "Id", itemId)
+		res, err := updateEmployeesInOrganizationUnits(itemId, &data)
+		if err != nil {
+			fmt.Printf("Updating Employee In Organization Unit failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error updating Employee In Organization Unit data"), nil
+		}
+		response.Item = res
+		response.Message = "You updated this item!"
 	} else {
-		data.Id = shared.GetRandomNumber()
+		res, err := createEmployeesInOrganizationUnits(&data)
+		if err != nil {
+			fmt.Printf("Creating Employee In Organization Unit failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error creating Employee In Organization Unit data"), nil
+		}
+		response.Item = res
+		response.Message = "You created this item!"
 	}
 
-	// # Related User Profile
-	var relatedUserProfile = shared.FetchByProperty(
-		"user_profile",
-		"Id",
-		userProfileId,
-	)
-
-	if len(relatedUserProfile) > 0 {
-		userProfile := shared.WriteStructToInterface(relatedUserProfile[0])
-		data.UserAccountId = userProfile["user_account_id"].(int)
-	}
-
-	var updatedData = append(EmployeeData, data)
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/employees_in_organization_units.json"), updatedData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"item":    data,
-	}, nil
+	return response, nil
 }
 
 var EmployeeInOrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"]
-	EmployeeType := &structs.EmployeesInOrganizationUnits{}
-	EmployeeData, EmployeeDataErr := shared.ReadJson(shared.GetDataRoot()+"/employees_in_organization_units.json", EmployeeType)
 
-	if EmployeeDataErr != nil {
-		fmt.Printf("Fetching Employees failed because of this error - %s.\n", EmployeeDataErr)
+	err := deleteEmployeeInOrganizationUnit(itemId.(int))
+	if err != nil {
+		fmt.Printf("Deleting Employee In Organization Unit failed because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error deleting the id"), nil
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		EmployeeData = shared.FilterByProperty(EmployeeData, "Id", itemId)
-	}
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/employees_in_organization_units.json"), EmployeeData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You deleted this item!",
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
 	}, nil
+}
+
+func getJobPositionById(id int) (*dto.GetJobPositionResponseMS, error) {
+	res := &dto.GetJobPositionResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.JOB_POSITIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func getJobPositions(input *dto.GetJobPositionsInput) (*dto.GetJobPositionsResponseMS, error) {
+	res := &dto.GetJobPositionsResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.JOB_POSITIONS_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func updateJobPositions(id int, data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error) {
+	res := &dto.GetJobPositionResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.JOB_POSITIONS_ENDPOINT+"/"+strconv.Itoa(id), data, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func createJobPositions(data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error) {
+	res := &dto.GetJobPositionResponseMS{}
+	_, err := shared.MakeAPIRequest("POST", config.JOB_POSITIONS_ENDPOINT, data, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func deleteJobPositions(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.JOB_POSITIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createJobPositionsInOrganizationUnits(data *structs.JobPositionsInOrganizationUnits) (*dto.GetJobPositionInOrganizationUnitsResponseMS, error) {
+	res := &dto.GetJobPositionInOrganizationUnitsResponseMS{}
+	_, err := shared.MakeAPIRequest("POST", config.JOB_POSITIONS_IN_ORGANIZATION_UNITS_ENDPOINT, data, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func getJobPositionsInOrganizationUnitsById(id int) (*structs.JobPositionsInOrganizationUnits, error) {
+	res := &dto.GetJobPositionInOrganizationUnitsResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.JOB_POSITIONS_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func deleteJobPositionsInOrganizationUnits(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.JOB_POSITIONS_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getJobPositionsInOrganizationUnits(input *dto.GetJobPositionInOrganizationUnitsInput) (*dto.GetJobPositionsInOrganizationUnitsResponseMS, error) {
+	res := &dto.GetJobPositionsInOrganizationUnitsResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.JOB_POSITIONS_IN_ORGANIZATION_UNITS_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func createEmployeesInOrganizationUnits(data *structs.EmployeesInOrganizationUnits) (*structs.EmployeesInOrganizationUnits, error) {
+	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
+	_, err := shared.MakeAPIRequest("POST", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT, data, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func updateEmployeesInOrganizationUnits(id int, data *structs.EmployeesInOrganizationUnits) (*structs.EmployeesInOrganizationUnits, error) {
+	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), data, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func deleteEmployeeInOrganizationUnit(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

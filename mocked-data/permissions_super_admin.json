@@ -12,26 +12,6 @@
   {
     "create": true,
     "delete": true,
-    "id": 11,
-    "parent_id": 1,
-    "read": true,
-    "route": "/finance/budget",
-    "title": "Budžet",
-    "update": true
-  },
-  {
-    "create": true,
-    "delete": true,
-    "id": 12,
-    "parent_id": 1,
-    "read": true,
-    "route": "/finance/current-budget",
-    "title": "Trenutni budžet",
-    "update": true
-  },
-  {
-    "create": true,
-    "delete": true,
     "id": 2,
     "parent_id": 0,
     "read": true,

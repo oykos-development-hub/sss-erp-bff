@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bff/config"
 	"bff/fields"
 	"bytes"
 	"context"
 	"fmt"
+
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -109,6 +111,9 @@ func main() {
 			"systematizations_Insert":                         fields.SystematizationInsertField,
 			"systematizations_Delete":                         fields.SystematizationDeleteField,
 			"userProfile_Basic_Insert":                        fields.UserProfileBasicInsertField,
+			"userProfile_Update":                              fields.UserProfileUpdateField,
+			"userProfile_Contract_Insert":                     fields.UserProfileContractInsertField,
+			"userProfile_Contract_Delete":                     fields.UserProfileContractDeleteField,
 			"userProfile_Education_Insert":                    fields.UserProfileEducationInsertField,
 			"userProfile_Education_Delete":                    fields.UserProfileEducationDeleteField,
 			"userProfile_Experience_Insert":                   fields.UserProfileExperienceInsertField,
@@ -121,6 +126,8 @@ func main() {
 			"userProfile_SalaryParams_Delete":                 fields.UserProfileSalaryParamsDeleteField,
 			"userProfile_Evaluation_Insert":                   fields.UserProfileEvaluationInsertField,
 			"userProfile_Evaluation_Delete":                   fields.UserProfileEvaluationDeleteField,
+			"absentType_Insert":                               fields.AbsentTypeInsertField,
+			"absentType_Delete":                               fields.AbsentTypeDeleteField,
 			"userProfile_Absent_Insert":                       fields.UserProfileAbsentInsertField,
 			"userProfile_Absent_Delete":                       fields.UserProfileAbsentDeleteField,
 			"userProfile_Resolution_Insert":                   fields.UserProfileResolutionInsertField,
@@ -129,6 +136,8 @@ func main() {
 			"revisions_Delete":                                fields.RevisionDeleteField,
 			"judgeNorms_Insert":                               fields.JudgeNormsInsertField,
 			"judgeNorms_Delete":                               fields.JudgeNormsDeleteField,
+			"judgeResolutions_Insert":                         fields.JudgeResolutionsInsertField,
+			"judgeResolutions_Delete":                         fields.JudgeResolutionsDeleteField,
 			"publicProcurementPlan_Insert":                    fields.PublicProcurementPlanInsertField,
 			"publicProcurementPlan_Delete":                    fields.PublicProcurementPlanDeleteField,
 			"publicProcurementPlanItem_Insert":                fields.PublicProcurementPlanItemInsertField,
@@ -156,53 +165,44 @@ func main() {
 			"orderList_Receive":                               fields.OrderListReceiveField,
 			"orderList_Movement":                              fields.OrderListAssetMovementField,
 			"orderList_Delete":                                fields.OrderListDeleteField,
-			"orderListReceive_Delete":                         fields.OrderListReceiveDeleteField,
-			"orderListAssetMovement_Delete":                   fields.OrderListAssetMovementDeleteField,
-			"activities_Delete":                               fields.ActivitiesDeleteField,
-			"account_Delete":                                  fields.AccountDeleteField,
-			"program_Delete":                                  fields.ProgramDeleteField,
-			"budget_Delete":                                   fields.BudgetDeleteField,
-			"activities_Insert":                               fields.ActivitiesInsertField,
-			"account_Insert":                                  fields.AccountInsertField,
-			"program_Insert":                                  fields.ProgramInsertField,
-			"budget_Insert":                                   fields.BudgetInsertField,
-			"budget_Send":                                     fields.BudgetSendField,
-			"accountBudgetActivity_Insert":                    fields.AccountBudgetActivityInsertField,
+			"orderListReceiveDelete_Delete":                   fields.OrderListReceiveDeleteField,
+			"orderListAssetMovementDelete_Delete":             fields.OrderListAssetMovementDeleteField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootQuery",
 		Fields: graphql.Fields{
-			"login":                                              fields.LoginField,
-			"userAccount_Overview":                               fields.UserAccountField,
-			"settingsDropdown_Overview":                          fields.SettingsDropdownField,
-			"organizationUnits":                                  fields.OrganizationUnitsField,
-			"jobPositions":                                       fields.JobPositionsField,
-			"jobTenderTypes":                                     fields.JobTenderTypesField,
-			"jobTenders_Overview":                                fields.JobTendersOverviewField,
-			"jobTender_Details":                                  fields.JobTenderDetailsField,
-			"jobTender_Applications":                             fields.JobTenderApplicationsField,
-			"systematizations_Overview":                          fields.SystematizationsOverviewField,
-			"systematization_Details":                            fields.SystematizationDetailsField,
-			"userProfiles_Overview":                              fields.UserProfilesOverviewField,
-			"userProfile_Basic":                                  fields.UserProfileBasicField,
-			"userProfile_Education":                              fields.UserProfileEducationField,
-			"userProfile_Experience":                             fields.UserProfileExperienceField,
-			"userProfile_Family":                                 fields.UserProfileFamilyField,
-			"userProfile_Foreigner":                              fields.UserProfileForeignerField,
-			"userProfile_SalaryParams":                           fields.UserProfileSalaryParamsField,
-			"userProfile_Evaluation":                             fields.UserProfileEvaluationField,
-			"userProfile_Absent":                                 fields.UserProfileAbsentField,
-			"userProfile_Resolution":                             fields.UserProfileResolutionField,
-			"revisions_Overview":                                 fields.RevisionsOverviewField,
-			"revision_Details":                                   fields.RevisionDetailsField,
-			"judges_Overview":                                    fields.JudgesOverviewField,
-			"judgeResolutions_Overview":                          fields.JudgeResolutionsOverviewField,
-			"judgeResolution_Details":                            fields.JudgeResolutionDetailsField,
-			"publicProcurementPlans_Overview":                    fields.PublicProcurementPlansOverviewField,
-			"publicProcurementPlan_Details":                      fields.PublicProcurementPlanDetailsField,
-			"publicProcurementPlanItem_Details":                  fields.PublicProcurementPlanItemDetailsField,
-			"publicProcurementPlanItem_Limits":                   fields.PublicProcurementPlanItemLimitsField,
+			"login":                             fields.LoginField,
+			"pin":                               fields.PinField,
+			"userAccount_Overview":              fields.UserAccountField,
+			"settingsDropdown_Overview":         fields.SettingsDropdownField,
+			"organizationUnits":                 fields.OrganizationUnitsField,
+			"jobPositions":                      fields.JobPositionsField,
+			"jobTenderTypes":                    fields.JobTenderTypesField,
+			"jobTenders_Overview":               fields.JobTendersOverviewField,
+			"jobTender_Applications":            fields.JobTenderApplicationsField,
+			"systematizations_Overview":         fields.SystematizationsOverviewField,
+			"systematization_Details":           fields.SystematizationDetailsField,
+			"userProfiles_Overview":             fields.UserProfilesOverviewField,
+			"userProfile_Contracts":             fields.UserProfileContractsField,
+			"userProfile_Basic":                 fields.UserProfileBasicField,
+			"userProfile_Education":             fields.UserProfileEducationField,
+			"userProfile_Experience":            fields.UserProfileExperienceField,
+			"userProfile_Family":                fields.UserProfileFamilyField,
+			"userProfile_Foreigner":             fields.UserProfileForeignerField,
+			"userProfile_SalaryParams":          fields.UserProfileSalaryParamsField,
+			"userProfile_Evaluation":            fields.UserProfileEvaluationField,
+			"userProfile_Absent":                fields.UserProfileAbsentField,
+			"absentType":                        fields.AbsentTypeField,
+			"userProfile_Resolution":            fields.UserProfileResolutionField,
+			"revisions_Overview":                fields.RevisionsOverviewField,
+			"revision_Details":                  fields.RevisionDetailsField,
+			"judges_Overview":                   fields.JudgesOverviewField,
+			"judgeResolutions_Overview":         fields.JudgeResolutionsOverviewField,
+			"publicProcurementPlans_Overview":   fields.PublicProcurementPlansOverviewField,
+			"publicProcurementPlan_Details":     fields.PublicProcurementPlanDetailsField,
+			"publicProcurementPlanItem_Details": fields.PublicProcurementPlanItemDetailsField,
+			"publicProcurementPlanItem_Limits":  fields.PublicProcurementPlanItemLimitsField,
 			"publicProcurementOrganizationUnitArticles_Overview": fields.PublicProcurementOrganizationUnitArticlesOverviewField,
 			"publicProcurementOrganizationUnitArticles_Details":  fields.PublicProcurementOrganizationUnitArticlesDetailsField,
 			"publicProcurementContracts_Overview":                fields.PublicProcurementContractsOverviewField,
@@ -217,11 +217,6 @@ func main() {
 			"orderList_Overview":                                 fields.OrderListOverviewField,
 			"orderProcurementAvailableList_Overview":             fields.OrderProcurementAvailableField,
 			"recipientUsers_Overview":                            fields.RecipientUsersField,
-			"account_Overview":                                   fields.AccountOverviewField,
-			"accountBudgetActivity_Overview":                     fields.AccountBudgetActivityOverviewField,
-			"activities_Overview":                                fields.ActivitiesOverviewField,
-			"budget_Overview":                                    fields.BudgetOverviewField,
-			"programs_Overview":                                  fields.ProgramOverviewField,
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{
@@ -250,8 +245,23 @@ func main() {
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
 	// Insert the custom middleware handler
-	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(h)))
+	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(addResponseWriterToContext(h))))
 	// Start your HTTP server with the CORS-enabled handler
 	http.Handle("/", graphqlHandler)
 	_ = http.ListenAndServe(":8080", nil)
+}
+
+func addResponseWriterToContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), config.HttpResponseWriterKey, w)
+		// Retrieve the Authorization header value from the request
+		authHeader := r.Header.Get("Authorization")
+		// Add the bearer token as a header in the context
+		headers := map[string]string{
+			"Authorization": authHeader,
+		}
+		ctx = context.WithValue(ctx, config.HttpHeadersKey, headers)
+		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
 }

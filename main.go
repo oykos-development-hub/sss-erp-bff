@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -165,8 +164,18 @@ func main() {
 			"orderList_Receive":                               fields.OrderListReceiveField,
 			"orderList_Movement":                              fields.OrderListAssetMovementField,
 			"orderList_Delete":                                fields.OrderListDeleteField,
-			"orderListReceiveDelete_Delete":                   fields.OrderListReceiveDeleteField,
-			"orderListAssetMovementDelete_Delete":             fields.OrderListAssetMovementDeleteField,
+			"orderListReceive_Delete":                         fields.OrderListReceiveDeleteField,
+			"orderListAssetMovement_Delete":                   fields.OrderListAssetMovementDeleteField,
+			"activities_Delete":                               fields.ActivitiesDeleteField,
+			"account_Delete":                                  fields.AccountDeleteField,
+			"program_Delete":                                  fields.ProgramDeleteField,
+			"budget_Delete":                                   fields.BudgetDeleteField,
+			"activities_Insert":                               fields.ActivitiesInsertField,
+			"account_Insert":                                  fields.AccountInsertField,
+			"program_Insert":                                  fields.ProgramInsertField,
+			"budget_Insert":                                   fields.BudgetInsertField,
+			"budget_Send":                                     fields.BudgetSendField,
+			"accountBudgetActivity_Insert":                    fields.AccountBudgetActivityInsertField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -217,6 +226,11 @@ func main() {
 			"orderList_Overview":                                 fields.OrderListOverviewField,
 			"orderProcurementAvailableList_Overview":             fields.OrderProcurementAvailableField,
 			"recipientUsers_Overview":                            fields.RecipientUsersField,
+			"account_Overview":                                   fields.AccountOverviewField,
+			"accountBudgetActivity_Overview":                     fields.AccountBudgetActivityOverviewField,
+			"activities_Overview":                                fields.ActivitiesOverviewField,
+			"budget_Overview":                                    fields.BudgetOverviewField,
+			"programs_Overview":                                  fields.ProgramOverviewField,
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

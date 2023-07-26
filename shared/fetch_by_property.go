@@ -15,7 +15,7 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 	case "unit", "units", "organization_unit", "organization_units":
 		endpoint = "organization_units.json"
 		entityStruct = &structs.OrganizationUnits{}
-	case "account", "accounts", "user_account", "user_accounts":
+	case "user_account", "user_accounts":
 		endpoint = "user_accounts.json"
 		entityStruct = &structs.UserAccounts{}
 	case "profile", "profiles", "user_profile", "user_profiles":
@@ -135,9 +135,21 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 	case "order_procurement_article":
 		endpoint = "order_procurement_article.json"
 		entityStruct = &structs.OrderProcurementArticleItem{}
+	case "accounts", "account":
+		endpoint = "account.json"
+		entityStruct = &structs.AccountItem{}
+	case "activities":
+		endpoint = "activities.json"
+		entityStruct = &structs.ActivitiesItem{}
+	case "program":
+		endpoint = "program.json"
+		entityStruct = &structs.ProgramItem{}
+	case "account_budget_activity":
+		endpoint = "account_budget_activity.json"
+		entityStruct = &structs.AccountBudgetActivityItem{}
 	}
 
-	entityData, entityDataErr := ReadJson("http://localhost:8080/mocked-data/"+endpoint, entityStruct)
+	entityData, entityDataErr := ReadJson(GetDataRoot()+"/"+endpoint, entityStruct)
 
 	if entityDataErr != nil {
 		fmt.Printf("Fetching "+entity+" failed because of this error - %s.\n", entityDataErr)

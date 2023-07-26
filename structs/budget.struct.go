@@ -6,3 +6,11 @@ type BudgetIndent struct {
 	Title        string `json:"title"`
 	Abbreviation string `json:"abbreviation"`
 }
+
+type BudgetItem struct {
+	Id     int    `json:"id"`
+	Year   string `json:"year"`
+	Source string `json:"source"`
+	Type   string `json:"type"`
+	Status string `json:"status"`
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "type_id": "Test",
+    "square_area": 1,
+    "land_serial_number": "Test",
+    "estate_serial_number": "Test",
+    "ownership_type": "Test",
+    "ownership_scope": "Test",
+    "ownership_investment_scope": "Test",
+    "limitations_description": "Test",
+    "property_document": "Test",
+    "limitation_id": "Test",
+    "document": "Test",
+    "file_id": "123"
+  },
+  {
+    "id": 5,
+    "type_id": "Test",
+    "square_area": 5,
+    "land_serial_number": "5231",
+    "estate_serial_number": "54123",
+    "ownership_type": "Zuta",
+    "ownership_scope": "Crvena",
+    "ownership_investment_scope": "Test Juzna",
+    "limitations_description": "12",
+    "property_document": "Test",
+    "limitation_id": "Test",
+    "document": "Test",
+    "file_id": "324234"
+  },
+  {
+    "id": 28772,
+    "type_id": "NNS",
+    "square_area": 1,
+    "land_serial_number": "231324",
+    "estate_serial_number": "2312423",
+    "ownership_type": "sdw",
+    "ownership_scope": "sdw",
+    "ownership_investment_scope": "sdw",
+    "limitations_description": "sdw",
+    "property_document": "sdw",
+    "limitation_id": "sdw",
+    "document": "sdw",
+    "file_id": "sdw"
+  }
+]

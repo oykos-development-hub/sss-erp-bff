@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "title": "Sample Contract",
+    "type": {
+      "id": 4,
+      "title": "Ugovor na neodređeno",
+      "abbreviation": "UGND",
+      "color": "#000000",
+      "icon": "sample-icon.png"
+    },
+    "abbreviation": "SC",
+    "description": "This is a sample contract.",
+    "active": true,
+    "serial_number": "12345",
+    "net_salary": "1000",
+    "gross_salary": "1200",
+    "bank_account": "1234-5678-9012-3456",
+    "bank_name": "Sample Bank",
+    "date_of_signature": "2022-05-10",
+    "date_of_eligibility": "2022-06-01",
+    "date_of_start": "2022-07-01",
+    "date_of_end": "2023-06-30",
+    "color": "#000000",
+    "icon": "sample-icon.png",
+    "file_id": 1
+  }
+]

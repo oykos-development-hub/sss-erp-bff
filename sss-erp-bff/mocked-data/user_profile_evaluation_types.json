@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "title": "Finansijska procena",
+    "abbreviation": "FIN",
+    "value": "Procena finansijskog stanja kompanije",
+    "description": "Ova vrsta procene se fokusira na finansijski aspekt kompanije i pruža uvid u njen ukupni finansijski status, kao i u mogućnosti za dalji razvoj i investicije.",
+    "color": "#4CAF50",
+    "icon": "fas fa-chart-line"
+  },
+  {
+    "id": 2,
+    "title": "Organizaciona procena",
+    "abbreviation": "ORG",
+    "value": "Procena organizacione strukture i efikasnosti",
+    "description": "Ova vrsta procene se fokusira na organizacionu strukturu kompanije i na to kako ona utiče na efikasnost poslovanja. Pruža uvid u procese i procedure, kao i u organizacionu kulturu kompanije.",
+    "color": "#FFC107",
+    "icon": "fas fa-sitemap"
+  },
+  {
+    "id": 3,
+    "title": "Marketinška procena",
+    "abbreviation": "MRK",
+    "value": "Procena marketinškog položaja kompanije",
+    "description": "Ova vrsta procene se fokusira na marketinški položaj kompanije i pruža uvid u marketinšku strategiju, kao i u način na koji kompanija komunicira sa svojim klijentima i tržištem uopšte.",
+    "color": "#2196F3",
+    "icon": "fas fa-bullhorn"
+  }
+]

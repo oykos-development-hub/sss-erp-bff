@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "budget_indent_id": 5,
+    "public_procurement_id": 2,
+    "title": "Article 1",
+    "description": "description",
+    "net_price": "55.80",
+    "vat_percentage": "21"
+  },
+  {
+    "id": 2,
+    "budget_indent_id": 5,
+    "public_procurement_id": 1,
+    "title": "Article 2",
+    "description": "description",
+    "net_price": "27.00",
+    "vat_percentage": "13"
+  }
+]

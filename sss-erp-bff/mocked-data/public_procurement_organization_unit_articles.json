@@ -1,0 +1,38 @@
+[
+  {
+    "id": 2,
+    "public_procurement_article_id": 1,
+    "organization_unit_id": 3,
+    "amount": 5,
+    "status": "rejected",
+    "is_rejected": true,
+    "rejected_description": "rejected_description"
+  },
+  {
+    "id": 3,
+    "public_procurement_article_id": 2,
+    "organization_unit_id": 2,
+    "amount": 4,
+    "status": "",
+    "is_rejected": false,
+    "rejected_description": "rejected_description"
+  },
+  {
+    "id": 4451,
+    "public_procurement_article_id": 1,
+    "organization_unit_id": 2,
+    "amount": 0,
+    "status": "accepted",
+    "is_rejected": false,
+    "rejected_description": ""
+  },
+  {
+    "id": 52532,
+    "public_procurement_article_id": 3,
+    "organization_unit_id": 2,
+    "amount": 10,
+    "status": "accepted",
+    "is_rejected": false,
+    "rejected_description": ""
+  }
+]

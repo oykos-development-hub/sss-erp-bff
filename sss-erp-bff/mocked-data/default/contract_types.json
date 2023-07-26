@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "title": "Ugovor o djelu",
+    "abbreviation": "UGDJ",
+    "color": "#000000",
+    "icon": "sample-icon.png"
+  },
+  {
+    "id": 2,
+    "title": "Ugovor o povremenim poslovima",
+    "abbreviation": "UGPP",
+    "color": "#000000",
+    "icon": "sample-icon.png"
+  },
+  {
+    "id": 3,
+    "title": "Ugovor na određeno",
+    "abbreviation": "UGOD",
+    "color": "#000000",
+    "icon": "sample-icon.png"
+  },
+  {
+    "id": 4,
+    "title": "Ugovor na neodređeno",
+    "abbreviation": "UGND",
+    "color": "#000000",
+    "icon": "sample-icon.png"
+  }
+]

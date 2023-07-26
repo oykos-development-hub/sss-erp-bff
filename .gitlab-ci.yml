@@ -32,7 +32,7 @@ push_to_github:
     - git clone git@github.com:oykos-development-hub/sss-erp-bff.git
     - cd sss-erp-bff
     - git checkout development
-    - rsync -av --exclude='.git' "$CI_PROJECT_DIR/" ./
+    - rsync -av --exclude='.git' --include='.env' "$CI_PROJECT_DIR/" ./
     - git add .
     - git config --global user.email "hub@oykos.me"
     - git config --global user.name "oykos-development-hub"

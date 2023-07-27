@@ -51,7 +51,7 @@ jobs:
               fi
               cd ../../
               pm2 delete ${{vars.GIT_REPO}}
-              echo "module.exports = { apps: [ { name: '${{vars.GIT_REPO}}', script: './bff', args: 'development --port 8080', watch: true, } ] };" > ecosystem.config.js
+              echo "module.exports = { apps: [ { name: '${{vars.GIT_REPO}}', script: './bff', args: 'development', watch: true } ] };" > ecosystem.config.js
               pm2 start ecosystem.config.js
               pm2 save
               

@@ -208,7 +208,7 @@ func buildOrganizationUnitOverviewResponse(
 		Abbreviation:   organizationUnits.Abbreviation,
 		Color:          organizationUnits.Color,
 		Description:    organizationUnits.Description,
-		Address:        *organizationUnits.Address,
+		Address:        organizationUnits.Address,
 		Icon:           organizationUnits.Icon,
 		Children:       &organizationUnitsChildrenResponse.Data,
 		FolderId:       organizationUnits.FolderId,

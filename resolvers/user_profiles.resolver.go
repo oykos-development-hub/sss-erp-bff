@@ -266,13 +266,15 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 		}
 	}
 
-	employeesInOrganizationUnits.UserAccountId = userAccountRes.Id
-	employeesInOrganizationUnits.UserProfileId = userProfileRes.Id
-	employeesInOrganizationUnits.Active = true
-	_, err = createEmployeesInOrganizationUnits(&employeesInOrganizationUnits)
-	if err != nil {
-		fmt.Printf("Inserting employees in organization unit failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error creating the employees in organization unit data"), nil
+	if employeesInOrganizationUnits.PositionInOrganizationUnitId != 0 {
+		employeesInOrganizationUnits.UserAccountId = userAccountRes.Id
+		employeesInOrganizationUnits.UserProfileId = userProfileRes.Id
+		employeesInOrganizationUnits.Active = true
+		_, err = createEmployeesInOrganizationUnits(&employeesInOrganizationUnits)
+		if err != nil {
+			fmt.Printf("Inserting employees in organization unit failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error creating the employees in organization unit data"), nil
+		}
 	}
 
 	res, err := buildUserProfileBasicResponse(userProfileRes)
@@ -663,24 +665,35 @@ func buildUserProfileBasicResponse(
 		return nil, err
 	}
 
+	var (
+		jobPosition                     *structs.JobPositions
+		organizationUnit                *structs.OrganizationUnits
+		jobPositionInOrganizationUnitID int
+	)
+
 	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(profile.Id)
 	if err != nil {
-		return nil, err
+		if apiErr, ok := err.(*shared.APIError); ok && apiErr.StatusCode != 404 {
+			return nil, err
+		}
 	}
 
-	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
+	if employeesInOrganizationUnit != nil {
+		jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
+		jobPositionInOrganizationUnitID = jobPositionInOrganizationUnit.Id
 
-	jobPosition, err := getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
-	if err != nil {
-		return nil, err
-	}
+		jobPosition, err = getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
+		if err != nil {
+			return nil, err
+		}
 
-	organizationUnit, err := getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
-	if err != nil {
-		return nil, err
+		organizationUnit, err = getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	contracts, err := getEmployeeContracts(profile.Id, nil)
@@ -721,10 +734,10 @@ func buildUserProfileBasicResponse(
 		DateOfBecomingJudge:           profile.DateOfBecomingJudge,
 		Email:                         account.Email,
 		Phone:                         account.Phone,
-		OrganizationUnit:              *organizationUnit,
-		JobPosition:                   *jobPosition,
+		OrganizationUnit:              organizationUnit,
+		JobPosition:                   jobPosition,
 		Contracts:                     contractResponseItems,
-		JobPositionInOrganizationUnit: jobPositionInOrganizationUnit.Id,
+		JobPositionInOrganizationUnit: jobPositionInOrganizationUnitID,
 	}, nil
 }
 

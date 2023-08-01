@@ -101,7 +101,7 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 			Type: graphql.String,
 		},
 		"position_in_organization_unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"role_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,

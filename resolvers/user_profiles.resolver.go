@@ -85,6 +85,7 @@ var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface
 			}
 
 			items = append(items, *resItem)
+
 		}
 	}
 
@@ -122,6 +123,11 @@ var UserProfileContractsResolver = func(params graphql.ResolveParams) (interface
 func buildUserProfileOverviewResponse(
 	profile *structs.UserProfiles,
 ) (*dto.UserProfileOverviewResponse, error) {
+	var (
+		organizationUnitDropdown structs.SettingsDropdown
+		jobPositionDropdown      structs.SettingsDropdown
+		isJudge, isJudgePresdent bool
+	)
 	account, err := GetUserAccountById(profile.UserAccountId)
 	if err != nil {
 		return nil, err
@@ -132,24 +138,29 @@ func buildUserProfileOverviewResponse(
 		return nil, err
 	}
 
-	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(profile.Id)
-	if err != nil {
-		return nil, err
-	}
+	employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitsByProfileId(profile.Id)
 
-	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
+	if employeesInOrganizationUnit != nil {
+		jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
 
-	jobPosition, err := getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
-	if err != nil {
-		return nil, err
-	}
+		jobPosition, err := getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
+		if err != nil {
+			return nil, err
+		}
+		jobPositionDropdown.Id = jobPosition.Id
+		jobPositionDropdown.Title = jobPosition.Title
+		isJudge = jobPosition.IsJudge
+		isJudgePresdent = jobPosition.IsJudgePresident
 
-	organizationUnit, err := getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
-	if err != nil {
-		return nil, err
+		organizationUnit, err := getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
+		organizationUnitDropdown.Id = organizationUnit.Id
+		organizationUnitDropdown.Title = organizationUnit.Title
 	}
 
 	return &dto.UserProfileOverviewResponse{
@@ -160,22 +171,16 @@ func buildUserProfileOverviewResponse(
 		Email:            account.Email,
 		Phone:            account.Phone,
 		Active:           account.Active,
-		IsJudge:          jobPosition.IsJudge,
-		IsJudgePresident: jobPosition.IsJudgePresident,
+		IsJudge:          isJudge,
+		IsJudgePresident: isJudgePresdent,
 		Role: structs.SettingsDropdown{
 			Id:    role.Id,
 			Title: role.Title,
 		},
-		OrganizationUnit: structs.SettingsDropdown{
-			Id:    organizationUnit.Id,
-			Title: organizationUnit.Title,
-		},
-		JobPosition: structs.SettingsDropdown{
-			Id:    jobPosition.Id,
-			Title: jobPosition.Title,
-		},
-		CreatedAt: profile.CreatedAt,
-		UpdatedAt: profile.UpdatedAt,
+		OrganizationUnit: organizationUnitDropdown,
+		JobPosition:      jobPositionDropdown,
+		CreatedAt:        profile.CreatedAt,
+		UpdatedAt:        profile.UpdatedAt,
 	}, nil
 }
 
@@ -671,7 +676,7 @@ func buildUserProfileBasicResponse(
 		jobPositionInOrganizationUnitID int
 	)
 
-	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(profile.Id)
+	employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitsByProfileId(profile.Id)
 	if err != nil {
 		if apiErr, ok := err.(*shared.APIError); ok && apiErr.StatusCode != 404 {
 			return nil, err
@@ -781,7 +786,7 @@ func getUserProfiles(input *dto.GetUserProfilesInput) ([]*structs.UserProfiles, 
 }
 
 func getUserProfileByUserAccountID(accountID int) (*structs.UserProfiles, error) {
-	input := &dto.GetUserProfilesInput{AccountID: accountID}
+	input := &dto.GetUserProfilesInput{AccountID: &accountID}
 	res := &dto.GetUserProfileListResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT, input, res)
 	if err != nil {

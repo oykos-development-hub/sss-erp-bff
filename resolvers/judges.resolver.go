@@ -12,7 +12,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/graphql-go/graphql"
 )
 
@@ -127,8 +126,6 @@ func buildJudgeResponseItem(userProfileID, organizationUnitID, jobPositionId int
 	if err != nil {
 		return nil, err
 	}
-
-	spew.Dump(normResItemList)
 
 	return &dto.Judges{
 		ID:               userProfile.Id,

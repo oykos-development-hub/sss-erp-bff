@@ -47,7 +47,24 @@ type Judges struct {
 	CreatedAt        string                   `json:"created_at"`
 	UpdatedAt        string                   `json:"updated_at"`
 	FolderID         *int                     `json:"folder_id"`
-	Norms            []structs.JudgeNorms     `json:"norms"`
+	Norms            []*NormResItem           `json:"norms"`
+}
+
+type NormResItem struct {
+	Id                       int                `json:"id"`
+	UserProfileId            int                `json:"user_profile_id"`
+	Topic                    string             `json:"topic"`
+	Title                    string             `json:"title"`
+	PercentageOfNormDecrease int                `json:"percentage_of_norm_decrease"`
+	NumberOfNormDecrease     int                `json:"number_of_norm_decrease"`
+	NumberOfItems            int                `json:"number_of_items"`
+	NumberOfItemsSolved      int                `json:"number_of_items_solved"`
+	Evaluation               structs.Evaluation `json:"evaluation"`
+	DateOfEvaluationValidity structs.JSONDate   `json:"date_of_evaluation_validity"`
+	FileID                   int                `json:"file_id"`
+	Relocation               structs.Absent     `json:"relocation"`
+	CreatedAt                string             `json:"created_at"`
+	UpdatedAt                string             `json:"updated_at"`
 }
 
 type GetEmployeeNormListResponseMS struct {

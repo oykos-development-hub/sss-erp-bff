@@ -32,21 +32,15 @@ var JudgeNormItemType = graphql.NewObject(graphql.ObjectConfig{
 		"number_of_items_solved": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"evaluation_id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"date_of_evaluation": &graphql.Field{
-			Type: graphql.String,
+		"evaluation": &graphql.Field{
+			Type: UserProfileEvaluationItemType,
 		},
 		"date_of_evaluation_validity": &graphql.Field{
 			Type: graphql.String,
 		},
-		"relocation_id": &graphql.Field{
-			Type: graphql.String,
+		"relocation": &graphql.Field{
+			Type: UserProfileAbsentItemType,
 		},
-		// "relocation": &graphql.Field{
-		// 	Type: UserProfileAbsentItemType,
-		// },
 		"file_id": &graphql.Field{
 			Type: graphql.Int,
 		},

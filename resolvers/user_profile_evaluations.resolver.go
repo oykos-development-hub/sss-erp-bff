@@ -95,6 +95,16 @@ func getEmployeeEvaluations(userProfileID int) ([]*structs.Evaluation, error) {
 	return res.Data, nil
 }
 
+func getEvaluation(evaulationID int) (*structs.Evaluation, error) {
+	res := &dto.GetEvaluationResponse{}
+	_, err := shared.MakeAPIRequest("GET", config.EVALUATIONS+"/"+strconv.Itoa(evaulationID), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
 func updateEmployeeEvaluation(id int, evaluation *structs.Evaluation) (*structs.Evaluation, error) {
 	res := dto.GetEvaluationResponse{}
 	_, err := shared.MakeAPIRequest("PUT", config.EVALUATIONS+"/"+strconv.Itoa(id), evaluation, &res)

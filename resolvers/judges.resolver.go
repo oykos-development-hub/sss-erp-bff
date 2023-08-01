@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/graphql-go/graphql"
 )
 
@@ -49,20 +50,22 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 		}
 
 		for _, jobPositionInOrganizationUnit := range jobPositionInOrganizationUnits.Data {
+			isActive := true
 			input := dto.GetEmployeesInOrganizationUnitInput{
 				PositionInOrganizationUnit: &jobPositionInOrganizationUnit.Id,
+				Active:                     &isActive,
 			}
-			employeeInOrganizationUnit, err := getEmployeesInOrganizationUnitList(&input)
+			employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitList(&input)
 			if err != nil {
 				return dto.ErrorResponse(err), nil
 			}
 
-			if len(employeeInOrganizationUnit) > 0 {
-				if id != nil && id.(int) > 0 && employeeInOrganizationUnit[0].UserProfileId != id.(int) {
+			for _, employeeInOrganizationUnit := range employeesInOrganizationUnit {
+				if id != nil && id.(int) > 0 && employeeInOrganizationUnit.UserProfileId != id.(int) {
 					continue
 				}
 				judgeResponse, err := buildJudgeResponseItem(
-					employeeInOrganizationUnit[0].UserProfileId,
+					employeeInOrganizationUnit.UserProfileId,
 					jobPositionInOrganizationUnit.ParentOrganizationUnitId,
 					jobPosition.Id,
 				)
@@ -120,6 +123,13 @@ func buildJudgeResponseItem(userProfileID, organizationUnitID, jobPositionId int
 		return nil, err
 	}
 
+	normResItemList, err := buildNormResItemList(norms)
+	if err != nil {
+		return nil, err
+	}
+
+	spew.Dump(normResItemList)
+
 	return &dto.Judges{
 		ID:               userProfile.Id,
 		FirstName:        userProfile.FirstName,
@@ -127,11 +137,66 @@ func buildJudgeResponseItem(userProfileID, organizationUnitID, jobPositionId int
 		IsJudgePresident: jobPosition.Data.IsJudgePresident,
 		OrganizationUnit: organizationUnitDropdown,
 		JobPosition:      jobPositionDropdown,
-		Norms:            norms,
+		Norms:            normResItemList,
 		FolderID:         userAccount.FolderId,
 		CreatedAt:        userProfile.CreatedAt,
 		UpdatedAt:        userProfile.UpdatedAt,
 	}, nil
+}
+
+func buildNormResItemList(norms []structs.JudgeNorms) ([]*dto.NormResItem, error) {
+	var normResItems []*dto.NormResItem
+
+	for _, norm := range norms {
+		normResItem, err := buildNormResItem(norm)
+		if err != nil {
+			return nil, err
+		}
+
+		normResItems = append(normResItems, normResItem)
+	}
+
+	return normResItems, nil
+}
+
+func buildNormResItem(norm structs.JudgeNorms) (*dto.NormResItem, error) {
+	normResItem := &dto.NormResItem{
+		Id:                       norm.Id,
+		UserProfileId:            norm.UserProfileId,
+		Topic:                    norm.Topic,
+		Title:                    norm.Title,
+		PercentageOfNormDecrease: norm.PercentageOfNormDecrease,
+		NumberOfNormDecrease:     norm.NumberOfNormDecrease,
+		NumberOfItems:            norm.NumberOfItems,
+		NumberOfItemsSolved:      norm.NumberOfItemsSolved,
+		DateOfEvaluationValidity: norm.DateOfEvaluationValidity,
+		FileID:                   norm.FileID,
+		CreatedAt:                norm.CreatedAt,
+		UpdatedAt:                norm.UpdatedAt,
+	}
+	evaluation, err := getEvaluation(norm.EvaluationID)
+	if err != nil {
+		return nil, err
+	}
+	evaluationType, err := getDropdownSettingById(evaluation.EvaluationTypeId)
+	if err != nil {
+		return nil, err
+	}
+	evaluation.EvaluationType = *evaluationType
+	normResItem.Evaluation = *evaluation
+
+	relocation, err := getAbsentById(norm.RelocationID)
+	if err != nil {
+		return nil, err
+	}
+	relocationResItem, err := buildAbsentResponseItem(*relocation)
+	if err != nil {
+		return nil, err
+	}
+
+	normResItem.Relocation = *relocationResItem
+
+	return normResItem, nil
 }
 
 var JudgeNormInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {

@@ -1,6 +1,8 @@
 package dto
 
-import "bff/structs"
+import (
+	"bff/structs"
+)
 
 type GetUserProfileResponseMS struct {
 	Data structs.UserProfiles `json:"data"`

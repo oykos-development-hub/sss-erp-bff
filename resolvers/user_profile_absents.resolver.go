@@ -85,6 +85,24 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 	}, nil
 }
 
+func buildAbsentResponseItem(absent structs.Absent) (*structs.Absent, error) {
+	absentType, err := getAbsentTypeById(absent.AbsentTypeId)
+	if err != nil {
+		return nil, err
+	}
+	absent.AbsentType = *absentType
+
+	if absent.TargetOrganizationUnitID != 0 {
+		organizationUnit, err := getOrganizationUnitById(absent.TargetOrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+		absent.TargetOrganizationUnit = organizationUnit
+	}
+
+	return &absent, nil
+}
+
 func getTakenVacationDaysBeforeAndAfterJuly(startDate structs.JSONDate, endDate structs.JSONDate) (int, int) {
 	start, _ := startDate.ToTime()
 	end, _ := endDate.ToTime()
@@ -241,4 +259,14 @@ func getEmployeeAbsents(userProfileID int, input *dto.EmployeeAbsentsInput) ([]*
 	}
 
 	return res.Data, nil
+}
+
+func getAbsentById(absentID int) (*structs.Absent, error) {
+	res := &dto.GetAbsentResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.EMPLOYEE_ABSENTS+"/"+strconv.Itoa(absentID), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
 }

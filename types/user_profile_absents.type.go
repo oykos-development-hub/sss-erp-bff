@@ -11,7 +11,7 @@ var UserProfileAbsentItemType = graphql.NewObject(graphql.ObjectConfig{
 		"user_profile_id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"vacation_type": &graphql.Field{
+		"absent_type": &graphql.Field{
 			Type: DropdownItemType,
 		},
 		"location": &graphql.Field{

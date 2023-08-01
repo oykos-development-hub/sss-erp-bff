@@ -22,22 +22,22 @@ type LoginResponseMS struct {
 }
 
 type LoginResponse struct {
-	Status              string      `json:"status"`
-	Message             string      `json:"message"`
-	RoleId              int         `json:"role_id"`
-	FolderId            int         `json:"folder_id"`
-	Email               string      `json:"email"`
-	Phone               string      `json:"phone"`
-	Token               string      `json:"token"`
-	CreatedAt           string      `json:"created_at"`
-	FirstName           string      `json:"first_name"`
-	LastName            string      `json:"last_name"`
-	BirthLastName       string      `json:"birth_last_name"`
-	Gender              string      `json:"gender"`
-	DateOfBecomingJudge string      `json:"date_of_becoming_judge"`
-	Permissions         interface{} `json:"permissions"`
-	Contract            interface{} `json:"contract"`
-	Engagement          interface{} `json:"engagement"`
-	JobPosition         interface{} `json:"job_position"`
-	OrganizationUnit    interface{} `json:"organization_unit"`
+	Status              string                     `json:"status"`
+	Message             string                     `json:"message"`
+	RoleId              int                        `json:"role_id"`
+	FolderId            int                        `json:"folder_id"`
+	Email               string                     `json:"email"`
+	Phone               string                     `json:"phone"`
+	Token               string                     `json:"token"`
+	CreatedAt           string                     `json:"created_at"`
+	FirstName           string                     `json:"first_name"`
+	LastName            string                     `json:"last_name"`
+	BirthLastName       string                     `json:"birth_last_name"`
+	Gender              string                     `json:"gender"`
+	DateOfBecomingJudge string                     `json:"date_of_becoming_judge"`
+	Permissions         interface{}                `json:"permissions"`
+	Contract            *structs.Contracts         `json:"contract"`
+	Engagement          *structs.SettingsDropdown  `json:"engagement"`
+	JobPosition         *structs.JobPositions      `json:"job_position"`
+	OrganizationUnit    *structs.OrganizationUnits `json:"organization_unit"`
 }

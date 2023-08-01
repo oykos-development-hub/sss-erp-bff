@@ -114,8 +114,8 @@ func buildJudgeResponseItem(userProfileID, organizationUnitID, jobPositionId int
 		return nil, err
 	}
 	jobPositionDropdown := structs.SettingsDropdown{
-		Id:    jobPosition.Data.Id,
-		Title: jobPosition.Data.Title,
+		Id:    jobPosition.Id,
+		Title: jobPosition.Title,
 	}
 
 	norms, err := getJudgeNormListByEmployee(userProfile.Id)
@@ -134,7 +134,7 @@ func buildJudgeResponseItem(userProfileID, organizationUnitID, jobPositionId int
 		ID:               userProfile.Id,
 		FirstName:        userProfile.FirstName,
 		LastName:         userProfile.LastName,
-		IsJudgePresident: jobPosition.Data.IsJudgePresident,
+		IsJudgePresident: jobPosition.IsJudgePresident,
 		OrganizationUnit: organizationUnitDropdown,
 		JobPosition:      jobPositionDropdown,
 		Norms:            normResItemList,
@@ -437,7 +437,7 @@ func calculateEmployeeStats(id int) (int, int, int, int, error) {
 		}
 		numberOfEmployees += len(employeesInOrganizationUnit)
 
-		if jobPosition.Data.IsJudge {
+		if jobPosition.IsJudge {
 			numOfRelocatedJudges, err := getNumberOfRelocatedJudges(employeesInOrganizationUnit)
 			if err != nil {
 				return 0, 0, 0, 0, err
@@ -445,7 +445,7 @@ func calculateEmployeeStats(id int) (int, int, int, int, error) {
 			totalRelocations += numOfRelocatedJudges
 			numberOfJudges += len(employeesInOrganizationUnit)
 		}
-		if jobPosition.Data.IsJudgePresident {
+		if jobPosition.IsJudgePresident {
 			numberOfJudgePresidents += len(employeesInOrganizationUnit)
 		}
 	}

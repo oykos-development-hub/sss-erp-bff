@@ -22,6 +22,11 @@ type GetEmployeeExperienceListResponseMS struct {
 
 type GetUserProfilesInput struct {
 	IsRevisor *bool `json:"is_revisor"`
+	AccountID int   `json:"account_id"`
+}
+
+type GetEmployeeContracts struct {
+	Active *bool `json:"active"`
 }
 
 type GetUserProfileListResponseMS struct {

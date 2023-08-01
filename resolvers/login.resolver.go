@@ -15,12 +15,16 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	email := p.Args["email"].(string)
 	password := p.Args["password"].(string)
 
+	var (
+		engagement       *structs.SettingsDropdown
+		contractsResItem *structs.Contracts
+		jobPosition      *structs.JobPositions
+		organizationUnit *structs.OrganizationUnits
+	)
+
 	loginRes, cookies, err := loginUser(email, password)
 	if err != nil {
-		return dto.LoginResponse{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return dto.ErrorResponse(err), nil
 	}
 
 	httpResponseWriter := p.Context.Value((config.HttpResponseWriterKey)).(http.ResponseWriter)
@@ -35,36 +39,30 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		fmt.Printf("Fetching permissions failed because of this error - %s.\n", permissionsDataErr)
 	}
 
-	ContractsType := &structs.Contracts{}
-	contractsData, contractsDataErr := shared.ReadJson(shared.GetDataRoot()+"/contract_unlimited_type.json", ContractsType)
+	userProfile, _ := getUserProfileByUserAccountID(loginRes.Data.Id)
 
-	if contractsDataErr != nil {
-		fmt.Printf("Fetching contracts failed because of this error - %s.\n", contractsDataErr)
-		contractsData = []interface{}{}
+	isActive := true
+	contracts, _ := getEmployeeContracts(userProfile.Id, &dto.GetEmployeeContracts{Active: &isActive})
+
+	if len(contracts) != 1 {
+		fmt.Printf("employee must have exactly one active contract assigned")
+	} else {
+		contractsResItem, _ = buildContractResponseItem(*contracts[0])
 	}
 
-	EngagementsType := &structs.EngagementType{}
-	engagementsData, engagementsDataErr := shared.ReadJson(shared.GetDataRoot()+"/engagement_officer_type.json", EngagementsType)
-
-	if engagementsDataErr != nil {
-		fmt.Printf("Fetching engagements failed because of this error - %s.\n", engagementsDataErr)
-		engagementsData = []interface{}{}
+	if userProfile.EngagementTypeId != nil {
+		engagement, err = getDropdownSettingById(*userProfile.EngagementTypeId)
+		if err != nil {
+			return dto.ErrorResponse(err), nil
+		}
 	}
 
-	JobPositionType := &structs.JobPositions{}
-	jobPositionData, jobPositionDataErr := shared.ReadJson(shared.GetDataRoot()+"/job_position_it_admin.json", JobPositionType)
+	employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitsByProfileId(userProfile.Id)
+	if employeesInOrganizationUnit != nil {
+		jobPositionInOrganizationUnit, _ := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
 
-	if jobPositionDataErr != nil {
-		fmt.Printf("Fetching job positions failed because of this error - %s.\n", jobPositionDataErr)
-		jobPositionData = []interface{}{}
-	}
-
-	OrganizationUnitType := &structs.OrganizationUnits{}
-	organizationUnitData, organizationUnitDataErr := shared.ReadJson(shared.GetDataRoot()+"/organization_unit_sss.json", OrganizationUnitType)
-
-	if organizationUnitDataErr != nil {
-		fmt.Printf("Fetching organization units failed because of this error - %s.\n", organizationUnitDataErr)
-		organizationUnitData = []interface{}{}
+		jobPosition, _ = getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
+		organizationUnit, _ = getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
 	}
 
 	return dto.LoginResponse{
@@ -82,10 +80,10 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		Gender:              "Male",
 		DateOfBecomingJudge: "2022-01-01",
 		Permissions:         permissionsData,
-		Contract:            contractsData[0],
-		Engagement:          engagementsData[0],
-		JobPosition:         jobPositionData[0],
-		OrganizationUnit:    organizationUnitData[0],
+		Contract:            contractsResItem,
+		Engagement:          engagement,
+		JobPosition:         jobPosition,
+		OrganizationUnit:    organizationUnit,
 	}, nil
 }
 

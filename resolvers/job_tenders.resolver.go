@@ -113,7 +113,7 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 	res := dto.JobTenderResponseItem{
 		Id:               item.Id,
 		OrganizationUnit: *organizationUnit,
-		JobPosition:      jobPosition.Data,
+		JobPosition:      *jobPosition,
 		Type:             *tenderType,
 		Description:      item.Description,
 		SerialNumber:     item.SerialNumber,

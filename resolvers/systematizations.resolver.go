@@ -275,7 +275,7 @@ func getJobPositionsForSector(sectorId int) (*[]structs.JobPositions, error) {
 		if err != nil {
 			return &result, err
 		}
-		result = append(result, getJobPositionResponse.Data)
+		result = append(result, *getJobPositionResponse)
 	}
 
 	return &result, nil

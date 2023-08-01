@@ -104,20 +104,18 @@ var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface
 var UserProfileContractsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"]
 
-	contracts, err := getEmployeeContracts(id.(int))
+	contracts, err := getEmployeeContracts(id.(int), nil)
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return dto.ErrorResponse(err), nil
 	}
-	items := shared.ConvertToInterfaceSlice(contracts)
-	_ = hydrateSettings("ContractType", "ContractTypeId", items)
-
+	contractResponseItems, err := buildContractResponseItemList(contracts)
+	if err != nil {
+		return dto.ErrorResponse(err), nil
+	}
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   contracts,
+		Items:   contractResponseItems,
 	}, nil
 }
 
@@ -162,8 +160,8 @@ func buildUserProfileOverviewResponse(
 		Email:            account.Email,
 		Phone:            account.Phone,
 		Active:           account.Active,
-		IsJudge:          jobPosition.Data.IsJudge,
-		IsJudgePresident: jobPosition.Data.IsJudgePresident,
+		IsJudge:          jobPosition.IsJudge,
+		IsJudgePresident: jobPosition.IsJudgePresident,
 		Role: structs.SettingsDropdown{
 			Id:    role.Id,
 			Title: role.Title,
@@ -173,8 +171,8 @@ func buildUserProfileOverviewResponse(
 			Title: organizationUnit.Title,
 		},
 		JobPosition: structs.SettingsDropdown{
-			Id:    jobPosition.Data.Id,
-			Title: jobPosition.Data.Title,
+			Id:    jobPosition.Id,
+			Title: jobPosition.Title,
 		},
 		CreatedAt: profile.CreatedAt,
 		UpdatedAt: profile.UpdatedAt,
@@ -360,21 +358,25 @@ var UserProfileContractInsertResolver = func(params graphql.ResolveParams) (inte
 			fmt.Printf("Updating organization type failed because of this error - %s.\n", err)
 			return shared.ErrorResponse("Error updating user profile contract data"), nil
 		}
-		_ = hydrateSettings("ContractType", "ContractTypeId", item)
-
+		contractResponseItem, err := buildContractResponseItem(*item)
+		if err != nil {
+			return dto.ErrorResponse(err), nil
+		}
 		response.Message = "You updated this item!"
-		response.Item = item
+		response.Item = contractResponseItem
 	} else {
 		item, err := createEmployeeContract(&data)
 		if err != nil {
 			fmt.Printf("Creating organization type failed because of this error - %s.\n", err)
 			return shared.ErrorResponse("Error creating user profile contract data"), nil
 		}
-		// Hydrate the ContractType field in each contract
-		_ = hydrateSettings("ContractType", "ContractTypeId", item)
+		contractResponseItem, err := buildContractResponseItem(*item)
+		if err != nil {
+			return dto.ErrorResponse(err), nil
+		}
 
 		response.Message = "You created this item!"
-		response.Item = item
+		response.Item = contractResponseItem
 	}
 
 	return response, nil
@@ -632,6 +634,27 @@ var UserProfileFamilyDeleteResolver = func(params graphql.ResolveParams) (interf
 	}, nil
 }
 
+func buildContractResponseItemList(contracts []*structs.Contracts) (contractResponseItemList []*structs.Contracts, err error) {
+	for _, contract := range contracts {
+		contractResItem, err := buildContractResponseItem(*contract)
+		if err != nil {
+			return nil, err
+		}
+		contractResponseItemList = append(contractResponseItemList, contractResItem)
+	}
+	return
+}
+
+func buildContractResponseItem(contract structs.Contracts) (*structs.Contracts, error) {
+	contractType, err := getDropdownSettingById(contract.ContractTypeId)
+	if err != nil {
+		return nil, err
+	}
+	contract.ContractType = *contractType
+
+	return &contract, nil
+}
+
 func buildUserProfileBasicResponse(
 	profile *structs.UserProfiles,
 ) (*dto.UserProfileBasicResponse, error) {
@@ -660,12 +683,14 @@ func buildUserProfileBasicResponse(
 		return nil, err
 	}
 
-	contracts, err := getEmployeeContracts(profile.Id)
+	contracts, err := getEmployeeContracts(profile.Id, nil)
 	if err != nil {
 		return nil, err
 	}
-	items := shared.ConvertToInterfaceSlice(contracts)
-	_ = hydrateSettings("ContractType", "ContractTypeId", items...)
+	contractResponseItems, err := buildContractResponseItemList(contracts)
+	if err != nil {
+		return nil, err
+	}
 
 	return &dto.UserProfileBasicResponse{
 		ID:                            profile.Id,
@@ -697,15 +722,15 @@ func buildUserProfileBasicResponse(
 		Email:                         account.Email,
 		Phone:                         account.Phone,
 		OrganizationUnit:              *organizationUnit,
-		JobPosition:                   jobPosition.Data,
-		Contracts:                     contracts,
+		JobPosition:                   *jobPosition,
+		Contracts:                     contractResponseItems,
 		JobPositionInOrganizationUnit: jobPositionInOrganizationUnit.Id,
 	}, nil
 }
 
-func getEmployeeContracts(employeeID int) ([]*structs.Contracts, error) {
+func getEmployeeContracts(employeeID int, input *dto.GetEmployeeContracts) ([]*structs.Contracts, error) {
 	res := &dto.GetEmployeeContractListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(employeeID)+"/contracts", nil, res)
+	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(employeeID)+"/contracts", input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -740,6 +765,20 @@ func getUserProfiles(input *dto.GetUserProfilesInput) ([]*structs.UserProfiles, 
 	}
 
 	return res.Data, nil
+}
+
+func getUserProfileByUserAccountID(accountID int) (*structs.UserProfiles, error) {
+	input := &dto.GetUserProfilesInput{AccountID: accountID}
+	res := &dto.GetUserProfileListResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+	if res.Total != 1 {
+		return nil, fmt.Errorf("user profile not created for user account with ID %d", accountID)
+	}
+
+	return res.Data[0], nil
 }
 
 func getUserProfileById(id int) (*structs.UserProfiles, error) {

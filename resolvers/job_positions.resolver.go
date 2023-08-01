@@ -31,7 +31,7 @@ var JobPositionsResolver = func(params graphql.ResolveParams) (interface{}, erro
 				Message: err.Error(),
 			}, nil
 		}
-		items = []structs.JobPositions{jobPositionResponse.Data}
+		items = append(items, *jobPositionResponse)
 		total = 1
 	} else {
 		input := dto.GetJobPositionsInput{}
@@ -208,14 +208,14 @@ var EmployeeInOrganizationUnitDeleteResolver = func(params graphql.ResolveParams
 	}, nil
 }
 
-func getJobPositionById(id int) (*dto.GetJobPositionResponseMS, error) {
+func getJobPositionById(id int) (*structs.JobPositions, error) {
 	res := &dto.GetJobPositionResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.JOB_POSITIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
 
-	return res, nil
+	return &res.Data, nil
 }
 
 func getJobPositions(input *dto.GetJobPositionsInput) (*dto.GetJobPositionsResponseMS, error) {

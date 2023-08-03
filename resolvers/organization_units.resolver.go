@@ -102,13 +102,13 @@ var OrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interfa
 		organizationUnitResponse, err = updateOrganizationUnits(itemId, &data)
 		if err != nil {
 			fmt.Printf("Updating organization unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating organization type data"), nil
+			return shared.ErrorResponse(err.Error()), nil
 		}
 	} else {
 		organizationUnitResponse, err = createOrganizationUnits(&data)
 		if err != nil {
 			fmt.Printf("Creating organization unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating organization type data"), nil
+			return shared.ErrorResponse(err.Error()), nil
 		}
 	}
 

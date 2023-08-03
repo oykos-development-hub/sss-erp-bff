@@ -6,7 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -15,10 +14,7 @@ import (
 var AbsentTypeResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	absentTypes, err := getAbsentTypes()
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{
@@ -41,16 +37,14 @@ var AbsentTypeInsertResolver = func(params graphql.ResolveParams) (interface{}, 
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Bad request: user profile absent data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {
 		item, err := updateAbsentType(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating absent type failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating user profile absent data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -58,8 +52,7 @@ var AbsentTypeInsertResolver = func(params graphql.ResolveParams) (interface{}, 
 	} else {
 		item, err := createAbsentType(&data)
 		if err != nil {
-			fmt.Printf("Creating absent type failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating user profile absent data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -74,8 +67,7 @@ var AbsentTypeDeleteResolver = func(params graphql.ResolveParams) (interface{}, 
 
 	err := deleteAbsentType(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting absent type failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the absent type"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{

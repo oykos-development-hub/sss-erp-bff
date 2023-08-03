@@ -20,6 +20,9 @@ var BudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 	},
 })
 
@@ -28,6 +31,9 @@ var BudgetOverviewType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
@@ -47,6 +53,9 @@ var BudgetDeleteType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -59,6 +68,9 @@ var BudgetSendType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -70,6 +82,9 @@ var BudgetInsertType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,

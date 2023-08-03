@@ -16,14 +16,8 @@ var UserProfileForeignerResolver = func(params graphql.ResolveParams) (interface
 	profileId := params.Args["user_profile_id"].(int)
 
 	UserProfilesData, err := getEmployeeForeigners(profileId)
-
 	if err != nil {
-		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "fail",
-			Message: "Fetching User Profiles failed!",
-			Items:   nil,
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{
@@ -53,16 +47,14 @@ var UserProfileForeignerInsertResolver = func(params graphql.ResolveParams) (int
 	if shared.IsInteger(itemId) && itemId != 0 {
 		item, err := updateEmployeeForeigner(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating foreigner failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating foreigner data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = item
 	} else {
 		item, err := createEmployeeForeigner(&data)
 		if err != nil {
-			fmt.Printf("Creating foreigner failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating organization type data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You created this item!"
 		response.Item = item
@@ -75,13 +67,8 @@ var UserProfileForeignerDeleteResolver = func(params graphql.ResolveParams) (int
 	itemId := params.Args["id"]
 
 	err := deleteForeigner(itemId.(int))
-
 	if err != nil {
-		fmt.Printf("Fetching foreigners failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "failed",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{

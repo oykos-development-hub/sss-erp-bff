@@ -30,17 +30,11 @@ var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		user, err := getUserProfileById(id.(int))
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		resItem, err := buildUserProfileOverviewResponse(user)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		items = []dto.UserProfileOverviewResponse{*resItem}
 		total = 1
@@ -48,20 +42,14 @@ var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface
 		input := dto.GetUserProfilesInput{}
 		profiles, err := getUserProfiles(&input)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 
 		total = len(profiles)
 		for _, userProfile := range profiles {
 			resItem, err := buildUserProfileOverviewResponse(userProfile)
 			if err != nil {
-				return dto.Response{
-					Status:  "error",
-					Message: err.Error(),
-				}, nil
+				return shared.HandleAPIError(err)
 			}
 
 			if isActiveOk &&
@@ -107,11 +95,11 @@ var UserProfileContractsResolver = func(params graphql.ResolveParams) (interface
 
 	contracts, err := getEmployeeContracts(id.(int), nil)
 	if err != nil {
-		return dto.ErrorResponse(err), nil
+		return shared.HandleAPIError(err)
 	}
 	contractResponseItems, err := buildContractResponseItemList(contracts)
 	if err != nil {
-		return dto.ErrorResponse(err), nil
+		return shared.HandleAPIError(err)
 	}
 	return dto.Response{
 		Status:  "success",
@@ -187,24 +175,14 @@ func buildUserProfileOverviewResponse(
 var UserProfileBasicResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	profileId := params.Args["user_profile_id"]
 
-	if !shared.IsInteger(profileId) {
-		return map[string]interface{}{
-			"status":  "error",
-			"message": "Argument 'user_profile_id' must not be empty!",
-			"item":    nil,
-		}, nil
-	}
-
 	profile, err := getUserProfileById(profileId.(int))
 	if err != nil {
-		fmt.Printf("Error getting user profile because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error getting user profile data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	res, err := buildUserProfileBasicResponse(profile)
 	if err != nil {
-		fmt.Printf("Building user response failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error building user data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -251,23 +229,20 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 
 	userAccountRes, err = CreateUserAccount(userAccountData)
 	if err != nil {
-		fmt.Printf("Creating the user account failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error creating the user account data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	userProfileData.UserAccountId = userAccountRes.Id
 	userProfileRes, err = createUserProfile(userProfileData)
 	if err != nil {
-		fmt.Printf("Creating the user profile failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error creating the user profile data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	for _, contractInput := range employeeContracts.Contracts {
 		contractInput.UserProfileId = userProfileRes.Id
 		_, err := createEmployeeContract(contractInput)
 		if err != nil {
-			fmt.Printf("Creating the user profile contracts failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating the user profile contracts data"), nil
+			return shared.HandleAPIError(err)
 		}
 	}
 
@@ -277,15 +252,13 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 		employeesInOrganizationUnits.Active = true
 		_, err = createEmployeesInOrganizationUnits(&employeesInOrganizationUnits)
 		if err != nil {
-			fmt.Printf("Inserting employees in organization unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating the employees in organization unit data"), nil
+			return shared.HandleAPIError(err)
 		}
 	}
 
 	res, err := buildUserProfileBasicResponse(userProfileRes)
 	if err != nil {
-		fmt.Printf("Building user response failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error getting user data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -324,15 +297,13 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 		positionInOrganizationUnitData.UserProfileId = userProfileRes.Id
 		_, err := updateEmployeePositionInOrganizationUnitByProfile(userProfileData.Id, &positionInOrganizationUnitData)
 		if err != nil {
-			fmt.Printf("Inserting employees in organization unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating the employees in organization unit data"), nil
+			return shared.HandleAPIError(err)
 		}
 	}
 
 	res, err := buildUserProfileBasicResponse(userProfileRes)
 	if err != nil {
-		fmt.Printf("Building user response failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error getting user data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -362,24 +333,22 @@ var UserProfileContractInsertResolver = func(params graphql.ResolveParams) (inte
 	if shared.IsInteger(itemId) && itemId != 0 {
 		item, err := updateEmployeeContract(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating organization type failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating user profile contract data"), nil
+			return shared.HandleAPIError(err)
 		}
 		contractResponseItem, err := buildContractResponseItem(*item)
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = contractResponseItem
 	} else {
 		item, err := createEmployeeContract(&data)
 		if err != nil {
-			fmt.Printf("Creating organization type failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating user profile contract data"), nil
+			return shared.HandleAPIError(err)
 		}
 		contractResponseItem, err := buildContractResponseItem(*item)
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -394,8 +363,7 @@ var UserProfileContractDeleteResolver = func(params graphql.ResolveParams) (inte
 
 	err := deleteEmployeeContract(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting employee's contract failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the contract"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -416,10 +384,7 @@ var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface
 	}
 	educationTypes, err := getDropdownSettings(&settingsInput)
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	educationTypeMap := make(map[int]dto.EducationTypeWithEducationsResponse)
@@ -436,10 +401,7 @@ var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface
 
 	userProfileEducations, err := getEmployeeEducations(userProfileID.(int))
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	for _, education := range userProfileEducations {
@@ -473,16 +435,14 @@ var UserProfileEducationInsertResolver = func(params graphql.ResolveParams) (int
 	if shared.IsInteger(itemId) && itemId != 0 {
 		employeeEducationResponse, err := updateEmployeeEducation(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating employee's education failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating employee's education data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = employeeEducationResponse
 		response.Message = "You updated this item!"
 	} else {
 		employeeEducationResponse, err := createEmployeeEducation(&data)
 		if err != nil {
-			fmt.Printf("Creating employee's education failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating employee's education data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = employeeEducationResponse
 		response.Message = "You created this item!"
@@ -496,8 +456,7 @@ var UserProfileEducationDeleteResolver = func(params graphql.ResolveParams) (int
 
 	err := deleteEmployeeEducation(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting employee's education failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -511,10 +470,7 @@ var UserProfileExperienceResolver = func(params graphql.ResolveParams) (interfac
 
 	experiences, err := getEmployeeExperiences(userProfileID.(int))
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{
@@ -544,16 +500,14 @@ var UserProfileExperienceInsertResolver = func(params graphql.ResolveParams) (in
 	if shared.IsInteger(itemId) && itemId != 0 {
 		item, err := updateExperience(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating experience failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating experience data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = item
 	} else {
 		item, err := createExperience(&data)
 		if err != nil {
-			fmt.Printf("Creating experience failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating experience data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You created this item!"
 		response.Item = item
@@ -567,8 +521,7 @@ var UserProfileExperienceDeleteResolver = func(params graphql.ResolveParams) (in
 
 	err := deleteExperience(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting experience failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the experience"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -582,10 +535,7 @@ var UserProfileFamilyResolver = func(params graphql.ResolveParams) (interface{},
 
 	familyMembers, err := getEmployeeFamilyMembers(userProfileID)
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{
@@ -608,16 +558,14 @@ var UserProfileFamilyInsertResolver = func(params graphql.ResolveParams) (interf
 	if shared.IsInteger(itemId) && itemId != 0 {
 		res, err := updateEmployeeFamilyMember(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating employee's family member failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating employee's family member data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = res
 		response.Message = "You updated this item!"
 	} else {
 		res, err := createEmployeeFamilyMember(&data)
 		if err != nil {
-			fmt.Printf("Creating employee's family member failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating employee's family member data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = res
 		response.Message = "You created this item!"
@@ -631,8 +579,7 @@ var UserProfileFamilyDeleteResolver = func(params graphql.ResolveParams) (interf
 
 	err := deleteEmployeeFamilyMember(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting Family member failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{

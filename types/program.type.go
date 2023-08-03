@@ -23,6 +23,9 @@ var ProgramsOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -41,6 +44,9 @@ var ProgramDeleteType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -52,6 +58,9 @@ var ProgramInsertType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,

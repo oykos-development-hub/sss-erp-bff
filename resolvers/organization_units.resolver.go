@@ -6,7 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -27,19 +26,14 @@ var OrganizationUnitsResolver = func(params graphql.ResolveParams) (interface{},
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		organizationUnit, err := getOrganizationUnitById(id.(int))
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 
 		organizationUnitItem, err := buildOrganizationUnitOverviewResponse(organizationUnit)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
+
 		items = []dto.OrganizationUnitsOverviewResponse{*organizationUnitItem}
 		total = 1
 	} else {
@@ -62,19 +56,13 @@ var OrganizationUnitsResolver = func(params graphql.ResolveParams) (interface{},
 
 		organizationUnits, err := getOrganizationUnits(&input)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 
 		for _, organizationUnit := range organizationUnits.Data {
 			organizationUnitItem, err := buildOrganizationUnitOverviewResponse(&organizationUnit)
 			if err != nil {
-				return dto.Response{
-					Status:  "error",
-					Message: err.Error(),
-				}, nil
+				return shared.HandleAPIError(err)
 			}
 			items = append(items, *organizationUnitItem)
 		}
@@ -100,16 +88,12 @@ var OrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interfa
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {
 		organizationUnitResponse, err = updateOrganizationUnits(itemId, &data)
-		if err != nil {
-			fmt.Printf("Updating organization unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse(err.Error()), nil
-		}
 	} else {
 		organizationUnitResponse, err = createOrganizationUnits(&data)
-		if err != nil {
-			fmt.Printf("Creating organization unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse(err.Error()), nil
-		}
+	}
+
+	if err != nil {
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -129,8 +113,7 @@ var OrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interfa
 
 	err := deleteOrganizationUnits(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting Organization Unit failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return map[string]interface{}{

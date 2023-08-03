@@ -16,9 +16,8 @@ var UserProfileSalaryParamsResolver = func(params graphql.ResolveParams) (interf
 	profileId := params.Args["user_profile_id"].(int)
 
 	res, err := getEmployeeSalaryParams(profileId)
-
 	if err != nil {
-		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", err)
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{
@@ -48,16 +47,14 @@ var UserProfileSalaryParamsInsertResolver = func(params graphql.ResolveParams) (
 	if shared.IsInteger(itemId) && itemId != 0 {
 		item, err := updateEmployeeSalaryParams(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating salary params failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating salary params data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = item
 	} else {
 		item, err := createEmployeeSalaryParams(&data)
 		if err != nil {
-			fmt.Printf("Creating salary params failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating salary params data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You created this item!"
 		response.Item = item
@@ -69,13 +66,8 @@ var UserProfileSalaryParamsInsertResolver = func(params graphql.ResolveParams) (
 var UserProfileSalaryParamsDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	itemId := params.Args["id"]
 	err := deleteSalaryParams(itemId.(int))
-
 	if err != nil {
-		fmt.Printf("Fetching User Profile's SalaryParams failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "failed",
-			Message: "Delete User Profile's SalaryParams failed!",
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{

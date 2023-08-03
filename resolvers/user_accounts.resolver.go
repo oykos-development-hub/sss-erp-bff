@@ -26,10 +26,7 @@ var UserAccountsOverviewResolver = func(params graphql.ResolveParams) (interface
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		user, err := GetUserAccountById(id.(int))
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		items = []structs.UserAccounts{*user}
 		total = 1
@@ -52,10 +49,7 @@ var UserAccountsOverviewResolver = func(params graphql.ResolveParams) (interface
 
 		res, err := GetUserAccounts(&input)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		items = res.Data
 		total = res.Total
@@ -84,10 +78,7 @@ var UserAccountBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 
 		userResponse, err := UpdateUserAccount(itemId, dataUpdate)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 
 		return dto.ResponseSingle{
@@ -98,10 +89,7 @@ var UserAccountBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 	} else {
 		userResponse, err := CreateUserAccount(data)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 
 		return dto.ResponseSingle{
@@ -121,10 +109,7 @@ var UserAccountDeleteResolver = func(params graphql.ResolveParams) (interface{},
 	user.Active = false
 	_, err := UpdateUserAccount(id.(int), *user)
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{

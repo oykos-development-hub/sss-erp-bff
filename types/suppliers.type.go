@@ -35,6 +35,9 @@ var SuppliersOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -53,6 +56,9 @@ var SuppliersInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -67,6 +73,9 @@ var SuppliersDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,

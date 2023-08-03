@@ -90,6 +90,9 @@ var AccountInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -104,6 +107,9 @@ var AccountDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,

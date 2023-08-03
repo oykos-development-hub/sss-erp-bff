@@ -53,6 +53,9 @@ var JobTenderDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -71,6 +74,9 @@ var JobTenderInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -85,6 +91,9 @@ var JobTenderDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
@@ -125,6 +134,9 @@ var JobTenderApplicationsOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -143,6 +155,9 @@ var JobTenderApplicationInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -157,6 +172,9 @@ var JobTenderApplicationDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,

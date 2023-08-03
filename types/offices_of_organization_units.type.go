@@ -35,6 +35,9 @@ var OfficesOfOrganizationUnitOverviewType = graphql.NewObject(graphql.ObjectConf
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -53,6 +56,9 @@ var OfficesOfOrganizationUnitInsertType = graphql.NewObject(graphql.ObjectConfig
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -67,6 +73,9 @@ var OfficesOfOrganizationUnitDeleteType = graphql.NewObject(graphql.ObjectConfig
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,

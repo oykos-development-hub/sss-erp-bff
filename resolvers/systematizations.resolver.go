@@ -6,7 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -26,17 +25,11 @@ var SystematizationsOverviewResolver = func(params graphql.ResolveParams) (inter
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		systematization, err := getSystematizationById(id.(int))
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		systematizationResItem, err := buildSystematizationOverviewResponse(systematization)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		items = []dto.SystematizationOverviewResponse{systematizationResItem}
 		total = 1
@@ -57,18 +50,12 @@ var SystematizationsOverviewResolver = func(params graphql.ResolveParams) (inter
 
 		systematizationsResponse, err := getSystematizations(&input)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		for _, systematization := range systematizationsResponse.Data {
 			systematizationResItem, err := buildSystematizationOverviewResponse(&systematization)
 			if err != nil {
-				return dto.Response{
-					Status:  "error",
-					Message: err.Error(),
-				}, nil
+				return shared.HandleAPIError(err)
 			}
 			items = append(items, systematizationResItem)
 		}
@@ -87,17 +74,11 @@ var SystematizationResolver = func(params graphql.ResolveParams) (interface{}, e
 	id := params.Args["id"]
 	systematization, err := getSystematizationById(id.(int))
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 	systematizationResItem, err := buildSystematizationOverviewResponse(systematization)
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -119,23 +100,18 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 	if shared.IsInteger(itemId) && itemId != 0 {
 		systematization, err = updateSystematization(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating systematization failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating systematization data"), nil
+			return shared.HandleAPIError(err)
 		}
 	} else {
 		systematization, err = createSystematization(&data)
 		if err != nil {
-			fmt.Printf("Creating systematization failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating systematization data"), nil
+			return shared.HandleAPIError(err)
 		}
 	}
 
 	systematizationResItem, err := buildSystematizationOverviewResponse(systematization)
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -154,8 +130,7 @@ var SystematizationDeleteResolver = func(params graphql.ResolveParams) (interfac
 
 	err := deleteSystematization(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting systematization failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return map[string]interface{}{

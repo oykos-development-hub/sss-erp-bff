@@ -23,31 +23,26 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 
 	absents, err := getEmployeeAbsents(profileId, nil)
 	if err != nil {
-		fmt.Printf("Fetching absents failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error fetching absents"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	currentAvailableDays, previousYearAvailableDays, err := getNumberOfCurrentAndPreviousYearAvailableDays(profileId)
-
 	if err != nil {
-		fmt.Printf("Calculating number of vacation days failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error fetching absents"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	for _, absent := range absents {
 		if absent.TargetOrganizationUnitID != 0 {
 			organizationUnit, err := getOrganizationUnitById(absent.TargetOrganizationUnitID)
 			if err != nil {
-				fmt.Printf("Fetching organization unit of user profile failed because of this error - %s.\n", err)
-				return shared.ErrorResponse("Error fetching target organization unit of employee"), nil
+				return shared.HandleAPIError(err)
 			}
 			absent.TargetOrganizationUnit = organizationUnit
 		}
 
 		absentType, err := getAbsentTypeById(absent.AbsentTypeId)
 		if err != nil {
-			fmt.Printf("Fetching absents types failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error fetching absent type"), nil
+			return shared.HandleAPIError(err)
 		}
 		absent.AbsentType = *absentType
 
@@ -187,8 +182,7 @@ var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interf
 	if shared.IsInteger(data.Id) && data.Id != 0 {
 		item, err := updateAbsent(data.Id, &data)
 		if err != nil {
-			fmt.Printf("Updating absent failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating user profile absent data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -196,8 +190,7 @@ var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interf
 	} else {
 		item, err := createAbsent(&data)
 		if err != nil {
-			fmt.Printf("Creating absent failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating user profile absent data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -212,8 +205,7 @@ var UserProfileAbsentDeleteResolver = func(params graphql.ResolveParams) (interf
 
 	err := deleteAbsent(itemId)
 	if err != nil {
-		fmt.Printf("Deleting absent failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the absent"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{

@@ -26,10 +26,7 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		jobTender, err := getJobTender(id.(int))
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		resItem, _ := buildJobTenderResponse(jobTender)
 
@@ -48,20 +45,14 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 		}
 		jobTenders, err := getJobTenderList(&input)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		total = len(jobTenders)
 
 		for _, jobTender := range jobTenders {
 			resItem, err := buildJobTenderResponse(jobTender)
 			if err != nil {
-				return dto.Response{
-					Status:  "error",
-					Message: err.Error(),
-				}, nil
+				return shared.HandleAPIError(err)
 			}
 			if organizationUnitID != nil &&
 				organizationUnitID.(int) > 0 &&
@@ -175,26 +166,22 @@ var JobTenderInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	if shared.IsInteger(itemId) && itemId != 0 {
 		res, err := updateJobTender(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating Job Tender failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating Job Tender data"), nil
+			return shared.HandleAPIError(err)
 		}
 		item, err := buildJobTenderResponse(res)
 		if err != nil {
-			fmt.Printf("Fetching Job Tender failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error Fetching Job Tender data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
 		res, err := createJobTender(&data)
 		if err != nil {
-			fmt.Printf("Creating Job Tender failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating Job Tender data"), nil
+			return shared.HandleAPIError(err)
 		}
 		item, err := buildJobTenderResponse(res)
 		if err != nil {
-			fmt.Printf("Fetching Job Tender failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error Fetching Job Tender data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = item
 		response.Message = "You created this item!"
@@ -208,8 +195,7 @@ var JobTenderDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	err := deleteJobTender(itemId)
 	if err != nil {
-		fmt.Printf("Deleting job tender failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -228,10 +214,7 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		tenderApplication, err := getTenderApplication(id.(int))
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		resItem, _ := buildJobTenderApplicationResponse(tenderApplication)
 		items = append(items, *resItem)
@@ -248,19 +231,13 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 
 		tenderApplications, err := getTenderApplicationList(&input)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 
 		for _, jobTender := range tenderApplications.Data {
 			resItem, err := buildJobTenderApplicationResponse(jobTender)
 			if err != nil {
-				return dto.Response{
-					Status:  "error",
-					Message: err.Error(),
-				}, nil
+				return shared.HandleAPIError(err)
 			}
 			items = append(items, *resItem)
 		}
@@ -286,14 +263,12 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 	if shared.IsInteger(itemId) && itemId != 0 {
 		res, err := updateJobTenderApplication(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating Job Tender Application failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating Job Tender Application data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		item, err := buildJobTenderApplicationResponse(res)
 		if err != nil {
-			fmt.Printf("Fetching Job Tender Application failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error fetching Job Tender Application data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		response.Item = item
@@ -301,14 +276,12 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 	} else {
 		res, err := createJobTenderApplication(&data)
 		if err != nil {
-			fmt.Printf("Creating Job Tender Application failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating Job Tender Application data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		item, err := buildJobTenderApplicationResponse(res)
 		if err != nil {
-			fmt.Printf("Fetching Job Tender Application failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error fetching Job Tender Application data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		response.Item = item
@@ -323,8 +296,7 @@ var JobTenderApplicationDeleteResolver = func(params graphql.ResolveParams) (int
 
 	err := deleteJobTenderApplication(itemId)
 	if err != nil {
-		fmt.Printf("Deleting Job Tender Application failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{

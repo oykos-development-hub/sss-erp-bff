@@ -35,7 +35,7 @@ var UserProfileResolutionDeleteField = &graphql.Field{
 	Description: "Deletes existing User Profile's Resolution",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.UserProfileResolutionDeleteResolver,

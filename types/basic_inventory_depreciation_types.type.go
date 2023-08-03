@@ -35,6 +35,9 @@ var BasicInventoryDepreciationTypesOverviewType = graphql.NewObject(graphql.Obje
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -53,6 +56,9 @@ var BasicInventoryDepreciationTypesInsertType = graphql.NewObject(graphql.Object
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -67,6 +73,9 @@ var BasicInventoryDepreciationTypesDeleteType = graphql.NewObject(graphql.Object
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,

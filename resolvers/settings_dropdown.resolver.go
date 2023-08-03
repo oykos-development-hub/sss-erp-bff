@@ -28,10 +28,7 @@ var SettingsDropdownResolver = func(params graphql.ResolveParams) (interface{}, 
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		setting, err := getDropdownSettingById(id.(int))
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		items = []structs.SettingsDropdown{*setting}
 		total = 1
@@ -52,10 +49,7 @@ var SettingsDropdownResolver = func(params graphql.ResolveParams) (interface{}, 
 
 		res, err := getDropdownSettings(&input)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		items = res.Data
 		total = res.Total
@@ -84,18 +78,15 @@ var SettingsDropdownInsertResolver = func(params graphql.ResolveParams) (interfa
 	if shared.IsInteger(itemId) && itemId != 0 {
 		itemRes, err := updateDropdownSettings(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating settings failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating settings data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = itemRes
 
 	} else {
 		itemRes, err := createDropdownSettings(&data)
-
 		if err != nil {
-			fmt.Printf("Creating settings failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating settings data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You created this item!"
 		response.Item = itemRes
@@ -118,8 +109,7 @@ var SettingsDropdownDeleteResolver = func(params graphql.ResolveParams) (interfa
 
 	err := deleteDropdownSettings(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting "+entity.(string)+" failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{

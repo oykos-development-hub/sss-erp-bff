@@ -24,7 +24,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 
 	loginRes, cookies, err := loginUser(email, password)
 	if err != nil {
-		return dto.ErrorResponse(err), nil
+		return shared.HandleAPIError(err)
 	}
 
 	httpResponseWriter := p.Context.Value((config.HttpResponseWriterKey)).(http.ResponseWriter)
@@ -53,7 +53,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	if userProfile.EngagementTypeId != nil {
 		engagement, err = getDropdownSettingById(*userProfile.EngagementTypeId)
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 	}
 

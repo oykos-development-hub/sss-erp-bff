@@ -6,7 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -20,10 +19,7 @@ var JobTenderTypesResolver = func(params graphql.ResolveParams) (interface{}, er
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		tenderType, err := getTenderType(id.(int))
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		items = append(items, tenderType)
 	} else {
@@ -34,10 +30,7 @@ var JobTenderTypesResolver = func(params graphql.ResolveParams) (interface{}, er
 		}
 		tenderTypes, err := getTenderTypeList(&input)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		items = tenderTypes
 	}
@@ -62,8 +55,7 @@ var JobTenderTypeInsertResolver = func(params graphql.ResolveParams) (interface{
 	if shared.IsInteger(itemId) && itemId != 0 {
 		res, err := updateJobTenderType(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating Job Tender Type failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating Job Tender Type data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		response.Item = res
@@ -71,8 +63,7 @@ var JobTenderTypeInsertResolver = func(params graphql.ResolveParams) (interface{
 	} else {
 		res, err := createJobTenderType(&data)
 		if err != nil {
-			fmt.Printf("Creating Job Tender Type failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating Job Tender Type data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		response.Item = res
@@ -87,8 +78,7 @@ var JobTenderTypeDeleteResolver = func(params graphql.ResolveParams) (interface{
 
 	err := deleteJobTenderType(itemId)
 	if err != nil {
-		fmt.Printf("Deleting job tender type failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{

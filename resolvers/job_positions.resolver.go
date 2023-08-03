@@ -6,7 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -26,10 +25,7 @@ var JobPositionsResolver = func(params graphql.ResolveParams) (interface{}, erro
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		jobPositionResponse, err := getJobPositionById(id.(int))
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		items = append(items, *jobPositionResponse)
 		total = 1
@@ -49,10 +45,7 @@ var JobPositionsResolver = func(params graphql.ResolveParams) (interface{}, erro
 
 		jobPositionsResponse, err := getJobPositions(&input)
 		if err != nil {
-			return dto.Response{
-				Status:  "error",
-				Message: err.Error(),
-			}, nil
+			return shared.HandleAPIError(err)
 		}
 		items = jobPositionsResponse.Data
 		total = jobPositionsResponse.Total
@@ -78,14 +71,12 @@ var JobPositionInsertResolver = func(params graphql.ResolveParams) (interface{},
 	if shared.IsInteger(itemId) && itemId != 0 {
 		jobPositionResponse, err = updateJobPositions(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating organization job position failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating job position data"), nil
+			return shared.HandleAPIError(err)
 		}
 	} else {
 		jobPositionResponse, err = createJobPositions(&data)
 		if err != nil {
-			fmt.Printf("Creating job position failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating job position data"), nil
+			return shared.HandleAPIError(err)
 		}
 	}
 
@@ -105,8 +96,7 @@ var JobPositionDeleteResolver = func(params graphql.ResolveParams) (interface{},
 
 	err := deleteJobPositions(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting job position failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return map[string]interface{}{
@@ -125,8 +115,7 @@ var JobPositionInOrganizationUnitInsertResolver = func(params graphql.ResolvePar
 
 	jobPositionInOrganizationUnit, err = createJobPositionsInOrganizationUnits(&data)
 	if err != nil {
-		fmt.Printf("Creating job position in organization unit failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error creating job position data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -145,8 +134,7 @@ var JobPositionInOrganizationUnitDeleteResolver = func(params graphql.ResolvePar
 
 	err := deleteJobPositionsInOrganizationUnits(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting job position in organization unit failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return map[string]interface{}{
@@ -165,8 +153,7 @@ var EmployeeInOrganizationUnitInsertResolver = func(params graphql.ResolveParams
 
 	userProfile, err := getUserProfileById(data.UserProfileId)
 	if err != nil {
-		fmt.Printf("Creating Employee In Organization Unit failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating Employee In Organization Unit data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	data.UserAccountId = userProfile.UserAccountId
@@ -175,16 +162,14 @@ var EmployeeInOrganizationUnitInsertResolver = func(params graphql.ResolveParams
 	if shared.IsInteger(itemId) && itemId != 0 {
 		res, err := updateEmployeesInOrganizationUnits(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating Employee In Organization Unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating Employee In Organization Unit data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = res
 		response.Message = "You updated this item!"
 	} else {
 		res, err := createEmployeesInOrganizationUnits(&data)
 		if err != nil {
-			fmt.Printf("Creating Employee In Organization Unit failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating Employee In Organization Unit data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = res
 		response.Message = "You created this item!"
@@ -198,8 +183,7 @@ var EmployeeInOrganizationUnitDeleteResolver = func(params graphql.ResolveParams
 
 	err := deleteEmployeeInOrganizationUnit(itemId.(int))
 	if err != nil {
-		fmt.Printf("Deleting Employee In Organization Unit failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the id"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{

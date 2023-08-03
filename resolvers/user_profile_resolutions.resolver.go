@@ -6,7 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -17,13 +16,9 @@ var UserProfileResolutionResolver = func(params graphql.ResolveParams) (interfac
 
 	resolutions, err := getEmployeeResolutions(userProfileId)
 	if err != nil {
-		return dto.Response{
-			Status:  "error",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 	items := shared.ConvertToInterfaceSlice(resolutions)
-
 	_ = hydrateSettings("ResolutionType", "ResolutionTypeId", items...)
 
 	return dto.Response{
@@ -46,16 +41,14 @@ var UserProfileResolutionInsertResolver = func(params graphql.ResolveParams) (in
 	if shared.IsInteger(itemId) && itemId != 0 {
 		resolutionResponse, err := updateResolution(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating employee's resolution failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating employee's resolution data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = resolutionResponse
 		response.Message = "You updated this item!"
 	} else {
 		resolutionResponse, err := createResolution(&data)
 		if err != nil {
-			fmt.Printf("Creating employee's resolution failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating employee's resolution data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = resolutionResponse
 		response.Message = "You created this item!"
@@ -69,8 +62,7 @@ var UserProfileResolutionDeleteResolver = func(params graphql.ResolveParams) (in
 
 	err := deleteResolution(itemId)
 	if err != nil {
-		fmt.Printf("Deleting employee's resolution failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the resolution"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{

@@ -19,14 +19,27 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-func ErrorResponse(message string) dto.Response {
-	return dto.Response{
+func HandleAPIError(err error) (dto.Response, error) {
+	if apiError, ok := err.(APIError); ok {
+		return ErrorResponse(apiError.Message, apiError.Data), nil
+	}
+	return ErrorResponse(err.Error()), nil
+}
+
+func ErrorResponse(message string, data ...interface{}) dto.Response {
+	response := dto.Response{
 		Status:  "error",
 		Message: message,
 	}
+
+	if len(data) > 0 && data[0] != nil {
+		response.Data = data[0]
+	}
+
+	return response
 }
 
-func (e *APIError) Error() string {
+func (e APIError) Error() string {
 	if e.Data != nil {
 		dataBytes, err := json.Marshal(e.Data)
 		if err != nil {
@@ -69,11 +82,11 @@ func MakeAPIRequest(method, url string, data interface{}, response interface{}, 
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		apiError := &APIError{
+		apiError := APIError{
 			StatusCode: resp.StatusCode,
 		}
 
-		err = json.Unmarshal(body, apiError)
+		err = json.Unmarshal(body, &apiError)
 		if err != nil {
 			apiError.Message = "Unexpected error"
 		}

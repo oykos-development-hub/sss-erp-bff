@@ -29,6 +29,9 @@ var PublicProcurementPlanDetailsItemType = graphql.NewObject(graphql.ObjectConfi
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"date_of_publishing": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -56,6 +59,9 @@ var PublicProcurementPlansOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -74,6 +80,9 @@ var PublicProcurementPlanDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -89,6 +98,9 @@ var PublicProcurementPlanInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -103,6 +115,9 @@ var PublicProcurementPlanDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
@@ -134,6 +149,9 @@ var PublicProcurementPlanItemDetailsItemType = graphql.NewObject(graphql.ObjectC
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"serial_number": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -164,6 +182,9 @@ var PublicProcurementPlanItemDetailsType = graphql.NewObject(graphql.ObjectConfi
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -179,6 +200,9 @@ var PublicProcurementPlanItemInsertType = graphql.NewObject(graphql.ObjectConfig
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -193,6 +217,9 @@ var PublicProcurementPlanItemDeleteType = graphql.NewObject(graphql.ObjectConfig
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
@@ -224,6 +251,9 @@ var PublicProcurementPlanItemLimitsType = graphql.NewObject(graphql.ObjectConfig
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -238,6 +268,9 @@ var PublicProcurementPlanItemLimitInsertType = graphql.NewObject(graphql.ObjectC
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
@@ -281,6 +314,9 @@ var PublicProcurementPlanItemArticleInsertType = graphql.NewObject(graphql.Objec
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -295,6 +331,9 @@ var PublicProcurementPlanItemArticleDeleteType = graphql.NewObject(graphql.Objec
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
@@ -341,6 +380,9 @@ var PublicProcurementOrganizationUnitArticleItemType = graphql.NewObject(graphql
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"is_rejected": &graphql.Field{
 			Type: graphql.Boolean,
 		},
@@ -355,6 +397,9 @@ var PublicProcurementOrganizationUnitArticlesOverviewType = graphql.NewObject(gr
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
@@ -389,6 +434,9 @@ var PublicProcurementArticleDetailsType = graphql.NewObject(graphql.ObjectConfig
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"serial_number": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -419,6 +467,9 @@ var PublicProcurementOrganizationUnitArticlesDetailsType = graphql.NewObject(gra
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -433,6 +484,9 @@ var PublicProcurementOrganizationUnitArticleInsertType = graphql.NewObject(graph
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
@@ -488,6 +542,9 @@ var PublicProcurementContractsOverviewType = graphql.NewObject(graphql.ObjectCon
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -506,6 +563,9 @@ var PublicProcurementContractsInsertType = graphql.NewObject(graphql.ObjectConfi
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -520,6 +580,9 @@ var PublicProcurementContractsDeleteType = graphql.NewObject(graphql.ObjectConfi
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
@@ -575,6 +638,9 @@ var PublicProcurementContractArticlesOverviewType = graphql.NewObject(graphql.Ob
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -589,6 +655,9 @@ var PublicProcurementContractArticleInsertType = graphql.NewObject(graphql.Objec
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,

@@ -17,7 +17,7 @@ var UserProfileEvaluationResolver = func(params graphql.ResolveParams) (interfac
 
 	userProfilesData, err := getEmployeeEvaluations(profileId)
 	if err != nil {
-		fmt.Printf("Fetching User Profiles failed because of this error - %s.\n", err)
+		return shared.HandleAPIError(err)
 	}
 
 	items := shared.ConvertToInterfaceSlice(userProfilesData)
@@ -48,16 +48,14 @@ var UserProfileEvaluationInsertResolver = func(params graphql.ResolveParams) (in
 	if shared.IsInteger(itemId) && itemId != 0 {
 		item, err := updateEmployeeEvaluation(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating evaluation failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating organization type data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = item
 	} else {
 		item, err := createEmployeeEvaluation(&data)
 		if err != nil {
-			fmt.Printf("Creating evaluation failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating organization type data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Message = "You created this item!"
 		response.Item = item
@@ -70,13 +68,8 @@ var UserProfileEvaluationDeleteResolver = func(params graphql.ResolveParams) (in
 	itemId := params.Args["id"].(int)
 
 	err := deleteEvaluation(itemId)
-
 	if err != nil {
-		fmt.Printf("Fetching User Profile's Evaluation failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "failed",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{

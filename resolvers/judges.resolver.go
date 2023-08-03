@@ -32,7 +32,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 	}
 	jobPositionsRes, err := getJobPositions(&input)
 	if err != nil {
-		return dto.ErrorResponse(err), nil
+		return shared.HandleAPIError(err)
 	}
 	jobPositions := jobPositionsRes.Data
 
@@ -45,7 +45,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 		}
 		jobPositionInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 
 		for _, jobPositionInOrganizationUnit := range jobPositionInOrganizationUnits.Data {
@@ -56,7 +56,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 			}
 			employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitList(&input)
 			if err != nil {
-				return dto.ErrorResponse(err), nil
+				return shared.HandleAPIError(err)
 			}
 
 			for _, employeeInOrganizationUnit := range employeesInOrganizationUnit {
@@ -70,7 +70,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 				)
 
 				if err != nil {
-					return dto.ErrorResponse(err), nil
+					return shared.HandleAPIError(err)
 				}
 				judgesList = append(judgesList, judgeResponse)
 			}
@@ -209,16 +209,14 @@ var JudgeNormInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	if shared.IsInteger(itemId) && itemId != 0 {
 		res, err := updateJudgeNorm(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating employee's norm failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating employee's norm data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = res
 		response.Message = "You updated this item!"
 	} else {
 		res, err := createJudgeNorm(&data)
 		if err != nil {
-			fmt.Printf("Creating employee's norm failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating employee's norm data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = res
 		response.Message = "You created this item!"
@@ -231,13 +229,8 @@ var JudgeNormDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 	itemId := params.Args["id"].(int)
 
 	err := deleteJudgeNorm(itemId)
-
 	if err != nil {
-		fmt.Printf("Deleting norm failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "failed",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{
@@ -261,7 +254,7 @@ var JudgeResolutionsResolver = func(params graphql.ResolveParams) (interface{}, 
 	if id != nil && id.(int) > 0 {
 		resolution, err := getJudgeResolution(id.(int))
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 
 		resolutionList = append(resolutionList, resolution)
@@ -275,7 +268,7 @@ var JudgeResolutionsResolver = func(params graphql.ResolveParams) (interface{}, 
 		}
 		resolutions, err := getJudgeResolutionList(&input)
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 		resolutionList = append(resolutionList, resolutions.Data...)
 	}
@@ -494,13 +487,12 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 		}
 		resolution, err = updateJudgeResolutions(itemId, &judgeResolution)
 		if err != nil {
-			fmt.Printf("Updating employee's norm failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating employee's norm data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		updatedItems, err := insertOrUpdateResolutionItemList(data.Items, resolution.Id)
 		if err != nil {
-			return shared.ErrorResponse("Error updating judge resolution items data"), nil
+			return shared.HandleAPIError(err)
 		}
 		resolution.Items = updatedItems
 		response.Message = "You updated this item!"
@@ -513,13 +505,12 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 		}
 		resolution, err = createJudgeResolutions(&judgeResolution)
 		if err != nil {
-			fmt.Printf("Creating employee's norm failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating employee's norm data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		updatedItems, err := insertOrUpdateResolutionItemList(data.Items, resolution.Id)
 		if err != nil {
-			return shared.ErrorResponse("Error judge resolution items data"), nil
+			return shared.HandleAPIError(err)
 		}
 
 		resolution.Items = updatedItems
@@ -568,13 +559,8 @@ var JudgeResolutionDeleteResolver = func(params graphql.ResolveParams) (interfac
 	itemId := params.Args["id"].(int)
 
 	err := deleteJudgeResolution(itemId)
-
 	if err != nil {
-		fmt.Printf("Deleting Judge Resolution failed because of this error - %s.\n", err)
-		return dto.Response{
-			Status:  "failed",
-			Message: err.Error(),
-		}, nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{

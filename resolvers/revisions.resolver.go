@@ -6,7 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -171,11 +170,11 @@ var RevisionsOverviewResolver = func(params graphql.ResolveParams) (interface{},
 	if id != nil && id.(int) > 0 {
 		revision, err := getRevisionById(id.(int))
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 		item, err := buildRevisionOverviewItemResponse(revision)
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Items = append(response.Items, *item)
 		response.Total = 1
@@ -204,13 +203,13 @@ var RevisionsOverviewResolver = func(params graphql.ResolveParams) (interface{},
 
 		revisions, err := getRevisionList(&input)
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 
 		for _, revision := range revisions.Data {
 			item, err := buildRevisionOverviewItemResponse(revision)
 			if err != nil {
-				return dto.ErrorResponse(err), nil
+				return shared.HandleAPIError(err)
 			}
 			response.Items = append(response.Items, *item)
 		}
@@ -219,7 +218,7 @@ var RevisionsOverviewResolver = func(params graphql.ResolveParams) (interface{},
 
 	revisorDropdownList, err := getRevisorListDropdown()
 	if err != nil {
-		return dto.ErrorResponse(err), nil
+		return shared.HandleAPIError(err)
 	}
 
 	response.Revisors = revisorDropdownList
@@ -245,11 +244,11 @@ var RevisionResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	if shared.IsInteger(id) && id.(int) > 0 {
 		revision, err := getRevisionById(id.(int))
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 		item, err := buildRevisionDetailsItemResponse(revision)
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 		return dto.Response{
 			Status:  "success",
@@ -261,14 +260,14 @@ var RevisionResolver = func(params graphql.ResolveParams) (interface{}, error) {
 
 	revisions, err := getRevisionList(&input)
 	if err != nil {
-		return dto.ErrorResponse(err), nil
+		return shared.HandleAPIError(err)
 	}
 
 	items := make([]dto.RevisionDetailsItem, 0, len(revisions.Data))
 	for _, revision := range revisions.Data {
 		item, err := buildRevisionDetailsItemResponse(revision)
 		if err != nil {
-			return dto.ErrorResponse(err), nil
+			return shared.HandleAPIError(err)
 		}
 		items = append(items, *item)
 	}
@@ -294,26 +293,22 @@ var RevisionInsertResolver = func(params graphql.ResolveParams) (interface{}, er
 	if shared.IsInteger(itemId) && itemId != 0 {
 		res, err := updateRevision(itemId, &data)
 		if err != nil {
-			fmt.Printf("Updating revision failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error updating revision data"), nil
+			return shared.HandleAPIError(err)
 		}
 		item, err := buildRevisionDetailsItemResponse(res)
 		if err != nil {
-			fmt.Printf("Fetching updated revision failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error fetching updated revision data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
 		res, err := createRevision(&data)
 		if err != nil {
-			fmt.Printf("Creating revision failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error creating revision data"), nil
+			return shared.HandleAPIError(err)
 		}
 		item, err := buildRevisionDetailsItemResponse(res)
 		if err != nil {
-			fmt.Printf("Fetching created revision failed because of this error - %s.\n", err)
-			return shared.ErrorResponse("Error fetching created revision data"), nil
+			return shared.HandleAPIError(err)
 		}
 		response.Item = item
 		response.Message = "You created this item!"
@@ -327,8 +322,7 @@ var RevisionDeleteResolver = func(params graphql.ResolveParams) (interface{}, er
 
 	err := deleteRevision(itemId)
 	if err != nil {
-		fmt.Printf("Deleting revision failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error deleting the revision"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.ResponseSingle{

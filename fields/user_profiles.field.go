@@ -54,7 +54,7 @@ var UserProfileBasicField = &graphql.Field{
 	Description: "Returns a data of User Profile for displaying inside Basic tab",
 	Args: graphql.FieldConfigArgument{
 		"user_profile_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.UserProfileBasicResolver,

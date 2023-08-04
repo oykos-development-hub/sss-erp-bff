@@ -97,17 +97,9 @@ var SettingsDropdownInsertResolver = func(params graphql.ResolveParams) (interfa
 }
 
 var SettingsDropdownDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
-	entity := params.Args["entity"]
+	itemId := params.Args["id"].(int)
 
-	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
-		return shared.ErrorResponse("You must pass the item id"), nil
-	}
-	if !shared.IsString(entity) && !(len(entity.(string)) > 0) {
-		return shared.ErrorResponse("You must pass the entity name"), nil
-	}
-
-	err := deleteDropdownSettings(itemId.(int))
+	err := deleteDropdownSettings(itemId)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}

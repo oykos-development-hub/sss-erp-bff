@@ -210,6 +210,7 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
+	total := 0
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		tenderApplication, err := getTenderApplication(id.(int))
@@ -218,6 +219,7 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 		}
 		resItem, _ := buildJobTenderApplicationResponse(tenderApplication)
 		items = append(items, *resItem)
+		total = 1
 	} else {
 		input := dto.GetJobTenderApplicationsInput{}
 		if shared.IsInteger(page) && page.(int) > 0 {
@@ -227,6 +229,9 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 		if shared.IsInteger(size) && size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
+		}
+		if jobTenderID, ok := params.Args["job_tender_id"].(int); ok && jobTenderID != 0 {
+			input.JobTenderID = &jobTenderID
 		}
 
 		tenderApplications, err := getTenderApplicationList(&input)
@@ -241,12 +246,14 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 			}
 			items = append(items, *resItem)
 		}
+		total = tenderApplications.Total
 	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 		Items:   items,
+		Total:   total,
 	}, nil
 }
 

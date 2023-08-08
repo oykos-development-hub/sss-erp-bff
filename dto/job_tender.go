@@ -31,8 +31,9 @@ type GetJobTendersInput struct {
 }
 
 type GetJobTenderApplicationsInput struct {
-	Page *int `json:"page"`
-	Size *int `json:"size"`
+	Page        *int `json:"page"`
+	Size        *int `json:"size"`
+	JobTenderID *int `json:"job_tender_id"`
 }
 
 type GetJobTenderTypeResponseMS struct {
@@ -52,7 +53,8 @@ type GetJobTenderApplicationResponseMS struct {
 }
 
 type GetJobTenderApplicationListResponseMS struct {
-	Data []*structs.JobTenderApplications `json:"data"`
+	Data  []*structs.JobTenderApplications `json:"data"`
+	Total int                              `json:"total"`
 }
 
 type JobTenderApplicationResponseItem struct {

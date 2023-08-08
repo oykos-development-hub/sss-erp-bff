@@ -28,6 +28,17 @@ var JobPositionsField = &graphql.Field{
 	Resolve: resolvers.JobPositionsResolver,
 }
 
+var JobPositionsOrganizationUnitField = &graphql.Field{
+	Type:        types.JobPositionsType,
+	Description: "Returns a list of Job Positions",
+	Args: graphql.FieldConfigArgument{
+		"organization_unit_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.JobPositionsOrganizationUnitResolver,
+}
+
 var JobPositionInsertField = &graphql.Field{
 	Type:        types.JobPositionInsertType,
 	Description: "Creates new or alter existing Job Position",

@@ -59,6 +59,43 @@ var JobPositionsResolver = func(params graphql.ResolveParams) (interface{}, erro
 	}, nil
 }
 
+var JobPositionsOrganizationUnitResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var (
+		items []structs.JobPositions
+		total int
+	)
+
+	organizationUnitId := params.Args["organization_unit_id"].(int)
+
+	if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 {
+		input := dto.GetJobPositionInOrganizationUnitsInput{
+			OrganizationUnitID: &organizationUnitId,
+		}
+		jobPositionsInOrganizationUnitsResponse, err := getJobPositionsInOrganizationUnits(&input)
+		if err != nil {
+			return &jobPositionsInOrganizationUnitsResponse, err
+		}
+
+		for _, jobPositionsInOrganizationUnits := range jobPositionsInOrganizationUnitsResponse.Data {
+			getJobPositionResponse, err := getJobPositionById(jobPositionsInOrganizationUnits.JobPositionId)
+			if err != nil {
+				return &items, err
+			}
+			items = append(items, *getJobPositionResponse)
+		}
+
+		total = len(items)
+
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Total:   total,
+		Items:   items,
+	}, nil
+}
+
 var JobPositionInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.JobPositions
 	var jobPositionResponse *dto.GetJobPositionResponseMS

@@ -54,10 +54,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 				PositionInOrganizationUnit: &jobPositionInOrganizationUnit.Id,
 				Active:                     &isActive,
 			}
-			employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitList(&input)
-			if err != nil {
-				return shared.HandleAPIError(err)
-			}
+			employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
 
 			for _, employeeInOrganizationUnit := range employeesInOrganizationUnit {
 				if id != nil && id.(int) > 0 && employeeInOrganizationUnit.UserProfileId != id.(int) {
@@ -182,16 +179,19 @@ func buildNormResItem(norm structs.JudgeNorms) (*dto.NormResItem, error) {
 	evaluation.EvaluationType = *evaluationType
 	normResItem.Evaluation = *evaluation
 
-	relocation, err := getAbsentById(norm.RelocationID)
-	if err != nil {
-		return nil, err
-	}
-	relocationResItem, err := buildAbsentResponseItem(*relocation)
-	if err != nil {
-		return nil, err
-	}
+	if norm.RelocationID != nil {
+		relocation, err := getAbsentById(*norm.RelocationID)
+		if err != nil {
+			return nil, err
+		}
 
-	normResItem.Relocation = *relocationResItem
+		relocationResItem, err := buildAbsentResponseItem(*relocation)
+		if err != nil {
+			return nil, err
+		}
+
+		normResItem.Relocation = relocationResItem
+	}
 
 	return normResItem, nil
 }

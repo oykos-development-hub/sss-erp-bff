@@ -5,7 +5,7 @@ type JudgeNorms struct {
 	UserProfileId            int      `json:"user_profile_id"`
 	Topic                    string   `json:"topic"`
 	Title                    string   `json:"title"`
-	PercentageOfNormDecrease int      `json:"percentage_of_norm_decrease"`
+	PercentageOfNormDecrease float32  `json:"percentage_of_norm_decrease"`
 	NumberOfNormDecrease     int      `json:"number_of_norm_decrease"`
 	NumberOfItems            int      `json:"number_of_items"`
 	NumberOfItemsSolved      int      `json:"number_of_items_solved"`
@@ -13,7 +13,7 @@ type JudgeNorms struct {
 	DateOfEvaluation         JSONDate `json:"date_of_evaluation"`
 	DateOfEvaluationValidity JSONDate `json:"date_of_evaluation_validity"`
 	FileID                   int      `json:"file_id"`
-	RelocationID             int      `json:"relocation_id"`
+	RelocationID             *int     `json:"relocation_id"`
 	CreatedAt                string   `json:"created_at"`
 	UpdatedAt                string   `json:"updated_at"`
 }

@@ -112,16 +112,6 @@
   {
     "create": true,
     "delete": true,
-    "id": 51,
-    "parent_id": 5,
-    "read": true,
-    "route": "/hr/organization-units",
-    "title": "Organizatione jedinice",
-    "update": true
-  },
-  {
-    "create": true,
-    "delete": true,
     "id": 57,
     "parent_id": 5,
     "read": true,

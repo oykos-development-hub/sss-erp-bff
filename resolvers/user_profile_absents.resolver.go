@@ -130,8 +130,13 @@ func getNumberOfCurrentAndPreviousYearAvailableDays(profileID int) (int, int, er
 	if err != nil {
 		fmt.Println("error hydrating resolution types - " + err.Error())
 	}
-	items := shared.ConvertToInterfaceSlice(resolutions)
-	_ = hydrateSettings("ResolutionType", "ResolutionTypeId", items...)
+	for _, resolution := range resolutions {
+		resolutionType, err := getDropdownSettingById(resolution.ResolutionTypeId)
+		if err != nil {
+			return 0, 0, err
+		}
+		resolution.ResolutionType = &structs.SettingsDropdown{Id: resolutionType.Id, Title: resolutionType.Title}
+	}
 
 	for _, resolution := range resolutions {
 		startDate, _ := resolution.DateOfStart.ToTime()

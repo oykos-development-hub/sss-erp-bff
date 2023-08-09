@@ -6,8 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
-	"reflect"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -157,39 +155,4 @@ func getDropdownSettingById(id int) (*structs.SettingsDropdown, error) {
 	}
 
 	return &res.Data, nil
-}
-
-// HydrateField is a generic function to hydrate settings to generic field
-func hydrateSettings(hydratedField string, fieldDataField string, items ...interface{}) error {
-	if len(items) == 0 {
-		return nil
-	}
-
-	for _, item := range items {
-		value := reflect.ValueOf(item)
-		if value.Kind() != reflect.Ptr {
-			return fmt.Errorf("item must be a pointer")
-		}
-
-		value = value.Elem()
-		fieldDataValue := value.FieldByName(fieldDataField)
-		if !fieldDataValue.IsValid() {
-			return fmt.Errorf("fieldDataField not found in item")
-		}
-
-		for i := 0; i < value.NumField(); i++ {
-			fieldValue := value.Field(i)
-			fieldType := value.Type().Field(i)
-			if fieldType.Name == hydratedField && fieldValue.CanInterface() {
-				fieldData := fieldDataValue.Interface()
-				hydratedData, err := getDropdownSettingById(fieldData.(int))
-				if err != nil {
-					return err
-				}
-				fieldValue.Set(reflect.ValueOf(hydratedData))
-			}
-		}
-	}
-
-	return nil
 }

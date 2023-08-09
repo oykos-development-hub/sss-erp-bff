@@ -18,8 +18,13 @@ var UserProfileResolutionResolver = func(params graphql.ResolveParams) (interfac
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	items := shared.ConvertToInterfaceSlice(resolutions)
-	_ = hydrateSettings("ResolutionType", "ResolutionTypeId", items...)
+	for _, resolution := range resolutions {
+		resolutionType, err := getDropdownSettingById(resolution.ResolutionTypeId)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		resolution.ResolutionType = &structs.SettingsDropdown{Id: resolutionType.Id, Title: resolutionType.Title}
+	}
 
 	return dto.Response{
 		Status:  "success",

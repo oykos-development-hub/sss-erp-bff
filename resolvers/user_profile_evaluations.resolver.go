@@ -15,18 +15,23 @@ import (
 var UserProfileEvaluationResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	profileId := params.Args["user_profile_id"].(int)
 
-	userProfilesData, err := getEmployeeEvaluations(profileId)
+	userEvaluationList, err := getEmployeeEvaluations(profileId)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
-	items := shared.ConvertToInterfaceSlice(userProfilesData)
-	_ = hydrateSettings("ContractType", "ContractTypeId", items)
+	for _, evaluation := range userEvaluationList {
+		evaluationType, err := getDropdownSettingById(evaluation.EvaluationTypeId)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		evaluation.EvaluationType = structs.SettingsDropdown{Id: evaluationType.Id, Title: evaluationType.Title}
+	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the item you asked for!",
-		Items:   userProfilesData,
+		Items:   userEvaluationList,
 	}, nil
 }
 

@@ -44,9 +44,6 @@ var JobPositionOrganizationUnitItemType = graphql.NewObject(graphql.ObjectConfig
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"job_positions_in_organization_units": &graphql.Field{
-			Type: graphql.Int,
-		},
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},

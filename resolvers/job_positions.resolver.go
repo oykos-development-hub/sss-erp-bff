@@ -86,9 +86,8 @@ var JobPositionsOrganizationUnitResolver = func(params graphql.ResolveParams) (i
 			return &items, err
 		}
 		item := structs.JobPositionsInOrganizationUnitsSettings{
-			Id:                                getJobPositionResponse.Id,
-			JobPositionsInOrganizationUnitsId: jobPositionsInOrganizationUnits.Id,
-			Title:                             getJobPositionResponse.Title,
+			Id:    jobPositionsInOrganizationUnits.Id,
+			Title: getJobPositionResponse.Title,
 		}
 		items = append(items, item)
 	}

@@ -72,26 +72,26 @@ var JobPositionsOrganizationUnitResolver = func(params graphql.ResolveParams) (i
 		organizationUnitId = params.Args["organization_unit_id"].(int)
 	}
 
-	if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 {
-		input := dto.GetJobPositionInOrganizationUnitsInput{
-			OrganizationUnitID: &organizationUnitId,
-		}
-		jobPositionsInOrganizationUnitsResponse, err := getJobPositionsInOrganizationUnits(&input)
-		if err != nil {
-			return &jobPositionsInOrganizationUnitsResponse, err
-		}
-
-		for _, jobPositionsInOrganizationUnits := range jobPositionsInOrganizationUnitsResponse.Data {
-			getJobPositionResponse, err := getJobPositionById(jobPositionsInOrganizationUnits.JobPositionId)
-			if err != nil {
-				return &items, err
-			}
-			items = append(items, *getJobPositionResponse)
-		}
-
-		total = len(items)
-
+	// if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 {
+	input := dto.GetJobPositionInOrganizationUnitsInput{
+		OrganizationUnitID: &organizationUnitId,
 	}
+	jobPositionsInOrganizationUnitsResponse, err := getJobPositionsInOrganizationUnits(&input)
+	if err != nil {
+		return &jobPositionsInOrganizationUnitsResponse, err
+	}
+
+	for _, jobPositionsInOrganizationUnits := range jobPositionsInOrganizationUnitsResponse.Data {
+		getJobPositionResponse, err := getJobPositionById(jobPositionsInOrganizationUnits.JobPositionId)
+		if err != nil {
+			return &items, err
+		}
+		items = append(items, *getJobPositionResponse)
+	}
+
+	total = len(items)
+
+	// }
 
 	return dto.Response{
 		Status:  "success",

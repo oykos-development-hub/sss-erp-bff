@@ -29,7 +29,7 @@ var JobPositionsField = &graphql.Field{
 }
 
 var JobPositionsOrganizationUnitField = &graphql.Field{
-	Type:        types.JobPositionsType,
+	Type:        types.JobPositionsOrganizationUnitType,
 	Description: "Returns a list of Job Positions",
 	Args: graphql.FieldConfigArgument{
 		"organization_unit_id": &graphql.ArgumentConfig{

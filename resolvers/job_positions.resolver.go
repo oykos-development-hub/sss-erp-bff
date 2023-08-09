@@ -61,7 +61,7 @@ var JobPositionsResolver = func(params graphql.ResolveParams) (interface{}, erro
 
 var JobPositionsOrganizationUnitResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var (
-		items              []structs.JobPositions
+		items              []structs.JobPositionsInOrganizationUnitsSettings
 		total              int
 		organizationUnitId int
 	)
@@ -72,7 +72,6 @@ var JobPositionsOrganizationUnitResolver = func(params graphql.ResolveParams) (i
 		organizationUnitId = params.Args["organization_unit_id"].(int)
 	}
 
-	// if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 {
 	input := dto.GetJobPositionInOrganizationUnitsInput{
 		OrganizationUnitID: &organizationUnitId,
 	}
@@ -86,12 +85,15 @@ var JobPositionsOrganizationUnitResolver = func(params graphql.ResolveParams) (i
 		if err != nil {
 			return &items, err
 		}
-		items = append(items, *getJobPositionResponse)
+		item := structs.JobPositionsInOrganizationUnitsSettings{
+			Id:                                getJobPositionResponse.Id,
+			JobPositionsInOrganizationUnitsId: jobPositionsInOrganizationUnits.Id,
+			Title:                             getJobPositionResponse.Title,
+		}
+		items = append(items, item)
 	}
 
 	total = len(items)
-
-	// }
 
 	return dto.Response{
 		Status:  "success",

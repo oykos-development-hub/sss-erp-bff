@@ -38,6 +38,21 @@ var JobPositionItemType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var JobPositionOrganizationUnitItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "JobPositionOrganizationUnitItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"job_positions_in_organization_units": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var JobPositionsType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "JobPositions",
 	Fields: graphql.Fields{
@@ -52,6 +67,27 @@ var JobPositionsType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"items": &graphql.Field{
 			Type: graphql.NewList(JobPositionItemType),
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
+	},
+})
+
+var JobPositionsOrganizationUnitType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "JobPositionsOrganizationUnitType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(JobPositionOrganizationUnitItemType),
 		},
 		"total": &graphql.Field{
 			Type: graphql.Int,

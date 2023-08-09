@@ -13,6 +13,12 @@ type JobPositions struct {
 	Icon             string `json:"icon"`
 }
 
+type JobPositionsInOrganizationUnitsSettings struct {
+	Id                                int    `json:"id"`
+	JobPositionsInOrganizationUnitsId int    `json:"job_positions_in_organization_units"`
+	Title                             string `json:"title"`
+}
+
 type EmployeesInOrganizationUnits struct {
 	Id                           int    `json:"id"`
 	UserAccountId                int    `json:"user_account_id"`

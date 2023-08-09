@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -22,7 +23,9 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 	organizationUnitID := params.Args["organization_unit_id"]
 	active := params.Args["active"]
 	typeID := params.Args["type_id"]
-
+	if active != nil {
+		active = active.(bool)
+	}
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		jobTender, err := getJobTender(id.(int))
 		if err != nil {
@@ -39,10 +42,7 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 
 	} else {
 		input := dto.GetJobTendersInput{}
-		if active != nil {
-			activeValue := active.(bool)
-			input.Active = &activeValue
-		}
+
 		jobTenders, err := getJobTenderList(&input)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -50,22 +50,30 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 		total = len(jobTenders)
 
 		for _, jobTender := range jobTenders {
+
 			resItem, err := buildJobTenderResponse(jobTender)
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
+
+			if active != nil && active != resItem.Active {
+				continue
+			}
+
 			if organizationUnitID != nil &&
 				organizationUnitID.(int) > 0 &&
 				resItem.OrganizationUnit.Id != organizationUnitID {
 				total--
 				continue
 			}
+
 			if typeID != nil &&
 				typeID.(int) > 0 &&
 				resItem.Type.Id != typeID {
 				total--
 				continue
 			}
+
 			items = append(items, *resItem)
 		}
 
@@ -109,7 +117,7 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 		Description:      item.Description,
 		SerialNumber:     item.SerialNumber,
 		AvailableSlots:   item.AvailableSlots,
-		Active:           item.Active,
+		Active:           JobTenderIsActive(item),
 		DateOfStart:      item.DateOfStart,
 		DateOfEnd:        item.DateOfEnd,
 		FileId:           item.FileId,
@@ -118,6 +126,24 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 	}
 
 	return &res, nil
+}
+
+func JobTenderIsActive(item *structs.JobTenders) bool {
+	const dateFormat = "2006-01-02T15:04:05Z"
+
+	startDate, err := time.Parse(dateFormat, string(item.DateOfStart))
+	if err != nil {
+		return false
+	}
+
+	endDate, err := time.Parse(dateFormat, string(item.DateOfEnd))
+	if err != nil {
+		return false
+	}
+
+	currentDate := time.Now().UTC()
+
+	return currentDate.After(startDate) && currentDate.Before(endDate)
 }
 
 func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {

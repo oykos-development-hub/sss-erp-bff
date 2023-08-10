@@ -11,7 +11,7 @@ var UserProfileAbsentInsertMutation = graphql.NewInputObject(graphql.InputObject
 		"user_profile_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"vacation_type_id": &graphql.InputObjectFieldConfig{
+		"absent_type_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"location": &graphql.InputObjectFieldConfig{

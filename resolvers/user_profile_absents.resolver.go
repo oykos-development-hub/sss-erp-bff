@@ -74,7 +74,7 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 
 	return dto.Response{
 		Status:  "success",
-		Message: "Here arworkingDayse the items you asked for!",
+		Message: "Here's the items you asked for!",
 		Summary: absentSummary,
 		Items:   absents,
 	}, nil

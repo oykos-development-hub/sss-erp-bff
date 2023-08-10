@@ -35,7 +35,7 @@ func buildRevisionDetailsItemResponse(revision *structs.Revision) (*dto.Revision
 		}
 		responsibleUserProfile.Title = userProfile.FirstName + " " + userProfile.LastName
 		responsibleUserProfile.Id = userProfile.Id
-	} else {
+	} else if revision.ResponsibleUserProfile != nil {
 		responsibleUserProfile.Title = *revision.ResponsibleUserProfile
 	}
 
@@ -46,7 +46,7 @@ func buildRevisionDetailsItemResponse(revision *structs.Revision) (*dto.Revision
 		}
 		implementationUserProfile.Title = userProfile.FirstName + " " + userProfile.LastName
 		implementationUserProfile.Id = userProfile.Id
-	} else {
+	} else if revision.ImplementationUserProfile != nil {
 		implementationUserProfile.Title = *revision.ImplementationUserProfile
 	}
 

@@ -361,7 +361,7 @@ func processResolutionItems(resolutionItems []*structs.JudgeResolutionItems) ([]
 			resolutionItemResponseItemList = append(resolutionItemResponseItemList, resolutionItemResponseItem)
 
 			totalNumberOfAvailableSlotsJudges += resolutionItemResponseItem.AvailableSlotsJudges
-			totalNumberOfJudges += resolutionItemResponseItem.NumberOfJudges
+			totalNumberOfJudges += resolutionItemResponseItem.AvailableSlotsPredisents + resolutionItemResponseItem.AvailableSlotsJudges
 		}(resolutionItem)
 	}
 

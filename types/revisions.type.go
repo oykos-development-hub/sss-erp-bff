@@ -24,7 +24,7 @@ var RevisionsOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"planned_quarter": &graphql.Field{
-			Type: graphql.Boolean,
+			Type: graphql.String,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

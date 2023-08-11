@@ -280,6 +280,24 @@ var RevisionResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	}, nil
 }
 
+var RevisionDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(int)
+
+	revision, err := getRevisionById(id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	item, err := buildRevisionDetailsItemResponse(revision)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item:    *item,
+	}, nil
+}
+
 var RevisionInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.Revision
 	dataBytes, _ := json.Marshal(params.Args["data"])

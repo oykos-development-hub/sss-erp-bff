@@ -39,10 +39,10 @@ var RevisionDetailsField = &graphql.Field{
 	Description: "Returns a data of Revision item details",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
-	Resolve: resolvers.RevisionResolver,
+	Resolve: resolvers.RevisionDetailsResolver,
 }
 
 var RevisionInsertField = &graphql.Field{

@@ -6,6 +6,7 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -122,6 +123,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 }
 
 var SystematizationDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	fmt.Println("Brisanje sistematizacije")
 	itemId := params.Args["id"]
 
 	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {

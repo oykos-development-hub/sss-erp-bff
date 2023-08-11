@@ -26,7 +26,7 @@ var UserProfileForeignerItemType = graphql.NewObject(graphql.ObjectConfig{
 		"work_permit_indefinite_length": &graphql.Field{
 			Type: graphql.Boolean,
 		},
-		"residence_permit_date_of_start": &graphql.Field{
+		"residence_permit_number": &graphql.Field{
 			Type: graphql.String,
 		},
 		"residence_permit_date_of_end": &graphql.Field{
@@ -34,12 +34,6 @@ var UserProfileForeignerItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"residence_permit_indefinite_length": &graphql.Field{
 			Type: graphql.Boolean,
-		},
-		"residence_permit_number": &graphql.Field{
-			Type: graphql.String,
-		},
-		"residence_permit_issuer": &graphql.Field{
-			Type: graphql.String,
 		},
 		"country_of_origin": &graphql.Field{
 			Type: graphql.String,

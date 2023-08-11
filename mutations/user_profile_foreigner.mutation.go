@@ -26,7 +26,7 @@ var UserProfileForeignerInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"work_permit_indefinite_length": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
-		"residence_permit_date_of_start": &graphql.InputObjectFieldConfig{
+		"residence_permit_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"residence_permit_date_of_end": &graphql.InputObjectFieldConfig{
@@ -34,12 +34,6 @@ var UserProfileForeignerInsertMutation = graphql.NewInputObject(graphql.InputObj
 		},
 		"residence_permit_indefinite_length": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
-		},
-		"residence_permit_number": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"residence_permit_issuer": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
 		},
 		"country_of_origin": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

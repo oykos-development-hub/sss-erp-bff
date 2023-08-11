@@ -123,12 +123,12 @@ var AbsentTypeInsertType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"item": &graphql.Field{
-			Type: AbsentTypeItemType,
+			Type: AbsentTypeItem,
 		},
 	},
 })
 
-var AbsentTypeItemType = graphql.NewObject(graphql.ObjectConfig{
+var AbsentTypeItem = graphql.NewObject(graphql.ObjectConfig{
 	Name: "AbsentTypeItem",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
@@ -160,6 +160,26 @@ var AbsentTypeItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"updated_at": &graphql.Field{
 			Type: graphql.String,
+		},
+	},
+})
+var AbsentTypeItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AbsentTypeItemType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(AbsentTypeItem),
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
 		},
 	},
 })

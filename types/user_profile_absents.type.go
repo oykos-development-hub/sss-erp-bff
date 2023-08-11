@@ -133,6 +133,9 @@ var AbsentTypeChildren = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"parent_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"title": &graphql.Field{
 			Type: graphql.NewNonNull(graphql.String),
 		},

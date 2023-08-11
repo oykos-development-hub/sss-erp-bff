@@ -2,7 +2,7 @@ package structs
 
 type OrganizationUnits struct {
 	Id             int    `json:"id"`
-	ParentId       int    `json:"parent_id"`
+	ParentId       *int   `json:"parent_id,omitempty"`
 	NumberOfJudges int    `json:"number_of_judges"`
 	Title          string `json:"title"`
 	Description    string `json:"description"`

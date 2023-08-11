@@ -20,7 +20,7 @@ type GetOrganizationUnitsInput struct {
 
 type OrganizationUnitsOverviewResponse struct {
 	Id             int                          `json:"id"`
-	ParentId       int                          `json:"parent_id"`
+	ParentId       *int                         `json:"parent_id"`
 	NumberOfJudges int                          `json:"number_of_judges"`
 	Title          string                       `json:"title"`
 	Description    string                       `json:"description"`
@@ -36,7 +36,7 @@ type OrganizationUnitsOverviewResponse struct {
 
 type OrganizationUnitsSectorResponse struct {
 	Id           int                     `json:"id"`
-	ParentId     int                     `json:"parent_id"`
+	ParentId     *int                    `json:"parent_id"`
 	Title        string                  `json:"title"`
 	Abbreviation string                  `json:"abbreviation"`
 	Color        string                  `json:"color"`

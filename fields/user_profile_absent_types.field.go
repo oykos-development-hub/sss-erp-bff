@@ -18,6 +18,9 @@ var AbsentTypeField = &graphql.Field{
 		"size": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"parent_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 	},
 	Resolve: resolvers.AbsentTypeResolver,
 }

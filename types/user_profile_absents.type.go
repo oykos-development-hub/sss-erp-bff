@@ -127,14 +127,10 @@ var AbsentTypeInsertType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
-
-var AbsentTypeItem = graphql.NewObject(graphql.ObjectConfig{
-	Name: "AbsentTypeItem",
+var AbsentTypeChildren = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AbsentTypeChildren",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"parent_id": &graphql.Field{
 			Type: graphql.Int,
 		},
 		"title": &graphql.Field{
@@ -154,6 +150,34 @@ var AbsentTypeItem = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"icon": &graphql.Field{
 			Type: graphql.String,
+		},
+	}})
+var AbsentTypeItem = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AbsentTypeItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"abbreviation": &graphql.Field{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"accounting_days_off": &graphql.Field{
+			Type: graphql.Boolean,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"color": &graphql.Field{
+			Type: graphql.String,
+		},
+		"icon": &graphql.Field{
+			Type: graphql.String,
+		},
+		"children": {
+			Type: graphql.NewList(AbsentTypeChildren),
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

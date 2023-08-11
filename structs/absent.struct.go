@@ -10,6 +10,7 @@ type AbsentType struct {
 	Description       string `json:"description"`
 	Color             string `json:"color"`
 	Icon              string `json:"icon"`
+	Children          []AbsentType
 }
 
 type Absent struct {

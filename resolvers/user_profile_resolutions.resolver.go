@@ -61,7 +61,6 @@ var UserProfileResolutionInsertResolver = func(params graphql.ResolveParams) (in
 			return shared.HandleAPIError(err)
 		}
 		response.Item = resolutionResItem
-		response.Item = resolutionResItem
 		response.Message = "You created this item!"
 	}
 

@@ -12,7 +12,7 @@ var UserProfileAbsentItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"absent_type": &graphql.Field{
-			Type: DropdownItemType,
+			Type: DropdownAbsentTypeItemType,
 		},
 		"location": &graphql.Field{
 			Type: graphql.String,
@@ -37,6 +37,21 @@ var UserProfileAbsentItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"file_id": &graphql.Field{
 			Type: graphql.Int,
+		},
+	},
+})
+
+var DropdownAbsentTypeItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DropdownAbsentTypeItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"accounting_days_off": &graphql.Field{
+			Type: graphql.Boolean,
 		},
 	},
 })

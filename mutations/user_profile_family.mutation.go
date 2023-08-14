@@ -32,6 +32,9 @@ var UserProfileFamilyInsertMutation = graphql.NewInputObject(graphql.InputObject
 		"nationality": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
+		"national_minority": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"citizenship": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},

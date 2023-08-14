@@ -14,6 +14,7 @@ type Family struct {
 	CountryOfBirth       string   `json:"country_of_birth"`
 	CityOfBirth          string   `json:"city_of_birth"`
 	Nationality          string   `json:"nationality"`
+	NationalMinority     string   `json:"national_minority"`
 	Citizenship          string   `json:"citizenship"`
 	Address              string   `json:"address"`
 	OfficialPersonalId   string   `json:"official_personal_id"`

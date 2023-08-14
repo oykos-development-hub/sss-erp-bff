@@ -638,6 +638,9 @@ var UserProfileFamilyItemType = graphql.NewObject(graphql.ObjectConfig{
 		"nationality": &graphql.Field{
 			Type: graphql.String,
 		},
+		"national_minority": &graphql.Field{
+			Type: graphql.String,
+		},
 		"citizenship": &graphql.Field{
 			Type: graphql.String,
 		},

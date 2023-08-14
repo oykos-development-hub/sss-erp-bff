@@ -9,10 +9,10 @@ var UserProfileSalaryParamsInsertMutation = graphql.NewInputObject(graphql.Input
 			Type: graphql.Int,
 		},
 		"user_profile_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"organization_unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"benefited_track": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
@@ -39,7 +39,7 @@ var UserProfileSalaryParamsInsertMutation = graphql.NewInputObject(graphql.Input
 			Type: graphql.String,
 		},
 		"user_resolution_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 })

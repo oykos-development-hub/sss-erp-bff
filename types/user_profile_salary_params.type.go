@@ -8,11 +8,8 @@ var UserProfileSalaryParamsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"user_profile_id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"organization_unit_id": &graphql.Field{
-			Type: graphql.Int,
+		"user_profile": &graphql.Field{
+			Type: DropdownItemType,
 		},
 		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
@@ -41,8 +38,8 @@ var UserProfileSalaryParamsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"education_naming": &graphql.Field{
 			Type: graphql.String,
 		},
-		"user_resolution_id": &graphql.Field{
-			Type: graphql.Int,
+		"resolution": &graphql.Field{
+			Type: UserProfileResolutionItemType,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

@@ -12,25 +12,80 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+func buildSalaryResponseItemList(items []*structs.SalaryParams) (resItemList []*dto.SalaryParams, err error) {
+	for _, item := range items {
+		resItem, err := buildSalaryResponseItem(item)
+		if err != nil {
+			return nil, err
+		}
+		resItemList = append(resItemList, resItem)
+	}
+	return
+}
+
+func buildSalaryResponseItem(item *structs.SalaryParams) (resItem *dto.SalaryParams, err error) {
+	var resolutionResItem *dto.Resolution
+	organizationUnit, err := getOrganizationUnitById(item.OrganizationUnitID)
+	if err != nil {
+		return nil, err
+	}
+
+	if item.UserResolutionId != nil {
+		resolution, err := getEmployeeResolution(*item.UserResolutionId)
+		if err != nil {
+			return nil, err
+		}
+		resolutionResItem, err = buildResolutionResItem(resolution)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	userProfile, err := getUserProfileById(item.UserProfileId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.SalaryParams{
+		Id: item.Id,
+		UserProfile: dto.DropdownSimple{
+			Id:    userProfile.Id,
+			Title: userProfile.GetFullName(),
+		},
+		OrganizationUnit: dto.DropdownSimple{
+			Id:    organizationUnit.Id,
+			Title: organizationUnit.Title,
+		},
+		Resolution:      *resolutionResItem,
+		BenefitedTrack:  item.BenefitedTrack,
+		WithoutRaise:    item.WithoutRaise,
+		InsuranceBasis:  item.InsuranceBasis,
+		SalaryRank:      item.SalaryRank,
+		DailyWorkHours:  item.DailyWorkHours,
+		WeeklyWorkHours: item.WeeklyWorkHours,
+		EducationRank:   item.EducationRank,
+		EducationNaming: item.EducationNaming,
+		CreatedAt:       item.CreatedAt,
+		UpdatedAt:       item.UpdatedAt,
+	}, nil
+}
+
 var UserProfileSalaryParamsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	profileId := params.Args["user_profile_id"].(int)
 
-	res, err := getEmployeeSalaryParams(profileId)
+	salaries, err := getEmployeeSalaryParams(profileId)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	for _, salary := range res {
-		organizationUnit, err := getOrganizationUnitById(salary.OrganizationUnitID)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		salary.OrganizationUnit = structs.SettingsDropdown{Id: organizationUnit.Id, Title: organizationUnit.Title}
+	salaryResponseItemList, err := buildSalaryResponseItemList(salaries)
+	if err != nil {
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the item you asked for!",
-		Items:   res,
+		Items:   salaryResponseItemList,
 	}, nil
 }
 
@@ -67,13 +122,12 @@ var UserProfileSalaryParamsInsertResolver = func(params graphql.ResolveParams) (
 		response.Message = "You created this item!"
 	}
 
-	organizationUnit, err := getOrganizationUnitById(item.OrganizationUnitID)
+	salaryResItem, err := buildSalaryResponseItem(item)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	item.OrganizationUnit = structs.SettingsDropdown{Id: organizationUnit.Id, Title: organizationUnit.Title}
 
-	response.Item = item
+	response.Item = salaryResItem
 
 	return response, nil
 }

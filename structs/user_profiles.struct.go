@@ -35,3 +35,7 @@ type UserProfiles struct {
 	CreatedAt                      string `json:"created_at"`
 	UpdatedAt                      string `json:"updated_at"`
 }
+
+func (u *UserProfiles) GetFullName() string {
+	return u.FirstName + " " + u.LastName
+}

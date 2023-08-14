@@ -8,8 +8,8 @@ var UserProfileResolutionItemType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"user_profile_id": &graphql.Field{
-			Type: graphql.Int,
+		"user_profile": &graphql.Field{
+			Type: DropdownItemType,
 		},
 		"resolution_type": &graphql.Field{
 			Type: DropdownItemType,

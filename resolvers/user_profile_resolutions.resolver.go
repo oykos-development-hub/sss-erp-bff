@@ -18,18 +18,15 @@ var UserProfileResolutionResolver = func(params graphql.ResolveParams) (interfac
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	for _, resolution := range resolutions {
-		resolutionType, err := getDropdownSettingById(resolution.ResolutionTypeId)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		resolution.ResolutionType = &structs.SettingsDropdown{Id: resolutionType.Id, Title: resolutionType.Title}
+	resolutonResItemList, err := buildResolutionResponseItemList(resolutions)
+	if err != nil {
+		return shared.HandleAPIError(err)
 	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   resolutions,
+		Items:   resolutonResItemList,
 	}, nil
 }
 
@@ -44,18 +41,27 @@ var UserProfileResolutionInsertResolver = func(params graphql.ResolveParams) (in
 
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {
-		resolutionResponse, err := updateResolution(itemId, &data)
+		resolution, err := updateResolution(itemId, &data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		response.Item = resolutionResponse
+		resolutionResItem, err := buildResolutionResItem(resolution)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = resolutionResItem
 		response.Message = "You updated this item!"
 	} else {
-		resolutionResponse, err := createResolution(&data)
+		resolution, err := createResolution(&data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		response.Item = resolutionResponse
+		resolutionResItem, err := buildResolutionResItem(resolution)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = resolutionResItem
+		response.Item = resolutionResItem
 		response.Message = "You created this item!"
 	}
 
@@ -76,6 +82,45 @@ var UserProfileResolutionDeleteResolver = func(params graphql.ResolveParams) (in
 	}, nil
 }
 
+func buildResolutionResponseItemList(items []*structs.Resolution) (resItemList []*dto.Resolution, err error) {
+	for _, item := range items {
+		resItem, err := buildResolutionResItem(item)
+		if err != nil {
+			return nil, err
+		}
+		resItemList = append(resItemList, resItem)
+	}
+	return
+}
+
+func buildResolutionResItem(item *structs.Resolution) (*dto.Resolution, error) {
+	userProfile, err := getUserProfileById(item.UserProfileId)
+	if err != nil {
+		return nil, err
+	}
+	resolutionType, err := getDropdownSettingById(item.ResolutionTypeId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.Resolution{
+		Id:                item.Id,
+		ResolutionPurpose: item.ResolutionPurpose,
+		UserProfile: dto.DropdownSimple{
+			Id:    userProfile.Id,
+			Title: userProfile.GetFullName(),
+		},
+		ResolutionType: dto.DropdownSimple{
+			Id:    resolutionType.Id,
+			Title: resolutionType.Title,
+		},
+		DateOfStart: item.DateOfStart,
+		DateOfEnd:   item.DateOfEnd,
+		CreatedAt:   item.CreatedAt,
+		UpdatedAt:   item.UpdatedAt,
+	}, nil
+}
+
 func getEmployeeResolutions(employeeID int) ([]*structs.Resolution, error) {
 	res := &dto.GetResolutionListResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(employeeID)+"/resolutions", nil, res)
@@ -84,6 +129,16 @@ func getEmployeeResolutions(employeeID int) ([]*structs.Resolution, error) {
 	}
 
 	return res.Data, nil
+}
+
+func getEmployeeResolution(id int) (*structs.Resolution, error) {
+	res := &dto.GetResolutionResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.RESOLUTIONS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
 }
 
 func updateResolution(id int, resolution *structs.Resolution) (*structs.Resolution, error) {

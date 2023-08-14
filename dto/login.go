@@ -24,6 +24,7 @@ type LoginResponseMS struct {
 type LoginResponse struct {
 	Status              string                     `json:"status"`
 	Message             string                     `json:"message"`
+	Id                  int                        `json:"id"`
 	RoleId              int                        `json:"role_id"`
 	FolderId            int                        `json:"folder_id"`
 	Email               string                     `json:"email"`

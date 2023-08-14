@@ -16,6 +16,9 @@ var LoginType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"role_id": &graphql.Field{
 			Type: graphql.Int,
 		},

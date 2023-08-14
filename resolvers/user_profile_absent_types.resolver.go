@@ -17,37 +17,12 @@ var AbsentTypeResolver = func(params graphql.ResolveParams) (interface{}, error)
 		return shared.HandleAPIError(err)
 	}
 
-	absentTypes := groupAbsentTypes(absentTypesAll.Data)
-
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   absentTypes,
-		Total:   len(absentTypes),
+		Items:   absentTypesAll.Data,
+		Total:   absentTypesAll.Total,
 	}, nil
-}
-
-func groupAbsentTypes(allAbsentTypes []*structs.AbsentType) []*structs.AbsentType {
-	parentMap := make(map[int]*structs.AbsentType)
-	absentTypes := make([]*structs.AbsentType, 0)
-
-	for _, absentType := range allAbsentTypes {
-		if absentType.ParentId == 0 {
-			parentMap[absentType.Id] = absentType
-			absentTypes = append(absentTypes, absentType)
-		}
-	}
-
-	for _, absentType := range allAbsentTypes {
-		if absentType.ParentId > 0 {
-			parent, found := parentMap[absentType.ParentId]
-			if found {
-				parent.Children = append(parent.Children, *absentType)
-			}
-		}
-	}
-
-	return absentTypes
 }
 
 var AbsentTypeInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {

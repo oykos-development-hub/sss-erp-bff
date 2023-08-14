@@ -83,5 +83,8 @@ var RevisionInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"ref_document": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 	},
 })

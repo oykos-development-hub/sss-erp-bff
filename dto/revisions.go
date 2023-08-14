@@ -54,6 +54,7 @@ type RevisionDetailsItem struct {
 	SecondImplementationMonthSpan   *string                  `json:"second_implementation_month_span"`
 	SecondDateOfRevision            structs.JSONDate         `json:"second_date_of_revision"`
 	FileID                          *int                     `json:"file_id"`
+	RefDocument                     string                   `json:"ref_document"`
 	CreatedAt                       string                   `json:"created_at"`
 	UpdatedAt                       string                   `json:"updated_at"`
 }

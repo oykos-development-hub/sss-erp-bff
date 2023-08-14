@@ -96,6 +96,7 @@ func buildRevisionDetailsItemResponse(revision *structs.Revision) (*dto.Revision
 		SecondImplementationMonthSpan:   revision.SecondImplementationMonthSpan,
 		SecondDateOfRevision:            revision.SecondDateOfRevision,
 		FileID:                          revision.FileID,
+		RefDocument:                     revision.RefDocument,
 		CreatedAt:                       revision.CreatedAt,
 		UpdatedAt:                       revision.UpdatedAt,
 	}

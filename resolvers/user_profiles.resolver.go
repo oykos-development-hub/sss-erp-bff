@@ -648,7 +648,8 @@ func buildUserProfileBasicResponse(
 		}
 	}
 
-	contracts, err := getEmployeeContracts(profile.Id, nil)
+	active := true
+	contracts, err := getEmployeeContracts(profile.Id, &dto.GetEmployeeContracts{Active: &active})
 	if err != nil {
 		return nil, err
 	}

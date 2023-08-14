@@ -240,7 +240,6 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 
 	if activeContract.Contract != nil {
 		activeContract.Contract.UserProfileId = userProfileRes.Id
-		activeContract.Contract.Active = true
 		_, err := createEmployeeContract(activeContract.Contract)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -310,7 +309,6 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 	}
 
 	if activeContract.Contract != nil {
-		activeContract.Contract.Active = true
 		activeContract.Contract.UserProfileId = userProfileRes.Id
 		if activeContract.Contract.Id == 0 {
 			_, err = createEmployeeContract(activeContract.Contract)

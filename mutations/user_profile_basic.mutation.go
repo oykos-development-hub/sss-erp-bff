@@ -205,6 +205,9 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		"position_in_organization_unit_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"contract": &graphql.InputObjectFieldConfig{
+			Type: UserProfileContractInsertMutation,
+		},
 	},
 })
 

@@ -197,7 +197,7 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 	var userAccountData structs.UserAccounts
 	var userProfileData structs.UserProfiles
 	var employeesInOrganizationUnits structs.EmployeesInOrganizationUnits
-	var employeeContracts dto.CreateUserProfileContractList
+	var activeContract dto.MutateUserProfileActiveContract
 
 	var userAccountRes *structs.UserAccounts
 	var userProfileRes *structs.UserProfiles
@@ -221,7 +221,7 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
 		return shared.ErrorResponse("Error updating settings data"), nil
 	}
-	err = json.Unmarshal(dataBytes, &employeeContracts)
+	err = json.Unmarshal(dataBytes, &activeContract)
 	if err != nil {
 		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
 		return shared.ErrorResponse("Error updating settings data"), nil
@@ -238,9 +238,10 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 		return shared.HandleAPIError(err)
 	}
 
-	for _, contractInput := range employeeContracts.Contracts {
-		contractInput.UserProfileId = userProfileRes.Id
-		_, err := createEmployeeContract(contractInput)
+	if activeContract.Contract != nil {
+		activeContract.Contract.UserProfileId = userProfileRes.Id
+		activeContract.Contract.Active = true
+		_, err := createEmployeeContract(activeContract.Contract)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -272,6 +273,7 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 	var err error
 	var userProfileData structs.UserProfiles
 	var positionInOrganizationUnitData structs.EmployeesInOrganizationUnits
+	var activeContract dto.MutateUserProfileActiveContract
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
@@ -293,11 +295,33 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 		return shared.ErrorResponse("Error updating settings data"), nil
 	}
 
+	err = json.Unmarshal(dataBytes, &activeContract)
+	if err != nil {
+		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error updating settings data"), nil
+	}
+
 	if positionInOrganizationUnitData.PositionInOrganizationUnitId != 0 {
 		positionInOrganizationUnitData.UserProfileId = userProfileRes.Id
 		_, err := updateEmployeePositionInOrganizationUnitByProfile(userProfileData.Id, &positionInOrganizationUnitData)
 		if err != nil {
 			return shared.HandleAPIError(err)
+		}
+	}
+
+	if activeContract.Contract != nil {
+		activeContract.Contract.Active = true
+		activeContract.Contract.UserProfileId = userProfileRes.Id
+		if activeContract.Contract.Id == 0 {
+			_, err = createEmployeeContract(activeContract.Contract)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		} else {
+			_, err = updateEmployeeContract(userProfileRes.Id, activeContract.Contract)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
 		}
 	}
 
@@ -648,17 +672,7 @@ func buildUserProfileBasicResponse(
 		}
 	}
 
-	active := true
-	contracts, err := getEmployeeContracts(profile.Id, &dto.GetEmployeeContracts{Active: &active})
-	if err != nil {
-		return nil, err
-	}
-	contractResponseItems, err := buildContractResponseItemList(contracts)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.UserProfileBasicResponse{
+	userProfileResItem := &dto.UserProfileBasicResponse{
 		ID:                            profile.Id,
 		FirstName:                     profile.FirstName,
 		LastName:                      profile.LastName,
@@ -689,10 +703,24 @@ func buildUserProfileBasicResponse(
 		Phone:                         account.Phone,
 		OrganizationUnit:              organizationUnit,
 		JobPosition:                   jobPosition,
-		Contracts:                     contractResponseItems,
 		JobPositionInOrganizationUnit: jobPositionInOrganizationUnitID,
 		NationalMinority:              profile.NationalMinority,
-	}, nil
+	}
+
+	active := true
+	contracts, err := getEmployeeContracts(profile.Id, &dto.GetEmployeeContracts{Active: &active})
+	if err != nil {
+		return nil, err
+	}
+	if len(contracts) > 0 {
+		contractResponseItem, err := buildContractResponseItem(*contracts[0])
+		if err != nil {
+			return nil, err
+		}
+		userProfileResItem.Contract = contractResponseItem
+	}
+
+	return userProfileResItem, nil
 }
 
 func getEmployeeContracts(employeeID int, input *dto.GetEmployeeContracts) ([]*structs.Contracts, error) {

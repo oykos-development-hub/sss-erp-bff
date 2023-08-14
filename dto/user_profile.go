@@ -38,8 +38,8 @@ type GetEmployeeContractListResponseMS struct {
 	Data []*structs.Contracts `json:"data"`
 }
 
-type CreateUserProfileContractList struct {
-	Contracts []*structs.Contracts `json:"contracts"`
+type MutateUserProfileActiveContract struct {
+	Contract *structs.Contracts `json:"contract"`
 }
 
 type GetEmployeeEducationResponseMS struct {
@@ -117,7 +117,7 @@ type UserProfileBasicResponse struct {
 	Phone                         string                     `json:"phone"`
 	OrganizationUnit              *structs.OrganizationUnits `json:"organization_unit"`
 	JobPosition                   *structs.JobPositions      `json:"job_position"`
-	Contracts                     []*structs.Contracts       `json:"contracts"`
+	Contract                      *structs.Contracts         `json:"contracts"`
 	JobPositionInOrganizationUnit int                        `json:"position_in_organization_unit_id"`
 	CreatedAt                     string                     `json:"created_at"`
 	UpdatedAt                     string                     `json:"updated_at"`

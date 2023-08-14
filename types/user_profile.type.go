@@ -149,8 +149,8 @@ var UserProfileBasicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"job_position": &graphql.Field{
 			Type: DropdownItemType,
 		},
-		"contracts": &graphql.Field{
-			Type: graphql.NewList(ContractItemType),
+		"contract": &graphql.Field{
+			Type: ContractItemType,
 		},
 		"position_in_organization_unit_id": &graphql.Field{
 			Type: graphql.Int,

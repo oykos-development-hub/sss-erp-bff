@@ -68,7 +68,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	return dto.LoginResponse{
 		Status:              "success",
 		Message:             "Welcome!",
-		id:                  userProfile.Id,
+		Id:                  userProfile.Id,
 		RoleId:              123,
 		FolderId:            456,
 		Email:               email,

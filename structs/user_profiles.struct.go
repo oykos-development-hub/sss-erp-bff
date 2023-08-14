@@ -14,6 +14,7 @@ type UserProfiles struct {
 	CountryOfBirth                 string `json:"country_of_birth"`
 	CityOfBirth                    string `json:"city_of_birth"`
 	Nationality                    string `json:"nationality"`
+	NationalMinority               string `json:"national_minority"`
 	Citizenship                    string `json:"citizenship"`
 	Address                        string `json:"address"`
 	BankAccount                    string `json:"bank_account"`
@@ -30,7 +31,6 @@ type UserProfiles struct {
 	DateOfBecomingJudge            string `json:"date_of_becoming_judge"`
 	EngagementTypeId               *int   `json:"engagement_type_id,omitempty"`
 	RevisorRole                    bool   `json:"revisor_role"`
-	NationalMinority               string `json:"national_minority"`
 	SecondaryEmail                 string `json:"secondary_email"`
 	CreatedAt                      string `json:"created_at"`
 	UpdatedAt                      string `json:"updated_at"`

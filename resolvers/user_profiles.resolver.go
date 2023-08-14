@@ -690,6 +690,7 @@ func buildUserProfileBasicResponse(
 		JobPosition:                   jobPosition,
 		Contracts:                     contractResponseItems,
 		JobPositionInOrganizationUnit: jobPositionInOrganizationUnitID,
+		NationalMinority:              profile.NationalMinority,
 	}, nil
 }
 

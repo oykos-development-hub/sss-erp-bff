@@ -11,6 +11,12 @@ var UserProfileSalaryParamsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"user_profile_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"organization_unit_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"benefited_track": &graphql.Field{
 			Type: graphql.Boolean,
 		},

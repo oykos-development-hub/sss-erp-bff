@@ -19,6 +19,13 @@ var UserProfileSalaryParamsResolver = func(params graphql.ResolveParams) (interf
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
+	for _, salary := range res {
+		organizationUnit, err := getOrganizationUnitById(salary.OrganizationUnitID)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		salary.OrganizationUnit = structs.SettingsDropdown{Id: organizationUnit.Id, Title: organizationUnit.Title}
+	}
 
 	return dto.Response{
 		Status:  "success",
@@ -35,6 +42,8 @@ var UserProfileSalaryParamsInsertResolver = func(params graphql.ResolveParams) (
 		Status: "success",
 	}
 
+	var item *structs.SalaryParams
+
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
 	err = json.Unmarshal(dataBytes, &data)
@@ -45,20 +54,26 @@ var UserProfileSalaryParamsInsertResolver = func(params graphql.ResolveParams) (
 
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {
-		item, err := updateEmployeeSalaryParams(itemId, &data)
+		item, err = updateEmployeeSalaryParams(itemId, &data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
 		response.Message = "You updated this item!"
-		response.Item = item
 	} else {
-		item, err := createEmployeeSalaryParams(&data)
+		item, err = createEmployeeSalaryParams(&data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
 		response.Message = "You created this item!"
-		response.Item = item
 	}
+
+	organizationUnit, err := getOrganizationUnitById(item.OrganizationUnitID)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	item.OrganizationUnit = structs.SettingsDropdown{Id: organizationUnit.Id, Title: organizationUnit.Title}
+
+	response.Item = item
 
 	return response, nil
 }

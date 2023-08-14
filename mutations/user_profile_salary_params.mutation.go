@@ -11,6 +11,9 @@ var UserProfileSalaryParamsInsertMutation = graphql.NewInputObject(graphql.Input
 		"user_profile_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"benefited_track": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},

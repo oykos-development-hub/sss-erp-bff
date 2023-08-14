@@ -135,7 +135,7 @@ var RevisionDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"ref_document": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 	},
 })

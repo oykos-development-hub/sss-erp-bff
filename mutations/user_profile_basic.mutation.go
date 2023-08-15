@@ -82,8 +82,8 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"date_of_taking_oath": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"contracts": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(UserProfileContractInput),
+		"contract": &graphql.InputObjectFieldConfig{
+			Type: UserProfileContractInput,
 		},
 		"date_of_becoming_judge": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

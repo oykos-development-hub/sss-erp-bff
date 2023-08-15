@@ -392,6 +392,27 @@ var UserProfileUpdateType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var UserProfileEducationWithTypeItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserProfileEducationWithTypeItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"value": &graphql.Field{
+			Type: graphql.String,
+		},
+		"abbreviation": &graphql.Field{
+			Type: graphql.String,
+		},
+		"educations": &graphql.Field{
+			Type: graphql.NewList(UserProfileEducationItemType),
+		},
+	},
+})
+
 var UserProfileEducationItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "UserProfileEducationItem",
 	Fields: graphql.Fields{
@@ -455,8 +476,8 @@ var UserProfileEducationGroupType = graphql.NewObject(graphql.ObjectConfig{
 		"abbreviation": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(UserProfileEducationItemType),
+		"sub_educations": &graphql.Field{
+			Type: graphql.NewList(UserProfileEducationWithTypeItemType),
 		},
 	},
 })

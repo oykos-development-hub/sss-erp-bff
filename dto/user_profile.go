@@ -143,10 +143,18 @@ type UserProfileOverviewResponse struct {
 	UpdatedAt        string                   `json:"updated_at"`
 }
 
-type EducationTypeWithEducationsResponse struct {
+type EducationResponseItem struct {
+	ID           int                                    `json:"id"`
+	Abbreviation string                                 `json:"abbreviation"`
+	Title        string                                 `json:"title"`
+	Value        string                                 `json:"value"`
+	SubTypeList  []*EducationItemWithEducationsResponse `json:"sub_educations"`
+}
+
+type EducationItemWithEducationsResponse struct {
 	ID           int                 `json:"id"`
-	Abbreviation string              `json:"first_name"`
-	Title        string              `json:"last_name"`
-	Value        string              `json:"date_of_birth"`
+	Abbreviation string              `json:"abbreviation"`
+	Title        string              `json:"title"`
+	Value        string              `json:"value"`
 	Educations   []structs.Education `json:"items"`
 }

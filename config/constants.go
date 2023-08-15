@@ -12,9 +12,12 @@ type ContextKey string
 const (
 	HttpResponseWriterKey ContextKey = "httpResponseWriter"
 	HttpHeadersKey        ContextKey = "httpHeaders"
+	EducationTypes        string     = "education_types"
 )
 
 var (
+	LOGGED_IN_USER_ENDPOINT string
+
 	HR_MS_BASE_URL                               string
 	CORE_MS_BASE_URL                             string
 	LOGIN_ENDPOINT                               string
@@ -88,4 +91,6 @@ func init() {
 	JOB_TENDER_APPLICATIONS_ENDPOINT = HR_MS_BASE_URL + "/tender-applications-in-organization-units"
 	JUDGE_RESOLUTIONS_ENDPOINT = HR_MS_BASE_URL + "/judge-number-resolutions"
 	JUDGE_RESOLUTION_ITEMS_ENDPOINT = HR_MS_BASE_URL + "/judge-number-resolution-organization-units"
+	LOGGED_IN_USER_ENDPOINT = CORE_MS_BASE_URL + "/logged-in-user"
+
 }

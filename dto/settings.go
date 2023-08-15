@@ -7,6 +7,7 @@ type GetSettingsInput struct {
 	Page   *int    `json:"page"`
 	Size   *int    `json:"size"`
 	Search *string `json:"search"`
+	Value  *string `json:"value"`
 }
 
 type GetDropdownTypesResponseMS struct {

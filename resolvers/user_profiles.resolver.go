@@ -396,45 +396,61 @@ var UserProfileContractDeleteResolver = func(params graphql.ResolveParams) (inte
 
 var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var (
-		response []dto.EducationTypeWithEducationsResponse
+		response []dto.EducationResponseItem
 	)
 
 	userProfileID := params.Args["user_profile_id"]
 
 	settingsInput := dto.GetSettingsInput{
-		Entity: "education_types",
+		Entity: config.EducationTypes,
 	}
 	educationTypes, err := getDropdownSettings(&settingsInput)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
-	educationTypeMap := make(map[int]dto.EducationTypeWithEducationsResponse)
-
+	// Step 1: Create a map for EducationTypes
+	educationTypeMap := make(map[string][]*dto.EducationItemWithEducationsResponse)
 	for _, educationType := range educationTypes.Data {
-		educationTypeResponse := dto.EducationTypeWithEducationsResponse{
-			ID:           educationType.Id,
-			Abbreviation: educationType.Abbreviation,
-			Title:        educationType.Title,
-			Value:        educationType.Value,
+		if educationType.Value != "" {
+			subType := &dto.EducationItemWithEducationsResponse{
+				ID:           educationType.Id,
+				Abbreviation: educationType.Abbreviation,
+				Title:        educationType.Title,
+				Value:        educationType.Value,
+			}
+			educationTypeMap[educationType.Value] = append(educationTypeMap[educationType.Value], subType)
 		}
-		educationTypeMap[educationType.Id] = educationTypeResponse
 	}
 
+	// Step 2: Fetch userProfileEducations and create a map
 	userProfileEducations, err := getEmployeeEducations(userProfileID.(int))
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
-	for _, education := range userProfileEducations {
-		if educationTypeResponse, ok := educationTypeMap[education.EducationTypeId]; ok {
-			educationTypeResponse.Educations = append(educationTypeResponse.Educations, education)
-			educationTypeMap[education.EducationTypeId] = educationTypeResponse
-		}
+	educationMap := make(map[int][]structs.Education)
+	for _, userProfileEducation := range userProfileEducations {
+		educationMap[userProfileEducation.EducationTypeId] = append(educationMap[userProfileEducation.EducationTypeId], userProfileEducation)
 	}
 
-	for _, educationTypeResponse := range educationTypeMap {
-		response = append(response, educationTypeResponse)
+	// Step 3: Build the response
+	for _, educationType := range educationTypes.Data {
+		if educationType.Value == "" {
+			educationResponseItem := dto.EducationResponseItem{
+				ID:           educationType.Id,
+				Abbreviation: educationType.Abbreviation,
+				Title:        educationType.Title,
+				Value:        educationType.Value,
+				SubTypeList:  educationTypeMap[strconv.Itoa(educationType.Id)],
+			}
+
+			for _, subType := range educationResponseItem.SubTypeList {
+				subType.Educations = educationMap[subType.ID]
+			}
+
+			response = append(response, educationResponseItem)
+		}
 	}
 
 	return dto.Response{
@@ -1018,4 +1034,18 @@ func getEmployeeFamilyMembers(employeeID int) ([]*structs.Family, error) {
 	}
 
 	return res.Data, nil
+}
+
+func getLoggedInUserProfile(token string) (*structs.UserProfiles, error) {
+	userAccount, err := getLoggedInUser(token)
+	if err != nil {
+		return nil, err
+	}
+
+	userProfile, err := getUserProfileByUserAccountID(userAccount.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return userProfile, nil
 }

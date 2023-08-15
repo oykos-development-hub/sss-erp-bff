@@ -410,10 +410,10 @@ var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface
 	}
 
 	// Step 1: Create a map for EducationTypes
-	educationTypeMap := make(map[string][]*dto.EducationItemWithEducationsResponse)
+	educationTypeMap := make(map[string][]*dto.EducationSubItem)
 	for _, educationType := range educationTypes.Data {
 		if educationType.Value != "" {
-			subType := &dto.EducationItemWithEducationsResponse{
+			subType := &dto.EducationSubItem{
 				ID:           educationType.Id,
 				Abbreviation: educationType.Abbreviation,
 				Title:        educationType.Title,

@@ -144,14 +144,14 @@ type UserProfileOverviewResponse struct {
 }
 
 type EducationResponseItem struct {
-	ID           int                                    `json:"id"`
-	Abbreviation string                                 `json:"abbreviation"`
-	Title        string                                 `json:"title"`
-	Value        string                                 `json:"value"`
-	SubTypeList  []*EducationItemWithEducationsResponse `json:"sub_educations"`
+	ID           int                 `json:"id"`
+	Abbreviation string              `json:"abbreviation"`
+	Title        string              `json:"title"`
+	Value        string              `json:"value"`
+	SubTypeList  []*EducationSubItem `json:"sub_types"`
 }
 
-type EducationItemWithEducationsResponse struct {
+type EducationSubItem struct {
 	ID           int                 `json:"id"`
 	Abbreviation string              `json:"abbreviation"`
 	Title        string              `json:"title"`

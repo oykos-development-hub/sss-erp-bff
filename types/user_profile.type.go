@@ -392,7 +392,46 @@ var UserProfileUpdateType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var UserProfileEducationWithTypeItemType = graphql.NewObject(graphql.ObjectConfig{
+var UserProfileEducationType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserProfileEducation",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(UserProfileEducationGroupType),
+		},
+	},
+})
+
+var UserProfileEducationGroupType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserProfileEducationGroup",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"value": &graphql.Field{
+			Type: graphql.String,
+		},
+		"abbreviation": &graphql.Field{
+			Type: graphql.String,
+		},
+		"sub_types": &graphql.Field{
+			Type: graphql.NewList(UserProfileSubEducationItemType),
+		},
+	},
+})
+
+var UserProfileSubEducationItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "UserProfileEducationWithTypeItem",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
@@ -457,45 +496,6 @@ var UserProfileEducationItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"file_id": &graphql.Field{
 			Type: graphql.Int,
-		},
-	},
-})
-
-var UserProfileEducationGroupType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileEducationGroup",
-	Fields: graphql.Fields{
-		"id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"title": &graphql.Field{
-			Type: graphql.String,
-		},
-		"value": &graphql.Field{
-			Type: graphql.String,
-		},
-		"abbreviation": &graphql.Field{
-			Type: graphql.String,
-		},
-		"sub_educations": &graphql.Field{
-			Type: graphql.NewList(UserProfileEducationWithTypeItemType),
-		},
-	},
-})
-
-var UserProfileEducationType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileEducation",
-	Fields: graphql.Fields{
-		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"data": &graphql.Field{
-			Type: JSON,
-		},
-		"message": &graphql.Field{
-			Type: graphql.String,
-		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(UserProfileEducationGroupType),
 		},
 	},
 })

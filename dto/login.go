@@ -37,7 +37,7 @@ type LoginResponse struct {
 	Gender              string                     `json:"gender"`
 	DateOfBecomingJudge string                     `json:"date_of_becoming_judge"`
 	Permissions         interface{}                `json:"permissions"`
-	Contract            *structs.Contracts         `json:"contract"`
+	Contract            *Contract                  `json:"contract"`
 	Engagement          *structs.SettingsDropdown  `json:"engagement"`
 	JobPosition         *structs.JobPositions      `json:"job_position"`
 	OrganizationUnit    *structs.OrganizationUnits `json:"organization_unit"`

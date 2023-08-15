@@ -8,14 +8,20 @@ var ContractItemType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"user_profile_id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"contract_type_id": &graphql.Field{
-			Type: graphql.Int,
+		"user_profile": &graphql.Field{
+			Type: DropdownItemType,
 		},
 		"contract_type": &graphql.Field{
-			Type: ContractTypeItemType,
+			Type: DropdownItemType,
+		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"department": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"job_position_in_organization_unit": &graphql.Field{
+			Type: DropdownItemType,
 		},
 		"abbreviation": &graphql.Field{
 			Type: graphql.String,

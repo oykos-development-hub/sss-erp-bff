@@ -117,7 +117,7 @@ type UserProfileBasicResponse struct {
 	Phone                         string                     `json:"phone"`
 	OrganizationUnit              *structs.OrganizationUnits `json:"organization_unit"`
 	JobPosition                   *structs.JobPositions      `json:"job_position"`
-	Contract                      *structs.Contracts         `json:"contracts"`
+	Contract                      *Contract                  `json:"contracts"`
 	JobPositionInOrganizationUnit int                        `json:"position_in_organization_unit_id"`
 	CreatedAt                     string                     `json:"created_at"`
 	UpdatedAt                     string                     `json:"updated_at"`

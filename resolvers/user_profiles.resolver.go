@@ -610,7 +610,7 @@ var UserProfileFamilyDeleteResolver = func(params graphql.ResolveParams) (interf
 	}, nil
 }
 
-func buildContractResponseItemList(contracts []*structs.Contracts) (contractResponseItemList []*structs.Contracts, err error) {
+func buildContractResponseItemList(contracts []*structs.Contracts) (contractResponseItemList []*dto.Contract, err error) {
 	for _, contract := range contracts {
 		contractResItem, err := buildContractResponseItem(*contract)
 		if err != nil {
@@ -621,14 +621,64 @@ func buildContractResponseItemList(contracts []*structs.Contracts) (contractResp
 	return
 }
 
-func buildContractResponseItem(contract structs.Contracts) (*structs.Contracts, error) {
+func buildContractResponseItem(contract structs.Contracts) (*dto.Contract, error) {
+	responseContract := &dto.Contract{
+		Id:                contract.Id,
+		Title:             contract.Title,
+		Abbreviation:      contract.Abbreviation,
+		Description:       contract.Description,
+		Active:            contract.Active,
+		SerialNumber:      contract.SerialNumber,
+		NetSalary:         contract.NetSalary,
+		GrossSalary:       contract.GrossSalary,
+		BankAccount:       contract.BankAccount,
+		BankName:          contract.BankName,
+		DateOfSignature:   contract.DateOfSignature,
+		DateOfStart:       contract.DateOfStart,
+		DateOfEnd:         contract.DateOfEnd,
+		DateOfEligibility: contract.DateOfEligibility,
+		CreatedAt:         contract.CreatedAt,
+		UpdatedAt:         contract.UpdatedAt,
+		FileId:            contract.FileId,
+	}
+
 	contractType, err := getDropdownSettingById(contract.ContractTypeId)
 	if err != nil {
 		return nil, err
 	}
-	contract.ContractType = *contractType
+	responseContract.ContractType = dto.DropdownSimple{Id: contractType.Id, Title: contractType.Title}
 
-	return &contract, nil
+	userProfile, err := getUserProfileById(contract.UserProfileId)
+	if err != nil {
+		return nil, err
+	}
+	responseContract.UserProfile = dto.DropdownSimple{Id: userProfile.Id, Title: userProfile.GetFullName()}
+
+	organizationUnit, err := getOrganizationUnitById(contract.OrganizationUnitID)
+	if err != nil {
+		return nil, err
+	}
+	responseContract.OrganizationUnit = dto.DropdownSimple{Id: organizationUnit.Id, Title: organizationUnit.Title}
+
+	if contract.DepartmentID != nil {
+		department, err := getOrganizationUnitById(*contract.DepartmentID)
+		if err != nil {
+			return nil, err
+		}
+		responseContract.Department = &dto.DropdownSimple{Id: department.Id, Title: department.Title}
+	}
+
+	jobPositionInOU, err := getJobPositionsInOrganizationUnitsById(contract.JobPositionInOrganizationUnitID)
+	if err != nil {
+		return nil, err
+	}
+	jobPosition, err := getJobPositionById(jobPositionInOU.JobPositionId)
+	if err != nil {
+		return nil, err
+	}
+	responseContract.JobPositionInOrganizationUnit = dto.DropdownSimple{Id: jobPositionInOU.Id, Title: jobPosition.Title}
+
+	return responseContract, nil
 }
 
 func buildUserProfileBasicResponse(

@@ -17,7 +17,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 
 	var (
 		engagement       *structs.SettingsDropdown
-		contractsResItem *structs.Contracts
+		contractsResItem *dto.Contract
 		jobPosition      *structs.JobPositions
 		organizationUnit *structs.OrganizationUnits
 	)

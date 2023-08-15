@@ -12,10 +12,12 @@ type GetSystematizationResponseMS struct {
 }
 
 type GetSystematizationsInput struct {
-	Page               *int  `json:"page"`
-	Size               *int  `json:"page_size"`
-	OrganizationUnitID *int  `json:"organization_unit_id"`
-	Active             *bool `json:"active"`
+	Page               *int    `json:"page"`
+	Size               *int    `json:"page_size"`
+	OrganizationUnitID *int    `json:"organization_unit_id"`
+	Active             *bool   `json:"active"`
+	Year               *string `json:"year"`
+	Search             *string `json:"search"`
 }
 
 type SystematizationOverviewResponse struct {

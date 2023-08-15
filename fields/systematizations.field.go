@@ -4,6 +4,7 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -22,6 +23,12 @@ var SystematizationsOverviewField = &graphql.Field{
 		},
 		"organization_unit_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
+		},
+		"year": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"search": &graphql.ArgumentConfig{
+			Type: graphql.String,
 		},
 	},
 	Resolve: resolvers.SystematizationsOverviewResolver,

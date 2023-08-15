@@ -838,16 +838,6 @@ func updateUserProfile(userID int, user structs.UserProfiles) (*structs.UserProf
 	return &res.Data, nil
 }
 
-func updateEmployeePositionInOrganizationUnitByProfile(profileId int, data *structs.EmployeesInOrganizationUnits) (*structs.EmployeesInOrganizationUnits, error) {
-	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(profileId), data, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
 func getEmployeesInOrganizationUnitsByProfileId(profileId int) (*structs.EmployeesInOrganizationUnits, error) {
 	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(profileId)+"/employee-in-organization-unit", nil, res)

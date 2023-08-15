@@ -196,7 +196,6 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 	var err error
 	var userAccountData structs.UserAccounts
 	var userProfileData structs.UserProfiles
-	var employeesInOrganizationUnits structs.EmployeesInOrganizationUnits
 	var activeContract dto.MutateUserProfileActiveContract
 
 	var userAccountRes *structs.UserAccounts
@@ -212,11 +211,6 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 		return shared.ErrorResponse("Error updating settings data"), nil
 	}
 	err = json.Unmarshal(dataBytes, &userProfileData)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
-	}
-	err = json.Unmarshal(dataBytes, &employeesInOrganizationUnits)
 	if err != nil {
 		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
 		return shared.ErrorResponse("Error updating settings data"), nil
@@ -246,16 +240,6 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 		}
 	}
 
-	if employeesInOrganizationUnits.PositionInOrganizationUnitId != 0 {
-		employeesInOrganizationUnits.UserAccountId = userAccountRes.Id
-		employeesInOrganizationUnits.UserProfileId = userProfileRes.Id
-		employeesInOrganizationUnits.Active = true
-		_, err = createEmployeesInOrganizationUnits(&employeesInOrganizationUnits)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-	}
-
 	res, err := buildUserProfileBasicResponse(userProfileRes)
 	if err != nil {
 		return shared.HandleAPIError(err)
@@ -271,7 +255,6 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var err error
 	var userProfileData structs.UserProfiles
-	var positionInOrganizationUnitData structs.EmployeesInOrganizationUnits
 	var activeContract dto.MutateUserProfileActiveContract
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
@@ -288,24 +271,10 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 		return shared.ErrorResponse("Error creating the user profile data"), nil
 	}
 
-	err = json.Unmarshal(dataBytes, &positionInOrganizationUnitData)
-	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
-	}
-
 	err = json.Unmarshal(dataBytes, &activeContract)
 	if err != nil {
 		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
 		return shared.ErrorResponse("Error updating settings data"), nil
-	}
-
-	if positionInOrganizationUnitData.PositionInOrganizationUnitId != 0 {
-		positionInOrganizationUnitData.UserProfileId = userProfileRes.Id
-		_, err := updateEmployeePositionInOrganizationUnitByProfile(userProfileData.Id, &positionInOrganizationUnitData)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
 	}
 
 	if activeContract.Contract != nil {

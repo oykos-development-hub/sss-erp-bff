@@ -446,6 +446,7 @@ var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface
 
 var UserProfileEducationInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.Education
+	var employeeEducation *structs.Education
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	response := dto.ResponseSingle{
 		Status: "success",
@@ -466,20 +467,24 @@ var UserProfileEducationInsertResolver = func(params graphql.ResolveParams) (int
 
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {
-		employeeEducationResponse, err := updateEmployeeEducation(itemId, &data)
+		employeeEducation, err = updateEmployeeEducation(itemId, &data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		response.Item = employeeEducationResponse
 		response.Message = "You updated this item!"
 	} else {
-		employeeEducationResponse, err := createEmployeeEducation(&data)
+		employeeEducation, err = createEmployeeEducation(&data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		response.Item = employeeEducationResponse
 		response.Message = "You created this item!"
 	}
+
+	responseItem, err := buildEducationResItem(*employeeEducation)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	response.Item = responseItem
 
 	return response, nil
 }

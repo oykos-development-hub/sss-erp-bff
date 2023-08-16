@@ -140,26 +140,8 @@ var JobPositionInOrganizationUnitItemType = graphql.NewObject(graphql.ObjectConf
 		"job_position_id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"parent_job_position_id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"system_permission_id": &graphql.Field{
-			Type: graphql.Int,
-		},
 		"available_slots": &graphql.Field{
 			Type: graphql.Int,
-		},
-		"description": &graphql.Field{
-			Type: graphql.String,
-		},
-		"serial_number": &graphql.Field{
-			Type: graphql.String,
-		},
-		"requirements": &graphql.Field{
-			Type: graphql.String,
-		},
-		"icon": &graphql.Field{
-			Type: graphql.String,
 		},
 	},
 })

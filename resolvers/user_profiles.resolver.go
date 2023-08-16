@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/graphql-go/graphql"
 )
 
@@ -363,64 +364,81 @@ var UserProfileContractDeleteResolver = func(params graphql.ResolveParams) (inte
 	}, nil
 }
 
+func buildEducationResItem(education structs.Education) (*dto.Education, error) {
+	subType, err := getDropdownSettingById(education.SubTypeId)
+	if err != nil {
+		return nil, err
+	}
+	educationResItem := &dto.Education{
+		Id:                  education.Id,
+		Title:               education.Title,
+		Description:         education.Description,
+		Price:               education.Price,
+		DateOfStart:         education.DateOfStart,
+		DateOfEnd:           education.DateOfEnd,
+		DateOfCertification: education.DateOfCertification,
+		AcademicTitle:       education.AcademicTitle,
+		CertificateIssuer:   education.CertificateIssuer,
+		CreatedAt:           education.CreatedAt,
+		UpdatedAt:           education.UpdatedAt,
+		FileId:              education.FileId,
+		UserProfileId:       education.UserProfileId,
+		ExpertiseLevel:      education.ExpertiseLevel,
+		TypeId:              education.TypeId,
+	}
+
+	educationResItem.SubType = dto.DropdownSimple{Id: subType.Id, Title: subType.Title}
+
+	return educationResItem, nil
+}
+
+func buildEducationResItemList(educations []structs.Education) (educationResItemList []*dto.Education, err error) {
+	for _, education := range educations {
+		educationResItem, err := buildEducationResItem(education)
+		if err != nil {
+			return nil, err
+		}
+		educationResItemList = append(educationResItemList, educationResItem)
+	}
+	return
+}
+
 var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var (
-		response []dto.EducationResponseItem
-	)
-
 	userProfileID := params.Args["user_profile_id"]
+	var response []dto.EducationResponseItem
 
-	settingsInput := dto.GetSettingsInput{
+	rootLevelEducationTypeValue := "0"
+	educationMainTypes, err := getDropdownSettings(&dto.GetSettingsInput{
 		Entity: config.EducationTypes,
-	}
-	educationTypes, err := getDropdownSettings(&settingsInput)
+		Value:  &rootLevelEducationTypeValue,
+	})
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
-	// Step 1: Create a map for EducationTypes
-	educationTypeMap := make(map[string][]*dto.EducationSubItem)
-	for _, educationType := range educationTypes.Data {
-		if educationType.Value != "" {
-			subType := &dto.EducationSubItem{
-				ID:           educationType.Id,
-				Abbreviation: educationType.Abbreviation,
-				Title:        educationType.Title,
-				Value:        educationType.Value,
-			}
-			educationTypeMap[educationType.Value] = append(educationTypeMap[educationType.Value], subType)
+	for _, educationType := range educationMainTypes.Data {
+		responseItem := dto.EducationResponseItem{
+			ID:           educationType.Id,
+			Abbreviation: educationType.Abbreviation,
+			Title:        educationType.Title,
+			Value:        educationType.Value,
 		}
-	}
-
-	// Step 2: Fetch userProfileEducations and create a map
-	userProfileEducations, err := getEmployeeEducations(userProfileID.(int))
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	educationMap := make(map[int][]structs.Education)
-	for _, userProfileEducation := range userProfileEducations {
-		educationMap[userProfileEducation.EducationTypeId] = append(educationMap[userProfileEducation.EducationTypeId], userProfileEducation)
-	}
-
-	// Step 3: Build the response
-	for _, educationType := range educationTypes.Data {
-		if educationType.Value == "" {
-			educationResponseItem := dto.EducationResponseItem{
-				ID:           educationType.Id,
-				Abbreviation: educationType.Abbreviation,
-				Title:        educationType.Title,
-				Value:        educationType.Value,
-				SubTypeList:  educationTypeMap[strconv.Itoa(educationType.Id)],
-			}
-
-			for _, subType := range educationResponseItem.SubTypeList {
-				subType.Educations = educationMap[subType.ID]
-			}
-
-			response = append(response, educationResponseItem)
+		educations, err := getEmployeeEducations(dto.EducationInput{
+			UserProfileID: userProfileID.(int),
+			TypeID:        &educationType.Id,
+		})
+		if err != nil {
+			return shared.HandleAPIError(err)
 		}
+		educationResItemList, err := buildEducationResItemList(educations)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		responseItem.Educations = append(responseItem.Educations, educationResItemList...)
+		response = append(response, responseItem)
 	}
+
+	spew.Dump(response)
 
 	return dto.Response{
 		Status:  "success",
@@ -907,9 +925,9 @@ func deleteEmployeeEducation(id int) error {
 	return nil
 }
 
-func getEmployeeEducations(userProfileID int) ([]structs.Education, error) {
+func getEmployeeEducations(input dto.EducationInput) ([]structs.Education, error) {
 	res := &dto.GetEmployeeEducationListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(userProfileID)+"/educations", nil, res)
+	_, err := shared.MakeAPIRequest("GET", config.EMPLOYEE_EDUCATIONS, input, res)
 	if err != nil {
 		return nil, err
 	}

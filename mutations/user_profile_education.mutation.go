@@ -8,7 +8,7 @@ var UserProfileEducationInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"education_type_id": &graphql.InputObjectFieldConfig{
+		"type_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"user_profile_id": &graphql.InputObjectFieldConfig{

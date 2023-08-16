@@ -222,16 +222,35 @@ var EmployeeInOrganizationUnitInsertResolver = func(params graphql.ResolveParams
 }
 
 var EmployeeInOrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemId := params.Args["position_in_organization_unit_id"]
 
-	err := deleteEmployeeInOrganizationUnit(itemId.(int))
+	id := itemId.(int)
+
+	filter := dto.GetEmployeesInOrganizationUnitInput{
+		PositionInOrganizationUnit: &id,
+	}
+
+	res, err := getEmployeesInOrganizationUnitList(&filter)
+
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
+	i := 0
+	for i = 0; i < len(res); i++ {
+
+		id = res[i].Id
+
+		err = deleteEmployeeInOrganizationUnit(id)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+	}
+
 	return dto.ResponseSingle{
 		Status:  "success",
-		Message: "You deleted this item!",
+		Message: "You deleted this item/s!",
 	}, nil
 }
 

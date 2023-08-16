@@ -98,7 +98,7 @@ var EmployeeInOrganizationUnitDeleteField = &graphql.Field{
 	Type:        types.EmployeeInOrganizationUnitDeleteType,
 	Description: "Deletes existing Employee in Organization Unit",
 	Args: graphql.FieldConfigArgument{
-		"id": &graphql.ArgumentConfig{
+		"position_in_organization_unit_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
 	},

@@ -21,6 +21,9 @@ var SettingsDropdownField = &graphql.Field{
 		"search": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
+		"value": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 		"page": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},

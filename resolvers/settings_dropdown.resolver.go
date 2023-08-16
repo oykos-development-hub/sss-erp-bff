@@ -45,6 +45,10 @@ var SettingsDropdownResolver = func(params graphql.ResolveParams) (interface{}, 
 		}
 		input.Entity = entity
 
+		if value, ok := params.Args["value"].(string); ok && value != "" {
+			input.Value = &value
+		}
+
 		res, err := getDropdownSettings(&input)
 		if err != nil {
 			return shared.HandleAPIError(err)

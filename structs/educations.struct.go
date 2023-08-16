@@ -4,7 +4,6 @@ type Education struct {
 	Id                  int      `json:"id"`
 	Title               string   `json:"title"`
 	TypeId              int      `json:"type_id"`
-	SubTypeId           int      `json:"sub_type_id"`
 	UserProfileId       int      `json:"user_profile_id"`
 	Description         string   `json:"description"`
 	DateOfCertification JSONDate `json:"date_of_certification"`

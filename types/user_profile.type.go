@@ -405,27 +405,6 @@ var UserProfileEducationType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"items": &graphql.Field{
-			Type: graphql.NewList(UserProfileEducationGroupType),
-		},
-	},
-})
-
-var UserProfileEducationGroupType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileEducationGroup",
-	Fields: graphql.Fields{
-		"id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"title": &graphql.Field{
-			Type: graphql.String,
-		},
-		"value": &graphql.Field{
-			Type: graphql.String,
-		},
-		"abbreviation": &graphql.Field{
-			Type: graphql.String,
-		},
-		"educations": &graphql.Field{
 			Type: graphql.NewList(UserProfileEducationItemType),
 		},
 	},
@@ -440,10 +419,7 @@ var UserProfileEducationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"user_profile_id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"type_id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"sub_type": &graphql.Field{
+		"type": &graphql.Field{
 			Type: DropdownItemType,
 		},
 		"date_of_certification": &graphql.Field{

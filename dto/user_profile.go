@@ -143,19 +143,10 @@ type UserProfileOverviewResponse struct {
 	UpdatedAt        string                   `json:"updated_at"`
 }
 
-type EducationResponseItem struct {
-	ID           int          `json:"id"`
-	Abbreviation string       `json:"abbreviation"`
-	Title        string       `json:"title"`
-	Value        string       `json:"value"`
-	Educations   []*Education `json:"educations"`
-}
-
 type Education struct {
 	Id                  int              `json:"id"`
 	Title               string           `json:"title"`
-	TypeId              int              `json:"type_id"`
-	SubType             DropdownSimple   `json:"sub_type"`
+	Type                DropdownSimple   `json:"type_id"`
 	UserProfileId       int              `json:"user_profile_id"`
 	Description         string           `json:"description"`
 	DateOfCertification structs.JSONDate `json:"date_of_certification"`
@@ -173,5 +164,4 @@ type Education struct {
 type EducationInput struct {
 	UserProfileID int  `json:"user_profile_id"`
 	TypeID        *int `json:"type_id"`
-	SubTypeID     *int `json:"sub_type_id"`
 }

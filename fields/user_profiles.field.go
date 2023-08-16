@@ -109,7 +109,10 @@ var UserProfileEducationField = &graphql.Field{
 	Description: "Returns a data of User Profile for displaying inside Education tab",
 	Args: graphql.FieldConfigArgument{
 		"user_profile_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"education_type": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
 		},
 	},
 	Resolve: resolvers.UserProfileEducationResolver,

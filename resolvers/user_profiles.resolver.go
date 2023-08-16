@@ -364,7 +364,7 @@ var UserProfileContractDeleteResolver = func(params graphql.ResolveParams) (inte
 }
 
 func buildEducationResItem(education structs.Education) (*dto.Education, error) {
-	subType, err := getDropdownSettingById(education.SubTypeId)
+	educationType, err := getDropdownSettingById(education.TypeId)
 	if err != nil {
 		return nil, err
 	}
@@ -383,10 +383,9 @@ func buildEducationResItem(education structs.Education) (*dto.Education, error) 
 		FileId:              education.FileId,
 		UserProfileId:       education.UserProfileId,
 		ExpertiseLevel:      education.ExpertiseLevel,
-		TypeId:              education.TypeId,
 	}
 
-	educationResItem.SubType = dto.DropdownSimple{Id: subType.Id, Title: subType.Title}
+	educationResItem.Type = dto.DropdownSimple{Id: educationType.Id, Title: educationType.Title}
 
 	return educationResItem, nil
 }
@@ -403,27 +402,20 @@ func buildEducationResItemList(educations []structs.Education) (educationResItem
 }
 
 var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	userProfileID := params.Args["user_profile_id"]
-	var response []dto.EducationResponseItem
+	userProfileID := params.Args["user_profile_id"].(int)
+	educationType := params.Args["education_type"].(string)
+	var responseItemList []*dto.Education
 
-	rootLevelEducationTypeValue := "0"
-	educationMainTypes, err := getDropdownSettings(&dto.GetSettingsInput{
-		Entity: config.EducationTypes,
-		Value:  &rootLevelEducationTypeValue,
+	educationTypes, err := getDropdownSettings(&dto.GetSettingsInput{
+		Entity: educationType,
 	})
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
-	for _, educationType := range educationMainTypes.Data {
-		responseItem := dto.EducationResponseItem{
-			ID:           educationType.Id,
-			Abbreviation: educationType.Abbreviation,
-			Title:        educationType.Title,
-			Value:        educationType.Value,
-		}
+	for _, educationType := range educationTypes.Data {
 		educations, err := getEmployeeEducations(dto.EducationInput{
-			UserProfileID: userProfileID.(int),
+			UserProfileID: userProfileID,
 			TypeID:        &educationType.Id,
 		})
 		if err != nil {
@@ -433,37 +425,28 @@ var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		responseItem.Educations = append(responseItem.Educations, educationResItemList...)
-		response = append(response, responseItem)
+		responseItemList = append(responseItemList, educationResItemList...)
 	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   response,
+		Items:   responseItemList,
 	}, nil
 }
 
 var UserProfileEducationInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.Education
-	var employeeEducation *structs.Education
+	var (
+		data              structs.Education
+		err               error
+		employeeEducation *structs.Education
+	)
+
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	response := dto.ResponseSingle{
 		Status: "success",
 	}
-
 	_ = json.Unmarshal(dataBytes, &data)
-
-	subTypeID := data.TypeId
-	educationSubType, err := getDropdownSettingById(subTypeID)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	typeIDString := educationSubType.Value
-	typeID, _ := strconv.Atoi(typeIDString)
-
-	data.TypeId = typeID
-	data.SubTypeId = subTypeID
 
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {

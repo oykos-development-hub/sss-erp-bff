@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/graphql-go/graphql"
 )
 
@@ -438,8 +437,6 @@ var UserProfileEducationResolver = func(params graphql.ResolveParams) (interface
 		response = append(response, responseItem)
 	}
 
-	spew.Dump(response)
-
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
@@ -455,6 +452,17 @@ var UserProfileEducationInsertResolver = func(params graphql.ResolveParams) (int
 	}
 
 	_ = json.Unmarshal(dataBytes, &data)
+
+	subTypeID := data.TypeId
+	educationSubType, err := getDropdownSettingById(subTypeID)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	typeIDString := educationSubType.Value
+	typeID, _ := strconv.Atoi(typeIDString)
+
+	data.TypeId = typeID
+	data.SubTypeId = subTypeID
 
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {

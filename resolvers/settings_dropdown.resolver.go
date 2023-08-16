@@ -50,7 +50,7 @@ var SettingsDropdownResolver = func(params graphql.ResolveParams) (interface{}, 
 			input.Value = &value
 		}
 
-		spew.Dump(input)
+		spew.Dump(params.Args["value"])
 
 		res, err := getDropdownSettings(&input)
 		if err != nil {

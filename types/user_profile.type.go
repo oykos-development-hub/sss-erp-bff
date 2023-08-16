@@ -440,6 +440,9 @@ var UserProfileEducationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"user_profile_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"type_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"sub_type": &graphql.Field{
 			Type: DropdownItemType,
 		},

@@ -34,5 +34,5 @@ type OrderProcurementArticleOverviewResponse struct {
 	UpdatedAt            string                                 `json:"updated_at"`
 	PublicProcurement    *DropdownSimple                        `json:"public_procurement"`
 	Supplier             *DropdownSimple                        `json:"supplier"`
-	Articles             []*DropdownProcurementAvailableArticle `json:"articles"`
+	Articles             *[]DropdownProcurementAvailableArticle `json:"articles"`
 }

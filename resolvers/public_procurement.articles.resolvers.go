@@ -121,16 +121,6 @@ func deleteProcurementArticle(id int) error {
 	return nil
 }
 
-func getProcurementArticle(id int) (*structs.PublicProcurementArticle, error) {
-	res := &dto.GetProcurementArticleResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.ARTICLES_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
 func getProcurementArticlesList(input *dto.GetProcurementArticleListInputMS) ([]*structs.PublicProcurementArticle, error) {
 	res := &dto.GetProcurementArticleListResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.ARTICLES_ENDPOINT, input, res)
@@ -139,16 +129,6 @@ func getProcurementArticlesList(input *dto.GetProcurementArticleListInputMS) ([]
 	}
 
 	return res.Data, nil
-}
-
-func getProcurementArticle(id int) (*structs.PublicProcurementArticle, error) {
-	res := &dto.GetProcurementArticleResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.ARTICLES_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
 }
 
 func getProcurementArticle(id int) (*structs.PublicProcurementArticle, error) {

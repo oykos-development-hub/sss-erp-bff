@@ -53,11 +53,11 @@ type OrderArticleInsertItem struct {
 }
 
 type OrderReceiveItem struct {
-	OrderId            int     `json:"order_id"`
-	DateSystem         string  `json:"date_system"`
-	InvoiceDate        string  `json:"invoice_date"`
-	InvoiceNumber      int     `json:"invoice_number"`
-	DescriptionReceive *string `json:"description_receive"`
+	OrderId            int    `json:"order_id"`
+	DateSystem         string `json:"date_system"`
+	InvoiceDate        string `json:"invoice_date"`
+	InvoiceNumber      int    `json:"invoice_number"`
+	DescriptionReceive string `json:"description_receive"`
 }
 
 type OrderAssetMovementItem struct {

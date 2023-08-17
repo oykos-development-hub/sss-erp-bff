@@ -277,9 +277,9 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 	}, nil
 }
 
-var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interface{}, error) {
+var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
-	var data structs.OrderAssetMovementItem
+	var data structs.OrderReceiveItem
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	OrderListType := &structs.OrderListItem{}
@@ -303,14 +303,12 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			newItem.TotalPrice = updateOrder.TotalPrice
 			newItem.PublicProcurementId = updateOrder.PublicProcurementId
 			newItem.SupplierId = updateOrder.SupplierId
-			newItem.Status = "Movement"
-			newItem.DateSystem = updateOrder.DateSystem
-			newItem.InvoiceDate = updateOrder.InvoiceDate
-			newItem.InvoiceNumber = updateOrder.InvoiceNumber
-			newItem.DescriptionReceive = updateOrder.DescriptionReceive
-			newItem.OfficeId = &data.OfficeId
+			newItem.Status = "Received"
+			newItem.DateSystem = &data.DateSystem
+			newItem.InvoiceDate = &data.InvoiceDate
+			newItem.InvoiceNumber = &data.InvoiceNumber
 			newItem.OrganizationUnitId = updateOrder.OrganizationUnitId
-			newItem.RecipientUserId = data.RecipientUserId
+			newItem.DescriptionReceive = data.DescriptionReceive
 		}
 	}
 
@@ -320,7 +318,34 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 
 	return map[string]interface{}{
 		"status":  "success",
-		"message": "You Asset Movement this order!",
+		"message": "You Receive this order!",
+	}, nil
+}
+
+var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.OrderAssetMovementItem
+
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	_ = json.Unmarshal(dataBytes, &data)
+
+	orderList, err := getOrderListById(data.OrderId)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	orderList.Status = "Movement"
+	orderList.RecipientUserId = data.RecipientUserId
+	orderList.OfficeId = &data.OfficeId
+
+	_, err = updateOrderListItem(data.OrderId, orderList)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You Asset Movement this order!",
 	}, nil
 }
 
@@ -422,60 +447,46 @@ var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 	}, nil
 }
 
-var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.OrderReceiveItem
-	dataBytes, _ := json.Marshal(params.Args["data"])
-	_ = json.Unmarshal(dataBytes, &data)
-
-	orderList, err := getOrderListById(data.OrderId)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	orderList.Status = "Receive"
-	orderList.InvoiceNumber = &data.InvoiceNumber
-	orderList.DateSystem = &data.DateSystem
-	orderList.InvoiceDate = &data.InvoiceDate
-	if data.DescriptionReceive != nil {
-		orderList.DescriptionReceive = *data.DescriptionReceive
-	}
-
-	_, err = updateOrderListItem(data.OrderId, orderList)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You received this order!",
-	}, nil
-}
-
 var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	id := params.Args["id"].(int)
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	OrderListType := &structs.OrderListItem{}
 
-	orderList, err := getOrderListById(id)
+	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
+
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
-	orderList.Status = "Created"
-	orderList.DateSystem = nil
-	orderList.InvoiceDate = nil
-	orderList.InvoiceNumber = nil
-	orderList.OfficeId = nil
-	orderList.RecipientUserId = 0
-	orderList.DescriptionReceive = ""
-	orderList.DescriptionRecipient = nil
+	order := shared.FindByProperty(orderListData, "Id", itemId)
+	orderListData = shared.FilterByProperty(orderListData, "Id", itemId)
+	newItem := structs.OrderListItem{}
 
-	_, err = updateOrderListItem(id, orderList)
-	if err != nil {
-		return shared.HandleAPIError(err)
+	for _, item := range order {
+		if updateOrder, ok := item.(*structs.OrderListItem); ok {
+			newItem.Id = updateOrder.Id
+			newItem.DateOrder = updateOrder.DateOrder
+			newItem.TotalPrice = updateOrder.TotalPrice
+			newItem.PublicProcurementId = updateOrder.PublicProcurementId
+			newItem.SupplierId = updateOrder.SupplierId
+			newItem.OrganizationUnitId = updateOrder.OrganizationUnitId
+			newItem.Status = "Created"
+			//newItem.DateSystem = ""
+			//newItem.InvoiceDate = ""
+			//newItem.InvoiceNumber = ""
+			//newItem.DescriptionReceive = ""
+			//newItem.OfficeId = 0
+			//newItem.RecipientUserId = 0
+		}
 	}
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted received order!",
+	var updatedData = append(orderListData, newItem)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/order_list.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You delete Receive this order!",
 	}, nil
 }
 

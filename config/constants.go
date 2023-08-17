@@ -63,12 +63,14 @@ var (
 	JUDGE_RESOLUTIONS_ENDPOINT                   string
 	JUDGE_RESOLUTION_ITEMS_ENDPOINT              string
 
-	PLANS_ENDPOINT                     string
-	ITEMS_ENDPOINT                     string
-	ARTICLES_ENDPOINT                  string
-	CONTRACTS_ENDPOINT                 string
-	OU_LIMITS_ENDPOINT                 string
-	CONTRACT_ARTICLE_ENDPOINT          string
+	PLANS_ENDPOINT            string
+	ITEMS_ENDPOINT            string
+	ARTICLES_ENDPOINT         string
+	CONTRACTS_ENDPOINT        string
+	OU_LIMITS_ENDPOINT        string
+	CONTRACT_ARTICLE_ENDPOINT string
+
+	INVENTORY_ITEM_ENDOPOINT           string
 	ORGANIZATION_UNIT_ARTICLE_ENDPOINT string
 
 	INVENTORY_ITEM_ENDOPOINT           string

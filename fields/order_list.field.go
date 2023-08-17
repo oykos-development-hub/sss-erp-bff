@@ -103,7 +103,7 @@ var OrderListReceiveDeleteField = &graphql.Field{
 	Description: "Delete Receive existing Order",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.OrderListReceiveDeleteResolver,
@@ -114,7 +114,7 @@ var OrderListAssetMovementDeleteField = &graphql.Field{
 	Description: "Delete Asset Movement existing Order",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.OrderListAssetMovementDeleteResolver,

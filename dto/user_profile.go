@@ -29,6 +29,10 @@ type GetEmployeeContracts struct {
 	Active *bool `json:"active"`
 }
 
+type GetEmployeeContracts struct {
+	Active *bool `json:"active"`
+}
+
 type GetUserProfileListResponseMS struct {
 	Data  []*structs.UserProfiles `json:"data"`
 	Total int                     `json:"total"`

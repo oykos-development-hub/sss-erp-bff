@@ -235,33 +235,59 @@ func buildSystematizationOverviewResponse(systematization *structs.Systematizati
 	// Getting Job positions
 	if result.Sectors != nil {
 		for i, sector := range *result.Sectors {
-			(*result.Sectors)[i].JobPositions, err = getJobPositionsForSector(sector.Id)
+			// jobPositionInOrganizationBySectorId getJobPositionsInOrganizationUnits
+			input := dto.GetJobPositionInOrganizationUnitsInput{
+				OrganizationUnitID: &sector.Id,
+				SystematizationID:  &systematization.Id,
+			}
+			jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
 			if err != nil {
 				return result, err
 			}
+			var jobPositionsOrganizationUnits []dto.JobPositionsOrganizationUnits
+			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
+				jobPosition, err := getJobPositionById(jobPositionOU.JobPositionId)
+				if err != nil {
+					return result, err
+				}
+
+				input := dto.GetEmployeesInOrganizationUnitInput{
+					PositionInOrganizationUnit: &jobPositionOU.Id,
+				}
+				employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
+				var employees []dto.DropdownSimple
+				for _, employeeID := range employeesInOrganizationUnit {
+					employee, err := getUserProfileById(employeeID.UserProfileId)
+					if err != nil {
+						return result, err
+					}
+					employees = append(employees, dto.DropdownSimple{
+						Id:    employeeID.UserProfileId,
+						Title: employee.FirstName + " " + employee.LastName,
+					})
+				}
+				// jobEmployeesByPositionInOrganizationId
+				jobPositionsOrganizationUnits = append(jobPositionsOrganizationUnits, dto.JobPositionsOrganizationUnits{
+					Id: jobPositionOU.Id,
+					JobPositions: dto.DropdownSimple{
+						Id:    jobPosition.Id,
+						Title: jobPosition.Title,
+					},
+					Description:    jobPosition.Description,
+					SerialNumber:   jobPosition.SerialNumber,
+					Requirements:   jobPosition.Requirements,
+					AvailableSlots: jobPositionOU.AvailableSlots,
+					Employees:      employees,
+				})
+				// if len(employees) > 0 {
+				// 	sector.JobPositionsOrganizationUnits[j].Employees = &employees
+				// }
+
+			}
+			(*result.Sectors)[i].JobPositionsOrganizationUnits = jobPositionsOrganizationUnits
+
 		}
 	}
 
-	return result, err
-}
-
-func getJobPositionsForSector(sectorId int) (*[]structs.JobPositions, error) {
-	result := []structs.JobPositions{}
-	input := dto.GetJobPositionInOrganizationUnitsInput{
-		OrganizationUnitID: &sectorId,
-	}
-	jobPositionsInOrganizationUnitsResponse, err := getJobPositionsInOrganizationUnits(&input)
-	if err != nil {
-		return &result, err
-	}
-
-	for _, jobPositionsInOrganizationUnits := range jobPositionsInOrganizationUnitsResponse.Data {
-		getJobPositionResponse, err := getJobPositionById(jobPositionsInOrganizationUnits.JobPositionId)
-		if err != nil {
-			return &result, err
-		}
-		result = append(result, *getJobPositionResponse)
-	}
-
-	return &result, nil
+	return result, nil
 }

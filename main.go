@@ -99,8 +99,6 @@ func main() {
 			"jobPositions_Delete":                             fields.JobPositionDeleteField,
 			"jobPositionInOrganizationUnit_Insert":            fields.JobPositionInOrganizationUnitInsertField,
 			"jobPositionInOrganizationUnit_Delete":            fields.JobPositionInOrganizationUnitDeleteField,
-			"employeeInOrganizationUnit_Insert":               fields.EmployeeInOrganizationUnitInsertField,
-			"employeeInOrganizationUnit_Delete":               fields.EmployeeInOrganizationUnitDeleteField,
 			"jobTenderTypes_Insert":                           fields.JobTenderTypeInsertField,
 			"jobTenderTypes_Delete":                           fields.JobTenderTypeDeleteField,
 			"jobTenders_Insert":                               fields.JobTenderInsertField,

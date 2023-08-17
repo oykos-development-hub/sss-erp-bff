@@ -155,10 +155,31 @@ var JobPositionInOrganizationUnitInsertResolver = func(params graphql.ResolvePar
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
 	_ = json.Unmarshal(dataBytes, &data)
+	if data.Id > 0 {
+		jobPositionInOrganizationUnit, err = updateJobPositionsInOrganizationUnits(&data)
+	} else {
+		jobPositionInOrganizationUnit, err = createJobPositionsInOrganizationUnits(&data)
+	}
 
-	jobPositionInOrganizationUnit, err = createJobPositionsInOrganizationUnits(&data)
 	if err != nil {
 		return shared.HandleAPIError(err)
+	}
+
+	if len(data.Employees) > 0 {
+		err = deleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnit.Data.Id)
+		for _, employeeId := range data.Employees {
+			input := &structs.EmployeesInOrganizationUnits{
+				PositionInOrganizationUnitId: jobPositionInOrganizationUnit.Data.Id,
+				UserProfileId:                employeeId,
+			}
+			res, err := createEmployeesInOrganizationUnits(input)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
+			jobPositionInOrganizationUnit.Data.Employees = append(jobPositionInOrganizationUnit.Data.Employees, res.Id)
+		}
+
 	}
 
 	return dto.ResponseSingle{
@@ -183,74 +204,6 @@ var JobPositionInOrganizationUnitDeleteResolver = func(params graphql.ResolvePar
 	return map[string]interface{}{
 		"status":  "success",
 		"message": "You deleted this item!",
-	}, nil
-}
-
-var EmployeeInOrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.EmployeesInOrganizationUnits
-	dataBytes, _ := json.Marshal(params.Args["data"])
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
-	_ = json.Unmarshal(dataBytes, &data)
-
-	userProfile, err := getUserProfileById(data.UserProfileId)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	data.UserAccountId = userProfile.UserAccountId
-
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := updateEmployeesInOrganizationUnits(itemId, &data)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		response.Item = res
-		response.Message = "You updated this item!"
-	} else {
-		res, err := createEmployeesInOrganizationUnits(&data)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		response.Item = res
-		response.Message = "You created this item!"
-	}
-
-	return response, nil
-}
-
-var EmployeeInOrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["position_in_organization_unit_id"]
-
-	id := itemId.(int)
-
-	filter := dto.GetEmployeesInOrganizationUnitInput{
-		PositionInOrganizationUnit: &id,
-	}
-
-	res, err := getEmployeesInOrganizationUnitList(&filter)
-
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	i := 0
-	for i = 0; i < len(res); i++ {
-
-		id = res[i].Id
-
-		err = deleteEmployeeInOrganizationUnit(id)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item/s!",
 	}, nil
 }
 
@@ -313,6 +266,16 @@ func createJobPositionsInOrganizationUnits(data *structs.JobPositionsInOrganizat
 	return res, nil
 }
 
+func updateJobPositionsInOrganizationUnits(data *structs.JobPositionsInOrganizationUnits) (*dto.GetJobPositionInOrganizationUnitsResponseMS, error) {
+	res := &dto.GetJobPositionInOrganizationUnitsResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.JOB_POSITIONS_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(data.Id), data, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func getJobPositionsInOrganizationUnitsById(id int) (*structs.JobPositionsInOrganizationUnits, error) {
 	res := &dto.GetJobPositionInOrganizationUnitsResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.JOB_POSITIONS_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
@@ -362,8 +325,8 @@ func updateEmployeesInOrganizationUnits(id int, data *structs.EmployeesInOrganiz
 	return &res.Data, nil
 }
 
-func deleteEmployeeInOrganizationUnit(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+func deleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnitId int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(jobPositionInOrganizationUnitId), nil, nil)
 	if err != nil {
 		return err
 	}

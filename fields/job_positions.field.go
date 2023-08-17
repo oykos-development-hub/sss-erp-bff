@@ -82,25 +82,3 @@ var JobPositionInOrganizationUnitDeleteField = &graphql.Field{
 	},
 	Resolve: resolvers.JobPositionInOrganizationUnitDeleteResolver,
 }
-
-var EmployeeInOrganizationUnitInsertField = &graphql.Field{
-	Type:        types.EmployeeInOrganizationUnitInsertType,
-	Description: "Creates new or alter existing Employee in Organization Unit",
-	Args: graphql.FieldConfigArgument{
-		"data": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(mutations.EmployeeInOrganizationUnitInsertMutation),
-		},
-	},
-	Resolve: resolvers.EmployeeInOrganizationUnitInsertResolver,
-}
-
-var EmployeeInOrganizationUnitDeleteField = &graphql.Field{
-	Type:        types.EmployeeInOrganizationUnitDeleteType,
-	Description: "Deletes existing Employee in Organization Unit",
-	Args: graphql.FieldConfigArgument{
-		"position_in_organization_unit_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-	},
-	Resolve: resolvers.EmployeeInOrganizationUnitDeleteResolver,
-}

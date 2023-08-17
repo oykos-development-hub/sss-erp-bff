@@ -80,7 +80,7 @@ var SystematizationJobPositionsType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"job_position": &graphql.Field{
+		"job_positions": &graphql.Field{
 			Type: DropdownItemType,
 		},
 		"description": &graphql.Field{
@@ -96,7 +96,7 @@ var SystematizationJobPositionsType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"employees": &graphql.Field{
-			Type: graphql.NewList(SystematizationEmployeesType),
+			Type: graphql.NewList(DropdownItemType),
 		},
 	},
 })
@@ -122,7 +122,7 @@ var SystematizationSectorsType = graphql.NewObject(graphql.ObjectConfig{
 		"icon": &graphql.Field{
 			Type: graphql.String,
 		},
-		"job_positions": &graphql.Field{
+		"job_positions_organization_units": &graphql.Field{
 			Type: graphql.NewList(SystematizationJobPositionsType),
 		},
 	},

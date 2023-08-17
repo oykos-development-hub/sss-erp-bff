@@ -35,16 +35,25 @@ type OrganizationUnitsOverviewResponse struct {
 }
 
 type OrganizationUnitsSectorResponse struct {
-	Id           int                     `json:"id"`
-	ParentId     *int                    `json:"parent_id"`
-	Title        string                  `json:"title"`
-	Abbreviation string                  `json:"abbreviation"`
-	Color        string                  `json:"color"`
-	Icon         string                  `json:"icon"`
-	FolderId     int                     `json:"folder_id"`
-	CreatedAt    string                  `json:"created_at"`
-	UpdatedAt    string                  `json:"updated_at"`
-	JobPositions *[]structs.JobPositions `json:"job_positions"`
+	Id                            int                             `json:"id"`
+	ParentId                      *int                            `json:"parent_id"`
+	Title                         string                          `json:"title"`
+	Abbreviation                  string                          `json:"abbreviation"`
+	Color                         string                          `json:"color"`
+	Icon                          string                          `json:"icon"`
+	FolderId                      int                             `json:"folder_id"`
+	CreatedAt                     string                          `json:"created_at"`
+	UpdatedAt                     string                          `json:"updated_at"`
+	JobPositionsOrganizationUnits []JobPositionsOrganizationUnits `json:"job_positions_organization_units"`
+}
+type JobPositionsOrganizationUnits struct {
+	Id             int              `json:"id"`
+	JobPositions   DropdownSimple   `json:"job_positions"`
+	Description    string           `json:"description"`
+	SerialNumber   string           `json:"serial_number"`
+	Requirements   string           `json:"requirements"`
+	AvailableSlots int              `json:"available_slots"`
+	Employees      []DropdownSimple `json:"employees"`
 }
 
 func ToOrganizationUnitsSectorResponse(organizationUnit structs.OrganizationUnits) *OrganizationUnitsSectorResponse {

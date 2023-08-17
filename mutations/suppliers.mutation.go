@@ -9,7 +9,7 @@ var SuppliersInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.Int,
 		},
 		"title": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"abbreviation": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

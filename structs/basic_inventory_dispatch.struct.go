@@ -14,7 +14,7 @@ type BasicInventoryDispatchItem struct {
 	InventoryId              []int  `json:"inventory_id"`
 	CreatedAt                string `json:"created_at"`
 	UpdatedAt                string `json:"updated_at"`
-	FileId                   int    `json:"file_id"`
+	FileId                   string `json:"file_id"`
 }
 
 type BasicInventoryDispatchItemsItem struct {

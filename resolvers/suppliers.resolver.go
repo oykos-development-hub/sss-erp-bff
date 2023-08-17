@@ -1,160 +1,119 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
 var SuppliersOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	id := params.Args["id"]
+	var total int
+	var search string
+	if params.Args["search"] == nil {
+		search = ""
+	} else {
+		search = params.Args["search"].(string)
+	}
+	var id int
+	if params.Args["id"] == nil {
+		id = 0
+	} else {
+		id = params.Args["id"].(int)
+	}
 	page := params.Args["page"]
 	size := params.Args["size"]
-	search := params.Args["search"]
 
-	if shared.IsInteger(id) && id.(int) > 0 {
-		supplier, err := getSupplier(id.(int))
-		if err != nil {
-			return shared.HandleAPIError(err)
+	var items []interface{}
+	var suppliers = shared.FetchByProperty(
+		"suppliers",
+		"",
+		"",
+	)
+
+	if len(suppliers) > 0 {
+		for _, supplierItem := range suppliers {
+			var supplier = shared.WriteStructToInterface(supplierItem)
+
+			if len(search) > 0 && !shared.StringContains(supplier["title"].(string), search) {
+				continue
+			}
+			if id > 0 && id != supplier["id"].(int) {
+				continue
+			}
+
+			items = append(items, supplier)
 		}
-
-		return dto.Response{
-			Status:  "success",
-			Message: "Here's the list you asked for!",
-			Items:   []structs.Suppliers{*supplier},
-			Total:   1,
-		}, nil
-
 	} else {
-		input := dto.GetSupplierInputMS{}
-		if search != nil {
-			searchValue := search.(string)
-			input.Search = &searchValue
-
-		}
-		if page != nil && size != nil {
-			pageValue := page.(int)
-			sizeValue := size.(int)
-
-			input.Size = &sizeValue
-			input.Page = &pageValue
-
-		}
-
-		res, err := getSupplierList(&input)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		return dto.Response{
-			Status:  "success",
-			Message: "Here's the list you asked for!",
-			Items:   res.Data,
-			Total:   res.Total,
-		}, nil
-	}
-}
-
-var SuppliersInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.Suppliers
-	response := dto.ResponseSingle{
-		Status: "success",
+		items = suppliers
 	}
 
-	dataBytes, _ := json.Marshal(params.Args["data"])
+	total = len(items)
 
-	err := json.Unmarshal(dataBytes, &data)
-	if err != nil {
-		return shared.HandleAPIError(err)
+	// Filtering by Pagination params
+	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+		items = shared.Pagination(items, page.(int), size.(int))
 	}
 
-	itemId := data.Id
-
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := updateSupplier(itemId, &data)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		response.Message = "You updated this item!"
-		response.Item = res
-	} else {
-		res, err := createSupplier(&data)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		response.Message = "You created this item!"
-		response.Item = res
-	}
-
-	return response, nil
-}
-
-var SuppliersDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
-
-	err := deleteSupplier(itemId)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
 	}, nil
 }
 
-func createSupplier(supplier *structs.Suppliers) (*structs.Suppliers, error) {
-	res := &dto.GetSupplierResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.SUPPLIERS_ENDPOINT, supplier, res)
-	if err != nil {
-		return nil, err
+var SuppliersInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	var data structs.Suppliers
+	dataBytes, _ := json.Marshal(params.Args["data"])
+
+	_ = json.Unmarshal(dataBytes, &data)
+
+	itemId := data.Id
+
+	var items = shared.FetchByProperty(
+		"suppliers",
+		"",
+		"",
+	)
+
+	if shared.IsInteger(itemId) && itemId != 0 {
+		items = shared.FilterByProperty(items, "Id", itemId)
+	} else {
+		data.Id = shared.GetRandomNumber()
 	}
 
-	return &res.Data, nil
+	var updatedData = append(items, data)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/suppliers.json"), updatedData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"items":   []interface{}{data},
+	}, nil
 }
 
-func updateSupplier(id int, supplier *structs.Suppliers) (*structs.Suppliers, error) {
-	res := &dto.GetSupplierResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.SUPPLIERS_ENDPOINT+"/"+strconv.Itoa(id), supplier, res)
-	if err != nil {
-		return nil, err
+var SuppliersDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+
+	var items = shared.FetchByProperty(
+		"suppliers",
+		"",
+		"",
+	)
+
+	if shared.IsInteger(itemId) && itemId != 0 {
+		items = shared.FilterByProperty(items, "Id", itemId)
 	}
 
-	return &res.Data, nil
-}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/suppliers.json"), items)
 
-func deleteSupplier(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.SUPPLIERS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getSupplier(id int) (*structs.Suppliers, error) {
-	res := &dto.GetSupplierResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.SUPPLIERS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func getSupplierList(input *dto.GetSupplierInputMS) (*dto.GetSupplierListResponseMS, error) {
-	res := &dto.GetSupplierListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.SUPPLIERS_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
+	}, nil
 }

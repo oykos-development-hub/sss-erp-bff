@@ -30,7 +30,7 @@ var BasicInventoryAssessmentsMutation = graphql.NewInputObject(graphql.InputObje
 			Type: graphql.String,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 	},
 })

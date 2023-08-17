@@ -1,279 +1,479 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/graphql-go/graphql"
 )
 
-func GetProcurementArticles(publicProcurementId int) ([]structs.OrderArticleItem, error) {
-	items := []structs.OrderArticleItem{}
-	itemsMap := make(map[int]structs.OrderArticleItem)
+func PopulateOrderListItemProperties(OrderList []interface{}, id int, supplierId int, status string, search string, publicProcurementId int) []interface{} {
+	var items []interface{}
 
-	relatedContractsResponse, err := getProcurementContractsList(&dto.GetProcurementContractsInput{
-		ProcurementID: &publicProcurementId,
-	})
-	if err != nil {
-		return nil, err
-	}
+	for _, item := range OrderList {
+		var totalPrice int
+		var mergedItem = shared.WriteStructToInterface(item)
 
-	for _, contract := range relatedContractsResponse.Data {
-		if err := processContract(&items, itemsMap, contract); err != nil {
-			return nil, err
+		// Filtering by ID
+		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+			continue
 		}
+
+		// if pass only id item
+		if shared.IsInteger(id) && id != 0 && id == mergedItem["id"] && shared.IsInteger(publicProcurementId) && publicProcurementId == 0 {
+			publicProcurementId = mergedItem["public_procurement_id"].(int)
+		}
+
+		// Filtering by supplierId
+		if shared.IsInteger(supplierId) && supplierId != 0 && supplierId != mergedItem["supplier_id"] {
+			continue
+		}
+
+		// Filtering by status
+		if shared.IsString(status) && len(status) > 0 && status != mergedItem["status"] {
+			continue
+		}
+
+		// Filtering by status
+		if shared.IsString(search) && len(search) > 0 && !shared.StringContains(mergedItem["serial_number"].(string), search) {
+			continue
+		}
+
+		if shared.IsInteger(mergedItem["public_procurement_id"]) && mergedItem["public_procurement_id"] != 0 {
+			var relatedProcurement = shared.FetchByProperty(
+				"procurement",
+				"Id",
+				mergedItem["public_procurement_id"],
+			)
+
+			if len(relatedProcurement) > 0 {
+				for _, procurementData := range relatedProcurement {
+					var procurement = shared.WriteStructToInterface(procurementData)
+
+					mergedItem["public_procurement"] = map[string]interface{}{
+						"id":    procurement["id"],
+						"title": procurement["title"],
+					}
+
+				}
+			}
+		}
+
+		if shared.IsInteger(mergedItem["office_id"]) && mergedItem["office_id"].(int) > 0 {
+			var relatedInventoryOffice = shared.FetchByProperty(
+				"offices_of_organization_units",
+				"Id",
+				mergedItem["office_id"],
+			)
+			if len(relatedInventoryOffice) > 0 {
+				var relatedOffice = shared.WriteStructToInterface(relatedInventoryOffice[0])
+
+				mergedItem["office"] = map[string]interface{}{
+					"title": relatedOffice["title"],
+					"id":    relatedOffice["id"],
+				}
+			}
+		}
+
+		//recipient_user
+		if shared.IsInteger(mergedItem["recipient_user_id"]) && mergedItem["recipient_user_id"].(int) > 0 {
+			var relatedProfileInterface = shared.FetchByProperty(
+				"user_profile",
+				"Id",
+				mergedItem["recipient_user_id"],
+			)
+			if len(relatedProfileInterface) > 0 {
+				var userProfileInterface = shared.WriteStructToInterface(relatedProfileInterface[0])
+
+				mergedItem["recipient_user"] = map[string]interface{}{
+					"title": userProfileInterface["first_name"].(string) + " " + userProfileInterface["last_name"].(string),
+					"id":    userProfileInterface["id"],
+				}
+			}
+		}
+
+		if shared.IsInteger(mergedItem["supplier_id"]) && mergedItem["supplier_id"] != 0 {
+			var relatedSuppliers = shared.FetchByProperty(
+				"suppliers",
+				"Id",
+				mergedItem["supplier_id"],
+			)
+
+			if len(relatedSuppliers) > 0 {
+				for _, supplierData := range relatedSuppliers {
+					var supplier = shared.WriteStructToInterface(supplierData)
+
+					mergedItem["supplier"] = map[string]interface{}{
+						"id":    supplier["id"],
+						"title": supplier["title"],
+					}
+				}
+			}
+		}
+
+		if shared.IsInteger(id) && id > 0 && shared.IsInteger(publicProcurementId) && publicProcurementId > 0 {
+			var relatedOrderProcurementArticle = shared.FetchByProperty(
+				"order_procurement_article",
+				"OrderId",
+				id,
+			)
+			// get all with publicProcurementId in public_procurement_contract.json
+			publicProcurementArticles := GetProcurementArticles(publicProcurementId)
+
+			if len(relatedOrderProcurementArticle) > 0 {
+				// check articles exist in order_procurement_article
+				for _, item := range publicProcurementArticles {
+					if article, ok := item.(structs.OrderArticleItem); ok {
+						for _, itemOrderArticle := range relatedOrderProcurementArticle {
+							//if article use in other order, deduct amount to get Available articles
+							if orderArticle, ok := itemOrderArticle.(*structs.OrderProcurementArticleItem); ok {
+								if article.Id == orderArticle.ArticleId {
+									article.TotalPrice = article.TotalPrice * (article.Amount - orderArticle.Amount) / article.Amount
+									totalPrice = totalPrice + article.TotalPrice
+									article.Amount = orderArticle.Amount
+									publicProcurementArticles = shared.FilterByProperty(publicProcurementArticles, "Id", article.Id)
+									publicProcurementArticles = append(publicProcurementArticles, article)
+								}
+							}
+						}
+					}
+					mergedItem["articles"] = make([]interface{}, len(publicProcurementArticles))
+					copy(mergedItem["articles"].([]interface{}), publicProcurementArticles)
+				}
+			}
+
+		}
+		mergedItem["total_price"] = totalPrice
+		items = append(items, mergedItem)
 	}
 
-	return items, nil
+	return items
 }
 
-func processContract(items *[]structs.OrderArticleItem, itemsMap map[int]structs.OrderArticleItem, contract *structs.PublicProcurementContract) error {
-	relatedContractArticlesResponse, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
-		ContractID: &contract.Id,
-	})
-	if err != nil {
-		return err
-	}
+func GetProcurementArticles(publicProcurementId int) []interface{} {
+	items := []interface{}{}
+	var relatedPublicProcurementContract = shared.FetchByProperty(
+		"public_procurement_contract",
+		"PublicProcurementId",
+		publicProcurementId,
+	)
 
-	for _, contractArticle := range relatedContractArticlesResponse.Data {
-		if err := processContractArticle(items, itemsMap, contractArticle); err != nil {
-			return err
+	// check public_procurement_contract
+	if len(relatedPublicProcurementContract) > 0 {
+
+		// for public_procurement_contract
+		for _, contract := range relatedPublicProcurementContract {
+
+			if contract, ok := contract.(*structs.PublicProcurementContract); ok {
+				// get all articles_contract from public_procurement_contract_articles with public_procurement_contract_id
+				var relatedPublicProcurementContractArticles = shared.FetchByProperty(
+					"public_procurement_contract_articles",
+					"PublicProcurementContractId",
+					contract.Id,
+				)
+				if len(relatedPublicProcurementContractArticles) > 0 {
+					// for public_procurement_contract_articles
+					for _, contractArticles := range relatedPublicProcurementContractArticles {
+						if contractArticles, ok := contractArticles.(*structs.PublicProcurementContractArticle); ok {
+							// get article with id
+							var relatedPublicProcurementArticles = shared.FetchByProperty(
+								"public_procurement_articles",
+								"Id",
+								contractArticles.PublicProcurementArticleId,
+							)
+							if len(relatedPublicProcurementArticles) > 0 {
+								// check is exist articles in mergedItem["articles"]
+
+								var existArticle = shared.FindByProperty(items, "Id", contractArticles.PublicProcurementArticleId)
+								// if exist current item sum amount
+								if len(existArticle) > 0 {
+									items = shared.FilterByProperty(items, "Id", contractArticles.PublicProcurementArticleId)
+									for _, itemExistArticle := range existArticle {
+										if articleExist, ok := itemExistArticle.(*structs.PublicProcurementArticle); ok {
+											num, _ := strconv.Atoi(contractArticles.Amount)
+
+											numberGrossValue := strings.Split(contractArticles.GrossValue, ".")[0]
+											total_price_number, _ := strconv.Atoi(numberGrossValue)
+											newItem := structs.OrderArticleItem{
+												Id:            articleExist.Id,
+												Description:   articleExist.Description,
+												Title:         articleExist.Title,
+												NetPrice:      articleExist.NetPrice,
+												VatPercentage: articleExist.VatPercentage,
+												Amount:        num,
+												Available:     num,
+												TotalPrice:    total_price_number,
+												Unit:          "kom",
+											}
+											items = append(items, newItem)
+										}
+									}
+								} else {
+									// in not exist append item in array
+									for _, article := range relatedPublicProcurementArticles {
+										if articleExist, ok := article.(*structs.PublicProcurementArticle); ok {
+											num, _ := strconv.Atoi(contractArticles.Amount)
+
+											numberGrossValue := strings.Split(contractArticles.GrossValue, ".")[0]
+											total_price_number, _ := strconv.Atoi(numberGrossValue)
+											newItem := structs.OrderArticleItem{
+												Id:            articleExist.Id,
+												Description:   articleExist.Description,
+												Title:         articleExist.Title,
+												NetPrice:      articleExist.NetPrice,
+												VatPercentage: articleExist.VatPercentage,
+												Amount:        num,
+												Available:     num,
+												TotalPrice:    total_price_number,
+												Unit:          "kom",
+											}
+
+											items = append(items, newItem)
+										}
+									}
+								}
+
+							}
+						}
+					}
+				}
+			}
 		}
 	}
-
-	return nil
-}
-
-func processContractArticle(items *[]structs.OrderArticleItem, itemsMap map[int]structs.OrderArticleItem, contractArticle *structs.PublicProcurementContractArticle) error {
-	relatedPublicProcurementArticle, err := getProcurementArticle(contractArticle.PublicProcurementArticleId)
-	if err != nil {
-		return err
-	}
-
-	if existingItem, exists := itemsMap[contractArticle.PublicProcurementArticleId]; exists {
-		// Update the existing item
-		existingItem.Amount += contractArticle.Amount
-		existingItem.TotalPrice += contractArticle.GrossValue
-	} else {
-		// Add new item
-		newItem := structs.OrderArticleItem{
-			Id:            relatedPublicProcurementArticle.Id,
-			Description:   relatedPublicProcurementArticle.Description,
-			Title:         relatedPublicProcurementArticle.Title,
-			NetPrice:      relatedPublicProcurementArticle.NetPrice,
-			VatPercentage: relatedPublicProcurementArticle.VatPercentage,
-			Amount:        contractArticle.Amount,
-			Available:     contractArticle.Amount,
-			TotalPrice:    contractArticle.GrossValue,
-			Unit:          "kom",
-			Manufacturer:  relatedPublicProcurementArticle.Manufacturer,
-		}
-
-		*items = append(*items, newItem)
-		itemsMap[newItem.Id] = newItem
-	}
-
-	return nil
+	return items
 }
 
 var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-
-	var (
-		items []dto.OrderListOverviewResponse
-		total int
-	)
-
-	id := params.Args["id"]
-	page := params.Args["page"]
-	size := params.Args["size"]
-	supplierId := params.Args["supplier_id"]
-	publicProcurementID := params.Args["public_procurement_id"]
-	status, statusOK := params.Args["status"].(string)
-	search, searchOk := params.Args["search"].(string)
-
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		orderList, err := getOrderListById(id.(int))
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		orderListItem, err := buildOrderListResponseItem(orderList)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		items = []dto.OrderListOverviewResponse{*orderListItem}
-		total = 1
+	var items []interface{}
+	var total int
+	var id int
+	var supplierId int
+	var status string
+	var search string
+	var publicProcurementId int
+	if params.Args["id"] == nil {
+		id = 0
 	} else {
-		input := dto.GetOrderListInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
-			pageNum := page.(int)
-			input.Page = &pageNum
-		}
-		if shared.IsInteger(size) && size.(int) > 0 {
-			sizeNum := size.(int)
-			input.Size = &sizeNum
-		}
-		if shared.IsInteger(supplierId) && supplierId.(int) > 0 {
-			supplierId := supplierId.(int)
-			input.SupplierID = &supplierId
-		}
-		if shared.IsInteger(publicProcurementID) && publicProcurementID.(int) > 0 {
-			publicProcurementID := publicProcurementID.(int)
-			input.PublicProcurementID = &publicProcurementID
-		}
-		if statusOK && status != "" {
-			input.Status = &status
-		}
-		if searchOk && search != "" {
-			input.Search = &search
-		}
-
-		orderLists, err := getOrderLists(&input)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		for _, orderList := range orderLists.Data {
-			orderListItem, err := buildOrderListResponseItem(&orderList)
-			if err != nil {
-				return shared.HandleAPIError(err)
-			}
-			items = append(items, *orderListItem)
-		}
-		total = orderLists.Total
+		id = params.Args["id"].(int)
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Total:   total,
-		Items:   items,
+	if params.Args["supplier_id"] == nil {
+		supplierId = 0
+	} else {
+		supplierId = params.Args["supplier_id"].(int)
+	}
+
+	if params.Args["status"] == nil {
+		status = ""
+	} else {
+		status = params.Args["status"].(string)
+	}
+
+	if params.Args["search"] == nil {
+		search = ""
+	} else {
+		search = params.Args["search"].(string)
+	}
+
+	if params.Args["public_procurement_id"] == nil {
+		publicProcurementId = 0
+	} else {
+		publicProcurementId = params.Args["public_procurement_id"].(int)
+	}
+
+	page := params.Args["page"]
+	size := params.Args["size"]
+
+	OrderListType := &structs.OrderListItem{}
+	OrderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
+
+	if err != nil {
+		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
+	}
+
+	// Populate data for each Order List with
+	items = PopulateOrderListItemProperties(OrderListData, id, supplierId, status, search, publicProcurementId)
+
+	total = len(items)
+
+	// Filtering by Pagination params
+	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+		items = shared.Pagination(items, page.(int), size.(int))
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
 	}, nil
+
 }
 
 var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.OrderListInsertItem
-	response := dto.ResponseSingle{
-		Status: "success",
-	}
+	var supplierId int
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
+	OrderListItemType := &structs.OrderListItem{}
 
-	err := json.Unmarshal(dataBytes, &data)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	var authToken = params.Context.Value(config.TokenKey).(string)
-	loggedInAccount, err := getLoggedInUser(authToken)
-	if err != nil {
-		return dto.ErrorResponse(err), nil
-	}
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
+	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListItemType)
 
-	listInsertItem, err := buildOrderListInsertItem(&data, loggedInAccount)
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
 	}
 
 	if shared.IsInteger(itemId) && itemId != 0 {
-		listInsertItem.Status = "Updated"
-		res, err := updateOrderListItem(itemId, listInsertItem)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		item, err := buildOrderListResponseItem(res)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		response.Message = "You updated this item!"
-		response.Item = item
+		orderListData = shared.FilterByProperty(orderListData, "Id", itemId)
 	} else {
-		listInsertItem.Status = "Created"
-		res, err := createOrderListItem(listInsertItem)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		item, err := buildOrderListResponseItem(res)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		err = createOrderListProcurementArticles(item.Id, data)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		response.Message = "You created this item!"
-		response.Item = item
+		data.Id = shared.GetRandomNumber()
 	}
 
-	return response, nil
+	totalPrice := 0
+
+	var interfaceArticles []interface{}
+
+	OrderProcurementArticleItemType := &structs.OrderProcurementArticleItem{}
+	orderProcurementArticleData, err := shared.ReadJson(shared.GetDataRoot()+"/order_procurement_article.json", OrderProcurementArticleItemType)
+
+	if err != nil {
+		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
+	}
+
+	for _, article := range data.Articles {
+		interfaceArticles = append(interfaceArticles, article)
+
+		newItem := structs.OrderProcurementArticleItem{
+			Id:        shared.GetRandomNumber(),
+			OrderId:   data.Id,
+			ArticleId: article.Id,
+			Amount:    article.Amount,
+		}
+
+		orderProcurementArticleData = append(orderProcurementArticleData, newItem)
+	}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/order_procurement_article.json"), orderProcurementArticleData)
+
+	if len(interfaceArticles) > 0 {
+		var relatedPublicProcurementContract = shared.FetchByProperty(
+			"public_procurement_contract",
+			"PublicProcurementId",
+			data.PublicProcurementId,
+		)
+		// check public_procurement_contract
+		if len(relatedPublicProcurementContract) > 0 {
+			for _, contract := range relatedPublicProcurementContract {
+				if contract, ok := contract.(*structs.PublicProcurementContract); ok {
+					var relatedPublicProcurementContractArticles = shared.FetchByProperty(
+						"public_procurement_contract_articles",
+						"PublicProcurementContractId",
+						contract.Id,
+					)
+					supplierId = contract.SupplierId
+					if len(relatedPublicProcurementContractArticles) > 0 {
+						// for public_procurement_contract_articles
+						for _, contractArticles := range relatedPublicProcurementContractArticles {
+							if contractArticles, ok := contractArticles.(*structs.PublicProcurementContractArticle); ok {
+								articles := shared.FindByProperty(interfaceArticles, "Id", contractArticles.Id)
+								if len(articles) > 0 {
+									for _, article := range articles {
+										if a, ok := article.(*structs.OrderArticleInsertItem); ok {
+											numberGrossValue := strings.Split(contractArticles.GrossValue, ".")[0]
+											numGrossValue, _ := strconv.Atoi(numberGrossValue)
+											numberAmount := strings.Split(contractArticles.Amount, ".")[0]
+											numAmount, _ := strconv.Atoi(numberAmount)
+											totalPrice = totalPrice + numGrossValue/numAmount*a.Amount
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	currentTime := time.Now().UTC()
+	timeString := currentTime.Format("2006-01-02 15:04:05")
+
+	newItem := structs.OrderListItem{
+		Id:                  data.Id,
+		DateOrder:           timeString,
+		TotalPrice:          totalPrice,
+		PublicProcurementId: data.PublicProcurementId,
+		SupplierId:          supplierId,
+		Status:              "Created",
+	}
+
+	var updatedData = append(orderListData, newItem)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/order_list.json"), updatedData)
+
+	sliceData := []interface{}{data}
+
+	// Populate data for each Order List
+	var populatedData = PopulateOrderListItemProperties(sliceData, itemId, 0, "", "", 0)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    populatedData[0],
+	}, nil
 }
 
 var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var (
-		items    []structs.OrderArticleItem
-		itemsMap = make(map[int]structs.OrderArticleItem)
-		total    int
-	)
-	publicProcurementID, ok := params.Args["public_procurement_id"].(int)
-	if !ok || publicProcurementID <= 0 {
-		return shared.ErrorResponse("You must pass the item procurement id"), nil
+	var items []interface{}
+	var total int
+	var publicProcurementId int
+
+	if params.Args["public_procurement_id"] == nil {
+		publicProcurementId = 0
+	} else {
+		publicProcurementId = params.Args["public_procurement_id"].(int)
 	}
 
-	articles, err := GetProcurementArticles(publicProcurementID)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
+	items = GetProcurementArticles(publicProcurementId)
 
-	for _, item := range articles {
-		currentArticle := item // work with a copy to avoid modifying the range variable
-
-		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
-			ArticleID: &currentArticle.Id,
-		}
-
-		relatedOrderProcurementArticleResponse, err := getOrderProcurementArticles(&getOrderProcurementArticleInput)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		if relatedOrderProcurementArticleResponse.Total > 0 {
-			for _, orderArticle := range relatedOrderProcurementArticleResponse.Data {
-				// if article is used in another order, deduct the amount to get Available articles
-				currentArticle.TotalPrice = currentArticle.TotalPrice * float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
-				currentArticle.Available -= orderArticle.Amount
-			}
-			// Check if the item is not already in the map, then add it
-			if _, exists := itemsMap[currentArticle.Id]; !exists {
-				itemsMap[currentArticle.Id] = currentArticle
+	for _, item := range items {
+		if article, ok := item.(structs.OrderArticleItem); ok {
+			var relatedOrderProcurementArticle = shared.FetchByProperty(
+				"order_procurement_article",
+				"ArticleId",
+				article.Id,
+			)
+			if len(relatedOrderProcurementArticle) > 0 {
+				for _, itemOrderArticle := range relatedOrderProcurementArticle {
+					//if article use in other order, deduct amount to get Available articles
+					if orderArticle, ok := itemOrderArticle.(*structs.OrderProcurementArticleItem); ok {
+						article.TotalPrice = article.TotalPrice * (article.Available - orderArticle.Amount) / article.Available
+						article.Available = article.Available - orderArticle.Amount
+						items = shared.FilterByProperty(items, "Id", article.Id)
+						if article.Amount > 0 {
+							items = append(items, article)
+						}
+					}
+				}
 			}
 		}
-	}
-
-	// Convert the map values to a slice
-	for _, item := range itemsMap {
-		items = append(items, item)
 	}
 
 	total = len(items)
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Total:   total,
-		Items:   items,
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
 	}, nil
 }
 
@@ -289,7 +489,7 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
 
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
 	}
 
 	order := shared.FindByProperty(orderListData, "Id", data.OrderId)
@@ -304,10 +504,9 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 			newItem.PublicProcurementId = updateOrder.PublicProcurementId
 			newItem.SupplierId = updateOrder.SupplierId
 			newItem.Status = "Received"
-			newItem.DateSystem = &data.DateSystem
-			newItem.InvoiceDate = &data.InvoiceDate
-			newItem.InvoiceNumber = &data.InvoiceNumber
-			newItem.OrganizationUnitId = updateOrder.OrganizationUnitId
+			newItem.DateSystem = data.DateSystem
+			newItem.InvoiceDate = data.InvoiceDate
+			newItem.InvoiceNumber = data.InvoiceNumber
 			newItem.DescriptionReceive = data.DescriptionReceive
 		}
 	}
@@ -334,7 +533,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
 
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
 	}
 
 	order := shared.FindByProperty(orderListData, "Id", data.OrderId)
@@ -353,8 +552,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			newItem.InvoiceDate = updateOrder.InvoiceDate
 			newItem.InvoiceNumber = updateOrder.InvoiceNumber
 			newItem.DescriptionReceive = updateOrder.DescriptionReceive
-			newItem.OfficeId = &data.OfficeId
-			newItem.OrganizationUnitId = updateOrder.OrganizationUnitId
+			newItem.OfficeId = data.OfficeId
 			newItem.RecipientUserId = data.RecipientUserId
 		}
 	}
@@ -370,96 +568,56 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 }
 
 var RecipientUsersResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var authToken = params.Context.Value(config.TokenKey).(string)
+	var items []interface{}
+	var total int
 
-	loggedInProfile, err := getLoggedInUserProfile(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	organizationUnitID, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	var userProfileDropdownList []*dto.DropdownSimple
-	employees, err := getEmployeesOfOrganizationUnit(organizationUnitID)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	for _, employee := range employees {
-		userProfileDropdownList = append(userProfileDropdownList, &dto.DropdownSimple{
-			Id:    employee.Id,
-			Title: employee.FirstName + " " + employee.LastName,
-		})
+	relatedInventoryUserProfile := shared.FetchByProperty(
+		"user_profile",
+		"",
+		"",
+	)
+	// Populating User Profile data
+	if len(relatedInventoryUserProfile) > 0 {
+		for _, item := range relatedInventoryUserProfile {
+			var relatedUserProfile = shared.WriteStructToInterface(item)
+			item := map[string]interface{}{
+				"title": relatedUserProfile["first_name"].(string) + " " + relatedUserProfile["last_name"].(string),
+				"id":    relatedUserProfile["id"],
+			}
+			items = append(items, item)
+		}
 	}
 
-	return dto.Response{
-		Message: "Here's the list you asked for!",
-		Status:  "success",
-		Items:   userProfileDropdownList,
-		Total:   len(userProfileDropdownList),
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
 	}, nil
 }
 
-func getEmployeesOfOrganizationUnit(id int) ([]*structs.UserProfiles, error) {
-	var userProfileList []*structs.UserProfiles
-	active := true
-	systematizationsRes, err := getSystematizations(&dto.GetSystematizationsInput{Active: &active, OrganizationUnitID: &id})
-	if err != nil {
-		return nil, err
-	}
-	if len(systematizationsRes.Data) == 0 {
-		return nil, errors.New("no systematization")
-	}
-	systematization := systematizationsRes.Data[0]
-	jobPositionsInOrganizationUnit, err := getJobPositionsInOrganizationUnits(&dto.GetJobPositionInOrganizationUnitsInput{SystematizationID: &systematization.Id})
-	if err != nil {
-		return nil, err
-	}
-
-	for _, jobPosition := range jobPositionsInOrganizationUnit.Data {
-		employeesByJobPosition, err := getEmployeesInOrganizationUnitList(&dto.GetEmployeesInOrganizationUnitInput{PositionInOrganizationUnit: &jobPosition.Id})
-		if err != nil {
-			return nil, err
-		}
-
-		for _, employee := range employeesByJobPosition {
-			userProfile, err := getUserProfileById(employee.UserProfileId)
-			if err != nil {
-				return nil, err
-			}
-			userProfileList = append(userProfileList, userProfile)
-		}
-	}
-
-	return userProfileList, nil
-}
-
 var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	OrderListItemType := &structs.OrderListItem{}
+	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListItemType)
 
-	_, err := getOrderListById(itemId)
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Fetching Inventory Dispatch Delete failed because of this error - %s.\n", err)
 	}
 
-	orderProcurementArticlesResponse, err := getOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{
-		OrderID: &itemId,
-	})
-	if err != nil {
-		return shared.HandleAPIError(err)
+	if shared.IsInteger(itemId) && itemId != 0 {
+		orderListData = shared.FilterByProperty(orderListData, "Id", itemId)
 	}
 
-	for _, orderProcurementArticle := range orderProcurementArticlesResponse.Data {
-		err = deleteOrderProcurementArticle(orderProcurementArticle.Id)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-	}
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/order_list.json"), orderListData)
 
-	err = deleteOrderList(itemId)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
+	OrderProcurementArticleItemType := &structs.OrderProcurementArticleItem{}
+	orderProcurementArticleData, err := shared.ReadJson(shared.GetDataRoot()+"/order_procurement_article.json", OrderProcurementArticleItemType)
+
+	removeOrderProcurementArticleData := shared.FilterByProperty(orderProcurementArticleData, "OrderId", itemId)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/order_procurement_article.json"), removeOrderProcurementArticleData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -475,7 +633,7 @@ var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interfa
 	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
 
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
 	}
 
 	order := shared.FindByProperty(orderListData, "Id", itemId)
@@ -489,14 +647,13 @@ var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interfa
 			newItem.TotalPrice = updateOrder.TotalPrice
 			newItem.PublicProcurementId = updateOrder.PublicProcurementId
 			newItem.SupplierId = updateOrder.SupplierId
-			newItem.OrganizationUnitId = updateOrder.OrganizationUnitId
 			newItem.Status = "Created"
-			//newItem.DateSystem = ""
-			//newItem.InvoiceDate = ""
-			//newItem.InvoiceNumber = ""
-			//newItem.DescriptionReceive = ""
-			//newItem.OfficeId = 0
-			//newItem.RecipientUserId = 0
+			newItem.DateSystem = ""
+			newItem.InvoiceDate = ""
+			newItem.InvoiceNumber = ""
+			newItem.DescriptionReceive = ""
+			newItem.OfficeId = 0
+			newItem.RecipientUserId = 0
 		}
 	}
 
@@ -518,7 +675,7 @@ var OrderListAssetMovementDeleteResolver = func(params graphql.ResolveParams) (i
 	orderListData, err := shared.ReadJson(shared.GetDataRoot()+"/order_list.json", OrderListType)
 
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Fetching Order List failed because of this error - %s.\n", err)
 	}
 
 	order := shared.FindByProperty(orderListData, "Id", itemId)
@@ -537,9 +694,8 @@ var OrderListAssetMovementDeleteResolver = func(params graphql.ResolveParams) (i
 			newItem.InvoiceDate = updateOrder.InvoiceDate
 			newItem.InvoiceNumber = updateOrder.InvoiceNumber
 			newItem.DescriptionReceive = updateOrder.DescriptionReceive
-			newItem.OrganizationUnitId = updateOrder.OrganizationUnitId
-			//newItem.OfficeId = 0
-			//newItem.RecipientUserId = 0
+			newItem.OfficeId = 0
+			newItem.RecipientUserId = 0
 		}
 	}
 
@@ -551,262 +707,4 @@ var OrderListAssetMovementDeleteResolver = func(params graphql.ResolveParams) (i
 		"status":  "success",
 		"message": "You delete Asset Movement this order!",
 	}, nil
-}
-
-func updateOrderListItem(id int, orderListItem *structs.OrderListItem) (*structs.OrderListItem, error) {
-	res := &dto.GetOrderListResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.ORDER_LISTS_ENDPOINT+"/"+strconv.Itoa(id), orderListItem, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func createOrderListItem(orderListItem *structs.OrderListItem) (*structs.OrderListItem, error) {
-	res := &dto.GetOrderListResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.ORDER_LISTS_ENDPOINT, orderListItem, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func createOrderProcurementArticle(orderProcurementArticleItem *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error) {
-	res := &dto.GetOrderProcurementArticleResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.ORDER_PROCUREMENT_ARTICLES_ENDPOINT, orderProcurementArticleItem, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func deleteOrderProcurementArticle(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.ORDER_PROCUREMENT_ARTICLES_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func deleteOrderList(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.ORDER_LISTS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func createOrderListProcurementArticles(orderListId int, data structs.OrderListInsertItem) error {
-	for _, article := range data.Articles {
-		newArticle := structs.OrderProcurementArticleItem{
-			OrderId:   orderListId,
-			ArticleId: article.Id,
-			Amount:    article.Amount,
-		}
-		_, err := createOrderProcurementArticle(&newArticle)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func buildOrderListInsertItem(item *structs.OrderListInsertItem, loggedInAccount *structs.UserAccounts) (*structs.OrderListItem, error) {
-	currentTime := time.Now().UTC()
-	timeString := currentTime.Format("2006-01-02T15:04:05Z07:00")
-
-	// Getting organizationUnitId from job position
-	loggedInProfile, err := getUserProfileByUserAccountID(loggedInAccount.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(loggedInProfile.Id)
-	if err != nil {
-		return nil, err
-	}
-	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
-	organizationUnitId := jobPositionInOrganizationUnit.ParentOrganizationUnitId
-
-	totalPrice := float32(0.0)
-	supplierId := 0
-
-	if len(item.Articles) > 0 {
-		articleMap := make(map[int]structs.OrderArticleInsertItem)
-		for _, article := range item.Articles {
-			articleMap[article.Id] = article
-		}
-
-		relatedContractsResponse, err := getProcurementContractsList(&dto.GetProcurementContractsInput{
-			ProcurementID: &item.PublicProcurementId,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		for _, contract := range relatedContractsResponse.Data {
-			supplierId = contract.SupplierId
-			relatedContractArticlesResponse, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
-				ContractID: &contract.Id,
-			})
-			if err != nil {
-				return nil, err
-			}
-
-			for _, contractArticle := range relatedContractArticlesResponse.Data {
-				if article, exists := articleMap[contractArticle.PublicProcurementArticleId]; exists {
-					totalPrice += (contractArticle.GrossValue / float32(contractArticle.Amount)) * float32(article.Amount)
-				}
-			}
-		}
-	}
-
-	newItem := structs.OrderListItem{
-		Id:                  item.Id,
-		DateOrder:           timeString,
-		TotalPrice:          totalPrice,
-		PublicProcurementId: item.PublicProcurementId,
-		SupplierId:          supplierId,
-		OrganizationUnitId:  organizationUnitId,
-		RecipientUserId:     loggedInProfile.Id,
-	}
-
-	return &newItem, nil
-}
-
-func getOrderProcurementArticles(input *dto.GetOrderProcurementArticleInput) (*dto.GetOrderProcurementArticlesResponseMS, error) {
-	res := &dto.GetOrderProcurementArticlesResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.ORDER_PROCUREMENT_ARTICLES_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOverviewResponse, error) {
-	totalPrice := float32(0.0)
-
-	procurementItem, err := getProcurementItem(item.PublicProcurementId)
-	if err != nil {
-		return nil, err
-	}
-
-	supplier, err := getSupplier(item.SupplierId)
-	if err != nil {
-		return nil, err
-	}
-
-	office := &dto.DropdownSimple{}
-	if item.OfficeId != nil {
-		officeItem, _ := getDropdownSettingById(*item.OfficeId)
-		office.Title = officeItem.Title
-		office.Id = officeItem.Id
-	}
-
-	// getting articles and total price
-	articles := []dto.DropdownProcurementAvailableArticle{}
-	getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
-		OrderID: &item.Id,
-	}
-	relatedOrderProcurementArticle, err := getOrderProcurementArticles(&getOrderProcurementArticleInput)
-	if err != nil {
-		return nil, err
-	}
-
-	publicProcurementArticles, err := GetProcurementArticles(item.PublicProcurementId)
-	if err != nil {
-		return nil, err
-	}
-
-	articleMap := make(map[int]*structs.OrderProcurementArticleItem)
-	for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
-		articleMap[itemOrderArticle.ArticleId] = &itemOrderArticle
-	}
-
-	for _, article := range publicProcurementArticles {
-		if itemOrderArticle, exists := articleMap[article.Id]; exists {
-			article.TotalPrice = article.TotalPrice * float32((article.Amount - itemOrderArticle.Amount)) / float32(article.Amount)
-			totalPrice += article.TotalPrice
-			articles = append(articles, dto.DropdownProcurementAvailableArticle{
-				Id:           article.Id,
-				Title:        article.Title,
-				Manufacturer: article.Manufacturer,
-				Description:  article.Description,
-				Unit:         article.Unit,
-				Available:    article.Available,
-				Amount:       article.Amount,
-				TotalPrice:   totalPrice,
-			})
-		}
-	}
-
-	item.TotalPrice = totalPrice
-
-	userProfile, err := getUserProfileById(item.RecipientUserId)
-	if err != nil {
-		return nil, err
-	}
-
-	res := dto.OrderListOverviewResponse{
-		Id:                  item.Id,
-		DateOrder:           (string)(item.DateOrder),
-		TotalPrice:          item.TotalPrice,
-		PublicProcurementID: procurementItem.Id,
-		PublicProcurement: &dto.DropdownSimple{
-			Id:    procurementItem.Id,
-			Title: procurementItem.Title,
-		},
-		SupplierID: supplier.Id,
-		Supplier: &dto.DropdownSimple{
-			Id:    supplier.Id,
-			Title: supplier.Title,
-		},
-		DateSystem:         item.DateSystem,
-		InvoiceDate:        item.InvoiceDate,
-		OrganizationUnitID: item.OrganizationUnitId,
-		OfficeID:           office.Id,
-		Office:             office,
-		Status:             item.Status,
-		RecipientUser: &dto.DropdownSimple{
-			Id:    userProfile.Id,
-			Title: fmt.Sprintf("%s %s", userProfile.FirstName, userProfile.LastName),
-		},
-		RecipientUserID: item.RecipientUserId,
-		Articles:        &articles,
-	}
-
-	if item.InvoiceNumber != nil {
-		res.InvoiceNumber = *item.InvoiceNumber
-	}
-
-	return &res, nil
-}
-
-func getOrderListById(id int) (*structs.OrderListItem, error) {
-	res := &dto.GetOrderListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.ORDER_LISTS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func getOrderLists(input *dto.GetOrderListInput) (*dto.GetOrderListsResponseMS, error) {
-	res := &dto.GetOrderListsResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.ORDER_LISTS_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
 }

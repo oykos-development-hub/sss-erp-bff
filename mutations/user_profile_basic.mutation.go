@@ -215,7 +215,7 @@ var UserProfileContractInsertMutation = graphql.NewInputObject(graphql.InputObje
 	Name: "UserProfileContractInsertMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"user_profile_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Int),
@@ -227,7 +227,7 @@ var UserProfileContractInsertMutation = graphql.NewInputObject(graphql.InputObje
 			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"department_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"job_position_in_organization_unit_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Int),

@@ -1,128 +1,128 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"strconv"
+	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
 
+func PopulateBasicInventoryAssessmentsItemProperties(basicInventoryAssessmentsItems []interface{}, id int, idInventory ...int) []interface{} {
+	var items []interface{}
+	for _, item := range basicInventoryAssessmentsItems {
+		var mergedItem = shared.WriteStructToInterface(item)
+		// Filtering by ID
+		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+			continue
+		}
+		if len(idInventory) > 0 && shared.IsInteger(idInventory[0]) && idInventory[0] != 0 && idInventory[0] != mergedItem["inventory_id"] {
+			continue
+		} else {
+			if shared.IsInteger(mergedItem["depreciation_type_id"]) && mergedItem["depreciation_type_id"].(int) > 0 {
+				var relatedInventoryDepreciationType = shared.FetchByProperty(
+					"basic_inventory_depreciation_types",
+					"Id",
+					mergedItem["depreciation_type_id"],
+				)
+				if len(relatedInventoryDepreciationType) > 0 {
+					var relatedDepreciationType = shared.WriteStructToInterface(relatedInventoryDepreciationType[0])
+
+					mergedItem["depreciation_type"] = map[string]interface{}{
+						"title": relatedDepreciationType["title"],
+						"id":    relatedDepreciationType["id"],
+					}
+				}
+			}
+
+			if shared.IsInteger(mergedItem["user_profile_id"]) && mergedItem["user_profile_id"].(int) > 0 {
+				var userProfile = shared.FetchByProperty(
+					"user_profile",
+					"Id",
+					mergedItem["user_profile_id"],
+				)
+
+				if len(userProfile) > 0 {
+					var userProfileInterface = shared.WriteStructToInterface(userProfile[0])
+
+					mergedItem["user_profile"] = map[string]interface{}{
+						"title": userProfileInterface["first_name"].(string) + " " + userProfileInterface["last_name"].(string),
+						"id":    userProfileInterface["id"],
+					}
+				}
+			}
+
+		}
+
+		items = append(items, mergedItem)
+	}
+	return items
+}
+
 var BasicInventoryAssessmentsInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.BasicInventoryAssessmentsTypesItem
-	var assessmentResponse *structs.BasicInventoryAssessmentsTypesItem
-	var err error
 	dataBytes, _ := json.Marshal(params.Args["data"])
+	BasicInventoryAssessmentsType := &structs.BasicInventoryAssessmentsTypesItem{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		assessmentResponse, err = updateAssessments(itemId, &data)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-	} else {
-		assessmentResponse, err = createAssessments(&data)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-	}
+	data.Active = true
 
-	items, err := buildAssessmentResponse(assessmentResponse)
+	basicInventoryAssessmentsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_assessments.json", BasicInventoryAssessmentsType)
 
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Fetching Basic Inventory Assessments failed because of this error - %s.\n", err)
 	}
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You inserted/updated this item!",
-		Item:    items,
+	for _, item := range basicInventoryAssessmentsData {
+		if n, ok := item.(*structs.BasicInventoryAssessmentsTypesItem); ok {
+			n.Active = false
+		}
+	}
+
+	if shared.IsInteger(itemId) && itemId != 0 {
+		basicInventoryAssessmentsData = shared.FilterByProperty(basicInventoryAssessmentsData, "Id", itemId)
+	} else {
+		data.Id = shared.GetRandomNumber()
+	}
+
+	var updatedData = append(basicInventoryAssessmentsData, data)
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_assessments.json"), updatedData)
+
+	sliceData := []interface{}{data}
+
+	// Populate data for each Basic Inventory
+	var populatedData = PopulateBasicInventoryAssessmentsItemProperties(sliceData, itemId, data.InventoryId)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You updated this item!",
+		"item":    populatedData[0],
 	}, nil
 }
 
 var BasicInventoryAssessmentDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	var projectRoot, _ = shared.GetProjectRoot()
+	itemId := params.Args["id"]
+	BasicInventoryAssessmentsType := &structs.BasicInventoryAssessmentsTypesItem{}
+	basicInventoryAssessmentsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_assessments.json", BasicInventoryAssessmentsType)
 
-	err := deleteAssessment(itemId)
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Fetching Basic Inventory Assessment Delete failed because of this error - %s.\n", err)
 	}
 
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+	if shared.IsInteger(itemId) && itemId != 0 {
+		basicInventoryAssessmentsData = shared.FilterByProperty(basicInventoryAssessmentsData, "Id", itemId)
+	}
+
+	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_assessments.json"), basicInventoryAssessmentsData)
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
 	}, nil
-}
-
-func createAssessments(data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error) {
-	res := &dto.AssessmentResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.ASSESSMENTS_ENDPOINT, data, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func updateAssessments(id int, data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error) {
-	res := &dto.AssessmentResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.ASSESSMENTS_ENDPOINT+"/"+strconv.Itoa(id), data, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func deleteAssessment(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.ASSESSMENTS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func buildAssessmentResponse(item *structs.BasicInventoryAssessmentsTypesItem) (*dto.BasicInventoryResponseAssessment, error) {
-	settings, err := getDropdownSettingById(item.DepreciationTypeId)
-	if err != nil {
-		return nil, err
-	}
-
-	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
-	if settings != nil {
-		settingDropdownDepreciationTypeId.Id = settings.Id
-		settingDropdownDepreciationTypeId.Title = settings.Title
-	}
-
-	userDropdown := dto.DropdownSimple{}
-	if item.UserProfileId != 0 {
-		user, err := getUserProfileById(item.UserProfileId)
-		if err != nil {
-			return nil, err
-		}
-		userDropdown.Id = user.Id
-		userDropdown.Title = user.FirstName + " " + user.LastName
-	}
-
-	res := dto.BasicInventoryResponseAssessment{
-		Id:                   item.Id,
-		InventoryId:          item.InventoryId,
-		DepreciationType:     settingDropdownDepreciationTypeId,
-		UserProfile:          userDropdown,
-		GrossPriceNew:        item.GrossPriceNew,
-		GrossPriceDifference: item.GrossPriceDifference,
-		Active:               item.Active,
-		DateOfAssessment:     item.DateOfAssessment,
-		CreatedAt:            item.CreatedAt,
-		UpdatedAt:            item.UpdatedAt,
-		FileId:               item.FileId,
-	}
-
-	return &res, nil
 }

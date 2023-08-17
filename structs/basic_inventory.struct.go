@@ -64,9 +64,8 @@ type BasicInventoryInsertItem struct {
 	Description                  string                         `json:"description"`
 	DateOfPurchase               string                         `json:"date_of_purchase"`
 	Source                       string                         `json:"source"`
-	SourceType                   string                         `json:"source_type"`
 	DonorTitle                   string                         `json:"donor_title"`
-	InvoiceNumber                string                         `json:"invoice_number"`
+	InvoiceNumber                int                            `json:"invoice_number"`
 	PriceOfAssessment            int                            `json:"price_of_assessment"`
 	DateOfAssessment             string                         `json:"date_of_assessment"`
 	LifetimeOfAssessmentInMonths int                            `json:"lifetime_of_assessment_in_months"`
@@ -74,8 +73,8 @@ type BasicInventoryInsertItem struct {
 	DeactivationDescription      string                         `json:"deactivation_description"`
 	CreatedAt                    string                         `json:"created_at"`
 	UpdatedAt                    string                         `json:"updated_at"`
-	InvoiceFileId                int                            `json:"invoice_file_id"`
-	FileId                       int                            `json:"file_id"`
+	InvoiceFileId                string                         `json:"invoice_file_id"`
+	FileId                       string                         `json:"file_id"`
 }
 
 type BasicInventoryItem struct {
@@ -105,4 +104,17 @@ type BasicInventoryItemDispatch struct {
 	OrganizationUnitId        int    `json:"organization_unit_id"`
 	OfficeId                  int    `json:"office_id"`
 	SerialNumber              string `json:"serial_number"`
+}
+
+type BasicInventoryRealEstates struct {
+	Id                       int    `json:"id"`
+	Title                    string `json:"title"`
+	SquareArea               int    `json:"square_area"`
+	LandSerialNumber         string `json:"land_serial_number"`
+	EstateSerialNumber       string `json:"estate_serial_number"`
+	OwnershipType            string `json:"ownership_type"`
+	OwnershipScope           string `json:"ownership_scope"`
+	OwnershipInvestmentScope string `json:"ownership_investment_scope"`
+	LimitationsDescription   string `json:"limitations_description"`
+	FileId                   string `json:"file_id"`
 }

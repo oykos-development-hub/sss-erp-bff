@@ -75,7 +75,7 @@ var OrderProcurementAvailableField = &graphql.Field{
 	Description: "Returns a data of Order Procurement Available items List",
 	Args: graphql.FieldConfigArgument{
 		"public_procurement_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.OrderProcurementAvailableResolver,
@@ -86,7 +86,7 @@ var OrderListDeleteField = &graphql.Field{
 	Description: "Delete existing Order",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.OrderListDeleteResolver,

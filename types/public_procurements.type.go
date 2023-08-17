@@ -86,8 +86,8 @@ var PublicProcurementPlanDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementPlanDetailsItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementPlanDetailsItemType,
 		},
 	},
 })
@@ -104,8 +104,8 @@ var PublicProcurementPlanInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementPlanDetailsItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementPlanDetailsItemType,
 		},
 	},
 })
@@ -188,8 +188,8 @@ var PublicProcurementPlanItemDetailsType = graphql.NewObject(graphql.ObjectConfi
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementPlanItemDetailsItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementPlanItemDetailsItemType,
 		},
 	},
 })
@@ -240,7 +240,7 @@ var PublicProcurementPlanItemLimitItemType = graphql.NewObject(graphql.ObjectCon
 			Type: DropdownItemType,
 		},
 		"limit": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 	},
 })
@@ -275,8 +275,8 @@ var PublicProcurementPlanItemLimitInsertType = graphql.NewObject(graphql.ObjectC
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementPlanItemLimitItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementPlanItemLimitItemType,
 		},
 	},
 })
@@ -299,8 +299,11 @@ var PublicProcurementPlanItemArticleItemType = graphql.NewObject(graphql.ObjectC
 		"description": &graphql.Field{
 			Type: graphql.String,
 		},
-		"net_price": &graphql.Field{
+		"manufacturer": &graphql.Field{
 			Type: graphql.String,
+		},
+		"net_price": &graphql.Field{
+			Type: graphql.Float,
 		},
 		"vat_percentage": &graphql.Field{
 			Type: graphql.String,
@@ -320,8 +323,8 @@ var PublicProcurementPlanItemArticleInsertType = graphql.NewObject(graphql.Objec
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementPlanItemArticleItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementPlanItemArticleItemType,
 		},
 	},
 })
@@ -404,8 +407,8 @@ var PublicProcurementOrganizationUnitArticlesOverviewType = graphql.NewObject(gr
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementOrganizationUnitArticleItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementOrganizationUnitArticleItemType,
 		},
 	},
 })
@@ -569,8 +572,8 @@ var PublicProcurementContractsInsertType = graphql.NewObject(graphql.ObjectConfi
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementContractItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementContractItemType,
 		},
 	},
 })
@@ -603,7 +606,7 @@ var PublicProcurementContractArticleItemType = graphql.NewObject(graphql.ObjectC
 			Type: DropdownItemType,
 		},
 		"amount": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"net_value": &graphql.Field{
 			Type: graphql.String,
@@ -644,8 +647,8 @@ var PublicProcurementContractArticlesOverviewType = graphql.NewObject(graphql.Ob
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementContractArticleItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementContractArticleItemType,
 		},
 	},
 })

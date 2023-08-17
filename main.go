@@ -31,14 +31,11 @@ func extractTokenFromHeader(headerValue string) string {
 
 func extractTokenMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// define key value
-		const tokenKey string = "token"
-
 		authHeader := r.Header.Get("Authorization")
 		// Extract the token value from the header
 		token := extractTokenFromHeader(authHeader)
 		// Store the token value in the request context
-		ctx := context.WithValue(r.Context(), tokenKey, token)
+		ctx := context.WithValue(r.Context(), config.TokenKey, token)
 		r = r.WithContext(ctx)
 		// Call the next handler
 		next.ServeHTTP(w, r)
@@ -154,8 +151,6 @@ func main() {
 			"basicInventoryDispatch_Insert":                   fields.BasicInventoryDispatchInsertField,
 			"basicInventoryDispatch_Delete":                   fields.BasicInventoryDispatchDeleteField,
 			"basicInventoryDispatch_Accept":                   fields.BasicInventoryDispatchAcceptField,
-			"basicInventoryDepreciationTypes_Insert":          fields.BasicInventoryDepreciationTypesInsertField,
-			"basicInventoryDepreciationTypes_Delete":          fields.BasicInventoryDepreciationTypesDeleteField,
 			"officesOfOrganizationUnits_Insert":               fields.OfficesOfOrganizationUnitInsertField,
 			"officesOfOrganizationUnits_Delete":               fields.OfficesOfOrganizationUnitDeleteField,
 			"orderList_Insert":                                fields.OrderListInsertField,
@@ -218,7 +213,6 @@ func main() {
 			"suppliers_Overview":                                 fields.SuppliersOverviewField,
 			"basicInventory_Overview":                            fields.BasicInventoryOverviewField,
 			"basicInventory_Details":                             fields.BasicInventoryDetailsField,
-			"basicInventoryDepreciationTypes_Overview":           fields.BasicInventoryDepreciationTypesOverviewField,
 			"basicInventoryRealEstates_Overview":                 fields.BasicInventoryRealEstatesOverviewField,
 			"officesOfOrganizationUnits_Overview":                fields.OfficesOfOrganizationUnitOverviewField,
 			"basicInventoryDispatch_Overview":                    fields.BasicInventoryDispatchOverviewField,

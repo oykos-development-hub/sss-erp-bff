@@ -10,12 +10,15 @@ type JSONDate string
 
 const jsonDateFormat = "2006-01-02"
 
-func (jd JSONDate) MarshalJSON() ([]byte, error) {
-	if jd == "" {
+func (jd *JSONDate) MarshalJSON() ([]byte, error) {
+	if jd == nil {
+		return []byte("null"), nil
+	}
+	if *jd == "" {
 		return []byte("null"), nil
 	}
 
-	t, err := time.Parse(jsonDateFormat, string(jd))
+	t, err := time.Parse(jsonDateFormat, string(*jd))
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +28,6 @@ func (jd JSONDate) MarshalJSON() ([]byte, error) {
 
 func (jd *JSONDate) UnmarshalJSON(data []byte) error {
 	if string(data) == "null" {
-		*jd = JSONDate("") // Assign an empty string to represent nil
 		return nil
 	}
 

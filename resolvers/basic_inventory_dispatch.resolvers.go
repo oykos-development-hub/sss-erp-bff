@@ -1,485 +1,394 @@
 package resolvers
 
 import (
+	"bff/config"
+	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
-func PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchItems []interface{}, id int, typeDispatch string, sourceOrganizationUnitId int, organizationUnitId int, accepted ...interface{}) []interface{} {
-	var items []interface{}
-	for _, item := range basicInventoryDispatchItems {
-		var mergedItem = shared.WriteStructToInterface(item)
-		// Filtering by ID
-		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
-			continue
-			// if return for revers
-		} else if mergedItem["target_organization_unit_id"] == mergedItem["source_organization_unit_id"] {
-			continue
-		}
-
-		// Filtering by type
-		if shared.IsString(typeDispatch) && len(typeDispatch) > 0 && typeDispatch != mergedItem["type"] {
-			continue
-		}
-
-		// Filtering by sourceOrganizationUnitId
-		if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 && organizationUnitId != mergedItem["source_organization_unit_id"].(int) && organizationUnitId != mergedItem["target_organization_unit_id"].(int) {
-			continue
-		}
-
-		// Filtering by sourceOrganizationUnitId
-		if shared.IsInteger(sourceOrganizationUnitId) && sourceOrganizationUnitId != 0 && sourceOrganizationUnitId != mergedItem["source_organization_unit_id"].(int) {
-			continue
-		}
-
-		// Filtering by accepted
-		if len(accepted) > 0 && accepted[0] != nil && accepted[0] != "null" {
-			var IsAccepted bool
-			if accepted[0] == "true" {
-				IsAccepted = true
-			} else {
-				IsAccepted = false
-			}
-			if IsAccepted != mergedItem["is_accepted"].(bool) {
-				continue
-			}
-		}
-
-		if shared.IsInteger(mergedItem["target_user_profile_id"]) && mergedItem["target_user_profile_id"].(int) > 0 {
-			var relatedInventoryUserProfile = shared.FetchByProperty(
-				"user_profile",
-				"Id",
-				mergedItem["target_user_profile_id"],
-			)
-
-			// Populating User Profile data
-			if len(relatedInventoryUserProfile) > 0 {
-				var relatedUserProfile = shared.WriteStructToInterface(relatedInventoryUserProfile[0])
-
-				mergedItem["target_user_profile"] = map[string]interface{}{
-					"title": relatedUserProfile["first_name"].(string) + " " + relatedUserProfile["last_name"].(string),
-					"id":    relatedUserProfile["id"],
-				}
-			}
-		}
-
-		if shared.IsInteger(mergedItem["source_user_profile_id"]) && mergedItem["source_user_profile_id"].(int) > 0 {
-			var relatedInventoryUserProfile = shared.FetchByProperty(
-				"user_profile",
-				"Id",
-				mergedItem["source_user_profile_id"],
-			)
-
-			// Populating User Profile data
-			if len(relatedInventoryUserProfile) > 0 {
-				var relatedUserProfile = shared.WriteStructToInterface(relatedInventoryUserProfile[0])
-
-				mergedItem["source_user_profile"] = map[string]interface{}{
-					"title": relatedUserProfile["first_name"].(string) + " " + relatedUserProfile["last_name"].(string),
-					"id":    relatedUserProfile["id"],
-				}
-			}
-		}
-
-		if mergedItem["source_organization_unit_id"].(int) > 0 {
-			var relatedOfficesOrganizationUnit = shared.FetchByProperty(
-				"organization_unit",
-				"Id",
-				mergedItem["source_organization_unit_id"],
-			)
-			if len(relatedOfficesOrganizationUnit) > 0 {
-				var relatedOrganizationUnit = shared.WriteStructToInterface(relatedOfficesOrganizationUnit[0])
-
-				mergedItem["source_organization_unit"] = map[string]interface{}{
-					"title": relatedOrganizationUnit["title"],
-					"id":    relatedOrganizationUnit["id"],
-				}
-			}
-		}
-
-		if mergedItem["target_organization_unit_id"].(int) > 0 {
-			var relatedOfficesOrganizationUnit = shared.FetchByProperty(
-				"organization_unit",
-				"Id",
-				mergedItem["target_organization_unit_id"],
-			)
-			if len(relatedOfficesOrganizationUnit) > 0 {
-				var relatedOrganizationUnit = shared.WriteStructToInterface(relatedOfficesOrganizationUnit[0])
-
-				mergedItem["target_organization_unit"] = map[string]interface{}{
-					"title": relatedOrganizationUnit["title"],
-					"id":    relatedOrganizationUnit["id"],
-				}
-			}
-		}
-
-		if shared.IsInteger(mergedItem["office_id"]) && mergedItem["office_id"].(int) > 0 {
-			var relatedInventoryOffice = shared.FetchByProperty(
-				"offices_of_organization_units",
-				"Id",
-				mergedItem["office_id"],
-			)
-			if len(relatedInventoryOffice) > 0 {
-				var relatedOffice = shared.WriteStructToInterface(relatedInventoryOffice[0])
-
-				mergedItem["office"] = map[string]interface{}{
-					"title": relatedOffice["title"],
-					"id":    relatedOffice["id"],
-				}
-			}
-		}
-
-		if shared.IsInteger(id) && id != 0 && id == mergedItem["id"] {
-			BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
-			basicInventoryDispatchItemsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
-
-			if err != nil {
-				fmt.Printf("Fetching Basic Inventory Dispatch Items failed because of this error - %s.\n", err)
-			}
-
-			basicInventoryDispatchItemsData = shared.FindByProperty(basicInventoryDispatchItemsData, "DispatchId", id)
-
-			BasicInventoryType := &structs.BasicInventoryInsertItem{}
-			basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
-
-			if err != nil {
-				fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
-			}
-			mergedItem["inventory"] = []interface{}{}
-			if len(basicInventoryDispatchItemsData) > 0 {
-				for _, item := range basicInventoryDispatchItemsData {
-					if m, ok := item.(*structs.BasicInventoryDispatchItemsItem); ok {
-						dataInventory := shared.FindByProperty(basicInventoryData, "Id", m.InventoryId)
-
-						if len(dataInventory) > 0 {
-							inventory, ok := mergedItem["inventory"].([]interface{})
-							if ok {
-								mergedItem["inventory"] = append(inventory, dataInventory[0])
-							}
-						}
-					}
-				}
-			}
-		}
-
-		items = append(items, mergedItem)
-	}
-	return items
-}
-
 var BasicInventoryDispatchOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var items []interface{}
-	var total int
-	var typeDispatch string
-	var sourceOrganizationUnitId int
-	var id int
-	var organizationUnitId int
-	var authToken = params.Context.Value("token").(string)
-	if authToken == "sss" {
-		organizationUnitId = 1
-	} else {
-		organizationUnitId = 2
+	var items []*dto.InventoryDispatchResponse
+	var filter dto.InventoryDispatchFilter
+
+	if id, ok := params.Args["id"].(int); ok && id != 0 {
+		filter.ID = &id
 	}
 
-	page := params.Args["page"]
-	size := params.Args["size"]
-
-	if params.Args["id"] == nil {
-		id = 0
-	} else {
-		id = params.Args["id"].(int)
+	if typeFilter, ok := params.Args["type"].(string); ok && typeFilter != "" {
+		filter.Type = &typeFilter
 	}
 
-	if params.Args["type"] == nil {
-		typeDispatch = ""
-	} else {
-		typeDispatch = params.Args["type"].(string)
+	if accepted, ok := params.Args["accepted"].(bool); ok {
+		filter.Accepted = &accepted
 	}
 
-	if params.Args["source_organization_unit_id"] == nil {
-		sourceOrganizationUnitId = 0
-	} else {
-		sourceOrganizationUnitId = params.Args["source_organization_unit_id"].(int)
+	if source, ok := params.Args["source_organization_unit_id"].(int); ok && source != 0 {
+		filter.SourceOrganizationUnitID = &source
 	}
 
-	BasicInventoryDispatchType := &structs.BasicInventoryDispatchItem{}
-	basicInventoryDispatchData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch.json", BasicInventoryDispatchType)
+	if page, ok := params.Args["page"].(int); ok && page != 0 {
+		filter.Page = &page
+	}
+
+	if size, ok := params.Args["size"].(int); ok && size != 0 {
+		filter.Size = &size
+	}
+
+	data, err := getAllInventoryDispatches(filter)
 
 	if err != nil {
-		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", err)
-		return nil, err
+		return shared.HandleAPIError(err)
 	}
 
-	// Populate data for each Basic Inventory Depreciation Types
-	items = PopulateBasicInventoryDispatchItemProperties(basicInventoryDispatchData, id, typeDispatch, sourceOrganizationUnitId, organizationUnitId, params.Args["accepted"])
+	for _, item := range data.Data {
+		resItem, err := buildInventoryDispatchResponse(item)
+		items = append(items, resItem)
 
-	total = len(items)
-
-	// Filtering by Pagination params
-	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
-		items = shared.Pagination(items, page.(int), size.(int))
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
 	}
 
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "Here's the list you asked for!",
-		"total":   total,
-		"items":   items,
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Total:   data.Total,
+		Items:   items,
 	}, nil
-
 }
 
 var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.BasicInventoryDispatchItem
-	var organizationUnitId int
+	var items *dto.InventoryDispatchResponse
+
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	BasicInventoryDispatchType := &structs.BasicInventoryDispatchItem{}
-
-	var authToken = params.Context.Value("token").(string)
-	if authToken == "sss" {
-		organizationUnitId = 1
-	} else {
-		organizationUnitId = 2
-	}
-
-	_ = json.Unmarshal(dataBytes, &data)
-
-	itemId := data.Id
-	targetOrganizationUnitId := data.TargetOrganizationUnitId
-
-	basicInventoryDispatchData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch.json", BasicInventoryDispatchType)
-
+	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		fmt.Printf("Fetching Basic Inventory Dispatch failed because of this error - %s.\n", err)
+		return shared.HandleAPIError(err)
 	}
 
-	data.SourceOrganizationUnitId = organizationUnitId
+	if shared.IsInteger(data.Id) && data.Id != 0 {
+		itemRes, err := updateDispatchItem(data.Id, &data)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Message = "You updated this item!"
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		basicInventoryDispatchData = shared.FilterByProperty(basicInventoryDispatchData, "Id", itemId)
+		items, err = buildInventoryDispatchResponse(itemRes)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
 	} else {
-		data.Id = shared.GetRandomNumber()
-		BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
-		basicInventoryDispatchItemsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
+		itemRes, err := createDispatchItem(&data)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		response.Message = "You created this item!"
+		items, err = buildInventoryDispatchResponse(itemRes)
 
 		if err != nil {
-			fmt.Printf("Fetching Basic Inventory Dispatch Items failed because of this error - %s.\n", err)
+			return shared.HandleAPIError(err)
 		}
 
-		BasicInventoryType := &structs.BasicInventoryInsertItem{}
-		basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
-
-		if err != nil {
-			fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
-		}
-
-		updatedDataItems := make([]interface{}, len(basicInventoryDispatchItemsData))
-		copy(updatedDataItems, basicInventoryDispatchItemsData)
-		if len(data.InventoryId) > 0 {
-			for _, item := range data.InventoryId {
-				basicInventoryDispatchItem := structs.BasicInventoryDispatchItemsItem{
-					Id:          shared.GetRandomNumber(),
-					InventoryId: item,
-					DispatchId:  data.Id,
-				}
-				updatedDataItems = append(updatedDataItems, basicInventoryDispatchItem)
-				updateItemInventory := shared.FindByProperty(basicInventoryData, "Id", item)
-
-				if m, ok := updateItemInventory[0].(*structs.BasicInventoryInsertItem); ok {
-					m.TargetOrganizationUnitId = targetOrganizationUnitId
-				}
-
-				basicInventoryData = shared.FilterByProperty(basicInventoryData, "Id", item)
-				basicInventoryData = append(basicInventoryData, updateItemInventory[0])
-			}
-		}
-
-		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_dispatch_items.json"), updatedDataItems)
-		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_items.json"), basicInventoryData)
 	}
 
-	data.InventoryId = nil
-	var updatedData = append(basicInventoryDispatchData, data)
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_dispatch.json"), updatedData)
-
-	if data.SourceOrganizationUnitId == data.TargetOrganizationUnitId {
-		var targetInventoryUserId int
-		var targetInventoryId = data.InventoryId[0]
-		if data.OfficeId > 0 {
-			targetInventoryUserId = data.TargetOrganizationUnitId
-		} else {
-			targetInventoryUserId = 0
-		}
-		BasicInventoryType := &structs.BasicInventoryInsertItem{}
-		basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
-		if err != nil {
-			fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
-		}
-
-		targetInventory := shared.FindByProperty(basicInventoryData, "Id", targetInventoryId)
-		for _, item := range targetInventory {
-			if m, ok := item.(*structs.BasicInventoryInsertItem); ok {
-				m.TargetUserProfileId = targetInventoryUserId
-			}
-		}
-
-		basicInventoryData = shared.FilterByProperty(basicInventoryData, "Id", itemId)
-
-		var updatedData = append(basicInventoryData, targetInventory)
-
-		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_items.json"), updatedData)
-	}
-
-	sliceData := []interface{}{data}
-
-	// Populate data for each Basic Inventory
-	var populatedData = PopulateBasicInventoryDispatchItemProperties(sliceData, itemId, "", 0, 0)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"item":    populatedData[0],
-	}, nil
+	response.Item = items
+	return response, nil
 }
 
 var BasicInventoryDispatchDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	itemId := params.Args["id"]
-	BasicInventoryDispatchType := &structs.BasicInventoryDispatchItem{}
-	basicInventoryDispatchData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch.json", BasicInventoryDispatchType)
+	itemId := params.Args["id"].(int)
 
+	err := deleteInventoryDispatch(itemId)
 	if err != nil {
-		fmt.Printf("Fetching Inventory Dispatch Delete failed because of this error - %s.\n", err)
+		return shared.HandleAPIError(err)
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		basicInventoryDispatchData = shared.FilterByProperty(basicInventoryDispatchData, "Id", itemId)
-	}
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_dispatch.json"), basicInventoryDispatchData)
-
-	BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
-	basicInventoryDispatchItemsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
-
-	removeItemsDispatchItemsData := shared.FindByProperty(basicInventoryDispatchItemsData, "DispatchId", itemId)
-
-	if len(removeItemsDispatchItemsData) > 0 {
-		BasicInventoryType := &structs.BasicInventoryInsertItem{}
-		basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
-
-		if err != nil {
-			fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
-		}
-
-		for _, item := range removeItemsDispatchItemsData {
-			if i, ok := item.(*structs.BasicInventoryDispatchItemsItem); ok {
-				updateItemInventory := shared.FindByProperty(basicInventoryData, "Id", i.InventoryId)
-
-				if m, ok := updateItemInventory[0].(*structs.BasicInventoryInsertItem); ok {
-					m.TargetOrganizationUnitId = 0
-				}
-
-				basicInventoryData = shared.FilterByProperty(basicInventoryData, "Id", i.InventoryId)
-				basicInventoryData = append(basicInventoryData, updateItemInventory[0])
-			}
-
-		}
-
-		_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_items.json"), basicInventoryData)
-	}
-
-	if err != nil {
-		fmt.Printf("Fetching Inventory Dispatch Delete failed because of this error - %s.\n", err)
-	}
-
-	if shared.IsInteger(itemId) && itemId != 0 {
-		basicInventoryDispatchItemsData = shared.FilterByProperty(basicInventoryDispatchItemsData, "DispatchId", itemId)
-	}
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_dispatch_items.json"), basicInventoryDispatchItemsData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You deleted this item!",
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
 	}, nil
 }
 
 var BasicInventoryDispatchAcceptResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	itemId := params.Args["dispatch_id"].(int)
-	targetUserId := params.Args["target_user_id"].(int)
-	var targetOrganizationUnitId int
+	id := params.Args["dispatch_id"].(int)
 
-	BasicInventoryDispatchType := &structs.BasicInventoryDispatchItem{}
+	var authToken = params.Context.Value(config.TokenKey).(string)
 
-	if !shared.IsInteger(itemId) && itemId == 0 {
-		fmt.Printf("Dispatch id is empty")
-		return nil, nil
-	}
-	if !shared.IsInteger(targetUserId) && targetUserId == 0 {
-		fmt.Printf("Target user id is empty")
-		return nil, nil
-	}
-
-	basicInventoryDispatchData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch.json", BasicInventoryDispatchType)
-
+	loggedInProfile, err := getLoggedInUserProfile(authToken)
 	if err != nil {
-		fmt.Printf("Fetching Inventory Dispatch failed because of this error - %s.\n", err)
+		return shared.HandleAPIError(err)
 	}
 
-	item := shared.FindByProperty(basicInventoryDispatchData, "Id", itemId, true)
+	dispatch, err := getDispatchItemByID(id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
 
-	for _, i := range item {
-		if m, ok := i.(*structs.BasicInventoryDispatchItem); ok {
-			m.IsAccepted = true
-			targetOrganizationUnitId = m.TargetOrganizationUnitId
-			if shared.IsInteger(targetUserId) && targetUserId != 0 {
-				m.TargetUserProfileId = targetUserId
-			}
+	dispatch.IsAccepted = true
+	dispatch.TargetUserProfileId = loggedInProfile.Id
+
+	itemDispatchList, err := getDispatchItemByDispatchID(dispatch.Id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	for _, itemDispatch := range itemDispatchList {
+		dispatch.InventoryId = append(dispatch.InventoryId, itemDispatch.InventoryId)
+
+		item, err := getInventoryItem(itemDispatch.InventoryId)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		item.TargetOrganizationUnitId = dispatch.TargetOrganizationUnitId
+
+		_, err = updateInventoryItem(item.Id, item)
+		if err != nil {
+			return shared.HandleAPIError(err)
 		}
 	}
 
-	basicInventoryDispatchData = shared.FilterByProperty(basicInventoryDispatchData, "Id", itemId)
-	updateData := append(basicInventoryDispatchData, item[0])
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_dispatch.json"), updateData)
-
-	BasicInventoryDispatchItemsType := &structs.BasicInventoryDispatchItemsItem{}
-	basicInventoryDispatchItemsData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_dispatch_items.json", BasicInventoryDispatchItemsType)
+	_, err = updateDispatchItem(dispatch.Id, dispatch)
 	if err != nil {
-		fmt.Printf("Fetching Basic Inventory Dispatch Items failed because of this error - %s.\n", err)
-	}
-	basicInventoryDispatchItemsData = shared.FindByProperty(basicInventoryDispatchItemsData, "DispatchId", itemId)
-
-	BasicInventoryType := &structs.BasicInventoryInsertItem{}
-
-	basicInventoryData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_items.json", BasicInventoryType)
-
-	if err != nil {
-		fmt.Printf("Fetching Basic Inventory Details failed because of this error - %s.\n", err)
+		return shared.HandleAPIError(err)
 	}
 
-	for _, item := range basicInventoryData {
-		if m, ok := item.(*structs.BasicInventoryInsertItem); ok {
-			for _, i := range basicInventoryDispatchItemsData {
-				if n, ok := i.(*structs.BasicInventoryDispatchItemsItem); ok {
-					if m.Id == n.InventoryId {
-						m.TargetOrganizationUnitId = targetOrganizationUnitId
-						break
-					}
-				}
-			}
-		}
-	}
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/basic_inventory_items.json"), basicInventoryData)
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You Accept this item!",
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You accepted this item!",
 	}, nil
+
+}
+
+func getAllInventoryDispatches(filter dto.InventoryDispatchFilter) (*dto.GetAllBasicInventoryDispatches, error) {
+	res := &dto.GetAllBasicInventoryDispatches{}
+	_, err := shared.MakeAPIRequest("GET", config.INVENTORY_DISPATCH_ENDOPOINT, filter, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*dto.InventoryDispatchResponse, error) {
+	settings, err := getDropdownSettingById(item.OfficeId)
+	if err != nil {
+		if apiErr, ok := err.(*shared.APIError); ok && apiErr.StatusCode != 404 {
+			return nil, err
+		}
+	}
+
+	settingDropdownOfficeId := dto.DropdownSimple{}
+	if settings != nil {
+		settingDropdownOfficeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+	}
+
+	sourceUserDropdown := dto.DropdownSimple{}
+	if item.SourceUserProfileId != 0 {
+		user, err := getUserProfileById(item.SourceUserProfileId)
+		if err != nil {
+			return nil, err
+		}
+		if user != nil {
+			sourceUserDropdown = dto.DropdownSimple{Id: user.Id, Title: user.FirstName + " " + user.LastName}
+		}
+	}
+
+	targetUserDropdown := dto.DropdownSimple{}
+	if item.TargetUserProfileId != 0 {
+		user, err := getUserProfileById(item.TargetUserProfileId)
+		if err != nil {
+			return nil, err
+		}
+		if user != nil {
+			targetUserDropdown = dto.DropdownSimple{Id: user.Id, Title: user.FirstName + " " + user.LastName}
+		}
+	}
+
+	sourceOrganizationUnitDropdown := dto.DropdownSimple{}
+	if item.SourceOrganizationUnitId != 0 {
+		sourceOrganizationUnit, err := getOrganizationUnitById(item.SourceOrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
+		if sourceOrganizationUnit != nil {
+			sourceOrganizationUnitDropdown = dto.DropdownSimple{Id: sourceOrganizationUnit.Id, Title: sourceOrganizationUnit.Title}
+		}
+	}
+
+	targetOrganizationUnitDropdown := dto.DropdownSimple{}
+	if item.TargetOrganizationUnitId != 0 {
+		targetOrganizationUnit, err := getOrganizationUnitById(item.TargetOrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
+		if targetOrganizationUnit != nil {
+			targetOrganizationUnitDropdown = dto.DropdownSimple{Id: targetOrganizationUnit.Id, Title: targetOrganizationUnit.Title}
+		}
+	}
+
+	dispatchItems, err := getMyInventoryDispatchesItems(item.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	inventoryItems := []dto.BasicInventoryResponseItem{}
+
+	if dispatchItems != nil {
+		for i := 0; i < len(dispatchItems); i++ {
+			itemInventory, err := getInventoryItem(dispatchItems[i].InventoryId)
+			if err != nil {
+				return nil, err
+			}
+
+			item := dto.BasicInventoryResponseItem{
+				Id:              itemInventory.Id,
+				Type:            itemInventory.Type,
+				InventoryNumber: itemInventory.InventoryNumber,
+				Title:           itemInventory.Title,
+				GrossPrice:      itemInventory.GrossPrice,
+				SerialNumber:    itemInventory.SerialNumber,
+			}
+			inventoryItems = append(inventoryItems, item)
+		}
+	}
+
+	res := dto.InventoryDispatchResponse{
+		ID:                     item.Id,
+		Type:                   item.Type,
+		SerialNumber:           item.SerialNumber,
+		Office:                 settingDropdownOfficeId,
+		SourceUserProfile:      sourceUserDropdown,
+		TargetUserProfile:      targetUserDropdown,
+		SourceOrganizationUnit: sourceOrganizationUnitDropdown,
+		TargetOrganizationUnit: targetOrganizationUnitDropdown,
+		Inventory:              inventoryItems,
+		CreatedAt:              item.CreatedAt,
+		UpdatedAt:              item.UpdatedAt,
+		DispatchDescription:    item.DispatchDescription,
+		FileId:                 item.FileId,
+	}
+
+	return &res, nil
+}
+
+func getMyInventoryDispatchesItems(id int) ([]*structs.BasicInventoryDispatchItemsItem, error) {
+	res := &dto.GetAllBasicInventoryDispatchItems{}
+
+	_, err := shared.MakeAPIRequest("GET", config.BASIC_INVENTORY_MS_BASE_URL+"/dispatch/"+strconv.Itoa(id)+"/dispatch-items", nil, res)
+
+	if err != nil {
+		fmt.Printf("Fetching Inventory items failed because of this error - %s.\n", err)
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
+func createDispatchItem(item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error) {
+	res := dto.GetBasicInventoryDispatch{}
+
+	_, err := shared.MakeAPIRequest("POST", config.INVENTORY_DISPATCH_ENDOPOINT, item, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	if item.InventoryId != nil {
+		for i := 0; i < len(item.InventoryId); i++ {
+			itemDispatch := structs.BasicInventoryDispatchItemsItem{
+				InventoryId: item.InventoryId[i],
+				DispatchId:  res.Data.Id,
+			}
+			_, err := shared.MakeAPIRequest("POST", config.INVENTORY_DISPATCH_ITEMS_ENDOPOINT, itemDispatch, nil)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return res.Data, nil
+}
+
+func updateDispatchItem(id int, item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error) {
+	dispatch := dto.GetBasicInventoryDispatch{}
+
+	_, err := shared.MakeAPIRequest("PUT", config.INVENTORY_DISPATCH_ENDOPOINT+"/"+strconv.Itoa(id), item, &dispatch)
+	if err != nil {
+		return nil, err
+	}
+
+	if item.InventoryId != nil {
+		dispatchItem := dto.GetAllBasicInventoryDispatchItems{}
+		_, err := shared.MakeAPIRequest("GET", config.BASIC_INVENTORY_MS_BASE_URL+"/dispatch/"+strconv.Itoa(id)+"/dispatch-items", nil, &dispatchItem)
+
+		if err != nil {
+			return nil, err
+		}
+
+		for _, dispatch := range dispatchItem.Data {
+			_, err := shared.MakeAPIRequest("DELETE", config.INVENTORY_DISPATCH_ITEMS_ENDOPOINT+"/"+strconv.Itoa(dispatch.Id), nil, nil)
+
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		for _, inventoryID := range item.InventoryId {
+			itemDispatch := structs.BasicInventoryDispatchItemsItem{
+				InventoryId: inventoryID,
+				DispatchId:  dispatch.Data.Id,
+			}
+
+			_, err := shared.MakeAPIRequest("POST", config.INVENTORY_DISPATCH_ITEMS_ENDOPOINT, itemDispatch, nil)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return dispatch.Data, nil
+}
+
+func deleteInventoryDispatch(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.INVENTORY_DISPATCH_ENDOPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getDispatchItemByID(id int) (*structs.BasicInventoryDispatchItem, error) {
+	res := dto.GetBasicInventoryDispatch{}
+
+	_, err := shared.MakeAPIRequest("GET", config.INVENTORY_DISPATCH_ENDOPOINT+"/"+strconv.Itoa(id), nil, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
+func getDispatchItemByDispatchID(id int) ([]*structs.BasicInventoryDispatchItemsItem, error) {
+	res1 := dto.GetAllBasicInventoryDispatchItems{}
+	_, err := shared.MakeAPIRequest("GET", config.BASIC_INVENTORY_MS_BASE_URL+"/dispatch/"+strconv.Itoa(id)+"/dispatch-items", nil, &res1)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res1.Data, nil
 }

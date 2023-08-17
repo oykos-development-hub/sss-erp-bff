@@ -16,10 +16,12 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	password := p.Args["password"].(string)
 
 	var (
-		engagement       *structs.SettingsDropdown
-		contractsResItem *dto.Contract
-		jobPosition      *structs.JobPositions
-		organizationUnit *structs.OrganizationUnits
+		engagement                  *structs.SettingsDropdown
+		contractsResItem            *dto.Contract
+		contracts                   []*structs.Contracts
+		jobPosition                 *structs.JobPositions
+		organizationUnit            *structs.OrganizationUnits
+		employeesInOrganizationUnit *structs.EmployeesInOrganizationUnits
 	)
 
 	loginRes, cookies, err := loginUser(email, password)
@@ -42,7 +44,10 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	userProfile, _ := getUserProfileByUserAccountID(loginRes.Data.Id)
 
 	isActive := true
-	contracts, _ := getEmployeeContracts(userProfile.Id, &dto.GetEmployeeContracts{Active: &isActive})
+
+	if userProfile != nil {
+		contracts, _ = getEmployeeContracts(userProfile.Id, &dto.GetEmployeeContracts{Active: &isActive})
+	}
 
 	if len(contracts) != 1 {
 		fmt.Printf("employee must have exactly one active contract assigned")
@@ -50,17 +55,18 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		contractsResItem, _ = buildContractResponseItem(*contracts[0])
 	}
 
-	if userProfile.EngagementTypeId != nil {
+	if userProfile != nil && userProfile.EngagementTypeId != nil {
 		engagement, err = getDropdownSettingById(*userProfile.EngagementTypeId)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
 	}
 
-	employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitsByProfileId(userProfile.Id)
+	if userProfile != nil {
+		employeesInOrganizationUnit, _ = getEmployeesInOrganizationUnitsByProfileId(userProfile.Id)
+	}
 	if employeesInOrganizationUnit != nil {
 		jobPositionInOrganizationUnit, _ := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
-
 		jobPosition, _ = getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
 		organizationUnit, _ = getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
 	}

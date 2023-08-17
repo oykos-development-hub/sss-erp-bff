@@ -24,7 +24,7 @@ var BasicInventoryAssessmentsDeleteField = &graphql.Field{
 	Description: "Deletes existing Basic Inventory Assessment",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.BasicInventoryAssessmentDeleteResolver,

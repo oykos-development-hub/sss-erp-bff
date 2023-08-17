@@ -130,10 +130,19 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		"last_name": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"date_of_birth": &graphql.InputObjectFieldConfig{
+		"birth_last_name": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"birth_last_name": &graphql.InputObjectFieldConfig{
+		"father_name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"mother_name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"mother_birth_last_name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_birth": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"country_of_birth": &graphql.InputObjectFieldConfig{
@@ -145,19 +154,13 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		"nationality": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"national_minority": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"citizenship": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"address": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"father_name": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"mother_name": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"mother_birth_last_name": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"bank_account": &graphql.InputObjectFieldConfig{
@@ -184,9 +187,6 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		"housing_done": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
-		"revisor_role": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
-		},
 		"housing_description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
@@ -199,7 +199,10 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		"date_of_becoming_judge": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"position_in_organization_unit_id": &graphql.InputObjectFieldConfig{
+		"revisor_role": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
+		"engagement_type_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"contract": &graphql.InputObjectFieldConfig{

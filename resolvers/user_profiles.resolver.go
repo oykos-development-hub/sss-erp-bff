@@ -221,6 +221,15 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 		return shared.ErrorResponse("Error updating settings data"), nil
 	}
 
+	active := true
+	inactive := false
+
+	if activeContract.Contract != nil {
+		userProfileData.ActiveContract = &active
+	} else {
+		userProfileData.ActiveContract = &inactive
+	}
+
 	userAccountRes, err = CreateUserAccount(userAccountData)
 	if err != nil {
 		return shared.HandleAPIError(err)
@@ -265,31 +274,36 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 		return shared.ErrorResponse("Error updating settings data"), nil
 	}
 
-	userProfileRes, err := updateUserProfile(userProfileData.Id, userProfileData)
-	if err != nil {
-		fmt.Printf("Creating the user profile failed because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error creating the user profile data"), nil
-	}
-
 	err = json.Unmarshal(dataBytes, &activeContract)
 	if err != nil {
 		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
 		return shared.ErrorResponse("Error updating settings data"), nil
 	}
 
+	active := true
+	inactive := false
 	if activeContract.Contract != nil {
-		activeContract.Contract.UserProfileId = userProfileRes.Id
+		userProfileData.ActiveContract = &active
+		activeContract.Contract.UserProfileId = userProfileData.Id
 		if activeContract.Contract.Id == 0 {
 			_, err = createEmployeeContract(activeContract.Contract)
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
 		} else {
-			_, err = updateEmployeeContract(userProfileRes.Id, activeContract.Contract)
+			_, err = updateEmployeeContract(userProfileData.Id, activeContract.Contract)
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
 		}
+	} else {
+		userProfileData.ActiveContract = &inactive
+	}
+
+	userProfileRes, err := updateUserProfile(userProfileData.Id, userProfileData)
+	if err != nil {
+		fmt.Printf("Creating the user profile failed because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error creating the user profile data"), nil
 	}
 
 	res, err := buildUserProfileBasicResponse(userProfileRes)

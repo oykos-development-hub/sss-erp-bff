@@ -118,9 +118,9 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
-		"user_account_id": &graphql.InputObjectFieldConfig{
+		/*"user_account_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Int),
-		},
+		},*/
 		"first_name": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

@@ -167,6 +167,11 @@ var JobPositionInOrganizationUnitInsertResolver = func(params graphql.ResolvePar
 
 	if len(data.Employees) > 0 {
 		err = deleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnit.Data.Id)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
 		for _, employeeId := range data.Employees {
 			input := &structs.EmployeesInOrganizationUnits{
 				PositionInOrganizationUnitId: jobPositionInOrganizationUnit.Data.Id,

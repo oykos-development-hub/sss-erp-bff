@@ -270,14 +270,17 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 
 	err = json.Unmarshal(dataBytes, &userProfileData)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
+		return shared.HandleAPIError(err)
+	}
+
+	userProfileRes, err := updateUserProfile(userProfileData.Id, userProfileData)
+	if err != nil {
+		return shared.HandleAPIError(err)
 	}
 
 	err = json.Unmarshal(dataBytes, &activeContract)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	active := true
@@ -300,7 +303,7 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 		userProfileData.ActiveContract = &inactive
 	}
 
-	userProfileRes, err := updateUserProfile(userProfileData.Id, userProfileData)
+	userProfileRes, err = updateUserProfile(userProfileData.Id, userProfileData)
 	if err != nil {
 		fmt.Printf("Creating the user profile failed because of this error - %s.\n", err)
 		return shared.ErrorResponse("Error creating the user profile data"), nil

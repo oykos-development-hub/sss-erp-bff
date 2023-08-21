@@ -91,17 +91,29 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 }
 
 func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseItem, error) {
-	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(item.PositionInOrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
-	jobPosition, err := getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
-	if err != nil {
-		return nil, err
-	}
-	organizationUnit, err := getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
-	if err != nil {
-		return nil, err
+	var (
+		jobPosition      *structs.JobPositions
+		organizationUnit *structs.OrganizationUnits
+		err              error
+	)
+	if item.PositionInOrganizationUnitId != nil {
+		jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(*item.PositionInOrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
+		jobPosition, err = getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
+		if err != nil {
+			return nil, err
+		}
+		organizationUnit, err = getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		organizationUnit, err = getOrganizationUnitById(item.OrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	tenderType, err := getTenderType(item.TypeID)
@@ -112,7 +124,7 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 	res := dto.JobTenderResponseItem{
 		Id:               item.Id,
 		OrganizationUnit: *organizationUnit,
-		JobPosition:      *jobPosition,
+		JobPosition:      jobPosition,
 		Type:             *tenderType,
 		Description:      item.Description,
 		SerialNumber:     item.SerialNumber,
@@ -147,48 +159,33 @@ func JobTenderIsActive(item *structs.JobTenders) bool {
 }
 
 func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {
-	var (
-		userProfileDropdownItem *dto.DropdownSimple
-	)
-
-	if item.UserProfileId != nil {
-		userProfile, err := getUserProfileById(*item.UserProfileId)
-		if err != nil {
-			return nil, err
-		}
-		userProfileDropdownItem = &dto.DropdownSimple{
-			Id:    userProfile.Id,
-			Title: userProfile.FirstName + " " + userProfile.LastName,
-		}
+	userProfile, err := getUserProfileById(item.UserProfileId)
+	if err != nil {
+		return nil, err
 	}
-
 	jobTender, err := getJobTender(item.JobTenderId)
 	if err != nil {
 		return nil, err
 	}
 
-	jobTenderDropdownItem := dto.DropdownSimple{
+	userProfileDropdownItem := structs.SettingsDropdown{
+		Id:    userProfile.Id,
+		Title: userProfile.FirstName + " " + userProfile.LastName,
+	}
+
+	jobTenderDropdownItem := structs.SettingsDropdown{
 		Id:    jobTender.Id,
 		Title: jobTender.SerialNumber,
 	}
 
 	res := dto.JobTenderApplicationResponseItem{
-		Id:                 item.Id,
-		UserProfile:        userProfileDropdownItem,
-		JobTender:          jobTenderDropdownItem,
-		Active:             item.Active,
-		Type:               item.Type,
-		FirstName:          item.FirstName,
-		LastName:           item.LastName,
-		Status:             item.Status,
-		Evaluation:         item.Evaluation,
-		OfficialPersonalID: item.OfficialPersonalID,
-		DateOfBirth:        item.DateOfBirth,
-		DateOfApplication:  item.DateOfApplication,
-		Nationality:        item.Nationality,
-		FileId:             item.FileId,
-		CreatedAt:          item.CreatedAt,
-		UpdatedAt:          item.UpdatedAt,
+		Id:          item.Id,
+		UserProfile: userProfileDropdownItem,
+		JobTender:   jobTenderDropdownItem,
+		Active:      item.Active,
+		FileId:      item.FileId,
+		CreatedAt:   item.CreatedAt,
+		UpdatedAt:   item.UpdatedAt,
 	}
 
 	return &res, nil

@@ -48,13 +48,40 @@ var JobTenderApplicationInsertMutation = graphql.NewInputObject(graphql.InputObj
 			Type: graphql.Int,
 		},
 		"active": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
+			Type: graphql.NewNonNull(graphql.Boolean),
 		},
 		"job_tender_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"user_profile_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
+		},
+		"type": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"first_name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"last_name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"nationality": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_birth": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_application": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"official_personal_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"evaluation": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"status": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.String),
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,

@@ -58,11 +58,20 @@ type GetJobTenderApplicationListResponseMS struct {
 }
 
 type JobTenderApplicationResponseItem struct {
-	Id          int                      `json:"id"`
-	UserProfile structs.SettingsDropdown `json:"user_profile"`
-	JobTender   structs.SettingsDropdown `json:"job_tender"`
-	Active      bool                     `json:"active"`
-	FileId      int                      `json:"file_id"`
-	CreatedAt   string                   `json:"created_at"`
-	UpdatedAt   string                   `json:"updated_at"`
+	Id                 int              `json:"id"`
+	UserProfile        *DropdownSimple  `json:"user_profile"`
+	JobTender          DropdownSimple   `json:"job_tender"`
+	Active             bool             `json:"active"`
+	Type               string           `json:"type"`
+	FirstName          *string          `json:"first_name"`
+	LastName           *string          `json:"last_name"`
+	Nationality        *string          `json:"nationality"`
+	DateOfBirth        structs.JSONDate `json:"date_of_birth"`
+	DateOfApplication  structs.JSONDate `json:"date_of_application"`
+	OfficialPersonalID *string          `json:"official_personal_id"`
+	Evaluation         *string          `json:"evaluation"`
+	Status             string           `json:"status"`
+	FileId             int              `json:"file_id"`
+	CreatedAt          string           `json:"created_at"`
+	UpdatedAt          string           `json:"updated_at"`
 }

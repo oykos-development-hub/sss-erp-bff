@@ -24,7 +24,7 @@ var UserProfileEducationInsertMutation = graphql.NewInputObject(graphql.InputObj
 			Type: graphql.String,
 		},
 		"price": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Float,
 		},
 		"date_of_start": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

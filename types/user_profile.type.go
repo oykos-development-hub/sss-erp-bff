@@ -426,7 +426,7 @@ var UserProfileEducationItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"price": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Float,
 		},
 		"date_of_start": &graphql.Field{
 			Type: graphql.String,

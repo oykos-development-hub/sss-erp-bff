@@ -150,7 +150,7 @@ type Education struct {
 	UserProfileId       int              `json:"user_profile_id"`
 	Description         string           `json:"description"`
 	DateOfCertification structs.JSONDate `json:"date_of_certification"`
-	Price               int              `json:"price"`
+	Price               float32          `json:"price"`
 	DateOfStart         structs.JSONDate `json:"date_of_start"`
 	DateOfEnd           structs.JSONDate `json:"date_of_end"`
 	AcademicTitle       string           `json:"academic_title"`

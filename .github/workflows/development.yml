@@ -36,6 +36,8 @@ jobs:
                 source ~/.bashrc
                 rm go1.20.linux-amd64.tar.gz
               fi
+              pm2 stop sss-erp-bff
+              pm2 delete sss-erp-bff
               export PATH="/usr/bin/go/bin:$PATH"
               go build
               if [ ! -f ./bff ]; then
@@ -48,6 +50,5 @@ jobs:
                 npm install pm2@latest -g
               fi
               cd ../../
-              pm2 delete sss-erp-bff
               pm2 start ./bff --name "sss-erp-bff" --watch
               pm2 save

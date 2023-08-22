@@ -10,34 +10,44 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  check-and-install-go:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Check if Go is installed
-        run: go version || echo "Go is not installed"
-
-      - name: Install Go
-        run: |
-          if ! command -v go &> /dev/null; then
-            sudo apt update
-            sudo apt install -y golang
-          fi
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: appleboy/ssh-action@master
         with:
-            host: ${{secrets.SSH_HOST}}
-            username: ${{secrets.SSH_USER}}
+            host: ${{vars.SSH_HOST}}
+            username: ${{vars.SSH_USER}}
             password: ${{secrets.SSH_PASSPHRASE}}
             script: |
-              cd /var/www/vhosts/oykos.me/${{secrets.GIT_REPO}}.oykos.me
+              cd /var/www/vhosts/oykos.me/${{vars.GIT_REPO}}.oykos.me
               [ -d "./github" ] && echo "Existing github directory" || mkdir github
               cd github
-              rm -rf ./${{secrets.GIT_REPO}}
-              git clone https://oykos-development-hub:${{secrets.GIT_ACCESS_TOKEN}}@github.com/oykos-development-hub/${{secrets.GIT_REPO}}.git
-              cd ./${{secrets.GIT_REPO}}
-              
+              rm -rf ./${{vars.GIT_REPO}}
+              git clone -b development https://oykos-development-hub:${{secrets.GIT_ACCESS_TOKEN}}@github.com/oykos-development-hub/${{vars.GIT_REPO}}.git
+              cd ./${{vars.GIT_REPO}}
+              if ! command -v go &> /dev/null; then
+                echo "Go version is 1.20 or higher!"
+              elif [[ "$(go version)" != *"go1.20"* ]]; then
+                sudo rm -rf /usr/bin/go
+                echo "Go version is below 1.20. Installing Go 1.20..."
+                wget https://dl.google.com/go/go1.20.linux-amd64.tar.gz
+                sudo tar -C /usr/bin -xzf go1.20.linux-amd64.tar.gz
+                echo 'export PATH=$PATH:/usr/bin/go/bin' >> ~/.bashrc
+                source ~/.bashrc
+                rm go1.20.linux-amd64.tar.gz
+              fi
+              export PATH="/usr/bin/go/bin:$PATH"
+              go build
+              if [ ! -f ./bff ]; then
+                echo "Go build "bff" file does not exist!"
+                exit 1
+              fi
+              cp ./bff ../../
+              if ! command -v pm2 &> /dev/null; then
+                echo "PM2 is not installed. Installing PM2..."
+                npm install pm2@latest -g
+              fi
+              cd ../../
+              pm2 delete sss-erp-bff
+              pm2 start ./bff --name "sss-erp-bff" --watch
+              pm2 save

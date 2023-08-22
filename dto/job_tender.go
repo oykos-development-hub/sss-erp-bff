@@ -26,10 +26,6 @@ type JobTenderResponseItem struct {
 	UpdatedAt        string                    `json:"updated_at"`
 }
 
-type GetJobTendersInput struct {
-	Active *bool `json:"is_active"`
-}
-
 type GetJobTenderApplicationsInput struct {
 	Page        *int `json:"page"`
 	Size        *int `json:"size"`

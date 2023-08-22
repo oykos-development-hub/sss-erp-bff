@@ -5,7 +5,6 @@ type JobTenders struct {
 	PositionInOrganizationUnitId *int     `json:"position_in_organization_unit_id"`
 	OrganizationUnitID           int      `json:"organization_unit_id"`
 	TypeID                       int      `json:"type"`
-	Active                       bool     `json:"active"`
 	DateOfStart                  JSONDate `json:"date_of_start"`
 	DateOfEnd                    JSONDate `json:"date_of_end"`
 	Description                  string   `json:"description"`

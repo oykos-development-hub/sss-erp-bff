@@ -23,9 +23,7 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 	organizationUnitID := params.Args["organization_unit_id"]
 	active := params.Args["active"]
 	typeID := params.Args["type_id"]
-	if active != nil {
-		active = active.(bool)
-	}
+
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		jobTender, err := getJobTender(id.(int))
 		if err != nil {
@@ -41,9 +39,7 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 		}, nil
 
 	} else {
-		input := dto.GetJobTendersInput{}
-
-		jobTenders, err := getJobTenderList(&input)
+		jobTenders, err := getJobTenderList()
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -56,7 +52,8 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 				return shared.HandleAPIError(err)
 			}
 
-			if active != nil && active != resItem.Active {
+			if active != nil && active.(bool) != resItem.Active {
+				total--
 				continue
 			}
 
@@ -395,9 +392,9 @@ func getJobTender(id int) (*structs.JobTenders, error) {
 	return &res.Data, nil
 }
 
-func getJobTenderList(input *dto.GetJobTendersInput) ([]*structs.JobTenders, error) {
+func getJobTenderList() ([]*structs.JobTenders, error) {
 	res := &dto.GetJobTenderListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.JOB_TENDERS_ENDPOINT, input, res)
+	_, err := shared.MakeAPIRequest("GET", config.JOB_TENDERS_ENDPOINT, nil, res)
 	if err != nil {
 		return nil, err
 	}

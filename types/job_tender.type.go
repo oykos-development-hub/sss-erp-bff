@@ -140,6 +140,9 @@ var JobTenderApplicationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_application": &graphql.Field{
 			Type: graphql.String,
 		},
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

@@ -66,6 +66,7 @@ type JobTenderApplicationResponseItem struct {
 	Nationality        string          `json:"nationality"`
 	Evaluation         string          `json:"evaluation"`
 	DateOfAplication   string          `json:"date_of_application"`
+	Status             string          `json:"status"`
 	FileId             int             `json:"file_id"`
 	CreatedAt          string          `json:"created_at"`
 	UpdatedAt          string          `json:"updated_at"`

@@ -157,9 +157,10 @@ func JobTenderIsActive(item *structs.JobTenders) bool {
 
 func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {
 	var (
-		userProfileDropdownItem *dto.DropdownSimple
-		res                     dto.JobTenderApplicationResponseItem
+		res dto.JobTenderApplicationResponseItem
 	)
+
+	userProfileDropdownItem := &dto.DropdownSimple{}
 
 	res = dto.JobTenderApplicationResponseItem{
 		Id:                 item.Id,
@@ -173,6 +174,7 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		DateOfAplication:   item.DateOfApplication,
 		Active:             item.Active,
 		FileId:             item.FileId,
+		Status:             item.Status,
 		CreatedAt:          item.CreatedAt,
 		UpdatedAt:          item.UpdatedAt,
 	}
@@ -182,10 +184,10 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		if err != nil {
 			return nil, err
 		}
-		userProfileDropdownItem = &dto.DropdownSimple{
-			Id:    userProfile.Id,
-			Title: userProfile.FirstName + " " + userProfile.LastName,
-		}
+
+		userProfileDropdownItem.Id = userProfile.Id
+		userProfileDropdownItem.Title = userProfile.FirstName + " " + userProfile.LastName
+
 		res.FirstName = userProfile.FirstName
 		res.LastName = userProfile.LastName
 		res.OfficialPersonalID = userProfile.OfficialPersonalId

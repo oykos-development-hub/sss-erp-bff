@@ -158,33 +158,11 @@ func JobTenderIsActive(item *structs.JobTenders) bool {
 func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {
 	var (
 		userProfileDropdownItem *dto.DropdownSimple
+		res                     dto.JobTenderApplicationResponseItem
 	)
 
-	if item.UserProfileId != nil {
-		userProfile, err := getUserProfileById(*item.UserProfileId)
-		if err != nil {
-			return nil, err
-		}
-		userProfileDropdownItem = &dto.DropdownSimple{
-			Id:    userProfile.Id,
-			Title: userProfile.FirstName + " " + userProfile.LastName,
-		}
-	}
-
-	jobTender, err := getJobTender(item.JobTenderId)
-	if err != nil {
-		return nil, err
-	}
-
-	jobTenderDropdownItem := &dto.DropdownSimple{
-		Id:    jobTender.Id,
-		Title: jobTender.SerialNumber,
-	}
-
-	res := dto.JobTenderApplicationResponseItem{
+	res = dto.JobTenderApplicationResponseItem{
 		Id:                 item.Id,
-		UserProfile:        userProfileDropdownItem,
-		JobTender:          jobTenderDropdownItem,
 		Type:               item.Type,
 		FirstName:          item.FirstName,
 		LastName:           item.LastName,
@@ -198,6 +176,43 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		CreatedAt:          item.CreatedAt,
 		UpdatedAt:          item.UpdatedAt,
 	}
+
+	if item.UserProfileId != nil {
+		userProfile, err := getUserProfileById(*item.UserProfileId)
+		if err != nil {
+			return nil, err
+		}
+		userProfileDropdownItem = &dto.DropdownSimple{
+			Id:    userProfile.Id,
+			Title: userProfile.FirstName + " " + userProfile.LastName,
+		}
+		res.FirstName = userProfile.FirstName
+		res.LastName = userProfile.LastName
+		res.OfficialPersonalID = userProfile.OfficialPersonalId
+		res.DateOfBirth = userProfile.DateOfBirth
+		res.Nationality = userProfile.Nationality
+
+		evaluation, err := getEmployeeEvaluations(userProfile.Id)
+		if err != nil {
+			return nil, err
+		}
+		if len(evaluation) > 0 {
+			res.Evaluation = evaluation[len(evaluation)-1].Score
+		}
+	}
+
+	jobTender, err := getJobTender(item.JobTenderId)
+	if err != nil {
+		return nil, err
+	}
+
+	jobTenderDropdownItem := &dto.DropdownSimple{
+		Id:    jobTender.Id,
+		Title: jobTender.SerialNumber,
+	}
+
+	res.JobTender = jobTenderDropdownItem
+	res.UserProfile = userProfileDropdownItem
 
 	return &res, nil
 }

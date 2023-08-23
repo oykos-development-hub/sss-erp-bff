@@ -125,22 +125,19 @@ var JobTenderApplicationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"last_name": &graphql.Field{
 			Type: graphql.String,
 		},
-		"nationality": &graphql.Field{
+		"official_personal_id": &graphql.Field{
 			Type: graphql.String,
 		},
 		"date_of_birth": &graphql.Field{
 			Type: graphql.String,
 		},
-		"date_of_application": &graphql.Field{
-			Type: graphql.String,
-		},
-		"official_personal_id": &graphql.Field{
+		"nationality": &graphql.Field{
 			Type: graphql.String,
 		},
 		"evaluation": &graphql.Field{
 			Type: graphql.String,
 		},
-		"status": &graphql.Field{
+		"date_of_application": &graphql.Field{
 			Type: graphql.String,
 		},
 		"created_at": &graphql.Field{

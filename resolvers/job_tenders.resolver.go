@@ -176,7 +176,7 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		return nil, err
 	}
 
-	jobTenderDropdownItem := dto.DropdownSimple{
+	jobTenderDropdownItem := &dto.DropdownSimple{
 		Id:    jobTender.Id,
 		Title: jobTender.SerialNumber,
 	}
@@ -185,16 +185,15 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		Id:                 item.Id,
 		UserProfile:        userProfileDropdownItem,
 		JobTender:          jobTenderDropdownItem,
-		Active:             item.Active,
 		Type:               item.Type,
 		FirstName:          item.FirstName,
 		LastName:           item.LastName,
-		Status:             item.Status,
-		Evaluation:         item.Evaluation,
 		OfficialPersonalID: item.OfficialPersonalID,
 		DateOfBirth:        item.DateOfBirth,
-		DateOfApplication:  item.DateOfApplication,
 		Nationality:        item.Nationality,
+		Evaluation:         item.Evaluation,
+		DateOfAplication:   item.DateOfApplication,
+		Active:             item.Active,
 		FileId:             item.FileId,
 		CreatedAt:          item.CreatedAt,
 		UpdatedAt:          item.UpdatedAt,

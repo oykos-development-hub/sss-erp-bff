@@ -23,9 +23,6 @@ var JobTenderItemType = graphql.NewObject(graphql.ObjectConfig{
 		"serial_number": &graphql.Field{
 			Type: graphql.String,
 		},
-		"available_slots": &graphql.Field{
-			Type: graphql.Int,
-		},
 		"active": &graphql.Field{
 			Type: graphql.Boolean,
 		},

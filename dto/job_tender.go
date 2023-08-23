@@ -17,7 +17,6 @@ type JobTenderResponseItem struct {
 	Type             structs.JobTenderTypes    `json:"type"`
 	Description      string                    `json:"description"`
 	SerialNumber     string                    `json:"serial_number"`
-	AvailableSlots   int                       `json:"available_slots"`
 	Active           bool                      `json:"active"`
 	DateOfStart      structs.JSONDate          `json:"date_of_start"`
 	DateOfEnd        structs.JSONDate          `json:"date_of_end"`

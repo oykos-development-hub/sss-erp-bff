@@ -125,7 +125,6 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 		Type:             *tenderType,
 		Description:      item.Description,
 		SerialNumber:     item.SerialNumber,
-		AvailableSlots:   item.AvailableSlots,
 		Active:           JobTenderIsActive(item),
 		DateOfStart:      item.DateOfStart,
 		DateOfEnd:        item.DateOfEnd,

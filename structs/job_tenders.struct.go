@@ -9,7 +9,6 @@ type JobTenders struct {
 	DateOfEnd                    JSONDate `json:"date_of_end"`
 	Description                  string   `json:"description"`
 	SerialNumber                 string   `json:"serial_number"`
-	AvailableSlots               int      `json:"available_slots"`
 	FileId                       int      `json:"file_id"`
 	CreatedAt                    string   `json:"created_at"`
 	UpdatedAt                    string   `json:"updated_at"`

@@ -275,6 +275,7 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
+	user_profile_id := params.Args["user_profile_id"]
 	total := 0
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
@@ -294,6 +295,10 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 		if shared.IsInteger(size) && size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
+		}
+		if shared.IsInteger(user_profile_id) && user_profile_id.(int) > 0 {
+			userProfileId := user_profile_id.(int)
+			input.UserProfileId = &userProfileId
 		}
 		if jobTenderID, ok := params.Args["job_tender_id"].(int); ok && jobTenderID != 0 {
 			input.JobTenderID = &jobTenderID

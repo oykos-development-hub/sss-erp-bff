@@ -266,15 +266,17 @@ func buildSystematizationOverviewResponse(systematization *structs.Systematizati
 						Id:    employeeID.UserProfileId,
 						Title: employee.FirstName + " " + employee.LastName,
 					})
-					result.ActiveEmployees = append(result.ActiveEmployees, structs.ActiveEmployees{
-						Id:       employeeID.UserProfileId,
-						FullName: employee.FirstName + " " + employee.LastName,
-						JobPositions: structs.SettingsDropdown{
-							Id:    jobPosition.Id,
-							Title: jobPosition.Title,
-						},
-						Sector: sector.Title,
-					})
+					if !jobPosition.IsJudgePresident {
+						result.ActiveEmployees = append(result.ActiveEmployees, structs.ActiveEmployees{
+							Id:       employeeID.UserProfileId,
+							FullName: employee.FirstName + " " + employee.LastName,
+							JobPositions: structs.SettingsDropdown{
+								Id:    jobPosition.Id,
+								Title: jobPosition.Title,
+							},
+							Sector: sector.Title,
+						})
+					}
 				}
 				// jobEmployeesByPositionInOrganizationId
 				jobPositionsOrganizationUnits = append(jobPositionsOrganizationUnits, dto.JobPositionsOrganizationUnits{

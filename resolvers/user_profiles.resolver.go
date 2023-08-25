@@ -670,16 +670,34 @@ func buildContractResponseItem(contract structs.Contracts) (*dto.Contract, error
 		return nil, err
 	}
 	responseContract.OrganizationUnit = dto.DropdownSimple{Id: organizationUnit.Id, Title: organizationUnit.Title}
+	/*
+		if contract.DepartmentID != nil {
+			department, err := getOrganizationUnitById(*contract.DepartmentID)
+			if err != nil {
+				return nil, err
+			}
+			responseContract.Department = &dto.DropdownSimple{Id: department.Id, Title: department.Title}
+		}
 
-	if contract.DepartmentID != nil {
-		department, err := getOrganizationUnitById(*contract.DepartmentID)
+		jobPositionInOU, err := getJobPositionsInOrganizationUnitsById(contract.JobPositionInOrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+		jobPosition, err := getJobPositionById(jobPositionInOU.JobPositionId)
+		if err != nil {
+			return nil, err
+		}
+	*/
+
+	if contract.OrganizationUnitDepartmentID != nil {
+		department, err := getOrganizationUnitById(*contract.OrganizationUnitDepartmentID)
 		if err != nil {
 			return nil, err
 		}
 		responseContract.Department = &dto.DropdownSimple{Id: department.Id, Title: department.Title}
 	}
 
-	jobPositionInOU, err := getJobPositionsInOrganizationUnitsById(contract.JobPositionInOrganizationUnitID)
+	jobPositionInOU, err := getJobPositionsInOrganizationUnitsById(contract.JobPositionInOrganizationUnit)
 	if err != nil {
 		return nil, err
 	}
@@ -687,8 +705,8 @@ func buildContractResponseItem(contract structs.Contracts) (*dto.Contract, error
 	if err != nil {
 		return nil, err
 	}
-	responseContract.JobPositionInOrganizationUnit = dto.DropdownSimple{Id: jobPositionInOU.Id, Title: jobPosition.Title}
 
+	responseContract.JobPositionInOrganizationUnit = dto.DropdownSimple{Id: jobPositionInOU.Id, Title: jobPosition.Title}
 	return responseContract, nil
 }
 

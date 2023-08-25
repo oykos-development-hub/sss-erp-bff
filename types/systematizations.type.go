@@ -182,6 +182,9 @@ var ActiveEmployeesItemType = graphql.NewObject(graphql.ObjectConfig{
 		"job_position": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"sector": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })
 

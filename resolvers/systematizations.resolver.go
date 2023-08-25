@@ -273,6 +273,7 @@ func buildSystematizationOverviewResponse(systematization *structs.Systematizati
 							Id:    jobPosition.Id,
 							Title: jobPosition.Title,
 						},
+						Sector: sector.Title,
 					})
 				}
 				// jobEmployeesByPositionInOrganizationId

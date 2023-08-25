@@ -32,6 +32,7 @@ type ActiveEmployees struct {
 	Id           int              `json:"id"`
 	FullName     string           `json:"full_name"`
 	JobPositions SettingsDropdown `json:"job_position"`
+	Sector       string           `json:"sector"`
 }
 
 type JobPositionsInOrganizationUnits struct {

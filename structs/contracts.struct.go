@@ -7,6 +7,8 @@ type Contracts struct {
 	OrganizationUnitID              int      `json:"organization_unit_id"`
 	DepartmentID                    *int     `json:"department_id"`
 	JobPositionInOrganizationUnitID int      `json:"job_position_in_organization_unit_id"`
+	OrganizationUnitDepartmentID    *int     `json:"organization_unit_department_id"`
+	JobPositionInOrganizationUnit   int      `json:"job_position_in_organization_unit"`
 	UserProfileId                   int      `json:"user_profile_id"`
 	Abbreviation                    string   `json:"abbreviation"`
 	Description                     string   `json:"description"`

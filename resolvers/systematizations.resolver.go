@@ -211,6 +211,7 @@ func buildSystematizationOverviewResponse(systematization *structs.Systematizati
 		Sectors:            &[]dto.OrganizationUnitsSectorResponse{},
 		CreatedAt:          systematization.CreatedAt,
 		UpdatedAt:          systematization.UpdatedAt,
+		ActiveEmployees:    []structs.ActiveEmployees{},
 	}
 
 	// Getting Organization Unit
@@ -264,6 +265,14 @@ func buildSystematizationOverviewResponse(systematization *structs.Systematizati
 					employees = append(employees, dto.DropdownSimple{
 						Id:    employeeID.UserProfileId,
 						Title: employee.FirstName + " " + employee.LastName,
+					})
+					result.ActiveEmployees = append(result.ActiveEmployees, structs.ActiveEmployees{
+						Id:       employeeID.UserProfileId,
+						FullName: employee.FirstName + " " + employee.LastName,
+						JobPositions: structs.SettingsDropdown{
+							Id:    jobPosition.Id,
+							Title: jobPosition.Title,
+						},
 					})
 				}
 				// jobEmployeesByPositionInOrganizationId

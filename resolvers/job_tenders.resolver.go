@@ -145,13 +145,10 @@ func JobTenderIsActive(item *structs.JobTenders) bool {
 	}
 
 	endDate, err := time.Parse(dateFormat, string(item.DateOfEnd))
-	if err != nil {
-		return false
-	}
 
 	currentDate := time.Now().UTC()
 
-	return currentDate.After(startDate) && currentDate.Before(endDate)
+	return currentDate.After(startDate) && (err == nil || currentDate.Before(endDate))
 }
 
 func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {

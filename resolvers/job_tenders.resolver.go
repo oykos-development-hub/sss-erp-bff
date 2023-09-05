@@ -25,7 +25,6 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 	typeID := params.Args["type_id"]
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
-		fmt.Println(id)
 		jobTender, err := getJobTender(id.(int))
 		if err != nil {
 			return shared.HandleAPIError(err)

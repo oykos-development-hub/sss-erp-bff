@@ -33,5 +33,4 @@ type SystematizationOverviewResponse struct {
 	FileId             int                                `json:"file_id"`
 	OrganizationUnit   *structs.OrganizationUnits         `json:"organization_unit"`
 	Sectors            *[]OrganizationUnitsSectorResponse `json:"sectors"`
-	ActiveEmployees    []structs.ActiveEmployees          `json:"active_employees"`
 }

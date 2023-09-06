@@ -164,27 +164,6 @@ var SystematizationDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"file_id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"active_employees": &graphql.Field{
-			Type: graphql.NewList(ActiveEmployeesItemType),
-		},
-	},
-})
-
-var ActiveEmployeesItemType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "ActiveEmployeesItem",
-	Fields: graphql.Fields{
-		"id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"full_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"job_position": &graphql.Field{
-			Type: DropdownItemType,
-		},
-		"sector": &graphql.Field{
-			Type: graphql.String,
-		},
 	},
 })
 

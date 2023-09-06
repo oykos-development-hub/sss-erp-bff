@@ -26,10 +26,9 @@ type JobTenderResponseItem struct {
 }
 
 type GetJobTenderApplicationsInput struct {
-	Page          *int `json:"page"`
-	Size          *int `json:"size"`
-	JobTenderID   *int `json:"job_tender_id"`
-	UserProfileId *int `json:"user_profile_id"`
+	Page        *int `json:"page"`
+	Size        *int `json:"size"`
+	JobTenderID *int `json:"job_tender_id"`
 }
 
 type GetJobTenderTypeResponseMS struct {

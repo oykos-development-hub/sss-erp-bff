@@ -12,7 +12,6 @@ type GetJobPositionInOrganizationUnitsInput struct {
 	OrganizationUnitID *int `json:"organization_unit_id"`
 	JobPositionID      *int `json:"job_position_id"`
 	SystematizationID  *int `json:"systematization_id"`
-	UserProfileID      *int `json:"user_profile_id"`
 }
 
 type GetJobPositionsInOrganizationUnitsResponseMS struct {

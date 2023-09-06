@@ -28,6 +28,13 @@ type EmployeesInOrganizationUnits struct {
 	UpdatedAt                    string `json:"updated_at"`
 }
 
+type ActiveEmployees struct {
+	Id           int              `json:"id"`
+	FullName     string           `json:"full_name"`
+	JobPositions SettingsDropdown `json:"job_position"`
+	Sector       string           `json:"sector"`
+}
+
 type JobPositionsInOrganizationUnits struct {
 	Id                       int   `json:"id"`
 	SystematizationId        int   `json:"systematization_id"`

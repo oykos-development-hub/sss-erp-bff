@@ -211,6 +211,7 @@ func buildSystematizationOverviewResponse(systematization *structs.Systematizati
 		Sectors:            &[]dto.OrganizationUnitsSectorResponse{},
 		CreatedAt:          systematization.CreatedAt,
 		UpdatedAt:          systematization.UpdatedAt,
+		ActiveEmployees:    []structs.ActiveEmployees{},
 	}
 
 	// Getting Organization Unit
@@ -265,6 +266,17 @@ func buildSystematizationOverviewResponse(systematization *structs.Systematizati
 						Id:    employeeID.UserProfileId,
 						Title: employee.FirstName + " " + employee.LastName,
 					})
+					if !jobPosition.IsJudgePresident {
+						result.ActiveEmployees = append(result.ActiveEmployees, structs.ActiveEmployees{
+							Id:       employeeID.UserProfileId,
+							FullName: employee.FirstName + " " + employee.LastName,
+							JobPositions: structs.SettingsDropdown{
+								Id:    jobPosition.Id,
+								Title: jobPosition.Title,
+							},
+							Sector: sector.Title,
+						})
+					}
 				}
 				// jobEmployeesByPositionInOrganizationId
 				jobPositionsOrganizationUnits = append(jobPositionsOrganizationUnits, dto.JobPositionsOrganizationUnits{

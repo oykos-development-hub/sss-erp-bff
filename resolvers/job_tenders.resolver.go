@@ -146,7 +146,7 @@ func JobTenderIsActive(item *structs.JobTenders) bool {
 
 	endDate, err := time.Parse(dateFormat, string(item.DateOfEnd))
 	if err != nil {
-		return false
+		return true
 	}
 
 	currentDate := time.Now().UTC()

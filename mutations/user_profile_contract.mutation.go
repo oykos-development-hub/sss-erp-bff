@@ -17,7 +17,7 @@ var UserProfileContractInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		"organization_unit_department_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"job_position_in_organization_unit": &graphql.InputObjectFieldConfig{
+		"job_position_in_organization_unit_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"contract_type_id": &graphql.InputObjectFieldConfig{

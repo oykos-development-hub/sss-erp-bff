@@ -679,7 +679,7 @@ func buildContractResponseItem(contract structs.Contracts) (*dto.Contract, error
 		responseContract.Department = &dto.DropdownSimple{Id: department.Id, Title: department.Title}
 	}
 
-	jobPositionInOU, err := getJobPositionsInOrganizationUnitsById(contract.JobPositionInOrganizationUnit)
+	jobPositionInOU, err := getJobPositionsInOrganizationUnitsById(contract.JobPositionInOrganizationUnitID)
 	if err != nil {
 		return nil, err
 	}

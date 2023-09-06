@@ -27,7 +27,7 @@ var JobTenderInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
 		"date_of_end": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,

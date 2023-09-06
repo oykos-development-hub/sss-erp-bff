@@ -18,14 +18,17 @@ const (
 var (
 	LOGGED_IN_USER_ENDPOINT string
 
-	HR_MS_BASE_URL                               string
-	CORE_MS_BASE_URL                             string
-	LOGIN_ENDPOINT                               string
-	PIN_ENDPOINT                                 string
-	USER_ACCOUNTS_ENDPOINT                       string
-	ROLES_ENDPOINT                               string
-	CONTRACT_TYPES_ENDPOINT                      string
-	SETTINGS_ENDPOINT                            string
+	HR_MS_BASE_URL   string
+	CORE_MS_BASE_URL string
+
+	LOGIN_ENDPOINT          string
+	PIN_ENDPOINT            string
+	USER_ACCOUNTS_ENDPOINT  string
+	ROLES_ENDPOINT          string
+	SETTINGS_ENDPOINT       string
+	CONTRACT_TYPES_ENDPOINT string
+	SUPPLIERS_ENDPOINT      string
+
 	EVALUATIONS                                  string
 	EVALUATION_TYPES_ENDPOINT                    string
 	FOREIGNERS                                   string
@@ -64,6 +67,10 @@ func init() {
 	ROLES_ENDPOINT = CORE_MS_BASE_URL + "/roles"
 	PIN_ENDPOINT = CORE_MS_BASE_URL + "/users/validate-pin"
 	USER_ACCOUNTS_ENDPOINT = CORE_MS_BASE_URL + "/users"
+	SETTINGS_ENDPOINT = CORE_MS_BASE_URL + "/settings"
+	SUPPLIERS_ENDPOINT = CORE_MS_BASE_URL + "/suppliers"
+
+	// HR MS endpoints
 	USER_PROFILES_ENDPOINT = HR_MS_BASE_URL + "/user-profiles"
 	EMPLOYEE_CONTRACTS = HR_MS_BASE_URL + "/employee-contracts"
 	EMPLOYEE_EDUCATIONS = HR_MS_BASE_URL + "/employee-educations"

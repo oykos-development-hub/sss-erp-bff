@@ -93,24 +93,9 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 		organizationUnit *structs.OrganizationUnits
 		err              error
 	)
-	if item.PositionInOrganizationUnitId != nil {
-		jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(*item.PositionInOrganizationUnitId)
-		if err != nil {
-			return nil, err
-		}
-		jobPosition, err = getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
-		if err != nil {
-			return nil, err
-		}
-		organizationUnit, err = getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		organizationUnit, err = getOrganizationUnitById(item.OrganizationUnitID)
-		if err != nil {
-			return nil, err
-		}
+	organizationUnit, err = getOrganizationUnitById(item.OrganizationUnitID)
+	if err != nil {
+		return nil, err
 	}
 
 	tenderType, err := getTenderType(item.TypeID)

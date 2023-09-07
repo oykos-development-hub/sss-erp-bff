@@ -733,16 +733,47 @@ func buildContractResponseItem(contract structs.Contracts) (*dto.Contract, error
 		responseContract.Department = &dto.DropdownSimple{Id: department.Id, Title: department.Title}
 	}
 
-	jobPositionInOU, err := getJobPositionsInOrganizationUnitsById(contract.JobPositionInOrganizationUnitID)
-	if err != nil {
-		return nil, err
-	}
+	var myBool bool = true
+	inputSys := dto.GetSystematizationsInput{}
+	inputSys.OrganizationUnitID = &contract.OrganizationUnitID
+	inputSys.Active = &myBool
 
-	jobPosition, err := getJobPositionById(jobPositionInOU.JobPositionId)
+	systematizationsResponse, err := getSystematizations(&inputSys)
 	if err != nil {
 		return nil, err
 	}
-	responseContract.JobPositionInOrganizationUnit = dto.DropdownSimple{Id: jobPositionInOU.Id, Title: jobPosition.Title}
+	var jobPositionInOU *structs.JobPositionsInOrganizationUnits
+	if len(systematizationsResponse.Data) > 0 {
+		for _, systematization := range systematizationsResponse.Data {
+
+			inputJpbPos := dto.GetJobPositionInOrganizationUnitsInput{
+				SystematizationID: &systematization.Id,
+			}
+			jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&inputJpbPos)
+			if err != nil {
+				return nil, err
+			}
+			if len(jobPositionsInOrganizationUnits.Data) > 0 {
+				for _, job := range jobPositionsInOrganizationUnits.Data {
+					input := dto.GetEmployeesInOrganizationUnitInput{
+						PositionInOrganizationUnit: &job.Id,
+						UserProfileId:              &userProfile.Id,
+					}
+					employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
+					if len(employeesInOrganizationUnit) > 0 {
+						jobPositionInOU = &job
+					}
+				}
+			}
+		}
+	}
+	if jobPositionInOU.JobPositionId > 0 {
+		jobPosition, err := getJobPositionById(jobPositionInOU.JobPositionId)
+		if err != nil {
+			return nil, err
+		}
+		responseContract.JobPositionInOrganizationUnit = dto.DropdownSimple{Id: jobPositionInOU.Id, Title: jobPosition.Title}
+	}
 
 	return responseContract, nil
 }
@@ -827,6 +858,7 @@ func buildUserProfileBasicResponse(
 		return nil, err
 	}
 	if len(contracts) > 0 {
+
 		contractResponseItem, err := buildContractResponseItem(*contracts[0])
 		if err != nil {
 			return nil, err

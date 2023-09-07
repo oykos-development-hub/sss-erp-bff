@@ -54,20 +54,20 @@ type GetJobTenderApplicationListResponseMS struct {
 }
 
 type JobTenderApplicationResponseItem struct {
-	Id                 int             `json:"id"`
-	UserProfile        *DropdownSimple `json:"user_profile"`
-	JobTender          *DropdownSimple `json:"job_tender"`
-	Active             bool            `json:"active"`
-	Type               string          `json:"type"`
-	FirstName          string          `json:"first_name"`
-	LastName           string          `json:"last_name"`
-	OfficialPersonalID string          `json:"official_personal_id"`
-	DateOfBirth        string          `json:"date_of_birth"`
-	Nationality        string          `json:"nationality"`
-	Evaluation         string          `json:"evaluation"`
-	DateOfAplication   string          `json:"date_of_application"`
-	Status             string          `json:"status"`
-	FileId             int             `json:"file_id"`
-	CreatedAt          string          `json:"created_at"`
-	UpdatedAt          string          `json:"updated_at"`
+	Id                 int              `json:"id"`
+	UserProfile        *DropdownSimple  `json:"user_profile"`
+	JobTender          *DropdownSimple  `json:"job_tender"`
+	Active             bool             `json:"active"`
+	Type               string           `json:"type"`
+	FirstName          string           `json:"first_name"`
+	LastName           string           `json:"last_name"`
+	OfficialPersonalID string           `json:"official_personal_id"`
+	DateOfBirth        structs.JSONDate `json:"date_of_birth"`
+	Nationality        string           `json:"nationality"`
+	Evaluation         string           `json:"evaluation"`
+	DateOfAplication   structs.JSONDate `json:"date_of_application"`
+	Status             string           `json:"status"`
+	FileId             int              `json:"file_id"`
+	CreatedAt          string           `json:"created_at"`
+	UpdatedAt          string           `json:"updated_at"`
 }

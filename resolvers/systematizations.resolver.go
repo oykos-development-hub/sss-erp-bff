@@ -124,6 +124,24 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 		return shared.HandleAPIError(err)
 	}
 
+	if systematizationResItem.Active == true {
+		input := dto.GetSystematizationsInput{}
+		input.OrganizationUnitID = &systematizationResItem.OrganizationUnitId
+
+		systematizationsResponse, err := getSystematizations(&input)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		if len(systematizationsResponse.Data) > 0 {
+			for _, sys := range systematizationsResponse.Data {
+				if sys.Id != systematizationResItem.Id {
+					sys.Active = false
+					updateSystematization(sys.Id, &sys)
+				}
+			}
+		}
+	}
+
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "You updated this item!",

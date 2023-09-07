@@ -194,6 +194,67 @@ var JobPositionInOrganizationUnitInsertResolver = func(params graphql.ResolvePar
 	}, nil
 }
 
+var JobPositionInOrganizationUnitResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var (
+		items              []structs.JobPositionsInOrganizationUnitsSettings
+		total              int
+		organizationUnitId int
+		officeUnitId       int
+	)
+
+	if params.Args["organization_unit_id"] != nil && params.Args["office_unit_id"] != nil {
+		organizationUnitId = params.Args["organization_unit_id"].(int)
+		officeUnitId = params.Args["office_unit_id"].(int)
+		var myBool bool = true
+		input := dto.GetSystematizationsInput{}
+		input.OrganizationUnitID = &organizationUnitId
+		input.Active = &myBool
+
+		systematizationsResponse, err := getSystematizations(&input)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		if len(systematizationsResponse.Data) > 0 {
+			for _, systematization := range systematizationsResponse.Data {
+				input := dto.GetJobPositionInOrganizationUnitsInput{
+					OrganizationUnitID: &officeUnitId,
+					SystematizationID:  &systematization.Id,
+				}
+				jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
+				if err != nil {
+					return nil, err
+				}
+				for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
+					input := dto.GetEmployeesInOrganizationUnitInput{
+						PositionInOrganizationUnit: &jobPositionOU.Id,
+					}
+					employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
+
+					if len(employeesInOrganizationUnit) < jobPositionOU.AvailableSlots {
+						jobPosition, err := getJobPositionById(jobPositionOU.JobPositionId)
+						if err != nil {
+							return nil, err
+						}
+						items = append(items, structs.JobPositionsInOrganizationUnitsSettings{
+							Id:    jobPositionOU.Id,
+							Title: jobPosition.Title,
+						})
+					}
+
+				}
+			}
+		}
+
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Total:   total,
+		Items:   items,
+	}, nil
+}
 var JobPositionInOrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	itemId := params.Args["id"]
 

@@ -61,6 +61,20 @@ var JobPositionDeleteField = &graphql.Field{
 	Resolve: resolvers.JobPositionDeleteResolver,
 }
 
+var JobPositionAvailableInOrganizationUnitField = &graphql.Field{
+	Type:        types.JobPositionInOrganizationUnitType,
+	Description: "Creates new or alter existing Job Position in Organization Unit",
+	Args: graphql.FieldConfigArgument{
+		"organization_unit_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"office_unit_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.JobPositionInOrganizationUnitResolver,
+}
+
 var JobPositionInOrganizationUnitInsertField = &graphql.Field{
 	Type:        types.JobPositionInOrganizationUnitInsertType,
 	Description: "Creates new or alter existing Job Position in Organization Unit",

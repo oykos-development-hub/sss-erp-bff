@@ -247,6 +247,17 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
+
+		if activeContract.Contract.JobPositionInOrganizationUnitID > 0 {
+			input := &structs.EmployeesInOrganizationUnits{
+				PositionInOrganizationUnitId: activeContract.Contract.JobPositionInOrganizationUnitID,
+				UserProfileId:                userProfileRes.Id,
+			}
+			_, err := createEmployeesInOrganizationUnits(input)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		}
 	}
 
 	res, err := buildUserProfileBasicResponse(userProfileRes)

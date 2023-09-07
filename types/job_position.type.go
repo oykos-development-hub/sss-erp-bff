@@ -71,6 +71,21 @@ var JobPositionsType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var JobPositionInOrganizationUnitType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "JobPositionInOrganizationUnit",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(DropdownItemType),
+		},
+	},
+})
+
 var JobPositionsOrganizationUnitType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "JobPositionsOrganizationUnitType",
 	Fields: graphql.Fields{

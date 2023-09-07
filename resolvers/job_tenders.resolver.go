@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/graphql-go/graphql"
 )
 
@@ -93,6 +94,7 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 		organizationUnit *structs.OrganizationUnits
 		err              error
 	)
+	spew.Dump(item)
 	organizationUnit, err = getOrganizationUnitById(item.OrganizationUnitID)
 	if err != nil {
 		return nil, err

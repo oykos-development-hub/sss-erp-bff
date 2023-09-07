@@ -442,6 +442,16 @@ func createJobTenderApplication(jobTender *structs.JobTenderApplications) (*stru
 }
 
 func updateJobTenderApplication(id int, jobTender *structs.JobTenderApplications) (*structs.JobTenderApplications, error) {
+	currentTenderApplication, _ := getTenderApplication(id)
+	if currentTenderApplication.Status != "Izabran" && jobTender.Status == "Izabran" {
+		applications, _ := getTenderApplicationList(&dto.GetJobTenderApplicationsInput{JobTenderID: &currentTenderApplication.JobTenderId})
+		for _, application := range applications.Data {
+			if currentTenderApplication.Id != application.Id {
+				application.Status = "Nije izabran"
+				updateJobTenderApplication(application.Id, application)
+			}
+		}
+	}
 	res := &dto.GetJobTenderApplicationResponseMS{}
 	_, err := shared.MakeAPIRequest("PUT", config.JOB_TENDER_APPLICATIONS_ENDPOINT+"/"+strconv.Itoa(id), jobTender, res)
 	if err != nil {

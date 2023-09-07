@@ -22,7 +22,7 @@ type JobTenderApplications struct {
 	Type               string   `json:"type"`
 	FirstName          string   `json:"first_name"`
 	LastName           string   `json:"last_name"`
-	Nationality        string   `json:"nationality"`
+	Nationality        string   `json:"citizenship"`
 	DateOfBirth        JSONDate `json:"date_of_birth"`
 	DateOfApplication  JSONDate `json:"date_of_application"`
 	OfficialPersonalID string   `json:"official_personal_id"`

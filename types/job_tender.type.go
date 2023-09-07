@@ -128,7 +128,7 @@ var JobTenderApplicationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_birth": &graphql.Field{
 			Type: graphql.String,
 		},
-		"nationality": &graphql.Field{
+		"citizenship": &graphql.Field{
 			Type: graphql.String,
 		},
 		"evaluation": &graphql.Field{

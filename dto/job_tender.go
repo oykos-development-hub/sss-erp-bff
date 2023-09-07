@@ -63,7 +63,7 @@ type JobTenderApplicationResponseItem struct {
 	LastName           string           `json:"last_name"`
 	OfficialPersonalID string           `json:"official_personal_id"`
 	DateOfBirth        structs.JSONDate `json:"date_of_birth"`
-	Nationality        string           `json:"nationality"`
+	Nationality        string           `json:"citizenship"`
 	Evaluation         string           `json:"evaluation"`
 	DateOfAplication   structs.JSONDate `json:"date_of_application"`
 	Status             string           `json:"status"`

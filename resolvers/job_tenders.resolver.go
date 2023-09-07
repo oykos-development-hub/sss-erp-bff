@@ -448,7 +448,10 @@ func updateJobTenderApplication(id int, jobTender *structs.JobTenderApplications
 		for _, application := range applications.Data {
 			if currentTenderApplication.Id != application.Id {
 				application.Status = "Nije izabran"
-				updateJobTenderApplication(application.Id, application)
+				_, err := shared.MakeAPIRequest("PUT", config.JOB_TENDER_APPLICATIONS_ENDPOINT+"/"+strconv.Itoa(application.Id), application, nil)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 	}

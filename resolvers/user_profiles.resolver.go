@@ -250,7 +250,6 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 
 		if activeContract.Contract.JobPositionInOrganizationUnitID > -1 {
 			var myBool bool = true
-			var isCreateNew bool = true
 			inputSys := dto.GetSystematizationsInput{}
 			inputSys.OrganizationUnitID = &activeContract.Contract.OrganizationUnitID
 			inputSys.Active = &myBool
@@ -262,7 +261,6 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 			if len(systematizationsResponse.Data) > 0 {
 				for _, systematization := range systematizationsResponse.Data {
 					inputJpbPos := dto.GetJobPositionInOrganizationUnitsInput{
-						UserProfileID:     &userProfileRes.Id,
 						SystematizationID: &systematization.Id,
 					}
 					jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&inputJpbPos)
@@ -271,29 +269,28 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 					}
 					if len(jobPositionsInOrganizationUnits.Data) > 0 {
 						for _, job := range jobPositionsInOrganizationUnits.Data {
-							if job.Id != activeContract.Contract.JobPositionInOrganizationUnitID {
-								input := dto.GetEmployeesInOrganizationUnitInput{
-									PositionInOrganizationUnit: &job.Id,
-									UserProfileId:              &userProfileRes.Id,
-								}
-								employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
-								if len(employeesInOrganizationUnit) > 0 {
-									for _, emp := range employeesInOrganizationUnit {
+
+							input := dto.GetEmployeesInOrganizationUnitInput{
+								PositionInOrganizationUnit: &job.Id,
+								UserProfileId:              &userProfileRes.Id,
+							}
+							employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
+							if len(employeesInOrganizationUnit) > 0 {
+								for _, emp := range employeesInOrganizationUnit {
+									if emp.UserProfileId == userProfileRes.Id {
 										err := deleteEmployeeInOrganizationUnit(emp.Id)
 										if err != nil {
 											return shared.HandleAPIError(err)
 										}
 									}
 								}
-							} else {
-								isCreateNew = false
 							}
 
 						}
 					}
 				}
 			}
-			if isCreateNew && activeContract.Contract.JobPositionInOrganizationUnitID > 0 {
+			if activeContract.Contract.JobPositionInOrganizationUnitID > 0 {
 				input := &structs.EmployeesInOrganizationUnits{
 					PositionInOrganizationUnitId: activeContract.Contract.JobPositionInOrganizationUnitID,
 					UserProfileId:                userProfileRes.Id,

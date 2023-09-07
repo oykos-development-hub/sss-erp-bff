@@ -99,9 +99,11 @@ var SystematizationResolver = func(params graphql.ResolveParams) (interface{}, e
 }
 
 var SystematizationInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var booActive bool = true
 	var data structs.Systematization
 	var systematization *structs.Systematization
 	var err error
+
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
 	_ = json.Unmarshal(dataBytes, &data)
@@ -120,24 +122,68 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 	}
 
 	systematizationResItem, err := buildSystematizationOverviewResponse(systematization)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	input := dto.GetSystematizationsInput{}
+	input.OrganizationUnitID = &systematizationResItem.OrganizationUnitId
+	input.Active = &booActive
+
+	systematizationsActiveResponse, err := getSystematizations(&input)
+	if !shared.IsInteger(itemId) || itemId == 0 {
+		for _, sys := range systematizationsActiveResponse.Data {
+			input := dto.GetJobPositionInOrganizationUnitsInput{
+				SystematizationID: &sys.Id,
+			}
+			jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
+			if err != nil {
+				return nil, err
+			}
+			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
+				var jobPositionsInOrganizationUnitRes *dto.GetJobPositionInOrganizationUnitsResponseMS
+				jobPositionsInOrganizationUnitRes, err = createJobPositionsInOrganizationUnits(&structs.JobPositionsInOrganizationUnits{
+					SystematizationId:        systematizationResItem.Id,
+					ParentOrganizationUnitId: jobPositionOU.ParentOrganizationUnitId,
+					JobPositionId:            jobPositionOU.JobPositionId,
+					AvailableSlots:           jobPositionOU.AvailableSlots,
+				})
+
+				input := dto.GetEmployeesInOrganizationUnitInput{
+					PositionInOrganizationUnit: &jobPositionOU.Id,
+				}
+				employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
+
+				if len(employeesInOrganizationUnit) > 0 {
+					for _, employee := range employeesInOrganizationUnit {
+						input := &structs.EmployeesInOrganizationUnits{
+							PositionInOrganizationUnitId: jobPositionsInOrganizationUnitRes.Data.Id,
+							UserProfileId:                employee.Id,
+						}
+						_, err := createEmployeesInOrganizationUnits(input)
+						if err != nil {
+							return nil, err
+						}
+					}
+
+				}
+
+			}
+		}
+	}
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
 	if systematizationResItem.Active == true {
-		input := dto.GetSystematizationsInput{}
-		input.OrganizationUnitID = &systematizationResItem.OrganizationUnitId
 
-		systematizationsResponse, err := getSystematizations(&input)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		if len(systematizationsResponse.Data) > 0 {
-			for _, sys := range systematizationsResponse.Data {
-				if sys.Id != systematizationResItem.Id {
-					sys.Active = false
-					updateSystematization(sys.Id, &sys)
-				}
+		if len(systematizationsActiveResponse.Data) > 0 {
+			for _, sys := range systematizationsActiveResponse.Data {
+
+				sys.Active = false
+				updateSystematization(sys.Id, &sys)
+
 			}
 		}
 	}
@@ -309,9 +355,6 @@ func buildSystematizationOverviewResponse(systematization *structs.Systematizati
 					AvailableSlots: jobPositionOU.AvailableSlots,
 					Employees:      employees,
 				})
-				// if len(employees) > 0 {
-				// 	sector.JobPositionsOrganizationUnits[j].Employees = &employees
-				// }
 
 			}
 			(*result.Sectors)[i].JobPositionsOrganizationUnits = jobPositionsOrganizationUnits

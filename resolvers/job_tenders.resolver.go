@@ -190,7 +190,7 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		res.FirstName = userProfile.FirstName
 		res.LastName = userProfile.LastName
 		res.OfficialPersonalID = userProfile.OfficialPersonalId
-		res.DateOfBirth = userProfile.DateOfBirth
+		res.DateOfBirth = structs.JSONDate(userProfile.DateOfBirth)
 		res.Nationality = userProfile.Nationality
 
 		evaluation, err := getEmployeeEvaluations(userProfile.Id)

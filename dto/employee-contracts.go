@@ -1,9 +1,5 @@
 package dto
 
-import (
-	"time"
-)
-
 type Contract struct {
 	Id                            int             `json:"id"`
 	Title                         string          `json:"title"`
@@ -20,10 +16,10 @@ type Contract struct {
 	GrossSalary                   string          `json:"gross_salary"`
 	BankAccount                   string          `json:"bank_account"`
 	BankName                      string          `json:"bank_name"`
-	DateOfSignature               time.Time       `json:"date_of_signature"`
-	DateOfEligibility             time.Time       `json:"date_of_eligibility"`
-	DateOfStart                   time.Time       `json:"date_of_start"`
-	DateOfEnd                     time.Time       `json:"date_of_end"`
+	DateOfSignature               string          `json:"date_of_signature"`
+	DateOfEligibility             string          `json:"date_of_eligibility"`
+	DateOfStart                   string          `json:"date_of_start"`
+	DateOfEnd                     string          `json:"date_of_end"`
 	CreatedAt                     string          `json:"created_at"`
 	UpdatedAt                     string          `json:"updated_at"`
 	FileId                        int             `json:"file_id"`

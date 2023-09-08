@@ -2,7 +2,6 @@ package dto
 
 import (
 	"bff/structs"
-	"time"
 )
 
 type GetJobTenderResponseMS struct {
@@ -21,8 +20,8 @@ type JobTenderResponseItem struct {
 	Description      string                    `json:"description"`
 	SerialNumber     string                    `json:"serial_number"`
 	Active           bool                      `json:"active"`
-	DateOfStart      time.Time                 `json:"date_of_start"`
-	DateOfEnd        time.Time                 `json:"date_of_end"`
+	DateOfStart      string                    `json:"date_of_start"`
+	DateOfEnd        string                    `json:"date_of_end"`
 	FileId           int                       `json:"file_id"`
 	CreatedAt        string                    `json:"created_at"`
 	UpdatedAt        string                    `json:"updated_at"`
@@ -65,10 +64,10 @@ type JobTenderApplicationResponseItem struct {
 	FirstName          string          `json:"first_name"`
 	LastName           string          `json:"last_name"`
 	OfficialPersonalID string          `json:"official_personal_id"`
-	DateOfBirth        time.Time       `json:"date_of_birth"`
+	DateOfBirth        string          `json:"date_of_birth"`
 	Nationality        string          `json:"citizenship"`
 	Evaluation         string          `json:"evaluation"`
-	DateOfAplication   time.Time       `json:"date_of_application"`
+	DateOfAplication   string          `json:"date_of_application"`
 	Status             string          `json:"status"`
 	FileId             int             `json:"file_id"`
 	CreatedAt          string          `json:"created_at"`

@@ -2,7 +2,6 @@ package dto
 
 import (
 	"bff/structs"
-	"time"
 )
 
 type GetRevisionResponseMS struct {
@@ -46,16 +45,16 @@ type RevisionDetailsItem struct {
 	PlannedQuarter                  string                   `json:"planned_quarter"`
 	SerialNumber                    string                   `json:"serial_number"`
 	Priority                        *string                  `json:"priority"`
-	DateOfRevision                  time.Time                `json:"date_of_revision"`
-	DateOfAcceptance                time.Time                `json:"date_of_acceptance"`
-	DateOfRejection                 time.Time                `json:"date_of_rejection"`
+	DateOfRevision                  string                   `json:"date_of_revision"`
+	DateOfAcceptance                string                   `json:"date_of_acceptance"`
+	DateOfRejection                 string                   `json:"date_of_rejection"`
 	ImplementationSuggestion        *string                  `json:"implementation_suggestion"`
 	ImplementationMonthSpan         *string                  `json:"implementation_month_span"`
-	DateOfImplementation            time.Time                `json:"date_of_implementation"`
+	DateOfImplementation            string                   `json:"date_of_implementation"`
 	StateOfImplementation           *string                  `json:"state_of_implementation"`
 	ImplementationFailedDescription *string                  `json:"implementation_failed_description"`
 	SecondImplementationMonthSpan   *string                  `json:"second_implementation_month_span"`
-	SecondDateOfRevision            time.Time                `json:"second_date_of_revision"`
+	SecondDateOfRevision            string                   `json:"second_date_of_revision"`
 	FileID                          *int                     `json:"file_id"`
 	RefDocument                     string                   `json:"ref_document"`
 	CreatedAt                       string                   `json:"created_at"`

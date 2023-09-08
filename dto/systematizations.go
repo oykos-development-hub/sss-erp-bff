@@ -2,7 +2,6 @@ package dto
 
 import (
 	"bff/structs"
-	"time"
 )
 
 type GetSystematizationsResponseMS struct {
@@ -30,7 +29,7 @@ type SystematizationOverviewResponse struct {
 	Description        string                             `json:"description"`
 	SerialNumber       string                             `json:"serial_number"`
 	Active             bool                               `json:"active"`
-	DateOfActivation   time.Time                          `json:"date_of_activation"`
+	DateOfActivation   string                             `json:"date_of_activation"`
 	CreatedAt          string                             `json:"created_at"`
 	UpdatedAt          string                             `json:"updated_at"`
 	FileId             int                                `json:"file_id"`

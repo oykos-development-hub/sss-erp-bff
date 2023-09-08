@@ -122,9 +122,11 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 }
 
 func JobTenderIsActive(item *structs.JobTenders) bool {
+	start, _ := time.Parse(time.RFC3339, item.DateOfStart)
+	end, _ := time.Parse(time.RFC3339, item.DateOfEnd)
 	currentDate := time.Now().UTC()
 
-	return currentDate.After(item.DateOfStart) && currentDate.Before(item.DateOfEnd)
+	return currentDate.After(start) && currentDate.Before(end)
 }
 
 func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {

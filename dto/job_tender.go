@@ -1,6 +1,9 @@
 package dto
 
-import "bff/structs"
+import (
+	"bff/structs"
+	"time"
+)
 
 type GetJobTenderResponseMS struct {
 	Data structs.JobTenders `json:"data"`
@@ -18,8 +21,8 @@ type JobTenderResponseItem struct {
 	Description      string                    `json:"description"`
 	SerialNumber     string                    `json:"serial_number"`
 	Active           bool                      `json:"active"`
-	DateOfStart      structs.JSONDate          `json:"date_of_start"`
-	DateOfEnd        structs.JSONDate          `json:"date_of_end"`
+	DateOfStart      time.Time                 `json:"date_of_start"`
+	DateOfEnd        time.Time                 `json:"date_of_end"`
 	FileId           int                       `json:"file_id"`
 	CreatedAt        string                    `json:"created_at"`
 	UpdatedAt        string                    `json:"updated_at"`
@@ -54,20 +57,20 @@ type GetJobTenderApplicationListResponseMS struct {
 }
 
 type JobTenderApplicationResponseItem struct {
-	Id                 int              `json:"id"`
-	UserProfile        *DropdownSimple  `json:"user_profile"`
-	JobTender          *DropdownSimple  `json:"job_tender"`
-	Active             bool             `json:"active"`
-	Type               string           `json:"type"`
-	FirstName          string           `json:"first_name"`
-	LastName           string           `json:"last_name"`
-	OfficialPersonalID string           `json:"official_personal_id"`
-	DateOfBirth        structs.JSONDate `json:"date_of_birth"`
-	Nationality        string           `json:"citizenship"`
-	Evaluation         string           `json:"evaluation"`
-	DateOfAplication   structs.JSONDate `json:"date_of_application"`
-	Status             string           `json:"status"`
-	FileId             int              `json:"file_id"`
-	CreatedAt          string           `json:"created_at"`
-	UpdatedAt          string           `json:"updated_at"`
+	Id                 int             `json:"id"`
+	UserProfile        *DropdownSimple `json:"user_profile"`
+	JobTender          *DropdownSimple `json:"job_tender"`
+	Active             bool            `json:"active"`
+	Type               string          `json:"type"`
+	FirstName          string          `json:"first_name"`
+	LastName           string          `json:"last_name"`
+	OfficialPersonalID string          `json:"official_personal_id"`
+	DateOfBirth        time.Time       `json:"date_of_birth"`
+	Nationality        string          `json:"citizenship"`
+	Evaluation         string          `json:"evaluation"`
+	DateOfAplication   time.Time       `json:"date_of_application"`
+	Status             string          `json:"status"`
+	FileId             int             `json:"file_id"`
+	CreatedAt          string          `json:"created_at"`
+	UpdatedAt          string          `json:"updated_at"`
 }

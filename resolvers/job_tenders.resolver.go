@@ -122,21 +122,9 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 }
 
 func JobTenderIsActive(item *structs.JobTenders) bool {
-	const dateFormat = "2006-01-02T15:04:05Z"
-
-	startDate, err := time.Parse(dateFormat, string(item.DateOfStart))
-	if err != nil {
-		return false
-	}
-
-	endDate, err := time.Parse(dateFormat, string(item.DateOfEnd))
-	if err != nil {
-		return true
-	}
-
 	currentDate := time.Now().UTC()
 
-	return currentDate.After(startDate) && currentDate.Before(endDate)
+	return currentDate.After(item.DateOfStart) && currentDate.Before(item.DateOfEnd)
 }
 
 func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {
@@ -175,7 +163,7 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		res.FirstName = userProfile.FirstName
 		res.LastName = userProfile.LastName
 		res.OfficialPersonalID = userProfile.OfficialPersonalId
-		res.DateOfBirth = structs.JSONDate(userProfile.DateOfBirth)
+		res.DateOfBirth = userProfile.DateOfBirth
 		res.Nationality = userProfile.Nationality
 
 		evaluation, err := getEmployeeEvaluations(userProfile.Id)

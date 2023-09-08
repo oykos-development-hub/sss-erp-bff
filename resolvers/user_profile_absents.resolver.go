@@ -98,10 +98,7 @@ func buildAbsentResponseItem(absent structs.Absent) (*structs.Absent, error) {
 	return &absent, nil
 }
 
-func getTakenVacationDaysBeforeAndAfterJuly(startDate structs.JSONDate, endDate structs.JSONDate) (int, int) {
-	start, _ := startDate.ToTime()
-	end, _ := endDate.ToTime()
-
+func getTakenVacationDaysBeforeAndAfterJuly(start time.Time, end time.Time) (int, int) {
 	currentYear := time.Now().Year()
 
 	workingDaysBeforeJuly := 0
@@ -139,8 +136,7 @@ func getNumberOfCurrentAndPreviousYearAvailableDays(profileID int) (int, int, er
 	}
 
 	for _, resolution := range resolutions {
-		startDate, _ := resolution.DateOfStart.ToTime()
-		if startDate.Year() != time.Now().Year() {
+		if resolution.DateOfStart.Year() != time.Now().Year() {
 			continue
 		}
 		if resolution.ResolutionType.Value == "vacation" {
@@ -152,10 +148,7 @@ func getNumberOfCurrentAndPreviousYearAvailableDays(profileID int) (int, int, er
 	return vacationDays, pastVacationDays, nil
 }
 
-func getNumberOfWorkingDays(startDate structs.JSONDate, endDate structs.JSONDate) int {
-	start, _ := startDate.ToTime()
-	end, _ := endDate.ToTime()
-
+func getNumberOfWorkingDays(start time.Time, end time.Time) int {
 	workingDays := 0
 
 	for !start.After(end) {

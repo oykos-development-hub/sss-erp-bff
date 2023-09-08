@@ -2,6 +2,7 @@ package dto
 
 import (
 	"bff/structs"
+	"time"
 )
 
 type GetUserProfileResponseMS struct {
@@ -90,7 +91,7 @@ type UserProfileBasicResponse struct {
 	ID                            int                        `json:"id"`
 	FirstName                     string                     `json:"first_name"`
 	LastName                      string                     `json:"last_name"`
-	DateOfBirth                   string                     `json:"date_of_birth"`
+	DateOfBirth                   time.Time                  `json:"date_of_birth"`
 	BirthLastName                 string                     `json:"birth_last_name"`
 	CountryOfBirth                string                     `json:"country_of_birth"`
 	CityOfBirth                   string                     `json:"city_of_birth"`
@@ -130,7 +131,7 @@ type UserProfileOverviewResponse struct {
 	ID               int                      `json:"id"`
 	FirstName        string                   `json:"first_name"`
 	LastName         string                   `json:"last_name"`
-	DateOfBirth      string                   `json:"date_of_birth"`
+	DateOfBirth      time.Time                `json:"date_of_birth"`
 	Email            string                   `json:"email"`
 	Phone            string                   `json:"phone"`
 	Active           bool                     `json:"active"`
@@ -144,21 +145,21 @@ type UserProfileOverviewResponse struct {
 }
 
 type Education struct {
-	Id                  int              `json:"id"`
-	Title               string           `json:"title"`
-	Type                DropdownSimple   `json:"type_id"`
-	UserProfileId       int              `json:"user_profile_id"`
-	Description         string           `json:"description"`
-	DateOfCertification structs.JSONDate `json:"date_of_certification"`
-	Price               float32          `json:"price"`
-	DateOfStart         structs.JSONDate `json:"date_of_start"`
-	DateOfEnd           structs.JSONDate `json:"date_of_end"`
-	AcademicTitle       string           `json:"academic_title"`
-	ExpertiseLevel      string           `json:"expertise_level"`
-	CertificateIssuer   string           `json:"certificate_issuer"`
-	CreatedAt           string           `json:"created_at"`
-	UpdatedAt           string           `json:"updated_at"`
-	FileId              int              `json:"file_id"`
+	Id                  int            `json:"id"`
+	Title               string         `json:"title"`
+	Type                DropdownSimple `json:"type_id"`
+	UserProfileId       int            `json:"user_profile_id"`
+	Description         string         `json:"description"`
+	DateOfCertification time.Time      `json:"date_of_certification"`
+	Price               float32        `json:"price"`
+	DateOfStart         time.Time      `json:"date_of_start"`
+	DateOfEnd           time.Time      `json:"date_of_end"`
+	AcademicTitle       string         `json:"academic_title"`
+	ExpertiseLevel      string         `json:"expertise_level"`
+	CertificateIssuer   string         `json:"certificate_issuer"`
+	CreatedAt           string         `json:"created_at"`
+	UpdatedAt           string         `json:"updated_at"`
+	FileId              int            `json:"file_id"`
 }
 
 type EducationInput struct {

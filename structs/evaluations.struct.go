@@ -1,12 +1,14 @@
 package structs
 
+import "time"
+
 type Evaluation struct {
 	Id               int              `json:"id"`
 	UserProfileId    int              `json:"user_profile_id"`
 	EvaluationTypeId int              `json:"evaluation_type_id"`
 	EvaluationType   SettingsDropdown `json:"evaluation_type"`
 	Score            string           `json:"score"`
-	DateOfEvaluation JSONDate         `json:"date_of_evaluation"`
+	DateOfEvaluation time.Time        `json:"date_of_evaluation"`
 	Evaluator        string           `json:"evaluator"`
 	IsRelevant       bool             `json:"is_relevant"`
 	CreatedAt        string           `json:"created_at"`

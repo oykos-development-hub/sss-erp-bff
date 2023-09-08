@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/graphql-go/graphql"
 )
 
@@ -49,8 +48,6 @@ var SettingsDropdownResolver = func(params graphql.ResolveParams) (interface{}, 
 		if value, ok := params.Args["value"].(string); ok && value != "" {
 			input.Value = &value
 		}
-
-		spew.Dump(params.Args["value"])
 
 		res, err := getDropdownSettings(&input)
 		if err != nil {

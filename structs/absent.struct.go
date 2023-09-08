@@ -1,5 +1,7 @@
 package structs
 
+import "time"
+
 type AbsentType struct {
 	Id                int    `json:"id"`
 	ParentId          int    `json:"parent_id"`
@@ -21,8 +23,8 @@ type Absent struct {
 	TargetOrganizationUnitID int                `json:"target_organization_unit_id"`
 	TargetOrganizationUnit   *OrganizationUnits `json:"target_organization_unit"`
 	Description              string             `json:"description"`
-	DateOfStart              JSONDate           `json:"date_of_start"`
-	DateOfEnd                JSONDate           `json:"date_of_end"`
+	DateOfStart              time.Time          `json:"date_of_start"`
+	DateOfEnd                time.Time          `json:"date_of_end"`
 	CreatedAt                string             `json:"created_at"`
 	UpdatedAt                string             `json:"updated_at"`
 	FileId                   int                `json:"file_id"`

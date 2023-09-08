@@ -1,6 +1,9 @@
 package dto
 
-import "bff/structs"
+import (
+	"bff/structs"
+	"time"
+)
 
 type GetJudgeNormResponseMS struct {
 	Data structs.JudgeNorms `json:"data"`
@@ -60,7 +63,7 @@ type NormResItem struct {
 	NumberOfItems            int                `json:"number_of_items"`
 	NumberOfItemsSolved      int                `json:"number_of_items_solved"`
 	Evaluation               structs.Evaluation `json:"evaluation"`
-	DateOfEvaluationValidity structs.JSONDate   `json:"date_of_evaluation_validity"`
+	DateOfEvaluationValidity time.Time          `json:"date_of_evaluation_validity"`
 	FileID                   int                `json:"file_id"`
 	Relocation               *structs.Absent    `json:"relocation,omitempty"`
 	CreatedAt                string             `json:"created_at"`

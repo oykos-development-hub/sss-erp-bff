@@ -412,26 +412,19 @@ func calculateEmployeeStats(id int) (int, int, int, int, error) {
 	}
 
 	for _, jobPositionInOU := range jobPositionsInOU.Data {
-		jobPosition, err := getJobPositionById(jobPositionInOU.JobPositionId)
-		if err != nil {
-			return 0, 0, 0, 0, err
-		}
-		employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitList(
+		jobPosition, _ := getJobPositionById(jobPositionInOU.JobPositionId)
+
+		employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(
 			&dto.GetEmployeesInOrganizationUnitInput{
 				PositionInOrganizationUnit: &jobPositionInOU.Id,
-				Active:                     &isActive,
 			},
 		)
-		if err != nil {
-			return 0, 0, 0, 0, err
-		}
+
 		numberOfEmployees += len(employeesInOrganizationUnit)
 
 		if jobPosition.IsJudge {
-			numOfRelocatedJudges, err := getNumberOfRelocatedJudges(employeesInOrganizationUnit)
-			if err != nil {
-				return 0, 0, 0, 0, err
-			}
+			numOfRelocatedJudges, _ := getNumberOfRelocatedJudges(employeesInOrganizationUnit)
+
 			totalRelocations += numOfRelocatedJudges
 			numberOfJudges += len(employeesInOrganizationUnit)
 		}

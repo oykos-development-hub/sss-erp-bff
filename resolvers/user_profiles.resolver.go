@@ -248,59 +248,17 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 			return shared.HandleAPIError(err)
 		}
 
-		if activeContract.Contract.JobPositionInOrganizationUnitID > -1 {
-			var myBool bool = true
-			inputSys := dto.GetSystematizationsInput{}
-			inputSys.OrganizationUnitID = &activeContract.Contract.OrganizationUnitID
-			inputSys.Active = &myBool
-
-			systematizationsResponse, err := getSystematizations(&inputSys)
+		if activeContract.Contract.JobPositionInOrganizationUnitID > 0 {
+			input := &structs.EmployeesInOrganizationUnits{
+				PositionInOrganizationUnitId: activeContract.Contract.JobPositionInOrganizationUnitID,
+				UserProfileId:                userProfileRes.Id,
+			}
+			_, err = createEmployeesInOrganizationUnits(input)
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
-			if len(systematizationsResponse.Data) > 0 {
-				for _, systematization := range systematizationsResponse.Data {
-					inputJpbPos := dto.GetJobPositionInOrganizationUnitsInput{
-						SystematizationID: &systematization.Id,
-					}
-					jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&inputJpbPos)
-					if err != nil {
-						return shared.HandleAPIError(err)
-					}
-					if len(jobPositionsInOrganizationUnits.Data) > 0 {
-						for _, job := range jobPositionsInOrganizationUnits.Data {
-
-							input := dto.GetEmployeesInOrganizationUnitInput{
-								PositionInOrganizationUnit: &job.Id,
-								UserProfileId:              &userProfileRes.Id,
-							}
-							employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
-							if len(employeesInOrganizationUnit) > 0 {
-								for _, emp := range employeesInOrganizationUnit {
-									if emp.UserProfileId == userProfileRes.Id {
-										err := deleteEmployeeInOrganizationUnit(emp.Id)
-										if err != nil {
-											return shared.HandleAPIError(err)
-										}
-									}
-								}
-							}
-
-						}
-					}
-				}
-			}
-			if activeContract.Contract.JobPositionInOrganizationUnitID > 0 {
-				input := &structs.EmployeesInOrganizationUnits{
-					PositionInOrganizationUnitId: activeContract.Contract.JobPositionInOrganizationUnitID,
-					UserProfileId:                userProfileRes.Id,
-				}
-				_, err = createEmployeesInOrganizationUnits(input)
-				if err != nil {
-					return shared.HandleAPIError(err)
-				}
-			}
 		}
+
 	}
 
 	res, err := buildUserProfileBasicResponse(userProfileRes)
@@ -346,6 +304,64 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 			_, err = updateEmployeeContract(activeContract.Contract.Id, activeContract.Contract)
 			if err != nil {
 				return shared.HandleAPIError(err)
+			}
+		}
+		if activeContract.Contract.JobPositionInOrganizationUnitID > -1 {
+			var myBool bool = true
+			var check bool = true
+			inputSys := dto.GetSystematizationsInput{}
+			inputSys.OrganizationUnitID = &activeContract.Contract.OrganizationUnitID
+			inputSys.Active = &myBool
+
+			systematizationsResponse, err := getSystematizations(&inputSys)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			if len(systematizationsResponse.Data) > 0 {
+				for _, systematization := range systematizationsResponse.Data {
+					inputJpbPos := dto.GetJobPositionInOrganizationUnitsInput{
+						SystematizationID: &systematization.Id,
+					}
+					jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&inputJpbPos)
+					if err != nil {
+						return shared.HandleAPIError(err)
+					}
+					if len(jobPositionsInOrganizationUnits.Data) > 0 {
+						for _, job := range jobPositionsInOrganizationUnits.Data {
+
+							input := dto.GetEmployeesInOrganizationUnitInput{
+								PositionInOrganizationUnit: &job.Id,
+								UserProfileId:              &userProfileData.Id,
+							}
+							employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
+							if len(employeesInOrganizationUnit) > 0 {
+								for _, emp := range employeesInOrganizationUnit {
+									if emp.UserProfileId == userProfileData.Id {
+										if emp.PositionInOrganizationUnitId == activeContract.Contract.JobPositionInOrganizationUnitID {
+											check = false
+										} else {
+											err := deleteEmployeeInOrganizationUnit(emp.Id)
+											if err != nil {
+												return shared.HandleAPIError(err)
+											}
+										}
+									}
+								}
+							}
+
+						}
+					}
+				}
+			}
+			if activeContract.Contract.JobPositionInOrganizationUnitID > 0 && check {
+				input := &structs.EmployeesInOrganizationUnits{
+					PositionInOrganizationUnitId: activeContract.Contract.JobPositionInOrganizationUnitID,
+					UserProfileId:                userProfileData.Id,
+				}
+				_, err = createEmployeesInOrganizationUnits(input)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
 			}
 		}
 	} else {

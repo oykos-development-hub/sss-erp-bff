@@ -93,10 +93,6 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 		organizationUnit *structs.OrganizationUnits
 		err              error
 	)
-	organizationUnit, err = getOrganizationUnitById(item.OrganizationUnitID)
-	if err != nil {
-		return nil, err
-	}
 
 	tenderType, err := getTenderType(item.TypeID)
 	if err != nil {
@@ -104,18 +100,25 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 	}
 
 	res := dto.JobTenderResponseItem{
-		Id:               item.Id,
-		OrganizationUnit: *organizationUnit,
-		JobPosition:      jobPosition,
-		Type:             *tenderType,
-		Description:      item.Description,
-		SerialNumber:     item.SerialNumber,
-		Active:           JobTenderIsActive(item),
-		DateOfStart:      item.DateOfStart,
-		DateOfEnd:        item.DateOfEnd,
-		FileId:           item.FileId,
-		CreatedAt:        item.CreatedAt,
-		UpdatedAt:        item.UpdatedAt,
+		Id:           item.Id,
+		JobPosition:  jobPosition,
+		Type:         *tenderType,
+		Description:  item.Description,
+		SerialNumber: item.SerialNumber,
+		Active:       JobTenderIsActive(item),
+		DateOfStart:  item.DateOfStart,
+		DateOfEnd:    item.DateOfEnd,
+		FileId:       item.FileId,
+		CreatedAt:    item.CreatedAt,
+		UpdatedAt:    item.UpdatedAt,
+	}
+
+	if item.OrganizationUnitID != 0 {
+		organizationUnit, err = getOrganizationUnitById(item.OrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+		res.OrganizationUnit = *organizationUnit
 	}
 
 	return &res, nil
@@ -123,10 +126,16 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 
 func JobTenderIsActive(item *structs.JobTenders) bool {
 	start, _ := time.Parse(time.RFC3339, item.DateOfStart)
-	end, _ := time.Parse(time.RFC3339, item.DateOfEnd)
+
+	var end *time.Time
+	if item.DateOfEnd != nil {
+		endDate, _ := time.Parse(time.RFC3339, *item.DateOfEnd)
+		end = &endDate
+	}
+
 	currentDate := time.Now().UTC()
 
-	return currentDate.After(start) && currentDate.Before(end)
+	return currentDate.After(start) && (end == nil || currentDate.Before(*end))
 }
 
 func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {

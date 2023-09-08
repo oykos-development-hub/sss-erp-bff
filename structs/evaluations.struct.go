@@ -6,7 +6,7 @@ type Evaluation struct {
 	EvaluationTypeId int              `json:"evaluation_type_id"`
 	EvaluationType   SettingsDropdown `json:"evaluation_type"`
 	Score            string           `json:"score"`
-	DateOfEvaluation string           `json:"date_of_evaluation"`
+	DateOfEvaluation *string          `json:"date_of_evaluation"`
 	Evaluator        string           `json:"evaluator"`
 	IsRelevant       bool             `json:"is_relevant"`
 	CreatedAt        string           `json:"created_at"`

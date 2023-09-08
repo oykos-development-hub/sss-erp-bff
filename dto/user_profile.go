@@ -90,7 +90,7 @@ type UserProfileBasicResponse struct {
 	ID                            int                        `json:"id"`
 	FirstName                     string                     `json:"first_name"`
 	LastName                      string                     `json:"last_name"`
-	DateOfBirth                   string                     `json:"date_of_birth"`
+	DateOfBirth                   *string                    `json:"date_of_birth"`
 	BirthLastName                 string                     `json:"birth_last_name"`
 	CountryOfBirth                string                     `json:"country_of_birth"`
 	CityOfBirth                   string                     `json:"city_of_birth"`
@@ -111,7 +111,7 @@ type UserProfileBasicResponse struct {
 	RevisorRole                   bool                       `json:"revisor_role"`
 	HousingDescription            string                     `json:"housing_description"`
 	MaritalStatus                 string                     `json:"marital_status"`
-	DateOfTakingOath              string                     `json:"date_of_taking_oath"`
+	DateOfTakingOath              *string                    `json:"date_of_taking_oath"`
 	DateOfBecomingJudge           string                     `json:"date_of_becoming_judge"`
 	Email                         string                     `json:"email"`
 	Phone                         string                     `json:"phone"`
@@ -130,7 +130,7 @@ type UserProfileOverviewResponse struct {
 	ID               int                      `json:"id"`
 	FirstName        string                   `json:"first_name"`
 	LastName         string                   `json:"last_name"`
-	DateOfBirth      string                   `json:"date_of_birth"`
+	DateOfBirth      *string                  `json:"date_of_birth"`
 	Email            string                   `json:"email"`
 	Phone            string                   `json:"phone"`
 	Active           bool                     `json:"active"`
@@ -149,10 +149,10 @@ type Education struct {
 	Type                DropdownSimple `json:"type_id"`
 	UserProfileId       int            `json:"user_profile_id"`
 	Description         string         `json:"description"`
-	DateOfCertification string         `json:"date_of_certification"`
+	DateOfCertification *string        `json:"date_of_certification"`
 	Price               float32        `json:"price"`
-	DateOfStart         string         `json:"date_of_start"`
-	DateOfEnd           string         `json:"date_of_end"`
+	DateOfStart         *string        `json:"date_of_start"`
+	DateOfEnd           *string        `json:"date_of_end"`
 	AcademicTitle       string         `json:"academic_title"`
 	ExpertiseLevel      string         `json:"expertise_level"`
 	CertificateIssuer   string         `json:"certificate_issuer"`

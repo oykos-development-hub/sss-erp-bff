@@ -106,7 +106,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	_ = json.Unmarshal(dataBytes, &data)
+	err = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {
@@ -134,7 +134,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	if !shared.IsInteger(itemId) || itemId == 0 {
+	if !shared.IsInteger(itemId) || itemId == 0 && len(systematizationsActiveResponse.Data) > 0 {
 		for _, sector := range organizationUnitsResponse.Data {
 			input := dto.GetJobPositionInOrganizationUnitsInput{
 				OrganizationUnitID: &sector.Id,

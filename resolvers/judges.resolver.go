@@ -49,10 +49,8 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 		}
 
 		for _, jobPositionInOrganizationUnit := range jobPositionInOrganizationUnits.Data {
-			isActive := true
 			input := dto.GetEmployeesInOrganizationUnitInput{
 				PositionInOrganizationUnit: &jobPositionInOrganizationUnit.Id,
-				Active:                     &isActive,
 			}
 			employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
 

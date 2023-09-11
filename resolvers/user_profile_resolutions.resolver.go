@@ -8,13 +8,14 @@ import (
 	"encoding/json"
 	"strconv"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/graphql-go/graphql"
 )
 
 var UserProfileResolutionResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	userProfileId := params.Args["user_profile_id"].(int)
 
-	resolutions, err := getEmployeeResolutions(userProfileId)
+	resolutions, err := getEmployeeResolutions(userProfileId, nil)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -115,12 +116,13 @@ func buildResolutionResItem(item *structs.Resolution) (*dto.Resolution, error) {
 		},
 		DateOfStart: item.DateOfStart,
 		DateOfEnd:   item.DateOfEnd,
+		Value:       item.Value,
 		CreatedAt:   item.CreatedAt,
 		UpdatedAt:   item.UpdatedAt,
 	}, nil
 }
 
-func getEmployeeResolutions(employeeID int) ([]*structs.Resolution, error) {
+func getEmployeeResolutions(employeeID int, input *dto.EmployeeResolutionListInput) ([]*structs.Resolution, error) {
 	res := &dto.GetResolutionListResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(employeeID)+"/resolutions", nil, res)
 	if err != nil {
@@ -141,6 +143,8 @@ func getEmployeeResolution(id int) (*structs.Resolution, error) {
 }
 
 func updateResolution(id int, resolution *structs.Resolution) (*structs.Resolution, error) {
+	spew.Dump(resolution)
+
 	res := &dto.GetResolutionResponseMS{}
 	_, err := shared.MakeAPIRequest("PUT", config.RESOLUTIONS_ENDPOINT+"/"+strconv.Itoa(id), resolution, res)
 	if err != nil {

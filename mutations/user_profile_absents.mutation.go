@@ -41,9 +41,6 @@ var AbsentTypeInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"parent_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"title": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},

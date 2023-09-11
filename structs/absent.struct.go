@@ -18,7 +18,7 @@ type Absent struct {
 	AbsentType               AbsentType         `json:"absent_type"`
 	UserProfileId            int                `json:"user_profile_id"`
 	Location                 string             `json:"location"`
-	TargetOrganizationUnitID int                `json:"target_organization_unit_id"`
+	TargetOrganizationUnitID *int               `json:"target_organization_unit_id"`
 	TargetOrganizationUnit   *OrganizationUnits `json:"target_organization_unit"`
 	Description              string             `json:"description"`
 	DateOfStart              string             `json:"date_of_start"`

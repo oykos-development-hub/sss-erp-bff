@@ -161,6 +161,9 @@ var AbsentTypeItem = graphql.NewObject(graphql.ObjectConfig{
 		"description": &graphql.Field{
 			Type: graphql.String,
 		},
+		"relocation": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"color": &graphql.Field{
 			Type: graphql.String,
 		},

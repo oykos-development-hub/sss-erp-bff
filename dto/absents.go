@@ -30,4 +30,6 @@ type AbsentsSummary struct {
 
 type EmployeeAbsentsInput struct {
 	Date *time.Time `json:"date"`
+	From *time.Time `json:"from"`
+	To   *time.Time `json:"to"`
 }

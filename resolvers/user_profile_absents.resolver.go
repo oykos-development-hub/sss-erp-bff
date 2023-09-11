@@ -13,36 +13,45 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+const (
+	VacationTypeValue = "vacation"
+)
+
 var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var (
 		absentSummary dto.AbsentsSummary
 		usedDays      int
 	)
 
-	profileId := params.Args["user_profile_id"].(int)
+	profileID := params.Args["user_profile_id"].(int)
 
-	absents, err := getEmployeeAbsents(profileId, nil)
+	// year ago
+	availableDaysOfCurrentYear, availableDaysOfPreviousYear, err := getNumberOfCurrentAndPreviousYearAvailableDays(profileID)
 	if err != nil {
-		return shared.HandleAPIError(err)
+		return nil, err
 	}
 
-	currentAvailableDays, previousYearAvailableDays, err := getNumberOfCurrentAndPreviousYearAvailableDays(profileId)
+	// get all absents in a period of current year
+	currentYear := time.Now().Year()
+	startOfYear := time.Date(currentYear, time.January, 1, 0, 0, 0, 0, time.UTC)
+	endOfYear := time.Date(currentYear, time.December, 31, 23, 59, 59, 999999999, time.UTC)
+	absents, err := getEmployeeAbsents(profileID, &dto.EmployeeAbsentsInput{From: &startOfYear, To: &endOfYear})
 	if err != nil {
-		return shared.HandleAPIError(err)
+		return nil, err
 	}
 
 	for _, absent := range absents {
-		if absent.TargetOrganizationUnitID != 0 {
-			organizationUnit, err := getOrganizationUnitById(absent.TargetOrganizationUnitID)
+		if absent.TargetOrganizationUnitID != nil {
+			organizationUnit, err := getOrganizationUnitById(*absent.TargetOrganizationUnitID)
 			if err != nil {
-				return shared.HandleAPIError(err)
+				return nil, err
 			}
 			absent.TargetOrganizationUnit = organizationUnit
 		}
 
 		absentType, err := getAbsentTypeById(absent.AbsentTypeId)
 		if err != nil {
-			return shared.HandleAPIError(err)
+			return nil, err
 		}
 		absent.AbsentType = *absentType
 
@@ -51,25 +60,25 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 
 			// Subtract vacation days taken before July from available previous year days
 			if daysTakenBeforeJuly > 0 {
-				if previousYearAvailableDays >= daysTakenBeforeJuly {
-					previousYearAvailableDays -= daysTakenBeforeJuly
+				if availableDaysOfPreviousYear >= daysTakenBeforeJuly {
+					availableDaysOfPreviousYear -= daysTakenBeforeJuly
 				} else {
 					// if available days from previous year are not enough, we should use current year too
-					currentAvailableDays -= daysTakenBeforeJuly - previousYearAvailableDays
-					previousYearAvailableDays = 0
+					availableDaysOfCurrentYear -= daysTakenBeforeJuly - availableDaysOfPreviousYear
+					availableDaysOfPreviousYear = 0
 				}
 			}
 			// Subtract vacation days taken after July from available current year vacation days
 			if daysTakenAfterJuly > 0 {
-				currentAvailableDays -= daysTakenAfterJuly
+				availableDaysOfCurrentYear -= daysTakenAfterJuly
 			}
 
 			usedDays += (daysTakenBeforeJuly + daysTakenAfterJuly)
 		}
 	}
 
-	absentSummary.CurrentAvailableDays = currentAvailableDays
-	absentSummary.PastAvailableDays = previousYearAvailableDays
+	absentSummary.CurrentAvailableDays = availableDaysOfCurrentYear
+	absentSummary.PastAvailableDays = availableDaysOfPreviousYear
 	absentSummary.UsedDays = usedDays
 
 	return dto.Response{
@@ -87,8 +96,8 @@ func buildAbsentResponseItem(absent structs.Absent) (*structs.Absent, error) {
 	}
 	absent.AbsentType = *absentType
 
-	if absent.TargetOrganizationUnitID != 0 {
-		organizationUnit, err := getOrganizationUnitById(absent.TargetOrganizationUnitID)
+	if absent.TargetOrganizationUnitID != nil {
+		organizationUnit, err := getOrganizationUnitById(*absent.TargetOrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
@@ -125,52 +134,99 @@ func getTakenVacationDaysBeforeAndAfterJuly(startDate string, endDate string) (i
 }
 
 func getNumberOfCurrentAndPreviousYearAvailableDays(profileID int) (int, int, error) {
+	currentYear := time.Now().Year()
+	startDatePreviousYear := time.Date(currentYear-1, time.January, 1, 0, 0, 0, 0, time.UTC)
+	endDateCurrentYear := time.Date(currentYear, time.December, 31, 23, 59, 59, 0, time.UTC)
+
 	vacationDays := 0
 	pastVacationDays := 0
-	resolutions, err := getEmployeeResolutions(profileID)
+	resolutions, err := getEmployeeResolutions(profileID, &dto.EmployeeResolutionListInput{From: &startDatePreviousYear, To: &endDateCurrentYear})
 	if err != nil {
-		fmt.Println("error hydrating resolution types - " + err.Error())
+		fmt.Println("error getting employee resolution - " + err.Error())
 	}
 	for _, resolution := range resolutions {
 		resolutionType, err := getDropdownSettingById(resolution.ResolutionTypeId)
 		if err != nil {
 			return 0, 0, err
 		}
-		resolution.ResolutionType = &structs.SettingsDropdown{Id: resolutionType.Id, Title: resolutionType.Title}
+		resolution.ResolutionType = resolutionType
 	}
 
 	for _, resolution := range resolutions {
-		start, _ := time.Parse(time.RFC3339, resolution.DateOfStart)
-		end, _ := time.Parse(time.RFC3339, resolution.DateOfEnd)
-
-		if start.Year() != time.Now().Year() {
+		if resolution.ResolutionType.Value != VacationTypeValue {
 			continue
 		}
-		if resolution.ResolutionType.Value == "vacation" {
-			vacationDays += getNumberOfWorkingDays(start, end)
-		} else if resolution.ResolutionType.Value == "vacation_past" {
-			pastVacationDays += getNumberOfWorkingDays(start, end)
+
+		start, _ := time.Parse(time.RFC3339, resolution.DateOfStart)
+
+		if start.Year() == time.Now().Year() {
+			totalDays, _ := strconv.Atoi(resolution.Value)
+			vacationDays += totalDays
+		}
+		if start.Year() == time.Now().Year()-1 {
+			totalDays, _ := strconv.Atoi(resolution.Value)
+			pastVacationDays += totalDays
 		}
 	}
+
+	usedDaysPreviousYear, err := calculateUsedDaysOfPreviousYear(profileID)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	pastVacationDays -= usedDaysPreviousYear
+
 	return vacationDays, pastVacationDays, nil
 }
 
-func getNumberOfWorkingDays(start time.Time, end time.Time) int {
-	workingDays := 0
+func calculateUsedDaysOfPreviousYear(profileID int) (int, error) {
+	currentYear := time.Now().Year()
+	startDatePreviousYear := time.Date(currentYear-1, time.January, 1, 0, 0, 0, 0, time.UTC)
+	endDatePreviousYear := time.Date(currentYear-1, time.December, 31, 23, 59, 59, 0, time.UTC)
+
+	// Initialize usedDays variable
+	usedDaysPreviousYear := 0
+
+	// Get all absents of the employee in the previous year
+	absents, err := getEmployeeAbsents(profileID, &dto.EmployeeAbsentsInput{From: &startDatePreviousYear, To: &endDatePreviousYear})
+	if err != nil {
+		return 0, err
+	}
+
+	for _, absent := range absents {
+		start, _ := time.Parse(time.RFC3339, absent.DateOfStart)
+		end, _ := time.Parse(time.RFC3339, absent.DateOfEnd)
+
+		absentType, err := getAbsentTypeById(absent.AbsentTypeId)
+		if err != nil {
+			return 0, err
+		}
+
+		if absentType.AccountingDaysOff {
+			usedDaysPreviousYear += countWorkingDaysBetweenDates(start, end)
+		}
+	}
+
+	return usedDaysPreviousYear, nil
+}
+
+func countWorkingDaysBetweenDates(start, end time.Time) int {
+	daysCount := 0
 
 	for !start.After(end) {
 		if start.Weekday() != time.Saturday && start.Weekday() != time.Sunday {
-			workingDays++
+			daysCount++
 		}
 		start = start.AddDate(0, 0, 1)
 	}
 
-	return workingDays
+	return daysCount
 }
 
 var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var err error
 	var data structs.Absent
+	var item *structs.Absent
 
 	response := dto.ResponseSingle{
 		Status: "success",
@@ -185,22 +241,27 @@ var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interf
 	}
 
 	if shared.IsInteger(data.Id) && data.Id != 0 {
-		item, err := updateAbsent(data.Id, &data)
+		item, err = updateAbsent(data.Id, &data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
 
 		response.Message = "You updated this item!"
-		response.Item = item
 	} else {
-		item, err := createAbsent(&data)
+		item, err = createAbsent(&data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
 
 		response.Message = "You created this item!"
-		response.Item = item
 	}
+
+	resItem, err := buildAbsentResponseItem(*item)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	response.Item = resItem
 
 	return response, nil
 }

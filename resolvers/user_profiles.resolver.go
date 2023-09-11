@@ -758,7 +758,7 @@ func buildContractResponseItem(contract structs.Contracts) (*dto.Contract, error
 	if err != nil {
 		return nil, err
 	}
-	var jobPositionInOU *structs.JobPositionsInOrganizationUnits
+	var jobPositionInOU structs.JobPositionsInOrganizationUnits
 	if len(systematizationsResponse.Data) > 0 {
 		for _, systematization := range systematizationsResponse.Data {
 
@@ -776,8 +776,8 @@ func buildContractResponseItem(contract structs.Contracts) (*dto.Contract, error
 						UserProfileId:              &userProfile.Id,
 					}
 					employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
-					if len(employeesInOrganizationUnit) > 0 {
-						jobPositionInOU = &job
+					if len(employeesInOrganizationUnit) > 0 && employeesInOrganizationUnit[0].UserProfileId == userProfile.Id {
+						jobPositionInOU = job
 					}
 				}
 			}

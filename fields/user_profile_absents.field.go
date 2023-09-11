@@ -19,6 +19,28 @@ var UserProfileAbsentField = &graphql.Field{
 	Resolve: resolvers.UserProfileAbsentResolver,
 }
 
+var UserProfileVacationField = &graphql.Field{
+	Type:        types.UserProfileVacationType,
+	Description: "Returns a data of User Profile's Vacations for displaying inside Vacations tab",
+	Args: graphql.FieldConfigArgument{
+		"user_profile_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.UserProfileVacationResolver,
+}
+
+var UserProfileVacationInsertField = &graphql.Field{
+	Type:        types.UserProfileVacationInsertType,
+	Description: "Creates new or alter existing User Profile's Absent item",
+	Args: graphql.FieldConfigArgument{
+		"data": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(mutations.UserProfileVacationInsertMutation),
+		},
+	},
+	Resolve: resolvers.UserProfileVacationResolutionInsertResolver,
+}
+
 var UserProfileAbsentInsertField = &graphql.Field{
 	Type:        types.UserProfileAbsentInsertType,
 	Description: "Creates new or alter existing User Profile's Absent item",

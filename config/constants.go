@@ -13,6 +13,7 @@ const (
 	HttpResponseWriterKey ContextKey = "httpResponseWriter"
 	HttpHeadersKey        ContextKey = "httpHeaders"
 	EducationTypes        string     = "education_types"
+	ResolutionTypes       string     = "resolution_types"
 )
 
 var (

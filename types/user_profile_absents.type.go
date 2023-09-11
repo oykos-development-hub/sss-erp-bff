@@ -2,6 +2,75 @@ package types
 
 import "github.com/graphql-go/graphql"
 
+var UserProfileVacationItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserProfileVacationItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"user_profile": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"resolution_type": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"resolution_purpose": &graphql.Field{
+			Type: graphql.String,
+		},
+		"year": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"number_of_days": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"created_at": &graphql.Field{
+			Type: graphql.String,
+		},
+		"updated_at": &graphql.Field{
+			Type: graphql.String,
+		},
+		"file_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+	},
+})
+
+var UserProfileVacationInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserProfileVacationInsert",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: UserProfileVacationItemType,
+		},
+	},
+})
+
+var UserProfileVacationType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserProfileVacation",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(UserProfileVacationItemType),
+		},
+	},
+})
+
 var UserProfileAbsentItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "UserProfileAbsentItem",
 	Fields: graphql.Fields{

@@ -33,3 +33,15 @@ type EmployeeAbsentsInput struct {
 	From *time.Time `json:"from"`
 	To   *time.Time `json:"to"`
 }
+
+type Vacation struct {
+	Id                int            `json:"id"`
+	UserProfile       DropdownSimple `json:"user_profile"`
+	ResolutionType    DropdownSimple `json:"resolution_type"`
+	ResolutionPurpose string         `json:"resolution_purpose"`
+	Year              int            `json:"year"`
+	NumberOfDays      int            `json:"number_of_days"`
+	CreatedAt         string         `json:"created_at"`
+	UpdatedAt         string         `json:"updated_at"`
+	FileId            int            `json:"file_id"`
+}

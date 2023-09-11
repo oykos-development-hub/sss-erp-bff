@@ -27,3 +27,16 @@ type Absent struct {
 	UpdatedAt                string             `json:"updated_at"`
 	FileId                   int                `json:"file_id"`
 }
+
+type Vacation struct {
+	Id                int    `json:"id"`
+	UserProfileId     int    `json:"user_profile_id"`
+	ResolutionTypeId  int    `json:"resolution_type_id"`
+	ResolutionPurpose string `json:"resolution_purpose"`
+	Year              int    `json:"year"`
+	Value             string `json:"value"`
+	NumberOfDays      int    `json:"number_of_days"`
+	CreatedAt         string `json:"created_at"`
+	UpdatedAt         string `json:"updated_at"`
+	FileId            int    `json:"file_id"`
+}

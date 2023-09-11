@@ -35,6 +35,27 @@ var UserProfileAbsentInsertMutation = graphql.NewInputObject(graphql.InputObject
 	},
 })
 
+var UserProfileVacationInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "UserProfileVacationInsertMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"user_profile_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"year": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"number_of_days": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"file_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+	},
+})
+
 var AbsentTypeInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "AbsentTypeInsertMutation",
 	Fields: graphql.InputObjectConfigFieldMap{

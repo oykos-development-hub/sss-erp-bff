@@ -14,8 +14,121 @@ import (
 )
 
 const (
-	VacationTypeValue = "vacation"
+	VacationTypeValue string = "vacation"
 )
+
+var UserProfileVacationResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	userProfileId := params.Args["user_profile_id"].(int)
+
+	resolutions, err := getEmployeeResolutions(userProfileId, nil)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	vacationResItemList, err := buildVacationResponseItemList(resolutions)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   vacationResItemList,
+	}, nil
+}
+
+func buildVacationResponseItemList(items []*structs.Resolution) (resItemList []*dto.Vacation, err error) {
+	for _, item := range items {
+		resItem, err := buildVacationResItem(item)
+		if err != nil {
+			return nil, err
+		}
+		resItemList = append(resItemList, resItem)
+	}
+	return
+}
+
+var UserProfileVacationResolutionInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.Vacation
+	var inputData structs.Resolution
+	vacationTypeValue := VacationTypeValue
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	_ = json.Unmarshal(dataBytes, &data)
+
+	vacationType, err := getDropdownSettings(&dto.GetSettingsInput{Value: &vacationTypeValue, Entity: config.ResolutionTypes})
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	inputData.ResolutionTypeId = vacationType.Data[0].Id
+	inputData.DateOfStart = time.Date(data.Year, time.January, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02T15:04:05Z")
+	inputData.DateOfEnd = time.Date(data.Year, time.December, 31, 23, 59, 59, 999999999, time.UTC).Format("2006-01-02T15:04:05Z")
+	inputData.Id = data.Id
+	inputData.FileId = data.FileId
+	inputData.ResolutionPurpose = "Odluka o godišnjem odmoru"
+	inputData.UserProfileId = data.UserProfileId
+	inputData.Value = strconv.Itoa(data.NumberOfDays)
+
+	if shared.IsInteger(inputData.Id) && inputData.Id != 0 {
+		resolution, err := updateResolution(inputData.Id, &inputData)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		resolutionResItem, err := buildVacationResItem(resolution)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = resolutionResItem
+		response.Message = "You updated this item!"
+	} else {
+		resolution, err := createResolution(&inputData)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		resolutionResItem, err := buildVacationResItem(resolution)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = resolutionResItem
+		response.Message = "You created this item!"
+	}
+
+	return response, nil
+}
+
+func buildVacationResItem(item *structs.Resolution) (*dto.Vacation, error) {
+	userProfile, err := getUserProfileById(item.UserProfileId)
+	if err != nil {
+		return nil, err
+	}
+	resolutionType, err := getDropdownSettingById(item.ResolutionTypeId)
+	if err != nil {
+		return nil, err
+	}
+
+	dataOfStart, _ := time.Parse("2006-01-02T15:04:05Z", item.DateOfStart)
+	numberOfDays, _ := strconv.Atoi(item.Value)
+
+	return &dto.Vacation{
+		Id:                item.Id,
+		ResolutionPurpose: item.ResolutionPurpose,
+		UserProfile: dto.DropdownSimple{
+			Id:    userProfile.Id,
+			Title: userProfile.GetFullName(),
+		},
+		ResolutionType: dto.DropdownSimple{
+			Id:    resolutionType.Id,
+			Title: resolutionType.Title,
+		},
+		Year:         dataOfStart.Year(),
+		NumberOfDays: numberOfDays,
+		FileId:       item.FileId,
+		CreatedAt:    item.CreatedAt,
+		UpdatedAt:    item.UpdatedAt,
+	}, nil
+}
 
 var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var (
@@ -87,24 +200,6 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 		Summary: absentSummary,
 		Items:   absents,
 	}, nil
-}
-
-func buildAbsentResponseItem(absent structs.Absent) (*structs.Absent, error) {
-	absentType, err := getAbsentTypeById(absent.AbsentTypeId)
-	if err != nil {
-		return nil, err
-	}
-	absent.AbsentType = *absentType
-
-	if absent.TargetOrganizationUnitID != nil {
-		organizationUnit, err := getOrganizationUnitById(*absent.TargetOrganizationUnitID)
-		if err != nil {
-			return nil, err
-		}
-		absent.TargetOrganizationUnit = organizationUnit
-	}
-
-	return &absent, nil
 }
 
 func getTakenVacationDaysBeforeAndAfterJuly(startDate string, endDate string) (int, int) {
@@ -264,6 +359,24 @@ var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interf
 	response.Item = resItem
 
 	return response, nil
+}
+
+func buildAbsentResponseItem(absent structs.Absent) (*structs.Absent, error) {
+	absentType, err := getAbsentTypeById(absent.AbsentTypeId)
+	if err != nil {
+		return nil, err
+	}
+	absent.AbsentType = *absentType
+
+	if absent.TargetOrganizationUnitID != nil {
+		organizationUnit, err := getOrganizationUnitById(*absent.TargetOrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+		absent.TargetOrganizationUnit = organizationUnit
+	}
+
+	return &absent, nil
 }
 
 var UserProfileAbsentDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {

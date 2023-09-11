@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/graphql-go/graphql"
 )
 
@@ -143,7 +142,6 @@ func getEmployeeResolution(id int) (*structs.Resolution, error) {
 }
 
 func updateResolution(id int, resolution *structs.Resolution) (*structs.Resolution, error) {
-	spew.Dump(resolution)
 
 	res := &dto.GetResolutionResponseMS{}
 	_, err := shared.MakeAPIRequest("PUT", config.RESOLUTIONS_ENDPOINT+"/"+strconv.Itoa(id), resolution, res)

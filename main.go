@@ -208,6 +208,7 @@ func main() {
 			"revision_Details":                                   fields.RevisionDetailsField,
 			"judges_Overview":                                    fields.JudgesOverviewField,
 			"judgeResolutions_Overview":                          fields.JudgeResolutionsOverviewField,
+			"organizationUintCalculateEmployeeStats":             fields.OrganizationUintCalculateEmployeeStatsField,
 			"publicProcurementPlans_Overview":                    fields.PublicProcurementPlansOverviewField,
 			"publicProcurementPlan_Details":                      fields.PublicProcurementPlanDetailsField,
 			"publicProcurementPlanItem_Details":                  fields.PublicProcurementPlanItemDetailsField,

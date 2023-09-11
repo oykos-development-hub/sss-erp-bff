@@ -403,6 +403,48 @@ func buildResolutionItemResponseItem(item *structs.JudgeResolutionItems) (*dto.J
 	}, nil
 }
 
+func OrganizationUintCalculateEmployeeStats(params graphql.ResolveParams) (interface{}, error) {
+	var response []dto.JudgeResolutionItemResponseItem
+	var page int = 1
+	var size int = 1000
+	input := dto.GetOrganizationUnitsInput{
+		Page: &page,
+		Size: &size,
+	}
+	organizationUnits, err := getOrganizationUnits(&input)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, organizationUnit := range organizationUnits.Data {
+
+		if organizationUnit.ParentId != nil {
+			continue
+		}
+		organizationUnitDropdown := structs.SettingsDropdown{Id: organizationUnit.Id, Title: organizationUnit.Title}
+
+		numberOfJudgesInOU, numberOfPresidents, numberOfEmployees, numberOfRelocations, err := calculateEmployeeStats(organizationUnit.Id)
+		if err != nil {
+			fmt.Printf("Calculating number of presindents failed beacuse of error: %v\n", err)
+		}
+
+		response = append(response, dto.JudgeResolutionItemResponseItem{
+			OrganizationUnit:        organizationUnitDropdown,
+			NumberOfJudges:          numberOfJudgesInOU,
+			NumberOfPresidents:      numberOfPresidents,
+			NumberOfEmployees:       numberOfEmployees,
+			NumberOfSuspendedJudges: 0,
+			NumberOfRelocatedJudges: numberOfRelocations,
+		})
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   response,
+	}, nil
+}
+
 func calculateEmployeeStats(id int) (int, int, int, int, error) {
 	var numberOfEmployees, numberOfJudges, totalRelocations, numberOfJudgePresidents int
 

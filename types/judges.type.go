@@ -218,6 +218,21 @@ var JudgeResolutionsOverviewType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var OrganizationUintCalculateEmployeeStatsType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "OrganizationUintCalculateEmployeeStats",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(JudgeResolutionItemType),
+		},
+	},
+})
+
 var JudgeResolutionsInsertType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "JudgeResolutionsInsert",
 	Fields: graphql.Fields{

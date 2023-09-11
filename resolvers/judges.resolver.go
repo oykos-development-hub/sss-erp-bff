@@ -55,7 +55,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 			employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
 
 			for _, employeeInOrganizationUnit := range employeesInOrganizationUnit {
-				if id != nil && id.(int) > 0 && employeeInOrganizationUnit.UserProfileId != id.(int) {
+				if id != nil && id.(int) > 0 && employeeInOrganizationUnit.UserProfileId != id.(int) || findJudgeByID(judgesList, employeeInOrganizationUnit.UserProfileId) {
 					continue
 				}
 				judgeResponse, err := buildJudgeResponseItem(
@@ -82,6 +82,15 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 	response.Items = paginatedItems
 
 	return response, nil
+}
+
+func findJudgeByID(judgesList []*dto.Judges, id int) bool {
+	for _, judge := range judgesList {
+		if judge.ID == id {
+			return true
+		}
+	}
+	return false
 }
 
 func buildJudgeResponseItem(userProfileID, organizationUnitID, jobPositionId int) (*dto.Judges, error) {

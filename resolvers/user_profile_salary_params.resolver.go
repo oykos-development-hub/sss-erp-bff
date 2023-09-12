@@ -24,21 +24,9 @@ func buildSalaryResponseItemList(items []*structs.SalaryParams) (resItemList []*
 }
 
 func buildSalaryResponseItem(item *structs.SalaryParams) (resItem *dto.SalaryParams, err error) {
-	var resolutionResItem *dto.Resolution
 	organizationUnit, err := getOrganizationUnitById(item.OrganizationUnitID)
 	if err != nil {
 		return nil, err
-	}
-
-	if item.UserResolutionId != nil {
-		resolution, err := getEmployeeResolution(*item.UserResolutionId)
-		if err != nil {
-			return nil, err
-		}
-		resolutionResItem, err = buildResolutionResItem(resolution)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	userProfile, err := getUserProfileById(item.UserProfileId)
@@ -46,7 +34,7 @@ func buildSalaryResponseItem(item *structs.SalaryParams) (resItem *dto.SalaryPar
 		return nil, err
 	}
 
-	return &dto.SalaryParams{
+	salaryParams := &dto.SalaryParams{
 		Id: item.Id,
 		UserProfile: dto.DropdownSimple{
 			Id:    userProfile.Id,
@@ -56,7 +44,6 @@ func buildSalaryResponseItem(item *structs.SalaryParams) (resItem *dto.SalaryPar
 			Id:    organizationUnit.Id,
 			Title: organizationUnit.Title,
 		},
-		Resolution:      *resolutionResItem,
 		BenefitedTrack:  item.BenefitedTrack,
 		WithoutRaise:    item.WithoutRaise,
 		InsuranceBasis:  item.InsuranceBasis,
@@ -67,7 +54,21 @@ func buildSalaryResponseItem(item *structs.SalaryParams) (resItem *dto.SalaryPar
 		EducationNaming: item.EducationNaming,
 		CreatedAt:       item.CreatedAt,
 		UpdatedAt:       item.UpdatedAt,
-	}, nil
+	}
+
+	if item.UserResolutionId != nil {
+		resolution, err := getEmployeeResolution(*item.UserResolutionId)
+		if err != nil {
+			return nil, err
+		}
+		resolutionResItem, err := buildResolutionResItem(resolution)
+		if err != nil {
+			return nil, err
+		}
+		salaryParams.Resolution = *resolutionResItem
+	}
+
+	return salaryParams, nil
 }
 
 var UserProfileSalaryParamsResolver = func(params graphql.ResolveParams) (interface{}, error) {

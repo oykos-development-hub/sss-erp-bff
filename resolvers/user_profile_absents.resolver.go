@@ -67,9 +67,9 @@ var UserProfileVacationResolutionInsertResolver = func(params graphql.ResolvePar
 	inputData.DateOfEnd = time.Date(data.Year, time.December, 31, 23, 59, 59, 999999999, time.UTC).Format("2006-01-02T15:04:05Z")
 	inputData.Id = data.Id
 	inputData.FileId = data.FileId
-	inputData.ResolutionPurpose = "Odluka o godišnjem odmoru"
 	inputData.UserProfileId = data.UserProfileId
 	inputData.Value = strconv.Itoa(data.NumberOfDays)
+	inputData.ResolutionPurpose = data.ResolutionPurpose
 
 	if shared.IsInteger(inputData.Id) && inputData.Id != 0 {
 		resolution, err := updateResolution(inputData.Id, &inputData)

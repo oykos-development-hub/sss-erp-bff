@@ -50,6 +50,9 @@ var UserProfileVacationInsertMutation = graphql.NewInputObject(graphql.InputObje
 		"number_of_days": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"resolution_purpose": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

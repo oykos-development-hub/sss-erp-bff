@@ -216,9 +216,9 @@ var SystematizationDeleteResolver = func(params graphql.ResolveParams) (interfac
 		return shared.HandleAPIError(err)
 	}
 
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You deleted this item!",
+	return dto.Response{
+		Status:  "success",
+		Message: "You deleted this item!",
 	}, nil
 }
 

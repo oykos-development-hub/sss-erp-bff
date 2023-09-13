@@ -154,14 +154,6 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 	}
 
 	for _, absent := range absents {
-		if absent.TargetOrganizationUnitID != nil {
-			organizationUnit, err := getOrganizationUnitById(*absent.TargetOrganizationUnitID)
-			if err != nil {
-				return nil, err
-			}
-			absent.TargetOrganizationUnit = organizationUnit
-		}
-
 		absentType, err := getAbsentTypeById(absent.AbsentTypeId)
 		if err != nil {
 			return nil, err
@@ -190,6 +182,23 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 		}
 	}
 
+	allAbsents, _ := getEmployeeAbsents(profileID, nil)
+	for _, absent := range absents {
+		if absent.TargetOrganizationUnitID != nil {
+			organizationUnit, err := getOrganizationUnitById(*absent.TargetOrganizationUnitID)
+			if err != nil {
+				return nil, err
+			}
+			absent.TargetOrganizationUnit = organizationUnit
+		}
+
+		absentType, err := getAbsentTypeById(absent.AbsentTypeId)
+		if err != nil {
+			return nil, err
+		}
+		absent.AbsentType = *absentType
+	}
+
 	absentSummary.CurrentAvailableDays = availableDaysOfCurrentYear
 	absentSummary.PastAvailableDays = availableDaysOfPreviousYear
 	absentSummary.UsedDays = usedDays
@@ -198,7 +207,7 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 		Status:  "success",
 		Message: "Here's the items you asked for!",
 		Summary: absentSummary,
-		Items:   absents,
+		Items:   allAbsents,
 	}, nil
 }
 

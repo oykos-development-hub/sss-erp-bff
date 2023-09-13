@@ -183,7 +183,7 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 	}
 
 	allAbsents, _ := getEmployeeAbsents(profileID, nil)
-	for _, absent := range absents {
+	for _, absent := range allAbsents {
 		if absent.TargetOrganizationUnitID != nil {
 			organizationUnit, err := getOrganizationUnitById(*absent.TargetOrganizationUnitID)
 			if err != nil {

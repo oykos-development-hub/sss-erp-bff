@@ -58,9 +58,11 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 				if id != nil && id.(int) > 0 && employeeInOrganizationUnit.UserProfileId != id.(int) || findJudgeByID(judgesList, employeeInOrganizationUnit.UserProfileId) {
 					continue
 				}
+				systematization, _ := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+
 				judgeResponse, err := buildJudgeResponseItem(
 					employeeInOrganizationUnit.UserProfileId,
-					jobPositionInOrganizationUnit.ParentOrganizationUnitId,
+					systematization.OrganizationUnitId,
 					jobPosition.Id,
 				)
 

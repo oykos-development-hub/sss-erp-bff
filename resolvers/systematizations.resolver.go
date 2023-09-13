@@ -106,7 +106,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	err = json.Unmarshal(dataBytes, &data)
+	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {
@@ -125,7 +125,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 	input.OrganizationUnitID = &systematization.OrganizationUnitId
 	input.Active = &booActive
 
-	systematizationsActiveResponse, err := getSystematizations(&input)
+	systematizationsActiveResponse, _ := getSystematizations(&input)
 	// Getting Sectors
 	inputOrganizationUnits := dto.GetOrganizationUnitsInput{
 		ParentID: &systematization.OrganizationUnitId,
@@ -146,7 +146,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 			}
 			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
 				var jobPositionsInOrganizationUnitRes *dto.GetJobPositionInOrganizationUnitsResponseMS
-				jobPositionsInOrganizationUnitRes, err = createJobPositionsInOrganizationUnits(&structs.JobPositionsInOrganizationUnits{
+				jobPositionsInOrganizationUnitRes, _ = createJobPositionsInOrganizationUnits(&structs.JobPositionsInOrganizationUnits{
 					SystematizationId:        systematization.Id,
 					ParentOrganizationUnitId: jobPositionOU.ParentOrganizationUnitId,
 					JobPositionId:            jobPositionOU.JobPositionId,
@@ -179,7 +179,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 		return shared.HandleAPIError(err)
 	}
 
-	if systematization.Active == true {
+	if systematization.Active {
 
 		if len(systematizationsActiveResponse.Data) > 0 {
 			for _, sys := range systematizationsActiveResponse.Data {

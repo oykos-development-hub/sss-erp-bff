@@ -143,7 +143,9 @@ func buildUserProfileOverviewResponse(
 		isJudge = jobPosition.IsJudge
 		isJudgePresdent = jobPosition.IsJudgePresident
 
-		organizationUnit, err := getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
+		systematization, _ := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+
+		organizationUnit, err := getOrganizationUnitById(systematization.OrganizationUnitId)
 		if err != nil {
 			return nil, err
 		}

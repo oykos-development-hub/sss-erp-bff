@@ -1,12 +1,16 @@
 package shared
 
 import (
+	"bff/config"
 	"bff/dto"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"runtime"
+	"runtime/debug"
 )
 
 type APIError struct {
@@ -19,7 +23,18 @@ type Response struct {
 	Message string `json:"message"`
 }
 
+func logErrorWithStackTrace(err error) {
+	stackTrace := debug.Stack()
+	fmt.Printf("Full Stack Trace:\n%s\n", stackTrace)
+}
+
 func HandleAPIError(err error) (dto.Response, error) {
+	if config.DEBUG {
+		logErrorWithStackTrace(err)
+	}
+	_, file, line, _ := runtime.Caller(1) // 1 is the number of stack frames to ascend
+	log.Printf("Error occurred in file %s at line %d: %v", file, line, err)
+
 	if apiError, ok := err.(APIError); ok {
 		return ErrorResponse(apiError.Message, apiError.Data), nil
 	}

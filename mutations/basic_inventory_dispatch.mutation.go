@@ -36,7 +36,7 @@ var BasicInventoryDispatchMutation = graphql.NewInputObject(graphql.InputObjectC
 			Type: graphql.NewList(graphql.Int),
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 	},
 })

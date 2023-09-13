@@ -185,7 +185,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 			for _, sys := range systematizationsActiveResponse.Data {
 				if sys.Id != systematization.Id {
 					sys.Active = false
-					updateSystematization(sys.Id, &sys)
+					_, _ = updateSystematization(sys.Id, &sys)
 				}
 			}
 		}

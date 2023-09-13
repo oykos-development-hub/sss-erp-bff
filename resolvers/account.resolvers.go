@@ -93,7 +93,7 @@ var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 		}, nil
 	}
 
-	if tree == true {
+	if tree {
 		items, err = CreateTree(AccountData, budgetId, activityId)
 		if err != nil {
 			fmt.Printf("Fetching Account failed because of this error - %s.\n", err)
@@ -140,7 +140,7 @@ var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 			"status":  "success",
 			"message": "Here's the list you asked for!",
 			"total":   total,
-			"items":   result,
+			"items":   items,
 		}, nil
 	}
 }

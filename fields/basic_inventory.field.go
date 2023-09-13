@@ -51,7 +51,7 @@ var BasicInventoryDetailsField = &graphql.Field{
 	Description: "Returns a data of Basic Inventory item Details",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.BasicInventoryDetailsResolver,

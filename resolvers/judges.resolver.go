@@ -60,7 +60,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 				}
 				judgeResponse, err := buildJudgeResponseItem(
 					employeeInOrganizationUnit.UserProfileId,
-					jobPositionInOrganizationUnit.SystematizationId,
+					jobPositionInOrganizationUnit.ParentOrganizationUnitId,
 					jobPosition.Id,
 				)
 

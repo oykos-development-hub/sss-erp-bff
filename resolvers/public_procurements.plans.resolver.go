@@ -186,27 +186,7 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 		items = append(items, resItem)
 	}
 
-	loggedInProfile, err := getUserProfileByUserAccountID(loggedInAccount.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(loggedInProfile.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
-
-	systematization, err := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
-	if err != nil {
-		return nil, err
-	}
-
-	status, err := BuildStatus(plan, loggedInAccount.RoleId == 1, systematization.OrganizationUnitId)
+	status, err := BuildStatus(plan, *loggedInAccount)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +211,7 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 	return &res, nil
 }
 
-func BuildStatus(plan *structs.PublicProcurementPlan, isAdmin bool, organizationUnitId int) (string, error) {
+func BuildStatus(plan *structs.PublicProcurementPlan, userAccount structs.UserAccounts) (string, error) {
 	var isPublished = plan.DateOfPublishing != nil && *plan.DateOfPublishing != ""
 	var isClosed = plan.DateOfClosing != nil && *plan.DateOfClosing != ""
 	var isPreBudget = plan.IsPreBudget
@@ -249,8 +229,29 @@ func BuildStatus(plan *structs.PublicProcurementPlan, isAdmin bool, organization
 		isConverted = true
 	}
 
+	isAdmin := userAccount.RoleId == 1
+
 	if !isAdmin {
-		ouArticleList, err := getOrganizationUnitArticles(plan.Id, organizationUnitId)
+		loggedInProfile, err := getUserProfileByUserAccountID(userAccount.Id)
+		if err != nil {
+			return "", err
+		}
+		employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(loggedInProfile.Id)
+		if err != nil {
+			return "", err
+		}
+
+		jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
+		if err != nil {
+			return "", err
+		}
+
+		systematization, err := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+		if err != nil {
+			return "", err
+		}
+
+		ouArticleList, err := getOrganizationUnitArticles(plan.Id, systematization.OrganizationUnitId)
 		if err != nil {
 			return "", err
 		}

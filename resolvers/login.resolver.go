@@ -44,9 +44,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	isActive := true
 	contracts, _ := getEmployeeContracts(userProfile.Id, &dto.GetEmployeeContracts{Active: &isActive})
 
-	if len(contracts) != 1 {
-		fmt.Printf("employee must have exactly one active contract assigned")
-	} else {
+	if len(contracts) > 0 {
 		contractsResItem, _ = buildContractResponseItem(*contracts[0])
 	}
 

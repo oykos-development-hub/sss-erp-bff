@@ -201,7 +201,12 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 		return nil, err
 	}
 
-	status, err := BuildStatus(plan, loggedInAccount.RoleId == 1, jobPositionInOrganizationUnit.ParentOrganizationUnitId)
+	systematization, err := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+	if err != nil {
+		return nil, err
+	}
+
+	status, err := BuildStatus(plan, loggedInAccount.RoleId == 1, systematization.OrganizationUnitId)
 	if err != nil {
 		return nil, err
 	}
@@ -213,8 +218,8 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 		Title:            plan.Title,
 		Status:           &status,
 		SerialNumber:     plan.SerialNumber,
-		DateOfPublishing: (*string)(plan.DateOfPublishing),
-		DateOfClosing:    (*string)(plan.DateOfClosing),
+		DateOfPublishing: plan.DateOfPublishing,
+		DateOfClosing:    plan.DateOfClosing,
 		PreBudgetId:      plan.PreBudgetId,
 		FileId:           plan.FileId,
 		PreBudgetPlan:    preBudgetPlan,

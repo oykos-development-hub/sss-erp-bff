@@ -142,7 +142,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 			}
 			jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
 			if err != nil {
-				return nil, err
+				return shared.HandleAPIError(err)
 			}
 			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
 				var jobPositionsInOrganizationUnitRes *dto.GetJobPositionInOrganizationUnitsResponseMS
@@ -166,7 +166,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 						}
 						_, err := createEmployeesInOrganizationUnits(input)
 						if err != nil {
-							return nil, err
+							return shared.HandleAPIError(err)
 						}
 					}
 

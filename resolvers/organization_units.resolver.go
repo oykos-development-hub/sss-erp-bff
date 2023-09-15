@@ -172,6 +172,20 @@ func createOrganizationUnits(data *structs.OrganizationUnits) (*dto.GetOrganizat
 	return res, nil
 }
 
+func getOrganizationUnitIdByUserProfile(id int) (int, error) {
+	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(id)
+	if err != nil {
+		return 0, err
+	}
+
+	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
+	if err != nil {
+		return 0, err
+	}
+
+	return jobPositionInOrganizationUnit.ParentOrganizationUnitId, nil
+}
+
 func buildOrganizationUnitOverviewResponse(
 	organizationUnits *structs.OrganizationUnits,
 ) (*dto.OrganizationUnitsOverviewResponse, error) {

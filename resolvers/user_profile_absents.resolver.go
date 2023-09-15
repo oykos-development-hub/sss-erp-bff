@@ -141,7 +141,7 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 	// year ago
 	availableDaysOfCurrentYear, availableDaysOfPreviousYear, err := getNumberOfCurrentAndPreviousYearAvailableDays(profileID)
 	if err != nil {
-		return nil, err
+		return shared.HandleAPIError(err)
 	}
 
 	// get all absents in a period of current year
@@ -150,13 +150,13 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 	endOfYear := time.Date(currentYear, time.December, 31, 23, 59, 59, 999999999, time.UTC)
 	absents, err := getEmployeeAbsents(profileID, &dto.EmployeeAbsentsInput{From: &startOfYear, To: &endOfYear})
 	if err != nil {
-		return nil, err
+		return shared.HandleAPIError(err)
 	}
 
 	for _, absent := range absents {
 		absentType, err := getAbsentTypeById(absent.AbsentTypeId)
 		if err != nil {
-			return nil, err
+			return shared.HandleAPIError(err)
 		}
 		absent.AbsentType = *absentType
 
@@ -187,14 +187,14 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 		if absent.TargetOrganizationUnitID != nil {
 			organizationUnit, err := getOrganizationUnitById(*absent.TargetOrganizationUnitID)
 			if err != nil {
-				return nil, err
+				return shared.HandleAPIError(err)
 			}
 			absent.TargetOrganizationUnit = organizationUnit
 		}
 
 		absentType, err := getAbsentTypeById(absent.AbsentTypeId)
 		if err != nil {
-			return nil, err
+			return shared.HandleAPIError(err)
 		}
 		absent.AbsentType = *absentType
 	}

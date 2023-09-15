@@ -2,7 +2,6 @@ package structs
 
 type Revision struct {
 	ID                              int     `json:"id"`
-	Name                            string  `json:"revision"`
 	RevisionTypeID                  int     `json:"revision_type_id"`
 	RevisorUserProfileID            *int    `json:"revisor_user_profile_id"`
 	RevisorUserProfile              *string `json:"revisor_user_profile"`

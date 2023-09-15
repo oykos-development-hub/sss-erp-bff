@@ -8,9 +8,6 @@ var RevisionsOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"name": &graphql.Field{
-			Type: graphql.String,
-		},
 		"revision_type": &graphql.Field{
 			Type: DropdownItemType,
 		},
@@ -67,9 +64,6 @@ var RevisionDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.Int,
-		},
-		"name": &graphql.Field{
-			Type: graphql.String,
 		},
 		"revision_type": &graphql.Field{
 			Type: DropdownItemType,

@@ -75,6 +75,7 @@ func buildRevisionDetailsItemResponse(revision *structs.Revision) (*dto.Revision
 
 	revisionItem := &dto.RevisionDetailsItem{
 		ID:                              revision.ID,
+		Name:                            revision.Name,
 		RevisionType:                    *revisionType,
 		RevisorUserProfile:              revisorUserProfileDropdown,
 		RevisionOrganizationUnit:        revisionOrganizationUnit,

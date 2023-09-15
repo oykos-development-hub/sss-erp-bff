@@ -15,13 +15,13 @@ var PublicProcurementPlanInsertMutation = graphql.NewInputObject(graphql.InputOb
 			Type: graphql.Boolean,
 		},
 		"active": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Boolean),
+			Type: graphql.Boolean,
 		},
 		"year": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"title": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"serial_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
@@ -45,19 +45,19 @@ var PublicProcurementPlanItemInsertMutation = graphql.NewInputObject(graphql.Inp
 			Type: graphql.Int,
 		},
 		"budget_indent_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"plan_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"is_open_procurement": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Boolean),
+			Type: graphql.Boolean,
 		},
 		"title": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"article_type": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"status": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
@@ -84,13 +84,13 @@ var PublicProcurementPlanItemLimitInsertMutation = graphql.NewInputObject(graphq
 			Type: graphql.Int,
 		},
 		"organization_unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"public_procurement_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"limit": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.String,
 		},
 	},
 })
@@ -99,27 +99,24 @@ var PublicProcurementPlanItemArticleInsertMutation = graphql.NewInputObject(grap
 	Name: "PublicProcurementPlanItemArticleInsertMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"budget_indent_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"public_procurement_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"title": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"net_price": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Float),
+			Type: graphql.String,
 		},
 		"vat_percentage": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
-		},
-		"manufacturer": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 	},
@@ -132,13 +129,13 @@ var PublicProcurementOrganizationUnitArticleInsertMutation = graphql.NewInputObj
 			Type: graphql.Int,
 		},
 		"public_procurement_article_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"organization_unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"amount": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"status": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
@@ -159,25 +156,25 @@ var PublicProcurementContractInsertMutation = graphql.NewInputObject(graphql.Inp
 			Type: graphql.Int,
 		},
 		"public_procurement_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"supplier_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"serial_number": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"date_of_signing": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"date_of_expiry": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"net_value": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Float),
+			Type: graphql.String,
 		},
 		"gross_value": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Float),
+			Type: graphql.String,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
@@ -192,19 +189,19 @@ var PublicProcurementContractArticleInsertMutation = graphql.NewInputObject(grap
 			Type: graphql.Int,
 		},
 		"public_procurement_article_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"public_procurement_contract_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"amount": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.String,
 		},
 		"net_value": &graphql.InputObjectFieldConfig{
-			Type: graphql.Float,
+			Type: graphql.String,
 		},
 		"gross_value": &graphql.InputObjectFieldConfig{
-			Type: graphql.Float,
+			Type: graphql.String,
 		},
 	},
 })

@@ -13,7 +13,10 @@ var PinResolver = func(p graphql.ResolveParams) (interface{}, error) {
 
 	err := validatePin(pin, p.Context.Value(config.HttpHeadersKey).(map[string]string))
 	if err != nil {
-		return shared.HandleAPIError(err)
+		return dto.ResponseSingle{
+			Status:  "error",
+			Message: err.Error(),
+		}, nil
 	}
 
 	return dto.ResponseSingle{

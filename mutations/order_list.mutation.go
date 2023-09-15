@@ -18,7 +18,7 @@ var OrderListInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.Int,
 		},
 		"supplier_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 		"status": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
@@ -33,16 +33,16 @@ var OrderListReceiveMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "OrderListReceiveMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"order_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"date_system": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"invoice_date": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
+			Type: graphql.String,
 		},
 		"invoice_number": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.String,
 		},
 		"description_receive": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

@@ -142,7 +142,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 			}
 			jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
 			if err != nil {
-				return shared.HandleAPIError(err)
+				return nil, err
 			}
 			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
 				var jobPositionsInOrganizationUnitRes *dto.GetJobPositionInOrganizationUnitsResponseMS
@@ -166,7 +166,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 						}
 						_, err := createEmployeesInOrganizationUnits(input)
 						if err != nil {
-							return shared.HandleAPIError(err)
+							return nil, err
 						}
 					}
 
@@ -185,7 +185,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 			for _, sys := range systematizationsActiveResponse.Data {
 				if sys.Id != systematization.Id {
 					sys.Active = false
-					_, _ = updateSystematization(sys.Id, &sys)
+					updateSystematization(sys.Id, &sys)
 				}
 			}
 		}
@@ -216,9 +216,9 @@ var SystematizationDeleteResolver = func(params graphql.ResolveParams) (interfac
 		return shared.HandleAPIError(err)
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "You deleted this item!",
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
 	}, nil
 }
 

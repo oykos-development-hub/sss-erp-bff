@@ -8,6 +8,9 @@ var RevisionInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"revision_type_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

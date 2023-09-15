@@ -167,10 +167,10 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		if err != nil {
 			return nil, err
 		}
-		userProfileDropdownItem = &dto.DropdownSimple{
-			Id:    userProfile.Id,
-			Title: userProfile.GetFullName(),
-		}
+
+		userProfileDropdownItem.Id = userProfile.Id
+		userProfileDropdownItem.Title = userProfile.FirstName + " " + userProfile.LastName
+
 		res.FirstName = userProfile.FirstName
 		res.LastName = userProfile.LastName
 		res.OfficialPersonalID = userProfile.OfficialPersonalId

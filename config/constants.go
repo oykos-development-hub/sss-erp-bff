@@ -12,8 +12,10 @@ type ContextKey string
 
 const (
 	HttpResponseWriterKey ContextKey = "httpResponseWriter"
-	HttpHeadersKey        ContextKey = "httpHeaders"
-	TokenKey              ContextKey = "token"
+	Requestkey            ContextKey = "request"
+
+	HttpHeadersKey ContextKey = "httpHeaders"
+	TokenKey       ContextKey = "token"
 
 	ResolutionTypes string = "resolution_types"
 	OfficeTypes     string = "office_types"
@@ -23,6 +25,13 @@ const (
 var (
 	DEBUG bool
 
+	CORE_FRONTEND         string
+	HR_FRONTEND           string
+	PROCUREMENTS_FRONTEND string
+	ACCOUNTING_FRONTEND   string
+	FINANCE_FRONTEND      string
+	INVENTORY_FRONTEND    string
+
 	HR_MS_BASE_URL              string
 	CORE_MS_BASE_URL            string
 	PROCUREMENT_MS_BASE_URL     string
@@ -30,6 +39,7 @@ var (
 	ACCOUNTING_MS_BASE_URL      string
 
 	LOGIN_ENDPOINT          string
+	REFRESH_ENDPOINT        string
 	PIN_ENDPOINT            string
 	USER_ACCOUNTS_ENDPOINT  string
 	ROLES_ENDPOINT          string
@@ -93,6 +103,13 @@ func init() {
 	}
 	DEBUG = debugValue
 
+	CORE_FRONTEND = os.Getenv("CORE_FRONTEND_URL")
+	HR_FRONTEND = os.Getenv("HR_FRONTEND_URL")
+	PROCUREMENTS_FRONTEND = os.Getenv("PROCUREMENTS_FRONTEND_URL")
+	ACCOUNTING_FRONTEND = os.Getenv("ACCOUNTING_FRONTEND_URL")
+	FINANCE_FRONTEND = os.Getenv("FINANCE_FRONTEND_URL")
+	INVENTORY_FRONTEND = os.Getenv("INVENTORY_FRONTEND_URL")
+
 	HR_MS_BASE_URL = os.Getenv("HR_MS_BASE_URL")
 	CORE_MS_BASE_URL = os.Getenv("CORE_MS_BASE_URL")
 	PROCUREMENT_MS_BASE_URL = os.Getenv("PROCUREMENT_MS_BASE_URL")
@@ -101,6 +118,7 @@ func init() {
 
 	// CORE MS endpoints
 	LOGIN_ENDPOINT = CORE_MS_BASE_URL + "/users/login"
+	REFRESH_ENDPOINT = CORE_MS_BASE_URL + "/refresh"
 	ROLES_ENDPOINT = CORE_MS_BASE_URL + "/roles"
 	PIN_ENDPOINT = CORE_MS_BASE_URL + "/users/validate-pin"
 	USER_ACCOUNTS_ENDPOINT = CORE_MS_BASE_URL + "/users"

@@ -229,7 +229,7 @@ func BuildStatus(plan *structs.PublicProcurementPlan, userAccount structs.UserAc
 		isConverted = true
 	}
 
-	isAdmin := userAccount.RoleId == 1
+	isAdmin := userAccount.RoleId == 1 || userAccount.RoleId == 3
 
 	if !isAdmin {
 		loggedInProfile, err := getUserProfileByUserAccountID(userAccount.Id)

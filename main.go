@@ -176,6 +176,7 @@ func main() {
 		Name: "RootQuery",
 		Fields: graphql.Fields{
 			"login":                        fields.LoginField,
+			"refresh":                      fields.RefreshField,
 			"pin":                          fields.PinField,
 			"userAccount_Overview":         fields.UserAccountField,
 			"settingsDropdown_Overview":    fields.SettingsDropdownField,
@@ -251,15 +252,22 @@ func main() {
 	http.Handle("/mocked-data/", http.StripPrefix("/mocked-data", fs))
 	// Create a CORS-enabled handler
 	corsHandler := handlers.CORS(
-		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedOrigins([]string{config.HR_FRONTEND, config.PROCUREMENTS_FRONTEND, config.ACCOUNTING_FRONTEND, config.INVENTORY_FRONTEND, config.FINANCE_FRONTEND, config.CORE_FRONTEND, ""}),
 		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)
 	// Insert the custom middleware handler
-	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(addResponseWriterToContext(h))))
+	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(addResponseWriterToContext(RequestContextMiddleware(h)))))
 	// Start your HTTP server with the CORS-enabled handler
 	http.Handle("/", graphqlHandler)
 	_ = http.ListenAndServe(":8080", nil)
+}
+
+func RequestContextMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), config.Requestkey, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func addResponseWriterToContext(next http.Handler) http.Handler {

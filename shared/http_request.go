@@ -119,3 +119,60 @@ func MakeAPIRequest(method, url string, data interface{}, response interface{}, 
 
 	return resp.Cookies(), nil
 }
+
+func MakeAPIRequestWithCookie(method, url string, data interface{}, response interface{}, cookie *http.Cookie, headers ...map[string]string) ([]*http.Cookie, error) {
+	reqBytes, err := json.Marshal(data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request body: %w", err)
+	}
+
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	// Append headers to the request
+	for _, header := range headers {
+		for key, value := range header {
+			req.Header.Set(key, value)
+		}
+	}
+
+	req.AddCookie(cookie)
+
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make HTTP request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		apiError := APIError{
+			StatusCode: resp.StatusCode,
+		}
+
+		err = json.Unmarshal(body, &apiError)
+		if err != nil {
+			apiError.Message = "Unexpected error"
+		}
+
+		return nil, apiError
+	}
+
+	if len(body) > 0 && response != nil {
+		err = json.Unmarshal(body, response)
+		if err != nil {
+			fmt.Println(string(body))
+			return nil, fmt.Errorf("failed to parse HTTP response: %w", err)
+		}
+	}
+
+	return resp.Cookies(), nil
+}

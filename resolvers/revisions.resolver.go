@@ -341,7 +341,6 @@ var RevisionInsertResolver = func(params graphql.ResolveParams) (interface{}, er
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
-		fmt.Println(data.RevisionTypeID)
 		res, err := createRevision(&data)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -389,6 +388,7 @@ func getRevisorListDropdown() ([]*structs.SettingsDropdown, error) {
 
 func createRevision(revision *structs.Revision) (*structs.Revision, error) {
 	res := &dto.GetRevisionResponseMS{}
+	fmt.Printf("%+v\n", revision)
 	_, err := shared.MakeAPIRequest("POST", config.REVISIONS_ENDPOINT, revision, res)
 	if err != nil {
 		return nil, err

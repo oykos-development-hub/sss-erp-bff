@@ -115,6 +115,34 @@ func RefreshTokenResolver(p graphql.ResolveParams) (interface{}, error) {
 	}, nil
 }
 
+var LogoutResolver = func(p graphql.ResolveParams) (interface{}, error) {
+	id := p.Args["id"].(int)
+
+	err := logout(id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "user logged out",
+	}, nil
+
+}
+
+func logout(id int) error {
+	reqBody := dto.LogoutRequestMS{
+		ID: id,
+	}
+
+	_, err := shared.MakeAPIRequest("POST", fmt.Sprintf("/users/%d", id)+config.LOGOUT_ENDPOINT, reqBody, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func loginUser(email, password string) (*dto.LoginResponseMS, []*http.Cookie, error) {
 	reqBody := dto.LoginRequestMS{
 		Email:    email,

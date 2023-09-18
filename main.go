@@ -176,6 +176,7 @@ func main() {
 		Name: "RootQuery",
 		Fields: graphql.Fields{
 			"login":                        fields.LoginField,
+			"logout":                       fields.LoginField,
 			"refresh":                      fields.RefreshField,
 			"pin":                          fields.PinField,
 			"userAccount_Overview":         fields.UserAccountField,

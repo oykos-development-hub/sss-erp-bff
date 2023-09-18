@@ -39,6 +39,7 @@ var (
 	ACCOUNTING_MS_BASE_URL      string
 
 	LOGIN_ENDPOINT          string
+	LOGOUT_ENDPOINT         string
 	REFRESH_ENDPOINT        string
 	PIN_ENDPOINT            string
 	USER_ACCOUNTS_ENDPOINT  string
@@ -118,6 +119,7 @@ func init() {
 
 	// CORE MS endpoints
 	LOGIN_ENDPOINT = CORE_MS_BASE_URL + "/users/login"
+	LOGOUT_ENDPOINT = CORE_MS_BASE_URL + "/logout"
 	REFRESH_ENDPOINT = CORE_MS_BASE_URL + "/refresh"
 	ROLES_ENDPOINT = CORE_MS_BASE_URL + "/roles"
 	PIN_ENDPOINT = CORE_MS_BASE_URL + "/users/validate-pin"

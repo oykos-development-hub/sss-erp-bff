@@ -382,6 +382,16 @@ func createEmployeesInOrganizationUnits(data *structs.EmployeesInOrganizationUni
 	return &res.Data, nil
 }
 
+func updateEmployeesInOrganizationUnits(id int, data *structs.EmployeesInOrganizationUnits) (*structs.EmployeesInOrganizationUnits, error) {
+	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), data, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
 func deleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnitId int) error {
 	_, err := shared.MakeAPIRequest("DELETE", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(jobPositionInOrganizationUnitId), nil, nil)
 	if err != nil {

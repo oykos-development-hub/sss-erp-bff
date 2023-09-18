@@ -25,7 +25,9 @@ func buildRevisionDetailsItemResponse(revision *structs.Revision) (*dto.Revision
 		revisorUserProfileDropdown.Title = userProfile.FirstName + " " + userProfile.LastName
 		revisorUserProfileDropdown.Id = userProfile.Id
 	} else {
-		revisorUserProfileDropdown.Title = *revision.RevisorUserProfile
+		if revision.RevisorUserProfile != nil {
+			revisorUserProfileDropdown.Title = *revision.RevisorUserProfile
+		}
 	}
 
 	if revision.ResponsibleUserProfileID != nil {
@@ -68,13 +70,15 @@ func buildRevisionDetailsItemResponse(revision *structs.Revision) (*dto.Revision
 		revisionOrganizationUnit.Id = organizationUnit.Id
 		revisionOrganizationUnit.Title = organizationUnit.Title
 	} else {
-		organizationUnit, err := getDropdownSettingById(*revision.ExternalOrganizationUnitID)
-		if err != nil {
-			return nil, err
+		if revision.ExternalOrganizationUnitID != nil {
+			organizationUnit, err := getDropdownSettingById(*revision.ExternalOrganizationUnitID)
+			if err != nil {
+				return nil, err
+			}
+			revisionOrganizationUnit.Value = "external"
+			revisionOrganizationUnit.Id = organizationUnit.Id
+			revisionOrganizationUnit.Title = organizationUnit.Title
 		}
-		revisionOrganizationUnit.Value = "external"
-		revisionOrganizationUnit.Id = organizationUnit.Id
-		revisionOrganizationUnit.Title = organizationUnit.Title
 	}
 
 	revisionItem := &dto.RevisionDetailsItem{
@@ -113,6 +117,7 @@ func buildRevisionOverviewItemResponse(revision *structs.Revision) (*dto.Revisio
 	userProfileDropdown := structs.SettingsDropdown{
 		Id: 0,
 	}
+
 	if revision.RevisorUserProfileID != nil {
 		userProfile, err := getUserProfileById(*revision.RevisorUserProfileID)
 		if err != nil {
@@ -121,7 +126,9 @@ func buildRevisionOverviewItemResponse(revision *structs.Revision) (*dto.Revisio
 		userProfileDropdown.Title = userProfile.FirstName + " " + userProfile.LastName
 		userProfileDropdown.Id = userProfile.Id
 	} else {
-		userProfileDropdown.Title = *revision.RevisorUserProfile
+		if revision.RevisorUserProfile != nil {
+			userProfileDropdown.Title = *revision.RevisorUserProfile
+		}
 	}
 
 	revisionType := &structs.SettingsDropdown{}
@@ -142,12 +149,14 @@ func buildRevisionOverviewItemResponse(revision *structs.Revision) (*dto.Revisio
 		organizationUnitDropdown.Id = organizationUnit.Id
 		organizationUnitDropdown.Title = organizationUnit.Title
 	} else {
-		organizationUnit, err := getDropdownSettingById(*revision.ExternalOrganizationUnitID)
-		if err != nil {
-			return nil, err
+		if revision.ExternalOrganizationUnitID != nil {
+			organizationUnit, err := getDropdownSettingById(*revision.ExternalOrganizationUnitID)
+			if err != nil {
+				return nil, err
+			}
+			organizationUnitDropdown.Id = organizationUnit.Id
+			organizationUnitDropdown.Title = organizationUnit.Title
 		}
-		organizationUnitDropdown.Id = organizationUnit.Id
-		organizationUnitDropdown.Title = organizationUnit.Title
 	}
 
 	revisionItem := &dto.RevisionOverviewItem{

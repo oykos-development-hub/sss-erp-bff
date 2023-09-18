@@ -36,7 +36,7 @@ var BasicInventoryAssessmentsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"file_id": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 	},
 })

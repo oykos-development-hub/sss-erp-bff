@@ -31,11 +31,14 @@ func extractTokenFromHeader(headerValue string) string {
 
 func extractTokenMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// define key value
+		const tokenKey string = "token"
+
 		authHeader := r.Header.Get("Authorization")
 		// Extract the token value from the header
 		token := extractTokenFromHeader(authHeader)
 		// Store the token value in the request context
-		ctx := context.WithValue(r.Context(), config.TokenKey, token)
+		ctx := context.WithValue(r.Context(), tokenKey, token)
 		r = r.WithContext(ctx)
 		// Call the next handler
 		next.ServeHTTP(w, r)
@@ -152,6 +155,8 @@ func main() {
 			"basicInventoryDispatch_Insert":                   fields.BasicInventoryDispatchInsertField,
 			"basicInventoryDispatch_Delete":                   fields.BasicInventoryDispatchDeleteField,
 			"basicInventoryDispatch_Accept":                   fields.BasicInventoryDispatchAcceptField,
+			"basicInventoryDepreciationTypes_Insert":          fields.BasicInventoryDepreciationTypesInsertField,
+			"basicInventoryDepreciationTypes_Delete":          fields.BasicInventoryDepreciationTypesDeleteField,
 			"officesOfOrganizationUnits_Insert":               fields.OfficesOfOrganizationUnitInsertField,
 			"officesOfOrganizationUnits_Delete":               fields.OfficesOfOrganizationUnitDeleteField,
 			"orderList_Insert":                                fields.OrderListInsertField,
@@ -176,8 +181,6 @@ func main() {
 		Name: "RootQuery",
 		Fields: graphql.Fields{
 			"login":                        fields.LoginField,
-			"logout":                       fields.LogoutField,
-			"refresh":                      fields.RefreshField,
 			"pin":                          fields.PinField,
 			"userAccount_Overview":         fields.UserAccountField,
 			"settingsDropdown_Overview":    fields.SettingsDropdownField,
@@ -219,6 +222,7 @@ func main() {
 			"suppliers_Overview":                                 fields.SuppliersOverviewField,
 			"basicInventory_Overview":                            fields.BasicInventoryOverviewField,
 			"basicInventory_Details":                             fields.BasicInventoryDetailsField,
+			"basicInventoryDepreciationTypes_Overview":           fields.BasicInventoryDepreciationTypesOverviewField,
 			"basicInventoryRealEstates_Overview":                 fields.BasicInventoryRealEstatesOverviewField,
 			"officesOfOrganizationUnits_Overview":                fields.OfficesOfOrganizationUnitOverviewField,
 			"basicInventoryDispatch_Overview":                    fields.BasicInventoryDispatchOverviewField,
@@ -253,42 +257,15 @@ func main() {
 	http.Handle("/mocked-data/", http.StripPrefix("/mocked-data", fs))
 	// Create a CORS-enabled handler
 	corsHandler := handlers.CORS(
-		handlers.AllowedOrigins([]string{
-			"http://localhost:3000",
-			"http://localhost:3001",
-			"http://localhost:3002",
-			"http://localhost:3003",
-			"http://localhost:3004",
-			"http://localhost:3005",
-			"https://localhost:3000",
-			"https://localhost:3001",
-			"https://localhost:3002",
-			"https://localhost:3003",
-			"https://localhost:3004",
-			"https://localhost:3005",
-			config.HR_FRONTEND,
-			config.PROCUREMENTS_FRONTEND,
-			config.ACCOUNTING_FRONTEND,
-			config.INVENTORY_FRONTEND,
-			config.FINANCE_FRONTEND,
-			config.CORE_FRONTEND,
-		}),
+		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
-		handlers.AllowCredentials(),
 	)
 	// Insert the custom middleware handler
-	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(addResponseWriterToContext(RequestContextMiddleware(h)))))
+	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(addResponseWriterToContext(h))))
 	// Start your HTTP server with the CORS-enabled handler
 	http.Handle("/", graphqlHandler)
 	_ = http.ListenAndServe(":8080", nil)
-}
-
-func RequestContextMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), config.Requestkey, r)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
 }
 
 func addResponseWriterToContext(next http.Handler) http.Handler {

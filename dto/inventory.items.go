@@ -60,7 +60,7 @@ type BasicInventoryResponseItem struct {
 	DonorTitle                   string                                                         `json:"donor_title"`
 	InvoiceNumber                string                                                         `json:"invoice_number"`
 	PriceOfAssessment            int                                                            `json:"price_of_assessment"`
-	DateOfAssessment             string                                                         `json:"date_of_assessment"`
+	DateOfAssessment             *string                                                        `json:"date_of_assessment"`
 	LifetimeOfAssessmentInMonths int                                                            `json:"lifetime_of_assessment_in_months"`
 	Active                       bool                                                           `json:"active"`
 	DeactivationDescription      string                                                         `json:"deactivation_description"`

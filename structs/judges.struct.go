@@ -9,7 +9,7 @@ type JudgeNorms struct {
 	NumberOfNormDecrease     int     `json:"number_of_norm_decrease"`
 	NumberOfItems            int     `json:"number_of_items"`
 	NumberOfItemsSolved      int     `json:"number_of_items_solved"`
-	EvaluationID             int     `json:"evaluation_id"`
+	EvaluationID             *int    `json:"evaluation_id"`
 	DateOfEvaluation         string  `json:"date_of_evaluation"`
 	DateOfEvaluationValidity string  `json:"date_of_evaluation_validity"`
 	FileID                   int     `json:"file_id"`

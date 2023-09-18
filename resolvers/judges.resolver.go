@@ -177,17 +177,19 @@ func buildNormResItem(norm structs.JudgeNorms) (*dto.NormResItem, error) {
 		CreatedAt:                norm.CreatedAt,
 		UpdatedAt:                norm.UpdatedAt,
 	}
-	evaluation, err := getEvaluation(norm.EvaluationID)
-	if err != nil {
-		return nil, err
-	}
-	evaluationType, err := getDropdownSettingById(evaluation.EvaluationTypeId)
-	if err != nil {
-		return nil, err
-	}
-	evaluation.EvaluationType = *evaluationType
-	normResItem.Evaluation = *evaluation
+	if norm.EvaluationID != nil {
+		evaluation, err := getEvaluation(*norm.EvaluationID)
+		if err != nil {
+			return nil, err
+		}
 
+		evaluationType, err := getDropdownSettingById(evaluation.EvaluationTypeId)
+		if err != nil {
+			return nil, err
+		}
+		normResItem.Evaluation = evaluation
+		evaluation.EvaluationType = *evaluationType
+	}
 	if norm.RelocationID != nil {
 		relocation, err := getAbsentById(*norm.RelocationID)
 		if err != nil {

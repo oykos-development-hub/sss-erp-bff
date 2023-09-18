@@ -52,12 +52,9 @@ var BudgetAccountOverviewResolver = func(params graphql.ResolveParams) (interfac
 	}
 
 	// Populate data for each Basic Inventory Real Estates
-	// accounts = AccountItemProperties(AccountData, 0)
+	accounts = AccountItemProperties(AccountData, 0)
 
 	accounts, err = CreateTree(AccountData, budgetId, activityId)
-	if err != nil {
-		fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
-	}
 	for _, account := range accounts {
 		if item, ok := account.(*structs.AccountItemNode); ok {
 			updateParentValues(item)

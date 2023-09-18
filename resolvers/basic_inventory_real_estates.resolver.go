@@ -1,66 +1,65 @@
 package resolvers
 
 import (
-	"bff/config"
-	"bff/dto"
 	"bff/shared"
 	"bff/structs"
-	"strconv"
+	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
 
-var BasicInventoryRealEstatesOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var input dto.GetInventoryRealEstateListInputMS
-	if page, ok := params.Args["page"].(int); ok && page != 0 {
-		input.Page = &page
-	}
-	if size, ok := params.Args["size"].(int); ok && size != 0 {
-		input.Size = &size
-	}
+func PopulateBasicInventoryRealEstatesItemProperties(basicInventoryItems []interface{}, id int) []interface{} {
+	var items []interface{}
 
-	if id, ok := params.Args["id"].(int); ok && id != 0 {
-		realEstate, err := getInventoryRealEstate(id)
-		if err != nil {
-			return shared.HandleAPIError(err)
+	for _, item := range basicInventoryItems {
+
+		var mergedItem = shared.WriteStructToInterface(item)
+
+		// Filtering by ID
+		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+			continue
 		}
-		return dto.Response{
-			Status:  "success",
-			Message: "Here's the list you asked for!",
-			Items:   []*structs.BasicInventoryRealEstatesItem{realEstate},
-			Total:   1,
-		}, nil
+
+		items = append(items, mergedItem)
 	}
 
-	res, err := getInventoryRealEstatesList(&input)
+	return items
+}
+
+var BasicInventoryRealEstatesOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var items []interface{}
+	var total int
+	var id int
+	if params.Args["id"] == nil {
+		id = 0
+	} else {
+		id = params.Args["id"].(int)
+	}
+
+	page := params.Args["page"]
+	size := params.Args["size"]
+
+	BasicInventoryRealEstatesType := &structs.BasicInventoryRealEstatesItem{}
+	BasicInventoryRealEstatesData, err := shared.ReadJson(shared.GetDataRoot()+"/basic_inventory_real_estates.json", BasicInventoryRealEstatesType)
+
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", err)
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   res.Data,
-		Total:   res.Total,
+	// Populate data for each Basic Inventory Real Estates
+	items = PopulateBasicInventoryRealEstatesItemProperties(BasicInventoryRealEstatesData, id)
+
+	total = len(items)
+
+	// Filtering by Pagination params
+	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+		items = shared.Pagination(items, page.(int), size.(int))
+	}
+
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "Here's the list you asked for!",
+		"total":   total,
+		"items":   items,
 	}, nil
-}
-
-func getInventoryRealEstatesList(input *dto.GetInventoryRealEstateListInputMS) (*dto.GetInventoryRealEstateListResponseMS, error) {
-	res := &dto.GetInventoryRealEstateListResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.REAL_ESTATES_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-func getInventoryRealEstate(id int) (*structs.BasicInventoryRealEstatesItem, error) {
-	res := &dto.GetInventoryRealEstateResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.REAL_ESTATES_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
 }

@@ -252,7 +252,7 @@ func main() {
 	http.Handle("/mocked-data/", http.StripPrefix("/mocked-data", fs))
 	// Create a CORS-enabled handler
 	corsHandler := handlers.CORS(
-		handlers.AllowedOrigins([]string{"http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:3004", "http://localhost:3005", config.HR_FRONTEND, config.PROCUREMENTS_FRONTEND, config.ACCOUNTING_FRONTEND, config.INVENTORY_FRONTEND, config.FINANCE_FRONTEND, config.CORE_FRONTEND, ""}),
+		handlers.AllowedOrigins([]string{"http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:3004", "http://localhost:3005", config.HR_FRONTEND, config.PROCUREMENTS_FRONTEND, config.ACCOUNTING_FRONTEND, config.INVENTORY_FRONTEND, config.FINANCE_FRONTEND, config.CORE_FRONTEND}),
 		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 		handlers.AllowCredentials(),

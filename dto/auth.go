@@ -11,10 +11,6 @@ type PinRequestMS struct {
 	Pin string `json:"pin"`
 }
 
-type LogoutRequestMS struct {
-	ID int `json:"id"`
-}
-
 type LoginResponseMS struct {
 	Data struct {
 		Token struct {

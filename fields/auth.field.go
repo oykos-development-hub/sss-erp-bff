@@ -24,12 +24,7 @@ var LoginField = &graphql.Field{
 var LogoutField = &graphql.Field{
 	Type:        types.LogoutType,
 	Description: "Logout the user",
-	Args: graphql.FieldConfigArgument{
-		"id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
-		},
-	},
-	Resolve: resolvers.LogoutResolver,
+	Resolve:     resolvers.LogoutResolver,
 }
 
 var RefreshField = &graphql.Field{

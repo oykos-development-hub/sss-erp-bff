@@ -116,9 +116,9 @@ func RefreshTokenResolver(p graphql.ResolveParams) (interface{}, error) {
 }
 
 var LogoutResolver = func(p graphql.ResolveParams) (interface{}, error) {
-	id := p.Args["id"].(int)
+	var authToken = p.Context.Value(config.TokenKey).(string)
 
-	err := logout(id)
+	err := logout(authToken)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -130,12 +130,8 @@ var LogoutResolver = func(p graphql.ResolveParams) (interface{}, error) {
 
 }
 
-func logout(id int) error {
-	reqBody := dto.LogoutRequestMS{
-		ID: id,
-	}
-
-	_, err := shared.MakeAPIRequest("POST", fmt.Sprintf("/users/%d", id)+config.LOGOUT_ENDPOINT, reqBody, nil)
+func logout(token string) error {
+	_, err := shared.MakeAPIRequest("POST", config.LOGOUT_ENDPOINT, nil, nil, map[string]string{"Authorization": "Bearer " + token})
 	if err != nil {
 		return err
 	}

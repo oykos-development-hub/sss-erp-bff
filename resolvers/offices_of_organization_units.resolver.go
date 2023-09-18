@@ -1,10 +1,12 @@
 package resolvers
 
 import (
+	"bff/config"
+	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
+	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
@@ -56,106 +58,186 @@ func PopulateOfficesOfOrganizationUnitItemProperties(basicInventoryItems []inter
 }
 
 var OfficesOfOrganizationUnitOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var items []interface{}
+	id := params.Args["id"]
+	var items []*dto.OfficesOfOrganizationResponse
 	var total int
-	var id int
-	var organizationUnitId int
-	var search string
 
-	if params.Args["id"] == nil {
-		id = 0
+	if id != nil && id != 0 {
+		setting, err := getDropdownSettingById(id.(int))
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		item, err := buildOfficeOfOrganizationUnit(setting)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		items = append(items, item)
+
+		total = 1
 	} else {
-		id = params.Args["id"].(int)
+		input := dto.GetOfficesOfOrganizationInput{}
+
+		if search, ok := params.Args["search"].(string); ok && search != "" {
+			input.Search = &search
+		}
+
+		if page, ok := params.Args["page"].(int); ok && page != 0 {
+			input.Page = &page
+		}
+
+		if size, ok := params.Args["size"].(int); ok && size != 0 {
+			input.Size = &size
+		}
+
+		if orgUnit, ok := params.Args["organization_unit_id"].(int); ok && orgUnit != 0 {
+			organizationUnit := strconv.Itoa(orgUnit)
+			input.Value = &organizationUnit
+		}
+
+		res, err := getOfficeDropdownSettings(&input)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		data := res.Data
+
+		for i := 0; i < len(data); i++ {
+			item, err := buildOfficeOfOrganizationUnit(&data[i])
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			items = append(items, item)
+		}
+		total = res.Total
 	}
 
-	if params.Args["organization_unit_id"] == nil {
-		organizationUnitId = 0
-	} else {
-		organizationUnitId = params.Args["organization_unit_id"].(int)
-	}
-
-	if params.Args["search"] == nil {
-		search = ""
-	} else {
-		search = params.Args["search"].(string)
-	}
-
-	OfficesOfOrganizationUnitType := &structs.OfficesOfOrganizationUnitItem{}
-	OfficesOfOrganizationUnitData, err := shared.ReadJson(shared.GetDataRoot()+"/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
-
-	if err != nil {
-		fmt.Printf("Fetching Job Tenders failed because of this error - %s.\n", err)
-	}
-
-	// Populate data for each Basic Inventory Depreciation Types
-	items = PopulateOfficesOfOrganizationUnitItemProperties(OfficesOfOrganizationUnitData, id, organizationUnitId, search)
-
-	total = len(items)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "Here's the list you asked for!",
-		"total":   total,
-		"items":   items,
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   items,
+		Total:   total,
 	}, nil
 }
 
 var OfficesOfOrganizationUnitInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.OfficesOfOrganizationUnitItem
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	OfficesOfOrganizationUnitType := &structs.OfficesOfOrganizationUnitItem{}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
 
-	OfficesOfOrganizationUnitData, err := shared.ReadJson(shared.GetDataRoot()+"/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
 
-	if err != nil {
-		fmt.Printf("Fetching Offices Of Organization Unit failed because of this error - %s.\n", err)
+	arg := structs.SettingsDropdown{
+		Value:        strconv.Itoa(data.OrganizationUnitId),
+		Title:        data.Title,
+		Abbreviation: data.Abbreviation,
+		Description:  data.Description,
+		Color:        data.Color,
+		Icon:         data.Icon,
+		Entity:       config.OfficeTypes,
 	}
 
 	if shared.IsInteger(itemId) && itemId != 0 {
-		OfficesOfOrganizationUnitData = shared.FilterByProperty(OfficesOfOrganizationUnitData, "Id", itemId)
+		itemRes, err := updateDropdownSettings(itemId, &arg)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Message = "You updated this item!"
+
+		item, err := buildOfficeOfOrganizationUnit(itemRes)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		response.Item = item
+
 	} else {
-		data.Id = shared.GetRandomNumber()
+		itemRes, err := createDropdownSettings(&arg)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Message = "You created this item!"
+
+		item, err := buildOfficeOfOrganizationUnit(itemRes)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		response.Item = item
 	}
 
-	var updatedData = append(OfficesOfOrganizationUnitData, data)
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/offices_of_organization_units.json"), updatedData)
-
-	sliceData := []interface{}{data}
-
-	// Populate data for each Basic Inventory
-	var populatedData = PopulateOfficesOfOrganizationUnitItemProperties(sliceData, itemId, 0, "")
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"item":    populatedData[0],
-	}, nil
+	return response, nil
 }
 
 var OfficesOfOrganizationUnitDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	itemId := params.Args["id"]
-	OfficesOfOrganizationUnitType := &structs.OfficesOfOrganizationUnitItem{}
-	OfficesOfOrganizationUnitData, err := shared.ReadJson(shared.GetDataRoot()+"/offices_of_organization_units.json", OfficesOfOrganizationUnitType)
+	itemId := params.Args["id"].(int)
+
+	setting, err := getDropdownSettingById(itemId)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	if setting.Entity != config.OfficeTypes {
+		return dto.ResponseSingle{
+			Status:  "failed",
+			Message: "You can not delete this item! (Item entity must be 'office type')",
+		}, nil
+	}
+
+	err = deleteDropdownSettings(itemId)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
+	}, nil
+}
+
+func buildOfficeOfOrganizationUnit(item *structs.SettingsDropdown) (*dto.OfficesOfOrganizationResponse, error) {
+	organizationUnitId, err := strconv.Atoi(item.Value)
 
 	if err != nil {
-		fmt.Printf("Fetching Inventory Depreciation Types Delete failed because of this error - %s.\n", err)
+		return nil, err
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		OfficesOfOrganizationUnitData = shared.FilterByProperty(OfficesOfOrganizationUnitData, "Id", itemId)
+	organizationUnitDropdown := dto.DropdownSimple{}
+	if organizationUnitId != 0 {
+		organizationUnit, err := getOrganizationUnitById(organizationUnitId)
+		if err != nil {
+			return nil, err
+		}
+		if organizationUnit != nil {
+			organizationUnitDropdown = dto.DropdownSimple{Id: organizationUnit.Id, Title: organizationUnit.Title}
+		}
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/offices_of_organization_units.json"), OfficesOfOrganizationUnitData)
+	data := dto.OfficesOfOrganizationResponse{
+		Id:               item.Id,
+		OrganizationUnit: organizationUnitDropdown,
+		Title:            item.Title,
+		Abbreviation:     item.Abbreviation,
+		Description:      item.Description,
+		Icon:             item.Icon,
+		Color:            item.Color,
+	}
 
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You deleted this item!",
-	}, nil
+	return &data, nil
+}
+
+func getOfficeDropdownSettings(input *dto.GetOfficesOfOrganizationInput) (*dto.GetDropdownTypesResponseMS, error) {
+	res := &dto.GetDropdownTypesResponseMS{}
+	input.Entity = config.OfficeTypes
+	_, err := shared.MakeAPIRequest("GET", config.SETTINGS_ENDPOINT, &input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

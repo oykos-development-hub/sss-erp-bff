@@ -6,7 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -388,7 +387,6 @@ func getRevisorListDropdown() ([]*structs.SettingsDropdown, error) {
 
 func createRevision(revision *structs.Revision) (*structs.Revision, error) {
 	res := &dto.GetRevisionResponseMS{}
-	fmt.Printf("%+v\n", revision)
 	_, err := shared.MakeAPIRequest("POST", config.REVISIONS_ENDPOINT, revision, res)
 	if err != nil {
 		return nil, err

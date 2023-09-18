@@ -53,6 +53,7 @@ func buildRevisionDetailsItemResponse(revision *structs.Revision) (*dto.Revision
 	}
 
 	var err error
+
 	revisionType := &structs.SettingsDropdown{}
 	if revision.RevisionTypeID != nil {
 		revisionType, err = getDropdownSettingById(*revision.RevisionTypeID)

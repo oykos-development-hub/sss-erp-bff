@@ -8,7 +8,7 @@ import (
 )
 
 var LoginField = &graphql.Field{
-	Type:        types.LogoutType,
+	Type:        types.LoginType,
 	Description: "Returns a basic data for logged in user",
 	Args: graphql.FieldConfigArgument{
 		"email": &graphql.ArgumentConfig{
@@ -22,7 +22,7 @@ var LoginField = &graphql.Field{
 }
 
 var LogoutField = &graphql.Field{
-	Type:        types.LoginType,
+	Type:        types.LogoutType,
 	Description: "Logout the user",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{

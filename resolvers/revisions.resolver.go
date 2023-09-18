@@ -50,9 +50,13 @@ func buildRevisionDetailsItemResponse(revision *structs.Revision) (*dto.Revision
 		implementationUserProfile.Title = *revision.ImplementationUserProfile
 	}
 
-	revisionType, err := getDropdownSettingById(revision.RevisionTypeID)
-	if err != nil {
-		return nil, err
+	var err error
+	revisionType := &structs.SettingsDropdown{}
+	if revision.RevisionTypeID != nil {
+		revisionType, err = getDropdownSettingById(*revision.RevisionTypeID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if revision.InternalOrganizationUnitID != nil {
@@ -120,9 +124,13 @@ func buildRevisionOverviewItemResponse(revision *structs.Revision) (*dto.Revisio
 		userProfileDropdown.Title = *revision.RevisorUserProfile
 	}
 
-	revisionType, err := getDropdownSettingById(revision.RevisionTypeID)
-	if err != nil {
-		return nil, err
+	revisionType := &structs.SettingsDropdown{}
+	var err error
+	if revision.RevisionTypeID != nil {
+		revisionType, err = getDropdownSettingById(*revision.RevisionTypeID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	organizationUnitDropdown := structs.SettingsDropdown{}
@@ -145,13 +153,13 @@ func buildRevisionOverviewItemResponse(revision *structs.Revision) (*dto.Revisio
 	revisionItem := &dto.RevisionOverviewItem{
 		Id:                       revision.ID,
 		Title:                    revision.Title,
-		RevisorUserProfile:       userProfileDropdown,
-		RevisionType:             *revisionType,
-		RevisionOrganizationUnit: organizationUnitDropdown,
+		RevisorUserProfile:       &userProfileDropdown,
+		RevisionType:             revisionType,
+		RevisionOrganizationUnit: &organizationUnitDropdown,
 		PlannedQuarter:           revision.PlannedQuarter,
 		PlannedYear:              revision.PlannedYear,
-		CreatedAt:                revision.CreatedAt,
-		UpdatedAt:                revision.UpdatedAt,
+		CreatedAt:                &revision.CreatedAt,
+		UpdatedAt:                &revision.UpdatedAt,
 	}
 
 	return revisionItem, nil

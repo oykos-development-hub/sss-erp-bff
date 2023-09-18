@@ -2,8 +2,8 @@ package structs
 
 type Revision struct {
 	ID                              int     `json:"id"`
-	Name                            string  `json:"revision"`
-	RevisionTypeID                  int     `json:"revision_type_id"`
+	Name                            *string `json:"revision"`
+	RevisionTypeID                  *int    `json:"revision_type_id"`
 	RevisorUserProfileID            *int    `json:"revisor_user_profile_id"`
 	RevisorUserProfile              *string `json:"revisor_user_profile"`
 	InternalOrganizationUnitID      *int    `json:"internal_organization_unit_id"`
@@ -12,10 +12,10 @@ type Revision struct {
 	ResponsibleUserProfile          *string `json:"responsible_user_profile"`
 	ImplementationUserProfileID     *int    `json:"implementation_user_profile_id"`
 	ImplementationUserProfile       *string `json:"implementation_user_profile"`
-	Title                           string  `json:"title"`
-	PlannedYear                     string  `json:"planned_year"`
-	PlannedQuarter                  string  `json:"planned_quarter"`
-	SerialNumber                    string  `json:"serial_number"`
+	Title                           *string `json:"title"`
+	PlannedYear                     *string `json:"planned_year"`
+	PlannedQuarter                  *string `json:"planned_quarter"`
+	SerialNumber                    *string `json:"serial_number"`
 	Priority                        *string `json:"priority"`
 	DateOfRevision                  *string `json:"date_of_revision"`
 	DateOfAcceptance                *string `json:"date_of_acceptance"`
@@ -28,7 +28,7 @@ type Revision struct {
 	SecondImplementationMonthSpan   *string `json:"second_implementation_month_span"`
 	SecondDateOfRevision            *string `json:"second_date_of_revision"`
 	FileID                          *int    `json:"file_id"`
-	RefDocument                     string  `json:"ref_document"`
+	RefDocument                     *string `json:"ref_document"`
 	CreatedAt                       string  `json:"created_at"`
 	UpdatedAt                       string  `json:"updated_at"`
 }

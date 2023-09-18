@@ -22,30 +22,30 @@ type RevisionOverviewResponse struct {
 }
 
 type RevisionOverviewItem struct {
-	Id                       int                      `json:"id"`
-	Name                     string                   `json:"name"`
-	RevisionType             structs.SettingsDropdown `json:"revision_type"`
-	RevisorUserProfile       structs.SettingsDropdown `json:"revisor_user_profile"`
-	RevisionOrganizationUnit structs.SettingsDropdown `json:"revision_organization_unit"`
-	Title                    string                   `json:"title"`
-	PlannedYear              string                   `json:"planned_year"`
-	PlannedQuarter           string                   `json:"planned_quarter"`
-	CreatedAt                string                   `json:"created_at"`
-	UpdatedAt                string                   `json:"updated_at"`
+	Id                       int                       `json:"id"`
+	Name                     *string                   `json:"name"`
+	RevisionType             *structs.SettingsDropdown `json:"revision_type"`
+	RevisorUserProfile       *structs.SettingsDropdown `json:"revisor_user_profile"`
+	RevisionOrganizationUnit *structs.SettingsDropdown `json:"revision_organization_unit"`
+	Title                    *string                   `json:"title"`
+	PlannedYear              *string                   `json:"planned_year"`
+	PlannedQuarter           *string                   `json:"planned_quarter"`
+	CreatedAt                *string                   `json:"created_at"`
+	UpdatedAt                *string                   `json:"updated_at"`
 }
 
 type RevisionDetailsItem struct {
 	ID                              int                      `json:"id"`
-	Name                            string                   `json:"name"`
+	Name                            *string                  `json:"name"`
 	RevisionType                    structs.SettingsDropdown `json:"revision_type"`
 	RevisorUserProfile              structs.SettingsDropdown `json:"revisor_user_profile"`
 	RevisionOrganizationUnit        structs.SettingsDropdown `json:"revision_organization_unit"`
 	ResponsibleUserProfile          structs.SettingsDropdown `json:"responsible_user_profile"`
 	ImplementationUserProfile       structs.SettingsDropdown `json:"implementation_user_profile"`
-	Title                           string                   `json:"title"`
-	PlannedYear                     string                   `json:"planned_year"`
-	PlannedQuarter                  string                   `json:"planned_quarter"`
-	SerialNumber                    string                   `json:"serial_number"`
+	Title                           *string                  `json:"title"`
+	PlannedYear                     *string                  `json:"planned_year"`
+	PlannedQuarter                  *string                  `json:"planned_quarter"`
+	SerialNumber                    *string                  `json:"serial_number"`
 	Priority                        *string                  `json:"priority"`
 	DateOfRevision                  *string                  `json:"date_of_revision"`
 	DateOfAcceptance                *string                  `json:"date_of_acceptance"`
@@ -58,7 +58,7 @@ type RevisionDetailsItem struct {
 	SecondImplementationMonthSpan   *string                  `json:"second_implementation_month_span"`
 	SecondDateOfRevision            *string                  `json:"second_date_of_revision"`
 	FileID                          *int                     `json:"file_id"`
-	RefDocument                     string                   `json:"ref_document"`
+	RefDocument                     *string                  `json:"ref_document"`
 	CreatedAt                       string                   `json:"created_at"`
 	UpdatedAt                       string                   `json:"updated_at"`
 }

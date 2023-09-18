@@ -122,7 +122,7 @@ var OrderListProcurementAvailableArticlesType = graphql.NewObject(graphql.Object
 			Type: graphql.String,
 		},
 		"manufacturer": &graphql.Field{
-			Type: graphql.String,
+			Type: JSON,
 		},
 		"unit": &graphql.Field{
 			Type: graphql.String,

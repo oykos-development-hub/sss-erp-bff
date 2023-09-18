@@ -45,7 +45,7 @@ var BasicInventoryDispatchItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"file_id": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 	},
 })

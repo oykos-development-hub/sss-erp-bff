@@ -74,11 +74,14 @@ var BasicInventoryInsertMutation = graphql.NewInputObject(graphql.InputObjectCon
 		"source": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"source_type": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"donor_title": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"invoice_number": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 		"price_of_assessment": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
@@ -102,10 +105,10 @@ var BasicInventoryInsertMutation = graphql.NewInputObject(graphql.InputObjectCon
 			Type: graphql.String,
 		},
 		"invoice_file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 	},
 })
@@ -115,6 +118,9 @@ var RealEstateInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Fields: graphql.InputObjectConfigFieldMap{
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
+		},
+		"title": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"type_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
@@ -150,7 +156,7 @@ var RealEstateInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 	},
 })

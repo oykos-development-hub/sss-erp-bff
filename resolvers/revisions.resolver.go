@@ -6,6 +6,7 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -340,6 +341,7 @@ var RevisionInsertResolver = func(params graphql.ResolveParams) (interface{}, er
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
+		fmt.Println(data.RevisionTypeID)
 		res, err := createRevision(&data)
 		if err != nil {
 			return shared.HandleAPIError(err)

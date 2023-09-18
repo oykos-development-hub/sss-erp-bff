@@ -27,7 +27,7 @@ var JudgeNormInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"evaluation_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"date_of_evaluation": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

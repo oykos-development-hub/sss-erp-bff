@@ -440,6 +440,9 @@ var UserProfileEducationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"expertise_level": &graphql.Field{
 			Type: graphql.String,
 		},
+		"score": &graphql.Field{
+			Type: graphql.String,
+		},
 		"certificate_issuer": &graphql.Field{
 			Type: graphql.String,
 		},

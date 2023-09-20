@@ -35,6 +35,7 @@ type InventoryDispatchResponse struct {
 	IsAccepted             bool                         `json:"is_accepted"`
 	SerialNumber           string                       `json:"serial_number"`
 	DispatchDescription    string                       `json:"dispatch_description"`
+	InventoryType          string                       `json:"inventory_type"`
 	Inventory              []BasicInventoryResponseItem `json:"inventory"`
 	CreatedAt              string                       `json:"created_at"`
 	UpdatedAt              string                       `json:"updated_at"`

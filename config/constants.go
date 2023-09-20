@@ -73,9 +73,6 @@ var (
 	JOB_TENDER_APPLICATIONS_ENDPOINT             string
 	JUDGE_RESOLUTIONS_ENDPOINT                   string
 	JUDGE_RESOLUTION_ITEMS_ENDPOINT              string
-	REVISION_PLAN_ENDPOINT                       string
-	REVISION_ENDPOINT                            string
-	REVISION_TIPS_ENDPOINT                       string
 
 	PLANS_ENDPOINT                     string
 	ITEMS_ENDPOINT                     string
@@ -157,9 +154,6 @@ func init() {
 	JOB_TENDER_APPLICATIONS_ENDPOINT = HR_MS_BASE_URL + "/tender-applications-in-organization-units"
 	JUDGE_RESOLUTIONS_ENDPOINT = HR_MS_BASE_URL + "/judge-number-resolutions"
 	JUDGE_RESOLUTION_ITEMS_ENDPOINT = HR_MS_BASE_URL + "/judge-number-resolution-organization-units"
-	REVISION_PLAN_ENDPOINT = HR_MS_BASE_URL + "/plans"
-	REVISION_ENDPOINT = HR_MS_BASE_URL + "/revisions"
-	REVISION_TIPS_ENDPOINT = HR_MS_BASE_URL + "/revision-tips"
 
 	// public procurement endpoints
 	PLANS_ENDPOINT = PROCUREMENT_MS_BASE_URL + "/plans"

@@ -14,6 +14,9 @@ var PublicProcurementPlanInsertMutation = graphql.NewInputObject(graphql.InputOb
 		"is_pre_budget": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
+		"active": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Boolean),
+		},
 		"year": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},

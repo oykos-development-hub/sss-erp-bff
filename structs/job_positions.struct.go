@@ -8,6 +8,7 @@ type JobPositions struct {
 	Requirements     string `json:"requirements"`
 	SerialNumber     string `json:"serial_number"`
 	IsJudge          bool   `json:"is_judge"`
+	IsActive         bool   `json:"is_active"`
 	IsJudgePresident bool   `json:"is_judge_president"`
 	Color            string `json:"color"`
 	Icon             string `json:"icon"`

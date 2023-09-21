@@ -19,6 +19,7 @@ type JobTenderResponseItem struct {
 	Type                structs.JobTenderTypes    `json:"type"`
 	Description         string                    `json:"description"`
 	SerialNumber        string                    `json:"serial_number"`
+	Title               string                    `json:"title"`
 	Active              bool                      `json:"active"`
 	DateOfStart         string                    `json:"date_of_start"`
 	DateOfEnd           *string                   `json:"date_of_end"`
@@ -29,10 +30,12 @@ type JobTenderResponseItem struct {
 }
 
 type GetJobTenderApplicationsInput struct {
-	Page          *int `json:"page"`
-	Size          *int `json:"size"`
-	JobTenderID   *int `json:"job_tender_id"`
-	UserProfileId *int `json:"user_profile_id"`
+	Page               *int    `json:"page"`
+	Size               *int    `json:"size"`
+	JobTenderID        *int    `json:"job_tender_id"`
+	OrganizationUnitID *int    `json:"organization_unit_id"`
+	Search             *string `json:"search"`
+	UserProfileId      *int    `json:"user_profile_id"`
 }
 
 type GetJobTenderTypeResponseMS struct {
@@ -57,20 +60,20 @@ type GetJobTenderApplicationListResponseMS struct {
 }
 
 type JobTenderApplicationResponseItem struct {
-	Id                 int             `json:"id"`
-	UserProfile        *DropdownSimple `json:"user_profile"`
-	JobTender          *DropdownSimple `json:"job_tender"`
-	Active             bool            `json:"active"`
-	Type               string          `json:"type"`
-	FirstName          string          `json:"first_name"`
-	LastName           string          `json:"last_name"`
-	OfficialPersonalID string          `json:"official_personal_id"`
-	DateOfBirth        *string         `json:"date_of_birth"`
-	Nationality        string          `json:"citizenship"`
-	Evaluation         string          `json:"evaluation"`
-	DateOfAplication   *string         `json:"date_of_application"`
-	Status             string          `json:"status"`
-	FileId             int             `json:"file_id"`
-	CreatedAt          string          `json:"created_at"`
-	UpdatedAt          string          `json:"updated_at"`
+	Id                 int                    `json:"id"`
+	UserProfile        *DropdownSimple        `json:"user_profile"`
+	JobTender          *JobTenderResponseItem `json:"job_tender"`
+	Active             bool                   `json:"active"`
+	Type               string                 `json:"type"`
+	FirstName          string                 `json:"first_name"`
+	LastName           string                 `json:"last_name"`
+	OfficialPersonalID string                 `json:"official_personal_id"`
+	DateOfBirth        *string                `json:"date_of_birth"`
+	Nationality        string                 `json:"citizenship"`
+	Evaluation         string                 `json:"evaluation"`
+	DateOfAplication   *string                `json:"date_of_application"`
+	Status             string                 `json:"status"`
+	FileId             int                    `json:"file_id"`
+	CreatedAt          string                 `json:"created_at"`
+	UpdatedAt          string                 `json:"updated_at"`
 }

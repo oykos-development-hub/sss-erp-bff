@@ -105,6 +105,7 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 		Type:                *tenderType,
 		Description:         item.Description,
 		SerialNumber:        item.SerialNumber,
+		Title:               item.SerialNumber,
 		Active:              JobTenderIsActive(item),
 		DateOfStart:         item.DateOfStart,
 		DateOfEnd:           item.DateOfEnd,
@@ -140,13 +141,7 @@ func JobTenderIsActive(item *structs.JobTenders) bool {
 }
 
 func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {
-	var (
-		res dto.JobTenderApplicationResponseItem
-	)
-
-	userProfileDropdownItem := &dto.DropdownSimple{}
-
-	res = dto.JobTenderApplicationResponseItem{
+	res := dto.JobTenderApplicationResponseItem{
 		Id:                 item.Id,
 		Type:               item.Type,
 		FirstName:          item.FirstName,
@@ -168,7 +163,7 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		if err != nil {
 			return nil, err
 		}
-		userProfileDropdownItem = &dto.DropdownSimple{
+		userProfileDropdownItem := &dto.DropdownSimple{
 			Id:    userProfile.Id,
 			Title: userProfile.GetFullName(),
 		}
@@ -185,6 +180,7 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		if len(evaluation) > 0 {
 			res.Evaluation = evaluation[len(evaluation)-1].Score
 		}
+		res.UserProfile = userProfileDropdownItem
 	}
 
 	jobTender, err := getJobTender(item.JobTenderId)
@@ -192,13 +188,9 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		return nil, err
 	}
 
-	jobTenderDropdownItem := &dto.DropdownSimple{
-		Id:    jobTender.Id,
-		Title: jobTender.SerialNumber,
-	}
+	jobTenderResponseItem, _ := buildJobTenderResponse(jobTender)
 
-	res.JobTender = jobTenderDropdownItem
-	res.UserProfile = userProfileDropdownItem
+	res.JobTender = jobTenderResponseItem
 
 	return &res, nil
 }
@@ -261,7 +253,6 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 	page := params.Args["page"]
 	size := params.Args["size"]
 	user_profile_id := params.Args["user_profile_id"]
-	total := 0
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		tenderApplication, err := getTenderApplication(id.(int))
@@ -270,17 +261,16 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 		}
 		resItem, _ := buildJobTenderApplicationResponse(tenderApplication)
 		items = append(items, *resItem)
-		total = 1
+
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Items:   items,
+			Total:   1,
+		}, nil
+
 	} else {
 		input := dto.GetJobTenderApplicationsInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
-			pageNum := page.(int)
-			input.Page = &pageNum
-		}
-		if shared.IsInteger(size) && size.(int) > 0 {
-			sizeNum := size.(int)
-			input.Size = &sizeNum
-		}
 		if shared.IsInteger(user_profile_id) && user_profile_id.(int) > 0 {
 			userProfileId := user_profile_id.(int)
 			input.UserProfileId = &userProfileId
@@ -288,28 +278,45 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 		if jobTenderID, ok := params.Args["job_tender_id"].(int); ok && jobTenderID != 0 {
 			input.JobTenderID = &jobTenderID
 		}
+		if search, ok := params.Args["search"].(string); ok && search != "" {
+			input.Search = &search
+		}
 
 		tenderApplications, err := getTenderApplicationList(&input)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
 
+		total := len(tenderApplications.Data)
 		for _, jobTender := range tenderApplications.Data {
 			resItem, err := buildJobTenderApplicationResponse(jobTender)
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
+
+			if filerTenderTypeID, ok := params.Args["type_id"].(int); ok && filerTenderTypeID != 0 && resItem.JobTender.Type.Id != filerTenderTypeID {
+				total--
+				continue
+			}
+			if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 && resItem.JobTender.OrganizationUnit.Id != organizationUnitID {
+				total--
+				continue
+			}
 			items = append(items, *resItem)
 		}
-		total = tenderApplications.Total
-	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   items,
-		Total:   total,
-	}, nil
+		paginatedItems, err := shared.Paginate(items, page.(int), size.(int))
+		if err != nil {
+			fmt.Printf("Error paginating items: %v", err)
+		}
+
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Items:   paginatedItems,
+			Total:   total,
+		}, nil
+	}
 }
 
 var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -320,6 +327,12 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 	}
 
 	_ = json.Unmarshal(dataBytes, &data)
+
+	if data.UserProfileId != nil {
+		userProfile, _ := getUserProfileById(*data.UserProfileId)
+		data.FirstName = userProfile.FirstName
+		data.LastName = userProfile.LastName
+	}
 
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {

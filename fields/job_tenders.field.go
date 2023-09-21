@@ -62,19 +62,22 @@ var JobTenderApplicationsField = &graphql.Field{
 	Description: "Returns a data of Job Tender application items",
 	Args: graphql.FieldConfigArgument{
 		"page": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"size": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
-		"job_tender_id": &graphql.ArgumentConfig{
+		"organization_unit_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
-		"user_profile_id": &graphql.ArgumentConfig{
+		"type_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
+		},
+		"search": &graphql.ArgumentConfig{
+			Type: graphql.String,
 		},
 	},
 	Resolve: resolvers.JobTenderApplicationsResolver,

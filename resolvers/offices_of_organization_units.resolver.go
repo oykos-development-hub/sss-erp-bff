@@ -6,7 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -63,17 +62,11 @@ var OfficesOfOrganizationUnitOverviewResolver = func(params graphql.ResolveParam
 	var items []*dto.OfficesOfOrganizationResponse
 	var total int
 
-	if id != nil && id.(int) != 0 {
+	if id != nil && id != 0 {
 		setting, err := getDropdownSettingById(id.(int))
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-
-		if setting.Entity != "office_types" {
-
-			return shared.HandleAPIError(fmt.Errorf("not found"))
-		}
-
 		item, err := buildOfficeOfOrganizationUnit(setting)
 
 		if err != nil {

@@ -12,7 +12,6 @@ type Education struct {
 	DateOfEnd           *string `json:"date_of_end"`
 	AcademicTitle       string  `json:"academic_title"`
 	ExpertiseLevel      string  `json:"expertise_level"`
-	Score               *string `json:"score"`
 	CertificateIssuer   string  `json:"certificate_issuer"`
 	CreatedAt           string  `json:"created_at"`
 	UpdatedAt           string  `json:"updated_at"`

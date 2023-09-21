@@ -159,10 +159,10 @@ var JobPositionInOrganizationUnitItemType = graphql.NewObject(graphql.ObjectConf
 			Type: graphql.Int,
 		},
 		"requirements": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 		"description": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 	},
 })

@@ -99,7 +99,7 @@ var SystematizationResolver = func(params graphql.ResolveParams) (interface{}, e
 }
 
 var SystematizationInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var booActive bool = true
+	var booActive int = 2
 	var data structs.Systematization
 	var systematization *structs.Systematization
 	var err error
@@ -134,7 +134,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	if !shared.IsInteger(itemId) || itemId == 0 && len(systematizationsActiveResponse.Data) > 0 {
+	if (!shared.IsInteger(itemId) || itemId == 0) && len(systematizationsActiveResponse.Data) > 0 {
 		for _, sector := range organizationUnitsResponse.Data {
 			input := dto.GetJobPositionInOrganizationUnitsInput{
 				OrganizationUnitID: &sector.Id,
@@ -179,12 +179,11 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 		return shared.HandleAPIError(err)
 	}
 
-	if systematization.Active {
-
+	if systematization.Active == 2 {
 		if len(systematizationsActiveResponse.Data) > 0 {
 			for _, sys := range systematizationsActiveResponse.Data {
 				if sys.Id != systematization.Id {
-					sys.Active = false
+					sys.Active = 1
 					_, _ = updateSystematization(sys.Id, &sys)
 				}
 			}
@@ -272,14 +271,15 @@ func deleteSystematization(id int) error {
 }
 
 func buildSystematizationOverviewResponse(systematization *structs.Systematization) (dto.SystematizationOverviewResponse, error) {
+
 	result := dto.SystematizationOverviewResponse{
 		Id:                 systematization.Id,
 		UserProfileId:      systematization.UserProfileId,
 		OrganizationUnitId: systematization.OrganizationUnitId,
 		Description:        systematization.Description,
 		SerialNumber:       systematization.SerialNumber,
-		Active:             systematization.Active,
 		FileId:             systematization.FileId,
+		Active:             systematization.Active,
 		DateOfActivation:   systematization.DateOfActivation,
 		Sectors:            &[]dto.OrganizationUnitsSectorResponse{},
 		CreatedAt:          systematization.CreatedAt,

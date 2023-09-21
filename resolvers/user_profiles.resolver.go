@@ -309,7 +309,7 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 			}
 		}
 		if activeContract.Contract.JobPositionInOrganizationUnitID > -1 {
-			var myBool bool = true
+			var myBool int = 2
 			var check bool = true
 			inputSys := dto.GetSystematizationsInput{}
 			inputSys.OrganizationUnitID = &activeContract.Contract.OrganizationUnitID
@@ -752,7 +752,7 @@ func buildContractResponseItem(contract structs.Contracts) (*dto.Contract, error
 		responseContract.Department = &dto.DropdownSimple{Id: department.Id, Title: department.Title}
 	}
 
-	var myBool bool = true
+	var myBool int = 2
 	inputSys := dto.GetSystematizationsInput{}
 	inputSys.OrganizationUnitID = &contract.OrganizationUnitID
 	inputSys.Active = &myBool

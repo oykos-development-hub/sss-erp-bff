@@ -337,7 +337,7 @@ var RecipientUsersResolver = func(params graphql.ResolveParams) (interface{}, er
 
 func getEmployeesOfOrganizationUnit(id int) ([]*structs.UserProfiles, error) {
 	var userProfileList []*structs.UserProfiles
-	active := true
+	active := 2
 	systematizationsRes, err := getSystematizations(&dto.GetSystematizationsInput{Active: &active, OrganizationUnitID: &id})
 	if err != nil {
 		return nil, err

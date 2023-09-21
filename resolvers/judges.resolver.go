@@ -452,7 +452,7 @@ func OrganizationUintCalculateEmployeeStats(params graphql.ResolveParams) (inter
 func calculateEmployeeStats(id int) (int, int, int, int, error) {
 	var numberOfEmployees, numberOfJudges, totalRelocations, numberOfJudgePresidents int
 
-	isActive := true
+	isActive := 2
 	systematizations, err := getSystematizations(&dto.GetSystematizationsInput{Active: &isActive, OrganizationUnitID: &id})
 	if len(systematizations.Data) == 0 || systematizations.Total == 0 || err != nil {
 		return 0, 0, 0, 0, errors.New("there is no active systematization for OU")

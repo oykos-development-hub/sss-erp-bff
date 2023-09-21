@@ -206,7 +206,7 @@ var JobPositionInOrganizationUnitResolver = func(params graphql.ResolveParams) (
 	if params.Args["organization_unit_id"] != nil && params.Args["office_unit_id"] != nil {
 		organizationUnitId = params.Args["organization_unit_id"].(int)
 		officeUnitId = params.Args["office_unit_id"].(int)
-		var myBool bool = true
+		var myBool int = 2
 		input := dto.GetSystematizationsInput{}
 		input.OrganizationUnitID = &organizationUnitId
 		input.Active = &myBool

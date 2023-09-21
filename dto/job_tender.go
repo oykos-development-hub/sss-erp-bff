@@ -13,18 +13,19 @@ type GetJobTenderListResponseMS struct {
 }
 
 type JobTenderResponseItem struct {
-	Id               int                       `json:"id"`
-	OrganizationUnit structs.OrganizationUnits `json:"organization_unit"`
-	JobPosition      *structs.JobPositions     `json:"job_position"`
-	Type             structs.JobTenderTypes    `json:"type"`
-	Description      string                    `json:"description"`
-	SerialNumber     string                    `json:"serial_number"`
-	Active           bool                      `json:"active"`
-	DateOfStart      string                    `json:"date_of_start"`
-	DateOfEnd        *string                   `json:"date_of_end"`
-	FileId           int                       `json:"file_id"`
-	CreatedAt        string                    `json:"created_at"`
-	UpdatedAt        string                    `json:"updated_at"`
+	Id                  int                       `json:"id"`
+	OrganizationUnit    structs.OrganizationUnits `json:"organization_unit"`
+	JobPosition         *structs.JobPositions     `json:"job_position"`
+	Type                structs.JobTenderTypes    `json:"type"`
+	Description         string                    `json:"description"`
+	SerialNumber        string                    `json:"serial_number"`
+	Active              bool                      `json:"active"`
+	DateOfStart         string                    `json:"date_of_start"`
+	DateOfEnd           *string                   `json:"date_of_end"`
+	NumberOfVacantSeats int                       `json:"number_of_vacant_seats"`
+	FileId              int                       `json:"file_id"`
+	CreatedAt           string                    `json:"created_at"`
+	UpdatedAt           string                    `json:"updated_at"`
 }
 
 type GetJobTenderApplicationsInput struct {

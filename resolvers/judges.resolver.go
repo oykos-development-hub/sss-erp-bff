@@ -177,17 +177,19 @@ func buildNormResItem(norm structs.JudgeNorms) (*dto.NormResItem, error) {
 		CreatedAt:                norm.CreatedAt,
 		UpdatedAt:                norm.UpdatedAt,
 	}
-	evaluation, err := getEvaluation(norm.EvaluationID)
-	if err != nil {
-		return nil, err
-	}
-	evaluationType, err := getDropdownSettingById(evaluation.EvaluationTypeId)
-	if err != nil {
-		return nil, err
-	}
-	evaluation.EvaluationType = *evaluationType
-	normResItem.Evaluation = *evaluation
+	if norm.EvaluationID != nil {
+		evaluation, err := getEvaluation(*norm.EvaluationID)
+		if err != nil {
+			return nil, err
+		}
 
+		evaluationType, err := getDropdownSettingById(evaluation.EvaluationTypeId)
+		if err != nil {
+			return nil, err
+		}
+		normResItem.Evaluation = evaluation
+		evaluation.EvaluationType = *evaluationType
+	}
 	if norm.RelocationID != nil {
 		relocation, err := getAbsentById(*norm.RelocationID)
 		if err != nil {
@@ -450,7 +452,7 @@ func OrganizationUintCalculateEmployeeStats(params graphql.ResolveParams) (inter
 func calculateEmployeeStats(id int) (int, int, int, int, error) {
 	var numberOfEmployees, numberOfJudges, totalRelocations, numberOfJudgePresidents int
 
-	isActive := true
+	isActive := 2
 	systematizations, err := getSystematizations(&dto.GetSystematizationsInput{Active: &isActive, OrganizationUnitID: &id})
 	if len(systematizations.Data) == 0 || systematizations.Total == 0 || err != nil {
 		return 0, 0, 0, 0, errors.New("there is no active systematization for OU")

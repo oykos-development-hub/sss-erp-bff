@@ -8,6 +8,7 @@ type JobPositions struct {
 	Requirements     string `json:"requirements"`
 	SerialNumber     string `json:"serial_number"`
 	IsJudge          bool   `json:"is_judge"`
+	IsActive         bool   `json:"is_active"`
 	IsJudgePresident bool   `json:"is_judge_president"`
 	Color            string `json:"color"`
 	Icon             string `json:"icon"`
@@ -36,10 +37,12 @@ type ActiveEmployees struct {
 }
 
 type JobPositionsInOrganizationUnits struct {
-	Id                       int   `json:"id"`
-	SystematizationId        int   `json:"systematization_id"`
-	ParentOrganizationUnitId int   `json:"parent_organization_unit_id"`
-	JobPositionId            int   `json:"job_position_id"`
-	AvailableSlots           int   `json:"available_slots"`
-	Employees                []int `json:"employees"`
+	Id                       int     `json:"id"`
+	SystematizationId        int     `json:"systematization_id"`
+	ParentOrganizationUnitId int     `json:"parent_organization_unit_id"`
+	JobPositionId            int     `json:"job_position_id"`
+	AvailableSlots           int     `json:"available_slots"`
+	Requirements             *string `json:"requirements"`
+	Description              *string `json:"description"`
+	Employees                []int   `json:"employees"`
 }

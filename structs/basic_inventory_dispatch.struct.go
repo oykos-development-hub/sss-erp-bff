@@ -11,10 +11,11 @@ type BasicInventoryDispatchItem struct {
 	IsAccepted               bool   `json:"is_accepted"`
 	SerialNumber             string `json:"serial_number"`
 	DispatchDescription      string `json:"dispatch_description"`
+	InventoryType            string `json:"inventory_type"`
 	InventoryId              []int  `json:"inventory_id"`
 	CreatedAt                string `json:"created_at"`
 	UpdatedAt                string `json:"updated_at"`
-	FileId                   string `json:"file_id"`
+	FileId                   int    `json:"file_id"`
 }
 
 type BasicInventoryDispatchItemsItem struct {

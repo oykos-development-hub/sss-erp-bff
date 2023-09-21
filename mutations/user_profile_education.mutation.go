@@ -38,6 +38,9 @@ var UserProfileEducationInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"expertise_level": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"score": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"certificate_issuer": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

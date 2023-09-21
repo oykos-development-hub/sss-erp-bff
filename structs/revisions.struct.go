@@ -2,7 +2,7 @@ package structs
 
 type Revision struct {
 	ID                              int     `json:"id"`
-	Name                            *string `json:"revision"`
+	Name                            *string `json:"name"`
 	RevisionTypeID                  *int    `json:"revision_type_id"`
 	RevisorUserProfileID            *int    `json:"revisor_user_profile_id"`
 	RevisorUserProfile              *string `json:"revisor_user_profile"`
@@ -31,4 +31,55 @@ type Revision struct {
 	RefDocument                     *string `json:"ref_document"`
 	CreatedAt                       string  `json:"created_at"`
 	UpdatedAt                       string  `json:"updated_at"`
+}
+
+type Revisions struct {
+	ID                      int    `json:"id"`
+	Title                   string `json:"title"`
+	PlanID                  int    `json:"plan_id"`
+	SerialNumber            string `json:"serial_number"`
+	DateOfRevision          string `json:"date_of_revision"`
+	RevisionPriority        string `json:"revision_priority"`
+	RevisionQuartal         string `json:"revision_quartal"`
+	InternalRevisionSubject *int   `json:"internal_revision_subject"`
+	ExternalRevisionSubject *int   `json:"external_revision_subject"`
+	Revisor                 int    `json:"revisor"`
+	RevisionType            int    `json:"revision_type"`
+	FileID                  *int   `json:"file_id"`
+	CreatedAt               string `json:"created_at"`
+	UpdatedAt               string `json:"updated_at"`
+}
+
+type RevisionsInsert struct {
+	ID                      int    `json:"id"`
+	Title                   string `json:"title"`
+	PlanID                  int    `json:"plan_id"`
+	SerialNumber            string `json:"serial_number"`
+	DateOfRevision          string `json:"date_of_revision"`
+	RevisionPriority        string `json:"revision_priority"`
+	RevisionQuartal         string `json:"revision_quartal"`
+	InternalRevisionSubject *int   `json:"internal_revision_subject_id"`
+	ExternalRevisionSubject *int   `json:"external_revision_subject_id"`
+	Revisor                 int    `json:"revisor_id"`
+	RevisionType            int    `json:"revision_type_id"`
+	FileID                  *int   `json:"file_id"`
+	CreatedAt               string `json:"created_at"`
+	UpdatedAt               string `json:"updated_at"`
+}
+
+type RevisionTips struct {
+	ID                     int     `json:"id"`
+	RevisionID             int     `json:"revision_id"`
+	UserProfileID          int     `json:"user_profile_id"`
+	DateOfAccept           *string `json:"date_of_accept"`
+	DueDate                int     `json:"due_date"`
+	DateOfReject           *string `json:"date_of_reject"`
+	DateOfExecution        *string `json:"date_of_execution"`
+	Recommendation         string  `json:"recommendation"`
+	Status                 *string `json:"status"`
+	Documents              *string `json:"documents"`
+	ReasonsForNonExecuting *string `json:"reasons_for_non_executing"`
+	FileID                 *int    `json:"file_id"`
+	CreatedAt              string  `json:"created_at"`
+	UpdatedAt              string  `json:"updated_at"`
 }

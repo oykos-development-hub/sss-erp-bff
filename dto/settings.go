@@ -10,6 +10,14 @@ type GetSettingsInput struct {
 	Value  *string `json:"value"`
 }
 
+type GetOfficesOfOrganizationInput struct {
+	Entity string  `json:"entity"`
+	Value  *string `json:"value" validate:"omitempty"`
+	Page   *int    `json:"page" validate:"omitempty"`
+	Size   *int    `json:"size" validate:"omitempty"`
+	Search *string `json:"search" validate:"omitempty"`
+}
+
 type GetDropdownTypesResponseMS struct {
 	Data  []structs.SettingsDropdown `json:"data"`
 	Total int                        `json:"total"`

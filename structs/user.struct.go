@@ -1,5 +1,6 @@
 package structs
 
+//test
 type CreateUser struct {
 	UserProfileID                  int         `json:"id"`
 	UserAccountID                  int         `json:"user_account_id"`

@@ -53,6 +53,7 @@ func buildRevisionDetailsItemResponse(revision *structs.Revision) (*dto.Revision
 	}
 
 	var err error
+
 	revisionType := &structs.SettingsDropdown{}
 	if revision.RevisionTypeID != nil {
 		revisionType, err = getDropdownSettingById(*revision.RevisionTypeID)
@@ -161,6 +162,7 @@ func buildRevisionOverviewItemResponse(revision *structs.Revision) (*dto.Revisio
 
 	revisionItem := &dto.RevisionOverviewItem{
 		Id:                       revision.ID,
+		Name:                     revision.Name,
 		Title:                    revision.Title,
 		RevisorUserProfile:       &userProfileDropdown,
 		RevisionType:             revisionType,
@@ -445,4 +447,614 @@ func getRevisionList(input *dto.GetRevisionsInput) (*dto.GetRevisionListResponse
 	}
 
 	return res, nil
+}
+
+//---------------------------------------------------------------------------------------------- nova polja
+
+var RevisionPlansOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	response := dto.RevisionPlanOverviewResponse{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+	}
+	page := params.Args["page"]
+	size := params.Args["size"]
+	year := params.Args["year"]
+
+	input := dto.GetPlansInput{}
+	if shared.IsInteger(page) && page.(int) > 0 {
+		pageNum := page.(int)
+		input.Page = &pageNum
+	}
+	if shared.IsInteger(size) && size.(int) > 0 {
+		sizeNum := size.(int)
+		input.Size = &sizeNum
+	}
+	if year != nil {
+		year := year.(string)
+		input.Year = &year
+	}
+
+	revisions, err := getRevisionPlanList(&input)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	response.Items = revisions.Data
+	response.Total = revisions.Total
+
+	return response, nil
+}
+
+var RevisionPlansDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(int)
+
+	revision, err := getRevisionPlanByID(id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item:    *revision,
+	}, nil
+}
+
+var RevisionPlanDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	itemId := params.Args["id"].(int)
+
+	err := deleteRevisionPlan(itemId)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
+	}, nil
+}
+
+var RevisionPlanInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var data dto.RevisionPlanItem
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	_ = json.Unmarshal(dataBytes, &data)
+
+	itemId := data.Id
+	if shared.IsInteger(itemId) && itemId != 0 {
+		res, err := updateRevisionPlan(itemId, &data)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		response.Item = res
+		response.Message = "You updated this item!"
+	} else {
+		res, err := createRevisionPlan(&data)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		response.Item = res
+		response.Message = "You created this item!"
+	}
+
+	return response, nil
+}
+
+func getRevisionPlanList(input *dto.GetPlansInput) (*dto.GetRevisionPlanResponseMS, error) {
+	res := &dto.GetRevisionPlanResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.REVISION_PLAN_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func getRevisionPlanByID(id int) (*dto.RevisionPlanItem, error) {
+	res := &dto.GetPlanResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.REVISION_PLAN_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func deleteRevisionPlan(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.REVISION_PLAN_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createRevisionPlan(plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error) {
+	res := &dto.GetPlanResponseMS{}
+	_, err := shared.MakeAPIRequest("POST", config.REVISION_PLAN_ENDPOINT, plan, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func updateRevisionPlan(id int, plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error) {
+	res := &dto.GetPlanResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.REVISION_PLAN_ENDPOINT+"/"+strconv.Itoa(id), plan, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+//--------------------------------------------------------------------------
+
+func buildRevisionItemResponse(revision *structs.Revisions) (*dto.RevisionsOverviewItem, error) {
+
+	revisiontype, err := getDropdownSettingById(revision.RevisionType)
+	if err != nil {
+		return nil, err
+	}
+
+	revisionType := dto.DropdownSimple{
+		Id:    revisiontype.Id,
+		Title: revisiontype.Title,
+	}
+
+	revisor, err := getUserProfileById(revision.Revisor)
+	if err != nil {
+		return nil, err
+	}
+
+	revisorDropdown := dto.DropdownSimple{
+		Id:    revisor.Id,
+		Title: revisor.FirstName + " " + revisor.LastName,
+	}
+
+	internalUnitDropdown := &dto.DropdownSimple{}
+	externalUnitDropdown := &dto.DropdownSimple{}
+
+	if revision.InternalRevisionSubject != nil {
+		organizationUnit, err := getOrganizationUnitById(*revision.InternalRevisionSubject)
+		if err != nil {
+			return nil, err
+		}
+		internalUnitDropdown.Id = organizationUnit.Id
+		internalUnitDropdown.Title = organizationUnit.Title
+	}
+	if revision.ExternalRevisionSubject != nil {
+		organizationUnit, err := getDropdownSettingById(*revision.ExternalRevisionSubject)
+		if err != nil {
+			return nil, err
+		}
+		externalUnitDropdown.Id = organizationUnit.Id
+		externalUnitDropdown.Title = organizationUnit.Title
+	}
+
+	revisionItem := &dto.RevisionsOverviewItem{
+		ID:                      revision.ID,
+		Title:                   revision.Title,
+		PlanID:                  revision.PlanID,
+		SerialNumber:            revision.SerialNumber,
+		DateOfRevision:          revision.DateOfRevision,
+		RevisionPriority:        revision.RevisionPriority,
+		RevisionQuartal:         revision.RevisionQuartal,
+		InternalRevisionSubject: internalUnitDropdown,
+		ExternalRevisionSubject: externalUnitDropdown,
+		Revisor:                 revisorDropdown,
+		RevisionType:            revisionType,
+		FileID:                  revision.FileID,
+		CreatedAt:               revision.CreatedAt,
+		UpdatedAt:               revision.UpdatedAt,
+	}
+
+	return revisionItem, nil
+}
+
+var RevisionOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	response := dto.RevisionsOverviewResponse{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+	}
+	page := params.Args["page"]
+	size := params.Args["size"]
+	revisor := params.Args["revisor_id"]
+	revisionType := params.Args["revision_type_id"]
+	internal := params.Args["internal_revision_subject_id"]
+	plan := params.Args["plan_id"]
+
+	input := dto.GetRevisionFilter{}
+	if shared.IsInteger(page) && page.(int) > 0 {
+		pageNum := page.(int)
+		input.Page = &pageNum
+	}
+
+	if shared.IsInteger(size) && size.(int) > 0 {
+		sizeNum := size.(int)
+		input.Size = &sizeNum
+	}
+
+	if shared.IsInteger(revisor) && revisor.(int) > 0 {
+		temp := revisor.(int)
+		input.Revisor = &temp
+	}
+
+	if shared.IsInteger(revisionType) && revisionType.(int) > 0 {
+		temp := revisionType.(int)
+		input.RevisionType = &temp
+	}
+
+	if shared.IsInteger(internal) && internal.(int) > 0 {
+		temp := internal.(int)
+		input.InternalRevisionSubject = &temp
+	}
+
+	if shared.IsInteger(plan) && plan.(int) > 0 {
+		temp := plan.(int)
+		input.PlanID = &temp
+	}
+
+	revisions, err := getRevisionsList(&input)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	for _, revision := range revisions.Data {
+		item, err := buildRevisionItemResponse(revision)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Items = append(response.Items, *item)
+	}
+	response.Total = revisions.Total
+
+	revisorDropdownList, err := getRevisorListDropdown()
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	response.Revisors = revisorDropdownList
+
+	return response, nil
+}
+
+var RevisionDetailResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(int)
+
+	revision, err := getRevisionsByID(id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	item, err := buildRevisionItemResponse(revision)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item:    *item,
+	}, nil
+}
+
+var RevisionsInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.RevisionsInsert
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	_ = json.Unmarshal(dataBytes, &data)
+
+	data1 := structs.Revisions{
+		ID:                      data.ID,
+		Title:                   data.Title,
+		PlanID:                  data.PlanID,
+		SerialNumber:            data.SerialNumber,
+		DateOfRevision:          data.DateOfRevision,
+		RevisionPriority:        data.RevisionPriority,
+		RevisionQuartal:         data.RevisionQuartal,
+		InternalRevisionSubject: data.InternalRevisionSubject,
+		ExternalRevisionSubject: data.ExternalRevisionSubject,
+		Revisor:                 data.Revisor,
+		RevisionType:            data.RevisionType,
+		FileID:                  data.FileID,
+	}
+
+	itemId := data.ID
+	if shared.IsInteger(itemId) && itemId != 0 {
+		res, err := updateRevisions(itemId, &data1)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		item, err := buildRevisionItemResponse(res)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = item
+		response.Message = "You updated this item!"
+	} else {
+		res, err := createRevisions(&data1)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		item, err := buildRevisionItemResponse(res)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = item
+		response.Message = "You created this item!"
+	}
+
+	return response, nil
+}
+
+var RevisionsDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	itemId := params.Args["id"].(int)
+
+	err := deleteRevisions(itemId)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
+	}, nil
+}
+
+func getRevisionsList(input *dto.GetRevisionFilter) (*dto.GetRevisionsResponseMS, error) {
+	res := &dto.GetRevisionsResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.REVISION_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func getRevisionsByID(id int) (*structs.Revisions, error) {
+	res := &dto.GetRevisionMS{}
+	_, err := shared.MakeAPIRequest("GET", config.REVISION_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func deleteRevisions(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.REVISION_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createRevisions(plan *structs.Revisions) (*structs.Revisions, error) {
+	res := &dto.GetRevisionMS{}
+	_, err := shared.MakeAPIRequest("POST", config.REVISION_ENDPOINT, plan, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func updateRevisions(id int, plan *structs.Revisions) (*structs.Revisions, error) {
+	res := &dto.GetRevisionMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.REVISION_ENDPOINT+"/"+strconv.Itoa(id), plan, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+//-------------------------------------------------------------------------
+
+func buildRevisionTipItemResponse(revision *structs.RevisionTips) (*dto.RevisionTipsOverviewItem, error) {
+
+	revisor, err := getUserProfileById(revision.UserProfileID)
+	if err != nil {
+		return nil, err
+	}
+
+	revisorDropdown := structs.SettingsDropdown{
+		Id:    revisor.Id,
+		Title: revisor.FirstName + " " + revisor.LastName,
+	}
+
+	revisionTipItem := &dto.RevisionTipsOverviewItem{
+		ID:                     revision.ID,
+		RevisionID:             revision.RevisionID,
+		UserProfile:            revisorDropdown,
+		DateOfAccept:           revision.DateOfAccept,
+		DueDate:                revision.DueDate,
+		DateOfReject:           revision.DateOfReject,
+		DateOfExecution:        revision.DateOfExecution,
+		Recommendation:         revision.Recommendation,
+		Status:                 revision.Status,
+		Documents:              revision.Documents,
+		ReasonsForNonExecuting: revision.ReasonsForNonExecuting,
+		FileID:                 revision.FileID,
+		CreatedAt:              revision.CreatedAt,
+		UpdatedAt:              revision.UpdatedAt,
+	}
+
+	return revisionTipItem, nil
+}
+
+var RevisionTipsOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	response := dto.RevisionTipsOverviewResponse{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+	}
+	page := params.Args["page"]
+	size := params.Args["size"]
+	revision := params.Args["revision_id"]
+
+	input := dto.GetRevisionTipFilter{}
+	if shared.IsInteger(page) && page.(int) > 0 {
+		pageNum := page.(int)
+		input.Page = &pageNum
+	}
+
+	if shared.IsInteger(size) && size.(int) > 0 {
+		sizeNum := size.(int)
+		input.Size = &sizeNum
+	}
+
+	if shared.IsInteger(revision) && revision.(int) > 0 {
+		temp := revision.(int)
+		input.RevisionID = &temp
+	}
+
+	revisions, err := getRevisionTipsList(&input)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	for _, revision := range revisions.Data {
+		item, err := buildRevisionTipItemResponse(revision)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Items = append(response.Items, *item)
+	}
+	response.Total = revisions.Total
+
+	revisorDropdownList, err := getRevisorListDropdown()
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	response.Revisors = revisorDropdownList
+
+	return response, nil
+}
+
+var RevisionTipsDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(int)
+
+	revision, err := getRevisionTipByID(id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	item, err := buildRevisionTipItemResponse(revision)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item:    *item,
+	}, nil
+}
+
+var RevisionTipsInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.RevisionTips
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	_ = json.Unmarshal(dataBytes, &data)
+
+	itemId := data.ID
+	if shared.IsInteger(itemId) && itemId != 0 {
+		res, err := updateRevisionTips(itemId, &data)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		item, err := buildRevisionTipItemResponse(res)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = item
+		response.Message = "You updated this item!"
+	} else {
+		res, err := createRevisionTips(&data)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		item, err := buildRevisionTipItemResponse(res)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = item
+		response.Message = "You created this item!"
+	}
+
+	return response, nil
+}
+
+var RevisionTipsDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	itemId := params.Args["id"].(int)
+
+	err := deleteRevisionTips(itemId)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
+	}, nil
+}
+
+func getRevisionTipsList(input *dto.GetRevisionTipFilter) (*dto.GetRevisionTipsResponseMS, error) {
+	res := &dto.GetRevisionTipsResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.REVISION_TIPS_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func getRevisionTipByID(id int) (*structs.RevisionTips, error) {
+	res := &dto.GetRevisionTipMS{}
+	_, err := shared.MakeAPIRequest("GET", config.REVISION_TIPS_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func deleteRevisionTips(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.REVISION_TIPS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createRevisionTips(plan *structs.RevisionTips) (*structs.RevisionTips, error) {
+	res := &dto.GetRevisionTipMS{}
+	_, err := shared.MakeAPIRequest("POST", config.REVISION_TIPS_ENDPOINT, plan, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func updateRevisionTips(id int, plan *structs.RevisionTips) (*structs.RevisionTips, error) {
+	res := &dto.GetRevisionTipMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.REVISION_TIPS_ENDPOINT+"/"+strconv.Itoa(id), plan, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
 }

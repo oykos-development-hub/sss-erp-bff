@@ -206,7 +206,7 @@ var JobPositionInOrganizationUnitResolver = func(params graphql.ResolveParams) (
 	if params.Args["organization_unit_id"] != nil && params.Args["office_unit_id"] != nil {
 		organizationUnitId = params.Args["organization_unit_id"].(int)
 		officeUnitId = params.Args["office_unit_id"].(int)
-		var myBool bool = true
+		var myBool int = 2
 		input := dto.GetSystematizationsInput{}
 		input.OrganizationUnitID = &organizationUnitId
 		input.Active = &myBool
@@ -375,16 +375,6 @@ func getJobPositionsInOrganizationUnits(input *dto.GetJobPositionInOrganizationU
 func createEmployeesInOrganizationUnits(data *structs.EmployeesInOrganizationUnits) (*structs.EmployeesInOrganizationUnits, error) {
 	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
 	_, err := shared.MakeAPIRequest("POST", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT, data, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
-func updateEmployeesInOrganizationUnits(id int, data *structs.EmployeesInOrganizationUnits) (*structs.EmployeesInOrganizationUnits, error) {
-	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT+"/"+strconv.Itoa(id), data, res)
 	if err != nil {
 		return nil, err
 	}

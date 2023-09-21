@@ -36,10 +36,12 @@ type ActiveEmployees struct {
 }
 
 type JobPositionsInOrganizationUnits struct {
-	Id                       int   `json:"id"`
-	SystematizationId        int   `json:"systematization_id"`
-	ParentOrganizationUnitId int   `json:"parent_organization_unit_id"`
-	JobPositionId            int   `json:"job_position_id"`
-	AvailableSlots           int   `json:"available_slots"`
-	Employees                []int `json:"employees"`
+	Id                       int    `json:"id"`
+	SystematizationId        int    `json:"systematization_id"`
+	ParentOrganizationUnitId int    `json:"parent_organization_unit_id"`
+	JobPositionId            int    `json:"job_position_id"`
+	AvailableSlots           int    `json:"available_slots"`
+	Requirements             string `json:"requirements"`
+	Description              string `json:"description"`
+	Employees                []int  `json:"employees"`
 }

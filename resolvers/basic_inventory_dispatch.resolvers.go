@@ -40,6 +40,10 @@ var BasicInventoryDispatchOverviewResolver = func(params graphql.ResolveParams) 
 		filter.Size = &size
 	}
 
+	if inventory_type, ok := params.Args["inventory_type"].(string); ok && inventory_type != "" {
+		filter.InventoryType = &inventory_type
+	}
+
 	data, err := getAllInventoryDispatches(filter)
 
 	if err != nil {
@@ -198,10 +202,10 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 
 	sourceUserDropdown := dto.DropdownSimple{}
 	if item.SourceUserProfileId != 0 {
-		user, err := getUserProfileById(item.SourceUserProfileId)
-		if err != nil {
-			return nil, err
-		}
+		user, _ := getUserProfileById(item.SourceUserProfileId)
+		/*if err != nil {
+			// return nil, err
+		}*/
 		if user != nil {
 			sourceUserDropdown = dto.DropdownSimple{Id: user.Id, Title: user.FirstName + " " + user.LastName}
 		}
@@ -209,10 +213,10 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 
 	targetUserDropdown := dto.DropdownSimple{}
 	if item.TargetUserProfileId != 0 {
-		user, err := getUserProfileById(item.TargetUserProfileId)
-		if err != nil {
-			return nil, err
-		}
+		user, _ := getUserProfileById(item.TargetUserProfileId)
+		/*if err != nil {
+			 return nil, err
+		}*/
 		if user != nil {
 			targetUserDropdown = dto.DropdownSimple{Id: user.Id, Title: user.FirstName + " " + user.LastName}
 		}
@@ -220,10 +224,10 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 
 	sourceOrganizationUnitDropdown := dto.DropdownSimple{}
 	if item.SourceOrganizationUnitId != 0 {
-		sourceOrganizationUnit, err := getOrganizationUnitById(item.SourceOrganizationUnitId)
-		if err != nil {
-			return nil, err
-		}
+		sourceOrganizationUnit, _ := getOrganizationUnitById(item.SourceOrganizationUnitId)
+		/*if err != nil {
+			// return nil, err
+		}*/
 		if sourceOrganizationUnit != nil {
 			sourceOrganizationUnitDropdown = dto.DropdownSimple{Id: sourceOrganizationUnit.Id, Title: sourceOrganizationUnit.Title}
 		}
@@ -231,19 +235,19 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 
 	targetOrganizationUnitDropdown := dto.DropdownSimple{}
 	if item.TargetOrganizationUnitId != 0 {
-		targetOrganizationUnit, err := getOrganizationUnitById(item.TargetOrganizationUnitId)
-		if err != nil {
-			return nil, err
-		}
+		targetOrganizationUnit, _ := getOrganizationUnitById(item.TargetOrganizationUnitId)
+		/*if err != nil {
+			// return nil, err
+		}*/
 		if targetOrganizationUnit != nil {
 			targetOrganizationUnitDropdown = dto.DropdownSimple{Id: targetOrganizationUnit.Id, Title: targetOrganizationUnit.Title}
 		}
 	}
 
-	dispatchItems, err := getMyInventoryDispatchesItems(item.Id)
-	if err != nil {
-		return nil, err
-	}
+	dispatchItems, _ := getMyInventoryDispatchesItems(item.Id)
+	/*if err != nil {
+		// return nil, err
+	}*/
 
 	inventoryItems := []dto.BasicInventoryResponseItem{}
 
@@ -275,6 +279,7 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 		TargetUserProfile:      targetUserDropdown,
 		SourceOrganizationUnit: sourceOrganizationUnitDropdown,
 		TargetOrganizationUnit: targetOrganizationUnitDropdown,
+		InventoryType:          item.InventoryType,
 		Inventory:              inventoryItems,
 		CreatedAt:              item.CreatedAt,
 		UpdatedAt:              item.UpdatedAt,

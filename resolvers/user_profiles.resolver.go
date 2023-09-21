@@ -462,6 +462,7 @@ func buildEducationResItem(education structs.Education) (*dto.Education, error) 
 		DateOfCertification: education.DateOfCertification,
 		AcademicTitle:       education.AcademicTitle,
 		CertificateIssuer:   education.CertificateIssuer,
+		Score:               education.Score,
 		CreatedAt:           education.CreatedAt,
 		UpdatedAt:           education.UpdatedAt,
 		FileId:              education.FileId,

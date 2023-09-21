@@ -158,6 +158,12 @@ var JobPositionInOrganizationUnitItemType = graphql.NewObject(graphql.ObjectConf
 		"available_slots": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"requirements": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"description": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 

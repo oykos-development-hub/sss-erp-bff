@@ -852,6 +852,7 @@ func buildUserProfileBasicResponse(
 		MotherBirthLastName:           profile.MotherBirthLastName,
 		BankAccount:                   profile.BankAccount,
 		BankName:                      profile.BankName,
+		PersonalID:                    profile.PersonalID,
 		OfficialPersonalID:            profile.OfficialPersonalId,
 		OfficialPersonalDocNumber:     profile.OfficialPersonalDocumentNumber,
 		OfficialPersonalDocIssuer:     profile.OfficialPersonalDocumentIssuer,

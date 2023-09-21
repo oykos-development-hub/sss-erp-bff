@@ -102,6 +102,7 @@ type UserProfileBasicResponse struct {
 	MotherBirthLastName           string                     `json:"mother_birth_last_name"`
 	BankAccount                   string                     `json:"bank_account"`
 	BankName                      string                     `json:"bank_name"`
+	PersonalID                    *string                    `json:"personal_id"`
 	OfficialPersonalID            string                     `json:"official_personal_id"`
 	OfficialPersonalDocNumber     string                     `json:"official_personal_document_number"`
 	OfficialPersonalDocIssuer     string                     `json:"official_personal_document_issuer"`

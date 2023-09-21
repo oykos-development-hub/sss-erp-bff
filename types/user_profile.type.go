@@ -635,6 +635,9 @@ var UserProfileFamilyItemType = graphql.NewObject(graphql.ObjectConfig{
 		"mother_birth_last_name": &graphql.Field{
 			Type: graphql.String,
 		},
+		"personal_id": &graphql.Field{
+			Type: graphql.String,
+		},
 		"official_personal_id": &graphql.Field{
 			Type: graphql.String,
 		},

@@ -41,7 +41,7 @@ type JobPositionsInOrganizationUnits struct {
 	ParentOrganizationUnitId int    `json:"parent_organization_unit_id"`
 	JobPositionId            int    `json:"job_position_id"`
 	AvailableSlots           int    `json:"available_slots"`
-	Requirments              string `json:"requirments"`
+	Requirements             string `json:"requirements"`
 	Description              string `json:"description"`
 	Employees                []int  `json:"employees"`
 }

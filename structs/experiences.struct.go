@@ -8,7 +8,6 @@ type Experience struct {
 	OrganizationUnit          string `json:"organization_unit"`
 	AmountOfExperience        int    `json:"amount_of_experience"`
 	AmountOfInsuredExperience int    `json:"amount_of_insured_experience"`
-	DateOfSignature           string `json:"date_of_signature"`
 	DateOfStart               string `json:"date_of_start"`
 	DateOfEnd                 string `json:"date_of_end"`
 	CreatedAt                 string `json:"created_at"`

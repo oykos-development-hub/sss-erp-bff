@@ -518,9 +518,6 @@ var UserProfileExperienceItemType = graphql.NewObject(graphql.ObjectConfig{
 		"amount_of_insured_experience": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"date_of_signature": &graphql.Field{
-			Type: graphql.String,
-		},
 		"date_of_start": &graphql.Field{
 			Type: graphql.String,
 		},

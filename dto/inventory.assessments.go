@@ -6,10 +6,6 @@ type AssessmentResponseMS struct {
 	Data structs.BasicInventoryAssessmentsTypesItem `json:"data"`
 }
 
-type AssessmentResponseArrayMS struct {
-	Data []structs.BasicInventoryAssessmentsTypesItem `json:"data"`
-}
-
 type GetAssessmentResponseMS struct {
 	Data *BasicInventoryResponseAssessment `json:"data"`
 }

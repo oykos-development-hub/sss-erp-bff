@@ -38,8 +38,7 @@ type BasicInventoryResponseItem struct {
 	DepreciationType             DropdownSimple                                                 `json:"depreciation_type"`
 	Supplier                     DropdownSimple                                                 `json:"supplier"`
 	RealEstate                   *structs.BasicInventoryRealEstatesItemResponseForInventoryItem `json:"real_estate"`
-	Assessments                  []*BasicInventoryResponseAssessment                            `json:"assessments"`
-	Movements                    []*InventoryDispatchResponse                                   `json:"movements"`
+	Assessments                  *BasicInventoryResponseAssessment                              `json:"assessments"`
 	SerialNumber                 string                                                         `json:"serial_number"`
 	InventoryNumber              string                                                         `json:"inventory_number"`
 	Title                        string                                                         `json:"title"`

@@ -313,36 +313,21 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem) (*dto.Ba
 			FileId:                   realEstate.FileId,
 		}
 	}
-	assessments, _ := getMyInventoryAssessments(item.Id)
-
-	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
-	for _, assessment := range assessments {
-		if assessment.Id != 0 {
-			assessmentResponse, err := buildAssessmentResponse(&assessment)
-
-			if err != nil {
-				return nil, err
-			}
-			assessmentsResponse = append(assessmentsResponse, assessmentResponse)
-		}
-	}
-
-	itemInventoryList, err := getDispatchItemByInventoryID(item.Id)
+	assessment, err := getMyInventoryAssessments(item.Id)
 
 	if err != nil {
 		return nil, err
 	}
-	var movements []*dto.InventoryDispatchResponse
-	if len(itemInventoryList) > 0 {
-		for _, move := range itemInventoryList {
-			dispatchRes, err := getDispatchItemByID(move.DispatchId)
-			if err != nil {
-				return nil, err
-			}
-			dispatch, _ := buildInventoryDispatchResponse(dispatchRes)
-			movements = append(movements, dispatch)
+	assessmentResponse := (*dto.BasicInventoryResponseAssessment)(nil)
 
+	if assessment.Id != 0 {
+		assessmentResponse, err = buildAssessmentResponse(assessment)
+
+		if err != nil {
+			return nil, err
 		}
+	} else {
+		assessmentResponse = nil
 	}
 
 	res := dto.BasicInventoryResponseItem{
@@ -354,8 +339,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem) (*dto.Ba
 		DepreciationType:             settingDropdownDepreciationTypeId,
 		Supplier:                     suppliersDropdown,
 		RealEstate:                   realEstateStruct,
-		Assessments:                  assessmentsResponse,
-		Movements:                    movements,
+		Assessments:                  assessmentResponse,
 		SerialNumber:                 item.SerialNumber,
 		InventoryNumber:              item.InventoryNumber,
 		Title:                        item.Title,
@@ -399,27 +383,14 @@ func getMyInventoryRealEstate(id int) (*structs.BasicInventoryRealEstatesItem, e
 	return &res.Data, nil
 }
 
-func getMyInventoryAssessments(id int) ([]structs.BasicInventoryAssessmentsTypesItem, error) {
-	res := &dto.AssessmentResponseArrayMS{}
+func getMyInventoryAssessments(id int) (*structs.BasicInventoryAssessmentsTypesItem, error) {
+	res := &dto.AssessmentResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.ASSESSMENTS_ENDPOINT+"/"+strconv.Itoa(id)+"/item", nil, res)
 
 	if err != nil {
-		if apiErr, ok := err.(*shared.APIError); ok && apiErr.StatusCode != 404 {
-			fmt.Printf("Fetching Assessments failed because of this error - %s.\n", err)
-			return nil, err
-		}
-	}
-
-	return res.Data, nil
-}
-
-func getDispatchItemByInventoryID(id int) ([]*structs.BasicInventoryDispatchItemsItem, error) {
-	res1 := dto.GetAllBasicInventoryDispatchItems{}
-	_, err := shared.MakeAPIRequest("GET", config.BASIC_INVENTORY_MS_BASE_URL+"/item/"+strconv.Itoa(id)+"/dispatch-items", nil, &res1)
-
-	if err != nil {
+		fmt.Printf("Fetching Assessments failed because of this error - %s.\n", err)
 		return nil, err
 	}
 
-	return res1.Data, nil
+	return &res.Data, nil
 }

@@ -30,9 +30,6 @@ var BasicInventoryDispatchOverviewField = &graphql.Field{
 		"accepted": &graphql.ArgumentConfig{
 			Type: graphql.Boolean,
 		},
-		"inventory_type": &graphql.ArgumentConfig{
-			Type: graphql.String,
-		},
 	},
 	Resolve: resolvers.BasicInventoryDispatchOverviewResolver,
 }

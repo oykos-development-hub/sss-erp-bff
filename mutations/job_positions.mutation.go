@@ -56,12 +56,6 @@ var JobPositionInOrganizationUnitInsertMutation = graphql.NewInputObject(graphql
 		"available_slots": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"description": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"requirements": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"employees": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(graphql.Int),
 		},

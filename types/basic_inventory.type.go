@@ -96,7 +96,7 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"assessments": &graphql.Field{
-			Type: BasicInventoryAssessmentsItemType,
+			Type: graphql.NewList(BasicInventoryAssessmentsItemType),
 		},
 		"movements": &graphql.Field{
 			Type: graphql.NewList(BasicInventoryDispatchItemType),

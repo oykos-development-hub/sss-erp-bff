@@ -120,6 +120,9 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 	case "suppliers", "supplier":
 		endpoint = "suppliers.json"
 		entityStruct = &structs.Suppliers{}
+	case "basic_inventory_depreciation_types", "basic_inventory_depreciation_type":
+		endpoint = "basic_inventory_depreciation_types.json"
+		entityStruct = &structs.BasicInventoryDepreciationTypesItem{}
 	case "basic_inventory_real_estates", "basic_inventory_real_estate":
 		endpoint = "basic_inventory_real_estates.json"
 		entityStruct = &structs.BasicInventoryRealEstatesItem{}

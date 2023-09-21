@@ -78,7 +78,7 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"invoice_number": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"price_of_assessment": &graphql.Field{
 			Type: graphql.Int,
@@ -111,7 +111,7 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"file_id": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 	},
 })
@@ -206,8 +206,8 @@ var BasicInventoryDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: BasicInventoryDetailsItemType,
+		"item": &graphql.Field{
+			Type: graphql.NewList(BasicInventoryDetailsItemType),
 		},
 	},
 })
@@ -224,7 +224,7 @@ var BasicInventoryInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
+		"item": &graphql.Field{
 			Type: graphql.NewList(BasicInventoryDetailsItemType),
 		},
 	},

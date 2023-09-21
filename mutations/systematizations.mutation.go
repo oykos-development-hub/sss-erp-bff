@@ -21,7 +21,7 @@ var SystematizationInsertMutation = graphql.NewInputObject(graphql.InputObjectCo
 			Type: graphql.String,
 		},
 		"active": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.Boolean,
 		},
 		"date_of_activation": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

@@ -55,9 +55,6 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"official_personal_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"personal_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"official_personal_document_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
@@ -170,9 +167,6 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 			Type: graphql.String,
 		},
 		"bank_name": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"personal_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"official_personal_id": &graphql.InputObjectFieldConfig{

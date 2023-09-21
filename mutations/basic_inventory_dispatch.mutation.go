@@ -32,14 +32,11 @@ var BasicInventoryDispatchMutation = graphql.NewInputObject(graphql.InputObjectC
 		"serial_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"inventory_type": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(graphql.String),
-		},
 		"inventory_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(graphql.Int),
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 	},
 })

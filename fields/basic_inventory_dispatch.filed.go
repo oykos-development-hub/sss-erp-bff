@@ -28,9 +28,6 @@ var BasicInventoryDispatchOverviewField = &graphql.Field{
 			Type: graphql.Int,
 		},
 		"accepted": &graphql.ArgumentConfig{
-			Type: graphql.Boolean,
-		},
-		"inventory_type": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
 	},
@@ -53,7 +50,7 @@ var BasicInventoryDispatchDeleteField = &graphql.Field{
 	Description: "Delete existing Basic Inventory Dispatch",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.BasicInventoryDispatchDeleteResolver,
@@ -64,7 +61,10 @@ var BasicInventoryDispatchAcceptField = &graphql.Field{
 	Description: "Accept existing Basic Inventory Dispatch",
 	Args: graphql.FieldConfigArgument{
 		"dispatch_id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
+		},
+		"target_user_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.BasicInventoryDispatchAcceptResolver,

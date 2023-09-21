@@ -26,6 +26,9 @@ var UserProfileExperienceInsertMutation = graphql.NewInputObject(graphql.InputOb
 		"amount_of_insured_experience": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"date_of_signature": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"date_of_start": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

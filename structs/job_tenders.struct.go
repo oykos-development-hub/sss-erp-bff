@@ -10,7 +10,6 @@ type JobTenders struct {
 	Description                  string  `json:"description"`
 	SerialNumber                 string  `json:"serial_number"`
 	FileId                       int     `json:"file_id"`
-	NumberOfVacantSeats          int     `json:"number_of_vacant_seats"`
 	CreatedAt                    string  `json:"created_at"`
 	UpdatedAt                    string  `json:"updated_at"`
 }

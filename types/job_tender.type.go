@@ -29,9 +29,6 @@ var JobTenderItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_end": &graphql.Field{
 			Type: graphql.String,
 		},
-		"number_of_vacant_seats": &graphql.Field{
-			Type: graphql.Int,
-		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

@@ -99,7 +99,7 @@ var SystematizationResolver = func(params graphql.ResolveParams) (interface{}, e
 }
 
 var SystematizationInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var booActive int = 2
+	var booActive bool = true
 	var data structs.Systematization
 	var systematization *structs.Systematization
 	var err error
@@ -134,7 +134,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	if (!shared.IsInteger(itemId) || itemId == 0) && len(systematizationsActiveResponse.Data) > 0 {
+	if !shared.IsInteger(itemId) || itemId == 0 && len(systematizationsActiveResponse.Data) > 0 {
 		for _, sector := range organizationUnitsResponse.Data {
 			input := dto.GetJobPositionInOrganizationUnitsInput{
 				OrganizationUnitID: &sector.Id,
@@ -142,7 +142,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 			}
 			jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
 			if err != nil {
-				return shared.HandleAPIError(err)
+				return nil, err
 			}
 			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
 				var jobPositionsInOrganizationUnitRes *dto.GetJobPositionInOrganizationUnitsResponseMS
@@ -166,7 +166,7 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 						}
 						_, err := createEmployeesInOrganizationUnits(input)
 						if err != nil {
-							return shared.HandleAPIError(err)
+							return nil, err
 						}
 					}
 
@@ -179,12 +179,13 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 		return shared.HandleAPIError(err)
 	}
 
-	if systematization.Active == 2 {
+	if systematization.Active {
+
 		if len(systematizationsActiveResponse.Data) > 0 {
 			for _, sys := range systematizationsActiveResponse.Data {
 				if sys.Id != systematization.Id {
-					sys.Active = 1
-					_, _ = updateSystematization(sys.Id, &sys)
+					sys.Active = false
+					updateSystematization(sys.Id, &sys)
 				}
 			}
 		}
@@ -215,9 +216,9 @@ var SystematizationDeleteResolver = func(params graphql.ResolveParams) (interfac
 		return shared.HandleAPIError(err)
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "You deleted this item!",
+	return map[string]interface{}{
+		"status":  "success",
+		"message": "You deleted this item!",
 	}, nil
 }
 
@@ -271,15 +272,14 @@ func deleteSystematization(id int) error {
 }
 
 func buildSystematizationOverviewResponse(systematization *structs.Systematization) (dto.SystematizationOverviewResponse, error) {
-
 	result := dto.SystematizationOverviewResponse{
 		Id:                 systematization.Id,
 		UserProfileId:      systematization.UserProfileId,
 		OrganizationUnitId: systematization.OrganizationUnitId,
 		Description:        systematization.Description,
 		SerialNumber:       systematization.SerialNumber,
-		FileId:             systematization.FileId,
 		Active:             systematization.Active,
+		FileId:             systematization.FileId,
 		DateOfActivation:   systematization.DateOfActivation,
 		Sectors:            &[]dto.OrganizationUnitsSectorResponse{},
 		CreatedAt:          systematization.CreatedAt,

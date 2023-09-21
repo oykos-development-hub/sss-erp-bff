@@ -21,7 +21,7 @@ var SystematizationsOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"active": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Boolean,
 		},
 		"date_of_activation": &graphql.Field{
 			Type: graphql.String,
@@ -147,7 +147,7 @@ var SystematizationDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"active": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Boolean,
 		},
 		"date_of_activation": &graphql.Field{
 			Type: graphql.String,

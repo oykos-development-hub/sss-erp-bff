@@ -26,9 +26,6 @@ var JobPositionItemType = graphql.NewObject(graphql.ObjectConfig{
 		"is_judge": &graphql.Field{
 			Type: graphql.Boolean,
 		},
-		"is_active": &graphql.Field{
-			Type: graphql.Boolean,
-		},
 		"is_judge_president": &graphql.Field{
 			Type: graphql.Boolean,
 		},
@@ -160,12 +157,6 @@ var JobPositionInOrganizationUnitItemType = graphql.NewObject(graphql.ObjectConf
 		},
 		"available_slots": &graphql.Field{
 			Type: graphql.Int,
-		},
-		"requirements": &graphql.Field{
-			Type: graphql.String,
-		},
-		"description": &graphql.Field{
-			Type: graphql.String,
 		},
 	},
 })

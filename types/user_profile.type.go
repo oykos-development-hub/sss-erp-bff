@@ -104,9 +104,6 @@ var UserProfileBasicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"bank_name": &graphql.Field{
 			Type: graphql.String,
 		},
-		"personal_id": &graphql.Field{
-			Type: graphql.String,
-		},
 		"official_personal_id": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -443,9 +440,6 @@ var UserProfileEducationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"expertise_level": &graphql.Field{
 			Type: graphql.String,
 		},
-		"score": &graphql.Field{
-			Type: graphql.String,
-		},
 		"certificate_issuer": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -520,6 +514,9 @@ var UserProfileExperienceItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"amount_of_insured_experience": &graphql.Field{
 			Type: graphql.Int,
+		},
+		"date_of_signature": &graphql.Field{
+			Type: graphql.String,
 		},
 		"date_of_start": &graphql.Field{
 			Type: graphql.String,
@@ -636,9 +633,6 @@ var UserProfileFamilyItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"mother_birth_last_name": &graphql.Field{
-			Type: graphql.String,
-		},
-		"personal_id": &graphql.Field{
 			Type: graphql.String,
 		},
 		"official_personal_id": &graphql.Field{

@@ -19,7 +19,6 @@ type UserProfiles struct {
 	Address                        string  `json:"address"`
 	BankAccount                    string  `json:"bank_account"`
 	BankName                       string  `json:"bank_name"`
-	PersonalID                     *string `json:"personal_id"`
 	OfficialPersonalId             string  `json:"official_personal_id"`
 	OfficialPersonalDocumentNumber string  `json:"official_personal_document_number"`
 	OfficialPersonalDocumentIssuer string  `json:"official_personal_document_issuer"`

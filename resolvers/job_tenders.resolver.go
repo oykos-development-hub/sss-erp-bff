@@ -100,18 +100,17 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 	}
 
 	res := dto.JobTenderResponseItem{
-		Id:                  item.Id,
-		JobPosition:         jobPosition,
-		Type:                *tenderType,
-		Description:         item.Description,
-		SerialNumber:        item.SerialNumber,
-		Active:              JobTenderIsActive(item),
-		DateOfStart:         item.DateOfStart,
-		DateOfEnd:           item.DateOfEnd,
-		FileId:              item.FileId,
-		NumberOfVacantSeats: item.NumberOfVacantSeats,
-		CreatedAt:           item.CreatedAt,
-		UpdatedAt:           item.UpdatedAt,
+		Id:           item.Id,
+		JobPosition:  jobPosition,
+		Type:         *tenderType,
+		Description:  item.Description,
+		SerialNumber: item.SerialNumber,
+		Active:       JobTenderIsActive(item),
+		DateOfStart:  item.DateOfStart,
+		DateOfEnd:    item.DateOfEnd,
+		FileId:       item.FileId,
+		CreatedAt:    item.CreatedAt,
+		UpdatedAt:    item.UpdatedAt,
 	}
 
 	if item.OrganizationUnitID != 0 {
@@ -168,10 +167,10 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		if err != nil {
 			return nil, err
 		}
-		userProfileDropdownItem = &dto.DropdownSimple{
-			Id:    userProfile.Id,
-			Title: userProfile.GetFullName(),
-		}
+
+		userProfileDropdownItem.Id = userProfile.Id
+		userProfileDropdownItem.Title = userProfile.FirstName + " " + userProfile.LastName
+
 		res.FirstName = userProfile.FirstName
 		res.LastName = userProfile.LastName
 		res.OfficialPersonalID = userProfile.OfficialPersonalId

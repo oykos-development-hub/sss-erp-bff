@@ -26,9 +26,6 @@ var JobPositionInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		"is_judge": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
-		"is_active": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
-		},
 		"is_judge_president": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
@@ -58,12 +55,6 @@ var JobPositionInOrganizationUnitInsertMutation = graphql.NewInputObject(graphql
 		},
 		"available_slots": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
-		},
-		"description": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"requirements": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
 		},
 		"employees": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(graphql.Int),

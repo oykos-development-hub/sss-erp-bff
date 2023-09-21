@@ -17,7 +17,7 @@ type GetSystematizationsInput struct {
 	Page               *int    `json:"page"`
 	Size               *int    `json:"page_size"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
-	Active             *int    `json:"active"`
+	Active             *bool   `json:"active"`
 	Year               *string `json:"year"`
 	Search             *string `json:"search"`
 }
@@ -28,7 +28,7 @@ type SystematizationOverviewResponse struct {
 	OrganizationUnitId int                                `json:"organization_unit_id"`
 	Description        string                             `json:"description"`
 	SerialNumber       string                             `json:"serial_number"`
-	Active             int                                `json:"active"`
+	Active             bool                               `json:"active"`
 	DateOfActivation   *string                            `json:"date_of_activation"`
 	CreatedAt          string                             `json:"created_at"`
 	UpdatedAt          string                             `json:"updated_at"`

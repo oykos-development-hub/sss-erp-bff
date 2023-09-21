@@ -6,6 +6,7 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -20,7 +21,7 @@ var SuppliersOverviewResolver = func(params graphql.ResolveParams) (interface{},
 	if shared.IsInteger(id) && id.(int) > 0 {
 		supplier, err := getSupplier(id.(int))
 		if err != nil {
-			return shared.HandleAPIError(err)
+			return dto.ErrorResponse(err), nil
 		}
 
 		return dto.Response{
@@ -48,7 +49,7 @@ var SuppliersOverviewResolver = func(params graphql.ResolveParams) (interface{},
 
 		res, err := getSupplierList(&input)
 		if err != nil {
-			return shared.HandleAPIError(err)
+			return dto.ErrorResponse(err), nil
 		}
 
 		return dto.Response{
@@ -70,7 +71,8 @@ var SuppliersInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error updating suppliers data"), nil
 	}
 
 	itemId := data.Id
@@ -78,7 +80,8 @@ var SuppliersInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	if shared.IsInteger(itemId) && itemId != 0 {
 		res, err := updateSupplier(itemId, &data)
 		if err != nil {
-			return shared.HandleAPIError(err)
+			fmt.Printf("Updating supplier failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error updating supplier type data"), nil
 		}
 
 		response.Message = "You updated this item!"
@@ -86,7 +89,8 @@ var SuppliersInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 	} else {
 		res, err := createSupplier(&data)
 		if err != nil {
-			return shared.HandleAPIError(err)
+			fmt.Printf("Creating supplier failed because of this error - %s.\n", err)
+			return shared.ErrorResponse("Error creating supplier data"), nil
 		}
 
 		response.Message = "You created this item!"
@@ -101,7 +105,8 @@ var SuppliersDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	err := deleteSupplier(itemId)
 	if err != nil {
-		return shared.HandleAPIError(err)
+		fmt.Printf("Deleting supplier failed because of this error - %s.\n", err)
+		return shared.ErrorResponse("Error deleting the id"), nil
 	}
 
 	return dto.ResponseSingle{

@@ -40,4 +40,5 @@ type CreateUser struct {
 	Phone                          string      `json:"phone"`
 	Password                       string      `json:"password"`
 	Role                           int         `json:"role"`
+	IsJudge                        bool        `json:"is_judge"`
 }

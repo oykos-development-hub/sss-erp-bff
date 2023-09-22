@@ -870,6 +870,7 @@ func buildUserProfileBasicResponse(
 		JobPosition:                   jobPosition,
 		JobPositionInOrganizationUnit: jobPositionInOrganizationUnitID,
 		NationalMinority:              profile.NationalMinority,
+		IsJudge:                       profile.IsJudge,
 	}
 
 	active := true

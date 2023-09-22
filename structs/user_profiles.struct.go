@@ -33,7 +33,8 @@ type UserProfiles struct {
 	EngagementTypeId               *int    `json:"engagement_type_id,omitempty"`
 	RevisorRole                    bool    `json:"revisor_role"`
 	SecondaryEmail                 string  `json:"secondary_email"`
-	ActiveContract                 *bool   `db:"active_contract"`
+	ActiveContract                 *bool   `json:"active_contract"`
+	IsJudge                        *bool   `json:"is_judge"`
 	CreatedAt                      string  `json:"created_at"`
 	UpdatedAt                      string  `json:"updated_at"`
 }

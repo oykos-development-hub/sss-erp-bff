@@ -125,6 +125,7 @@ type UserProfileBasicResponse struct {
 	NationalMinority              string                     `json:"national_minority"`
 	PrivateEmail                  string                     `json:"private_email"`
 	PIN                           string                     `json:"pin"`
+	IsJudge                       *bool                      `json:"is_judge"`
 }
 
 type UserProfileOverviewResponse struct {

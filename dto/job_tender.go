@@ -63,6 +63,7 @@ type JobTenderApplicationResponseItem struct {
 	Id                 int                    `json:"id"`
 	UserProfile        *DropdownSimple        `json:"user_profile"`
 	JobTender          *JobTenderResponseItem `json:"job_tender"`
+	OrganizationUnit   *DropdownSimple        `json:"organization_unit"`
 	Active             bool                   `json:"active"`
 	Type               string                 `json:"type"`
 	FirstName          string                 `json:"first_name"`

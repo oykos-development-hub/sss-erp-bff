@@ -110,6 +110,9 @@ var JobTenderApplicationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"job_tender": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"user_profile": &graphql.Field{
 			Type: DropdownItemType,
 		},

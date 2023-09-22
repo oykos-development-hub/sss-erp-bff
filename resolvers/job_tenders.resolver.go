@@ -191,6 +191,10 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 	jobTenderResponseItem, _ := buildJobTenderResponse(jobTender)
 
 	res.JobTender = jobTenderResponseItem
+	res.OrganizationUnit = &dto.DropdownSimple{
+		Id:    jobTenderResponseItem.OrganizationUnit.Id,
+		Title: jobTenderResponseItem.OrganizationUnit.Title,
+	}
 
 	return &res, nil
 }

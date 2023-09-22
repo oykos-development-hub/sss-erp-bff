@@ -65,6 +65,7 @@ var (
 	SYSTEMATIZATIONS_ENDPOINT                    string
 	EMPLOYEE_FAMILY_MEMBERS                      string
 	JUDGE_NORM_ENDPOINT                          string
+	JUDGES                                       string
 	ABSENT_TYPE                                  string
 	EMPLOYEE_ABSENTS                             string
 	REVISIONS_ENDPOINT                           string
@@ -149,6 +150,7 @@ func init() {
 	RESOLUTIONS_ENDPOINT = HR_MS_BASE_URL + "/employee-resolutions"
 	EMPLOYEE_FAMILY_MEMBERS = HR_MS_BASE_URL + "/employee-family-members"
 	JUDGE_NORM_ENDPOINT = HR_MS_BASE_URL + "/user-norms"
+	JUDGES = HR_MS_BASE_URL + "/judges"
 	ABSENT_TYPE = HR_MS_BASE_URL + "/absent-types"
 	EMPLOYEE_ABSENTS = HR_MS_BASE_URL + "/employee-absents"
 	REVISIONS_ENDPOINT = HR_MS_BASE_URL + "/revisions-of-organization-units"

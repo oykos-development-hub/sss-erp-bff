@@ -67,9 +67,6 @@ var JudgeResolutionsOverviewField = &graphql.Field{
 			Type:         graphql.Int,
 			DefaultValue: 10,
 		},
-		"year": &graphql.ArgumentConfig{
-			Type: graphql.String,
-		},
 	},
 	Resolve: resolvers.JudgeResolutionsResolver,
 }

@@ -31,10 +31,10 @@ type UserProfiles struct {
 	DateOfTakingOath               *string `json:"date_of_taking_oath"`
 	DateOfBecomingJudge            string  `json:"date_of_becoming_judge"`
 	EngagementTypeId               *int    `json:"engagement_type_id,omitempty"`
-	RevisorRole                    bool    `json:"revisor_role"`
+	IsPresident                    bool    `json:"is_president"`
+	IsJudge                        bool    `json:"is_judge"`
 	SecondaryEmail                 string  `json:"secondary_email"`
 	ActiveContract                 *bool   `json:"active_contract"`
-	IsJudge                        *bool   `json:"is_judge"`
 	CreatedAt                      string  `json:"created_at"`
 	UpdatedAt                      string  `json:"updated_at"`
 }

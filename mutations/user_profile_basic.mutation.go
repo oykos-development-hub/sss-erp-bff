@@ -73,7 +73,10 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"housing_done": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
-		"revisor_role": &graphql.InputObjectFieldConfig{
+		"is_president": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
+		"is_judge": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
 		"housing_description": &graphql.InputObjectFieldConfig{
@@ -111,9 +114,6 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		},
 		"pin": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
-		},
-		"is_judge": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
 		},
 	},
 })
@@ -208,7 +208,10 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		"date_of_becoming_judge": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"revisor_role": &graphql.InputObjectFieldConfig{
+		"is_president": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
+		"is_judge": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
 		"engagement_type_id": &graphql.InputObjectFieldConfig{
@@ -216,9 +219,6 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		},
 		"contract": &graphql.InputObjectFieldConfig{
 			Type: UserProfileContractInsertMutation,
-		},
-		"is_judge": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
 		},
 	},
 })

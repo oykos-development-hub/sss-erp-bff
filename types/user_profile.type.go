@@ -125,7 +125,7 @@ var UserProfileBasicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"housing_done": &graphql.Field{
 			Type: graphql.Boolean,
 		},
-		"revisor_role": &graphql.Field{
+		"is_president": &graphql.Field{
 			Type: graphql.Boolean,
 		},
 		"housing_description": &graphql.Field{
@@ -245,7 +245,7 @@ var UserProfileItemUpdateType = graphql.NewObject(graphql.ObjectConfig{
 		"housing_done": &graphql.Field{
 			Type: graphql.Boolean,
 		},
-		"revisor_role": &graphql.Field{
+		"is_president": &graphql.Field{
 			Type: graphql.Boolean,
 		},
 		"housing_description": &graphql.Field{

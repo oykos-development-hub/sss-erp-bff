@@ -6,11 +6,9 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
 	"sync"
-	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -294,6 +292,52 @@ var JudgeResolutionsResolver = func(params graphql.ResolveParams) (interface{}, 
 	return response, nil
 }
 
+// func checkJudgeAndPresidentIsAvailable(organizationUnitId int) (bool, bool, error) {
+// 	check := false
+// 	checkPresident := false
+// 	active := true
+// 	input := dto.GetJudgeResolutionListInputMS{
+// 		Active: &active,
+// 	}
+// 	resolution, _ := getJudgeResolutionList(&input)
+
+// 	if len(resolution.Data) > 0 {
+// 		judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+// 			OrganizationUnitId: organizationUnitId,
+// 			ResolutionId:       resolution.Data[0].Id,
+// 		})
+
+// 		if err != nil {
+// 			return false, false, err
+// 		}
+
+// 		numberOfJudges := len(judgeResolutionOrganizationUnit)
+
+// 		itemsInput := dto.GetJudgeResolutionItemListInputMS{
+// 			ResolutionID: &resolution.Data[0].Id,
+// 		}
+// 		resolutionItems, err := getJudgeResolutionItemsList(&itemsInput)
+
+// 		if len(resolutionItems) > 0 {
+// 			for _, item := range resolutionItems {
+// 				if item.OrganizationUnitId == organizationUnitId {
+// 					if numberOfJudges > item.NumberOfJudges {
+// 						check = true
+// 					}
+// 				}
+// 			}
+// 		}
+
+// 		for _, judge := range judgeResolutionOrganizationUnit {
+// 			if judge.IsPresident {
+// 				checkPresident = false
+// 			}
+// 		}
+// 	}
+
+// 	return check, checkPresident, nil
+// }
+
 func processResolutions(resolutionList []*structs.JudgeResolutions, page, size int) ([]*dto.JudgeResolutionsResponseItem, error) {
 	var resolutionResponseList []*dto.JudgeResolutionsResponseItem
 
@@ -445,64 +489,56 @@ func OrganizationUintCalculateEmployeeStats(params graphql.ResolveParams) (inter
 
 func calculateEmployeeStats(id int) (int, int, int, int, error) {
 	var numberOfEmployees, numberOfJudges, totalRelocations, numberOfJudgePresidents int
-
-	isActive := 2
-	systematizations, err := getSystematizations(&dto.GetSystematizationsInput{Active: &isActive, OrganizationUnitID: &id})
-	if len(systematizations.Data) == 0 || systematizations.Total == 0 || err != nil {
-		return 0, 0, 0, 0, errors.New("there is no active systematization for OU")
+	active := true
+	input := dto.GetJudgeResolutionListInputMS{
+		Active: &active,
 	}
-	systematization := systematizations.Data[0]
+	resolution, _ := getJudgeResolutionList(&input)
 
-	jobPositionsInOU, err := getJobPositionsInOrganizationUnits(&dto.GetJobPositionInOrganizationUnitsInput{SystematizationID: &systematization.Id})
-	if err != nil {
-		return 0, 0, 0, 0, err
-	}
+	if len(resolution.Data) > 0 {
+		judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+			OrganizationUnitId: id,
+			ResolutionId:       resolution.Data[0].Id,
+		})
 
-	for _, jobPositionInOU := range jobPositionsInOU.Data {
-		jobPosition, _ := getJobPositionById(jobPositionInOU.JobPositionId)
-
-		employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(
-			&dto.GetEmployeesInOrganizationUnitInput{
-				PositionInOrganizationUnit: &jobPositionInOU.Id,
-			},
-		)
-
-		numberOfEmployees += len(employeesInOrganizationUnit)
-
-		if jobPosition.IsJudge {
-			numOfRelocatedJudges, _ := getNumberOfRelocatedJudges(employeesInOrganizationUnit)
-
-			totalRelocations += numOfRelocatedJudges
-			numberOfJudges += len(employeesInOrganizationUnit)
+		if err != nil {
+			return numberOfEmployees, numberOfJudges, totalRelocations, numberOfJudgePresidents, err
 		}
-		if jobPosition.IsJudgePresident {
-			numberOfJudgePresidents += len(employeesInOrganizationUnit)
+
+		numberOfJudges = len(judgeResolutionOrganizationUnit)
+		totalRelocations = numberOfJudges
+
+		for _, judge := range judgeResolutionOrganizationUnit {
+			if judge.IsPresident {
+				numberOfJudgePresidents = 1
+				break
+			}
 		}
 	}
 
 	return numberOfJudges, numberOfJudgePresidents, numberOfEmployees, totalRelocations, nil
 }
 
-func getNumberOfRelocatedJudges(employees []*structs.EmployeesInOrganizationUnits) (int, error) {
-	var numberOfRelocations int
-	for _, employee := range employees {
-		today := time.Now()
-		absents, err := getEmployeeAbsents(employee.UserProfileId, &dto.EmployeeAbsentsInput{Date: &today})
-		if err != nil {
-			return 0, err
-		}
-		for _, absent := range absents {
-			absentType, err := getAbsentTypeById(absent.AbsentTypeId)
-			if err != nil {
-				return 0, err
-			}
-			if absentType.Relocation {
-				numberOfRelocations++
-			}
-		}
-	}
-	return numberOfRelocations, nil
-}
+// func getNumberOfRelocatedJudges(employees []*structs.EmployeesInOrganizationUnits) (int, error) {
+// 	var numberOfRelocations int
+// 	for _, employee := range employees {
+// 		today := time.Now()
+// 		absents, err := getEmployeeAbsents(employee.UserProfileId, &dto.EmployeeAbsentsInput{Date: &today})
+// 		if err != nil {
+// 			return 0, err
+// 		}
+// 		for _, absent := range absents {
+// 			absentType, err := getAbsentTypeById(absent.AbsentTypeId)
+// 			if err != nil {
+// 				return 0, err
+// 			}
+// 			if absentType.Relocation {
+// 				numberOfRelocations++
+// 			}
+// 		}
+// 	}
+// 	return numberOfRelocations, nil
+// }
 
 var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.JudgeResolutions
@@ -743,4 +779,43 @@ func getJudgeNormListByEmployee(userProfileID int) ([]structs.JudgeNorms, error)
 	}
 
 	return res.Data, nil
+}
+
+func createJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizationUnitItem) (*dto.JudgeResolutionsOrganizationUnitItem, error) {
+	res := &dto.GetJudgeResolutionsOrganizationUnitResponseMS{}
+	_, err := shared.MakeAPIRequest("POST", config.JUDGES, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func updateJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizationUnitItem) (*dto.JudgeResolutionsOrganizationUnitItem, error) {
+	res := &dto.GetJudgeResolutionsOrganizationUnitResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.JUDGES+"/"+strconv.Itoa(input.Id), input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func getJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizationUnitInput) ([]dto.JudgeResolutionsOrganizationUnitItem, error) {
+	res := &dto.GetJudgeResolutionsOrganizationUnitListMS{}
+	_, err := shared.MakeAPIRequest("GET", config.JUDGES, nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
+func deleteJJudgeResolutionOrganizationUnit(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.JUDGES+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

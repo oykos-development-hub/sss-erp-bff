@@ -30,12 +30,21 @@ type GetJudgeResolutionItemListResponseMS struct {
 }
 
 type GetJudgeResolutionListInputMS struct {
-	Page *int `json:"page"`
-	Size *int `json:"size"`
+	Page   *int  `json:"page"`
+	Size   *int  `json:"size"`
+	Active *bool `json:"active"`
 }
 
 type GetJudgeResolutionItemListInputMS struct {
 	ResolutionID *int `json:"resolution_id"`
+}
+
+type GetJudgeResolutionsOrganizationUnitResponseMS struct {
+	Data JudgeResolutionsOrganizationUnitItem `json:"data"`
+}
+
+type GetJudgeResolutionsOrganizationUnitListMS struct {
+	Data []JudgeResolutionsOrganizationUnitItem `json:"data"`
 }
 
 type Judges struct {
@@ -88,11 +97,28 @@ type JudgeResolutionItemResponseItem struct {
 type JudgeResolutionsResponseItem struct {
 	Id                   int                                `json:"id"`
 	SerialNumber         string                             `json:"serial_number"`
-	Year                 string                             `json:"year"`
 	CreatedAt            string                             `json:"created_at"`
 	UpdatedAt            string                             `json:"updated_at"`
 	Active               bool                               `json:"active"`
 	NumberOfJudges       int                                `json:"number_of_judges"`
 	AvailableSlotsJudges int                                `json:"available_slots_judges"`
 	Items                []*JudgeResolutionItemResponseItem `json:"items"`
+}
+
+type JudgeResolutionsOrganizationUnitItem struct {
+	Id                 int    `json:"id"`
+	UserProfileId      int    `json:"user_profile_id"`
+	OrganizationUnitId int    `json:"organization_unit_id"`
+	ResolutionId       int    `json:"resolution_id"`
+	IsPresident        bool   `json:"is_president"`
+	CreatedAt          string `json:"created_at"`
+	UpdatedAt          string `json:"updated_at"`
+}
+
+type JudgeResolutionsOrganizationUnitInput struct {
+	Page               int `json:"page"`
+	PageSize           int `json:"page_size"`
+	UserProfileId      int `json:"user_profile_id"`
+	OrganizationUnitId int `json:"organization_unit_id"`
+	ResolutionId       int `json:"resolution_id"`
 }

@@ -109,7 +109,8 @@ type UserProfileBasicResponse struct {
 	Gender                        string                     `json:"gender"`
 	SingleParent                  bool                       `json:"single_parent"`
 	HousingDone                   bool                       `json:"housing_done"`
-	RevisorRole                   bool                       `json:"revisor_role"`
+	IsPresident                   bool                       `json:"is_president"`
+	IsJudge                       bool                       `json:"is_judge"`
 	HousingDescription            string                     `json:"housing_description"`
 	MaritalStatus                 string                     `json:"marital_status"`
 	DateOfTakingOath              *string                    `json:"date_of_taking_oath"`
@@ -125,7 +126,6 @@ type UserProfileBasicResponse struct {
 	NationalMinority              string                     `json:"national_minority"`
 	PrivateEmail                  string                     `json:"private_email"`
 	PIN                           string                     `json:"pin"`
-	IsJudge                       *bool                      `json:"is_judge"`
 }
 
 type UserProfileOverviewResponse struct {
@@ -137,7 +137,7 @@ type UserProfileOverviewResponse struct {
 	Phone            string                   `json:"phone"`
 	Active           bool                     `json:"active"`
 	IsJudge          bool                     `json:"is_judge"`
-	IsJudgePresident bool                     `json:"is_judge_president"`
+	IsPresident      bool                     `json:"is_president"`
 	Role             structs.SettingsDropdown `json:"role"`
 	OrganizationUnit structs.SettingsDropdown `json:"organization_unit"`
 	JobPosition      structs.SettingsDropdown `json:"job_position"`

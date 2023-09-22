@@ -114,7 +114,7 @@ func buildUserProfileOverviewResponse(
 	var (
 		organizationUnitDropdown structs.SettingsDropdown
 		jobPositionDropdown      structs.SettingsDropdown
-		isJudge, isJudgePresdent bool
+		isJudge, isPresident     bool
 	)
 	account, err := GetUserAccountById(profile.UserAccountId)
 	if err != nil {
@@ -140,8 +140,6 @@ func buildUserProfileOverviewResponse(
 		}
 		jobPositionDropdown.Id = jobPosition.Id
 		jobPositionDropdown.Title = jobPosition.Title
-		isJudge = jobPosition.IsJudge
-		isJudgePresdent = jobPosition.IsJudgePresident
 
 		systematization, _ := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
 
@@ -153,16 +151,39 @@ func buildUserProfileOverviewResponse(
 		organizationUnitDropdown.Title = organizationUnit.Title
 	}
 
+	active := true
+	input := dto.GetJudgeResolutionListInputMS{
+		Active: &active,
+	}
+	resolution, _ := getJudgeResolutionList(&input)
+
+	if len(resolution.Data) > 0 {
+
+		judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+			UserProfileId: profile.Id,
+			ResolutionId:  resolution.Data[0].Id,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		if len(judgeResolutionOrganizationUnit) > 0 {
+			isJudge = true
+			isPresident = judgeResolutionOrganizationUnit[0].IsPresident
+		}
+	}
+
 	return &dto.UserProfileOverviewResponse{
-		ID:               profile.Id,
-		FirstName:        profile.FirstName,
-		LastName:         profile.LastName,
-		DateOfBirth:      profile.DateOfBirth,
-		Email:            account.Email,
-		Phone:            account.Phone,
-		Active:           account.Active,
-		IsJudge:          isJudge,
-		IsJudgePresident: isJudgePresdent,
+		ID:          profile.Id,
+		FirstName:   profile.FirstName,
+		LastName:    profile.LastName,
+		DateOfBirth: profile.DateOfBirth,
+		Email:       account.Email,
+		Phone:       account.Phone,
+		Active:      account.Active,
+		IsJudge:     isJudge,
+		IsPresident: isPresident,
 		Role: structs.SettingsDropdown{
 			Id:    role.Id,
 			Title: role.Title,
@@ -261,6 +282,26 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 			}
 		}
 
+	}
+
+	input := dto.GetJudgeResolutionListInputMS{
+		Active: &active,
+	}
+	resolution, _ := getJudgeResolutionList(&input)
+
+	if len(resolution.Data) > 0 {
+		if userProfileData.IsJudge {
+			inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
+				UserProfileId:      userProfileData.Id,
+				OrganizationUnitId: activeContract.Contract.OrganizationUnitID,
+				ResolutionId:       resolution.Data[0].Id,
+				IsPresident:        userProfileData.IsPresident,
+			}
+			_, err := createJudgeResolutionOrganizationUnit(&inputCreate)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		}
 	}
 
 	res, err := buildUserProfileBasicResponse(userProfileRes)
@@ -368,6 +409,53 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 		}
 	} else {
 		userProfileData.ActiveContract = &inactive
+	}
+
+	input := dto.GetJudgeResolutionListInputMS{
+		Active: &active,
+	}
+	resolution, _ := getJudgeResolutionList(&input)
+
+	if len(resolution.Data) > 0 {
+		judgeResolutionOrganizationUnit, _ := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+			OrganizationUnitId: activeContract.Contract.OrganizationUnitID,
+			UserProfileId:      userProfileData.Id,
+			ResolutionId:       resolution.Data[0].Id,
+		})
+
+		if len(judgeResolutionOrganizationUnit) > 0 {
+			if userProfileData.IsJudge {
+				inputUpdate := dto.JudgeResolutionsOrganizationUnitItem{
+					Id:                 judgeResolutionOrganizationUnit[0].Id,
+					UserProfileId:      userProfileData.Id,
+					OrganizationUnitId: activeContract.Contract.OrganizationUnitID,
+					ResolutionId:       resolution.Data[0].Id,
+					IsPresident:        userProfileData.IsPresident,
+				}
+				_, err := updateJudgeResolutionOrganizationUnit(&inputUpdate)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+			} else {
+				err := deleteJJudgeResolutionOrganizationUnit(judgeResolutionOrganizationUnit[0].Id)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+			}
+		}
+		if len(judgeResolutionOrganizationUnit) == 0 && userProfileData.IsJudge {
+			inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
+				UserProfileId:      userProfileData.Id,
+				OrganizationUnitId: activeContract.Contract.OrganizationUnitID,
+				ResolutionId:       resolution.Data[0].Id,
+				IsPresident:        userProfileData.IsPresident,
+			}
+			_, err := createJudgeResolutionOrganizationUnit(&inputCreate)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		}
+
 	}
 
 	userProfileRes, err := updateUserProfile(userProfileData.Id, userProfileData)
@@ -801,6 +889,8 @@ func buildUserProfileBasicResponse(
 	profile *structs.UserProfiles,
 ) (*dto.UserProfileBasicResponse, error) {
 	account, err := GetUserAccountById(profile.UserAccountId)
+	isPresident := false
+	isJudge := false
 	if err != nil {
 		return nil, err
 	}
@@ -860,7 +950,8 @@ func buildUserProfileBasicResponse(
 		SingleParent:                  profile.SingleParent,
 		HousingDone:                   profile.HousingDone,
 		HousingDescription:            profile.HousingDescription,
-		RevisorRole:                   profile.RevisorRole,
+		IsPresident:                   isPresident,
+		IsJudge:                       isJudge,
 		MaritalStatus:                 profile.MaritalStatus,
 		DateOfTakingOath:              profile.DateOfTakingOath,
 		DateOfBecomingJudge:           profile.DateOfBecomingJudge,
@@ -870,7 +961,6 @@ func buildUserProfileBasicResponse(
 		JobPosition:                   jobPosition,
 		JobPositionInOrganizationUnit: jobPositionInOrganizationUnitID,
 		NationalMinority:              profile.NationalMinority,
-		IsJudge:                       profile.IsJudge,
 	}
 
 	active := true

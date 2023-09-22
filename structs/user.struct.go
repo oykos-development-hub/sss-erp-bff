@@ -26,7 +26,7 @@ type CreateUser struct {
 	SingleParent                   bool        `json:"single_parent"`
 	HousingDone                    bool        `json:"housing_done"`
 	HousingDescription             string      `json:"housing_description"`
-	RevisorRole                    bool        `json:"revisor_role"`
+	IsPresident                    bool        `json:"is_president"`
 	MaritalStatus                  string      `json:"marital_status"`
 	DateOfTakingOath               string      `json:"date_of_taking_oath"`
 	DateOfBecomingJudge            string      `json:"date_of_becoming_judge"`

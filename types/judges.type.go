@@ -179,7 +179,7 @@ var JudgeResolutionType = graphql.NewObject(graphql.ObjectConfig{
 		"serial_number": &graphql.Field{
 			Type: graphql.String,
 		},
-		"year": &graphql.Field{
+		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},
 		"active": &graphql.Field{

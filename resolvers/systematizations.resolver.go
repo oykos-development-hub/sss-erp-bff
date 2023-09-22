@@ -358,9 +358,9 @@ func buildSystematizationOverviewResponse(systematization *structs.Systematizati
 						Id:    jobPosition.Id,
 						Title: jobPosition.Title,
 					},
-					Description:    jobPosition.Description,
+					Description:    jobPositionOU.Description,
 					SerialNumber:   jobPosition.SerialNumber,
-					Requirements:   jobPosition.Requirements,
+					Requirements:   jobPositionOU.Requirements,
 					AvailableSlots: jobPositionOU.AvailableSlots,
 					Employees:      employees,
 				})

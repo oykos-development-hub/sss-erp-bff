@@ -49,9 +49,9 @@ type OrganizationUnitsSectorResponse struct {
 type JobPositionsOrganizationUnits struct {
 	Id             int              `json:"id"`
 	JobPositions   DropdownSimple   `json:"job_positions"`
-	Description    string           `json:"description"`
+	Description    *string          `json:"description"`
 	SerialNumber   string           `json:"serial_number"`
-	Requirements   string           `json:"requirements"`
+	Requirements   *string          `json:"requirements"`
 	AvailableSlots int              `json:"available_slots"`
 	Employees      []DropdownSimple `json:"employees"`
 }

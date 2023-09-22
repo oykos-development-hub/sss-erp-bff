@@ -21,7 +21,6 @@ type JudgeNorms struct {
 type JudgeResolutions struct {
 	Id           int                     `json:"id"`
 	SerialNumber string                  `json:"serial_number"`
-	Year         string                  `json:"year"`
 	CreatedAt    string                  `json:"created_at"`
 	UpdatedAt    string                  `json:"updated_at"`
 	Active       bool                    `json:"active"`

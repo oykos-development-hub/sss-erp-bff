@@ -30,9 +30,8 @@ type GetJudgeResolutionItemListResponseMS struct {
 }
 
 type GetJudgeResolutionListInputMS struct {
-	Page *int    `json:"page"`
-	Size *int    `json:"size"`
-	Year *string `json:"year"`
+	Page *int `json:"page"`
+	Size *int `json:"size"`
 }
 
 type GetJudgeResolutionItemListInputMS struct {

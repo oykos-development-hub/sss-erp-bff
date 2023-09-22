@@ -254,7 +254,6 @@ var JudgeResolutionsResolver = func(params graphql.ResolveParams) (interface{}, 
 	id := params.Args["id"]
 	page := params.Args["page"].(int)
 	size := params.Args["size"].(int)
-	year := params.Args["year"]
 
 	resolutionList := []*structs.JudgeResolutions{}
 	response := dto.Response{
@@ -273,10 +272,6 @@ var JudgeResolutionsResolver = func(params graphql.ResolveParams) (interface{}, 
 		input := dto.GetJudgeResolutionListInputMS{}
 		input.Page = &page
 		input.Size = &size
-		if year != nil && year.(string) != "" {
-			year := year.(string)
-			input.Year = &year
-		}
 		resolutions, err := getJudgeResolutionList(&input)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -340,7 +335,6 @@ func processJudgeResolution(resolution *structs.JudgeResolutions) (*dto.JudgeRes
 	resolutionResponseItem := &dto.JudgeResolutionsResponseItem{
 		Id:                   resolution.Id,
 		SerialNumber:         resolution.SerialNumber,
-		Year:                 resolution.Year,
 		CreatedAt:            resolution.CreatedAt,
 		UpdatedAt:            resolution.UpdatedAt,
 		Active:               resolution.Active,
@@ -528,7 +522,6 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 	if shared.IsInteger(itemId) && itemId != 0 {
 		judgeResolution := structs.JudgeResolutions{
 			SerialNumber: data.SerialNumber,
-			Year:         data.Year,
 			Active:       data.Active,
 		}
 		resolution, err = updateJudgeResolutions(itemId, &judgeResolution)
@@ -546,12 +539,31 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 	} else {
 		judgeResolution := structs.JudgeResolutions{
 			SerialNumber: data.SerialNumber,
-			Year:         data.Year,
-			Active:       data.Active,
+			Active:       true,
 		}
 		resolution, err = createJudgeResolutions(&judgeResolution)
 		if err != nil {
 			return shared.HandleAPIError(err)
+		}
+
+		input := dto.GetJudgeResolutionListInputMS{}
+
+		resolutions, err := getJudgeResolutionList(&input)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		for _, res := range resolutions.Data {
+			if res.Active && resolution.Id != res.Id {
+				judgeResolution := structs.JudgeResolutions{
+					SerialNumber: res.SerialNumber,
+					Active:       false,
+				}
+				_, err = updateJudgeResolutions(res.Id, &judgeResolution)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+			}
 		}
 
 		updatedItems, err := insertOrUpdateResolutionItemList(data.Items, resolution.Id)

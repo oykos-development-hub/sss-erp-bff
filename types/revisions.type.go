@@ -330,6 +330,9 @@ var RevisionDetailType = graphql.NewObject(graphql.ObjectConfig{
 		"item": &graphql.Field{
 			Type: RevisionType,
 		},
+		"revisors": &graphql.Field{
+			Type: graphql.NewList(DropdownItemType),
+		},
 	},
 })
 

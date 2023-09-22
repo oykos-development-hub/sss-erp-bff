@@ -79,6 +79,14 @@ type RevisionsOverviewResponse struct {
 	Items    []RevisionsOverviewItem     `json:"items"`
 }
 
+type RevisionsDetailsResponse struct {
+	Revisors []*structs.SettingsDropdown `json:"revisors"`
+	Message  string                      `json:"message"`
+	Status   string                      `json:"status"`
+	Total    int                         `json:"total"`
+	Item     RevisionsOverviewItem       `json:"item"`
+}
+
 //---------------------------------------------------------------------------
 
 type GetRevisionTipFilter struct {

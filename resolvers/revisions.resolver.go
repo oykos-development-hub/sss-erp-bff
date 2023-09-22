@@ -736,10 +736,17 @@ var RevisionDetailResolver = func(params graphql.ResolveParams) (interface{}, er
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Item:    *item,
+
+	revisorDropdownList, err := getRevisorListDropdown()
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.RevisionsDetailsResponse{
+		Status:   "success",
+		Message:  "Here's the list you asked for!",
+		Item:     *item,
+		Revisors: revisorDropdownList,
 	}, nil
 }
 

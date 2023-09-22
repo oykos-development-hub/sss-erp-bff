@@ -164,6 +164,9 @@ var UserProfileBasicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"pin": &graphql.Field{
 			Type: graphql.String,
 		},
+		"is_judge": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -259,6 +262,9 @@ var UserProfileItemUpdateType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"position_in_organization_unit_id": &graphql.Field{
 			Type: graphql.Int,
+		},
+		"is_judge": &graphql.Field{
+			Type: graphql.Boolean,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

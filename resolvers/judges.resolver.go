@@ -298,22 +298,22 @@ func processResolutions(resolutionList []*structs.JudgeResolutions, page, size i
 	var resolutionResponseList []*dto.JudgeResolutionsResponseItem
 
 	// Process JudgeResolutions concurrently
-	var wg sync.WaitGroup
-	wg.Add(len(resolutionList))
+	//var wg sync.WaitGroup
+	//wg.Add(len(resolutionList))
 
 	for _, resolution := range resolutionList {
-		go func(resolution *structs.JudgeResolutions) {
-			defer wg.Done()
-			resolutionResponseItem, err := processJudgeResolution(resolution)
-			if err != nil {
-				fmt.Printf("Error processing JudgeResolution: %v\n", err)
-				return
-			}
-			resolutionResponseList = append(resolutionResponseList, resolutionResponseItem)
-		}(resolution)
+		//		go func(resolution *structs.JudgeResolutions) {
+		//		defer wg.Done()
+		resolutionResponseItem, err := processJudgeResolution(resolution)
+		if err != nil {
+			fmt.Printf("Error processing JudgeResolution: %v\n", err)
+			return nil, err
+		}
+		resolutionResponseList = append(resolutionResponseList, resolutionResponseItem)
+		//		}(resolution)
 	}
 
-	wg.Wait()
+	//	wg.Wait()
 
 	return resolutionResponseList, nil
 }

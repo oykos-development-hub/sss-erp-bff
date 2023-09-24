@@ -64,8 +64,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		if status != nil &&
-			status.(string) == "not implemented yet" {
+		if status != nil && status.(string) != "" && status.(string) != *resItem.Status {
 			total--
 			continue
 		}

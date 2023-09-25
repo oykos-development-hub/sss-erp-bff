@@ -39,6 +39,8 @@ type OrganizationUnitsSectorResponse struct {
 	ParentId                      *int                            `json:"parent_id"`
 	Title                         string                          `json:"title"`
 	Abbreviation                  string                          `json:"abbreviation"`
+	Description                   string                          `json:"description"`
+	Address                       string                          `json:"address"`
 	Color                         string                          `json:"color"`
 	Icon                          string                          `json:"icon"`
 	FolderId                      int                             `json:"folder_id"`
@@ -62,6 +64,8 @@ func ToOrganizationUnitsSectorResponse(organizationUnit structs.OrganizationUnit
 		ParentId:     organizationUnit.ParentId,
 		Title:        organizationUnit.Title,
 		Abbreviation: organizationUnit.Abbreviation,
+		Description:  organizationUnit.Description,
+		Address:      organizationUnit.Address,
 		Color:        organizationUnit.Color,
 		Icon:         organizationUnit.Icon,
 		FolderId:     organizationUnit.FolderId,

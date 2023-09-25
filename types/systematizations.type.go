@@ -116,6 +116,12 @@ var SystematizationSectorsType = graphql.NewObject(graphql.ObjectConfig{
 		"abbreviation": &graphql.Field{
 			Type: graphql.String,
 		},
+		"address": &graphql.Field{
+			Type: graphql.String,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
 		"color": &graphql.Field{
 			Type: graphql.String,
 		},

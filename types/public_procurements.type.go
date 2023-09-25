@@ -206,8 +206,8 @@ var PublicProcurementPlanItemInsertType = graphql.NewObject(graphql.ObjectConfig
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementPlanItemDetailsItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementPlanItemDetailsItemType,
 		},
 	},
 })

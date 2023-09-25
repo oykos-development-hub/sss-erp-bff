@@ -869,14 +869,18 @@ func updateRevisions(id int, plan *structs.Revisions) (*structs.Revisions, error
 
 func buildRevisionTipItemResponse(revision *structs.RevisionTips) (*dto.RevisionTipsOverviewItem, error) {
 
-	revisor, err := getUserProfileById(revision.UserProfileID)
-	if err != nil {
-		return nil, err
-	}
+	revisorDropdown := structs.SettingsDropdown{}
 
-	revisorDropdown := structs.SettingsDropdown{
-		Id:    revisor.Id,
-		Title: revisor.FirstName + " " + revisor.LastName,
+	if revision.UserProfileID != nil {
+		revisor, err := getUserProfileById(*revision.UserProfileID)
+		if err != nil {
+			return nil, err
+		}
+
+		revisorDropdown = structs.SettingsDropdown{
+			Id:    revisor.Id,
+			Title: revisor.FirstName + " " + revisor.LastName,
+		}
 	}
 
 	revisionTipItem := &dto.RevisionTipsOverviewItem{
@@ -889,6 +893,7 @@ func buildRevisionTipItemResponse(revision *structs.RevisionTips) (*dto.Revision
 		DateOfExecution:        revision.DateOfExecution,
 		Recommendation:         revision.Recommendation,
 		Status:                 revision.Status,
+		ResponsiblePerson:      revision.ResponsiblePerson,
 		Documents:              revision.Documents,
 		ReasonsForNonExecuting: revision.ReasonsForNonExecuting,
 		FileID:                 revision.FileID,

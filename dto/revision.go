@@ -99,6 +99,7 @@ type RevisionTipsOverviewItem struct {
 	ID                     int                      `json:"id"`
 	RevisionID             int                      `json:"revision_id"`
 	UserProfile            structs.SettingsDropdown `json:"user_profile"`
+	ResponsiblePerson      *string                  `json:"responsible_person"`
 	DateOfAccept           *string                  `json:"date_of_accept"`
 	DueDate                int                      `json:"due_date"`
 	DateOfReject           *string                  `json:"date_of_reject"`

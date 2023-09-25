@@ -374,6 +374,9 @@ var RevisionTipsType = graphql.NewObject(graphql.ObjectConfig{
 		"user_profile": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"responsible_person": &graphql.Field{
+			Type: graphql.String,
+		},
 		"date_of_accept": &graphql.Field{
 			Type: graphql.String,
 		},

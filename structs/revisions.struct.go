@@ -70,7 +70,8 @@ type RevisionsInsert struct {
 type RevisionTips struct {
 	ID                     int     `json:"id"`
 	RevisionID             int     `json:"revision_id"`
-	UserProfileID          int     `json:"user_profile_id"`
+	UserProfileID          *int    `json:"user_profile_id"`
+	ResponsiblePerson      *string `json:"responsible_person"`
 	DateOfAccept           *string `json:"date_of_accept"`
 	DueDate                int     `json:"due_date"`
 	DateOfReject           *string `json:"date_of_reject"`

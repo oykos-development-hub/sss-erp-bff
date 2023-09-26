@@ -383,6 +383,9 @@ var RevisionTipsType = graphql.NewObject(graphql.ObjectConfig{
 		"due_date": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"new_due_date": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"date_of_reject": &graphql.Field{
 			Type: graphql.String,
 		},

@@ -102,6 +102,7 @@ type RevisionTipsOverviewItem struct {
 	ResponsiblePerson      *string                  `json:"responsible_person"`
 	DateOfAccept           *string                  `json:"date_of_accept"`
 	DueDate                int                      `json:"due_date"`
+	NewDueDate             *int                     `json:"new_due_date"`
 	DateOfReject           *string                  `json:"date_of_reject"`
 	DateOfExecution        *string                  `json:"date_of_execution"`
 	Recommendation         string                   `json:"recommendation"`

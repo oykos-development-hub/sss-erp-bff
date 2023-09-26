@@ -122,3 +122,8 @@ type JudgeResolutionsOrganizationUnitInput struct {
 	OrganizationUnitId int `json:"organization_unit_id"`
 	ResolutionId       int `json:"resolution_id"`
 }
+
+type CheckJudgeAndPresidentIsAvailableMS struct {
+	Judge     bool `json:"judge"`
+	President bool `json:"president"`
+}

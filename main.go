@@ -219,6 +219,7 @@ func main() {
 			"revision_tips_Details":                              fields.RevisionTipsDetails,
 			"judges_Overview":                                    fields.JudgesOverviewField,
 			"judgeResolutions_Overview":                          fields.JudgeResolutionsOverviewField,
+			"checkJudgeAndPresidentIsAvailable":                  fields.CheckJudgeAndPresidentIsAvailableField,
 			"organizationUintCalculateEmployeeStats":             fields.OrganizationUintCalculateEmployeeStatsField,
 			"publicProcurementPlans_Overview":                    fields.PublicProcurementPlansOverviewField,
 			"publicProcurementPlan_Details":                      fields.PublicProcurementPlanDetailsField,

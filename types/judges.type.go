@@ -265,3 +265,32 @@ var JudgeResolutionsDeleteType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+var CheckJudgeAndPresidentType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "CheckJudgeAndPresident",
+	Fields: graphql.Fields{
+		"judge": &graphql.Field{
+			Type: graphql.Boolean,
+		},
+		"president": &graphql.Field{
+			Type: graphql.Boolean,
+		},
+	},
+})
+
+var CheckJudgeAndPresidentIsAvailableType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "CheckJudgeAndPresidentIsAvailableType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: CheckJudgeAndPresidentType,
+		},
+	},
+})

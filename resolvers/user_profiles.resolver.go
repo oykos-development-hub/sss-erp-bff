@@ -292,7 +292,7 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 	if len(resolution.Data) > 0 {
 		if userProfileData.IsJudge {
 			inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
-				UserProfileId:      userProfileData.Id,
+				UserProfileId:      userProfileRes.Id,
 				OrganizationUnitId: activeContract.Contract.OrganizationUnitID,
 				ResolutionId:       resolution.Data[0].Id,
 				IsPresident:        userProfileData.IsPresident,
@@ -889,8 +889,7 @@ func buildUserProfileBasicResponse(
 	profile *structs.UserProfiles,
 ) (*dto.UserProfileBasicResponse, error) {
 	account, err := GetUserAccountById(profile.UserAccountId)
-	isPresident := false
-	isJudge := false
+
 	if err != nil {
 		return nil, err
 	}
@@ -950,8 +949,8 @@ func buildUserProfileBasicResponse(
 		SingleParent:                  profile.SingleParent,
 		HousingDone:                   profile.HousingDone,
 		HousingDescription:            profile.HousingDescription,
-		IsPresident:                   isPresident,
-		IsJudge:                       isJudge,
+		IsPresident:                   false,
+		IsJudge:                       false,
 		MaritalStatus:                 profile.MaritalStatus,
 		DateOfTakingOath:              profile.DateOfTakingOath,
 		DateOfBecomingJudge:           profile.DateOfBecomingJudge,
@@ -962,7 +961,6 @@ func buildUserProfileBasicResponse(
 		JobPositionInOrganizationUnit: jobPositionInOrganizationUnitID,
 		NationalMinority:              profile.NationalMinority,
 	}
-
 	active := true
 	contracts, err := getEmployeeContracts(profile.Id, &dto.GetEmployeeContracts{Active: &active})
 	if err != nil {
@@ -975,6 +973,36 @@ func buildUserProfileBasicResponse(
 			return nil, err
 		}
 		userProfileResItem.Contract = contractResponseItem
+
+		// need check user is judge or president
+		if contractResponseItem.OrganizationUnit.Id > 0 {
+
+			input := dto.GetJudgeResolutionListInputMS{
+				Active: &active,
+			}
+
+			resolution, _ := getJudgeResolutionList(&input)
+
+			if len(resolution.Data) > 0 {
+				resolutionId := resolution.Data[0].Id
+				judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+					OrganizationUnitId: contractResponseItem.OrganizationUnit.Id,
+					ResolutionId:       resolutionId,
+					UserProfileId:      profile.Id,
+				})
+				if err != nil {
+					return nil, err
+				}
+
+				if len(judgeResolutionOrganizationUnit) > 0 {
+					for _, judge := range judgeResolutionOrganizationUnit {
+						userProfileResItem.IsPresident = judge.IsPresident
+						userProfileResItem.IsJudge = true
+					}
+				}
+			}
+		}
+
 	}
 
 	return userProfileResItem, nil

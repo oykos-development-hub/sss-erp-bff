@@ -17,7 +17,6 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 	id := params.Args["user_profile_id"]
 	page := params.Args["page"].(int)
 	size := params.Args["size"].(int)
-	organizationUnitIdFilter := params.Args["organization_unit_id"]
 
 	var judgesList []*dto.Judges
 	response := dto.Response{
@@ -37,10 +36,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 	for _, jobPosition := range jobPositions {
 		input := dto.GetJobPositionInOrganizationUnitsInput{}
 		input.JobPositionID = &jobPosition.Id
-		if organizationUnitIdFilter != nil {
-			organizationUnitIdFilter := organizationUnitIdFilter.(int)
-			input.OrganizationUnitID = &organizationUnitIdFilter
-		}
+
 		jobPositionInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -57,6 +53,10 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 					continue
 				}
 				systematization, _ := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+
+				if organizationUnitIdFilter, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitIdFilter != 0 && systematization.OrganizationUnitId != organizationUnitIdFilter {
+					continue
+				}
 
 				judgeResponse, err := buildJudgeResponseItem(
 					employeeInOrganizationUnit.UserProfileId,
@@ -292,51 +292,67 @@ var JudgeResolutionsResolver = func(params graphql.ResolveParams) (interface{}, 
 	return response, nil
 }
 
-// func checkJudgeAndPresidentIsAvailable(organizationUnitId int) (bool, bool, error) {
-// 	check := false
-// 	checkPresident := false
-// 	active := true
-// 	input := dto.GetJudgeResolutionListInputMS{
-// 		Active: &active,
-// 	}
-// 	resolution, _ := getJudgeResolutionList(&input)
+func CheckJudgeAndPresidentIsAvailable(params graphql.ResolveParams) (interface{}, error) {
+	active := true
+	input := dto.GetJudgeResolutionListInputMS{
+		Active: &active,
+	}
 
-// 	if len(resolution.Data) > 0 {
-// 		judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-// 			OrganizationUnitId: organizationUnitId,
-// 			ResolutionId:       resolution.Data[0].Id,
-// 		})
+	response := dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+	}
 
-// 		if err != nil {
-// 			return false, false, err
-// 		}
+	check := dto.CheckJudgeAndPresidentIsAvailableMS{
+		Judge:     false,
+		President: false,
+	}
 
-// 		numberOfJudges := len(judgeResolutionOrganizationUnit)
+	organizationUnitId := params.Args["organization_unit_id"]
+	if shared.IsInteger(organizationUnitId) && organizationUnitId.(int) > 0 {
 
-// 		itemsInput := dto.GetJudgeResolutionItemListInputMS{
-// 			ResolutionID: &resolution.Data[0].Id,
-// 		}
-// 		resolutionItems, err := getJudgeResolutionItemsList(&itemsInput)
+		resolution, _ := getJudgeResolutionList(&input)
 
-// 		if len(resolutionItems) > 0 {
-// 			for _, item := range resolutionItems {
-// 				if item.OrganizationUnitId == organizationUnitId {
-// 					if numberOfJudges > item.NumberOfJudges {
-// 						check = true
-// 					}
-// 				}
-// 			}
-// 		}
+		if len(resolution.Data) > 0 {
+			judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+				OrganizationUnitId: organizationUnitId.(int),
+				ResolutionId:       resolution.Data[0].Id,
+			})
 
-// 		for _, judge := range judgeResolutionOrganizationUnit {
-// 			if judge.IsPresident {
-// 				checkPresident = false
-// 			}
-// 		}
-// 	}
+			if err != nil {
+				return nil, err
+			}
 
-// 	return check, checkPresident, nil
-// }
+			numberOfJudges := len(judgeResolutionOrganizationUnit)
+
+			itemsInput := dto.GetJudgeResolutionItemListInputMS{
+				ResolutionID: &resolution.Data[0].Id,
+			}
+			resolutionItems, err := getJudgeResolutionItemsList(&itemsInput)
+			if err != nil {
+				return nil, err
+			}
+
+			if len(resolutionItems) > 0 {
+				for _, item := range resolutionItems {
+					if item.OrganizationUnitId == organizationUnitId {
+						if numberOfJudges < item.NumberOfJudges {
+							check.Judge = true
+						}
+					}
+				}
+			}
+			check.President = true
+			for _, judge := range judgeResolutionOrganizationUnit {
+				if judge.IsPresident {
+					check.President = false
+				}
+			}
+		}
+	}
+	response.Item = check
+	return response, nil
+}
 
 func processResolutions(resolutionList []*structs.JudgeResolutions, page, size int) ([]*dto.JudgeResolutionsResponseItem, error) {
 	var resolutionResponseList []*dto.JudgeResolutionsResponseItem

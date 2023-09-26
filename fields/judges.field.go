@@ -98,3 +98,14 @@ var JudgeResolutionsDeleteField = &graphql.Field{
 	},
 	Resolve: resolvers.JudgeResolutionDeleteResolver,
 }
+
+var CheckJudgeAndPresidentIsAvailableField = &graphql.Field{
+	Type:        types.CheckJudgeAndPresidentIsAvailableType,
+	Description: "Deletes existing Judge Check item",
+	Args: graphql.FieldConfigArgument{
+		"organization_unit_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.CheckJudgeAndPresidentIsAvailable,
+}

@@ -79,6 +79,9 @@ var JobTenderApplicationsField = &graphql.Field{
 		"search": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
+		"job_tender_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 	},
 	Resolve: resolvers.JobTenderApplicationsResolver,
 }

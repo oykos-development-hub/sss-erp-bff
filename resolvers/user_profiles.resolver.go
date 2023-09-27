@@ -261,6 +261,7 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 	userProfileData.UserAccountId = userAccountRes.Id
 	userProfileRes, err = createUserProfile(userProfileData)
 	if err != nil {
+		_ = DeleteUserAccount(userAccountRes.Id)
 		return shared.HandleAPIError(err)
 	}
 
@@ -268,6 +269,8 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 		activeContract.Contract.UserProfileId = userProfileRes.Id
 		_, err := createEmployeeContract(activeContract.Contract)
 		if err != nil {
+			_ = DeleteUserAccount(userAccountRes.Id)
+			_ = DeleteUserProfile(userProfileRes.Id)
 			return shared.HandleAPIError(err)
 		}
 
@@ -278,6 +281,8 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 			}
 			_, err = createEmployeesInOrganizationUnits(input)
 			if err != nil {
+				_ = DeleteUserAccount(userAccountRes.Id)
+				_ = DeleteUserProfile(userProfileRes.Id)
 				return shared.HandleAPIError(err)
 			}
 		}
@@ -299,6 +304,8 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 			}
 			_, err := createJudgeResolutionOrganizationUnit(&inputCreate)
 			if err != nil {
+				_ = DeleteUserAccount(userAccountRes.Id)
+				_ = DeleteUserProfile(userProfileRes.Id)
 				return shared.HandleAPIError(err)
 			}
 		}

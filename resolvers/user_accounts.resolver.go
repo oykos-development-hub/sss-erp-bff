@@ -159,6 +159,15 @@ func CreateUserAccount(user structs.UserAccounts) (*structs.UserAccounts, error)
 	return &res.Data, nil
 }
 
+func DeleteUserAccount(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.USER_ACCOUNTS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func getRole(id int) (*structs.UserAccountRoles, error) {
 	res := &dto.GetUserAccountRoleResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.ROLES_ENDPOINT+"/"+strconv.Itoa(id), nil, res)

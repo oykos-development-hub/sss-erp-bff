@@ -892,6 +892,7 @@ func buildRevisionTipItemResponse(revision *structs.RevisionTips) (*dto.Revision
 		NewDueDate:             revision.NewDueDate,
 		DateOfReject:           revision.DateOfReject,
 		DateOfExecution:        revision.DateOfExecution,
+		NewDateOfExecution:     revision.NewDateOfExecution,
 		Recommendation:         revision.Recommendation,
 		Status:                 revision.Status,
 		ResponsiblePerson:      revision.ResponsiblePerson,

@@ -92,7 +92,7 @@ var RevisionInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	},
 })
 
-//---------------------------------------------------------
+// ---------------------------------------------------------
 var RevisionPlanInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "RevisionPlanInsertMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
@@ -175,6 +175,9 @@ var RevisionTipsInsertMutation = graphql.NewInputObject(graphql.InputObjectConfi
 			Type: graphql.String,
 		},
 		"date_of_execution": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"new_date_of_execution": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"recommendation": &graphql.InputObjectFieldConfig{

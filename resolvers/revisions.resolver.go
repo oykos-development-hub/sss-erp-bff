@@ -187,6 +187,7 @@ var RevisionsOverviewResolver = func(params graphql.ResolveParams) (interface{},
 	organizationUnitID := params.Args["organization_unit_id"]
 	internal := params.Args["internal"]
 	revisorUserProfileID := params.Args["revisor_user_profile_id"]
+	revisionType := params.Args["revision_type"]
 
 	if id != nil && id.(int) > 0 {
 		revision, err := getRevisionById(id.(int))
@@ -216,6 +217,10 @@ var RevisionsOverviewResolver = func(params graphql.ResolveParams) (interface{},
 			} else {
 				input.ExternalOrganizationUnitID = &organizationUnitID
 			}
+		}
+		if revisionType != nil && revisionType.(int) > 0 {
+			revisionType := revisionType.(int)
+			input.RevisionType = &revisionType
 		}
 		if revisorUserProfileID != nil && revisorUserProfileID.(int) > 0 {
 			revisorUserProfileID := revisorUserProfileID.(int)

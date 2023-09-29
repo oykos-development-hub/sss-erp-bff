@@ -69,4 +69,5 @@ type GetRevisionsInput struct {
 	InternalOrganizationUnitID *int `json:"internal_organization_unit_id"`
 	ExternalOrganizationUnitID *int `json:"external_organization_unit_id"`
 	RevisorUserProfileID       *int `json:"revisor_user_profile_id"`
+	RevisionType               *int `json:"revision_type"`
 }

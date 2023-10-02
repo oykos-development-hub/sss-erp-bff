@@ -112,8 +112,8 @@ func buildProcurementContractArticlesResponseItem(item *structs.PublicProcuremen
 			Title: contract.SerialNumber,
 		},
 		Amount:     item.Amount,
-		NetValue:   &item.NetValue,
-		GrossValue: &item.GrossValue,
+		NetValue:   item.NetValue,
+		GrossValue: item.GrossValue,
 		CreatedAt:  item.CreatedAt,
 		UpdatedAt:  item.UpdatedAt,
 	}

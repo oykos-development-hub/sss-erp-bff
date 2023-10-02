@@ -647,8 +647,8 @@ var PublicProcurementContractArticlesOverviewType = graphql.NewObject(graphql.Ob
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"item": &graphql.Field{
-			Type: PublicProcurementContractArticleItemType,
+		"items": &graphql.Field{
+			Type: graphql.NewList(PublicProcurementContractArticleItemType),
 		},
 	},
 })

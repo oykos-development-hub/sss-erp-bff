@@ -22,8 +22,8 @@ type ProcurementContractArticlesResponseItem struct {
 	Article    DropdownProcurementArticle `json:"public_procurement_article"`
 	Contract   DropdownSimple             `json:"contract"`
 	Amount     int                        `json:"amount" validate:"required"`
-	NetValue   *float32                   `json:"net_value"`
-	GrossValue *float32                   `json:"gross_value"`
+	NetValue   float32                    `json:"net_value"`
+	GrossValue float32                    `json:"gross_value"`
 	CreatedAt  string                     `json:"created_at"`
 	UpdatedAt  string                     `json:"updated_at"`
 }

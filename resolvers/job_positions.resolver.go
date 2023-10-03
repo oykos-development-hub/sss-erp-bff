@@ -379,7 +379,7 @@ func createEmployeesInOrganizationUnits(data *structs.EmployeesInOrganizationUni
 		return nil, err
 	}
 
-	return &res.Data, nil
+	return res.Data, nil
 }
 
 func deleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnitId int) error {

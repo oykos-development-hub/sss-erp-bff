@@ -1098,13 +1098,13 @@ func updateUserProfile(userID int, user structs.UserProfiles) (*structs.UserProf
 }
 
 func getEmployeesInOrganizationUnitsByProfileId(profileId int) (*structs.EmployeesInOrganizationUnits, error) {
-	var res dto.GetEmployeesInOrganizationUnitsResponseMS
+	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(profileId)+"/employee-in-organization-unit", nil, res)
 	if err != nil {
 		return nil, err
 	}
 
-	return &res.Data, nil
+	return res.Data, nil
 }
 
 func getEmployeesInOrganizationUnitList(input *dto.GetEmployeesInOrganizationUnitInput) ([]*structs.EmployeesInOrganizationUnits, error) {

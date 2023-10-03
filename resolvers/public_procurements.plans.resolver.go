@@ -120,6 +120,9 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 		Status: "success",
 	}
 
+	// @TODO: adjust logic of activating plans
+	data.Active = true
+
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
 	err = json.Unmarshal(dataBytes, &data)

@@ -204,12 +204,12 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 			return shared.HandleAPIError(err)
 		}
 
-		item, err := buildOrderListResponseItem(res)
+		err = createOrderListProcurementArticles(res.Id, data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
 
-		err = createOrderListProcurementArticles(item.Id, data)
+		item, err := buildOrderListResponseItem(res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -550,24 +550,10 @@ func buildOrderListInsertItem(item *structs.OrderListInsertItem, loggedInAccount
 	currentTime := time.Now().UTC()
 	timeString := currentTime.Format("2006-01-02T15:04:05Z07:00")
 
-	// Getting organizationUnitId from job position
-	loggedInProfile, err := getUserProfileByUserAccountID(loggedInAccount.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(loggedInProfile.Id)
-	if err != nil {
-		return nil, err
-	}
-	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
-	if err != nil {
-		return nil, err
-	}
-	organizationUnitId := jobPositionInOrganizationUnit.ParentOrganizationUnitId
+	var newItem *structs.OrderListItem
 
 	totalPrice := float32(0.0)
-	supplierId := 0
+	var supplierId *int
 
 	if len(item.Articles) > 0 {
 		articleMap := make(map[int]structs.OrderArticleInsertItem)
@@ -583,7 +569,7 @@ func buildOrderListInsertItem(item *structs.OrderListInsertItem, loggedInAccount
 		}
 
 		for _, contract := range relatedContractsResponse.Data {
-			supplierId = contract.SupplierId
+			supplierId = &contract.SupplierId
 			relatedContractArticlesResponse, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
 				ContractID: &contract.Id,
 			})
@@ -599,17 +585,39 @@ func buildOrderListInsertItem(item *structs.OrderListInsertItem, loggedInAccount
 		}
 	}
 
-	newItem := structs.OrderListItem{
+	newItem = &structs.OrderListItem{
 		Id:                  item.Id,
 		DateOrder:           timeString,
 		TotalPrice:          totalPrice,
 		PublicProcurementId: item.PublicProcurementId,
-		SupplierId:          &supplierId,
-		OrganizationUnitId:  organizationUnitId,
-		RecipientUserId:     loggedInProfile.Id,
+		SupplierId:          supplierId,
 	}
 
-	return &newItem, nil
+	// Getting organizationUnitId from job position
+	loggedInProfile, err := getUserProfileByUserAccountID(loggedInAccount.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	newItem.RecipientUserId = loggedInProfile.Id
+
+	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(loggedInProfile.Id)
+	if err != nil {
+		return nil, err
+	}
+	if employeesInOrganizationUnit != nil {
+		jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
+		systematization, err := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+		if err != nil {
+			return nil, err
+		}
+		newItem.OrganizationUnitId = systematization.OrganizationUnitId
+	}
+
+	return newItem, nil
 }
 
 func getOrderProcurementArticles(input *dto.GetOrderProcurementArticleInput) (*dto.GetOrderProcurementArticlesResponseMS, error) {
@@ -661,8 +669,8 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 	}
 
 	articleMap := make(map[int]*structs.OrderProcurementArticleItem)
-	for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
-		articleMap[itemOrderArticle.ArticleId] = &itemOrderArticle
+	for index := range relatedOrderProcurementArticle.Data {
+		articleMap[relatedOrderProcurementArticle.Data[index].ArticleId] = &relatedOrderProcurementArticle.Data[index]
 	}
 
 	for _, article := range publicProcurementArticles {

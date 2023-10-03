@@ -1098,7 +1098,7 @@ func updateUserProfile(userID int, user structs.UserProfiles) (*structs.UserProf
 }
 
 func getEmployeesInOrganizationUnitsByProfileId(profileId int) (*structs.EmployeesInOrganizationUnits, error) {
-	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
+	var res dto.GetEmployeesInOrganizationUnitsResponseMS
 	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT+"/"+strconv.Itoa(profileId)+"/employee-in-organization-unit", nil, res)
 	if err != nil {
 		return nil, err

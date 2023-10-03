@@ -61,7 +61,8 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		jobPositionInOrganizationUnit, _ := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
 
 		jobPosition, _ = getJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
-		organizationUnit, _ = getOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
+		systematization, _ := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+		organizationUnit, _ = getOrganizationUnitById(systematization.OrganizationUnitId)
 	}
 
 	return dto.LoginResponse{

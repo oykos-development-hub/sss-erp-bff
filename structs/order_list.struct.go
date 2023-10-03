@@ -5,7 +5,7 @@ type OrderListItem struct {
 	DateOrder            string  `json:"date_order"`
 	TotalPrice           float32 `json:"total_price"`
 	PublicProcurementId  int     `json:"public_procurement_id"`
-	SupplierId           int     `json:"supplier_id"`
+	SupplierId           *int    `json:"supplier_id"`
 	Status               string  `json:"status"`
 	DateSystem           *string `json:"date_system"`
 	InvoiceDate          *string `json:"invoice_date"`

@@ -604,7 +604,7 @@ func buildOrderListInsertItem(item *structs.OrderListInsertItem, loggedInAccount
 		DateOrder:           timeString,
 		TotalPrice:          totalPrice,
 		PublicProcurementId: item.PublicProcurementId,
-		SupplierId:          supplierId,
+		SupplierId:          &supplierId,
 		OrganizationUnitId:  organizationUnitId,
 		RecipientUserId:     loggedInProfile.Id,
 	}
@@ -630,9 +630,12 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 		return nil, err
 	}
 
-	supplier, err := getSupplier(item.SupplierId)
-	if err != nil {
-		return nil, err
+	var supplier *structs.Suppliers
+	if item.SupplierId != nil {
+		supplier, err = getSupplier(*item.SupplierId)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	office := &dto.DropdownSimple{}

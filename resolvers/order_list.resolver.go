@@ -7,7 +7,6 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -638,14 +637,6 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 		return nil, err
 	}
 
-	var supplier *structs.Suppliers
-	if item.SupplierId != nil {
-		supplier, err = getSupplier(*item.SupplierId)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	office := &dto.DropdownSimple{}
 	if item.OfficeId != nil {
 		officeItem, _ := getDropdownSettingById(*item.OfficeId)
@@ -668,13 +659,13 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 		return nil, err
 	}
 
-	articleMap := make(map[int]*structs.OrderProcurementArticleItem)
-	for index := range relatedOrderProcurementArticle.Data {
-		articleMap[relatedOrderProcurementArticle.Data[index].ArticleId] = &relatedOrderProcurementArticle.Data[index]
+	publicProcurementArticlesMap := make(map[int]structs.OrderArticleItem)
+	for _, article := range publicProcurementArticles {
+		publicProcurementArticlesMap[article.Id] = article
 	}
 
-	for _, article := range publicProcurementArticles {
-		if itemOrderArticle, exists := articleMap[article.Id]; exists {
+	for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
+		if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleId]; exists {
 			article.TotalPrice = article.TotalPrice * float32((article.Amount - itemOrderArticle.Amount)) / float32(article.Amount)
 			totalPrice += article.TotalPrice
 			articles = append(articles, dto.DropdownProcurementAvailableArticle{
@@ -706,11 +697,6 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 			Id:    procurementItem.Id,
 			Title: procurementItem.Title,
 		},
-		SupplierID: supplier.Id,
-		Supplier: &dto.DropdownSimple{
-			Id:    supplier.Id,
-			Title: supplier.Title,
-		},
 		DateSystem:         item.DateSystem,
 		InvoiceDate:        item.InvoiceDate,
 		OrganizationUnitID: item.OrganizationUnitId,
@@ -719,10 +705,22 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 		Status:             item.Status,
 		RecipientUser: &dto.DropdownSimple{
 			Id:    userProfile.Id,
-			Title: fmt.Sprintf("%s %s", userProfile.FirstName, userProfile.LastName),
+			Title: userProfile.GetFullName(),
 		},
 		RecipientUserID: item.RecipientUserId,
 		Articles:        &articles,
+	}
+
+	if item.SupplierId != nil {
+		supplier, err := getSupplier(*item.SupplierId)
+		if err != nil {
+			return nil, err
+		}
+		res.SupplierID = supplier.Id
+		res.Supplier = &dto.DropdownSimple{
+			Id:    supplier.Id,
+			Title: supplier.Title,
+		}
 	}
 
 	if item.InvoiceNumber != nil {

@@ -189,6 +189,18 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
+
+		if len(data.Articles) > 0 {
+			err := deleteOrderArticles(itemId)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			err = createOrderListProcurementArticles(res.Id, data)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		}
+
 		item, err := buildOrderListResponseItem(res)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -222,9 +234,8 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 
 var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var (
-		items    []structs.OrderArticleItem
-		itemsMap = make(map[int]structs.OrderArticleItem)
-		total    int
+		items []structs.OrderArticleItem
+		total int
 	)
 	publicProcurementID, ok := params.Args["public_procurement_id"].(int)
 	if !ok || publicProcurementID <= 0 {
@@ -252,15 +263,11 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 			for _, orderArticle := range relatedOrderProcurementArticleResponse.Data {
 				// if article is used in another order, deduct the amount to get Available articles
 				currentArticle.TotalPrice = currentArticle.TotalPrice * float32(currentArticle.Available-orderArticle.Amount/currentArticle.Available)
+				currentArticle.TotalPrice = currentArticle.TotalPrice * float32(currentArticle.Available-orderArticle.Amount/currentArticle.Available)
 				currentArticle.Available -= orderArticle.Amount
 			}
 		}
-		itemsMap[currentArticle.Id] = currentArticle
-	}
-
-	// Convert the map values to a slice
-	for _, item := range itemsMap {
-		items = append(items, item)
+		items = append(items, currentArticle)
 	}
 
 	total = len(items)
@@ -365,26 +372,29 @@ func getEmployeesOfOrganizationUnit(id int) ([]*structs.UserProfiles, error) {
 	return userProfileList, nil
 }
 
-var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
-
-	_, err := getOrderListById(itemId)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
+func deleteOrderArticles(itemId int) error {
 	orderProcurementArticlesResponse, err := getOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{
 		OrderID: &itemId,
 	})
 	if err != nil {
-		return shared.HandleAPIError(err)
+		return err
 	}
 
 	for _, orderProcurementArticle := range orderProcurementArticlesResponse.Data {
 		err = deleteOrderProcurementArticle(orderProcurementArticle.Id)
 		if err != nil {
-			return shared.HandleAPIError(err)
+			return err
 		}
+	}
+	return nil
+}
+
+var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	itemId := params.Args["id"].(int)
+
+	err := deleteOrderArticles(itemId)
+	if err != nil {
+		return shared.HandleAPIError(err)
 	}
 
 	err = deleteOrderList(itemId)

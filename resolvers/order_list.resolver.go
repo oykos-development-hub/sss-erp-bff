@@ -676,13 +676,13 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 			articleTotalPrice := articleUnitPrice * float32(itemOrderArticle.Amount)
 			totalPrice += articleTotalPrice
 			articles = append(articles, dto.DropdownProcurementAvailableArticle{
-				Id:           article.Id,
+				Id:           itemOrderArticle.Id,
 				Title:        article.Title,
 				Manufacturer: article.Manufacturer,
 				Description:  article.Description,
 				Unit:         article.Unit,
 				Available:    article.Available,
-				Amount:       article.Amount,
+				Amount:       itemOrderArticle.Amount,
 				TotalPrice:   articleTotalPrice,
 			})
 		}

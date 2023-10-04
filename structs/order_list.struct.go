@@ -12,7 +12,7 @@ type OrderListItem struct {
 	InvoiceNumber        *int    `json:"invoice_number"`
 	OrganizationUnitId   int     `json:"organization_unit_id"`
 	OfficeId             *int    `json:"office_id"`
-	RecipientUserId      int     `json:"recipient_user_id"`
+	RecipientUserId      *int    `json:"recipient_user_id"`
 	DescriptionReceive   string  `json:"description_receive"`
 	DescriptionRecipient *string `json:"description_recipient"`
 }

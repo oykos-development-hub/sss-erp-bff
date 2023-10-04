@@ -292,7 +292,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 	}
 
 	orderList.Status = "Movement"
-	orderList.RecipientUserId = data.RecipientUserId
+	orderList.RecipientUserId = &data.RecipientUserId
 	orderList.OfficeId = &data.OfficeId
 
 	_, err = updateOrderListItem(data.OrderId, orderList)
@@ -460,7 +460,7 @@ var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interfa
 	orderList.InvoiceDate = nil
 	orderList.InvoiceNumber = nil
 	orderList.OfficeId = nil
-	orderList.RecipientUserId = 0
+	orderList.RecipientUserId = nil
 	orderList.DescriptionReceive = ""
 	orderList.DescriptionRecipient = nil
 
@@ -485,7 +485,7 @@ var OrderListAssetMovementDeleteResolver = func(params graphql.ResolveParams) (i
 	}
 
 	orderList.Status = "Received"
-	orderList.RecipientUserId = 0
+	orderList.RecipientUserId = nil
 	orderList.OfficeId = nil
 
 	_, err = updateOrderListItem(id, orderList)
@@ -615,7 +615,7 @@ func buildOrderListInsertItem(item *structs.OrderListInsertItem, loggedInAccount
 		return nil, err
 	}
 
-	newItem.RecipientUserId = loggedInProfile.Id
+	newItem.RecipientUserId = &loggedInProfile.Id
 
 	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(loggedInProfile.Id)
 	if err != nil {
@@ -701,11 +701,6 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 
 	item.TotalPrice = totalPrice
 
-	userProfile, err := getUserProfileById(item.RecipientUserId)
-	if err != nil {
-		return nil, err
-	}
-
 	res := dto.OrderListOverviewResponse{
 		Id:                  item.Id,
 		DateOrder:           (string)(item.DateOrder),
@@ -721,12 +716,19 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 		OfficeID:           office.Id,
 		Office:             office,
 		Status:             item.Status,
-		RecipientUser: &dto.DropdownSimple{
+		Articles:           &articles,
+	}
+
+	if item.RecipientUserId != nil {
+		userProfile, err := getUserProfileById(*item.RecipientUserId)
+		if err != nil {
+			return nil, err
+		}
+		res.RecipientUser = &dto.DropdownSimple{
 			Id:    userProfile.Id,
 			Title: userProfile.GetFullName(),
-		},
-		RecipientUserID: item.RecipientUserId,
-		Articles:        &articles,
+		}
+		res.RecipientUserID = item.RecipientUserId
 	}
 
 	if item.SupplierId != nil {

@@ -32,7 +32,7 @@ type OrderArticleItem struct {
 	Description         string  `json:"description"`
 	NetPrice            float32 `json:"net_price"`
 	VatPercentage       string  `json:"vat_percentage"`
-	Manufacturer        *string `json:"manufacturer"`
+	Manufacturer        string  `json:"manufacturer"`
 	Amount              int     `json:"amount"`
 	Available           int     `json:"available"`
 	TotalPrice          float32 `json:"total_price"`

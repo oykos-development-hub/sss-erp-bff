@@ -83,7 +83,6 @@ func processContractArticle(items *[]structs.OrderArticleItem, itemsMap map[int]
 }
 
 var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-
 	var (
 		items []dto.OrderListOverviewResponse
 		total int
@@ -673,8 +672,9 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 
 	for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
 		if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleId]; exists {
-			article.TotalPrice = article.TotalPrice * float32((article.Amount - itemOrderArticle.Amount)) / float32(article.Amount)
-			totalPrice += article.TotalPrice
+			articleUnitPrice := article.TotalPrice / float32(article.Amount)
+			articleTotalPrice := articleUnitPrice * float32(itemOrderArticle.Amount)
+			totalPrice += articleTotalPrice
 			articles = append(articles, dto.DropdownProcurementAvailableArticle{
 				Id:           article.Id,
 				Title:        article.Title,
@@ -683,7 +683,7 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 				Unit:         article.Unit,
 				Available:    article.Available,
 				Amount:       article.Amount,
-				TotalPrice:   totalPrice,
+				TotalPrice:   articleTotalPrice,
 			})
 		}
 	}

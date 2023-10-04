@@ -15,7 +15,7 @@ type DropdownProcurementArticle struct {
 type DropdownProcurementAvailableArticle struct {
 	Id           int     `json:"id"`
 	Title        string  `json:"title"`
-	Manufacturer *string `json:"manufacturer"`
+	Manufacturer string  `json:"manufacturer"`
 	Description  string  `json:"description"`
 	Unit         string  `json:"unit"`
 	Available    int     `json:"available"`

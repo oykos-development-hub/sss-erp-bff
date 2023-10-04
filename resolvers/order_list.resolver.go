@@ -251,14 +251,11 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 		if relatedOrderProcurementArticleResponse.Total > 0 {
 			for _, orderArticle := range relatedOrderProcurementArticleResponse.Data {
 				// if article is used in another order, deduct the amount to get Available articles
-				currentArticle.TotalPrice = currentArticle.TotalPrice * float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
+				currentArticle.TotalPrice = currentArticle.TotalPrice * float32(currentArticle.Available-orderArticle.Amount/currentArticle.Available)
 				currentArticle.Available -= orderArticle.Amount
 			}
-			// Check if the item is not already in the map, then add it
-			if _, exists := itemsMap[currentArticle.Id]; !exists {
-				itemsMap[currentArticle.Id] = currentArticle
-			}
 		}
+		itemsMap[currentArticle.Id] = currentArticle
 	}
 
 	// Convert the map values to a slice

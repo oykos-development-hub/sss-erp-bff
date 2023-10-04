@@ -172,18 +172,27 @@ func createOrganizationUnits(data *structs.OrganizationUnits) (*dto.GetOrganizat
 	return res, nil
 }
 
-func getOrganizationUnitIdByUserProfile(id int) (int, error) {
+func getOrganizationUnitIdByUserProfile(id int) (*int, error) {
 	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(id)
 	if err != nil {
-		return 0, err
+		return nil, err
+	}
+
+	if employeesInOrganizationUnit == nil {
+		return nil, nil
 	}
 
 	jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return jobPositionInOrganizationUnit.ParentOrganizationUnitId, nil
+	systematization, err := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &systematization.OrganizationUnitId, nil
 }
 
 func buildOrganizationUnitOverviewResponse(

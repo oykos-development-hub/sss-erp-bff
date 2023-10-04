@@ -317,15 +317,26 @@ var RecipientUsersResolver = func(params graphql.ResolveParams) (interface{}, er
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
+
 	var userProfileDropdownList []*dto.DropdownSimple
-	employees, err := getEmployeesOfOrganizationUnit(organizationUnitID)
+
+	if organizationUnitID == nil {
+		return dto.Response{
+			Message: "User has no organization unit assigned!",
+			Status:  "success",
+			Items:   userProfileDropdownList,
+			Total:   0,
+		}, nil
+	}
+
+	employees, err := getEmployeesOfOrganizationUnit(*organizationUnitID)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 	for _, employee := range employees {
 		userProfileDropdownList = append(userProfileDropdownList, &dto.DropdownSimple{
 			Id:    employee.Id,
-			Title: employee.FirstName + " " + employee.LastName,
+			Title: employee.GetFullName(),
 		})
 	}
 

@@ -20,6 +20,7 @@ var SystematizationsOverviewResolver = func(params graphql.ResolveParams) (inter
 	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
+	active := params.Args["active"]
 	organizationUnitId := params.Args["organization_unit_id"]
 	year := params.Args["year"]
 	search := params.Args["search"]
@@ -56,6 +57,10 @@ var SystematizationsOverviewResolver = func(params graphql.ResolveParams) (inter
 		if search != nil {
 			searchInput := search.(string)
 			input.Search = &searchInput
+		}
+		if shared.IsInteger(active) && active.(int) > 0 {
+			activeValue := active.(int)
+			input.Active = &activeValue
 		}
 
 		systematizationsResponse, err := getSystematizations(&input)

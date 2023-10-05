@@ -30,6 +30,9 @@ var SystematizationsOverviewField = &graphql.Field{
 		"search": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
+		"active": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 	},
 	Resolve: resolvers.SystematizationsOverviewResolver,
 }

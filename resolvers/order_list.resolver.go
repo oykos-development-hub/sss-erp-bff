@@ -647,7 +647,7 @@ func getOrderProcurementArticles(input *dto.GetOrderProcurementArticleInput) (*d
 
 func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOverviewResponse, error) {
 	totalPrice := float32(0.0)
-	totalBruto := float32(0.0)
+	totalNeto := float32(0.0)
 
 	procurementItem, err := getProcurementItem(item.PublicProcurementId)
 	if err != nil {
@@ -689,7 +689,7 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 			articleVat32 := float32(articleVat)
 			vatPrice := articleTotalPrice * articleVat32 / 100
 			totalPrice += articleTotalPrice
-			totalBruto += vatPrice
+			totalNeto += vatPrice
 			articles = append(articles, dto.DropdownProcurementAvailableArticle{
 				Id:           itemOrderArticle.Id,
 				Title:        article.Title,
@@ -704,13 +704,13 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 	}
 
 	item.TotalPrice = totalPrice
-	totalBruto = totalPrice - totalBruto
+	totalNeto = totalPrice - totalNeto
 
 	res := dto.OrderListOverviewResponse{
 		Id:                  item.Id,
 		DateOrder:           (string)(item.DateOrder),
 		TotalPrice:          item.TotalPrice,
-		TotalBruto:          totalBruto,
+		TotalNeto:           totalNeto,
 		PublicProcurementID: procurementItem.Id,
 		PublicProcurement: &dto.DropdownSimple{
 			Id:    procurementItem.Id,

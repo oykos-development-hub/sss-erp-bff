@@ -341,6 +341,8 @@ func CheckJudgeAndPresidentIsAvailable(params graphql.ResolveParams) (interface{
 						}
 					}
 				}
+			} else {
+				check.Judge = true
 			}
 			check.President = true
 			for _, judge := range judgeResolutionOrganizationUnit {
@@ -615,6 +617,29 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 				if err != nil {
 					return shared.HandleAPIError(err)
 				}
+
+				judgesResolution, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+					ResolutionId: res.Id,
+				})
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+
+				if len(judgesResolution) > 0 {
+					for _, judge := range judgesResolution {
+						inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
+							UserProfileId:      judge.UserProfileId,
+							OrganizationUnitId: judge.OrganizationUnitId,
+							ResolutionId:       resolution.Id,
+							IsPresident:        judge.IsPresident,
+						}
+						_, err := createJudgeResolutionOrganizationUnit(&inputCreate)
+						if err != nil {
+							return shared.HandleAPIError(err)
+						}
+					}
+				}
+
 			}
 		}
 
@@ -819,7 +844,7 @@ func updateJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizati
 
 func getJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizationUnitInput) ([]dto.JudgeResolutionsOrganizationUnitItem, error) {
 	res := &dto.GetJudgeResolutionsOrganizationUnitListMS{}
-	_, err := shared.MakeAPIRequest("GET", config.JUDGES, nil, res)
+	_, err := shared.MakeAPIRequest("GET", config.JUDGES, input, res)
 	if err != nil {
 		return nil, err
 	}

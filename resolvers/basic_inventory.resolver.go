@@ -149,6 +149,26 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 	return response, nil
 }
 
+var BasicInventoryDeactivateResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	response := dto.Response{
+		Status: "success",
+	}
+	if id, ok := params.Args["id"].(int); ok && id != 0 {
+		item, err := getInventoryItem(id)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		item.Active = false
+		_, err = updateInventoryItem(id, item)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Message = "You Deactivate this item!"
+	}
+
+	return response, nil
+}
+
 func createInventoryItem(item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error) {
 	res := dto.GetBasicInventoryInsertItem{}
 

@@ -15,6 +15,8 @@ import (
 var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var items []*dto.BasicInventoryResponseItem
 	var filter dto.InventoryItemFilter
+	sourceTypeStr := ""
+	organizationUnitId := 0
 
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		filter.ID = &id
@@ -37,7 +39,7 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	}
 
 	if sourceType, ok := params.Args["source_type"].(string); ok && sourceType != "" {
-		filter.SourceType = &sourceType
+		sourceTypeStr = sourceType
 	}
 
 	if depreciationTypeID, ok := params.Args["depreciation_type_id"].(int); ok && depreciationTypeID != 0 {
@@ -46,6 +48,7 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 
 	if organizationUnitID, ok := params.Args["organization_unit"].(int); ok && organizationUnitID != 0 {
 		filter.OrganizationUnitID = &organizationUnitID
+		organizationUnitId = organizationUnitID
 	}
 
 	if page, ok := params.Args["page"].(int); ok && page != 0 {
@@ -63,7 +66,10 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	}
 
 	for _, item := range basicInventoryData.Data {
-		resItem, err := buildInventoryItemResponse(item)
+		resItem, err := buildInventoryItemResponse(item, organizationUnitId)
+		if len(sourceTypeStr) > 0 && sourceTypeStr != item.SourceType {
+			continue
+		}
 		items = append(items, resItem)
 
 		if err != nil {
@@ -88,7 +94,7 @@ var BasicInventoryDetailsResolver = func(params graphql.ResolveParams) (interfac
 		return shared.HandleAPIError(err)
 	}
 
-	items, err := buildInventoryItemResponse(Item)
+	items, err := buildInventoryItemResponse(Item, 0)
 
 	if err != nil {
 		return shared.HandleAPIError(err)
@@ -123,7 +129,7 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 			}
 			response.Message = "You updated this item/s!"
 
-			items, err := buildInventoryItemResponse(itemRes)
+			items, err := buildInventoryItemResponse(itemRes, 0)
 
 			if err != nil {
 				return shared.HandleAPIError(err)
@@ -137,7 +143,7 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 			}
 
 			response.Message = "You created this item/s!"
-			items, err := buildInventoryItemResponse(itemRes)
+			items, err := buildInventoryItemResponse(itemRes, 0)
 
 			if err != nil {
 				return shared.HandleAPIError(err)
@@ -235,7 +241,7 @@ func getAllInventoryItem(filter dto.InventoryItemFilter) (*dto.GetAllBasicInvent
 	return res, nil
 }
 
-func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem) (*dto.BasicInventoryResponseItem, error) {
+func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organizationUnitId int) (*dto.BasicInventoryResponseItem, error) {
 	settings, err := getDropdownSettingById(item.ClassTypeId)
 	if err != nil {
 		return nil, err
@@ -362,6 +368,23 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem) (*dto.Ba
 			dispatch, _ := buildInventoryDispatchResponse(dispatchRes)
 			movements = append(movements, dispatch)
 
+		}
+	}
+
+	if item.Type == "immovable" {
+		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitId == item.OrganizationUnitId {
+			item.SourceType = "NS1"
+		} else {
+			item.SourceType = "NS2"
+		}
+
+	}
+
+	if item.Type == "movable" {
+		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitId == item.OrganizationUnitId {
+			item.SourceType = "PS1"
+		} else {
+			item.SourceType = "PS2"
 		}
 	}
 

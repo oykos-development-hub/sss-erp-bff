@@ -46,7 +46,7 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_system": &graphql.Field{
 			Type: graphql.String,
 		},
-		"description_receive": &graphql.Field{
+		"description": &graphql.Field{
 			Type: graphql.String,
 		},
 	},

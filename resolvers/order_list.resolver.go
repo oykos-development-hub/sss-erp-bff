@@ -432,8 +432,8 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	orderList.InvoiceNumber = &data.InvoiceNumber
 	orderList.DateSystem = &data.DateSystem
 	orderList.InvoiceDate = &data.InvoiceDate
-	if data.DescriptionReceive != nil {
-		orderList.DescriptionReceive = *data.DescriptionReceive
+	if data.Description != nil {
+		orderList.Description = data.Description
 	}
 
 	_, err = updateOrderListItem(data.OrderId, orderList)
@@ -461,8 +461,7 @@ var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interfa
 	orderList.InvoiceNumber = nil
 	orderList.OfficeId = nil
 	orderList.RecipientUserId = nil
-	orderList.DescriptionReceive = ""
-	orderList.DescriptionRecipient = nil
+	orderList.Description = nil
 
 	_, err = updateOrderListItem(id, orderList)
 	if err != nil {
@@ -715,6 +714,7 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 		OrganizationUnitID: item.OrganizationUnitId,
 		OfficeID:           office.Id,
 		Office:             office,
+		Description:        item.Description,
 		Status:             item.Status,
 		Articles:           &articles,
 	}

@@ -1,20 +1,19 @@
 package structs
 
 type OrderListItem struct {
-	Id                   int     `json:"id"`
-	DateOrder            string  `json:"date_order"`
-	TotalPrice           float32 `json:"total_price"`
-	PublicProcurementId  int     `json:"public_procurement_id"`
-	SupplierId           *int    `json:"supplier_id"`
-	Status               string  `json:"status"`
-	DateSystem           *string `json:"date_system"`
-	InvoiceDate          *string `json:"invoice_date"`
-	InvoiceNumber        *int    `json:"invoice_number"`
-	OrganizationUnitId   int     `json:"organization_unit_id"`
-	OfficeId             *int    `json:"office_id"`
-	RecipientUserId      *int    `json:"recipient_user_id"`
-	DescriptionReceive   string  `json:"description_receive"`
-	DescriptionRecipient *string `json:"description_recipient"`
+	Id                  int     `json:"id"`
+	DateOrder           string  `json:"date_order"`
+	TotalPrice          float32 `json:"total_price"`
+	PublicProcurementId int     `json:"public_procurement_id"`
+	SupplierId          *int    `json:"supplier_id"`
+	Status              string  `json:"status"`
+	DateSystem          *string `json:"date_system"`
+	InvoiceDate         *string `json:"invoice_date"`
+	InvoiceNumber       *int    `json:"invoice_number"`
+	OrganizationUnitId  int     `json:"organization_unit_id"`
+	OfficeId            *int    `json:"office_id"`
+	RecipientUserId     *int    `json:"recipient_user_id"`
+	Description         *string `json:"description"`
 }
 
 type OrderProcurementArticleItem struct {
@@ -53,11 +52,11 @@ type OrderArticleInsertItem struct {
 }
 
 type OrderReceiveItem struct {
-	OrderId            int     `json:"order_id"`
-	DateSystem         string  `json:"date_system"`
-	InvoiceDate        string  `json:"invoice_date"`
-	InvoiceNumber      int     `json:"invoice_number"`
-	DescriptionReceive *string `json:"description_receive"`
+	OrderId       int     `json:"order_id"`
+	DateSystem    string  `json:"date_system"`
+	InvoiceDate   string  `json:"invoice_date"`
+	InvoiceNumber int     `json:"invoice_number"`
+	Description   *string `json:"description"`
 }
 
 type OrderAssetMovementItem struct {

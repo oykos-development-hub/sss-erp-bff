@@ -44,7 +44,7 @@ var OrderListReceiveMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"invoice_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
-		"description_receive": &graphql.InputObjectFieldConfig{
+		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 	},

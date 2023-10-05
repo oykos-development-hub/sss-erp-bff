@@ -21,24 +21,24 @@ type GetOrderListInput struct {
 }
 
 type OrderListOverviewResponse struct {
-	Id                   int                                    `json:"id"`
-	DateOrder            string                                 `json:"date_order" validate:"required"`
-	TotalPrice           float32                                `json:"total_price"`
-	PublicProcurementID  int                                    `json:"public_procurement_id"`
-	SupplierID           int                                    `json:"supplier_id"`
-	Status               string                                 `json:"status"`
-	DateSystem           *string                                `json:"date_system"`
-	InvoiceDate          *string                                `json:"invoice_date"`
-	InvoiceNumber        int                                    `json:"invoice_number"`
-	OrganizationUnitID   int                                    `json:"organization_unit_id"`
-	OfficeID             int                                    `json:"office_id"`
-	RecipientUserID      *int                                   `json:"recipient_user_id"`
-	DescriptionRecipient *string                                `json:"description_recipient"`
-	CreatedAt            string                                 `json:"created_at"`
-	UpdatedAt            string                                 `json:"updated_at"`
-	PublicProcurement    *DropdownSimple                        `json:"public_procurement"`
-	Supplier             *DropdownSimple                        `json:"supplier"`
-	RecipientUser        *DropdownSimple                        `json:"recipient_user"`
-	Office               *DropdownSimple                        `json:"office"`
-	Articles             *[]DropdownProcurementAvailableArticle `json:"articles"`
+	Id                  int                                    `json:"id"`
+	DateOrder           string                                 `json:"date_order" validate:"required"`
+	TotalPrice          float32                                `json:"total_price"`
+	PublicProcurementID int                                    `json:"public_procurement_id"`
+	SupplierID          int                                    `json:"supplier_id"`
+	Status              string                                 `json:"status"`
+	DateSystem          *string                                `json:"date_system"`
+	InvoiceDate         *string                                `json:"invoice_date"`
+	InvoiceNumber       int                                    `json:"invoice_number"`
+	OrganizationUnitID  int                                    `json:"organization_unit_id"`
+	OfficeID            int                                    `json:"office_id"`
+	RecipientUserID     *int                                   `json:"recipient_user_id"`
+	Description         *string                                `json:"description"`
+	CreatedAt           string                                 `json:"created_at"`
+	UpdatedAt           string                                 `json:"updated_at"`
+	PublicProcurement   *DropdownSimple                        `json:"public_procurement"`
+	Supplier            *DropdownSimple                        `json:"supplier"`
+	RecipientUser       *DropdownSimple                        `json:"recipient_user"`
+	Office              *DropdownSimple                        `json:"office"`
+	Articles            *[]DropdownProcurementAvailableArticle `json:"articles"`
 }

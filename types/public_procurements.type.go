@@ -494,8 +494,8 @@ var PublicProcurementOrganizationUnitArticleInsertType = graphql.NewObject(graph
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(PublicProcurementOrganizationUnitArticleItemType),
+		"item": &graphql.Field{
+			Type: PublicProcurementOrganizationUnitArticleItemType,
 		},
 	},
 })

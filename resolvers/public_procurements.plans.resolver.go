@@ -181,7 +181,7 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 	}
 
 	for _, item := range rawItems {
-		resItem, err := buildProcurementItemResponseItem(item)
+		resItem, err := buildProcurementItemResponseItem(item, *loggedInAccount)
 		if err != nil {
 			return nil, err
 		}

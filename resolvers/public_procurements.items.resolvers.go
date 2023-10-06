@@ -14,6 +14,11 @@ import (
 var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"]
 	items := []*dto.ProcurementItemResponseItem{}
+	var authToken = params.Context.Value(config.TokenKey).(string)
+	loggedInAccount, err := getLoggedInUser(authToken)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
 
 	if id != nil && id.(int) > 0 {
 		item, err := getProcurementItem(id.(int))
@@ -21,7 +26,7 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 			return shared.HandleAPIError(err)
 		}
 
-		resItem, _ := buildProcurementItemResponseItem(item)
+		resItem, _ := buildProcurementItemResponseItem(item, *loggedInAccount)
 		items = append(items, resItem)
 	} else {
 		procurements, err := getProcurementItemList(nil)
@@ -30,7 +35,7 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 		}
 
 		for _, item := range procurements {
-			resItem, _ := buildProcurementItemResponseItem(item)
+			resItem, _ := buildProcurementItemResponseItem(item, *loggedInAccount)
 			items = append(items, resItem)
 		}
 	}
@@ -47,12 +52,17 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 	response := dto.ResponseSingle{
 		Status: "success",
 	}
+	var authToken = params.Context.Value(config.TokenKey).(string)
+	loggedInAccount, err := getLoggedInUser(authToken)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
 
 	var data structs.PublicProcurementItem
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	err := json.Unmarshal(dataBytes, &data)
+	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -64,7 +74,7 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		resItem, _ := buildProcurementItemResponseItem(res)
+		resItem, _ := buildProcurementItemResponseItem(res, *loggedInAccount)
 
 		response.Message = "You updated this item!"
 		response.Item = resItem
@@ -74,7 +84,7 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 			return shared.HandleAPIError(err)
 		}
 
-		resItem, _ := buildProcurementItemResponseItem(res)
+		resItem, _ := buildProcurementItemResponseItem(res, *loggedInAccount)
 
 		response.Message = "You created this item!"
 		response.Item = resItem
@@ -147,7 +157,7 @@ func getProcurementItemList(input *dto.GetProcurementItemListInputMS) ([]*struct
 	return res.Data, nil
 }
 
-func buildProcurementItemResponseItem(item *structs.PublicProcurementItem) (*dto.ProcurementItemResponseItem, error) {
+func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, loggedInAccount structs.UserAccounts) (*dto.ProcurementItemResponseItem, error) {
 	plan, _ := getProcurementPlan(item.PlanId)
 	planDropdown := dto.DropdownSimple{Id: plan.Id, Title: plan.Title}
 
@@ -164,6 +174,16 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem) (*dto
 		articles = append(articles, articleResItem)
 	}
 
+	userProfile, _ := getUserProfileByUserAccountID(loggedInAccount.Id)
+	organizationUnitID, _ := getOrganizationUnitIdByUserProfile(userProfile.Id)
+
+	filledArticles, _ := getOrganizationUnitArticles(plan.Id, *organizationUnitID)
+
+	planStatus := "U toku"
+	if len(filledArticles) >= len(articlesRaw) {
+		planStatus = "Obrađen"
+	}
+
 	res := dto.ProcurementItemResponseItem{
 		Id:                item.Id,
 		Title:             item.Title,
@@ -171,7 +191,7 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem) (*dto
 		Plan:              planDropdown,
 		IsOpenProcurement: item.IsOpenProcurement,
 		ArticleType:       item.ArticleType,
-		Status:            item.Status,
+		Status:            &planStatus,
 		SerialNumber:      item.SerialNumber,
 		DateOfAwarding:    (*string)(item.DateOfAwarding),
 		DateOfPublishing:  (*string)(item.DateOfPublishing),

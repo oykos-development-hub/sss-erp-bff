@@ -7,17 +7,24 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"strconv"
+	"sync"
 
 	"github.com/graphql-go/graphql"
 )
 
 var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"]
-	items := []*dto.ProcurementItemResponseItem{}
+	var items []*dto.ProcurementItemResponseItem
 	var authToken = params.Context.Value(config.TokenKey).(string)
 	loggedInAccount, err := getLoggedInUser(authToken)
 	if err != nil {
 		return shared.HandleAPIError(err)
+	}
+
+	processItem := func(item *structs.PublicProcurementItem, ch chan<- *dto.ProcurementItemResponseItem, wg *sync.WaitGroup) {
+		defer wg.Done()
+		resItem, _ := buildProcurementItemResponseItem(item, *loggedInAccount)
+		ch <- resItem
 	}
 
 	if id != nil && id.(int) > 0 {
@@ -25,7 +32,6 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-
 		resItem, _ := buildProcurementItemResponseItem(item, *loggedInAccount)
 		items = append(items, resItem)
 	} else {
@@ -34,8 +40,21 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 			return shared.HandleAPIError(err)
 		}
 
+		// Initialize a WaitGroup based on the number of items to be processed
+		var wg sync.WaitGroup
+		ch := make(chan *dto.ProcurementItemResponseItem, len(procurements))
+
 		for _, item := range procurements {
-			resItem, _ := buildProcurementItemResponseItem(item, *loggedInAccount)
+			wg.Add(1)
+			go processItem(item, ch, &wg)
+		}
+
+		go func() {
+			wg.Wait()
+			close(ch)
+		}()
+
+		for resItem := range ch {
 			items = append(items, resItem)
 		}
 	}

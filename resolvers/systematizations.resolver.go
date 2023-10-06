@@ -156,6 +156,8 @@ var SystematizationInsertResolver = func(params graphql.ResolveParams) (interfac
 					ParentOrganizationUnitId: jobPositionOU.ParentOrganizationUnitId,
 					JobPositionId:            jobPositionOU.JobPositionId,
 					AvailableSlots:           jobPositionOU.AvailableSlots,
+					Requirements:             jobPositionOU.Requirements,
+					Description:              jobPositionOU.Description,
 				})
 
 				input := dto.GetEmployeesInOrganizationUnitInput{

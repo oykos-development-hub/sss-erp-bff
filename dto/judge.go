@@ -116,11 +116,11 @@ type JudgeResolutionsOrganizationUnitItem struct {
 }
 
 type JudgeResolutionsOrganizationUnitInput struct {
-	Page               int `json:"page"`
-	PageSize           int `json:"page_size"`
-	UserProfileId      int `json:"user_profile_id"`
-	OrganizationUnitId int `json:"organization_unit_id"`
-	ResolutionId       int `json:"resolution_id"`
+	Page               *int `json:"page"`
+	PageSize           *int `json:"page_size"`
+	UserProfileId      *int `json:"user_profile_id"`
+	OrganizationUnitId *int `json:"organization_unit_id"`
+	ResolutionId       *int `json:"resolution_id"`
 }
 
 type CheckJudgeAndPresidentIsAvailableMS struct {

@@ -160,8 +160,8 @@ func buildUserProfileOverviewResponse(
 	if len(resolution.Data) > 0 {
 
 		judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-			UserProfileId: profile.Id,
-			ResolutionId:  resolution.Data[0].Id,
+			UserProfileId: &profile.Id,
+			ResolutionId:  &resolution.Data[0].Id,
 		})
 
 		if err != nil {
@@ -425,9 +425,9 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 
 	if len(resolution.Data) > 0 {
 		judgeResolutionOrganizationUnit, _ := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-			OrganizationUnitId: activeContract.Contract.OrganizationUnitID,
-			UserProfileId:      userProfileData.Id,
-			ResolutionId:       resolution.Data[0].Id,
+			OrganizationUnitId: &activeContract.Contract.OrganizationUnitID,
+			UserProfileId:      &userProfileData.Id,
+			ResolutionId:       &resolution.Data[0].Id,
 		})
 
 		if len(judgeResolutionOrganizationUnit) > 0 {
@@ -993,9 +993,9 @@ func buildUserProfileBasicResponse(
 			if len(resolution.Data) > 0 {
 				resolutionId := resolution.Data[0].Id
 				judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-					OrganizationUnitId: contractResponseItem.OrganizationUnit.Id,
-					ResolutionId:       resolutionId,
-					UserProfileId:      profile.Id,
+					OrganizationUnitId: &contractResponseItem.OrganizationUnit.Id,
+					ResolutionId:       &resolutionId,
+					UserProfileId:      &profile.Id,
 				})
 				if err != nil {
 					return nil, err

@@ -314,9 +314,12 @@ func CheckJudgeAndPresidentIsAvailable(params graphql.ResolveParams) (interface{
 		resolution, _ := getJudgeResolutionList(&input)
 
 		if len(resolution.Data) > 0 {
+			orgUnitID := organizationUnitId.(int)
+			resolutionID := resolution.Data[0].Id
+
 			judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-				OrganizationUnitId: organizationUnitId.(int),
-				ResolutionId:       resolution.Data[0].Id,
+				OrganizationUnitId: &orgUnitID,
+				ResolutionId:       &resolutionID,
 			})
 
 			if err != nil {
@@ -514,10 +517,12 @@ func calculateEmployeeStats(id int) (int, int, int, int, error) {
 	resolution, _ := getJudgeResolutionList(&input)
 
 	if len(resolution.Data) > 0 {
-		judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-			OrganizationUnitId: id,
-			ResolutionId:       resolution.Data[0].Id,
-		})
+		resolutionID := resolution.Data[0].Id
+		input := &dto.JudgeResolutionsOrganizationUnitInput{
+			OrganizationUnitId: &id,
+			ResolutionId:       &resolutionID,
+		}
+		judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(input)
 
 		if err != nil {
 			return numberOfEmployees, numberOfJudges, totalRelocations, numberOfJudgePresidents, err
@@ -533,7 +538,6 @@ func calculateEmployeeStats(id int) (int, int, int, int, error) {
 			}
 		}
 	}
-
 	return numberOfJudges, numberOfJudgePresidents, numberOfEmployees, totalRelocations, nil
 }
 
@@ -619,7 +623,7 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 				}
 
 				judgesResolution, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-					ResolutionId: res.Id,
+					ResolutionId: &res.Id,
 				})
 				if err != nil {
 					return shared.HandleAPIError(err)

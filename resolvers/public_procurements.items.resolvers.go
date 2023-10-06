@@ -177,11 +177,13 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 	userProfile, _ := getUserProfileByUserAccountID(loggedInAccount.Id)
 	organizationUnitID, _ := getOrganizationUnitIdByUserProfile(userProfile.Id)
 
-	filledArticles, _ := getOrganizationUnitArticles(plan.Id, *organizationUnitID)
-
 	planStatus := "U toku"
-	if len(filledArticles) >= len(articlesRaw) {
-		planStatus = "Obrađen"
+
+	if organizationUnitID != nil {
+		filledArticles, _ := getOrganizationUnitArticles(plan.Id, *organizationUnitID)
+		if len(filledArticles) >= len(articlesRaw) {
+			planStatus = "Obrađen"
+		}
 	}
 
 	res := dto.ProcurementItemResponseItem{

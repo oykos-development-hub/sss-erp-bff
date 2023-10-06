@@ -107,9 +107,22 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 
 var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	planId := params.Args["plan_id"].(int)
-	unitId := params.Args["organization_unit_id"].(int)
+	organizationUnitId := params.Args["organization_unit_id"]
+	if organizationUnitId == nil {
+		var authToken = params.Context.Value(config.TokenKey).(string)
+		userProfile, err := getLoggedInUserProfile(authToken)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
 
-	response, err := buildProcurementOUArticleDetailsResponseItem(planId, unitId)
+		unitId, err := getOrganizationUnitIdByUserProfile(userProfile.Id)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		organizationUnitId = *unitId
+	}
+
+	response, err := buildProcurementOUArticleDetailsResponseItem(planId, organizationUnitId.(int))
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}

@@ -292,7 +292,25 @@ func main() {
 		handlers.AllowCredentials(),
 	)
 	// Insert the custom middleware handler
-	graphqlHandler := errorHandlerMiddleware(extractTokenMiddleware(corsHandler(addResponseWriterToContext(RequestContextMiddleware(h)))))
+	graphqlHandler := corsHandler( // Move corsHandler here
+		errorHandlerMiddleware(
+			extractTokenMiddleware(
+				addResponseWriterToContext(
+					RequestContextMiddleware(h),
+				),
+			),
+		),
+	)
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Explicitly handle OPTIONS requests
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		graphqlHandler.ServeHTTP(w, r)
+	})
+
 	// Start your HTTP server with the CORS-enabled handler
 	http.Handle("/", graphqlHandler)
 	_ = http.ListenAndServe(":8080", nil)

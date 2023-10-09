@@ -74,10 +74,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 
 	response.Total = len(judgesList)
 
-	paginatedItems, err := shared.Paginate(judgesList, page, size)
-	if err != nil {
-		fmt.Printf("Error paginating items: %v", err)
-	}
+	paginatedItems, _ := shared.Paginate(judgesList, page, size)
 
 	response.Items = paginatedItems
 
@@ -283,10 +280,8 @@ var JudgeResolutionsResolver = func(params graphql.ResolveParams) (interface{}, 
 	}
 
 	response.Total = len(resolutionResponseList)
-	paginatedItems, err := shared.Paginate(resolutionResponseList, page, size)
-	if err != nil {
-		fmt.Printf("Error paginating items: %v", err)
-	}
+	paginatedItems, _ := shared.Paginate(resolutionResponseList, page, size)
+
 	response.Items = paginatedItems
 
 	return response, nil

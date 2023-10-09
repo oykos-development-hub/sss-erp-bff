@@ -77,10 +77,8 @@ var UserProfilesOverviewResolver = func(params graphql.ResolveParams) (interface
 		}
 	}
 
-	paginatedItems, err := shared.Paginate(items, page, size)
-	if err != nil {
-		fmt.Printf("Error paginating items: %v", err)
-	}
+	paginatedItems, _ := shared.Paginate(items, page, size)
+
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",

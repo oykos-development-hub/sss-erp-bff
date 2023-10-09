@@ -6,7 +6,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -74,10 +73,8 @@ var JobTenderResolver = func(params graphql.ResolveParams) (interface{}, error) 
 			items = append(items, *resItem)
 		}
 
-		paginatedItems, err := shared.Paginate(items, page, size)
-		if err != nil {
-			fmt.Printf("Error paginating items: %v", err)
-		}
+		paginatedItems, _ := shared.Paginate(items, page, size)
+
 		return dto.Response{
 			Status:  "success",
 			Message: "Here's the list you asked for!",
@@ -313,10 +310,7 @@ var JobTenderApplicationsResolver = func(params graphql.ResolveParams) (interfac
 			items = append(items, *resItem)
 		}
 
-		paginatedItems, err := shared.Paginate(items, page.(int), size.(int))
-		if err != nil {
-			fmt.Printf("Error paginating items: %v", err)
-		}
+		paginatedItems, _ := shared.Paginate(items, page.(int), size.(int))
 
 		return dto.Response{
 			Status:  "success",

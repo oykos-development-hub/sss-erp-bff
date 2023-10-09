@@ -157,7 +157,7 @@ func buildUserProfileOverviewResponse(
 
 	if len(resolution.Data) > 0 {
 
-		judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+		judgeResolutionOrganizationUnit, _, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
 			UserProfileId: &profile.Id,
 			ResolutionId:  &resolution.Data[0].Id,
 		})
@@ -422,7 +422,7 @@ var UserProfileUpdateResolver = func(params graphql.ResolveParams) (interface{},
 	resolution, _ := getJudgeResolutionList(&input)
 
 	if len(resolution.Data) > 0 {
-		judgeResolutionOrganizationUnit, _ := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+		judgeResolutionOrganizationUnit, _, _ := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
 			OrganizationUnitId: &activeContract.Contract.OrganizationUnitID,
 			UserProfileId:      &userProfileData.Id,
 			ResolutionId:       &resolution.Data[0].Id,
@@ -990,7 +990,7 @@ func buildUserProfileBasicResponse(
 
 			if len(resolution.Data) > 0 {
 				resolutionId := resolution.Data[0].Id
-				judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+				judgeResolutionOrganizationUnit, _, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
 					OrganizationUnitId: &contractResponseItem.OrganizationUnit.Id,
 					ResolutionId:       &resolutionId,
 					UserProfileId:      &profile.Id,

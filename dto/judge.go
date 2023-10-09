@@ -44,7 +44,8 @@ type GetJudgeResolutionsOrganizationUnitResponseMS struct {
 }
 
 type GetJudgeResolutionsOrganizationUnitListMS struct {
-	Data []JudgeResolutionsOrganizationUnitItem `json:"data"`
+	Data  []JudgeResolutionsOrganizationUnitItem `json:"data"`
+	Total int                                    `json:"total"`
 }
 
 type Judges struct {

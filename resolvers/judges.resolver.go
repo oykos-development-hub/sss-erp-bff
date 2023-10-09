@@ -48,7 +48,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 		filter.ResolutionId = &res
 	}
 
-	judges, err := getJudgeResolutionOrganizationUnit(&filter)
+	judges, total, err := getJudgeResolutionOrganizationUnit(&filter)
 
 	if err != nil {
 		return shared.HandleAPIError(err)
@@ -65,6 +65,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 	}
 
 	response.Items = responseItems
+	response.Total = total
 	return response, nil
 }
 
@@ -280,7 +281,7 @@ func CheckJudgeAndPresidentIsAvailable(params graphql.ResolveParams) (interface{
 			orgUnitID := organizationUnitId.(int)
 			resolutionID := resolution.Data[0].Id
 
-			judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+			judgeResolutionOrganizationUnit, _, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
 				OrganizationUnitId: &orgUnitID,
 				ResolutionId:       &resolutionID,
 			})
@@ -485,7 +486,7 @@ func calculateEmployeeStats(id int) (int, int, int, int, error) {
 			OrganizationUnitId: &id,
 			ResolutionId:       &resolutionID,
 		}
-		judgeResolutionOrganizationUnit, err := getJudgeResolutionOrganizationUnit(input)
+		judgeResolutionOrganizationUnit, _, err := getJudgeResolutionOrganizationUnit(input)
 
 		if err != nil {
 			return numberOfEmployees, numberOfJudges, totalRelocations, numberOfJudgePresidents, err
@@ -585,7 +586,7 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 					return shared.HandleAPIError(err)
 				}
 
-				judgesResolution, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+				judgesResolution, _, err := getJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
 					ResolutionId: &res.Id,
 				})
 				if err != nil {
@@ -809,14 +810,14 @@ func updateJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizati
 	return &res.Data, nil
 }
 
-func getJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizationUnitInput) ([]dto.JudgeResolutionsOrganizationUnitItem, error) {
+func getJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizationUnitInput) ([]dto.JudgeResolutionsOrganizationUnitItem, int, error) {
 	res := &dto.GetJudgeResolutionsOrganizationUnitListMS{}
 	_, err := shared.MakeAPIRequest("GET", config.JUDGES, input, res)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return res.Data, nil
+	return res.Data, res.Total, nil
 }
 
 func deleteJJudgeResolutionOrganizationUnit(id int) error {

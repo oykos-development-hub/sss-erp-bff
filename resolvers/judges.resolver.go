@@ -15,82 +15,129 @@ import (
 
 var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["user_profile_id"]
-	page := params.Args["page"].(int)
-	size := params.Args["size"].(int)
+	page := params.Args["page"]
+	size := params.Args["size"]
+	orgUnitID := params.Args["organization_unit_id"]
+	resID := params.Args["resolution_id"]
 
-	var judgesList []*dto.Judges
 	response := dto.Response{
 		Status: "success",
 	}
 
-	isJudge := true
-	input := dto.GetJobPositionsInput{
-		IsJudge: &isJudge,
+	filter := dto.JudgeResolutionsOrganizationUnitInput{}
+
+	if page != nil {
+		Page := page.(int)
+		filter.Page = &Page
 	}
-	jobPositionsRes, err := getJobPositions(&input)
+	if size != nil {
+		Size := size.(int)
+		filter.PageSize = &Size
+	}
+	if orgUnitID != nil {
+		OrgUnit := orgUnitID.(int)
+		filter.OrganizationUnitId = &OrgUnit
+	}
+	if id != nil {
+		user := id.(int)
+		filter.UserProfileId = &user
+	}
+	if resID != nil {
+		res := resID.(int)
+		filter.ResolutionId = &res
+	}
+
+	judges, err := getJudgeResolutionOrganizationUnit(&filter)
+
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	jobPositions := jobPositionsRes.Data
 
-	for _, jobPosition := range jobPositions {
-		input := dto.GetJobPositionInOrganizationUnitsInput{}
-		input.JobPositionID = &jobPosition.Id
+	var responseItems []*dto.Judges
 
-		jobPositionInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
+	for _, judge := range judges {
+		judgeUser, err := buildJudgeResponseItem(judge.UserProfileId, judge.OrganizationUnitId, judge.IsPresident)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
+		responseItems = append(responseItems, judgeUser)
+	}
 
-		for _, jobPositionInOrganizationUnit := range jobPositionInOrganizationUnits.Data {
-			input := dto.GetEmployeesInOrganizationUnitInput{
-				PositionInOrganizationUnit: &jobPositionInOrganizationUnit.Id,
+	response.Items = responseItems
+
+	/*
+			isJudge := true
+			input := dto.GetJobPositionsInput{
+				IsJudge: &isJudge,
 			}
-			employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
+			jobPositionsRes, err := getJobPositions(&input)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			jobPositions := jobPositionsRes.Data
 
-			for _, employeeInOrganizationUnit := range employeesInOrganizationUnit {
-				if id != nil && id.(int) > 0 && employeeInOrganizationUnit.UserProfileId != id.(int) || findJudgeByID(judgesList, employeeInOrganizationUnit.UserProfileId) {
-					continue
-				}
-				systematization, _ := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+			for _, jobPosition := range jobPositions {
+				input := dto.GetJobPositionInOrganizationUnitsInput{}
+				input.JobPositionID = &jobPosition.Id
 
-				if organizationUnitIdFilter, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitIdFilter != 0 && systematization.OrganizationUnitId != organizationUnitIdFilter {
-					continue
-				}
-
-				judgeResponse, err := buildJudgeResponseItem(
-					employeeInOrganizationUnit.UserProfileId,
-					systematization.OrganizationUnitId,
-					jobPosition.Id,
-				)
-
+				jobPositionInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
 				if err != nil {
 					return shared.HandleAPIError(err)
 				}
-				judgesList = append(judgesList, judgeResponse)
+
+				for _, jobPositionInOrganizationUnit := range jobPositionInOrganizationUnits.Data {
+					input := dto.GetEmployeesInOrganizationUnitInput{
+						PositionInOrganizationUnit: &jobPositionInOrganizationUnit.Id,
+					}
+					employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
+
+					for _, employeeInOrganizationUnit := range employeesInOrganizationUnit {
+						if id != nil && id.(int) > 0 && employeeInOrganizationUnit.UserProfileId != id.(int) || findJudgeByID(judgesList, employeeInOrganizationUnit.UserProfileId) {
+							continue
+						}
+						systematization, _ := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+
+						if organizationUnitIdFilter, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitIdFilter != 0 && systematization.OrganizationUnitId != organizationUnitIdFilter {
+							continue
+						}
+
+						judgeResponse, err := buildJudgeResponseItem(
+							employeeInOrganizationUnit.UserProfileId,
+							systematization.OrganizationUnitId,
+							jobPosition.Id,
+						)
+
+						if err != nil {
+							return shared.HandleAPIError(err)
+						}
+						judgesList = append(judgesList, judgeResponse)
+					}
+				}
 			}
+
+			response.Total = len(judgesList)
+
+		paginatedItems, err := shared.Paginate(judgesList, page, size)
+		if err != nil {
+			fmt.Printf("Error paginating items: %v", err)
 		}
-	}
 
-	response.Total = len(judgesList)
-
-	paginatedItems, _ := shared.Paginate(judgesList, page, size)
-
-	response.Items = paginatedItems
-
+			response.Items = paginatedItems
+	*/
 	return response, nil
 }
 
-func findJudgeByID(judgesList []*dto.Judges, id int) bool {
-	for _, judge := range judgesList {
-		if judge.ID == id {
-			return true
+/*
+	func findJudgeByID(judgesList []*dto.Judges, id int) bool {
+		for _, judge := range judgesList {
+			if judge.ID == id {
+				return true
+			}
 		}
+		return false
 	}
-	return false
-}
-
-func buildJudgeResponseItem(userProfileID, organizationUnitID, jobPositionId int) (*dto.Judges, error) {
+*/
+func buildJudgeResponseItem(userProfileID, organizationUnitID int, isPresident bool) (*dto.Judges, error) {
 	userProfile, err := getUserProfileById(userProfileID)
 	if err != nil {
 		return nil, err
@@ -108,16 +155,16 @@ func buildJudgeResponseItem(userProfileID, organizationUnitID, jobPositionId int
 		Id:    organizationUnit.Id,
 		Title: organizationUnit.Title,
 	}
-
-	jobPosition, err := getJobPositionById(jobPositionId)
-	if err != nil {
-		return nil, err
-	}
-	jobPositionDropdown := structs.SettingsDropdown{
-		Id:    jobPosition.Id,
-		Title: jobPosition.Title,
-	}
-
+	/*
+		jobPosition, err := getJobPositionById(jobPositionId)
+		if err != nil {
+			return nil, err
+		}
+		jobPositionDropdown := structs.SettingsDropdown{
+			Id:    jobPosition.Id,
+			Title: jobPosition.Title,
+		}
+	*/
 	norms, err := getJudgeNormListByEmployee(userProfile.Id)
 	if err != nil {
 		return nil, err
@@ -132,9 +179,8 @@ func buildJudgeResponseItem(userProfileID, organizationUnitID, jobPositionId int
 		ID:               userProfile.Id,
 		FirstName:        userProfile.FirstName,
 		LastName:         userProfile.LastName,
-		IsJudgePresident: jobPosition.IsJudgePresident,
+		IsJudgePresident: isPresident,
 		OrganizationUnit: organizationUnitDropdown,
-		JobPosition:      jobPositionDropdown,
 		Norms:            normResItemList,
 		FolderID:         userAccount.FolderId,
 		CreatedAt:        userProfile.CreatedAt,

@@ -17,6 +17,7 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 	id := params.Args["user_profile_id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
+
 	orgUnitID := params.Args["organization_unit_id"]
 	resID := params.Args["resolution_id"]
 

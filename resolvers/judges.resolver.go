@@ -64,79 +64,9 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 	}
 
 	response.Items = responseItems
-
-	/*
-			isJudge := true
-			input := dto.GetJobPositionsInput{
-				IsJudge: &isJudge,
-			}
-			jobPositionsRes, err := getJobPositions(&input)
-			if err != nil {
-				return shared.HandleAPIError(err)
-			}
-			jobPositions := jobPositionsRes.Data
-
-			for _, jobPosition := range jobPositions {
-				input := dto.GetJobPositionInOrganizationUnitsInput{}
-				input.JobPositionID = &jobPosition.Id
-
-				jobPositionInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&input)
-				if err != nil {
-					return shared.HandleAPIError(err)
-				}
-
-				for _, jobPositionInOrganizationUnit := range jobPositionInOrganizationUnits.Data {
-					input := dto.GetEmployeesInOrganizationUnitInput{
-						PositionInOrganizationUnit: &jobPositionInOrganizationUnit.Id,
-					}
-					employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
-
-					for _, employeeInOrganizationUnit := range employeesInOrganizationUnit {
-						if id != nil && id.(int) > 0 && employeeInOrganizationUnit.UserProfileId != id.(int) || findJudgeByID(judgesList, employeeInOrganizationUnit.UserProfileId) {
-							continue
-						}
-						systematization, _ := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
-
-						if organizationUnitIdFilter, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitIdFilter != 0 && systematization.OrganizationUnitId != organizationUnitIdFilter {
-							continue
-						}
-
-						judgeResponse, err := buildJudgeResponseItem(
-							employeeInOrganizationUnit.UserProfileId,
-							systematization.OrganizationUnitId,
-							jobPosition.Id,
-						)
-
-						if err != nil {
-							return shared.HandleAPIError(err)
-						}
-						judgesList = append(judgesList, judgeResponse)
-					}
-				}
-			}
-
-			response.Total = len(judgesList)
-
-		paginatedItems, err := shared.Paginate(judgesList, page, size)
-		if err != nil {
-			fmt.Printf("Error paginating items: %v", err)
-		}
-
-			response.Items = paginatedItems
-	*/
 	return response, nil
 }
 
-/*
-	func findJudgeByID(judgesList []*dto.Judges, id int) bool {
-		for _, judge := range judgesList {
-			if judge.ID == id {
-				return true
-			}
-		}
-		return false
-	}
-*/
 func buildJudgeResponseItem(userProfileID, organizationUnitID int, isPresident bool) (*dto.Judges, error) {
 	userProfile, err := getUserProfileById(userProfileID)
 	if err != nil {
@@ -155,16 +85,7 @@ func buildJudgeResponseItem(userProfileID, organizationUnitID int, isPresident b
 		Id:    organizationUnit.Id,
 		Title: organizationUnit.Title,
 	}
-	/*
-		jobPosition, err := getJobPositionById(jobPositionId)
-		if err != nil {
-			return nil, err
-		}
-		jobPositionDropdown := structs.SettingsDropdown{
-			Id:    jobPosition.Id,
-			Title: jobPosition.Title,
-		}
-	*/
+
 	norms, err := getJudgeNormListByEmployee(userProfile.Id)
 	if err != nil {
 		return nil, err

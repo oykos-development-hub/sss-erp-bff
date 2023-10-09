@@ -40,7 +40,10 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		fmt.Printf("Fetching permissions failed because of this error - %s.\n", permissionsDataErr)
 	}
 
-	userProfile, _ := getUserProfileByUserAccountID(loginRes.Data.Id)
+	userProfile, err := getUserProfileByUserAccountID(loginRes.Data.Id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
 
 	isActive := true
 	contracts, _ := getEmployeeContracts(userProfile.Id, &dto.GetEmployeeContracts{Active: &isActive})

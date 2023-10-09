@@ -5,8 +5,6 @@ import (
 	"bff/fields"
 	"bytes"
 	"context"
-	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -15,7 +13,27 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
+	"github.com/sirupsen/logrus"
 )
+
+var logger = logrus.New()
+
+func init() {
+	// Set the logger format to JSON for structured logging
+	logger.SetFormatter(&logrus.JSONFormatter{})
+
+	// Set logger level (this can be adjusted as needed: InfoLevel, WarnLevel, etc.)
+	logger.SetLevel(logrus.InfoLevel)
+
+	// Open the log file for writing
+	logFile, err := os.OpenFile("./log/sss-erp-bff.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		logrus.Fatal("Failed to open log file:", err)
+	}
+
+	// Set the logger output to the log file
+	logger.SetOutput(logFile)
+}
 
 func extractTokenFromHeader(headerValue string) string {
 	if headerValue == "" {
@@ -51,8 +69,11 @@ func errorHandlerMiddleware(next http.Handler) http.Handler {
 		defer func() {
 			// Check for errors in the response
 			if responseWriter.Code >= http.StatusBadRequest {
-				// Handle the error by logging or returning a custom error message
-				log.Println("HTTP error:", responseWriter.Code, buf.String())
+				// Handle the error using logrus
+				logger.WithFields(logrus.Fields{
+					"status_code": responseWriter.Code,
+					"response":    buf.String(),
+				}).Error("HTTP error detected")
 			}
 			// Copy the response from the recorder to the original writer
 			for key, values := range responseWriter.Header() {
@@ -69,20 +90,6 @@ func errorHandlerMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-	// Open the log file for writing
-	err := os.MkdirAll("./log", 0777)
-	if err != nil {
-		fmt.Println("Failed to create a log directory:", err)
-		return
-	}
-	logFile, err := os.OpenFile("./log/sss-erp-bff.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatal("Failed to open log file:", err)
-	}
-	// Set the log output to the log file
-	log.SetOutput(logFile)
-	// Redirect standard error to the log file
-	os.Stderr = logFile
 	mutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{
@@ -292,11 +299,11 @@ func main() {
 		handlers.AllowCredentials(),
 	)
 	// Insert the custom middleware handler
-	graphqlHandler := corsHandler( // Move corsHandler here
-		errorHandlerMiddleware(
-			extractTokenMiddleware(
-				addResponseWriterToContext(
-					RequestContextMiddleware(h),
+	graphqlHandler := errorHandlerMiddleware(
+		extractTokenMiddleware(
+			addResponseWriterToContext(
+				RequestContextMiddleware(
+					corsHandler(h),
 				),
 			),
 		),

@@ -171,7 +171,7 @@ func buildJobTenderApplicationResponse(item *structs.JobTenderApplications) (*dt
 		res.LastName = userProfile.LastName
 		res.OfficialPersonalID = userProfile.OfficialPersonalId
 		res.DateOfBirth = userProfile.DateOfBirth
-		res.Nationality = userProfile.Nationality
+		res.Nationality = userProfile.Citizenship
 
 		evaluation, err := getEmployeeEvaluations(userProfile.Id)
 		if err != nil {

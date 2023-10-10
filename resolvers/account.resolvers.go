@@ -72,12 +72,39 @@ var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 		}, nil
 	}
 
+	if level, ok := params.Args["level"].(int); ok {
+		accountsMap := make(map[int]*dto.AccountItemResponseItem)
+		for _, account := range accountResItemlist {
+			accountsMap[account.ID] = account
+		}
+
+		var filteredAccounts []*dto.AccountItemResponseItem
+		for _, account := range accountResItemlist {
+			if determineLevel(account, accountsMap) == level {
+				filteredAccounts = append(filteredAccounts, account)
+			}
+		}
+		accountResItemlist = filteredAccounts
+	}
+
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 		Total:   accounts.Total,
 		Items:   accountResItemlist,
 	}, nil
+}
+
+func determineLevel(account *dto.AccountItemResponseItem, accountsMap map[int]*dto.AccountItemResponseItem) int {
+	level := 0
+	for account.ParentId != nil {
+		account = accountsMap[*account.ParentId]
+		if account == nil {
+			break
+		}
+		level++
+	}
+	return level
 }
 
 var AccountInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -147,6 +174,15 @@ func getAccountItems(filters *dto.GetAccountsFilter) (*dto.GetAccountItemListRes
 		return nil, err
 	}
 	return res, nil
+}
+
+func getAccountItemById(id int) (*structs.AccountItem, error) {
+	res := &dto.GetAccountItemResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.ACCOUNT_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+	return &res.Data, nil
 }
 
 func createAccountItem(accountItem *structs.AccountItem) (*structs.AccountItem, error) {

@@ -43,6 +43,9 @@ var AccountOverviewField = &graphql.Field{
 		"tree": &graphql.ArgumentConfig{
 			Type: graphql.Boolean,
 		},
+		"level": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 		"page": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},

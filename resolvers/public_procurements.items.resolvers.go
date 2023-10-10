@@ -186,10 +186,22 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 		}
 	}
 
+	account, err := getAccountItemById(item.BudgetIndentId)
+	if err != nil {
+		return nil, err
+	}
+	accountResItem, err := buildAccountItemResponseItem(account)
+	if err != nil {
+		return nil, err
+	}
+
 	res := dto.ProcurementItemResponseItem{
-		Id:                item.Id,
-		Title:             item.Title,
-		BudgetIndent:      dto.DropdownSimple{},
+		Id:    item.Id,
+		Title: item.Title,
+		BudgetIndent: dto.DropdownSimple{
+			Id:    accountResItem.ID,
+			Title: accountResItem.Title,
+		},
 		Plan:              planDropdown,
 		IsOpenProcurement: item.IsOpenProcurement,
 		ArticleType:       item.ArticleType,

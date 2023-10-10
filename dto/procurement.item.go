@@ -18,7 +18,7 @@ type GetProcurementItemListInputMS struct {
 
 type ProcurementItemResponseItem struct {
 	Id                int                               `json:"id"`
-	BudgetIndent      DropdownSimple                    `json:"budget_indent_id"`
+	BudgetIndent      DropdownSimple                    `json:"budget_indent"`
 	Plan              DropdownSimple                    `json:"plan_id"`
 	IsOpenProcurement bool                              `json:"is_open_procurement"`
 	Title             string                            `json:"title"`

@@ -74,7 +74,12 @@ var JudgeResolutionsOverviewField = &graphql.Field{
 var OrganizationUintCalculateEmployeeStatsField = &graphql.Field{
 	Type:        types.OrganizationUintCalculateEmployeeStatsType,
 	Description: "Returns a data of Organization Uint Calculate Employee Stats items",
-	Resolve:     resolvers.OrganizationUintCalculateEmployeeStats,
+	Args: graphql.FieldConfigArgument{
+		"resolution_id": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+	},
+	Resolve: resolvers.OrganizationUintCalculateEmployeeStats,
 }
 
 var JudgeResolutionsInsertField = &graphql.Field{

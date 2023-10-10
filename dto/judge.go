@@ -36,7 +36,8 @@ type GetJudgeResolutionListInputMS struct {
 }
 
 type GetJudgeResolutionItemListInputMS struct {
-	ResolutionID *int `json:"resolution_id"`
+	Active       *bool `json:"active"`
+	ResolutionID *int  `json:"resolution_id"`
 }
 
 type GetJudgeResolutionsOrganizationUnitResponseMS struct {

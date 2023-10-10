@@ -24,7 +24,7 @@ var AccountDeleteField = &graphql.Field{
 	Description: "Deleted Account",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.AccountDeleteResolver,
@@ -42,6 +42,12 @@ var AccountOverviewField = &graphql.Field{
 		},
 		"tree": &graphql.ArgumentConfig{
 			Type: graphql.Boolean,
+		},
+		"page": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"size": &graphql.ArgumentConfig{
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.AccountOverviewResolver,

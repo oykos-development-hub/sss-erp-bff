@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
@@ -29,45 +30,45 @@ func BudgetAccountItemProperties(basicInventoryItems []interface{}, budgetId int
 }
 
 var BudgetAccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var accounts []interface{}
-	var budgetId int
-	var activityId int
-	if params.Args["budget_id"] == nil {
-		budgetId = 0
-	} else {
-		budgetId = params.Args["budget_id"].(int)
-	}
+	// var accounts []interface{}
+	// var budgetId int
+	// var activityId int
+	// if params.Args["budget_id"] == nil {
+	// 	budgetId = 0
+	// } else {
+	// 	budgetId = params.Args["budget_id"].(int)
+	// }
 
-	if params.Args["activity_id"] == nil {
-		activityId = 0
-	} else {
-		activityId = params.Args["activity_id"].(int)
-	}
+	// if params.Args["activity_id"] == nil {
+	// 	activityId = 0
+	// } else {
+	// 	activityId = params.Args["activity_id"].(int)
+	// }
 
-	AccountType := &structs.AccountItem{}
-	AccountData, err := shared.ReadJson(shared.GetDataRoot()+"/account.json", AccountType)
+	// AccountType := &structs.AccountItem{}
+	// AccountData, err := shared.ReadJson(shared.GetDataRoot()+"/account.json", AccountType)
 
-	if err != nil {
-		fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
-	}
+	// if err != nil {
+	// 	fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
+	// }
 
-	// Populate data for each Basic Inventory Real Estates
-	// accounts = AccountItemProperties(AccountData, 0)
+	// // Populate data for each Basic Inventory Real Estates
+	// // accounts = AccountItemProperties(AccountData, 0)
 
-	accounts, err = CreateTree(AccountData, budgetId, activityId)
-	if err != nil {
-		fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
-	}
-	for _, account := range accounts {
-		if item, ok := account.(*structs.AccountItemNode); ok {
-			updateParentValues(item)
-		}
-	}
+	// accounts, err = CreateTree(AccountData, budgetId, activityId)
+	// if err != nil {
+	// 	fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
+	// }
+	// for _, account := range accounts {
+	// 	if item, ok := account.(*structs.AccountItemNode); ok {
+	// 		updateParentValues(item)
+	// 	}
+	// }
 
 	return map[string]interface{}{
 		"status":  "success",
 		"message": "Here's the list you asked for!",
-		"items":   accounts,
+		"items":   nil,
 	}, nil
 }
 
@@ -107,57 +108,31 @@ var BudgetAccountInsertResolver = func(params graphql.ResolveParams) (interface{
 	}, nil
 }
 
-func CreateTree(nodes []interface{}, budgetId int, activityId int) ([]interface{}, error) {
-	var accountBudgetActivity = shared.FetchByProperty(
-		"account_budget_activity",
-		"BudgetId",
-		budgetId,
-	)
+func CreateTree(nodes []*dto.AccountItemResponseItem) ([]*dto.AccountItemResponseItem, error) {
+	mappedNodes := make(map[int]*dto.AccountItemResponseItem, len(nodes))
+	var rootNodes []*dto.AccountItemResponseItem
 
-	if activityId > 0 {
-		accountBudgetActivity = shared.FindByProperty(accountBudgetActivity, "ActivityId", activityId)
-	}
-
-	mappedNodes := map[int]*structs.AccountItemNode{}
-	for _, nodeInterface := range nodes {
-		if nodeMap, ok := nodeInterface.(*structs.AccountItem); ok {
-
-			node := &structs.AccountItemNode{
-				Id:           nodeMap.Id,
-				ParentId:     nodeMap.ParentId,
-				SerialNumber: nodeMap.SerialNumber,
-				Title:        nodeMap.Title,
-			}
-			var values = shared.FindByProperty(accountBudgetActivity, "AccountId", nodeMap.Id)
-			if len(values) > 0 {
-				for _, value := range values {
-					if accountValue, ok := value.(*structs.AccountBudgetActivityItem); ok {
-						node.ValueNextYear = accountValue.ValueNextYear
-						node.ValueAfterNextYear = accountValue.ValueAfterNextYear
-						node.ValueCurrentYear = accountValue.ValueCurrentYear
-					}
-				}
-			}
-			mappedNodes[nodeMap.Id] = node
-		}
-	}
-
-	sortedNodes := make([]*structs.AccountItemNode, 0, len(mappedNodes))
-	for _, node := range mappedNodes {
-		sortedNodes = append(sortedNodes, node)
-	}
-	sort.Slice(sortedNodes, func(i, j int) bool {
-		return sortedNodes[i].SerialNumber < sortedNodes[j].SerialNumber
-	})
-
-	var rootNodes []interface{}
-	for _, node := range sortedNodes {
-		if parentNode, ok := mappedNodes[node.ParentId]; ok {
-			parentNode.Children = append(parentNode.Children, node)
-		} else {
+	// Create map and identify root nodes
+	for _, node := range nodes {
+		mappedNodes[node.ID] = node
+		if node.ParentId == nil {
 			rootNodes = append(rootNodes, node)
 		}
 	}
+
+	// Populate children for each node
+	for _, node := range nodes {
+		if node.ParentId != nil {
+			if parentNode, exists := mappedNodes[*node.ParentId]; exists {
+				parentNode.Children = append(parentNode.Children, node)
+			}
+		}
+	}
+
+	// Sort the root nodes based on SerialNumber
+	sort.Slice(rootNodes, func(i, j int) bool {
+		return rootNodes[i].SerialNumber < rootNodes[j].SerialNumber
+	})
 
 	if len(rootNodes) == 0 {
 		return nil, fmt.Errorf("no root node found")
@@ -166,6 +141,8 @@ func CreateTree(nodes []interface{}, budgetId int, activityId int) ([]interface{
 	return rootNodes, nil
 }
 
+//Zakomentarisano zbog pipeline-a
+/*
 func updateParentValues(node *structs.AccountItemNode) {
 	if len(node.Children) == 0 {
 		return
@@ -185,3 +162,4 @@ func updateParentValues(node *structs.AccountItemNode) {
 	node.ValueNextYear = sumNextYear
 	node.ValueAfterNextYear = sumAfterNextYear
 }
+*/

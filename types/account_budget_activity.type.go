@@ -1,7 +1,7 @@
 package types
 
 import (
-	"bff/structs"
+	"bff/dto"
 
 	"github.com/graphql-go/graphql"
 )
@@ -42,7 +42,7 @@ func initAccountBudgetActivityType() {
 				"children": &graphql.Field{
 					Type: graphql.NewList(AccountBudgetActivityType),
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-						if accountItem, ok := p.Source.(*structs.AccountItemNode); ok {
+						if accountItem, ok := p.Source.(*dto.AccountItemResponseItem); ok {
 							return accountItem.Children, nil
 						}
 						return nil, nil

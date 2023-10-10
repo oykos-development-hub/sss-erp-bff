@@ -3,7 +3,7 @@ package structs
 type AccountItem struct {
 	Id           int    `json:"id"`
 	Title        string `json:"title"`
-	ParentId     int    `json:"parent_id"`
+	ParentId     *int   `json:"parent_id"`
 	SerialNumber string `json:"serial_number"`
 }
 

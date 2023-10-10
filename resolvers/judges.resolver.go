@@ -609,6 +609,21 @@ var JudgeResolutionInsertResolver = func(params graphql.ResolveParams) (interfac
 				}
 
 			}
+
+			judges, _, err := getJudgeResolutionOrganizationUnit(nil)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
+			for _, judge := range judges {
+				judge.ResolutionId = resolution.Id
+				_, err = updateJudgeResolutionOrganizationUnit(&judge)
+
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+			}
+
 		}
 
 		updatedItems, err := insertOrUpdateResolutionItemList(data.Items, resolution.Id)

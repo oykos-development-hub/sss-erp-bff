@@ -1,248 +1,168 @@
 package resolvers
 
 import (
+	"bff/config"
+	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
 
-type bySerialNumber []*structs.AccountItem
+func buildAccountItemResponseItem(item *structs.AccountItem) (*dto.AccountItemResponseItem, error) {
+	return &dto.AccountItemResponseItem{
+		ID:           item.Id,
+		SerialNumber: item.SerialNumber,
+		Title:        item.Title,
+		ParentId:     item.ParentId,
+	}, nil
+}
 
-func (a bySerialNumber) Len() int           { return len(a) }
-func (a bySerialNumber) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a bySerialNumber) Less(i, j int) bool { return a[i].SerialNumber < a[j].SerialNumber }
-
-func AccountItemProperties(basicInventoryItems []interface{}, id int) []interface{} {
-	var items []interface{}
-
-	for _, item := range basicInventoryItems {
-
-		var mergedItem = shared.WriteStructToInterface(item)
-
-		// Filtering by ID
-		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
-			continue
+func buildAccountItemResponseItemList(accountItems []*structs.AccountItem) ([]*dto.AccountItemResponseItem, error) {
+	var responseItems []*dto.AccountItemResponseItem
+	for _, item := range accountItems {
+		resItem, err := buildAccountItemResponseItem(item)
+		if err != nil {
+			return nil, err
 		}
-
-		items = append(items, mergedItem)
+		responseItems = append(responseItems, resItem)
 	}
 
-	return items
+	return responseItems, nil
 }
 
 var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var items []interface{}
-	var total int
-	var id int
-	var budgetId int
-	var activityId int
-	var tree bool
-	if params.Args["id"] == nil {
-		id = 0
-	} else {
-		id = params.Args["id"].(int)
+	var accountFilters dto.GetAccountsFilter
+	if id, ok := params.Args["id"].(int); ok && id != 0 {
+		accountFilters.ID = &id
+	}
+	if search, ok := params.Args["search"].(string); ok && search != "" {
+		accountFilters.Search = &search
+	}
+	if page, ok := params.Args["page"].(int); ok && page != 0 {
+		accountFilters.Page = &page
+	}
+	if size, ok := params.Args["size"].(int); ok && size != 0 {
+		accountFilters.Size = &size
 	}
 
-	if params.Args["tree"] == nil {
-		tree = false
-	} else {
-		tree = params.Args["tree"].(bool)
-	}
-
-	if params.Args["budget_id"] == nil {
-		budgetId = 0
-	} else {
-		budgetId = params.Args["budget_id"].(int)
-	}
-
-	if params.Args["activity_id"] == nil {
-		activityId = 0
-	} else {
-		activityId = params.Args["activity_id"].(int)
-	}
-
-	page := params.Args["page"]
-	size := params.Args["size"]
-
-	AccountType := &structs.AccountItem{}
-	AccountData, err := shared.ReadJson(shared.GetDataRoot()+"/account.json", AccountType)
-
+	accounts, err := getAccountItems(&accountFilters)
 	if err != nil {
-		fmt.Printf("Fetching Account failed because of this error - %s.\n", err)
+		return shared.HandleAPIError(err)
+	}
+	accountResItemlist, err := buildAccountItemResponseItemList(accounts.Data)
+	if err != nil {
+		return shared.HandleAPIError(err)
 	}
 
-	if params.Args["search"] != nil {
-		AccountData = shared.FindByProperty(AccountData, "Title", params.Args["search"].(string), true)
-	}
-
-	// Populate data for each Basic Inventory Real Estates
-	items = AccountItemProperties(AccountData, id)
-
-	total = len(items)
-
-	if id != 0 {
-		return map[string]interface{}{
-			"status":  "success",
-			"message": "Here's the list you asked for!",
-			"total":   total,
-			"items":   items,
-		}, nil
-	}
-
-	if tree {
-		items, err = CreateTree(AccountData, budgetId, activityId)
+	if tree, ok := params.Args["tree"].(bool); ok && tree {
+		accountResItemlist, err = CreateTree(accountResItemlist)
 		if err != nil {
 			fmt.Printf("Fetching Account failed because of this error - %s.\n", err)
 		}
 
-		// Filtering by Pagination params
-		if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
-			items = shared.Pagination(items, page.(int), size.(int))
-		}
-
-		return map[string]interface{}{
-			"status":  "success",
-			"message": "Here's the list you asked for!",
-			"total":   total,
-			"items":   items,
-		}, nil
-
-	} else {
-		childMap := make(map[int][]*structs.AccountItem)
-		for _, node := range AccountData {
-			if nodeMap, ok := node.(*structs.AccountItem); ok {
-				childMap[nodeMap.ParentId] = append(childMap[nodeMap.ParentId], nodeMap)
-			}
-		}
-
-		for _, children := range childMap {
-			sort.Sort(bySerialNumber(children))
-		}
-
-		var result []interface{}
-
-		appendChildren(&result, childMap, 0)
-
-		if err != nil {
-			fmt.Printf("Fetching Account failed because of this error - %s.\n", err)
-		}
-
-		// Filtering by Pagination params
-		if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
-			items = shared.Pagination(items, page.(int), size.(int))
-		}
-
-		return map[string]interface{}{
-			"status":  "success",
-			"message": "Here's the list you asked for!",
-			"total":   total,
-			"items":   items,
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Total:   accounts.Total,
+			Items:   accountResItemlist,
 		}, nil
 	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Total:   accounts.Total,
+		Items:   accountResItemlist,
+	}, nil
 }
 
 var AccountInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	var data structs.AccountItem
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	AccountItemType := &structs.AccountItem{}
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
 	itemId := data.Id
-
-	AccountData, err := shared.ReadJson(shared.GetDataRoot()+"/account.json", AccountItemType)
-
-	if err != nil {
-		fmt.Printf("Fetching Account failed because of this error - %s.\n", err)
-	}
-
 	if shared.IsInteger(itemId) && itemId != 0 {
-		AccountData = shared.FilterByProperty(AccountData, "Id", itemId)
+		res, err := updateAccountItem(itemId, &data)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		item, err := buildAccountItemResponseItem(res)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = item
+		response.Message = "You updated this item!"
 	} else {
-		data.Id = shared.GetRandomNumber()
+		res, err := createAccountItem(&data)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		item, err := buildAccountItemResponseItem(res)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = item
+		response.Message = "You created this item!"
 	}
 
-	var updatedData = append(AccountData, data)
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/account.json"), updatedData)
-
-	sliceData := []interface{}{data}
-
-	// Populate data for each Basic Inventory
-	var populatedData = AccountItemProperties(sliceData, data.Id)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"items":   populatedData[0],
-	}, nil
+	return response, nil
 }
 
 var AccountDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
 	itemId := params.Args["id"].(int)
-	AccountItemType := &structs.AccountItem{}
-	AccountData, err := shared.ReadJson(shared.GetDataRoot()+"/account.json", AccountItemType)
 
+	err := deleteAccount(itemId)
 	if err != nil {
-		fmt.Printf("Fetching Account failed because of this error - %s.\n", err)
+		return shared.HandleAPIError(err)
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		AccountData = DeleteChildren(itemId, AccountData)
-	}
-
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/account.json"), AccountData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You deleted this item!",
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
 	}, nil
 }
 
-func DeleteChildren(itemId int, data []interface{}) []interface{} {
-	toDelete := map[int]bool{itemId: true}
-	prevLen := 0
-
-	for len(toDelete) != prevLen {
-		prevLen = len(toDelete)
-		for _, item := range data {
-			if item, ok := item.(*structs.AccountItem); ok {
-				id := item.Id
-				parentId := item.ParentId
-				if _, exists := toDelete[parentId]; exists {
-					toDelete[id] = true
-				}
-			}
-		}
+func deleteAccount(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.ACCOUNT_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
 	}
 
-	var result []interface{}
-	for _, item := range data {
-		if item, ok := item.(*structs.AccountItem); ok {
-			id := item.Id
-			if _, exists := toDelete[id]; !exists {
-				result = append(result, item)
-			}
-		}
-	}
-
-	return result
+	return nil
 }
 
-func appendChildren(result *[]interface{}, childMap map[int][]*structs.AccountItem, parentId int) {
-	children, exist := childMap[parentId]
-	if !exist {
-		return
+func getAccountItems(filters *dto.GetAccountsFilter) (*dto.GetAccountItemListResponseMS, error) {
+	res := &dto.GetAccountItemListResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.ACCOUNT_ENDPOINT, filters, res)
+	if err != nil {
+		return nil, err
 	}
+	return res, nil
+}
 
-	for _, child := range children {
-		*result = append(*result, child)
-		appendChildren(result, childMap, child.Id)
+func createAccountItem(accountItem *structs.AccountItem) (*structs.AccountItem, error) {
+	res := &dto.GetAccountItemResponseMS{}
+	_, err := shared.MakeAPIRequest("POST", config.ACCOUNT_ENDPOINT, accountItem, res)
+	if err != nil {
+		return nil, err
 	}
+	return &res.Data, nil
+}
+
+func updateAccountItem(id int, accountItem *structs.AccountItem) (*structs.AccountItem, error) {
+	res := &dto.GetAccountItemResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.ACCOUNT_ENDPOINT+"/"+strconv.Itoa(id), accountItem, res)
+	if err != nil {
+		return nil, err
+	}
+	return &res.Data, nil
 }

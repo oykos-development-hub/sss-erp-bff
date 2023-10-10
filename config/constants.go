@@ -47,6 +47,7 @@ var (
 	SETTINGS_ENDPOINT       string
 	SUPPLIERS_ENDPOINT      string
 	LOGGED_IN_USER_ENDPOINT string
+	ACCOUNT_ENDPOINT        string
 
 	EVALUATIONS                                  string
 	EVALUATION_TYPES_ENDPOINT                    string
@@ -131,6 +132,7 @@ func init() {
 	SETTINGS_ENDPOINT = CORE_MS_BASE_URL + "/settings"
 	SUPPLIERS_ENDPOINT = CORE_MS_BASE_URL + "/suppliers"
 	LOGGED_IN_USER_ENDPOINT = CORE_MS_BASE_URL + "/logged-in-user"
+	ACCOUNT_ENDPOINT = CORE_MS_BASE_URL + "/accounts"
 
 	// HR MS endpoints
 	USER_PROFILES_ENDPOINT = HR_MS_BASE_URL + "/user-profiles"

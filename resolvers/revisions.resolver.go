@@ -772,7 +772,6 @@ var RevisionsInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 		DateOfRevision:          data.DateOfRevision,
 		RevisionPriority:        data.RevisionPriority,
 		RevisionQuartal:         data.RevisionQuartal,
-		InternalRevisionSubject: data.InternalRevisionSubject,
 		ExternalRevisionSubject: data.ExternalRevisionSubject,
 		Revisor:                 data.Revisor,
 		RevisionType:            data.RevisionType,
@@ -781,6 +780,7 @@ var RevisionsInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	itemId := data.ID
 	if shared.IsInteger(itemId) && itemId != 0 {
+		data1.InternalRevisionSubject = data.InternalRevisionSubject[0]
 		res, err := updateRevisions(itemId, &data1)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -792,15 +792,32 @@ var RevisionsInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
-		res, err := createRevisions(&data1)
-		if err != nil {
-			return shared.HandleAPIError(err)
+		var responseItems []*dto.RevisionsOverviewItem
+		if data.InternalRevisionSubject != nil {
+			for _, orgUnit := range data.InternalRevisionSubject {
+				data1.InternalRevisionSubject = orgUnit
+				res, err := createRevisions(&data1)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+				item, err := buildRevisionItemResponse(res)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+				responseItems = append(responseItems, item)
+				response.Item = responseItems
+			}
+		} else {
+			res, err := createRevisions(&data1)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			item, err := buildRevisionItemResponse(res)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			response.Item = item
 		}
-		item, err := buildRevisionItemResponse(res)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		response.Item = item
 		response.Message = "You created this item!"
 	}
 

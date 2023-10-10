@@ -58,7 +58,7 @@ type RevisionsInsert struct {
 	DateOfRevision          string `json:"date_of_revision"`
 	RevisionPriority        string `json:"revision_priority"`
 	RevisionQuartal         string `json:"revision_quartal"`
-	InternalRevisionSubject *int   `json:"internal_revision_subject_id"`
+	InternalRevisionSubject []*int `json:"internal_revision_subject_id"`
 	ExternalRevisionSubject *int   `json:"external_revision_subject_id"`
 	Revisor                 int    `json:"revisor_id"`
 	RevisionType            int    `json:"revision_type_id"`

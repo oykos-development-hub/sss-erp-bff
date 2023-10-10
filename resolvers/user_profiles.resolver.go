@@ -172,6 +172,26 @@ func buildUserProfileOverviewResponse(
 		}
 	}
 
+	if isJudge {
+		filter := dto.JudgeResolutionsOrganizationUnitInput{
+			UserProfileId: &profile.Id,
+		}
+		judge, _, err := getJudgeResolutionOrganizationUnit(&filter)
+
+		if err != nil {
+			return nil, err
+		}
+
+		orgUnit, err := getOrganizationUnitById(judge[0].OrganizationUnitId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		organizationUnitDropdown.Id = orgUnit.Id
+		organizationUnitDropdown.Title = orgUnit.Title
+	}
+
 	return &dto.UserProfileOverviewResponse{
 		ID:          profile.Id,
 		FirstName:   profile.FirstName,

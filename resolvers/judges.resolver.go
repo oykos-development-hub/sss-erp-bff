@@ -443,6 +443,7 @@ func OrganizationUintCalculateEmployeeStats(params graphql.ResolveParams) (inter
 	var page int = 1
 	var size int = 1000
 	resID := params.Args["resolution_id"]
+	active := params.Args["active"]
 	input := dto.GetOrganizationUnitsInput{
 		Page: &page,
 		Size: &size,
@@ -452,6 +453,38 @@ func OrganizationUintCalculateEmployeeStats(params graphql.ResolveParams) (inter
 		return nil, err
 	}
 
+	var resolutionID int
+
+	if active != nil && active.(bool) {
+		isActive := true
+		filter := dto.GetJudgeResolutionListInputMS{
+			Active: &isActive,
+		}
+		resolution, err := getJudgeResolutionList(&filter)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if resolution.Data == nil {
+			return dto.Response{
+				Status:  "success",
+				Message: "Here's the list you asked for!",
+				Items:   dto.JudgeResolutionItemResponseItem{},
+			}, nil
+		}
+
+		resolutionID = resolution.Data[0].Id
+	} else if resID.(int) != 0 {
+		resolutionID = resID.(int)
+	} else {
+		return dto.Response{
+			Status:  "failed",
+			Message: "You must provide one argument!",
+			Items:   dto.JudgeResolutionItemResponseItem{},
+		}, nil
+	}
+
 	for _, organizationUnit := range organizationUnits.Data {
 
 		if organizationUnit.ParentId != nil {
@@ -459,7 +492,7 @@ func OrganizationUintCalculateEmployeeStats(params graphql.ResolveParams) (inter
 		}
 		organizationUnitDropdown := structs.SettingsDropdown{Id: organizationUnit.Id, Title: organizationUnit.Title}
 
-		numberOfJudgesInOU, numberOfPresidents, numberOfEmployees, numberOfRelocations, err := calculateEmployeeStats(organizationUnit.Id, resID.(int))
+		numberOfJudgesInOU, numberOfPresidents, numberOfEmployees, numberOfRelocations, err := calculateEmployeeStats(organizationUnit.Id, resolutionID)
 		if err != nil {
 			fmt.Printf("Calculating number of presindents failed beacuse of error: %v\n", err)
 		}

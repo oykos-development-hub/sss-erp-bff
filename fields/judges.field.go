@@ -76,7 +76,10 @@ var OrganizationUintCalculateEmployeeStatsField = &graphql.Field{
 	Description: "Returns a data of Organization Uint Calculate Employee Stats items",
 	Args: graphql.FieldConfigArgument{
 		"resolution_id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
+		},
+		"active": &graphql.ArgumentConfig{
+			Type: graphql.Boolean,
 		},
 	},
 	Resolve: resolvers.OrganizationUintCalculateEmployeeStats,

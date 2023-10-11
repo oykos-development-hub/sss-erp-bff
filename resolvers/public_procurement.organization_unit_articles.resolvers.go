@@ -184,6 +184,7 @@ func buildProcurementOUArticleDetailsResponseItem(planID, unitID int) ([]*dto.Pr
 	}
 
 	for _, item := range items {
+		status, _ := getProcurementStatus(item.Id, &unitID)
 		responseItem := dto.ProcurementItemWithOrganizationUnitArticleResponseItem{
 			Id:           item.Id,
 			BudgetIndent: dto.DropdownSimple{},
@@ -194,7 +195,7 @@ func buildProcurementOUArticleDetailsResponseItem(planID, unitID int) ([]*dto.Pr
 			IsOpenProcurement: item.IsOpenProcurement,
 			Title:             item.Title,
 			ArticleType:       item.ArticleType,
-			Status:            item.Status,
+			Status:            *status,
 			SerialNumber:      item.SerialNumber,
 			DateOfPublishing:  (*string)(item.DateOfPublishing),
 			DateOfAwarding:    (*string)(item.DateOfAwarding),

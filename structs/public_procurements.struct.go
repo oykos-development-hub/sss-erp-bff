@@ -15,20 +15,27 @@ type PublicProcurementPlan struct {
 	FileId           *int    `json:"file_id"`
 }
 
+type ProcurementStatus string
+
+const (
+	ProcurementStatusInProgress ProcurementStatus = "U toku"
+	ProcurementStatusProcessed  ProcurementStatus = "Obrađen"
+)
+
 type PublicProcurementItem struct {
-	Id                int     `json:"id"`
-	BudgetIndentId    int     `json:"budget_indent_id" validate:"required"`
-	PlanId            int     `json:"plan_id" validate:"required"`
-	IsOpenProcurement bool    `json:"is_open_procurement" validate:"required"`
-	Title             string  `json:"title" validate:"required"`
-	ArticleType       string  `json:"article_type" validate:"required"`
-	Status            *string `json:"status"`
-	SerialNumber      *string `json:"serial_number"`
-	DateOfPublishing  *string `json:"date_of_publishing"`
-	DateOfAwarding    *string `json:"date_of_awarding"`
-	CreatedAt         string  `json:"created_at"`
-	UpdatedAt         string  `json:"updated_at"`
-	FileId            *int    `json:"file_id"`
+	Id                int                `json:"id"`
+	BudgetIndentId    int                `json:"budget_indent_id" validate:"required"`
+	PlanId            int                `json:"plan_id" validate:"required"`
+	IsOpenProcurement bool               `json:"is_open_procurement" validate:"required"`
+	Title             string             `json:"title" validate:"required"`
+	ArticleType       string             `json:"article_type" validate:"required"`
+	Status            *ProcurementStatus `json:"status"`
+	SerialNumber      *string            `json:"serial_number"`
+	DateOfPublishing  *string            `json:"date_of_publishing"`
+	DateOfAwarding    *string            `json:"date_of_awarding"`
+	CreatedAt         string             `json:"created_at"`
+	UpdatedAt         string             `json:"updated_at"`
+	FileId            *int               `json:"file_id"`
 }
 
 type PublicProcurementArticle struct {

@@ -157,6 +157,37 @@ func getProcurementItemList(input *dto.GetProcurementItemListInputMS) ([]*struct
 	return res.Data, nil
 }
 
+func getProcurementStatus(procurementID int, organizationUnitID *int) (*structs.ProcurementStatus, error) {
+	procurementStatus := structs.ProcurementStatusInProgress
+
+	if organizationUnitID != nil {
+
+		articles, err := getProcurementArticlesList(&dto.GetProcurementArticleListInputMS{ItemID: &procurementID})
+		if err != nil {
+			return nil, err
+		}
+
+		filledArticles, _ := getProcurementOUArticleList(
+			&dto.GetProcurementOrganizationUnitArticleListInputDTO{
+				OrganizationUnitID: organizationUnitID,
+			},
+		)
+		var matchedArticleCount int
+		for _, ouArticle := range filledArticles {
+			article, _ := getProcurementArticle(ouArticle.PublicProcurementArticleId)
+			if article.PublicProcurementId == procurementID {
+				matchedArticleCount++
+			}
+		}
+
+		if matchedArticleCount >= len(articles) {
+			procurementStatus = structs.ProcurementStatusProcessed
+		}
+	}
+
+	return &procurementStatus, nil
+}
+
 func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, loggedInAccount structs.UserAccounts) (*dto.ProcurementItemResponseItem, error) {
 	plan, _ := getProcurementPlan(item.PlanId)
 	planDropdown := dto.DropdownSimple{Id: plan.Id, Title: plan.Title}
@@ -177,19 +208,7 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 	userProfile, _ := getUserProfileByUserAccountID(loggedInAccount.Id)
 	organizationUnitID, _ := getOrganizationUnitIdByUserProfile(userProfile.Id)
 
-	procurementStatus := "U toku"
-
-	if organizationUnitID != nil {
-		filledArticles, _ := getProcurementOUArticleList(
-			&dto.GetProcurementOrganizationUnitArticleListInputDTO{
-				OrganizationUnitID: organizationUnitID,
-			},
-		)
-
-		if len(filledArticles) >= len(articlesRaw) {
-			procurementStatus = "Obrađen"
-		}
-	}
+	procurementStatus, _ := getProcurementStatus(item.Id, organizationUnitID)
 
 	account, err := getAccountItemById(item.BudgetIndentId)
 	if err != nil {
@@ -207,7 +226,7 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 		Plan:              planDropdown,
 		IsOpenProcurement: item.IsOpenProcurement,
 		ArticleType:       item.ArticleType,
-		Status:            &procurementStatus,
+		Status:            *procurementStatus,
 		SerialNumber:      item.SerialNumber,
 		DateOfAwarding:    item.DateOfAwarding,
 		DateOfPublishing:  item.DateOfPublishing,

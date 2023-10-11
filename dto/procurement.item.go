@@ -23,7 +23,7 @@ type ProcurementItemResponseItem struct {
 	IsOpenProcurement bool                              `json:"is_open_procurement"`
 	Title             string                            `json:"title"`
 	ArticleType       string                            `json:"article_type"`
-	Status            *string                           `json:"status"`
+	Status            structs.ProcurementStatus         `json:"status"`
 	SerialNumber      *string                           `json:"serial_number"`
 	DateOfPublishing  *string                           `json:"date_of_publishing"`
 	DateOfAwarding    *string                           `json:"date_of_awarding"`

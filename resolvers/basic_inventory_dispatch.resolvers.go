@@ -144,7 +144,11 @@ var BasicInventoryDispatchAcceptResolver = func(params graphql.ResolveParams) (i
 	dispatch.IsAccepted = true
 	dispatch.TargetUserProfileId = loggedInProfile.Id
 
-	itemDispatchList, err := getDispatchItemByDispatchID(dispatch.Id)
+	filter := dto.DispatchInventoryItemFilter{
+		DispatchID: &dispatch.Id,
+	}
+
+	itemDispatchList, _ := getMyInventoryDispatchesItems(&filter)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -244,7 +248,11 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 		}
 	}
 
-	dispatchItems, _ := getMyInventoryDispatchesItems(item.Id)
+	filter := dto.DispatchInventoryItemFilter{
+		DispatchID: &item.Id,
+	}
+
+	dispatchItems, _ := getMyInventoryDispatchesItems(&filter)
 	/*if err != nil {
 		// return nil, err
 	}*/
@@ -290,10 +298,10 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 	return &res, nil
 }
 
-func getMyInventoryDispatchesItems(id int) ([]*structs.BasicInventoryDispatchItemsItem, error) {
+func getMyInventoryDispatchesItems(filter *dto.DispatchInventoryItemFilter) ([]*structs.BasicInventoryDispatchItemsItem, error) {
 	res := &dto.GetAllBasicInventoryDispatchItems{}
 
-	_, err := shared.MakeAPIRequest("GET", config.BASIC_INVENTORY_MS_BASE_URL+"/dispatch/"+strconv.Itoa(id)+"/dispatch-items", nil, res)
+	_, err := shared.MakeAPIRequest("GET", config.INVENTORY_DISPATCH_ITEMS_ENDOPOINT, filter, res)
 
 	if err != nil {
 		fmt.Printf("Fetching Inventory items failed because of this error - %s.\n", err)
@@ -336,14 +344,13 @@ func updateDispatchItem(id int, item *structs.BasicInventoryDispatchItem) (*stru
 	}
 
 	if item.InventoryId != nil {
-		dispatchItem := dto.GetAllBasicInventoryDispatchItems{}
-		_, err := shared.MakeAPIRequest("GET", config.BASIC_INVENTORY_MS_BASE_URL+"/dispatch/"+strconv.Itoa(id)+"/dispatch-items", nil, &dispatchItem)
-
-		if err != nil {
-			return nil, err
+		filter := dto.DispatchInventoryItemFilter{
+			DispatchID: &item.Id,
 		}
 
-		for _, dispatch := range dispatchItem.Data {
+		dispatchItems, _ := getMyInventoryDispatchesItems(&filter)
+
+		for _, dispatch := range dispatchItems {
 			_, err := shared.MakeAPIRequest("DELETE", config.INVENTORY_DISPATCH_ITEMS_ENDOPOINT+"/"+strconv.Itoa(dispatch.Id), nil, nil)
 
 			if err != nil {
@@ -385,15 +392,4 @@ func getDispatchItemByID(id int) (*structs.BasicInventoryDispatchItem, error) {
 	}
 
 	return res.Data, nil
-}
-
-func getDispatchItemByDispatchID(id int) ([]*structs.BasicInventoryDispatchItemsItem, error) {
-	res1 := dto.GetAllBasicInventoryDispatchItems{}
-	_, err := shared.MakeAPIRequest("GET", config.BASIC_INVENTORY_MS_BASE_URL+"/dispatch/"+strconv.Itoa(id)+"/dispatch-items", nil, &res1)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return res1.Data, nil
 }

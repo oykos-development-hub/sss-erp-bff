@@ -30,6 +30,10 @@ type InventoryItemFilter struct {
 	Size               *int    `json:"size"`
 }
 
+type DispatchInventoryItemFilter struct {
+	DispatchID *int `json:"dispatch_id"`
+}
+
 type BasicInventoryResponseItem struct {
 	Id                           int                                                            `json:"id"`
 	ArticleId                    int                                                            `json:"article_id"`

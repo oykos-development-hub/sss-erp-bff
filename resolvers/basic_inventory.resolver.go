@@ -242,44 +242,50 @@ func getAllInventoryItem(filter dto.InventoryItemFilter) (*dto.GetAllBasicInvent
 }
 
 func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organizationUnitId int) (*dto.BasicInventoryResponseItem, error) {
-	settings, err := getDropdownSettingById(item.ClassTypeId)
-	if err != nil {
-		return nil, err
-	}
-
 	settingDropdownClassType := dto.DropdownSimple{}
-	if settings != nil {
-		settingDropdownClassType = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
-	}
+	if item.ClassTypeId != 0 {
+		settings, err := getDropdownSettingById(item.ClassTypeId)
+		if err != nil {
+			return nil, err
+		}
 
-	settings, err = getDropdownSettingById(item.DepreciationTypeId)
-	if err != nil {
-		return nil, err
+		if settings != nil {
+			settingDropdownClassType = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+		}
 	}
-
 	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
-	if settings != nil {
-		settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
-	}
+	if item.DepreciationTypeId != 0 {
+		settings, err := getDropdownSettingById(item.DepreciationTypeId)
+		if err != nil {
+			return nil, err
+		}
 
-	suppliers, err := getSupplier(item.SupplierId)
-	if err != nil {
-		return nil, err
+		if settings != nil {
+			settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+		}
 	}
 
 	suppliersDropdown := dto.DropdownSimple{}
-	if suppliers != nil {
-		suppliersDropdown = dto.DropdownSimple{Id: suppliers.Id, Title: suppliers.Title}
-	}
+	if item.SupplierId != 0 {
+		suppliers, err := getSupplier(item.SupplierId)
+		if err != nil {
+			return nil, err
+		}
 
-	settings, err = getDropdownSettingById(item.OfficeId)
-	if err != nil {
-		return nil, err
+		if suppliers != nil {
+			suppliersDropdown = dto.DropdownSimple{Id: suppliers.Id, Title: suppliers.Title}
+		}
 	}
-
 	settingDropdownOfficeId := dto.DropdownSimple{}
-	if settings != nil {
-		settingDropdownOfficeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+	if item.OfficeId != 0 {
+		settings, err := getDropdownSettingById(item.OfficeId)
+		if err != nil {
+			return nil, err
+		}
+
+		if settings != nil {
+			settingDropdownOfficeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+		}
 	}
 
 	targetUserDropdown := dto.DropdownSimple{}

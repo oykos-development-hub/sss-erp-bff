@@ -177,12 +177,17 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 	userProfile, _ := getUserProfileByUserAccountID(loggedInAccount.Id)
 	organizationUnitID, _ := getOrganizationUnitIdByUserProfile(userProfile.Id)
 
-	planStatus := "U toku"
+	procurementStatus := "U toku"
 
 	if organizationUnitID != nil {
-		filledArticles, _ := getOrganizationUnitArticles(plan.Id, *organizationUnitID)
+		filledArticles, _ := getProcurementOUArticleList(
+			&dto.GetProcurementOrganizationUnitArticleListInputDTO{
+				OrganizationUnitID: organizationUnitID,
+			},
+		)
+
 		if len(filledArticles) >= len(articlesRaw) {
-			planStatus = "Obrađen"
+			procurementStatus = "Obrađen"
 		}
 	}
 
@@ -202,7 +207,7 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 		Plan:              planDropdown,
 		IsOpenProcurement: item.IsOpenProcurement,
 		ArticleType:       item.ArticleType,
-		Status:            &planStatus,
+		Status:            &procurementStatus,
 		SerialNumber:      item.SerialNumber,
 		DateOfAwarding:    item.DateOfAwarding,
 		DateOfPublishing:  item.DateOfPublishing,

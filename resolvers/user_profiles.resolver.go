@@ -857,54 +857,56 @@ func buildContractResponseItem(contract structs.Contracts) (*dto.Contract, error
 	}
 	responseContract.OrganizationUnit = dto.DropdownSimple{Id: organizationUnit.Id, Title: organizationUnit.Title}
 
-	if contract.OrganizationUnitDepartmentID != nil {
-		department, err := getOrganizationUnitById(*contract.OrganizationUnitDepartmentID)
-		if err != nil {
-			return nil, err
-		}
-		responseContract.Department = &dto.DropdownSimple{Id: department.Id, Title: department.Title}
-	}
-
-	var myBool int = 2
-	inputSys := dto.GetSystematizationsInput{}
-	inputSys.OrganizationUnitID = &contract.OrganizationUnitID
-	inputSys.Active = &myBool
-
-	systematizationsResponse, err := getSystematizations(&inputSys)
-	if err != nil {
-		return nil, err
-	}
-	var jobPositionInOU structs.JobPositionsInOrganizationUnits
-	if len(systematizationsResponse.Data) > 0 {
-		for _, systematization := range systematizationsResponse.Data {
-
-			inputJpbPos := dto.GetJobPositionInOrganizationUnitsInput{
-				SystematizationID: &systematization.Id,
-			}
-			jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&inputJpbPos)
+	if contract.Active {
+		if contract.OrganizationUnitDepartmentID != nil {
+			department, err := getOrganizationUnitById(*contract.OrganizationUnitDepartmentID)
 			if err != nil {
 				return nil, err
 			}
-			if len(jobPositionsInOrganizationUnits.Data) > 0 {
-				for _, job := range jobPositionsInOrganizationUnits.Data {
-					input := dto.GetEmployeesInOrganizationUnitInput{
-						PositionInOrganizationUnit: &job.Id,
-						UserProfileId:              &userProfile.Id,
-					}
-					employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
-					if len(employeesInOrganizationUnit) > 0 && employeesInOrganizationUnit[0].UserProfileId == userProfile.Id {
-						jobPositionInOU = job
+			responseContract.Department = &dto.DropdownSimple{Id: department.Id, Title: department.Title}
+		}
+
+		var myBool int = 2
+		inputSys := dto.GetSystematizationsInput{}
+		inputSys.OrganizationUnitID = &contract.OrganizationUnitID
+		inputSys.Active = &myBool
+
+		systematizationsResponse, err := getSystematizations(&inputSys)
+		if err != nil {
+			return nil, err
+		}
+		var jobPositionInOU structs.JobPositionsInOrganizationUnits
+		if len(systematizationsResponse.Data) > 0 {
+			for _, systematization := range systematizationsResponse.Data {
+
+				inputJpbPos := dto.GetJobPositionInOrganizationUnitsInput{
+					SystematizationID: &systematization.Id,
+				}
+				jobPositionsInOrganizationUnits, err := getJobPositionsInOrganizationUnits(&inputJpbPos)
+				if err != nil {
+					return nil, err
+				}
+				if len(jobPositionsInOrganizationUnits.Data) > 0 {
+					for _, job := range jobPositionsInOrganizationUnits.Data {
+						input := dto.GetEmployeesInOrganizationUnitInput{
+							PositionInOrganizationUnit: &job.Id,
+							UserProfileId:              &userProfile.Id,
+						}
+						employeesInOrganizationUnit, _ := getEmployeesInOrganizationUnitList(&input)
+						if len(employeesInOrganizationUnit) > 0 && employeesInOrganizationUnit[0].UserProfileId == userProfile.Id {
+							jobPositionInOU = job
+						}
 					}
 				}
 			}
 		}
-	}
-	if jobPositionInOU.JobPositionId > 0 {
-		jobPosition, err := getJobPositionById(jobPositionInOU.JobPositionId)
-		if err != nil {
-			return nil, err
+		if jobPositionInOU.JobPositionId > 0 {
+			jobPosition, err := getJobPositionById(jobPositionInOU.JobPositionId)
+			if err != nil {
+				return nil, err
+			}
+			responseContract.JobPositionInOrganizationUnit = dto.DropdownSimple{Id: jobPositionInOU.Id, Title: jobPosition.Title}
 		}
-		responseContract.JobPositionInOrganizationUnit = dto.DropdownSimple{Id: jobPositionInOU.Id, Title: jobPosition.Title}
 	}
 
 	return responseContract, nil

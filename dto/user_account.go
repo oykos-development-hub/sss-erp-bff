@@ -21,3 +21,7 @@ type GetUserAccountListInput struct {
 	IsActive *bool   `json:"is_active"`
 	Email    *string `json:"email"`
 }
+
+type DeactivateUserAccount struct {
+	Active bool `json:"active"`
+}

@@ -159,6 +159,19 @@ func CreateUserAccount(user structs.UserAccounts) (*structs.UserAccounts, error)
 	return &res.Data, nil
 }
 
+func DeactivateUserAccount(userID int) (*structs.UserAccounts, error) {
+	res := &dto.GetUserAccountResponseMS{}
+	user := dto.DeactivateUserAccount{
+		Active: false,
+	}
+	_, err := shared.MakeAPIRequest("PUT", config.USER_ACCOUNTS_ENDPOINT+"/"+strconv.Itoa(userID), user, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
 func DeleteUserAccount(id int) error {
 	_, err := shared.MakeAPIRequest("DELETE", config.USER_ACCOUNTS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {

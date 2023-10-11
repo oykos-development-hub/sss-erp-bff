@@ -529,9 +529,15 @@ var TerminateEmployment = func(params graphql.ResolveParams) (interface{}, error
 		return shared.HandleAPIError(err)
 	}
 
+	_, err = DeactivateUserAccount(user.UserAccountId)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
 	return dto.ResponseSingle{
 		Status:  "success",
-		Message: "You deactivate this user!",
+		Message: "You deactivated this user!",
 	}, nil
 }
 

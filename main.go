@@ -215,6 +215,7 @@ func main() {
 			"userProfile_Evaluation":                             fields.UserProfileEvaluationField,
 			"userProfile_Absent":                                 fields.UserProfileAbsentField,
 			"userProfile_Vacation":                               fields.UserProfileVacationField,
+			"terminateEmployment":                                fields.TerminateEmployment,
 			"absentType":                                         fields.AbsentTypeField,
 			"userProfile_Resolution":                             fields.UserProfileResolutionField,
 			"revisions_Overview":                                 fields.RevisionsOverviewField,

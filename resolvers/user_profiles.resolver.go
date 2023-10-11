@@ -987,7 +987,7 @@ func buildUserProfileBasicResponse(
 		NationalMinority:              profile.NationalMinority,
 	}
 	active := true
-	contracts, err := getEmployeeContracts(profile.Id, &dto.GetEmployeeContracts{Active: &active})
+	contracts, err := getEmployeeContracts(profile.Id, nil)
 	if err != nil {
 		return nil, err
 	}

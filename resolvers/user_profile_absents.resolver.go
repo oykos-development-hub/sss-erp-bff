@@ -403,6 +403,161 @@ var UserProfileAbsentDeleteResolver = func(params graphql.ResolveParams) (interf
 	}, nil
 }
 
+var TerminateEmployment = func(params graphql.ResolveParams) (interface{}, error) {
+	userID := params.Args["user_profile_id"].(int)
+
+	user, err := getUserProfileById(userID)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	active := true
+
+	if user.IsJudge {
+		input := dto.GetJudgeResolutionListInputMS{
+			Active: &active,
+		}
+
+		resolution, err := getJudgeResolutionList(&input)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		filter := dto.JudgeResolutionsOrganizationUnitInput{
+			UserProfileId: &userID,
+			ResolutionId:  &resolution.Data[0].Id,
+		}
+
+		judge, _, err := getJudgeResolutionOrganizationUnit(&filter)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		err = deleteJJudgeResolutionOrganizationUnit(judge[0].Id)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		contract, err := getEmployeeContracts(userID, nil)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		now := time.Now()
+		format := "2006-01-02T00:00:00Z"
+		dateOfEnd := now.Format(format)
+		dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
+		yearsDiff := now.Year() - dateOfStart.Year()
+		monthsDiff := int(now.Month()) - int(dateOfStart.Month())
+
+		if monthsDiff < 0 {
+			monthsDiff += 12
+			yearsDiff--
+		}
+
+		totalMonths := (yearsDiff * 12) + monthsDiff
+
+		experience := structs.Experience{
+			UserProfileId:             userID,
+			OrganizationUnitId:        judge[0].OrganizationUnitId,
+			Relevant:                  true,
+			DateOfStart:               *contract[0].DateOfStart,
+			DateOfEnd:                 dateOfEnd,
+			AmountOfExperience:        totalMonths,
+			AmountOfInsuredExperience: totalMonths,
+		}
+		_, err = createExperience(&experience)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+	} else {
+		two := 2
+
+		contract, err := getEmployeeContracts(userID, nil)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		input := dto.GetSystematizationsInput{
+			Active:             &two,
+			OrganizationUnitID: &contract[0].OrganizationUnitID,
+		}
+
+		systematization, err := getSystematizations(&input)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		filter := dto.GetJobPositionInOrganizationUnitsInput{
+			SystematizationID:  &systematization.Data[0].Id,
+			OrganizationUnitID: contract[0].OrganizationUnitDepartmentID,
+		}
+
+		jobPosition, err := getJobPositionsInOrganizationUnits(&filter)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		employeeInOrgUnit, err := getEmployeesInOrganizationUnitsByProfileId(userID)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		err = deleteEmployeeInOrganizationUnit(employeeInOrgUnit.Id)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		now := time.Now()
+		format := "2006-01-02T00:00:00Z"
+		dateOfEnd := now.Format(format)
+		dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
+		yearsDiff := now.Year() - dateOfStart.Year()
+		monthsDiff := int(now.Month()) - int(dateOfStart.Month())
+
+		if monthsDiff < 0 {
+			monthsDiff += 12
+			yearsDiff--
+		}
+
+		totalMonths := (yearsDiff * 12) + monthsDiff
+		experience := structs.Experience{
+			UserProfileId:             userID,
+			OrganizationUnitId:        jobPosition.Data[0].ParentOrganizationUnitId,
+			Relevant:                  true,
+			DateOfStart:               *contract[0].DateOfStart,
+			DateOfEnd:                 dateOfEnd,
+			AmountOfExperience:        totalMonths,
+			AmountOfInsuredExperience: totalMonths,
+		}
+		_, err = createExperience(&experience)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		contract[0].JobPositionInOrganizationUnitID = 0
+		contract[0].OrganizationUnitDepartmentID = nil
+		contract[0].Active = false
+		_, err = updateEmployeeContract(contract[0].Id, contract[0])
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+	}
+
+	active = false
+	user.ActiveContract = &active
+	_, err = updateUserProfile(user.Id, *user)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deactivate this user!",
+	}, nil
+}
+
 func createAbsent(absent *structs.Absent) (*structs.Absent, error) {
 	res := &dto.GetAbsentResponseMS{}
 	_, err := shared.MakeAPIRequest("POST", config.EMPLOYEE_ABSENTS, absent, res)

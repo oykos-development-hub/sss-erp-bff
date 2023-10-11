@@ -62,3 +62,14 @@ var UserProfileAbsentDeleteField = &graphql.Field{
 	},
 	Resolve: resolvers.UserProfileAbsentDeleteResolver,
 }
+
+var TerminateEmployment = &graphql.Field{
+	Type:        types.UserProfileAbsentDeleteType,
+	Description: "Terminate user employment",
+	Args: graphql.FieldConfigArgument{
+		"user_profile_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.TerminateEmployment,
+}

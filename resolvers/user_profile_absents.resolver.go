@@ -471,30 +471,7 @@ var TerminateEmployment = func(params graphql.ResolveParams) (interface{}, error
 		}
 
 	} else {
-		two := 2
-
 		contract, err := getEmployeeContracts(userID, nil)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		input := dto.GetSystematizationsInput{
-			Active:             &two,
-			OrganizationUnitID: &contract[0].OrganizationUnitID,
-		}
-
-		systematization, err := getSystematizations(&input)
-
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		filter := dto.GetJobPositionInOrganizationUnitsInput{
-			SystematizationID:  &systematization.Data[0].Id,
-			OrganizationUnitID: contract[0].OrganizationUnitDepartmentID,
-		}
-
-		jobPosition, err := getJobPositionsInOrganizationUnits(&filter)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -524,7 +501,7 @@ var TerminateEmployment = func(params graphql.ResolveParams) (interface{}, error
 		totalMonths := (yearsDiff * 12) + monthsDiff
 		experience := structs.Experience{
 			UserProfileId:             userID,
-			OrganizationUnitId:        jobPosition.Data[0].ParentOrganizationUnitId,
+			OrganizationUnitId:        contract[0].OrganizationUnitID,
 			Relevant:                  true,
 			DateOfStart:               *contract[0].DateOfStart,
 			DateOfEnd:                 dateOfEnd,

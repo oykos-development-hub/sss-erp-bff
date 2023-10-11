@@ -194,9 +194,10 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 	res := dto.ProcurementItemResponseItem{
 		Id:    item.Id,
 		Title: item.Title,
-		BudgetIndent: dto.DropdownSimple{
-			Id:    account.Id,
-			Title: account.Title,
+		BudgetIndent: dto.DropdownBudgetIndent{
+			Id:           account.Id,
+			Title:        account.Title,
+			SerialNumber: account.SerialNumber,
 		},
 		Plan:              planDropdown,
 		IsOpenProcurement: item.IsOpenProcurement,

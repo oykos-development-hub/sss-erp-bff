@@ -5,6 +5,12 @@ type DropdownSimple struct {
 	Title string `json:"title"`
 }
 
+type DropdownBudgetIndent struct {
+	Id           int    `json:"id"`
+	Title        string `json:"title"`
+	SerialNumber string `json:"serial_number"`
+}
+
 type DropdownProcurementArticle struct {
 	Id            int    `json:"id"`
 	Title         string `json:"title"`

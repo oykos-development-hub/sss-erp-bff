@@ -321,8 +321,8 @@ func checkArticlesStatusFlags(articles []*structs.PublicProcurementOrganizationU
 		}
 	}
 
-	isSentOnRevision = revisionCount == len(articles)
-	isAccepted = acceptedCount == len(articles)
+	isSentOnRevision = revisionCount > 0 && revisionCount == len(articles)
+	isAccepted = acceptedCount > 0 && acceptedCount == len(articles)
 
 	return isSentOnRevision, false, isAccepted
 }

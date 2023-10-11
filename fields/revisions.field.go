@@ -149,7 +149,7 @@ var RevisionOverview = &graphql.Field{
 }
 
 var RevisionDetails = &graphql.Field{
-	Type:        types.RevisionDetailType,
+	Type:        types.RevisionDetailsType,
 	Description: "Returns a data of Revision item details",
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{

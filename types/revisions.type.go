@@ -146,24 +146,6 @@ var RevisionDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var RevisionDetailsType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "RevisionDetailsType",
-	Fields: graphql.Fields{
-		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"data": &graphql.Field{
-			Type: JSON,
-		},
-		"message": &graphql.Field{
-			Type: graphql.String,
-		},
-		"item": &graphql.Field{
-			Type: RevisionDetailsItemType,
-		},
-	},
-})
-
 var RevisionDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RevisionDelete",
 	Fields: graphql.Fields{
@@ -329,6 +311,27 @@ var RevisionDetailType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"item": &graphql.Field{
 			Type: graphql.NewList(RevisionType),
+		},
+		"revisors": &graphql.Field{
+			Type: graphql.NewList(DropdownItemType),
+		},
+	},
+})
+
+var RevisionDetailsType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "RevisionDetailsType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: RevisionType,
 		},
 		"revisors": &graphql.Field{
 			Type: graphql.NewList(DropdownItemType),

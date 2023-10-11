@@ -22,6 +22,9 @@ var OrganizationUnitItemType = graphql.NewObject(graphql.ObjectConfig{
 		"abbreviation": &graphql.Field{
 			Type: graphql.String,
 		},
+		"pib": &graphql.Field{
+			Type: graphql.String,
+		},
 		"description": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -56,6 +59,9 @@ var OrganizationUnitParentType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"abbreviation": &graphql.Field{
+			Type: graphql.String,
+		},
+		"pib": &graphql.Field{
 			Type: graphql.String,
 		},
 		"description": &graphql.Field{

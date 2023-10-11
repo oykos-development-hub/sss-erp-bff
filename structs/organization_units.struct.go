@@ -6,6 +6,7 @@ type OrganizationUnits struct {
 	NumberOfJudges int    `json:"number_of_judges"`
 	Title          string `json:"title"`
 	Description    string `json:"description"`
+	Pib            string `json:"pib"`
 	Abbreviation   string `json:"abbreviation"`
 	Address        string `json:"address"`
 	Color          string `json:"color"`

@@ -44,18 +44,22 @@ var JudgesOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 	}
 
 	active := true
-	input := dto.GetJudgeResolutionItemListInputMS{
+	input := dto.GetJudgeResolutionListInputMS{
 		Active: &active,
 	}
 
-	resolution, err := getJudgeResolutionItemsList(&input)
+	resolution, err := getJudgeResolutionList(&input)
 
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
-	filter.ResolutionId = &resolution[0].ResolutionId
+	if resolution.Data == nil {
+		response.Message = "You must create active judge number resolution!"
+		return response, nil
+	}
 
+	filter.ResolutionId = &resolution.Data[0].Id
 	judges, total, err := getJudgeResolutionOrganizationUnit(&filter)
 
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -103,6 +104,41 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 	}
 
 	return response, nil
+}
+
+var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var authToken = params.Context.Value(config.TokenKey).(string)
+	loggedInProfile, err := getLoggedInUserProfile(authToken)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	plan_id := params.Args["plan_id"].(int)
+
+	organizationUnitId, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	if organizationUnitId == nil {
+		return shared.HandleAPIError(fmt.Errorf("manager with id - %d has no organization unit assigned", loggedInProfile.Id))
+	}
+
+	ouArticleList, err := getOrganizationUnitArticles(plan_id, *organizationUnitId)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	for _, ouArticle := range ouArticleList {
+		ouArticle.Status = structs.StatusRevision
+		_, err = updateProcurementOUArticle(ouArticle.Id, ouArticle)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+	}, nil
 }
 
 var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {

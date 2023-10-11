@@ -500,6 +500,21 @@ var PublicProcurementOrganizationUnitArticleInsertType = graphql.NewObject(graph
 	},
 })
 
+var PublicProcurementSendPlanOnRevisionType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "PublicProcurementSendPlanOnRevisionType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var PublicProcurementContractItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "PublicProcurementContractItem",
 	Fields: graphql.Fields{

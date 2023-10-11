@@ -154,6 +154,7 @@ func main() {
 			"publicProcurementPlanItemArticle_Insert":         fields.PublicProcurementPlanItemArticleInsertField,
 			"publicProcurementPlanItemArticle_Delete":         fields.PublicProcurementPlanItemArticleDeleteField,
 			"publicProcurementOrganizationUnitArticle_Insert": fields.PublicProcurementOrganizationUnitArticleInsertField,
+			"publicProcurementSendPlanOnRevision_Update":      fields.PublicProcurementSendPlanOnRevision,
 			"publicProcurementContracts_Insert":               fields.PublicProcurementContractsInsertField,
 			"publicProcurementContracts_Delete":               fields.PublicProcurementContractsDeleteField,
 			"publicProcurementContractArticle_Insert":         fields.PublicProcurementContractArticleInsertField,

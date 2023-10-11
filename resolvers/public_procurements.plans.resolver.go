@@ -6,6 +6,7 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -238,22 +239,15 @@ func BuildStatus(plan *structs.PublicProcurementPlan, userAccount structs.UserAc
 		if err != nil {
 			return "", err
 		}
-		employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(loggedInProfile.Id)
+		organizationUnitId, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
 		if err != nil {
 			return "", err
 		}
-
-		jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
-		if err != nil {
-			return "", err
+		if organizationUnitId == nil {
+			return "", errors.New("manager has no organization unit assigned")
 		}
 
-		systematization, err := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
-		if err != nil {
-			return "", err
-		}
-
-		ouArticleList, err := getOrganizationUnitArticles(plan.Id, systematization.OrganizationUnitId)
+		ouArticleList, err := getOrganizationUnitArticles(plan.Id, *organizationUnitId)
 		if err != nil {
 			return "", err
 		}
@@ -314,25 +308,23 @@ func BuildStatus(plan *structs.PublicProcurementPlan, userAccount structs.UserAc
 }
 
 func checkArticlesStatusFlags(articles []*structs.PublicProcurementOrganizationUnitArticle) (isSentOnRevision, isRejected, isAccepted bool) {
-	isSentOnRevision = false
-	isRejected = false
-	isAccepted = true // Start by assuming all articles are accepted
+	var revisionCount, acceptedCount int
 
 	for _, article := range articles {
-		if shared.IsInteger(article.Amount) && article.Amount > 0 {
-			isSentOnRevision = true
-
-			if article.IsRejected || article.Status == "rejected" {
-				isRejected = true
-				isAccepted = false
-				break // No need to check the remaining articles
-			} else if article.Status != "accepted" {
-				isAccepted = false // One article is not accepted
-			}
+		switch article.Status {
+		case structs.StatusRejected:
+			return false, true, false
+		case structs.StatusRevision:
+			revisionCount++
+		case structs.StatusAccepted:
+			acceptedCount++
 		}
 	}
 
-	return
+	isSentOnRevision = revisionCount == len(articles)
+	isAccepted = acceptedCount == len(articles)
+
+	return isSentOnRevision, false, isAccepted
 }
 
 var PublicProcurementPlanDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {

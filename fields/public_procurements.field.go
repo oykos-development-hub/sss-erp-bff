@@ -180,6 +180,17 @@ var PublicProcurementOrganizationUnitArticleInsertField = &graphql.Field{
 	Resolve: resolvers.PublicProcurementOrganizationUnitArticleInsertResolver,
 }
 
+var PublicProcurementSendPlanOnRevision = &graphql.Field{
+	Type:        types.PublicProcurementSendPlanOnRevisionType,
+	Description: "Send plan on revision",
+	Args: graphql.FieldConfigArgument{
+		"plan_id": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+	},
+	Resolve: resolvers.PublicProcurementSendPlanOnRevisionResolver,
+}
+
 var PublicProcurementContractsOverviewField = &graphql.Field{
 	Type:        types.PublicProcurementContractsOverviewType,
 	Description: "Returns a data of Public Procurement Contract items",

@@ -26,7 +26,7 @@ type ProcurementOrganizationUnitArticleResponseItem struct {
 	Article             ProcurementArticleResponseItem `json:"public_procurement_article"`
 	OrganizationUnit    DropdownSimple                 `json:"organization_unit"`
 	Amount              int                            `json:"amount"`
-	Status              string                         `json:"status"`
+	Status              structs.ArticleStatus          `json:"status"`
 	IsRejected          bool                           `json:"is_rejected"`
 	RejectedDescription string                         `json:"rejected_description"`
 	CreatedAt           string                         `json:"created_at"`

@@ -149,6 +149,15 @@ var PublicProcurementOrganizationUnitArticleInsertMutation = graphql.NewInputObj
 	},
 })
 
+var PublicProcurementPlanSendOnRevisionMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "PublicProcurementPlanSendOnRevisionMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"plan_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+	},
+})
+
 var PublicProcurementContractInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "PublicProcurementContractInsertMutation",
 	Fields: graphql.InputObjectConfigFieldMap{

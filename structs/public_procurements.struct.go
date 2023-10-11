@@ -51,16 +51,24 @@ type PublicProcurementLimit struct {
 	Limit               int `json:"limit"`
 }
 
+type ArticleStatus string
+
+const (
+	StatusAccepted ArticleStatus = "accepted"
+	StatusRejected ArticleStatus = "rejected"
+	StatusRevision ArticleStatus = "revision"
+)
+
 type PublicProcurementOrganizationUnitArticle struct {
-	Id                         int    `json:"id"`
-	PublicProcurementArticleId int    `json:"public_procurement_article_id"`
-	OrganizationUnitId         int    `json:"organization_unit_id"`
-	Amount                     int    `json:"amount"`
-	Status                     string `json:"status"`
-	IsRejected                 bool   `json:"is_rejected"`
-	RejectedDescription        string `json:"rejected_description"`
-	CreatedAt                  string `json:"created_at"`
-	UpdatedAt                  string `json:"updated_at"`
+	Id                         int           `json:"id"`
+	PublicProcurementArticleId int           `json:"public_procurement_article_id"`
+	OrganizationUnitId         int           `json:"organization_unit_id"`
+	Amount                     int           `json:"amount"`
+	Status                     ArticleStatus `json:"status"`
+	IsRejected                 bool          `json:"is_rejected"`
+	RejectedDescription        string        `json:"rejected_description"`
+	CreatedAt                  string        `json:"created_at"`
+	UpdatedAt                  string        `json:"updated_at"`
 }
 
 type PublicProcurementContract struct {

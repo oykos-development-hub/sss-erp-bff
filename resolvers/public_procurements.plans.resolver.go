@@ -65,7 +65,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		if resItem != nil {
+		if resItem == nil {
 			return shared.HandleAPIError(fmt.Errorf("user with id: %d do not have access to this plan id: %d", loggedInAccount.Id, plan.Id))
 		}
 		if status != nil && status.(string) != "" && status.(string) != *resItem.Status {
@@ -105,7 +105,7 @@ var PublicProcurementPlanDetailsResolver = func(params graphql.ResolveParams) (i
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	if resItem != nil {
+	if resItem == nil {
 		return shared.HandleAPIError(fmt.Errorf("user with id: %d do not have access to this plan id: %d", loggedInAccount.Id, plan.Id))
 	}
 	return dto.ResponseSingle{

@@ -407,12 +407,19 @@ var TerminateEmployment = func(params graphql.ResolveParams) (interface{}, error
 	userID := params.Args["user_profile_id"].(int)
 
 	user, err := getUserProfileById(userID)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	userResponse, err := buildUserProfileOverviewResponse(user)
+
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 	active := true
 
-	if user.IsJudge {
+	if userResponse.IsJudge {
 		input := dto.GetJudgeResolutionListInputMS{
 			Active: &active,
 		}
@@ -481,43 +488,45 @@ var TerminateEmployment = func(params graphql.ResolveParams) (interface{}, error
 			return shared.HandleAPIError(err)
 		}
 
-		err = deleteEmployeeInOrganizationUnit(employeeInOrgUnit.Id)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
+		if employeeInOrgUnit != nil {
+			err = deleteEmployeeInOrganizationUnitByID(employeeInOrgUnit.Id)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
 
-		now := time.Now()
-		format := "2006-01-02T00:00:00Z"
-		dateOfEnd := now.Format(format)
-		dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
-		yearsDiff := now.Year() - dateOfStart.Year()
-		monthsDiff := int(now.Month()) - int(dateOfStart.Month())
+			now := time.Now()
+			format := "2006-01-02T00:00:00Z"
+			dateOfEnd := now.Format(format)
+			dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
+			yearsDiff := now.Year() - dateOfStart.Year()
+			monthsDiff := int(now.Month()) - int(dateOfStart.Month())
 
-		if monthsDiff < 0 {
-			monthsDiff += 12
-			yearsDiff--
-		}
+			if monthsDiff < 0 {
+				monthsDiff += 12
+				yearsDiff--
+			}
 
-		totalMonths := (yearsDiff * 12) + monthsDiff
-		experience := structs.Experience{
-			UserProfileId:             userID,
-			OrganizationUnitId:        contract[0].OrganizationUnitID,
-			Relevant:                  true,
-			DateOfStart:               *contract[0].DateOfStart,
-			DateOfEnd:                 dateOfEnd,
-			AmountOfExperience:        totalMonths,
-			AmountOfInsuredExperience: totalMonths,
-		}
-		_, err = createExperience(&experience)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		contract[0].JobPositionInOrganizationUnitID = 0
-		contract[0].OrganizationUnitDepartmentID = nil
-		contract[0].Active = false
-		_, err = updateEmployeeContract(contract[0].Id, contract[0])
-		if err != nil {
-			return shared.HandleAPIError(err)
+			totalMonths := (yearsDiff * 12) + monthsDiff
+			experience := structs.Experience{
+				UserProfileId:             userID,
+				OrganizationUnitId:        contract[0].OrganizationUnitID,
+				Relevant:                  true,
+				DateOfStart:               *contract[0].DateOfStart,
+				DateOfEnd:                 dateOfEnd,
+				AmountOfExperience:        totalMonths,
+				AmountOfInsuredExperience: totalMonths,
+			}
+			_, err = createExperience(&experience)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			contract[0].JobPositionInOrganizationUnitID = 0
+			contract[0].OrganizationUnitDepartmentID = nil
+			contract[0].Active = false
+			_, err = updateEmployeeContract(contract[0].Id, contract[0])
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
 		}
 	}
 

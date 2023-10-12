@@ -390,3 +390,12 @@ func deleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnitId int) error
 
 	return nil
 }
+
+func deleteEmployeeInOrganizationUnitByID(jobPositionInOrganizationUnitId int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.EMPLOYEES_IN_ORGANIZATION_UNITS_BY_ID_ENDPOINT+"/"+strconv.Itoa(jobPositionInOrganizationUnitId), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

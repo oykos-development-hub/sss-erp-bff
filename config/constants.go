@@ -49,35 +49,36 @@ var (
 	LOGGED_IN_USER_ENDPOINT string
 	ACCOUNT_ENDPOINT        string
 
-	EVALUATIONS                                  string
-	EVALUATION_TYPES_ENDPOINT                    string
-	FOREIGNERS                                   string
-	SALARIES                                     string
-	ORGANIZATION_UNITS_ENDPOINT                  string
-	JOB_POSITIONS_ENDPOINT                       string
-	JOB_POSITIONS_IN_ORGANIZATION_UNITS_ENDPOINT string
-	EDUCATION_TYPES_ENDPOINT                     string
-	USER_PROFILES_ENDPOINT                       string
-	EMPLOYEE_CONTRACTS                           string
-	EMPLOYEE_EDUCATIONS                          string
-	EMPLOYEE_EXPERIENCES                         string
-	EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT     string
-	RESOLUTIONS_ENDPOINT                         string
-	SYSTEMATIZATIONS_ENDPOINT                    string
-	EMPLOYEE_FAMILY_MEMBERS                      string
-	JUDGE_NORM_ENDPOINT                          string
-	JUDGES                                       string
-	ABSENT_TYPE                                  string
-	EMPLOYEE_ABSENTS                             string
-	REVISIONS_ENDPOINT                           string
-	JOB_TENDERS_ENDPOINT                         string
-	JOB_TENDER_TYPES_ENDPOINT                    string
-	JOB_TENDER_APPLICATIONS_ENDPOINT             string
-	JUDGE_RESOLUTIONS_ENDPOINT                   string
-	JUDGE_RESOLUTION_ITEMS_ENDPOINT              string
-	REVISION_PLAN_ENDPOINT                       string
-	REVISION_ENDPOINT                            string
-	REVISION_TIPS_ENDPOINT                       string
+	EVALUATIONS                                    string
+	EVALUATION_TYPES_ENDPOINT                      string
+	FOREIGNERS                                     string
+	SALARIES                                       string
+	ORGANIZATION_UNITS_ENDPOINT                    string
+	JOB_POSITIONS_ENDPOINT                         string
+	JOB_POSITIONS_IN_ORGANIZATION_UNITS_ENDPOINT   string
+	EDUCATION_TYPES_ENDPOINT                       string
+	USER_PROFILES_ENDPOINT                         string
+	EMPLOYEE_CONTRACTS                             string
+	EMPLOYEE_EDUCATIONS                            string
+	EMPLOYEE_EXPERIENCES                           string
+	EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT       string
+	EMPLOYEES_IN_ORGANIZATION_UNITS_BY_ID_ENDPOINT string
+	RESOLUTIONS_ENDPOINT                           string
+	SYSTEMATIZATIONS_ENDPOINT                      string
+	EMPLOYEE_FAMILY_MEMBERS                        string
+	JUDGE_NORM_ENDPOINT                            string
+	JUDGES                                         string
+	ABSENT_TYPE                                    string
+	EMPLOYEE_ABSENTS                               string
+	REVISIONS_ENDPOINT                             string
+	JOB_TENDERS_ENDPOINT                           string
+	JOB_TENDER_TYPES_ENDPOINT                      string
+	JOB_TENDER_APPLICATIONS_ENDPOINT               string
+	JUDGE_RESOLUTIONS_ENDPOINT                     string
+	JUDGE_RESOLUTION_ITEMS_ENDPOINT                string
+	REVISION_PLAN_ENDPOINT                         string
+	REVISION_ENDPOINT                              string
+	REVISION_TIPS_ENDPOINT                         string
 
 	PLANS_ENDPOINT                     string
 	ITEMS_ENDPOINT                     string
@@ -149,6 +150,7 @@ func init() {
 	JOB_POSITIONS_ENDPOINT = HR_MS_BASE_URL + "/job-positions"
 	JOB_POSITIONS_IN_ORGANIZATION_UNITS_ENDPOINT = HR_MS_BASE_URL + "/job-positions-in-organization-units"
 	EMPLOYEES_IN_ORGANIZATION_UNITS_ENDPOINT = HR_MS_BASE_URL + "/employees-in-organization-units"
+	EMPLOYEES_IN_ORGANIZATION_UNITS_BY_ID_ENDPOINT = HR_MS_BASE_URL + "/employees-in-organization-units-by-id"
 	RESOLUTIONS_ENDPOINT = HR_MS_BASE_URL + "/employee-resolutions"
 	EMPLOYEE_FAMILY_MEMBERS = HR_MS_BASE_URL + "/employee-family-members"
 	JUDGE_NORM_ENDPOINT = HR_MS_BASE_URL + "/user-norms"

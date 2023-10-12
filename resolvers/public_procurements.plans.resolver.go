@@ -73,7 +73,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 		}
 		items = append(items, *resItem)
 	}
-	total = len(plans)
+	total = len(items)
 
 	paginatedItems, err := shared.Paginate(items, page, size)
 	if err != nil {

@@ -331,7 +331,10 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 	_ = json.Unmarshal(dataBytes, &data)
 
 	if data.UserProfileId != nil {
-		userProfile, _ := getUserProfileById(*data.UserProfileId)
+		userProfile, err := getUserProfileById(*data.UserProfileId)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
 		data.FirstName = userProfile.FirstName
 		data.LastName = userProfile.LastName
 	}
@@ -363,6 +366,91 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 
 		response.Item = item
 		response.Message = "You created this item!"
+	}
+
+	if data.UserProfileId != nil && data.Status == "Izabran" {
+		active := true
+		input := dto.GetJudgeResolutionListInputMS{
+			Active: &active,
+		}
+
+		resolution, err := getJudgeResolutionList(&input)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		filter := dto.JudgeResolutionsOrganizationUnitInput{
+			UserProfileId: data.UserProfileId,
+			ResolutionId:  &resolution.Data[0].Id,
+		}
+
+		judge, _, err := getJudgeResolutionOrganizationUnit(&filter)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		err = deleteJJudgeResolutionOrganizationUnit(judge[0].Id)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		contract, err := getEmployeeContracts(*data.UserProfileId, nil)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		now := time.Now()
+		format := "2006-01-02T00:00:00Z"
+		dateOfEnd := now.Format(format)
+		dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
+		yearsDiff := now.Year() - dateOfStart.Year()
+		monthsDiff := int(now.Month()) - int(dateOfStart.Month())
+
+		if monthsDiff < 0 {
+			monthsDiff += 12
+			yearsDiff--
+		}
+
+		totalMonths := (yearsDiff * 12) + monthsDiff
+
+		experience := structs.Experience{
+			UserProfileId:             *data.UserProfileId,
+			OrganizationUnitId:        judge[0].OrganizationUnitId,
+			Relevant:                  true,
+			DateOfStart:               *contract[0].DateOfStart,
+			DateOfEnd:                 dateOfEnd,
+			AmountOfExperience:        totalMonths,
+			AmountOfInsuredExperience: totalMonths,
+		}
+		_, err = createExperience(&experience)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		jobTender, err := getJobTender(data.JobTenderId)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		contract[0].DateOfStart = nil
+		contract[0].DateOfEnd = nil
+		contract[0].OrganizationUnitID = jobTender.OrganizationUnitID
+
+		_, err = updateEmployeeContract(contract[0].Id, contract[0])
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		judge[0].OrganizationUnitId = jobTender.OrganizationUnitID
+		_, err = createJudgeResolutionOrganizationUnit(&judge[0])
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
 	}
 
 	return response, nil

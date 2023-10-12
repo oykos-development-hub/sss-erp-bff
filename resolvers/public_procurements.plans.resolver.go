@@ -58,7 +58,6 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	total = len(plans)
 
 	for _, plan := range plans {
 		resItem, err := buildProcurementPlanResponseItem(plan, loggedInAccount)
@@ -70,11 +69,11 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 			continue
 		}
 		if status != nil && status.(string) != "" && status.(string) != *resItem.Status {
-			total--
 			continue
 		}
 		items = append(items, *resItem)
 	}
+	total = len(plans)
 
 	paginatedItems, err := shared.Paginate(items, page, size)
 	if err != nil {

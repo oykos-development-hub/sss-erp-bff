@@ -124,6 +124,28 @@ func buildJobTenderResponse(item *structs.JobTenders) (*dto.JobTenderResponseIte
 }
 
 func JobTenderIsActive(item *structs.JobTenders) bool {
+
+	input := dto.GetJobTenderApplicationsInput{
+		JobTenderID: &item.Id,
+	}
+
+	jobTenderApplications, err := getTenderApplicationList(&input)
+
+	if err != nil {
+		return false
+	}
+
+	count := 0
+	for _, tenderApp := range jobTenderApplications.Data {
+		if tenderApp.Status == "Izabran" {
+			count++
+		}
+	}
+
+	if count == item.NumberOfVacantSeats {
+		return false
+	}
+
 	start, _ := time.Parse(time.RFC3339, item.DateOfStart)
 
 	var end *time.Time

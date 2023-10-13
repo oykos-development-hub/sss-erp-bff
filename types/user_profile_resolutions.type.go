@@ -24,7 +24,7 @@ var UserProfileResolutionItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"is_affect": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Boolean,
 		},
 		"value": &graphql.Field{
 			Type: graphql.String,

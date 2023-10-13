@@ -171,6 +171,9 @@ var RevisionTipsInsertMutation = graphql.NewInputObject(graphql.InputObjectConfi
 		"date_of_reject": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"end_date": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"revision_priority": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

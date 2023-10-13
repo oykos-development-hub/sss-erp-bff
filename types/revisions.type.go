@@ -162,7 +162,6 @@ var RevisionDeleteType = graphql.NewObject(graphql.ObjectConfig{
 })
 
 //----------------------------------------------------------------------
-
 var RevisionPlanType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RevisionPlan",
 	Fields: graphql.Fields{
@@ -390,6 +389,9 @@ var RevisionTipsType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"date_of_reject": &graphql.Field{
+			Type: graphql.String,
+		},
+		"end_date": &graphql.Field{
 			Type: graphql.String,
 		},
 		"date_of_execution": &graphql.Field{

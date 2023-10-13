@@ -16,7 +16,6 @@ type GetProcurementArticleListInputMS struct {
 
 type ProcurementArticleResponseItem struct {
 	Id                int            `json:"id"`
-	BudgetIndent      DropdownSimple `json:"budget_indent"`
 	PublicProcurement DropdownSimple `json:"public_procurement"`
 	Title             string         `json:"active"`
 	Description       string         `json:"year"`

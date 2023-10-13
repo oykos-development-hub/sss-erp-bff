@@ -287,9 +287,6 @@ var PublicProcurementPlanItemArticleItemType = graphql.NewObject(graphql.ObjectC
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"budget_indent": &graphql.Field{
-			Type: DropdownItemType,
-		},
 		"public_procurement": &graphql.Field{
 			Type: DropdownItemType,
 		},

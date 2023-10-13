@@ -40,7 +40,6 @@ type PublicProcurementItem struct {
 
 type PublicProcurementArticle struct {
 	Id                  int     `json:"id"`
-	BudgetIndentId      int     `json:"budget_indent_id"`
 	PublicProcurementId int     `json:"public_procurement_id"`
 	Title               string  `json:"title"`
 	Description         string  `json:"description"`

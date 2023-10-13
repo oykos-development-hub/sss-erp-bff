@@ -78,7 +78,6 @@ func buildProcurementArticleResponseItem(item *structs.PublicProcurementArticle)
 
 	res := dto.ProcurementArticleResponseItem{
 		Id:                item.Id,
-		BudgetIndent:      procurementDropdown,
 		PublicProcurement: procurementDropdown,
 		Title:             item.Title,
 		Description:       item.Description,

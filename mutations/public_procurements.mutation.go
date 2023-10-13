@@ -98,9 +98,6 @@ var PublicProcurementPlanItemArticleInsertMutation = graphql.NewInputObject(grap
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"budget_indent_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
-		},
 		"public_procurement_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},

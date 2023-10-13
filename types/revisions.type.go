@@ -398,6 +398,9 @@ var RevisionTipsType = graphql.NewObject(graphql.ObjectConfig{
 		"new_date_of_execution": &graphql.Field{
 			Type: graphql.String,
 		},
+		"revision_priority": &graphql.Field{
+			Type: graphql.String,
+		},
 		"recommendation": &graphql.Field{
 			Type: graphql.String,
 		},

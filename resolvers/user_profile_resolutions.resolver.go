@@ -113,6 +113,7 @@ func buildResolutionResItem(item *structs.Resolution) (*dto.Resolution, error) {
 			Id:    resolutionType.Id,
 			Title: resolutionType.Title,
 		},
+		IsAffect:    item.IsAffect,
 		DateOfStart: item.DateOfStart,
 		DateOfEnd:   item.DateOfEnd,
 		Value:       item.Value,

@@ -5,6 +5,7 @@ type Resolution struct {
 	UserProfileId     int               `json:"user_profile_id"`
 	ResolutionTypeId  int               `json:"resolution_type_id"`
 	ResolutionType    *SettingsDropdown `json:"resolution_type"`
+	IsAffect          string            `json:"is_affect"`
 	ResolutionPurpose string            `json:"resolution_purpose"`
 	DateOfStart       string            `json:"date_of_start"`
 	DateOfEnd         string            `json:"date_of_end"`

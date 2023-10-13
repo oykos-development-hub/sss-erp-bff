@@ -121,8 +121,12 @@ func RefreshTokenResolver(p graphql.ResolveParams) (interface{}, error) {
 
 var LogoutResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	var authToken = p.Context.Value(config.TokenKey).(string)
+	_, err := getLoggedInUser(authToken)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
 
-	err := logout(authToken)
+	err = logout(authToken)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}

@@ -41,5 +41,8 @@ var UserProfileSalaryParamsInsertMutation = graphql.NewInputObject(graphql.Input
 		"user_resolution_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"obligation_reduction": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 	},
 })

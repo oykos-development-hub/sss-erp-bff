@@ -41,6 +41,9 @@ var UserProfileSalaryParamsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"resolution": &graphql.Field{
 			Type: UserProfileResolutionItemType,
 		},
+		"obligation_reduction": &graphql.Field{
+			Type: graphql.String,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

@@ -51,7 +51,6 @@ type RevisionsOverviewItem struct {
 	PlanID                  int             `json:"plan_id"`
 	SerialNumber            string          `json:"serial_number"`
 	DateOfRevision          string          `json:"date_of_revision"`
-	RevisionPriority        string          `json:"revision_priority"`
 	RevisionQuartal         string          `json:"revision_quartal"`
 	InternalRevisionSubject *DropdownSimple `json:"internal_revision_subject"`
 	ExternalRevisionSubject *DropdownSimple `json:"external_revision_subject"`
@@ -108,6 +107,7 @@ type RevisionTipsOverviewItem struct {
 	NewDateOfExecution     *string                  `json:"new_date_of_execution"`
 	Recommendation         string                   `json:"recommendation"`
 	Status                 *string                  `json:"status"`
+	RevisionPriority       *string                  `json:"revision_priority"`
 	Documents              *string                  `json:"documents"`
 	ReasonsForNonExecuting *string                  `json:"reasons_for_non_executing"`
 	FileID                 *int                     `json:"file_id"`

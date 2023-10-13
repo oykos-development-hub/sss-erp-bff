@@ -39,7 +39,6 @@ type Revisions struct {
 	PlanID                  int    `json:"plan_id"`
 	SerialNumber            string `json:"serial_number"`
 	DateOfRevision          string `json:"date_of_revision"`
-	RevisionPriority        string `json:"revision_priority"`
 	RevisionQuartal         string `json:"revision_quartal"`
 	InternalRevisionSubject *int   `json:"internal_revision_subject"`
 	ExternalRevisionSubject *int   `json:"external_revision_subject"`
@@ -56,7 +55,6 @@ type RevisionsInsert struct {
 	PlanID                  int    `json:"plan_id"`
 	SerialNumber            string `json:"serial_number"`
 	DateOfRevision          string `json:"date_of_revision"`
-	RevisionPriority        string `json:"revision_priority"`
 	RevisionQuartal         string `json:"revision_quartal"`
 	InternalRevisionSubject []*int `json:"internal_revision_subject_id"`
 	ExternalRevisionSubject *int   `json:"external_revision_subject_id"`
@@ -74,6 +72,7 @@ type RevisionTips struct {
 	ResponsiblePerson      *string `json:"responsible_person"`
 	DateOfAccept           *string `json:"date_of_accept"`
 	DueDate                int     `json:"due_date"`
+	RevisionPriority       *string `json:"revision_priority"`
 	NewDueDate             *int    `json:"new_due_date"`
 	DateOfReject           *string `json:"date_of_reject"`
 	DateOfExecution        *string `json:"date_of_execution"`

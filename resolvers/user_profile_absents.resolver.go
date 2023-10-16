@@ -391,8 +391,15 @@ var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interf
 			return shared.HandleAPIError(err)
 		}
 
-		dateOfStart, _ := time.Parse("2006-01-02", data.DateOfStart)
-		dateOfEnd, _ := time.Parse("2006-01-02", data.DateOfEnd)
+		dateOfStart, err := time.Parse("2006-01-02T15:04:05.000Z", data.DateOfStart)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		dateOfEnd, err := time.Parse("2006-01-02T15:04:05.000Z", data.DateOfEnd)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
 
 		newUsedData := countWorkingDaysBetweenDates(dateOfStart, dateOfEnd)
 

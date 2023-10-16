@@ -384,7 +384,7 @@ var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interf
 		return shared.HandleAPIError(err)
 	}
 
-	if absentType.Title == VacationTypeValue {
+	if absentType.Title == "Godišnji odmor" {
 		_, currYearDays, pastYearDays, err := getNumberOfCurrentAndPreviousYearAvailableDays(data.UserProfileId)
 
 		if err != nil {

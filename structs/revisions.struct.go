@@ -40,10 +40,10 @@ type Revisions struct {
 	SerialNumber            string `json:"serial_number"`
 	DateOfRevision          string `json:"date_of_revision"`
 	RevisionQuartal         string `json:"revision_quartal"`
-	InternalRevisionSubject *[]int `json:"internal_revision_subject_id"`
+	InternalRevisionSubject []int  `json:"internal_revision_subject_id"`
 	ExternalRevisionSubject *int   `json:"external_revision_subject_id"`
-	Revisor                 []int  `json:"revisor"`
-	RevisionType            int    `json:"revision_type"`
+	Revisor                 []int  `json:"revisor_id"`
+	RevisionType            int    `json:"revision_type_id"`
 	FileID                  *int   `json:"file_id"`
 	CreatedAt               string `json:"created_at"`
 	UpdatedAt               string `json:"updated_at"`

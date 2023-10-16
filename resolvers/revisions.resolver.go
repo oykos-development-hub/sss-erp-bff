@@ -629,7 +629,7 @@ func buildRevisionItemResponse(revision *structs.Revisions) (*dto.RevisionsOverv
 	externalUnitDropdown := &dto.DropdownSimple{}
 
 	if revision.InternalRevisionSubject != nil {
-		for _, orgUnit := range *revision.InternalRevisionSubject {
+		for _, orgUnit := range revision.InternalRevisionSubject {
 			organizationUnit, err := getOrganizationUnitById(orgUnit)
 			if err != nil {
 				return nil, err

@@ -149,6 +149,22 @@ func buildUserProfileOverviewResponse(
 		organizationUnitDropdown.Title = organizationUnit.Title
 	}
 
+	contract, err := getEmployeeContracts(profile.Id, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if contract != nil {
+		orgUnit, err := getOrganizationUnitById(contract[0].OrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+		organizationUnitDropdown.Id = orgUnit.Id
+		organizationUnitDropdown.Title = orgUnit.Title
+
+	}
+
 	active := true
 	input := dto.GetJudgeResolutionListInputMS{
 		Active: &active,

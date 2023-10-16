@@ -208,7 +208,24 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 	userProfile, _ := getUserProfileByUserAccountID(loggedInAccount.Id)
 	organizationUnitID, _ := getOrganizationUnitIdByUserProfile(userProfile.Id)
 
-	procurementStatus, _ := getProcurementStatus(item.Id, organizationUnitID)
+	planStatus, err := BuildStatus(plan, loggedInAccount)
+	if err != nil {
+		return nil, err
+	}
+
+	var procurementStatus structs.ProcurementStatus
+
+	if planStatus == string(structs.PostProcurementStatusCompleted) {
+		procurementStatus = structs.PostProcurementStatusCompleted
+	} else if planStatus == string(structs.PreProcurementStatusCompleted) {
+		procurementStatus = structs.PostProcurementStatusCompleted
+	} else {
+		status, err := getProcurementStatus(item.Id, organizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+		procurementStatus = *status
+	}
 
 	account, err := getAccountItemById(item.BudgetIndentId)
 	if err != nil {
@@ -226,7 +243,7 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 		Plan:              planDropdown,
 		IsOpenProcurement: item.IsOpenProcurement,
 		ArticleType:       item.ArticleType,
-		Status:            *procurementStatus,
+		Status:            procurementStatus,
 		SerialNumber:      item.SerialNumber,
 		DateOfAwarding:    item.DateOfAwarding,
 		DateOfPublishing:  item.DateOfPublishing,

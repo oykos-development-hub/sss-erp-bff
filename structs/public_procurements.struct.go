@@ -18,8 +18,10 @@ type PublicProcurementPlan struct {
 type ProcurementStatus string
 
 const (
-	ProcurementStatusInProgress ProcurementStatus = "U toku"
-	ProcurementStatusProcessed  ProcurementStatus = "Obrađen"
+	ProcurementStatusInProgress    ProcurementStatus = "U toku"
+	PostProcurementStatusCompleted ProcurementStatus = "Objavljen"
+	PreProcurementStatusCompleted  ProcurementStatus = "Zaključen"
+	ProcurementStatusProcessed     ProcurementStatus = "Obrađen"
 )
 
 type PublicProcurementItem struct {

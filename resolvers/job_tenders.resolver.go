@@ -472,7 +472,6 @@ var JobTenderApplicationInsertResolver = func(params graphql.ResolveParams) (int
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-
 	}
 
 	return response, nil

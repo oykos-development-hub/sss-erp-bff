@@ -168,3 +168,7 @@ type EducationInput struct {
 	UserProfileID int  `json:"user_profile_id"`
 	TypeID        *int `json:"type_id"`
 }
+
+type GetRevisors struct {
+	Data []*structs.Revisor `json:"data"`
+}

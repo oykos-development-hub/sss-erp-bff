@@ -384,7 +384,7 @@ func getRevisorListDropdown() ([]*structs.SettingsDropdown, error) {
 	var revisorDropdownOptions []*structs.SettingsDropdown
 	for _, revisor := range revisors {
 		revisorDropdownOptions = append(revisorDropdownOptions, &structs.SettingsDropdown{
-			Id:    revisor.Id,
+			Id:    revisor.ID,
 			Title: revisor.FirstName + " " + revisor.LastName,
 		})
 	}
@@ -401,83 +401,14 @@ func createRevision(revision *structs.Revision) (*structs.Revision, error) {
 	return &res.Data, nil
 }
 
-func getRevisors() ([]*structs.UserProfiles, error) {
-	var revisors []*structs.UserProfiles
-
-	revisor := "Revizor"
-	filter := dto.GetJobPositionsInput{
-		Search: &revisor,
-	}
-
-	jobPositions, err := getJobPositions(&filter)
+func getRevisors() ([]*structs.Revisor, error) {
+	res := &dto.GetRevisors{}
+	_, err := shared.MakeAPIRequest("GET", config.REVISORS_ENDPOINT, nil, res)
 	if err != nil {
 		return nil, err
 	}
 
-	var jobRevisor structs.JobPositions
-
-	for _, job := range jobPositions.Data {
-		if job.Title == "Revizor" {
-			jobRevisor = job
-			break
-		}
-	}
-
-	active := 2
-	input := dto.GetSystematizationsInput{
-		Active: &active,
-	}
-	systematizations, err := getSystematizations(&input)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for _, systematization := range systematizations.Data {
-		filt := dto.GetJobPositionInOrganizationUnitsInput{
-			JobPositionID:     &jobRevisor.Id,
-			SystematizationID: &systematization.Id,
-		}
-		jobPositionsInOrgUnits, err := getJobPositionsInOrganizationUnits(&filt)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, jobPos := range jobPositionsInOrgUnits.Data {
-			inpt := dto.GetEmployeesInOrganizationUnitInput{
-				PositionInOrganizationUnit: &jobPos.Id,
-			}
-			employees, err := getEmployeesInOrganizationUnitList(&inpt)
-
-			if err != nil {
-				return nil, err
-			}
-
-			for _, employe := range employees {
-				user, err := getUserProfileById(employe.UserProfileId)
-
-				if err != nil {
-					return nil, err
-				}
-
-				revisors = append(revisors, user)
-			}
-		}
-
-	}
-
-	return revisors, nil
-	/*res := &dto.GetUserProfileListResponseMS{}
-	isRevisor := true
-	input := &dto.GetUserProfilesInput{
-		IsRevisor: &isRevisor,
-	}
-	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Data, nil*/
+	return res.Data, nil
 }
 
 func updateRevision(id int, revision *structs.Revision) (*structs.Revision, error) {

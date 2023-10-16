@@ -39,6 +39,12 @@ type UserProfiles struct {
 	UpdatedAt                      string  `json:"updated_at"`
 }
 
+type Revisor struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	ID        int    `json:"id"`
+}
+
 func (u *UserProfiles) GetFullName() string {
 	return u.FirstName + " " + u.LastName
 }

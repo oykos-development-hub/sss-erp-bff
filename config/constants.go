@@ -79,6 +79,7 @@ var (
 	REVISION_PLAN_ENDPOINT                         string
 	REVISION_ENDPOINT                              string
 	REVISION_TIPS_ENDPOINT                         string
+	REVISORS_ENDPOINT                              string
 
 	PLANS_ENDPOINT                     string
 	ITEMS_ENDPOINT                     string
@@ -166,6 +167,7 @@ func init() {
 	REVISION_PLAN_ENDPOINT = HR_MS_BASE_URL + "/plans"
 	REVISION_ENDPOINT = HR_MS_BASE_URL + "/revisions"
 	REVISION_TIPS_ENDPOINT = HR_MS_BASE_URL + "/revision-tips"
+	REVISORS_ENDPOINT = HR_MS_BASE_URL + "/get-revisors"
 
 	// public procurement endpoints
 	PLANS_ENDPOINT = PROCUREMENT_MS_BASE_URL + "/plans"

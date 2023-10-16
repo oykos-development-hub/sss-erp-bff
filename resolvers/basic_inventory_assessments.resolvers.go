@@ -112,6 +112,7 @@ func buildAssessmentResponse(item *structs.BasicInventoryAssessmentsTypesItem) (
 
 	res := dto.BasicInventoryResponseAssessment{
 		Id:                   item.Id,
+		Type:                 item.Type,
 		InventoryId:          item.InventoryId,
 		DepreciationType:     settingDropdownDepreciationTypeId,
 		UserProfile:          userDropdown,

@@ -8,6 +8,9 @@ var BasicInventoryAssessmentsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"type": &graphql.Field{
+			Type: graphql.String,
+		},
 		"inventory_id": &graphql.Field{
 			Type: graphql.Int,
 		},

@@ -16,6 +16,7 @@ type GetAssessmentResponseMS struct {
 
 type BasicInventoryResponseAssessment struct {
 	Id                   int            `json:"id"`
+	Type                 string         `json:"type"`
 	InventoryId          int            `json:"inventory_id"`
 	Active               bool           `json:"active"`
 	DepreciationType     DropdownSimple `json:"depreciation_type"`

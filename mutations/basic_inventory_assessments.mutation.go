@@ -8,6 +8,9 @@ var BasicInventoryAssessmentsMutation = graphql.NewInputObject(graphql.InputObje
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"type": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"inventory_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

@@ -155,7 +155,7 @@ func buildUserProfileOverviewResponse(
 		return nil, err
 	}
 
-	if contract != nil {
+	if len(contract) > 0 {
 		orgUnit, err := getOrganizationUnitById(contract[0].OrganizationUnitID)
 		if err != nil {
 			return nil, err

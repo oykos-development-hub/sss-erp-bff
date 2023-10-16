@@ -144,6 +144,12 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	planId := params.Args["plan_id"].(int)
 	organizationUnitId := params.Args["organization_unit_id"]
+	var procurementID *int
+	if params.Args["procurement_id"] != nil {
+		procurementIDParam := params.Args["procurement_id"].(int)
+		procurementID = &procurementIDParam
+	}
+
 	if organizationUnitId == nil {
 		var authToken = params.Context.Value(config.TokenKey).(string)
 		userProfile, err := getLoggedInUserProfile(authToken)
@@ -158,7 +164,7 @@ var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graph
 		organizationUnitId = *unitId
 	}
 
-	response, err := buildProcurementOUArticleDetailsResponseItem(planId, organizationUnitId.(int))
+	response, err := buildProcurementOUArticleDetailsResponseItem(planId, organizationUnitId.(int), procurementID)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -170,7 +176,7 @@ var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graph
 	}, nil
 }
 
-func buildProcurementOUArticleDetailsResponseItem(planID, unitID int) ([]*dto.ProcurementItemWithOrganizationUnitArticleResponseItem, error) {
+func buildProcurementOUArticleDetailsResponseItem(planID, unitID int, procurementID *int) ([]*dto.ProcurementItemWithOrganizationUnitArticleResponseItem, error) {
 	var responseItemList []*dto.ProcurementItemWithOrganizationUnitArticleResponseItem
 
 	plan, err := getProcurementPlan(planID)
@@ -178,9 +184,19 @@ func buildProcurementOUArticleDetailsResponseItem(planID, unitID int) ([]*dto.Pr
 		return nil, err
 	}
 
-	items, err := getProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &planID})
-	if err != nil {
-		return nil, err
+	var items []*structs.PublicProcurementItem
+
+	if procurementID != nil {
+		item, err := getProcurementItem(*procurementID)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	} else {
+		items, err = getProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &planID})
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	for _, item := range items {

@@ -165,6 +165,9 @@ var PublicProcurementOrganizationUnitArticlesDetailsField = &graphql.Field{
 		"organization_unit_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"procurement_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 	},
 	Resolve: resolvers.PublicProcurementOrganizationUnitArticlesDetailsResolver,
 }

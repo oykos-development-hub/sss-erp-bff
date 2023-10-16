@@ -609,26 +609,37 @@ func buildRevisionItemResponse(revision *structs.Revisions) (*dto.RevisionsOverv
 		Title: revisiontype.Title,
 	}
 
-	revisor, err := getUserProfileById(revision.Revisor)
-	if err != nil {
-		return nil, err
-	}
+	var revisorDropdown []dto.DropdownSimple
 
-	revisorDropdown := dto.DropdownSimple{
-		Id:    revisor.Id,
-		Title: revisor.FirstName + " " + revisor.LastName,
-	}
-
-	internalUnitDropdown := &dto.DropdownSimple{}
-	externalUnitDropdown := &dto.DropdownSimple{}
-
-	if revision.InternalRevisionSubject != nil {
-		organizationUnit, err := getOrganizationUnitById(*revision.InternalRevisionSubject)
+	for _, revisorID := range revision.Revisor {
+		revisor, err := getUserProfileById(revisorID)
 		if err != nil {
 			return nil, err
 		}
-		internalUnitDropdown.Id = organizationUnit.Id
-		internalUnitDropdown.Title = organizationUnit.Title
+
+		revisorSingleDropdown := dto.DropdownSimple{
+			Id:    revisor.Id,
+			Title: revisor.FirstName + " " + revisor.LastName,
+		}
+
+		revisorDropdown = append(revisorDropdown, revisorSingleDropdown)
+	}
+
+	internalUnitDropdown := []dto.DropdownSimple{}
+	externalUnitDropdown := &dto.DropdownSimple{}
+
+	if revision.InternalRevisionSubject != nil {
+		for _, orgUnit := range *revision.InternalRevisionSubject {
+			organizationUnit, err := getOrganizationUnitById(orgUnit)
+			if err != nil {
+				return nil, err
+			}
+			var orgUnitDropdown dto.DropdownSimple
+			orgUnitDropdown.Id = organizationUnit.Id
+			orgUnitDropdown.Title = organizationUnit.Title
+
+			internalUnitDropdown = append(internalUnitDropdown, orgUnitDropdown)
+		}
 	}
 	if revision.ExternalRevisionSubject != nil {
 		organizationUnit, err := getDropdownSettingById(*revision.ExternalRevisionSubject)
@@ -646,7 +657,7 @@ func buildRevisionItemResponse(revision *structs.Revisions) (*dto.RevisionsOverv
 		SerialNumber:            revision.SerialNumber,
 		DateOfRevision:          revision.DateOfRevision,
 		RevisionQuartal:         revision.RevisionQuartal,
-		InternalRevisionSubject: internalUnitDropdown,
+		InternalRevisionSubject: &internalUnitDropdown,
 		ExternalRevisionSubject: externalUnitDropdown,
 		Revisor:                 revisorDropdown,
 		RevisionType:            revisionType,
@@ -751,7 +762,7 @@ var RevisionDetailResolver = func(params graphql.ResolveParams) (interface{}, er
 }
 
 var RevisionsInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.RevisionsInsert
+	var data structs.Revisions
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	response := dto.ResponseSingle{
 		Status: "success",
@@ -759,23 +770,9 @@ var RevisionsInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	data1 := structs.Revisions{
-		ID:                      data.ID,
-		Title:                   data.Title,
-		PlanID:                  data.PlanID,
-		SerialNumber:            data.SerialNumber,
-		DateOfRevision:          data.DateOfRevision,
-		RevisionQuartal:         data.RevisionQuartal,
-		ExternalRevisionSubject: data.ExternalRevisionSubject,
-		Revisor:                 data.Revisor,
-		RevisionType:            data.RevisionType,
-		FileID:                  data.FileID,
-	}
-
 	itemId := data.ID
 	if shared.IsInteger(itemId) && itemId != 0 {
-		data1.InternalRevisionSubject = data.InternalRevisionSubject[0]
-		res, err := updateRevisions(itemId, &data1)
+		res, err := updateRevisions(itemId, &data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -786,34 +783,17 @@ var RevisionsInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
-		var responseItems []*dto.RevisionsOverviewItem
-		if data.InternalRevisionSubject != nil {
-			for _, orgUnit := range data.InternalRevisionSubject {
-				data1.InternalRevisionSubject = orgUnit
-				res, err := createRevisions(&data1)
-				if err != nil {
-					return shared.HandleAPIError(err)
-				}
-				item, err := buildRevisionItemResponse(res)
-				if err != nil {
-					return shared.HandleAPIError(err)
-				}
-				responseItems = append(responseItems, item)
-				response.Item = responseItems
-			}
-		} else {
-			res, err := createRevisions(&data1)
-			if err != nil {
-				return shared.HandleAPIError(err)
-			}
-			item, err := buildRevisionItemResponse(res)
-			if err != nil {
-				return shared.HandleAPIError(err)
-			}
-			response.Item = item
+		res, err := createRevisions(&data)
+		if err != nil {
+			return shared.HandleAPIError(err)
 		}
-		response.Message = "You created this item!"
+		item, err := buildRevisionItemResponse(res)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		response.Item = item
 	}
+	response.Message = "You created this item!"
 
 	return response, nil
 }

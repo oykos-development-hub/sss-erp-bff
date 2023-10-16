@@ -261,13 +261,13 @@ var RevisionType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"internal_revision_subject": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.NewList(DropdownItemType),
 		},
 		"external_revision_subject": &graphql.Field{
 			Type: DropdownItemType,
 		},
 		"revisor": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.NewList(DropdownItemType),
 		},
 		"revision_type": &graphql.Field{
 			Type: DropdownItemType,
@@ -309,7 +309,7 @@ var RevisionDetailType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"item": &graphql.Field{
-			Type: graphql.NewList(RevisionType),
+			Type: RevisionType,
 		},
 		"revisors": &graphql.Field{
 			Type: graphql.NewList(DropdownItemType),

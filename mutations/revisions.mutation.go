@@ -139,7 +139,7 @@ var RevisionsInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"revisor_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.NewList(graphql.Int),
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,

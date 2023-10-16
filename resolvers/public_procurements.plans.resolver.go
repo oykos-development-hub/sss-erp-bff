@@ -169,18 +169,6 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 }
 
 func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, loggedInAccount *structs.UserAccounts) (*dto.ProcurementPlanResponseItem, error) {
-	var preBudgetPlan structs.SettingsDropdown
-	if plan.PreBudgetId != nil {
-		plan, err := getProcurementPlan(*plan.PreBudgetId)
-		if err != nil {
-			return nil, err
-		}
-		preBudgetPlan = structs.SettingsDropdown{
-			Id:    plan.Id,
-			Title: plan.Title,
-		}
-	}
-
 	items := []*dto.ProcurementItemResponseItem{}
 	rawItems, err := getProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &plan.Id})
 	if err != nil {
@@ -216,10 +204,20 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 		DateOfClosing:    plan.DateOfClosing,
 		PreBudgetId:      plan.PreBudgetId,
 		FileId:           plan.FileId,
-		PreBudgetPlan:    preBudgetPlan,
 		CreatedAt:        plan.CreatedAt,
 		UpdatedAt:        plan.UpdatedAt,
 		Items:            items,
+	}
+
+	if plan.PreBudgetId != nil {
+		plan, err := getProcurementPlan(*plan.PreBudgetId)
+		if err != nil {
+			return nil, err
+		}
+		res.PreBudgetPlan = &dto.DropdownSimple{
+			Id:    plan.Id,
+			Title: plan.Title,
+		}
 	}
 
 	return &res, nil

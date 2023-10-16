@@ -218,7 +218,7 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 	if planStatus == string(structs.PostProcurementStatusCompleted) {
 		procurementStatus = structs.PostProcurementStatusCompleted
 	} else if planStatus == string(structs.PreProcurementStatusCompleted) {
-		procurementStatus = structs.PostProcurementStatusCompleted
+		procurementStatus = structs.PreProcurementStatusCompleted
 	} else {
 		status, err := getProcurementStatus(item.Id, organizationUnitID)
 		if err != nil {

@@ -6,6 +6,7 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -133,13 +134,13 @@ func buildVacationResItem(item *structs.Resolution) (*dto.Vacation, error) {
 var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var (
 		absentSummary dto.AbsentsSummary
-		usedDays      int
+	//	usedDays      int
 	)
 
 	profileID := params.Args["user_profile_id"].(int)
 
 	// year ago
-	availableDaysOfCurrentYear, availableDaysOfPreviousYear, err := getNumberOfCurrentAndPreviousYearAvailableDays(profileID)
+	sumDaysOfCurrentYear, availableDaysOfCurrentYear, availableDaysOfPreviousYear, err := getNumberOfCurrentAndPreviousYearAvailableDays(profileID)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -160,7 +161,7 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 		}
 		absent.AbsentType = *absentType
 
-		if absentType.AccountingDaysOff {
+		/*if absentType.AccountingDaysOff {
 			daysTakenBeforeJuly, daysTakenAfterJuly := getTakenVacationDaysBeforeAndAfterJuly(absent.DateOfStart, absent.DateOfEnd)
 
 			// Subtract vacation days taken before July from available previous year days
@@ -179,7 +180,7 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 			}
 
 			usedDays += (daysTakenBeforeJuly + daysTakenAfterJuly)
-		}
+		}*/
 	}
 
 	allAbsents, _ := getEmployeeAbsents(profileID, nil)
@@ -201,7 +202,7 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 
 	absentSummary.CurrentAvailableDays = availableDaysOfCurrentYear
 	absentSummary.PastAvailableDays = availableDaysOfPreviousYear
-	absentSummary.UsedDays = usedDays
+	absentSummary.UsedDays = sumDaysOfCurrentYear - availableDaysOfCurrentYear
 
 	return dto.Response{
 		Status:  "success",
@@ -211,33 +212,34 @@ var UserProfileAbsentResolver = func(params graphql.ResolveParams) (interface{},
 	}, nil
 }
 
-func getTakenVacationDaysBeforeAndAfterJuly(startDate string, endDate string) (int, int) {
-	// Parse the date string
-	start, _ := time.Parse(time.RFC3339, startDate)
-	end, _ := time.Parse(time.RFC3339, endDate)
+/*
+	func getTakenVacationDaysBeforeAndAfterJuly(startDate string, endDate string) (int, int) {
+		// Parse the date string
+		start, _ := time.Parse(time.RFC3339, startDate)
+		end, _ := time.Parse(time.RFC3339, endDate)
 
-	currentYear := time.Now().Year()
+		currentYear := time.Now().Year()
 
-	workingDaysBeforeJuly := 0
-	workingDaysAfterJuly := 0
+		workingDaysBeforeJuly := 0
+		workingDaysAfterJuly := 0
 
-	july := time.Date(currentYear, time.July, 1, 0, 0, 0, 0, start.Location())
+		july := time.Date(currentYear, time.July, 1, 0, 0, 0, 0, start.Location())
 
-	for !start.After(end) {
-		if start.Year() == currentYear && start.Weekday() != time.Saturday && start.Weekday() != time.Sunday {
-			if start.After(july) {
-				workingDaysAfterJuly++
-			} else {
-				workingDaysBeforeJuly++
+		for !start.After(end) {
+			if start.Year() == currentYear && start.Weekday() != time.Saturday && start.Weekday() != time.Sunday {
+				if start.After(july) {
+					workingDaysAfterJuly++
+				} else {
+					workingDaysBeforeJuly++
+				}
 			}
+			start = start.AddDate(0, 0, 1)
 		}
-		start = start.AddDate(0, 0, 1)
+
+		return workingDaysBeforeJuly, workingDaysAfterJuly
 	}
-
-	return workingDaysBeforeJuly, workingDaysAfterJuly
-}
-
-func getNumberOfCurrentAndPreviousYearAvailableDays(profileID int) (int, int, error) {
+*/
+func getNumberOfCurrentAndPreviousYearAvailableDays(profileID int) (int, int, int, error) {
 	currentYear := time.Now().Year()
 	startDatePreviousYear := time.Date(currentYear-1, time.January, 1, 0, 0, 0, 0, time.UTC)
 	endDateCurrentYear := time.Date(currentYear, time.December, 31, 23, 59, 59, 0, time.UTC)
@@ -252,7 +254,7 @@ func getNumberOfCurrentAndPreviousYearAvailableDays(profileID int) (int, int, er
 	for _, resolution := range resolutions {
 		resolutionType, err := getDropdownSettingById(resolution.ResolutionTypeId)
 		if err != nil {
-			return 0, 0, err
+			return 0, 0, 0, err
 		}
 		resolution.ResolutionType = resolutionType
 	}
@@ -267,33 +269,32 @@ func getNumberOfCurrentAndPreviousYearAvailableDays(profileID int) (int, int, er
 		if start.Year() == time.Now().Year() {
 			totalDays, _ := strconv.Atoi(resolution.Value)
 			vacationDays += totalDays
-		}
-		if start.Year() == time.Now().Year()-1 {
+		} else {
 			totalDays, _ := strconv.Atoi(resolution.Value)
 			pastVacationDays += totalDays
 		}
 	}
 
-	usedDaysPreviousYear, err := calculateUsedDaysOfPreviousYear(profileID)
+	usedDays, err := calculateUsedDays(profileID)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 
-	pastVacationDays -= usedDaysPreviousYear
+	//pastVacationDays -= usedDaysPreviousYear
+	pastVacationDays -= usedDays
+	currentYearVacationDays := vacationDays
 
-	return vacationDays, pastVacationDays, nil
+	if pastVacationDays < 0 {
+		vacationDays += pastVacationDays
+		pastVacationDays = 0
+	}
+
+	return currentYearVacationDays, vacationDays, pastVacationDays, nil
 }
 
-func calculateUsedDaysOfPreviousYear(profileID int) (int, error) {
-	currentYear := time.Now().Year()
-	startDatePreviousYear := time.Date(currentYear-1, time.January, 1, 0, 0, 0, 0, time.UTC)
-	endDatePreviousYear := time.Date(currentYear-1, time.December, 31, 23, 59, 59, 0, time.UTC)
-
-	// Initialize usedDays variable
-	usedDaysPreviousYear := 0
-
-	// Get all absents of the employee in the previous year
-	absents, err := getEmployeeAbsents(profileID, &dto.EmployeeAbsentsInput{From: &startDatePreviousYear, To: &endDatePreviousYear})
+func calculateUsedDays(profileID int) (int, error) {
+	usedDays := 0
+	absents, err := getEmployeeAbsents(profileID, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -308,13 +309,45 @@ func calculateUsedDaysOfPreviousYear(profileID int) (int, error) {
 		}
 
 		if absentType.AccountingDaysOff {
-			usedDaysPreviousYear += countWorkingDaysBetweenDates(start, end)
+			usedDays += countWorkingDaysBetweenDates(start, end)
 		}
 	}
 
-	return usedDaysPreviousYear, nil
+	return usedDays, nil
 }
 
+/*
+	func calculateUsedDaysOfPreviousYear(profileID int) (int, error) {
+		currentYear := time.Now().Year()
+		startDatePreviousYear := time.Date(currentYear-1, time.January, 1, 0, 0, 0, 0, time.UTC)
+		endDatePreviousYear := time.Date(currentYear-1, time.December, 31, 23, 59, 59, 0, time.UTC)
+
+		// Initialize usedDays variable
+		usedDaysPreviousYear := 0
+
+		// Get all absents of the employee in the previous year
+		absents, err := getEmployeeAbsents(profileID, &dto.EmployeeAbsentsInput{From: &startDatePreviousYear, To: &endDatePreviousYear})
+		if err != nil {
+			return 0, err
+		}
+
+		for _, absent := range absents {
+			start, _ := time.Parse(time.RFC3339, absent.DateOfStart)
+			end, _ := time.Parse(time.RFC3339, absent.DateOfEnd)
+
+			absentType, err := getAbsentTypeById(absent.AbsentTypeId)
+			if err != nil {
+				return 0, err
+			}
+
+			if absentType.AccountingDaysOff {
+				usedDaysPreviousYear += countWorkingDaysBetweenDates(start, end)
+			}
+		}
+
+		return usedDaysPreviousYear, nil
+	}
+*/
 func countWorkingDaysBetweenDates(start, end time.Time) int {
 	daysCount := 0
 
@@ -343,6 +376,30 @@ var UserProfileAbsentInsertResolver = func(params graphql.ResolveParams) (interf
 	if err != nil {
 		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
 		return shared.ErrorResponse("Bad request: user profile absent data"), nil
+	}
+
+	absentType, err := getAbsentTypeById(data.AbsentTypeId)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	if absentType.Title == VacationTypeValue {
+		_, currYearDays, pastYearDays, err := getNumberOfCurrentAndPreviousYearAvailableDays(data.UserProfileId)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		dateOfStart, _ := time.Parse("2006-01-02", data.DateOfStart)
+		dateOfEnd, _ := time.Parse("2006-01-02", data.DateOfEnd)
+
+		newUsedData := countWorkingDaysBetweenDates(dateOfStart, dateOfEnd)
+
+		if newUsedData > (currYearDays + pastYearDays) {
+			err = errors.New("limit is reached")
+			return shared.HandleAPIError(err)
+		}
 	}
 
 	if shared.IsInteger(data.Id) && data.Id != 0 {

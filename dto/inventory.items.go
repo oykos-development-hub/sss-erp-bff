@@ -67,6 +67,8 @@ type BasicInventoryResponseItem struct {
 	PriceOfAssessment            int                                                            `json:"price_of_assessment"`
 	DateOfAssessment             *string                                                        `json:"date_of_assessment"`
 	LifetimeOfAssessmentInMonths int                                                            `json:"lifetime_of_assessment_in_months"`
+	DepreciationRate             string                                                         `json:"depreciation_rate"`
+	AmortizationValue            int                                                            `json:"amortization_value"`
 	Active                       bool                                                           `json:"active"`
 	DeactivationDescription      string                                                         `json:"deactivation_description"`
 	CreatedAt                    string                                                         `json:"created_at"`

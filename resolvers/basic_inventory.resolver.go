@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -254,6 +255,8 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		}
 	}
 	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
+	lifetimeOfAssessmentInMonths := 0
+	amortizationValue := 0
 	if item.DepreciationTypeId != 0 {
 		settings, err := getDropdownSettingById(item.DepreciationTypeId)
 		if err != nil {
@@ -262,6 +265,23 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 
 		if settings != nil {
 			settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+			num, _ := strconv.Atoi(settings.Value)
+			if num > -1 {
+				lifetimeOfAssessmentInMonths = num
+			}
+
+			layout := time.RFC3339Nano
+			//t, _ := time.Parse(layout, item.CreatedAt)
+			t, _ := time.Parse(layout, "2020-10-17T13:09:59.360524Z")
+
+			currentTime := time.Now()
+			years := currentTime.Year() - t.Year()
+
+			if currentTime.YearDay() < t.YearDay() {
+				years--
+			}
+
+			amortizationValue = item.GrossPrice / lifetimeOfAssessmentInMonths * years
 		}
 	}
 
@@ -426,7 +446,9 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		DeactivationDescription:      item.DeactivationDescription,
 		DateOfAssessment:             item.DateOfAssessment,
 		PriceOfAssessment:            item.PriceOfAssessment,
-		LifetimeOfAssessmentInMonths: item.LifetimeOfAssessmentInMonths,
+		LifetimeOfAssessmentInMonths: lifetimeOfAssessmentInMonths,
+		DepreciationRate:             fmt.Sprintf("%d%%", 100/lifetimeOfAssessmentInMonths),
+		AmortizationValue:            amortizationValue,
 		OrganizationUnit:             organizationUnitDropdown,
 		TargetOrganizationUnit:       targetOrganizationUnitDropdown,
 		CreatedAt:                    item.CreatedAt,

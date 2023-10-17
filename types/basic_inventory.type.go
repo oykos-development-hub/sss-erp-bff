@@ -89,6 +89,12 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"lifetime_of_assessment_in_months": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"depreciation_rate": &graphql.Field{
+			Type: graphql.String,
+		},
+		"amortization_value": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"active": &graphql.Field{
 			Type: graphql.Boolean,
 		},

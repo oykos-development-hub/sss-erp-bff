@@ -40,7 +40,7 @@ type ProcurementPlanResponseItem struct {
 	Active           bool                           `json:"active"`
 	Year             string                         `json:"year"`
 	Title            string                         `json:"title"`
-	Status           *PlanStatus                    `json:"status"`
+	Status           PlanStatus                     `json:"status"`
 	SerialNumber     *string                        `json:"serial_number"`
 	DateOfPublishing *string                        `json:"date_of_publishing"`
 	DateOfClosing    *string                        `json:"date_of_closing"`

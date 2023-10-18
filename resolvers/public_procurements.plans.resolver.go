@@ -55,7 +55,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 			fmt.Printf("user with id: %d do not have access to this plan id: %d", loggedInAccount.Id, plan.Id)
 			continue
 		}
-		if status != nil && status.(dto.PlanStatus) != "" && status.(dto.PlanStatus) != *resItem.Status {
+		if status != nil && status.(dto.PlanStatus) != "" && status.(dto.PlanStatus) != resItem.Status {
 			continue
 		}
 		items = append(items, *resItem)
@@ -185,7 +185,7 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 		Active:           plan.Active,
 		Year:             plan.Year,
 		Title:            plan.Title,
-		Status:           &status,
+		Status:           status,
 		SerialNumber:     plan.SerialNumber,
 		DateOfPublishing: plan.DateOfPublishing,
 		DateOfClosing:    plan.DateOfClosing,

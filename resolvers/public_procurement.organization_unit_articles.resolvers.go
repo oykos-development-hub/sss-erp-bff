@@ -12,8 +12,18 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+func buildProcurementOUArticleResponseItemList(articles []*structs.PublicProcurementOrganizationUnitArticle) (items []*dto.ProcurementOrganizationUnitArticleResponseItem, err error) {
+	for _, article := range articles {
+		resItem, err := buildProcurementOUArticleResponseItem(article)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, resItem)
+	}
+	return
+}
+
 var PublicProcurementOrganizationUnitArticlesOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	items := []dto.ProcurementOrganizationUnitArticleResponseItem{}
 	var total int
 
 	page := params.Args["page"]
@@ -30,34 +40,35 @@ var PublicProcurementOrganizationUnitArticlesOverviewResolver = func(params grap
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	total = len(articles)
 
-	for _, article := range articles {
-		resItem, err := buildProcurementOUArticleResponseItem(article)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
+	items, err := buildProcurementOUArticleResponseItemList(articles)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	filteredItems := make([]*dto.ProcurementOrganizationUnitArticleResponseItem, 0)
+
+	for _, item := range items {
 		if procurementID != nil && procurementID.(int) != 0 &&
-			procurementID.(int) != resItem.Article.PublicProcurement.Id {
-			total--
+			procurementID.(int) != item.Article.PublicProcurement.Id {
 			continue
 		}
-		items = append(items, *resItem)
+		filteredItems = append(filteredItems, item)
 	}
+	total = len(filteredItems)
 
 	if page != nil && page.(int) > 0 && size != nil && size.(int) > 0 {
-		paginatedItems, err := shared.Paginate(items, page.(int), size.(int))
+		paginatedItems, err := shared.Paginate(filteredItems, page.(int), size.(int))
 		if err != nil {
 			return shared.HandleAPIError(err)
 		} else {
-			items = paginatedItems.([]dto.ProcurementOrganizationUnitArticleResponseItem)
+			filteredItems = paginatedItems.([]*dto.ProcurementOrganizationUnitArticleResponseItem)
 		}
 	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   items,
+		Items:   filteredItems,
 		Total:   total,
 	}, nil
 }

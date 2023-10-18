@@ -220,6 +220,26 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 		}
 	}
 
+	uniqueOrganizationUnits := make(map[int]bool)
+
+	for _, procurement := range res.Items {
+		if len(procurement.Articles) > 0 {
+			firstArticle := procurement.Articles[0]
+
+			oUArticles, err := getProcurementOUArticleList(&dto.GetProcurementOrganizationUnitArticleListInputDTO{ArticleID: &firstArticle.Id})
+			if err != nil {
+				return nil, err
+			}
+
+			for _, ouArticle := range oUArticles {
+				if _, recorded := uniqueOrganizationUnits[ouArticle.OrganizationUnitId]; !recorded {
+					uniqueOrganizationUnits[ouArticle.OrganizationUnitId] = true
+				}
+			}
+		}
+	}
+	res.Requests = len(uniqueOrganizationUnits)
+
 	return &res, nil
 }
 

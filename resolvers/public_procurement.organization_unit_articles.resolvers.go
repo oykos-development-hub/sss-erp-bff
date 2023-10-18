@@ -155,6 +155,11 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	planId := params.Args["plan_id"].(int)
 	organizationUnitId := params.Args["organization_unit_id"]
+	var authToken = params.Context.Value(config.TokenKey).(string)
+	loggedInAccount, err := getLoggedInUser(authToken)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
 	var procurementID *int
 	if params.Args["procurement_id"] != nil {
 		procurementIDParam := params.Args["procurement_id"].(int)
@@ -175,7 +180,7 @@ var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graph
 		organizationUnitId = *unitId
 	}
 
-	response, err := buildProcurementOUArticleDetailsResponseItem(planId, organizationUnitId.(int), procurementID)
+	response, err := buildProcurementOUArticleDetailsResponseItem(planId, organizationUnitId.(int), procurementID, loggedInAccount)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -187,7 +192,7 @@ var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graph
 	}, nil
 }
 
-func buildProcurementOUArticleDetailsResponseItem(planID, unitID int, procurementID *int) ([]*dto.ProcurementItemWithOrganizationUnitArticleResponseItem, error) {
+func buildProcurementOUArticleDetailsResponseItem(planID, unitID int, procurementID *int, loggedInAccount *structs.UserAccounts) ([]*dto.ProcurementItemWithOrganizationUnitArticleResponseItem, error) {
 	var responseItemList []*dto.ProcurementItemWithOrganizationUnitArticleResponseItem
 
 	plan, err := getProcurementPlan(planID)
@@ -209,9 +214,13 @@ func buildProcurementOUArticleDetailsResponseItem(planID, unitID int, procuremen
 			return nil, err
 		}
 	}
+	planStatus, err := BuildStatus(plan, *loggedInAccount)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, item := range items {
-		status, _ := getProcurementStatus(item.Id, &unitID)
+		status := getProcurementStatus(*item, *plan, planStatus, &unitID)
 		responseItem := dto.ProcurementItemWithOrganizationUnitArticleResponseItem{
 			Id: item.Id,
 			Plan: dto.DropdownSimple{
@@ -221,7 +230,7 @@ func buildProcurementOUArticleDetailsResponseItem(planID, unitID int, procuremen
 			IsOpenProcurement: item.IsOpenProcurement,
 			Title:             item.Title,
 			ArticleType:       item.ArticleType,
-			Status:            *status,
+			Status:            status,
 			SerialNumber:      item.SerialNumber,
 			DateOfPublishing:  (*string)(item.DateOfPublishing),
 			DateOfAwarding:    (*string)(item.DateOfAwarding),

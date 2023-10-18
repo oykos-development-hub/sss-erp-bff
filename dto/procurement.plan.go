@@ -18,6 +18,21 @@ type GetProcurementPlanListResponseMS struct {
 	Data []*structs.PublicProcurementPlan `json:"data"`
 }
 
+type PlanStatus string
+
+const (
+	PlanStatusNotAccessible      PlanStatus = "Nedostupan"
+	PlanStatusAdminInProggress   PlanStatus = "U toku"
+	PlanStatusAdminPublished     PlanStatus = "Poslat"
+	PlanStatusUserPublished      PlanStatus = "Obradi"
+	PlanStatusUserRequested      PlanStatus = "Na čekanju"
+	PlanStatusUserAccepted       PlanStatus = "Odobren"
+	PlanStatusUserRejected       PlanStatus = "Odbijen"
+	PlanStatusPreBudgetClosed    PlanStatus = "Zaključen"
+	PlanStatusPreBudgetConverted PlanStatus = "Konvertovan"
+	PlanStatusPostBudgetClosed   PlanStatus = "Objavljen"
+)
+
 type ProcurementPlanResponseItem struct {
 	Id               int                            `json:"id"`
 	PreBudgetPlan    *DropdownSimple                `json:"pre_budget_plan"`
@@ -25,7 +40,7 @@ type ProcurementPlanResponseItem struct {
 	Active           bool                           `json:"active"`
 	Year             string                         `json:"year"`
 	Title            string                         `json:"title"`
-	Status           *string                        `json:"status"`
+	Status           *PlanStatus                    `json:"status"`
 	SerialNumber     *string                        `json:"serial_number"`
 	DateOfPublishing *string                        `json:"date_of_publishing"`
 	DateOfClosing    *string                        `json:"date_of_closing"`

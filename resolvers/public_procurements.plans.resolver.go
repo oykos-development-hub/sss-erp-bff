@@ -13,19 +13,6 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var STATUSES = map[string]string{
-	"not_accessible":       "Nedostupan",
-	"admin_in_progress":    "U toku",
-	"admin_published":      "Poslat",
-	"user_published":       "Obradi",
-	"user_requested":       "Na čekanju",
-	"user_accepted":        "Odobren",
-	"user_rejected":        "Odbijen",
-	"pre_budget_closed":    "Zaključen",
-	"pre_budget_converted": "Konvertovan",
-	"post_budget_closed":   "Objavljen",
-}
-
 var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var authToken = params.Context.Value(config.TokenKey).(string)
 
@@ -68,7 +55,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 			fmt.Printf("user with id: %d do not have access to this plan id: %d", loggedInAccount.Id, plan.Id)
 			continue
 		}
-		if status != nil && status.(string) != "" && status.(string) != *resItem.Status {
+		if status != nil && status.(dto.PlanStatus) != "" && status.(dto.PlanStatus) != *resItem.Status {
 			continue
 		}
 		items = append(items, *resItem)
@@ -188,7 +175,7 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 		return nil, err
 	}
 
-	if status == STATUSES["not_accessible"] {
+	if status == dto.PlanStatusNotAccessible {
 		return nil, nil
 	}
 
@@ -243,7 +230,7 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 	return &res, nil
 }
 
-func BuildStatus(plan *structs.PublicProcurementPlan, userAccount structs.UserAccounts) (string, error) {
+func BuildStatus(plan *structs.PublicProcurementPlan, userAccount structs.UserAccounts) (dto.PlanStatus, error) {
 	var isPublished = plan.DateOfPublishing != nil && *plan.DateOfPublishing != ""
 	var isClosed = plan.DateOfClosing != nil && *plan.DateOfClosing != ""
 	var isPreBudget = plan.IsPreBudget
@@ -290,48 +277,48 @@ func BuildStatus(plan *structs.PublicProcurementPlan, userAccount structs.UserAc
 				if isPreBudget {
 					if isConverted {
 						// Admin converted a closed pre-budget Plan into a new post-budget Plan
-						return STATUSES["pre_budget_converted"], nil
+						return dto.PlanStatusPreBudgetConverted, nil
 					}
 					// Admin closed a pre-budget Plan that can't be edited any further
-					return STATUSES["pre_budget_closed"], nil
+					return dto.PlanStatusPreBudgetClosed, nil
 				}
 				// Admin closed a post-budget Plan that can't be edited any further
-				return STATUSES["post_budget_closed"], nil
+				return dto.PlanStatusPostBudgetClosed, nil
 			}
 			// Admin published a Plan that can be seen by Users in Organization units
-			return STATUSES["admin_published"], nil
+			return dto.PlanStatusAdminPublished, nil
 		}
 		// Draft version of the Plan before it has been published
-		return STATUSES["admin_in_progress"], nil
+		return dto.PlanStatusAdminInProggress, nil
 	} else {
 		if isPublished {
 			if isClosed {
 				if isPreBudget {
 					if isConverted {
 						// Admin converted a closed pre-budget Plan into a new post-budget Plan
-						return STATUSES["pre_budget_converted"], nil
+						return dto.PlanStatusPreBudgetConverted, nil
 					}
 					// Admin closed a pre-budget Plan that can't be edited any further
-					return STATUSES["pre_budget_closed"], nil
+					return dto.PlanStatusPreBudgetClosed, nil
 				}
 				// Admin closed a post-budget Plan that can't be edited any further
-				return STATUSES["post_budget_closed"], nil
+				return dto.PlanStatusPostBudgetClosed, nil
 			}
 			if isSentOnRevision {
 				if isRejected {
-					return STATUSES["user_rejected"], nil
+					return dto.PlanStatusUserRejected, nil
 				}
 				if isAccepted {
-					return STATUSES["user_accepted"], nil
+					return dto.PlanStatusUserAccepted, nil
 				}
 
-				return STATUSES["user_requested"], nil
+				return dto.PlanStatusUserRequested, nil
 			}
 			// Users in Organization units can see Plan and request Articles after it has been published
-			return STATUSES["user_published"], nil
+			return dto.PlanStatusUserPublished, nil
 		} else {
 			// Not accessible for Users in Organization units before Plan has been published
-			return STATUSES["not_accessible"], nil
+			return dto.PlanStatusNotAccessible, nil
 		}
 	}
 }

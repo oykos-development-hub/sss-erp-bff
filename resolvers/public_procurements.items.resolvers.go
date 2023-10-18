@@ -157,35 +157,26 @@ func getProcurementItemList(input *dto.GetProcurementItemListInputMS) ([]*struct
 	return res.Data, nil
 }
 
-func getProcurementStatus(procurementID int, organizationUnitID *int) (*structs.ProcurementStatus, error) {
-	procurementStatus := structs.ProcurementStatusInProgress
+func isProcurementProcessed(procurementID int, organizationUnitID *int) bool {
+	if organizationUnitID == nil {
+		return false
+	}
+	articles, _ := getProcurementArticlesList(&dto.GetProcurementArticleListInputMS{ItemID: &procurementID})
 
-	if organizationUnitID != nil {
-
-		articles, err := getProcurementArticlesList(&dto.GetProcurementArticleListInputMS{ItemID: &procurementID})
-		if err != nil {
-			return nil, err
-		}
-
-		filledArticles, _ := getProcurementOUArticleList(
-			&dto.GetProcurementOrganizationUnitArticleListInputDTO{
-				OrganizationUnitID: organizationUnitID,
-			},
-		)
-		var matchedArticleCount int
-		for _, ouArticle := range filledArticles {
-			article, _ := getProcurementArticle(ouArticle.PublicProcurementArticleId)
-			if article.PublicProcurementId == procurementID {
-				matchedArticleCount++
-			}
-		}
-
-		if matchedArticleCount >= len(articles) {
-			procurementStatus = structs.ProcurementStatusProcessed
+	filledArticles, _ := getProcurementOUArticleList(
+		&dto.GetProcurementOrganizationUnitArticleListInputDTO{
+			OrganizationUnitID: organizationUnitID,
+		},
+	)
+	var matchedArticleCount int
+	for _, ouArticle := range filledArticles {
+		article, _ := getProcurementArticle(ouArticle.PublicProcurementArticleId)
+		if article.PublicProcurementId == procurementID {
+			matchedArticleCount++
 		}
 	}
 
-	return &procurementStatus, nil
+	return matchedArticleCount >= len(articles)
 }
 
 func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, loggedInAccount structs.UserAccounts) (*dto.ProcurementItemResponseItem, error) {
@@ -213,19 +204,7 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 		return nil, err
 	}
 
-	var procurementStatus structs.ProcurementStatus
-
-	if planStatus == string(structs.PostProcurementStatusCompleted) {
-		procurementStatus = structs.PostProcurementStatusCompleted
-	} else if planStatus == string(structs.PreProcurementStatusCompleted) {
-		procurementStatus = structs.PreProcurementStatusCompleted
-	} else {
-		status, err := getProcurementStatus(item.Id, organizationUnitID)
-		if err != nil {
-			return nil, err
-		}
-		procurementStatus = *status
-	}
+	procurementStatus := getProcurementStatus(*item, *plan, planStatus, organizationUnitID)
 
 	account, err := getAccountItemById(item.BudgetIndentId)
 	if err != nil {
@@ -254,4 +233,23 @@ func buildProcurementItemResponseItem(item *structs.PublicProcurementItem, logge
 	}
 
 	return &res, nil
+}
+
+func getProcurementStatus(item structs.PublicProcurementItem, plan structs.PublicProcurementPlan, planStatus dto.PlanStatus, organizationUnitID *int) structs.ProcurementStatus {
+	if !plan.IsPreBudget && isContracted(item.Id) {
+		return structs.PostProcurementStatusContracted
+	} else if planStatus == dto.PlanStatusPostBudgetClosed {
+		return structs.PostProcurementStatusCompleted
+	} else if planStatus == dto.PlanStatusPreBudgetClosed {
+		return structs.PreProcurementStatusCompleted
+	} else if isProcurementProcessed(item.Id, organizationUnitID) {
+		return structs.ProcurementStatusProcessed
+	} else {
+		return structs.ProcurementStatusInProgress
+	}
+}
+
+func isContracted(procurementId int) bool {
+	contracts, _ := getProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &procurementId})
+	return len(contracts.Data) > 0
 }

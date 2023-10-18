@@ -271,8 +271,8 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 			}
 
 			layout := time.RFC3339Nano
-			
-			t, _ := time.Parse(layout, "2020-10-17T13:09:59.360524Z")
+
+			t, _ := time.Parse(layout, item.CreatedAt)
 
 			currentTime := time.Now()
 			years := currentTime.Year() - t.Year()

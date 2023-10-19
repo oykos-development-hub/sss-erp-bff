@@ -783,7 +783,7 @@ var RevisionOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 					found = true
 				}
 			}
-			if found {
+			if !found {
 				continue
 			}
 

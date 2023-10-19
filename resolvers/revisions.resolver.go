@@ -715,19 +715,9 @@ var RevisionOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 		input.Size = &sizeNum
 	}
 
-	if shared.IsInteger(revisor) && revisor.(int) > 0 {
-		temp := revisor.(int)
-		input.Revisor = &temp
-	}
-
 	if shared.IsInteger(revisionType) && revisionType.(int) > 0 {
 		temp := revisionType.(int)
 		input.RevisionType = &temp
-	}
-
-	if shared.IsInteger(internal) && internal.(int) > 0 {
-		temp := internal.(int)
-		input.InternalRevisionSubject = &temp
 	}
 
 	if shared.IsInteger(plan) && plan.(int) > 0 {
@@ -740,7 +730,77 @@ var RevisionOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 		return shared.HandleAPIError(err)
 	}
 
+	var revisionsOrgUnit []*dto.RevisionOrgUnit
+	revisionOrgUnit := false
+
+	if shared.IsInteger(internal) && internal.(int) > 0 {
+		temp := internal.(int)
+		filter := dto.RevisionOrgUnitFilter{
+			OrganizationUnitID: &temp,
+		}
+
+		revisionsOrgUnit, err = getRevisionOrgUnitList(&filter)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		revisionOrgUnit = true
+	}
+
+	var revisionsRevisor []*dto.RevisionRevisor
+	revisionRevisor := false
+
+	if shared.IsInteger(revisor) && revisor.(int) > 0 {
+		temp := revisor.(int)
+		filter := dto.RevisionRevisorFilter{
+			RevisorID: &temp,
+		}
+
+		revisionsRevisor, err = getRevisionRevisorList(&filter)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		revisionRevisor = true
+	}
+
 	for _, revision := range revisions.Data {
+
+		found := false
+		if revisionRevisor && !revisionOrgUnit {
+			for _, revisor := range revisionsRevisor {
+				if revisor.RevisionID == revision.ID {
+					found = true
+				}
+			}
+		} else if revisionOrgUnit && !revisionRevisor {
+			for _, orgUnit := range revisionsOrgUnit {
+				if orgUnit.RevisionID == revision.ID {
+					found = true
+				}
+			}
+		} else if revisionRevisor && revisionOrgUnit {
+			for _, revisor := range revisionsRevisor {
+				if revisor.RevisionID == revision.ID {
+					found = true
+				}
+			}
+			if found {
+				continue
+			}
+
+			found = false
+			for _, orgUnit := range revisionsOrgUnit {
+				if orgUnit.RevisionID == revision.ID {
+					found = true
+				}
+			}
+		} else if !revisionRevisor && !revisionOrgUnit {
+			found = true
+		}
+
+		if !found {
+			continue
+		}
+
 		item, err := buildRevisionItemResponse(revision)
 		if err != nil {
 			return shared.HandleAPIError(err)

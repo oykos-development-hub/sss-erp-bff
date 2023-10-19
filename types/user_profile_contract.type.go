@@ -35,6 +35,9 @@ var ContractItemType = graphql.NewObject(graphql.ObjectConfig{
 		"serial_number": &graphql.Field{
 			Type: graphql.String,
 		},
+		"number_of_conference": &graphql.Field{
+			Type: graphql.String,
+		},
 		"net_salary": &graphql.Field{
 			Type: graphql.String,
 		},

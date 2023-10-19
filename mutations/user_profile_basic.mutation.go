@@ -247,6 +247,9 @@ var UserProfileContractInsertMutation = graphql.NewInputObject(graphql.InputObje
 		"abbreviation": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"number_of_conference": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

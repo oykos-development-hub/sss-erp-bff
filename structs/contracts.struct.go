@@ -6,6 +6,7 @@ type Contracts struct {
 	ContractTypeId                  int     `json:"contract_type_id"`
 	OrganizationUnitID              int     `json:"organization_unit_id"`
 	OrganizationUnitDepartmentID    *int    `json:"organization_unit_department_id"`
+	NumberOfConference              *string `json:"number_of_conference"`
 	JobPositionInOrganizationUnitID int     `json:"job_position_in_organization_unit_id"`
 	UserProfileId                   int     `json:"user_profile_id"`
 	Abbreviation                    *string `json:"abbreviation"`

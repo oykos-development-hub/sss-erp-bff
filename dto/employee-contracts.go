@@ -9,6 +9,7 @@ type Contract struct {
 	JobPositionInOrganizationUnit DropdownSimple  `json:"job_position_in_organization_unit"`
 	UserProfile                   DropdownSimple  `json:"user_profile"`
 	Abbreviation                  *string         `json:"abbreviation"`
+	NumberOfConference            *string         `json:"number_of_conference"`
 	Description                   *string         `json:"description"`
 	Active                        bool            `json:"active"`
 	SerialNumber                  *string         `json:"serial_number"`

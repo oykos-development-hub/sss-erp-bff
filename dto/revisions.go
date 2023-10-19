@@ -71,3 +71,35 @@ type GetRevisionsInput struct {
 	RevisorUserProfileID       *int `json:"revisor_user_profile_id"`
 	RevisionType               *int `json:"revision_type"`
 }
+
+type RevisionRevisor struct {
+	ID         int `json:"id"`
+	RevisionID int `json:"revision_id"`
+	RevisorID  int `json:"revisor_id"`
+}
+
+type RevisionOrgUnit struct {
+	ID                 int `json:"id"`
+	RevisionID         int `json:"revision_id"`
+	OrganizationUnitID int `json:"organization_unit_id"`
+}
+
+type RevisionRevisorFilter struct {
+	RevisionID *int `json:"revision_id"`
+	RevisorID  *int `json:"revisor_id"`
+}
+
+type RevisionOrgUnitFilter struct {
+	RevisionID         *int `json:"revision_id"`
+	OrganizationUnitID *int `json:"organization_unit_id"`
+}
+
+type GetRevisionRevisorResponseMS struct {
+	Data  []*RevisionRevisor `json:"data"`
+	Total int                `json:"total"`
+}
+
+type GetRevisionOrgUnitResponseMS struct {
+	Data  []*RevisionOrgUnit `json:"data"`
+	Total int                `json:"total"`
+}

@@ -611,8 +611,18 @@ func buildRevisionItemResponse(revision *structs.Revisions) (*dto.RevisionsOverv
 
 	var revisorDropdown []dto.DropdownSimple
 
-	for _, revisorID := range revision.Revisor {
-		revisor, err := getUserProfileById(revisorID)
+	input := dto.RevisionRevisorFilter{
+		RevisionID: &revision.ID,
+	}
+
+	revisors, err := getRevisionRevisorList(&input)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, revisorID := range revisors {
+		revisor, err := getUserProfileById(revisorID.RevisorID)
 		if err != nil {
 			return nil, err
 		}
@@ -629,18 +639,31 @@ func buildRevisionItemResponse(revision *structs.Revisions) (*dto.RevisionsOverv
 	externalUnitDropdown := &dto.DropdownSimple{}
 
 	if revision.InternalRevisionSubject != nil {
-		for _, orgUnit := range revision.InternalRevisionSubject {
-			organizationUnit, err := getOrganizationUnitById(orgUnit)
+		filt := dto.RevisionOrgUnitFilter{
+			RevisionID: &revision.ID,
+		}
+
+		revisions, err := getRevisionOrgUnitList(&filt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		for _, revision := range revisions {
+			orgUnit, err := getOrganizationUnitById(revision.OrganizationUnitID)
 			if err != nil {
 				return nil, err
 			}
-			var orgUnitDropdown dto.DropdownSimple
-			orgUnitDropdown.Id = organizationUnit.Id
-			orgUnitDropdown.Title = organizationUnit.Title
+
+			orgUnitDropdown := dto.DropdownSimple{
+				Id:    orgUnit.Id,
+				Title: orgUnit.Title,
+			}
 
 			internalUnitDropdown = append(internalUnitDropdown, orgUnitDropdown)
 		}
 	}
+
 	if revision.ExternalRevisionSubject != nil {
 		organizationUnit, err := getDropdownSettingById(*revision.ExternalRevisionSubject)
 		if err != nil {
@@ -772,10 +795,75 @@ var RevisionsInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	itemId := data.ID
 	if shared.IsInteger(itemId) && itemId != 0 {
+
+		input := dto.RevisionRevisorFilter{
+			RevisionID: &itemId,
+		}
+
+		revisors, err := getRevisionRevisorList(&input)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		for _, revisor := range revisors {
+			err := deleteRevisionRevisor(revisor.ID)
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		}
+
+		for _, revisor := range data.Revisor {
+			inp := dto.RevisionRevisor{
+				RevisionID: itemId,
+				RevisorID:  revisor,
+			}
+
+			err := createRevisionRevisor(&inp)
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		}
+
+		if data.InternalRevisionSubject != nil {
+			filt := dto.RevisionOrgUnitFilter{
+				RevisionID: &itemId,
+			}
+
+			revisions, err := getRevisionOrgUnitList(&filt)
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
+			for _, revision := range revisions {
+				err = deleteRevisionOrgUnit(revision.ID)
+
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+			}
+
+			for _, orgUnit := range data.InternalRevisionSubject {
+				dataRevision := dto.RevisionOrgUnit{
+					OrganizationUnitID: orgUnit,
+					RevisionID:         itemId,
+				}
+
+				err := createRevisionOrgUnit(&dataRevision)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+			}
+		}
+
 		res, err := updateRevisions(itemId, &data)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
+
 		item, err := buildRevisionItemResponse(res)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -787,6 +875,34 @@ var RevisionsInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
+
+		for _, revisor := range data.Revisor {
+			inp := dto.RevisionRevisor{
+				RevisionID: res.ID,
+				RevisorID:  revisor,
+			}
+
+			err := createRevisionRevisor(&inp)
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		}
+
+		if data.InternalRevisionSubject != nil {
+			for _, orgUnit := range data.InternalRevisionSubject {
+				dataRevision := dto.RevisionOrgUnit{
+					OrganizationUnitID: orgUnit,
+					RevisionID:         res.ID,
+				}
+
+				err := createRevisionOrgUnit(&dataRevision)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+			}
+		}
+
 		item, err := buildRevisionItemResponse(res)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -1069,4 +1185,60 @@ func updateRevisionTips(id int, plan *structs.RevisionTips) (*structs.RevisionTi
 	}
 
 	return &res.Data, nil
+}
+
+func deleteRevisionRevisor(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.REVISION_REVISORS_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createRevisionRevisor(plan *dto.RevisionRevisor) error {
+	_, err := shared.MakeAPIRequest("POST", config.REVISION_REVISORS_ENDPOINT, plan, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getRevisionRevisorList(input *dto.RevisionRevisorFilter) ([]*dto.RevisionRevisor, error) {
+	res := &dto.GetRevisionRevisorResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.REVISION_REVISORS_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
+func deleteRevisionOrgUnit(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.REVISION_ORG_UNIT_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createRevisionOrgUnit(plan *dto.RevisionOrgUnit) error {
+	_, err := shared.MakeAPIRequest("POST", config.REVISION_ORG_UNIT_ENDPOINT, plan, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getRevisionOrgUnitList(input *dto.RevisionOrgUnitFilter) ([]*dto.RevisionOrgUnit, error) {
+	res := &dto.GetRevisionOrgUnitResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.REVISION_ORG_UNIT_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
 }

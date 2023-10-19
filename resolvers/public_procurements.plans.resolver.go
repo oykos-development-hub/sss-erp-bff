@@ -21,7 +21,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 		return shared.HandleAPIError(err)
 	}
 
-	items := []dto.ProcurementPlanResponseItem{}
+	items := []*dto.ProcurementPlanResponseItem{}
 	var total int
 
 	page := params.Args["page"].(int)
@@ -58,7 +58,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 		if status != nil && status.(dto.PlanStatus) != "" && status.(dto.PlanStatus) != resItem.Status {
 			continue
 		}
-		items = append(items, *resItem)
+		items = append(items, resItem)
 	}
 	total = len(items)
 

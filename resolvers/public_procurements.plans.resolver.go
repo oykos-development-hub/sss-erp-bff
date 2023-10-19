@@ -209,6 +209,9 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 
 	uniqueOrganizationUnits := make(map[int]bool)
 
+	userProfile, _ := getUserProfileByUserAccountID(loggedInAccount.Id)
+	organizationUnitID, _ := getOrganizationUnitIdByUserProfile(userProfile.Id)
+
 	for _, procurement := range res.Items {
 		if len(procurement.Articles) > 0 {
 			firstArticle := procurement.Articles[0]
@@ -221,6 +224,7 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 			for _, ouArticle := range oUArticles {
 				if _, recorded := uniqueOrganizationUnits[ouArticle.OrganizationUnitId]; !recorded {
 					uniqueOrganizationUnits[ouArticle.OrganizationUnitId] = true
+					updateRejectedDescriptionIfNeeded(organizationUnitID, ouArticle, &res)
 				}
 			}
 		}
@@ -228,6 +232,12 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 	res.Requests = len(uniqueOrganizationUnits)
 
 	return &res, nil
+}
+
+func updateRejectedDescriptionIfNeeded(organizationUnitID *int, ouArticle *structs.PublicProcurementOrganizationUnitArticle, res *dto.ProcurementPlanResponseItem) {
+	if organizationUnitID != nil && *organizationUnitID == ouArticle.OrganizationUnitId && ouArticle.IsRejected {
+		res.RejectedDescription = &ouArticle.RejectedDescription
+	}
 }
 
 func BuildStatus(plan *structs.PublicProcurementPlan, userAccount structs.UserAccounts) (dto.PlanStatus, error) {

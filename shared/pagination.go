@@ -28,20 +28,25 @@ func Pagination(collection []interface{}, page int, size int) []interface{} {
 func Paginate(slice interface{}, page, size int) (interface{}, error) {
 	sliceValue := reflect.ValueOf(slice)
 	if sliceValue.Kind() != reflect.Slice {
-		return reflect.MakeSlice(sliceValue.Type(), 0, 0).Interface(), errors.New("slice must be a slice type")
+		return nil, errors.New("slice must be a slice type")
+	}
+
+	// If the slice is empty, return an empty slice of the same type without error.
+	if sliceValue.Len() == 0 {
+		return reflect.MakeSlice(sliceValue.Type(), 0, 0).Interface(), nil
 	}
 
 	startIndex := (page - 1) * size
-	endIndex := startIndex + size
-
-	if startIndex < 0 || startIndex >= sliceValue.Len() {
-		return reflect.MakeSlice(sliceValue.Type(), 0, 0).Interface(), errors.New("invalid page number")
+	if startIndex < 0 || startIndex > sliceValue.Len() {
+		return nil, errors.New("invalid page number")
 	}
 
+	endIndex := startIndex + size
 	if endIndex > sliceValue.Len() {
 		endIndex = sliceValue.Len()
 	}
 
+	// Get a slice of the original with the appropriate range and return it.
 	paginatedSlice := sliceValue.Slice(startIndex, endIndex)
 	return paginatedSlice.Interface(), nil
 }

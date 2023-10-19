@@ -55,7 +55,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 			fmt.Printf("user with id: %d do not have access to this plan id: %d", loggedInAccount.Id, plan.Id)
 			continue
 		}
-		if status != nil && status.(dto.PlanStatus) != resItem.Status {
+		if status != nil && dto.PlanStatus(status.(string)) != resItem.Status {
 			continue
 		}
 		items = append(items, resItem)

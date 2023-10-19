@@ -229,7 +229,9 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 			}
 		}
 	}
-	res.Requests = len(uniqueOrganizationUnits)
+	if status == dto.PlanStatusAdminPublished {
+		res.Requests = len(uniqueOrganizationUnits)
+	}
 
 	return &res, nil
 }

@@ -74,6 +74,9 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"source": &graphql.Field{
 			Type: graphql.String,
 		},
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
 		"donor_title": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -167,6 +170,9 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_purchase": &graphql.Field{
 			Type: graphql.String,
 		},
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
 		"source": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -214,6 +220,21 @@ var BasicInventoryDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"items": &graphql.Field{
 			Type: BasicInventoryDetailsItemType,
+		},
+	},
+})
+
+var BasicInventoryMessageType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BasicInventoryMessageType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
 		},
 	},
 })

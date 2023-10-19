@@ -45,6 +45,7 @@ type BasicInventoryResponseItem struct {
 	Assessments                  []*BasicInventoryResponseAssessment                            `json:"assessments"`
 	Movements                    []*InventoryDispatchResponse                                   `json:"movements"`
 	SerialNumber                 string                                                         `json:"serial_number"`
+	Status                       string                                                         `json:"status"`
 	InventoryNumber              string                                                         `json:"inventory_number"`
 	Title                        string                                                         `json:"title"`
 	Abbreviation                 string                                                         `json:"abbreviation"`

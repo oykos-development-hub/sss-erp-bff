@@ -41,6 +41,9 @@ var BasicInventoryDispatchItemType = graphql.NewObject(graphql.ObjectConfig{
 		"inventory": &graphql.Field{
 			Type: graphql.NewList(BasicInventoryItemType),
 		},
+		"date": &graphql.Field{
+			Type: graphql.String,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

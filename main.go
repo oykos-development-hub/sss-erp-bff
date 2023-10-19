@@ -161,6 +161,7 @@ func main() {
 			"suppliers_Insert":                                fields.SuppliersInsertField,
 			"suppliers_Delete":                                fields.SuppliersDeleteField,
 			"basicInventory_Insert":                           fields.BasicInventoryInsertField,
+			"basicInventory_Deactivate":                       fields.BasicInventoryDeactivateField,
 			"basicInventoryAssessments_Insert":                fields.BasicInventoryAssessmentsInsertField,
 			"basicInventoryAssessments_Delete":                fields.BasicInventoryAssessmentsDeleteField,
 			"basicInventoryDispatch_Insert":                   fields.BasicInventoryDispatchInsertField,

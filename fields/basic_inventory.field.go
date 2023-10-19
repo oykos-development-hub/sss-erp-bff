@@ -46,6 +46,20 @@ var BasicInventoryOverviewField = &graphql.Field{
 	Resolve: resolvers.BasicInventoryOverviewResolver,
 }
 
+var BasicInventoryDeactivateField = &graphql.Field{
+	Type:        types.BasicInventoryMessageType,
+	Description: "Returns a data of Basic Inventory item Details",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"deactivation_description": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+	},
+	Resolve: resolvers.BasicInventoryDeactivateResolver,
+}
+
 var BasicInventoryDetailsField = &graphql.Field{
 	Type:        types.BasicInventoryDetailsType,
 	Description: "Returns a data of Basic Inventory item Details",

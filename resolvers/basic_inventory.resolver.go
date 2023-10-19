@@ -17,7 +17,18 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	var items []*dto.BasicInventoryResponseItem
 	var filter dto.InventoryItemFilter
 	sourceTypeStr := ""
-	organizationUnitId := 0
+
+	var authToken = params.Context.Value(config.TokenKey).(string)
+
+	loggedInProfile, err := getLoggedInUserProfile(authToken)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	organizationUnitID, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
 
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		filter.ID = &id
@@ -47,11 +58,6 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 		filter.DeprecationTypeID = &depreciationTypeID
 	}
 
-	if organizationUnitID, ok := params.Args["organization_unit"].(int); ok && organizationUnitID != 0 {
-		filter.OrganizationUnitID = &organizationUnitID
-		organizationUnitId = organizationUnitID
-	}
-
 	if page, ok := params.Args["page"].(int); ok && page != 0 {
 		filter.Page = &page
 	}
@@ -60,6 +66,7 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 		filter.Size = &size
 	}
 
+	// filter.OrganizationUnitID = organizationUnitID
 	basicInventoryData, err := getAllInventoryItem(filter)
 
 	if err != nil {
@@ -67,7 +74,7 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	}
 
 	for _, item := range basicInventoryData.Data {
-		resItem, err := buildInventoryItemResponse(item, organizationUnitId)
+		resItem, err := buildInventoryItemResponse(item, *organizationUnitID)
 		if len(sourceTypeStr) > 0 && sourceTypeStr != item.SourceType {
 			continue
 		}
@@ -89,13 +96,25 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 var BasicInventoryDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"].(int)
 
+	var authToken = params.Context.Value(config.TokenKey).(string)
+
+	loggedInProfile, err := getLoggedInUserProfile(authToken)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	organizationUnitID, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
 	Item, err := getInventoryItem(id)
 
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
-	items, err := buildInventoryItemResponse(Item, 0)
+	items, err := buildInventoryItemResponse(Item, *organizationUnitID)
 
 	if err != nil {
 		return shared.HandleAPIError(err)
@@ -116,8 +135,20 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 		Status: "success",
 	}
 
+	var authToken = params.Context.Value(config.TokenKey).(string)
+
+	loggedInProfile, err := getLoggedInUserProfile(authToken)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	organizationUnitID, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	err := json.Unmarshal(dataBytes, &data)
+	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -138,6 +169,7 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 
 			responseItemList = append(responseItemList, items)
 		} else {
+			item.OrganizationUnitId = *organizationUnitID
 			itemRes, err := createInventoryItem(&item)
 			if err != nil {
 				return shared.HandleAPIError(err)
@@ -166,6 +198,11 @@ var BasicInventoryDeactivateResolver = func(params graphql.ResolveParams) (inter
 			return shared.HandleAPIError(err)
 		}
 		item.Active = false
+		item.OfficeId = 0
+		if deactivation_description, ok := params.Args["deactivation_description"].(string); ok {
+			item.DeactivationDescription = deactivation_description
+		}
+
 		_, err = updateInventoryItem(id, item)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -242,7 +279,7 @@ func getAllInventoryItem(filter dto.InventoryItemFilter) (*dto.GetAllBasicInvent
 	return res, nil
 }
 
-func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organizationUnitId int) (*dto.BasicInventoryResponseItem, error) {
+func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organizationUnitID int) (*dto.BasicInventoryResponseItem, error) {
 	settingDropdownClassType := dto.DropdownSimple{}
 	if item.ClassTypeId != 0 {
 		settings, err := getDropdownSettingById(item.ClassTypeId)
@@ -384,12 +421,23 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	if err != nil {
 		return nil, err
 	}
+	status := "Lager"
 	var movements []*dto.InventoryDispatchResponse
 	if len(itemInventoryList) > 0 {
 		for _, move := range itemInventoryList {
 			dispatchRes, err := getDispatchItemByID(move.DispatchId)
 			if err != nil {
 				return nil, err
+			}
+			if status == "" && dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID {
+				switch dispatchRes.Type {
+				case "revers":
+					status = "Revers"
+				case "allocation":
+					status = "Zadužen"
+				case "return":
+					status = "Lager"
+				}
 			}
 			dispatch, _ := buildInventoryDispatchResponse(dispatchRes)
 			movements = append(movements, dispatch)
@@ -398,7 +446,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	}
 
 	if item.Type == "immovable" {
-		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitId == item.OrganizationUnitId {
+		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitID == item.OrganizationUnitId {
 			item.SourceType = "NS1"
 		} else {
 			item.SourceType = "NS2"
@@ -407,7 +455,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	}
 
 	if item.Type == "movable" {
-		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitId == item.OrganizationUnitId {
+		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitID == item.OrganizationUnitId {
 			item.SourceType = "PS1"
 		} else {
 			item.SourceType = "PS2"
@@ -451,6 +499,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		AmortizationValue:            amortizationValue,
 		OrganizationUnit:             organizationUnitDropdown,
 		TargetOrganizationUnit:       targetOrganizationUnitDropdown,
+		Status:                       status,
 		CreatedAt:                    item.CreatedAt,
 		UpdatedAt:                    item.UpdatedAt,
 	}

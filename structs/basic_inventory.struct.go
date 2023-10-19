@@ -25,6 +25,7 @@ type BasicInventoryDetailsItem struct {
 	Description                  string `json:"description"`
 	DateOfPurchase               string `json:"date_of_purchase"`
 	Source                       string `json:"source"`
+	Status                       string `json:"status"`
 	DonorTitle                   string `json:"donor_title"`
 	InvoiceNumber                int    `json:"invoice_number"`
 	PriceOfAssessment            int    `json:"price_of_assessment"`

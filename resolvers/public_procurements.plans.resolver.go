@@ -98,7 +98,7 @@ var PublicProcurementPlanDetailsResolver = func(params graphql.ResolveParams) (i
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Item:    *resItem,
+		Item:    resItem,
 	}, nil
 }
 

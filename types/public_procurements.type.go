@@ -1,6 +1,57 @@
 package types
 
-import "github.com/graphql-go/graphql"
+import (
+	"bff/dto"
+
+	"github.com/graphql-go/graphql"
+)
+
+var PlanStatusEnum = graphql.NewEnum(graphql.EnumConfig{
+	Name:        "PlanStatus",
+	Description: "Enumeration for PlanStatus, representing the various stages a plan can be in",
+	Values: graphql.EnumValueConfigMap{
+		"NOT_ACCESSIBLE": &graphql.EnumValueConfig{
+			Value:       dto.PlanStatusNotAccessible,
+			Description: "Plan is not accessible",
+		},
+		"ADMIN_IN_PROGRESS": &graphql.EnumValueConfig{
+			Value:       dto.PlanStatusAdminInProggress,
+			Description: "Plan is in progress",
+		},
+		"ADMIN_PUBLISHED": &graphql.EnumValueConfig{
+			Value:       dto.PlanStatusAdminPublished,
+			Description: "Plan has been published",
+		},
+		"USER_PUBLISHED": &graphql.EnumValueConfig{
+			Value:       dto.PlanStatusUserPublished,
+			Description: "Plan is being processed",
+		},
+		"USER_REQUESTED": &graphql.EnumValueConfig{
+			Value:       dto.PlanStatusUserRequested,
+			Description: "Plan is on hold",
+		},
+		"USER_ACCEPTED": &graphql.EnumValueConfig{
+			Value:       dto.PlanStatusUserAccepted,
+			Description: "Plan has been approved",
+		},
+		"USER_REJECTED": &graphql.EnumValueConfig{
+			Value:       dto.PlanStatusUserRejected,
+			Description: "Plan has been rejected",
+		},
+		"PRE_BUDGET_CLOSED": &graphql.EnumValueConfig{
+			Value:       dto.PlanStatusPreBudgetClosed,
+			Description: "Plan has been concluded",
+		},
+		"PRE_BUDGET_CONVERTED": &graphql.EnumValueConfig{
+			Value:       dto.PlanStatusPreBudgetConverted,
+			Description: "Plan has been converted",
+		},
+		"POST_BUDGET_CLOSED": &graphql.EnumValueConfig{
+			Value:       dto.PlanStatusPostBudgetClosed,
+			Description: "Plan has been released",
+		},
+	},
+})
 
 var PublicProcurementPlanDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "PublicProcurementPlanDetailsItem",
@@ -27,7 +78,7 @@ var PublicProcurementPlanDetailsItemType = graphql.NewObject(graphql.ObjectConfi
 			Type: graphql.String,
 		},
 		"status": &graphql.Field{
-			Type: graphql.String,
+			Type: PlanStatusEnum,
 		},
 		"data": &graphql.Field{
 			Type: JSON,

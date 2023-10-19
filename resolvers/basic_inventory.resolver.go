@@ -66,7 +66,7 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 		filter.Size = &size
 	}
 
-	// filter.OrganizationUnitID = organizationUnitID
+	filter.OrganizationUnitID = organizationUnitID
 	basicInventoryData, err := getAllInventoryItem(filter)
 
 	if err != nil {

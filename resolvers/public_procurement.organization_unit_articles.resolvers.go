@@ -146,13 +146,18 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 }
 
 var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	planId := params.Args["plan_id"].(int)
 	organizationUnitId := params.Args["organization_unit_id"]
 
 	var procurementID *int
 	if params.Args["procurement_id"] != nil {
 		procurementIDParam := params.Args["procurement_id"].(int)
 		procurementID = &procurementIDParam
+	}
+
+	var planId *int
+	if params.Args["plan_id"] != nil {
+		planIDParam := params.Args["plan_id"].(int)
+		planId = &planIDParam
 	}
 
 	if organizationUnitId == nil {
@@ -172,24 +177,26 @@ var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graph
 	}, nil
 }
 
-func buildProcurementOUArticleDetailsResponseItem(context context.Context, planID, unitID int, procurementID *int) ([]*dto.ProcurementItemWithOrganizationUnitArticleResponseItem, error) {
+func buildProcurementOUArticleDetailsResponseItem(context context.Context, planID *int, unitID int, procurementID *int) ([]*dto.ProcurementItemWithOrganizationUnitArticleResponseItem, error) {
 	var responseItemList []*dto.ProcurementItemWithOrganizationUnitArticleResponseItem
 
-	plan, err := getProcurementPlan(planID)
-	if err != nil {
-		return nil, err
-	}
-
 	var items []*structs.PublicProcurementItem
+	var plan *structs.PublicProcurementPlan
+	var err error
 
 	if procurementID != nil {
 		item, err := getProcurementItem(*procurementID)
 		if err != nil {
 			return nil, err
 		}
+		plan, _ = getProcurementPlan(item.PlanId)
 		items = append(items, item)
 	} else {
-		items, err = getProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &planID})
+		plan, err = getProcurementPlan(*planID)
+		if err != nil {
+			return nil, err
+		}
+		items, err = getProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &plan.Id})
 		if err != nil {
 			return nil, err
 		}
@@ -218,7 +225,7 @@ func buildProcurementOUArticleDetailsResponseItem(context context.Context, planI
 			CreatedAt:         item.CreatedAt,
 			UpdatedAt:         item.UpdatedAt,
 		}
-		organizationUnitArticleList, err := getOrganizationUnitArticles(planID, unitID)
+		organizationUnitArticleList, err := getOrganizationUnitArticles(plan.Id, unitID)
 		if err != nil {
 			return nil, err
 		}

@@ -160,7 +160,7 @@ var PublicProcurementOrganizationUnitArticlesDetailsField = &graphql.Field{
 	Description: "Returns a details of the request made by Organization Unit for all Public Procurements' Articles inside of one Plan",
 	Args: graphql.FieldConfigArgument{
 		"plan_id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"organization_unit_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,

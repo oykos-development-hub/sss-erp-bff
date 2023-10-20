@@ -321,6 +321,12 @@ var PublicProcurementPlanItemArticleItemType = graphql.NewObject(graphql.ObjectC
 		"vat_percentage": &graphql.Field{
 			Type: graphql.String,
 		},
+		"amount": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"total_amount": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 

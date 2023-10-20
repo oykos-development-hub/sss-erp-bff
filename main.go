@@ -341,10 +341,10 @@ func main() {
 	)
 	// Insert the custom middleware handler
 	graphqlHandler := errorHandlerMiddleware(
-		authMiddleware(
-			addResponseWriterToContext(
-				RequestContextMiddleware(
-					corsHandler(h),
+		corsHandler(
+			authMiddleware(
+				addResponseWriterToContext(
+					RequestContextMiddleware(h),
 				),
 			),
 		),

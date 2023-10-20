@@ -23,6 +23,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 	status := params.Args["status"]
 	year := params.Args["year"]
 	isPreBudget := params.Args["is_pre_budget"]
+	hasContract := params.Args["contract"]
 
 	input := dto.GetProcurementPlansInput{}
 
@@ -41,7 +42,15 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 	}
 
 	for _, plan := range plans {
-		resItem, err := buildProcurementPlanResponseItem(params.Context, plan)
+		var contract *bool = nil
+
+		if hasContract != nil {
+			pomContract := hasContract.(bool)
+			contract = &pomContract
+		}
+
+		resItem, err := buildProcurementPlanResponseItem(params.Context, plan, contract)
+
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -76,7 +85,7 @@ var PublicProcurementPlanDetailsResolver = func(params graphql.ResolveParams) (i
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	resItem, err := buildProcurementPlanResponseItem(params.Context, plan)
+	resItem, err := buildProcurementPlanResponseItem(params.Context, plan, nil)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -113,7 +122,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementPlanResponseItem(params.Context, res)
+		item, err := buildProcurementPlanResponseItem(params.Context, res, nil)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -125,7 +134,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementPlanResponseItem(params.Context, res)
+		item, err := buildProcurementPlanResponseItem(params.Context, res, nil)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -137,14 +146,47 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 	return response, nil
 }
 
-func buildProcurementPlanResponseItem(context context.Context, plan *structs.PublicProcurementPlan) (*dto.ProcurementPlanResponseItem, error) {
+func buildProcurementPlanResponseItem(context context.Context, plan *structs.PublicProcurementPlan, hasContract *bool) (*dto.ProcurementPlanResponseItem, error) {
 	items := []*dto.ProcurementItemResponseItem{}
 	rawItems, err := getProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &plan.Id})
 	if err != nil {
 		return nil, err
 	}
 
+	contYes := true
+	contNo := false
+
 	for _, item := range rawItems {
+
+		if hasContract != nil && *hasContract == contYes {
+			filter := dto.GetProcurementContractsInput{
+				ProcurementID: &item.Id,
+			}
+
+			contract, err := getProcurementContractsList(&filter)
+			if err != nil {
+				return nil, err
+			}
+
+			if len(contract.Data) == 0 {
+				continue
+			}
+
+		} else if hasContract != nil && *hasContract == contNo {
+			filter := dto.GetProcurementContractsInput{
+				ProcurementID: &item.Id,
+			}
+
+			contract, err := getProcurementContractsList(&filter)
+			if err != nil {
+				return nil, err
+			}
+
+			if len(contract.Data) != 0 {
+				continue
+			}
+		}
+
 		resItem, err := buildProcurementItemResponseItem(context, item)
 		if err != nil {
 			return nil, err

@@ -27,6 +27,9 @@ var PublicProcurementPlansOverviewField = &graphql.Field{
 		"status": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
+		"contract": &graphql.ArgumentConfig{
+			Type: graphql.Boolean,
+		},
 	},
 	Resolve: resolvers.PublicProcurementPlansOverviewResolver,
 }

@@ -22,6 +22,8 @@ type ProcurementArticleResponseItem struct {
 	NetPrice          float32        `json:"net_price"`
 	VATPercentage     *string        `json:"vat_percentage"`
 	Manufacturer      string         `json:"manufacturer"`
+	Amount            int            `json:"amount"`
+	TotalAmount       int            `json:"total_amount"`
 	CreatedAt         string         `json:"created_at"`
 	UpdatedAt         string         `json:"updated_at"`
 }

@@ -3,8 +3,11 @@ package main
 import (
 	"bff/config"
 	"bff/fields"
+	"bff/resolvers"
 	"bytes"
 	"context"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -35,28 +38,63 @@ func init() {
 	logger.SetOutput(logFile)
 }
 
-func extractTokenFromHeader(headerValue string) string {
+func extractTokenFromHeader(headerValue string) (string, error) {
 	if headerValue == "" {
-		return ""
+		return "", fmt.Errorf("no Authorization header provided")
 	}
-	// Assuming the Authorization header follows the "Bearer <token>" format
+
 	split := strings.Split(headerValue, " ")
-	if len(split) == 2 && split[0] == "Bearer" {
-		return split[1]
+	if len(split) == 2 && strings.EqualFold(split[0], "Bearer") {
+		return split[1], nil
 	}
-	return "" // Return an empty token if the header format is invalid or empty
+
+	return "", fmt.Errorf("invalid Authorization header format")
 }
 
-func extractTokenMiddleware(next http.Handler) http.Handler {
+func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Read the body to a string
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+			return
+		}
+		// Set the body back after reading
+		r.Body = io.NopCloser(bytes.NewBuffer(body))
+
+		// Check for the operations that don't require authentication
+		if bytes.Contains(body, []byte("login")) || bytes.Contains(body, []byte("refresh")) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		authHeader := r.Header.Get("Authorization")
 		// Extract the token value from the header
-		token := extractTokenFromHeader(authHeader)
-		// Store the token value in the request context
+		token, err := extractTokenFromHeader(authHeader)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+
+		// Attempt to retrieve the logged-in user's account using the extracted token
+		loggedInAccount, err := resolvers.GetLoggedInUser(token)
+		if err != nil {
+			// You may want to log the error internally, for auditing purposes
+			http.Error(w, "Failed to validate user", http.StatusUnauthorized)
+			return
+		}
+
+		userProfile, _ := resolvers.GetUserProfileByUserAccountID(loggedInAccount.Id)
+		organizationUnitID, _ := resolvers.GetOrganizationUnitIdByUserProfile(userProfile.Id)
+
+		// Create a new context that carries the necessary values
 		ctx := context.WithValue(r.Context(), config.TokenKey, token)
-		r = r.WithContext(ctx)
+		ctx = context.WithValue(ctx, config.LoggedInAccountKey, loggedInAccount)
+		ctx = context.WithValue(ctx, config.LoggedInProfileKey, userProfile)
+		ctx = context.WithValue(ctx, config.OrganizationUnitIDKey, organizationUnitID)
+
 		// Call the next handler
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
@@ -303,7 +341,7 @@ func main() {
 	)
 	// Insert the custom middleware handler
 	graphqlHandler := errorHandlerMiddleware(
-		extractTokenMiddleware(
+		authMiddleware(
 			addResponseWriterToContext(
 				RequestContextMiddleware(
 					corsHandler(h),

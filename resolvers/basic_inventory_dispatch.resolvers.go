@@ -129,12 +129,7 @@ var BasicInventoryDispatchDeleteResolver = func(params graphql.ResolveParams) (i
 var BasicInventoryDispatchAcceptResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["dispatch_id"].(int)
 
-	var authToken = params.Context.Value(config.TokenKey).(string)
-
-	loggedInProfile, err := getLoggedInUserProfile(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
+	loggedInProfile, _ := params.Context.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
 
 	dispatch, err := getDispatchItemByID(id)
 	if err != nil {

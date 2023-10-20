@@ -1091,7 +1091,7 @@ func getUserProfiles(input *dto.GetUserProfilesInput) ([]*structs.UserProfiles, 
 	return res.Data, nil
 }
 
-func getUserProfileByUserAccountID(accountID int) (*structs.UserProfiles, error) {
+func GetUserProfileByUserAccountID(accountID int) (*structs.UserProfiles, error) {
 	input := &dto.GetUserProfilesInput{AccountID: &accountID}
 	res := &dto.GetUserProfileListResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.USER_PROFILES_ENDPOINT, input, res)
@@ -1289,18 +1289,4 @@ func getEmployeeFamilyMembers(employeeID int) ([]*structs.Family, error) {
 	}
 
 	return res.Data, nil
-}
-
-func getLoggedInUserProfile(token string) (*structs.UserProfiles, error) {
-	userAccount, err := getLoggedInUser(token)
-	if err != nil {
-		return nil, err
-	}
-
-	userProfile, err := getUserProfileByUserAccountID(userAccount.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	return userProfile, nil
 }

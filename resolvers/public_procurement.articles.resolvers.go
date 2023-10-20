@@ -5,6 +5,7 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
+	"context"
 	"encoding/json"
 	"strconv"
 
@@ -31,7 +32,7 @@ var PublicProcurementPlanItemArticleInsertResolver = func(params graphql.Resolve
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementArticleResponseItem(res)
+		item, err := buildProcurementArticleResponseItem(params.Context, res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -43,7 +44,7 @@ var PublicProcurementPlanItemArticleInsertResolver = func(params graphql.Resolve
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementArticleResponseItem(res)
+		item, err := buildProcurementArticleResponseItem(params.Context, res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -69,7 +70,8 @@ var PublicProcurementPlanItemArticleDeleteResolver = func(params graphql.Resolve
 	}, nil
 }
 
-func buildProcurementArticleResponseItem(item *structs.PublicProcurementArticle) (*dto.ProcurementArticleResponseItem, error) {
+func buildProcurementArticleResponseItem(context context.Context, item *structs.PublicProcurementArticle) (*dto.ProcurementArticleResponseItem, error) {
+	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int)
 	procurement, err := getProcurementItem(item.PublicProcurementId)
 	if err != nil {
 		return nil, err
@@ -87,6 +89,19 @@ func buildProcurementArticleResponseItem(item *structs.PublicProcurementArticle)
 		CreatedAt:         item.CreatedAt,
 		UpdatedAt:         item.UpdatedAt,
 	}
+
+	ouArticles, _ := getProcurementOUArticleList(&dto.GetProcurementOrganizationUnitArticleListInputDTO{ArticleID: &item.Id})
+
+	totalAmount := 0
+
+	for _, ouArticle := range ouArticles {
+		totalAmount += ouArticle.Amount
+		if organizationUnitID != nil && ouArticle.OrganizationUnitId == *organizationUnitID {
+			res.Amount = ouArticle.Amount
+		}
+	}
+
+	res.TotalAmount = totalAmount
 
 	return &res, nil
 }

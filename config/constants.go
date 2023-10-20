@@ -14,8 +14,11 @@ const (
 	HttpResponseWriterKey ContextKey = "httpResponseWriter"
 	Requestkey            ContextKey = "request"
 
-	HttpHeadersKey ContextKey = "httpHeaders"
-	TokenKey       ContextKey = "token"
+	HttpHeadersKey        ContextKey = "httpHeaders"
+	TokenKey              ContextKey = "token"
+	LoggedInAccountKey    ContextKey = "logged_in_account"
+	LoggedInProfileKey    ContextKey = "logged_in_profile"
+	OrganizationUnitIDKey ContextKey = "unit_id"
 
 	ResolutionTypes string = "resolution_types"
 	OfficeTypes     string = "office_types"

@@ -18,16 +18,9 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	var filter dto.InventoryItemFilter
 	sourceTypeStr := ""
 
-	var authToken = params.Context.Value(config.TokenKey).(string)
-
-	loggedInProfile, err := getLoggedInUserProfile(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	organizationUnitID, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
-	if err != nil {
-		return shared.HandleAPIError(err)
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if ok || organizationUnitID == nil {
+		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
@@ -96,16 +89,9 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 var BasicInventoryDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"].(int)
 
-	var authToken = params.Context.Value(config.TokenKey).(string)
-
-	loggedInProfile, err := getLoggedInUserProfile(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	organizationUnitID, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
-	if err != nil {
-		return shared.HandleAPIError(err)
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if ok || organizationUnitID == nil {
+		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	Item, err := getInventoryItem(id)
@@ -135,20 +121,13 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 		Status: "success",
 	}
 
-	var authToken = params.Context.Value(config.TokenKey).(string)
-
-	loggedInProfile, err := getLoggedInUserProfile(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	organizationUnitID, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
-	if err != nil {
-		return shared.HandleAPIError(err)
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if ok || organizationUnitID == nil {
+		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	err = json.Unmarshal(dataBytes, &data)
+	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}

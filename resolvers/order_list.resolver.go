@@ -5,6 +5,7 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
+	"context"
 	"encoding/json"
 	"errors"
 	"strconv"
@@ -169,15 +170,9 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 		return shared.HandleAPIError(err)
 	}
 
-	var authToken = params.Context.Value(config.TokenKey).(string)
-	loggedInAccount, err := getLoggedInUser(authToken)
-	if err != nil {
-		return dto.ErrorResponse(err), nil
-	}
-
 	itemId := data.Id
 
-	listInsertItem, err := buildOrderListInsertItem(&data, loggedInAccount)
+	listInsertItem, err := buildOrderListInsertItem(params.Context, &data)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -307,16 +302,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 }
 
 var RecipientUsersResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var authToken = params.Context.Value(config.TokenKey).(string)
-
-	loggedInProfile, err := getLoggedInUserProfile(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	organizationUnitID, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
+	organizationUnitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 
 	var userProfileDropdownList []*dto.DropdownSimple
 
@@ -561,7 +547,7 @@ func createOrderListProcurementArticles(orderListId int, data structs.OrderListI
 	return nil
 }
 
-func buildOrderListInsertItem(item *structs.OrderListInsertItem, loggedInAccount *structs.UserAccounts) (*structs.OrderListItem, error) {
+func buildOrderListInsertItem(context context.Context, item *structs.OrderListInsertItem) (*structs.OrderListItem, error) {
 	currentTime := time.Now().UTC()
 	timeString := currentTime.Format("2006-01-02T15:04:05Z07:00")
 
@@ -609,27 +595,13 @@ func buildOrderListInsertItem(item *structs.OrderListInsertItem, loggedInAccount
 	}
 
 	// Getting organizationUnitId from job position
-	loggedInProfile, err := getUserProfileByUserAccountID(loggedInAccount.Id)
-	if err != nil {
-		return nil, err
-	}
+	loggedInProfile, _ := context.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
+	organizationUnitID, unitOK := context.Value(config.OrganizationUnitIDKey).(*int)
 
 	newItem.RecipientUserId = &loggedInProfile.Id
 
-	employeesInOrganizationUnit, err := getEmployeesInOrganizationUnitsByProfileId(loggedInProfile.Id)
-	if err != nil {
-		return nil, err
-	}
-	if employeesInOrganizationUnit != nil {
-		jobPositionInOrganizationUnit, err := getJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
-		if err != nil {
-			return nil, err
-		}
-		systematization, err := getSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
-		if err != nil {
-			return nil, err
-		}
-		newItem.OrganizationUnitId = systematization.OrganizationUnitId
+	if unitOK && organizationUnitID != nil {
+		newItem.OrganizationUnitId = *organizationUnitID
 	}
 
 	return newItem, nil

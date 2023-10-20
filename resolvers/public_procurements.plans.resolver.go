@@ -5,6 +5,7 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,13 +15,6 @@ import (
 )
 
 var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var authToken = params.Context.Value(config.TokenKey).(string)
-
-	loggedInAccount, err := getLoggedInUser(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
 	items := []*dto.ProcurementPlanResponseItem{}
 	var total int
 
@@ -47,12 +41,12 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 	}
 
 	for _, plan := range plans {
-		resItem, err := buildProcurementPlanResponseItem(plan, loggedInAccount)
+		resItem, err := buildProcurementPlanResponseItem(params.Context, plan)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
 		if resItem == nil {
-			fmt.Printf("user with id: %d do not have access to this plan id: %d", loggedInAccount.Id, plan.Id)
+			fmt.Printf("user does not have access to this plan id: %d", plan.Id)
 			continue
 		}
 		if status != nil && dto.PlanStatus(status.(string)) != resItem.Status {
@@ -76,24 +70,18 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 }
 
 var PublicProcurementPlanDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var authToken = params.Context.Value(config.TokenKey).(string)
-	loggedInAccount, err := getLoggedInUser(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
 	id := params.Args["id"].(int)
 
 	plan, err := getProcurementPlan(id)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	resItem, err := buildProcurementPlanResponseItem(plan, loggedInAccount)
+	resItem, err := buildProcurementPlanResponseItem(params.Context, plan)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 	if resItem == nil {
-		return shared.HandleAPIError(fmt.Errorf("user with id: %d do not have access to this plan id: %d", loggedInAccount.Id, plan.Id))
+		return shared.HandleAPIError(fmt.Errorf("user does not have access to this plan id: %d", plan.Id))
 	}
 	return dto.ResponseSingle{
 		Status:  "success",
@@ -103,12 +91,6 @@ var PublicProcurementPlanDetailsResolver = func(params graphql.ResolveParams) (i
 }
 
 var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var authToken = params.Context.Value(config.TokenKey).(string)
-	loggedInAccount, err := getLoggedInUser(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
 	var data structs.PublicProcurementPlan
 	response := dto.ResponseSingle{
 		Status: "success",
@@ -119,7 +101,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	err = json.Unmarshal(dataBytes, &data)
+	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -131,7 +113,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementPlanResponseItem(res, loggedInAccount)
+		item, err := buildProcurementPlanResponseItem(params.Context, res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -143,7 +125,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementPlanResponseItem(res, loggedInAccount)
+		item, err := buildProcurementPlanResponseItem(params.Context, res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -155,7 +137,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 	return response, nil
 }
 
-func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, loggedInAccount *structs.UserAccounts) (*dto.ProcurementPlanResponseItem, error) {
+func buildProcurementPlanResponseItem(context context.Context, plan *structs.PublicProcurementPlan) (*dto.ProcurementPlanResponseItem, error) {
 	items := []*dto.ProcurementItemResponseItem{}
 	rawItems, err := getProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &plan.Id})
 	if err != nil {
@@ -163,14 +145,14 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 	}
 
 	for _, item := range rawItems {
-		resItem, err := buildProcurementItemResponseItem(item, *loggedInAccount)
+		resItem, err := buildProcurementItemResponseItem(context, item)
 		if err != nil {
 			return nil, err
 		}
 		items = append(items, resItem)
 	}
 
-	status, err := BuildStatus(plan, *loggedInAccount)
+	status, err := BuildStatus(context, plan)
 	if err != nil {
 		return nil, err
 	}
@@ -209,8 +191,7 @@ func buildProcurementPlanResponseItem(plan *structs.PublicProcurementPlan, logge
 
 	uniqueOrganizationUnits := make(map[int]bool)
 
-	userProfile, _ := getUserProfileByUserAccountID(loggedInAccount.Id)
-	organizationUnitID, _ := getOrganizationUnitIdByUserProfile(userProfile.Id)
+	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int) // assert the type
 
 	for _, procurement := range res.Items {
 		if len(procurement.Articles) > 0 {
@@ -242,7 +223,10 @@ func updateRejectedDescriptionIfNeeded(organizationUnitID *int, ouArticle *struc
 	}
 }
 
-func BuildStatus(plan *structs.PublicProcurementPlan, userAccount structs.UserAccounts) (dto.PlanStatus, error) {
+func BuildStatus(context context.Context, plan *structs.PublicProcurementPlan) (dto.PlanStatus, error) {
+	loggedInAccount, _ := context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int)
+
 	var isPublished = plan.DateOfPublishing != nil && *plan.DateOfPublishing != ""
 	var isClosed = plan.DateOfClosing != nil && *plan.DateOfClosing != ""
 	var isPreBudget = plan.IsPreBudget
@@ -260,22 +244,14 @@ func BuildStatus(plan *structs.PublicProcurementPlan, userAccount structs.UserAc
 		isConverted = true
 	}
 
-	isAdmin := userAccount.RoleId == 1 || userAccount.RoleId == 3
+	isAdmin := loggedInAccount.RoleId == 1 || loggedInAccount.RoleId == 3
 
 	if !isAdmin {
-		loggedInProfile, err := getUserProfileByUserAccountID(userAccount.Id)
-		if err != nil {
-			return "", err
-		}
-		organizationUnitId, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
-		if err != nil {
-			return "", err
-		}
-		if organizationUnitId == nil {
+		if organizationUnitID == nil {
 			return "", errors.New("manager has no organization unit assigned")
 		}
 
-		ouArticleList, err := getOrganizationUnitArticles(plan.Id, *organizationUnitId)
+		ouArticleList, err := getOrganizationUnitArticles(plan.Id, *organizationUnitID)
 		if err != nil {
 			return "", err
 		}

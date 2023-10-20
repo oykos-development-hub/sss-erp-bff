@@ -5,6 +5,7 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -12,9 +13,9 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func buildProcurementOUArticleResponseItemList(articles []*structs.PublicProcurementOrganizationUnitArticle) (items []*dto.ProcurementOrganizationUnitArticleResponseItem, err error) {
+func buildProcurementOUArticleResponseItemList(context context.Context, articles []*structs.PublicProcurementOrganizationUnitArticle) (items []*dto.ProcurementOrganizationUnitArticleResponseItem, err error) {
 	for _, article := range articles {
-		resItem, err := buildProcurementOUArticleResponseItem(article)
+		resItem, err := buildProcurementOUArticleResponseItem(context, article)
 		if err != nil {
 			return nil, err
 		}
@@ -41,7 +42,7 @@ var PublicProcurementOrganizationUnitArticlesOverviewResolver = func(params grap
 		return shared.HandleAPIError(err)
 	}
 
-	items, err := buildProcurementOUArticleResponseItemList(articles)
+	items, err := buildProcurementOUArticleResponseItemList(params.Context, articles)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -93,7 +94,7 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementOUArticleResponseItem(res)
+		item, err := buildProcurementOUArticleResponseItem(params.Context, res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -105,7 +106,7 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementOUArticleResponseItem(res)
+		item, err := buildProcurementOUArticleResponseItem(params.Context, res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -118,22 +119,14 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 }
 
 var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var authToken = params.Context.Value(config.TokenKey).(string)
-	loggedInProfile, err := getLoggedInUserProfile(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
 	plan_id := params.Args["plan_id"].(int)
 
-	organizationUnitId, err := getOrganizationUnitIdByUserProfile(loggedInProfile.Id)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	if organizationUnitId == nil {
-		return shared.HandleAPIError(fmt.Errorf("manager with id - %d has no organization unit assigned", loggedInProfile.Id))
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if ok || organizationUnitID == nil {
+		return shared.HandleAPIError(fmt.Errorf("manager has no organization unit assigned"))
 	}
 
-	ouArticleList, err := getOrganizationUnitArticles(plan_id, *organizationUnitId)
+	ouArticleList, err := getOrganizationUnitArticles(plan_id, *organizationUnitID)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -155,11 +148,7 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	planId := params.Args["plan_id"].(int)
 	organizationUnitId := params.Args["organization_unit_id"]
-	var authToken = params.Context.Value(config.TokenKey).(string)
-	loggedInAccount, err := getLoggedInUser(authToken)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
+
 	var procurementID *int
 	if params.Args["procurement_id"] != nil {
 		procurementIDParam := params.Args["procurement_id"].(int)
@@ -167,20 +156,11 @@ var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graph
 	}
 
 	if organizationUnitId == nil {
-		var authToken = params.Context.Value(config.TokenKey).(string)
-		userProfile, err := getLoggedInUserProfile(authToken)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		unitId, err := getOrganizationUnitIdByUserProfile(userProfile.Id)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		organizationUnitId = *unitId
+		organizationUnitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		organizationUnitId = *organizationUnitID
 	}
 
-	response, err := buildProcurementOUArticleDetailsResponseItem(planId, organizationUnitId.(int), procurementID, loggedInAccount)
+	response, err := buildProcurementOUArticleDetailsResponseItem(params.Context, planId, organizationUnitId.(int), procurementID)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -192,7 +172,7 @@ var PublicProcurementOrganizationUnitArticlesDetailsResolver = func(params graph
 	}, nil
 }
 
-func buildProcurementOUArticleDetailsResponseItem(planID, unitID int, procurementID *int, loggedInAccount *structs.UserAccounts) ([]*dto.ProcurementItemWithOrganizationUnitArticleResponseItem, error) {
+func buildProcurementOUArticleDetailsResponseItem(context context.Context, planID, unitID int, procurementID *int) ([]*dto.ProcurementItemWithOrganizationUnitArticleResponseItem, error) {
 	var responseItemList []*dto.ProcurementItemWithOrganizationUnitArticleResponseItem
 
 	plan, err := getProcurementPlan(planID)
@@ -214,7 +194,7 @@ func buildProcurementOUArticleDetailsResponseItem(planID, unitID int, procuremen
 			return nil, err
 		}
 	}
-	planStatus, err := BuildStatus(plan, *loggedInAccount)
+	planStatus, err := BuildStatus(context, plan)
 	if err != nil {
 		return nil, err
 	}
@@ -243,7 +223,7 @@ func buildProcurementOUArticleDetailsResponseItem(planID, unitID int, procuremen
 			return nil, err
 		}
 		for _, ouArticle := range organizationUnitArticleList {
-			resItem, err := buildProcurementOUArticleResponseItem(ouArticle)
+			resItem, err := buildProcurementOUArticleResponseItem(context, ouArticle)
 			if err != nil {
 				return nil, err
 			}
@@ -258,12 +238,12 @@ func buildProcurementOUArticleDetailsResponseItem(planID, unitID int, procuremen
 	return responseItemList, nil
 }
 
-func buildProcurementOUArticleResponseItem(item *structs.PublicProcurementOrganizationUnitArticle) (*dto.ProcurementOrganizationUnitArticleResponseItem, error) {
+func buildProcurementOUArticleResponseItem(context context.Context, item *structs.PublicProcurementOrganizationUnitArticle) (*dto.ProcurementOrganizationUnitArticleResponseItem, error) {
 	article, err := getProcurementArticle(item.PublicProcurementArticleId)
 	if err != nil {
 		return nil, err
 	}
-	articleResItem, err := buildProcurementArticleResponseItem(article)
+	articleResItem, err := buildProcurementArticleResponseItem(context, article)
 	if err != nil {
 		return nil, err
 	}

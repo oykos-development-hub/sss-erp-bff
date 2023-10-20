@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -58,13 +59,11 @@ func authMiddleware(next http.Handler) http.Handler {
 		// Read the body to a string
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			response, _ := shared.HandleAPIError(err)
+			response, _ := shared.HandleAPIError(errors.New("unauthorized"))
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK) // This is important as you want to return a 200 status code
-			err = json.NewEncoder(w).Encode(response)
-			if err != nil {
-				http.Error(w, "Failed to write response", http.StatusInternalServerError)
-			}
+			_ = json.NewEncoder(w).Encode(response)
+
 			return
 		}
 		// Set the body back after reading
@@ -80,26 +79,22 @@ func authMiddleware(next http.Handler) http.Handler {
 		// Extract the token value from the header
 		token, err := extractTokenFromHeader(authHeader)
 		if err != nil {
-			response, _ := shared.HandleAPIError(err)
+			response, _ := shared.HandleAPIError(errors.New("unauthorized"))
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK) // This is important as you want to return a 200 status code
-			err = json.NewEncoder(w).Encode(response)
-			if err != nil {
-				http.Error(w, "Failed to write response", http.StatusInternalServerError)
-			}
+			_ = json.NewEncoder(w).Encode(response)
+
 			return
 		}
 
 		// Attempt to retrieve the logged-in user's account using the extracted token
 		loggedInAccount, err := resolvers.GetLoggedInUser(token)
 		if err != nil {
-			response, _ := shared.HandleAPIError(err)
+			response, _ := shared.HandleAPIError(errors.New("unauthorized"))
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK) // This is important as you want to return a 200 status code
-			err = json.NewEncoder(w).Encode(response)
-			if err != nil {
-				http.Error(w, "Failed to write response", http.StatusInternalServerError)
-			}
+			_ = json.NewEncoder(w).Encode(response)
+
 			return
 		}
 

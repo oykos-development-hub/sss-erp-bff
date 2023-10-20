@@ -13,7 +13,7 @@ type BasicInventoryRealEstatesItem struct {
 	OwnershipInvestmentScope string `json:"ownership_investment_scope"`
 	LimitationsDescription   string `json:"limitations_description"`
 	PropertyDocument         string `json:"property_document"`
-	LimitationId             string `json:"limitation_id"`
+	LimitationId             bool   `json:"limitation_id"`
 	Document                 string `json:"document"`
 	FileId                   int    `json:"file_id"`
 }
@@ -28,7 +28,7 @@ type BasicInventoryRealEstatesItemResponseForInventoryItem struct {
 	OwnershipScope           string `json:"ownership_scope"`
 	OwnershipInvestmentScope string `json:"ownership_investment_scope"`
 	LimitationsDescription   string `json:"limitations_description"`
-	LimitationsId            string `json:"limitation_id"`
+	LimitationsId            bool   `json:"limitation_id"`
 	Document                 string `json:"document"`
 	PropertyDocument         string `json:"property_document"`
 	FileId                   int    `json:"file_id"`

@@ -150,7 +150,7 @@ var RealEstateInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"limitation_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Boolean,
 		},
 		"document": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

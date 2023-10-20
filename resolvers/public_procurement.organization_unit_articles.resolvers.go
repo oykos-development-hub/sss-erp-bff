@@ -122,7 +122,7 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 	plan_id := params.Args["plan_id"].(int)
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-	if ok || organizationUnitID == nil {
+	if !ok || organizationUnitID == nil {
 		return shared.HandleAPIError(fmt.Errorf("manager has no organization unit assigned"))
 	}
 

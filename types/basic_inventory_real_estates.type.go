@@ -36,7 +36,7 @@ var BasicInventoryRealEstatesItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"limitation_id": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Boolean,
 		},
 		"document": &graphql.Field{
 			Type: graphql.String,

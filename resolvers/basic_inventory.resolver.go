@@ -19,7 +19,7 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	sourceTypeStr := ""
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-	if ok || organizationUnitID == nil {
+	if !ok || organizationUnitID == nil {
 		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
@@ -90,7 +90,7 @@ var BasicInventoryDetailsResolver = func(params graphql.ResolveParams) (interfac
 	id := params.Args["id"].(int)
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-	if ok || organizationUnitID == nil {
+	if !ok || organizationUnitID == nil {
 		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
@@ -121,8 +121,10 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 		Status: "success",
 	}
 
+	loggedInProfile, _ := params.Context.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
+
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-	if ok || organizationUnitID == nil {
+	if !ok || organizationUnitID == nil {
 		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
@@ -150,6 +152,21 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 		} else {
 			item.OrganizationUnitId = *organizationUnitID
 			itemRes, err := createInventoryItem(&item)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			assessment := structs.BasicInventoryAssessmentsTypesItem{
+				DepreciationTypeId:   item.DepreciationTypeId,
+				GrossPriceNew:        item.GrossPrice,
+				GrossPriceDifference: item.GrossPrice,
+				DateOfAssessment:     &itemRes.CreatedAt,
+				InventoryId:          itemRes.Id,
+				Active:               true,
+				UserProfileId:        loggedInProfile.Id,
+				Type:                 "financial",
+			}
+
+			_, err = createAssessments(&assessment)
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
@@ -270,36 +287,6 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 			settingDropdownClassType = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
 		}
 	}
-	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
-	lifetimeOfAssessmentInMonths := 0
-	amortizationValue := 0
-	if item.DepreciationTypeId != 0 {
-		settings, err := getDropdownSettingById(item.DepreciationTypeId)
-		if err != nil {
-			return nil, err
-		}
-
-		if settings != nil {
-			settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
-			num, _ := strconv.Atoi(settings.Value)
-			if num > -1 {
-				lifetimeOfAssessmentInMonths = num
-			}
-
-			layout := time.RFC3339Nano
-
-			t, _ := time.Parse(layout, item.CreatedAt)
-
-			currentTime := time.Now()
-			years := currentTime.Year() - t.Year()
-
-			if currentTime.YearDay() < t.YearDay() {
-				years--
-			}
-
-			amortizationValue = item.GrossPrice / lifetimeOfAssessmentInMonths * years
-		}
-	}
 
 	suppliersDropdown := dto.DropdownSimple{}
 	if item.SupplierId != 0 {
@@ -382,45 +369,79 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		}
 	}
 	assessments, _ := getMyInventoryAssessments(item.Id)
-
+	depreciationTypeId := 0
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
-	for _, assessment := range assessments {
+	for i, assessment := range assessments {
 		if assessment.Id != 0 {
 			assessmentResponse, err := buildAssessmentResponse(&assessment)
-
+			if i == 0 {
+				depreciationTypeId = assessmentResponse.Id
+			}
 			if err != nil {
 				return nil, err
 			}
 			assessmentsResponse = append(assessmentsResponse, assessmentResponse)
 		}
+
 	}
 
-	itemInventoryList, err := getDispatchItemByInventoryID(item.Id)
+	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
+	lifetimeOfAssessmentInMonths := 0
+	amortizationValue := 0
+	depreciationRate := 100
+	if item.DepreciationTypeId != 0 {
+		settings, _ := getDropdownSettingById(depreciationTypeId)
 
-	if err != nil {
-		return nil, err
-	}
-	status := "Lager"
-	var movements []*dto.InventoryDispatchResponse
-	if len(itemInventoryList) > 0 {
-		for _, move := range itemInventoryList {
-			dispatchRes, err := getDispatchItemByID(move.DispatchId)
-			if err != nil {
-				return nil, err
+		if settings != nil {
+			settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+			num, _ := strconv.Atoi(settings.Value)
+			if num > -1 {
+				lifetimeOfAssessmentInMonths = num
 			}
-			if status == "" && dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID {
-				switch dispatchRes.Type {
-				case "revers":
-					status = "Revers"
-				case "allocation":
-					status = "Zadužen"
-				case "return":
-					status = "Lager"
+			if lifetimeOfAssessmentInMonths > 0 {
+				depreciationRate = 100 / lifetimeOfAssessmentInMonths
+				layout := time.RFC3339Nano
+
+				t, _ := time.Parse(layout, item.CreatedAt)
+
+				currentTime := time.Now()
+				years := currentTime.Year() - t.Year()
+
+				if currentTime.YearDay() < t.YearDay() {
+					years--
+				}
+				if years > 0 {
+					amortizationValue = item.GrossPrice / lifetimeOfAssessmentInMonths * years
 				}
 			}
-			dispatch, _ := buildInventoryDispatchResponse(dispatchRes)
-			movements = append(movements, dispatch)
+		}
+	}
 
+	itemInventoryList, _ := getDispatchItemByInventoryID(item.Id)
+
+	status := "Lager"
+	var movements []*dto.InventoryDispatchResponse
+	if item.Type == "movable" {
+		if len(itemInventoryList) > 0 {
+			for _, move := range itemInventoryList {
+				dispatchRes, err := getDispatchItemByID(move.DispatchId)
+				if err != nil {
+					return nil, err
+				}
+				if status == "" && dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID {
+					switch dispatchRes.Type {
+					case "revers":
+						status = "Revers"
+					case "allocation":
+						status = "Zadužen"
+					case "return":
+						status = "Lager"
+					}
+				}
+				dispatch, _ := buildInventoryDispatchResponse(dispatchRes)
+				movements = append(movements, dispatch)
+
+			}
 		}
 	}
 
@@ -474,7 +495,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		DateOfAssessment:             item.DateOfAssessment,
 		PriceOfAssessment:            item.PriceOfAssessment,
 		LifetimeOfAssessmentInMonths: lifetimeOfAssessmentInMonths,
-		DepreciationRate:             fmt.Sprintf("%d%%", 100/lifetimeOfAssessmentInMonths),
+		DepreciationRate:             fmt.Sprintf("%d%%", depreciationRate),
 		AmortizationValue:            amortizationValue,
 		OrganizationUnit:             organizationUnitDropdown,
 		TargetOrganizationUnit:       targetOrganizationUnitDropdown,

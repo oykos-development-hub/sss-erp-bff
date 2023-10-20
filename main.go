@@ -4,8 +4,10 @@ import (
 	"bff/config"
 	"bff/fields"
 	"bff/resolvers"
+	"bff/shared"
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -56,7 +58,13 @@ func authMiddleware(next http.Handler) http.Handler {
 		// Read the body to a string
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			http.Error(w, "Invalid request", http.StatusBadRequest)
+			response, _ := shared.HandleAPIError(err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK) // This is important as you want to return a 200 status code
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, "Failed to write response", http.StatusInternalServerError)
+			}
 			return
 		}
 		// Set the body back after reading
@@ -72,15 +80,26 @@ func authMiddleware(next http.Handler) http.Handler {
 		// Extract the token value from the header
 		token, err := extractTokenFromHeader(authHeader)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			response, _ := shared.HandleAPIError(err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK) // This is important as you want to return a 200 status code
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, "Failed to write response", http.StatusInternalServerError)
+			}
 			return
 		}
 
 		// Attempt to retrieve the logged-in user's account using the extracted token
 		loggedInAccount, err := resolvers.GetLoggedInUser(token)
 		if err != nil {
-			// You may want to log the error internally, for auditing purposes
-			http.Error(w, "Failed to validate user", http.StatusUnauthorized)
+			response, _ := shared.HandleAPIError(err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK) // This is important as you want to return a 200 status code
+			err = json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, "Failed to write response", http.StatusInternalServerError)
+			}
 			return
 		}
 

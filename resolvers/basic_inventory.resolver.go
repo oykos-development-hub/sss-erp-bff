@@ -14,7 +14,7 @@ import (
 )
 
 var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var items []*dto.BasicInventoryResponseItem
+	var items []*dto.BasicInventoryResponseListItem
 	var filter dto.InventoryItemFilter
 	sourceTypeStr := ""
 
@@ -67,7 +67,7 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	}
 
 	for _, item := range basicInventoryData.Data {
-		resItem, err := buildInventoryItemResponse(item, *organizationUnitID)
+		resItem, err := buildInventoryResponse(item, *organizationUnitID)
 		if len(sourceTypeStr) > 0 && sourceTypeStr != item.SourceType {
 			continue
 		}
@@ -275,6 +275,151 @@ func getAllInventoryItem(filter dto.InventoryItemFilter) (*dto.GetAllBasicInvent
 	return res, nil
 }
 
+func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organizationUnitID int) (*dto.BasicInventoryResponseListItem, error) {
+
+	settingDropdownClassType := dto.DropdownSimple{}
+	if item.ClassTypeId != 0 {
+		settings, err := getDropdownSettingById(item.ClassTypeId)
+		if err != nil {
+			return nil, err
+		}
+
+		if settings != nil {
+			settingDropdownClassType = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+		}
+	}
+
+	if item.Type == "immovable" {
+		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitID == item.OrganizationUnitId {
+			item.SourceType = "NS1"
+		} else {
+			item.SourceType = "NS2"
+		}
+
+	}
+
+	if item.Type == "movable" {
+		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitID == item.OrganizationUnitId {
+			item.SourceType = "PS1"
+		} else {
+			item.SourceType = "PS2"
+		}
+	}
+
+	settingDropdownOfficeId := dto.DropdownSimple{}
+	if item.OfficeId != 0 {
+		settings, err := getDropdownSettingById(item.OfficeId)
+		if err != nil {
+			return nil, err
+		}
+
+		if settings != nil {
+			settingDropdownOfficeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+		}
+	}
+
+	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
+	assessments, _ := getMyInventoryAssessments(item.Id)
+
+	if len(assessments) > 0 {
+		item.GrossPrice = assessments[0].GrossPriceDifference
+		settings, _ := getDropdownSettingById(assessments[0].DepreciationTypeId)
+
+		if settings != nil {
+			settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+		}
+	}
+
+	status := "Lager"
+
+	if item.Type == "movable" {
+		itemInventoryList, _ := getDispatchItemByInventoryID(item.Id)
+		if len(itemInventoryList) > 0 {
+			dispatchRes, err := getDispatchItemByID(itemInventoryList[0].DispatchId)
+			if err != nil {
+				return nil, err
+			}
+			if status == "" && dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID {
+				switch dispatchRes.Type {
+				case "revers":
+					status = "Revers"
+				case "allocation":
+					status = "Zadužen"
+				case "return":
+					status = "Lager"
+				}
+			}
+		}
+	}
+
+	realEstateStruct := &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{}
+
+	if item.Type == "immovable" {
+		realEstate, err := getMyInventoryRealEstate(item.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		realEstateStruct = &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{
+			Id:                       realEstate.Id,
+			TypeId:                   realEstate.TypeId,
+			SquareArea:               realEstate.SquareArea,
+			LandSerialNumber:         realEstate.LandSerialNumber,
+			EstateSerialNumber:       realEstate.EstateSerialNumber,
+			OwnershipType:            realEstate.OwnershipType,
+			OwnershipScope:           realEstate.OwnershipScope,
+			OwnershipInvestmentScope: realEstate.OwnershipInvestmentScope,
+			LimitationsDescription:   realEstate.LimitationsDescription,
+			LimitationsId:            realEstate.LimitationId,
+			PropertyDocument:         realEstate.PropertyDocument,
+			Document:                 realEstate.Document,
+			FileId:                   realEstate.FileId,
+		}
+	}
+
+	organizationUnitDropdown := dto.DropdownSimple{}
+	if item.OrganizationUnitId != 0 {
+		organizationUnit, err := getOrganizationUnitById(item.OrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
+		if organizationUnit != nil {
+			organizationUnitDropdown = dto.DropdownSimple{Id: organizationUnit.Id, Title: organizationUnit.Title}
+		}
+	}
+
+	targetOrganizationUnitDropdown := dto.DropdownSimple{}
+	if item.TargetOrganizationUnitId != 0 {
+		targetOrganizationUnit, err := getOrganizationUnitById(item.TargetOrganizationUnitId)
+		if err != nil {
+			return nil, err
+		}
+		if targetOrganizationUnit != nil {
+			targetOrganizationUnitDropdown = dto.DropdownSimple{Id: targetOrganizationUnit.Id, Title: targetOrganizationUnit.Title}
+		}
+	}
+
+	res := dto.BasicInventoryResponseListItem{
+		Id:                     item.Id,
+		Type:                   item.Type,
+		Title:                  item.Title,
+		Location:               item.Location,
+		InventoryNumber:        item.InventoryNumber,
+		GrossPrice:             item.GrossPrice,
+		DateOfPurchase:         item.DateOfPurchase,
+		Status:                 status,
+		SourceType:             item.SourceType,
+		RealEstate:             realEstateStruct,
+		DepreciationType:       settingDropdownDepreciationTypeId,
+		OrganizationUnit:       organizationUnitDropdown,
+		TargetOrganizationUnit: targetOrganizationUnitDropdown,
+		ClassType:              settingDropdownClassType,
+		Office:                 settingDropdownOfficeId,
+	}
+
+	return &res, nil
+}
+
 func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organizationUnitID int) (*dto.BasicInventoryResponseItem, error) {
 	settingDropdownClassType := dto.DropdownSimple{}
 	if item.ClassTypeId != 0 {
@@ -441,7 +586,6 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 				}
 				dispatch, _ := buildInventoryDispatchResponse(dispatchRes)
 				movements = append(movements, dispatch)
-
 			}
 		}
 	}

@@ -34,6 +34,24 @@ type DispatchInventoryItemFilter struct {
 	DispatchID *int `json:"dispatch_id"`
 }
 
+type BasicInventoryResponseListItem struct {
+	Id                     int                                                            `json:"id"`
+	Type                   string                                                         `json:"type"`
+	Title                  string                                                         `json:"title"`
+	Location               string                                                         `json:"location"`
+	InventoryNumber        string                                                         `json:"inventory_number"`
+	GrossPrice             int                                                            `json:"gross_price"`
+	DateOfPurchase         string                                                         `json:"date_of_purchase"`
+	Status                 string                                                         `json:"status"`
+	SourceType             string                                                         `json:"source_type"`
+	RealEstate             *structs.BasicInventoryRealEstatesItemResponseForInventoryItem `json:"real_estate"`
+	DepreciationType       DropdownSimple                                                 `json:"depreciation_type"`
+	OrganizationUnit       DropdownSimple                                                 `json:"organization_unit"`
+	TargetOrganizationUnit DropdownSimple                                                 `json:"target_organization_unit"`
+	ClassType              DropdownSimple                                                 `json:"class_type"`
+	Office                 DropdownSimple                                                 `json:"office"`
+}
+
 type BasicInventoryResponseItem struct {
 	Id                           int                                                            `json:"id"`
 	ArticleId                    int                                                            `json:"article_id"`

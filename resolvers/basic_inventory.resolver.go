@@ -569,12 +569,12 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	var movements []*dto.InventoryDispatchResponse
 	if item.Type == "movable" {
 		if len(itemInventoryList) > 0 {
-			for _, move := range itemInventoryList {
+			for i, move := range itemInventoryList {
 				dispatchRes, err := getDispatchItemByID(move.DispatchId)
 				if err != nil {
 					return nil, err
 				}
-				if status == "" && dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID {
+				if i == 0 && (dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID) {
 					switch dispatchRes.Type {
 					case "revers":
 						status = "Revers"

@@ -70,7 +70,11 @@ func authMiddleware(next http.Handler) http.Handler {
 		r.Body = io.NopCloser(bytes.NewBuffer(body))
 
 		// Check for the operations that don't require authentication
-		if bytes.Contains(body, []byte("login")) || bytes.Contains(body, []byte("refresh")) {
+		if bytes.Contains(body, []byte("login")) ||
+			bytes.Contains(body, []byte("refresh")) ||
+			bytes.Contains(body, []byte("settingsDropdown_")) ||
+			bytes.Contains(body, []byte("jobPositions")) ||
+			bytes.Contains(body, []byte("userProfile_")) {
 			next.ServeHTTP(w, r)
 			return
 		}

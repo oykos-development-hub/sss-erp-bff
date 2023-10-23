@@ -135,7 +135,8 @@ var PublicProcurementOrganizationUnitArticleInsertMutation = graphql.NewInputObj
 			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"status": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type:         graphql.String,
+			DefaultValue: "in_progress",
 		},
 		"is_rejected": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,

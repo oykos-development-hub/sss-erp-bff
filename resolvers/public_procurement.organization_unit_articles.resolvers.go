@@ -89,8 +89,6 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 
 	itemId := data.Id
 
-	data.Status = structs.ArticleStatusInProgress
-
 	if shared.IsInteger(itemId) && itemId != 0 {
 		res, err := updateProcurementOUArticle(itemId, &data)
 		if err != nil {

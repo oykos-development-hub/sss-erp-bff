@@ -201,6 +201,16 @@ func buildProcurementItemResponseItem(context context.Context, item *structs.Pub
 		return nil, err
 	}
 
+	var contractId *int
+
+	if procurementStatus == structs.PostProcurementStatusContracted {
+		contracts, err := getProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &item.Id})
+		if err != nil {
+			return nil, err
+		}
+		contractId = &contracts.Data[0].Id
+	}
+
 	res := dto.ProcurementItemResponseItem{
 		Id:    item.Id,
 		Title: item.Title,
@@ -218,6 +228,7 @@ func buildProcurementItemResponseItem(context context.Context, item *structs.Pub
 		DateOfPublishing:  item.DateOfPublishing,
 		FileId:            item.FileId,
 		Articles:          articles,
+		ContractID:        contractId,
 		CreatedAt:         item.CreatedAt,
 		UpdatedAt:         item.UpdatedAt,
 	}

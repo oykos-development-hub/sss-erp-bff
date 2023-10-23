@@ -186,6 +186,9 @@ var PublicProcurementPlanItemDetailsItemType = graphql.NewObject(graphql.ObjectC
 		"file_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"contract_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"articles": &graphql.Field{
 			Type: graphql.NewList(PublicProcurementPlanItemArticleItemType),
 		},

@@ -29,6 +29,7 @@ type ProcurementItemResponseItem struct {
 	DateOfAwarding    *string                           `json:"date_of_awarding"`
 	FileId            *int                              `json:"file_id"`
 	Articles          []*ProcurementArticleResponseItem `json:"articles"`
+	ContractID        *int                              `json:"contract_id"`
 	CreatedAt         string                            `json:"created_at"`
 	UpdatedAt         string                            `json:"updated_at"`
 }

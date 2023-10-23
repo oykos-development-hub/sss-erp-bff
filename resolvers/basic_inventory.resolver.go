@@ -376,6 +376,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 			assessmentResponse, err := buildAssessmentResponse(&assessment)
 			if i == 0 {
 				depreciationTypeId = assessmentResponse.Id
+				item.GrossPrice = assessmentResponse.GrossPriceDifference
 			}
 			if err != nil {
 				return nil, err

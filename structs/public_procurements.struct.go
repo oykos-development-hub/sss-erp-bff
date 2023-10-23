@@ -63,9 +63,10 @@ type PublicProcurementLimit struct {
 type ArticleStatus string
 
 const (
-	StatusAccepted ArticleStatus = "accepted"
-	StatusRejected ArticleStatus = "rejected"
-	StatusRevision ArticleStatus = "revision"
+	ArticleStatusAccepted   ArticleStatus = "accepted"
+	ArticleStatusRejected   ArticleStatus = "rejected"
+	ArticleStatusRevision   ArticleStatus = "revision"
+	ArticleStatusInProgress ArticleStatus = "in_progress"
 )
 
 type PublicProcurementOrganizationUnitArticle struct {

@@ -89,6 +89,8 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 
 	itemId := data.Id
 
+	data.Status = structs.ArticleStatusInProgress
+
 	if shared.IsInteger(itemId) && itemId != 0 {
 		res, err := updateProcurementOUArticle(itemId, &data)
 		if err != nil {
@@ -132,7 +134,7 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 	}
 
 	for _, ouArticle := range ouArticleList {
-		ouArticle.Status = structs.StatusRevision
+		ouArticle.Status = structs.ArticleStatusRevision
 		_, err = updateProcurementOUArticle(ouArticle.Id, ouArticle)
 		if err != nil {
 			return shared.HandleAPIError(err)

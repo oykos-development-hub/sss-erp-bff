@@ -358,11 +358,11 @@ func checkArticlesStatusFlags(articles []*structs.PublicProcurementOrganizationU
 
 	for _, article := range articles {
 		switch article.Status {
-		case structs.StatusRejected:
+		case structs.ArticleStatusRejected:
 			return false, true, false
-		case structs.StatusRevision:
+		case structs.ArticleStatusRevision:
 			revisionCount++
-		case structs.StatusAccepted:
+		case structs.ArticleStatusAccepted:
 			acceptedCount++
 		}
 	}

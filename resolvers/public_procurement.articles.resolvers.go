@@ -95,6 +95,9 @@ func buildProcurementArticleResponseItem(context context.Context, item *structs.
 	totalAmount := 0
 
 	for _, ouArticle := range ouArticles {
+		if ouArticle.Status == structs.ArticleStatusInProgress {
+			continue
+		}
 		totalAmount += ouArticle.Amount
 		if organizationUnitID != nil && ouArticle.OrganizationUnitId == *organizationUnitID {
 			res.Amount = ouArticle.Amount

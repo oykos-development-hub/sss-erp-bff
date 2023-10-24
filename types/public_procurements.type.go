@@ -556,13 +556,13 @@ var PublicProcurementContractItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"net_value": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Float,
 		},
 		"gross_value": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Float,
 		},
 		"vat_value": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Float,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

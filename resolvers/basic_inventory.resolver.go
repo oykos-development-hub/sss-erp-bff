@@ -567,26 +567,25 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 
 	status := "Lager"
 	var movements []*dto.InventoryDispatchResponse
-	if item.Type == "movable" {
-		if len(itemInventoryList) > 0 {
-			for i, move := range itemInventoryList {
-				dispatchRes, err := getDispatchItemByID(move.DispatchId)
-				if err != nil {
-					return nil, err
-				}
-				if i == 0 && (dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID) {
-					switch dispatchRes.Type {
-					case "revers":
-						status = "Revers"
-					case "allocation":
-						status = "Zadužen"
-					case "return":
-						status = "Lager"
-					}
-				}
-				dispatch, _ := buildInventoryDispatchResponse(dispatchRes)
-				movements = append(movements, dispatch)
+
+	if len(itemInventoryList) > 0 {
+		for i, move := range itemInventoryList {
+			dispatchRes, err := getDispatchItemByID(move.DispatchId)
+			if err != nil {
+				return nil, err
 			}
+			if i == 0 && (dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID) {
+				switch dispatchRes.Type {
+				case "revers":
+					status = "Revers"
+				case "allocation":
+					status = "Zadužen"
+				case "return":
+					status = "Lager"
+				}
+			}
+			dispatch, _ := buildInventoryDispatchResponse(dispatchRes)
+			movements = append(movements, dispatch)
 		}
 	}
 

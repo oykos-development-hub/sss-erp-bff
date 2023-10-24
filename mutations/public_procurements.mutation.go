@@ -183,6 +183,9 @@ var PublicProcurementContractInsertMutation = graphql.NewInputObject(graphql.Inp
 		"gross_value": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Float),
 		},
+		"vat_value": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Float),
+		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

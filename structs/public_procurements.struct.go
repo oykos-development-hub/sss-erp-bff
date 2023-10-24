@@ -83,13 +83,14 @@ type PublicProcurementOrganizationUnitArticle struct {
 
 type PublicProcurementContract struct {
 	Id                  int     `json:"id"`
-	PublicProcurementId int     `json:"public_procurement_id" validate:"required"`
-	SupplierId          int     `json:"supplier_id" validate:"required"`
-	SerialNumber        string  `json:"serial_number" validate:"required"`
-	DateOfSigning       string  `json:"date_of_signing" validate:"required"`
+	PublicProcurementId int     `json:"public_procurement_id"`
+	SupplierId          int     `json:"supplier_id"`
+	SerialNumber        string  `json:"serial_number"`
+	DateOfSigning       string  `json:"date_of_signing"`
 	DateOfExpiry        *string `json:"date_of_expiry"`
-	NetValue            float32 `json:"net_value" validate:"required"`
-	GrossValue          float32 `json:"gross_value" validate:"required"`
+	NetValue            float32 `json:"net_value"`
+	GrossValue          float32 `json:"gross_value"`
+	VatValue            float32 `json:"vat_value"`
 	CreatedAt           string  `json:"created_at"`
 	UpdatedAt           string  `json:"updated_at"`
 	FileId              *int    `json:"file_id"`

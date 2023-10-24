@@ -143,6 +143,7 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 		SerialNumber:        item.SerialNumber,
 		NetValue:            item.NetValue,
 		GrossValue:          item.GrossValue,
+		VatValue:            item.VatValue,
 		FileId:              item.FileId,
 		CreatedAt:           item.CreatedAt,
 		UpdatedAt:           item.UpdatedAt,

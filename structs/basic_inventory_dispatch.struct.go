@@ -13,6 +13,7 @@ type BasicInventoryDispatchItem struct {
 	DispatchDescription      string `json:"dispatch_description"`
 	InventoryType            string `json:"inventory_type"`
 	InventoryId              []int  `json:"inventory_id"`
+	Date                     string `json:"date"`
 	CreatedAt                string `json:"created_at"`
 	UpdatedAt                string `json:"updated_at"`
 	FileId                   int    `json:"file_id"`

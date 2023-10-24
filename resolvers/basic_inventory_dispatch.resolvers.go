@@ -284,6 +284,7 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 		TargetOrganizationUnit: targetOrganizationUnitDropdown,
 		InventoryType:          item.InventoryType,
 		Inventory:              inventoryItems,
+		Date:                   item.Date,
 		CreatedAt:              item.CreatedAt,
 		UpdatedAt:              item.UpdatedAt,
 		DispatchDescription:    item.DispatchDescription,

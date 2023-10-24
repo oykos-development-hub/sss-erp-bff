@@ -27,9 +27,9 @@ type ProcurementContractResponseItem struct {
 	SerialNumber        string         `json:"serial_number"`
 	DateOfSigning       string         `json:"date_of_signing"`
 	DateOfExpiry        *string        `json:"date_of_expiry"`
-	NetValue            float32        `json:"net_value"`
-	GrossValue          float32        `json:"gross_value"`
-	VatValue            float32        `json:"vat_value"`
+	NetValue            *float32       `json:"net_value"`
+	GrossValue          *float32       `json:"gross_value"`
+	VatValue            *float32       `json:"vat_value"`
 	FileId              *int           `json:"file_id"`
 	CreatedAt           string         `json:"created_at"`
 	UpdatedAt           string         `json:"updated_at"`

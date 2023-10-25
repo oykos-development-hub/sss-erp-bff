@@ -515,13 +515,17 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	}
 	assessments, _ := getMyInventoryAssessments(item.Id)
 	depreciationTypeId := 0
+	grossPrice := 0
+	indexAssessments := 0
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
 	for i, assessment := range assessments {
 		if assessment.Id != 0 {
 			assessmentResponse, err := buildAssessmentResponse(&assessment)
-			if i == 0 {
+			if i == indexAssessments && assessmentResponse.Type == "financial" {
 				depreciationTypeId = assessmentResponse.Id
-				item.GrossPrice = assessmentResponse.GrossPriceDifference
+				grossPrice = assessmentResponse.GrossPriceDifference
+			} else {
+				indexAssessments++
 			}
 			if err != nil {
 				return nil, err
@@ -557,7 +561,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 					years--
 				}
 				if years > 0 {
-					amortizationValue = item.GrossPrice / lifetimeOfAssessmentInMonths * years
+					amortizationValue = grossPrice / lifetimeOfAssessmentInMonths * years
 				}
 			}
 		}
@@ -628,7 +632,8 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		Unit:                         item.Unit,
 		Amount:                       item.Amount,
 		NetPrice:                     item.NetPrice,
-		GrossPrice:                   item.GrossPrice,
+		GrossPrice:                   grossPrice,
+		PurchaseGrossPrice:           item.GrossPrice,
 		Description:                  item.Description,
 		DateOfPurchase:               item.DateOfPurchase,
 		Source:                       item.Source,

@@ -23,6 +23,9 @@ var BasicInventoryAssessmentsMutation = graphql.NewInputObject(graphql.InputObje
 		"user_profile_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"purchase_gross_price": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"gross_price_new": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

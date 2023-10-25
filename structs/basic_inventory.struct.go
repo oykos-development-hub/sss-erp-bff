@@ -22,6 +22,7 @@ type BasicInventoryDetailsItem struct {
 	Amount                       int    `json:"amount"`
 	NetPrice                     int    `json:"net_price"`
 	GrossPrice                   int    `json:"gross_price"`
+	PurchaseGrossPrice           int    `json:"purchase_gross_price"`
 	Description                  string `json:"description"`
 	DateOfPurchase               string `json:"date_of_purchase"`
 	Source                       string `json:"source"`

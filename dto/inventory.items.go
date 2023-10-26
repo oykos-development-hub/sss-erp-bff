@@ -40,6 +40,7 @@ type BasicInventoryResponseListItem struct {
 	Title                  string                                                         `json:"title"`
 	Location               string                                                         `json:"location"`
 	InventoryNumber        string                                                         `json:"inventory_number"`
+	PurchaseGrossPrice     int                                                            `json:"purchase_gross_price"`
 	GrossPrice             int                                                            `json:"gross_price"`
 	DateOfPurchase         string                                                         `json:"date_of_purchase"`
 	Status                 string                                                         `json:"status"`

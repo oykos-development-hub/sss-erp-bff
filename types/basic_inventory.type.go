@@ -170,6 +170,9 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"gross_price": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"purchase_gross_price": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"date_of_purchase": &graphql.Field{
 			Type: graphql.String,
 		},

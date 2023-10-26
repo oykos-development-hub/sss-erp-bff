@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -163,7 +164,8 @@ var BasicInventoryDispatchAcceptResolver = func(params graphql.ResolveParams) (i
 			return shared.HandleAPIError(err)
 		}
 	}
-
+	currentDate := time.Now()
+	dispatch.Date = currentDate.Format("2006-01-02T15:04:05.999999Z07:00")
 	_, err = updateDispatchItem(dispatch.Id, dispatch)
 	if err != nil {
 		return shared.HandleAPIError(err)
@@ -279,6 +281,7 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 		SerialNumber:           item.SerialNumber,
 		Office:                 settingDropdownOfficeId,
 		SourceUserProfile:      sourceUserDropdown,
+		IsAccepted:             item.IsAccepted,
 		TargetUserProfile:      targetUserDropdown,
 		SourceOrganizationUnit: sourceOrganizationUnitDropdown,
 		TargetOrganizationUnit: targetOrganizationUnitDropdown,
@@ -320,6 +323,21 @@ func createDispatchItem(item *structs.BasicInventoryDispatchItem) (*structs.Basi
 			itemDispatch := structs.BasicInventoryDispatchItemsItem{
 				InventoryId: item.InventoryId[i],
 				DispatchId:  res.Data.Id,
+			}
+			if item.Type == "return-revers" {
+				inventory, err := getInventoryItem(item.InventoryId[i])
+				if err != nil {
+					return nil, err
+				}
+
+				inventory.TargetOrganizationUnitId = 0
+				inventory.TargetUserProfileId = 0
+
+				_, err = updateInventoryItem(inventory.Id, inventory)
+				if err != nil {
+					return nil, err
+				}
+
 			}
 			_, err := shared.MakeAPIRequest("POST", config.INVENTORY_DISPATCH_ITEMS_ENDOPOINT, itemDispatch, nil)
 			if err != nil {

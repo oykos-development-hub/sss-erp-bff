@@ -320,14 +320,29 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 
 	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
 	assessments, _ := getMyInventoryAssessments(item.Id)
-
+	grossPrice := 0
+	indexAssessments := 0
 	if len(assessments) > 0 {
-		item.GrossPrice = assessments[0].GrossPriceDifference
-		settings, _ := getDropdownSettingById(assessments[0].DepreciationTypeId)
+		for i, assessment := range assessments {
+			if assessment.Id != 0 {
+				assessmentResponse, _ := buildAssessmentResponse(&assessment)
+				if i == indexAssessments && assessmentResponse.Type == "financial" {
 
-		if settings != nil {
-			settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+					grossPrice = assessmentResponse.GrossPriceDifference
+
+					settings, _ := getDropdownSettingById(assessments[0].DepreciationTypeId)
+
+					if settings != nil {
+						settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+					}
+					break
+				} else {
+					indexAssessments++
+				}
+			}
+
 		}
+
 	}
 
 	status := "Lager"
@@ -405,7 +420,8 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 		Title:                  item.Title,
 		Location:               item.Location,
 		InventoryNumber:        item.InventoryNumber,
-		GrossPrice:             item.GrossPrice,
+		GrossPrice:             grossPrice,
+		PurchaseGrossPrice:     item.GrossPrice,
 		DateOfPurchase:         item.DateOfPurchase,
 		Status:                 status,
 		SourceType:             item.SourceType,

@@ -251,6 +251,9 @@ func getProcurementStatus(item structs.PublicProcurementItem, plan structs.Publi
 }
 
 func isContracted(procurementId int) bool {
-	contracts, _ := getProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &procurementId})
-	return len(contracts.Data) > 0
+	contracts, err := getProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &procurementId})
+	if err != nil {
+		return false
+	}
+	return contracts != nil && len(contracts.Data) > 0
 }

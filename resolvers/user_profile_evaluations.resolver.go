@@ -49,13 +49,6 @@ var UserProfileEvaluationInsertResolver = func(params graphql.ResolveParams) (in
 		return shared.ErrorResponse("Error updating settings data"), nil
 	}
 
-	userProfile, err := getUserProfileById(data.UserProfileId)
-	if err != nil {
-		return nil, err
-	}
-
-	data.Evaluator = userProfile.FatherName + " " + userProfile.LastName
-
 	itemId := data.Id
 	if shared.IsInteger(itemId) && itemId != 0 {
 		item, err := updateEmployeeEvaluation(itemId, &data)

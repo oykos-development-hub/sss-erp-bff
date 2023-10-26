@@ -265,17 +265,17 @@ var UserProfileBasicInsertResolver = func(params graphql.ResolveParams) (interfa
 	err = json.Unmarshal(dataBytes, &userAccountData)
 	if err != nil {
 		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
+		return shared.HandleAPIError(err)
 	}
 	err = json.Unmarshal(dataBytes, &userProfileData)
 	if err != nil {
 		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
+		return shared.HandleAPIError(err)
 	}
 	err = json.Unmarshal(dataBytes, &activeContract)
 	if err != nil {
 		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return shared.ErrorResponse("Error updating settings data"), nil
+		return shared.HandleAPIError(err)
 	}
 
 	active := true

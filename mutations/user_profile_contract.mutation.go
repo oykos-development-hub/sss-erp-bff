@@ -26,6 +26,9 @@ var UserProfileContractInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		"abbreviation": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"number_of_conference": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

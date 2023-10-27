@@ -106,6 +106,7 @@ func buildProcurementContractArticlesResponseItem(item *structs.PublicProcuremen
 			Id:            article.Id,
 			Title:         article.Title,
 			VatPercentage: article.VatPercentage,
+			Description:   article.Description,
 		},
 		Contract: dto.DropdownSimple{
 			Id:    contract.Id,

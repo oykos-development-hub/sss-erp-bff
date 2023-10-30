@@ -326,7 +326,7 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 		for i, assessment := range assessments {
 			if assessment.Id != 0 {
 				assessmentResponse, _ := buildAssessmentResponse(&assessment)
-				if i == indexAssessments && assessmentResponse.Type == "financial" {
+				if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
 
 					grossPrice = assessmentResponse.GrossPriceDifference
 
@@ -536,15 +536,12 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
 	for i, assessment := range assessments {
 		if assessment.Id != 0 {
-			assessmentResponse, err := buildAssessmentResponse(&assessment)
-			if i == indexAssessments && assessmentResponse.Type == "financial" {
+			assessmentResponse, _ := buildAssessmentResponse(&assessment)
+			if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
 				depreciationTypeId = assessmentResponse.Id
 				grossPrice = assessmentResponse.GrossPriceDifference
 			} else {
 				indexAssessments++
-			}
-			if err != nil {
-				return nil, err
 			}
 			assessmentsResponse = append(assessmentsResponse, assessmentResponse)
 		}

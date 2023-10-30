@@ -215,3 +215,18 @@ var PublicProcurementContractArticleInsertMutation = graphql.NewInputObject(grap
 		},
 	},
 })
+
+var PublicProcurementContractArticleOverageInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "PublicProcurementContractArticleOverageInsertMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"amount": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"article_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+	},
+})

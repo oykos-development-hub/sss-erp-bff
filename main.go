@@ -214,6 +214,8 @@ func main() {
 			"publicProcurementContracts_Insert":               fields.PublicProcurementContractsInsertField,
 			"publicProcurementContracts_Delete":               fields.PublicProcurementContractsDeleteField,
 			"publicProcurementContractArticle_Insert":         fields.PublicProcurementContractArticleInsertField,
+			"publicProcurementContractArticleOverage_Insert":  fields.PublicProcurementContractArticleOverageInsertField,
+			"publicProcurementContractArticleOverage_Delete":  fields.PublicProcurementContractArticleOverageDeleteField,
 			"suppliers_Insert":                                fields.SuppliersInsertField,
 			"suppliers_Delete":                                fields.SuppliersDeleteField,
 			"basicInventory_Insert":                           fields.BasicInventoryInsertField,

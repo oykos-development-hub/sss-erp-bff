@@ -637,12 +637,18 @@ var PublicProcurementContractArticleItemType = graphql.NewObject(graphql.ObjectC
 			Type: graphql.Int,
 		},
 		"public_procurement_article": &graphql.Field{
-			Type: DropdownPublicProcurementParticleItemType,
+			Type: DropdownPublicProcurementArticleItemType,
 		},
 		"contract": &graphql.Field{
 			Type: DropdownItemType,
 		},
 		"amount": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"overages": &graphql.Field{
+			Type: graphql.NewList(PublicProcurementContractArticleOverageItemType),
+		},
+		"overage_total": &graphql.Field{
 			Type: graphql.Int,
 		},
 		"net_value": &graphql.Field{
@@ -654,7 +660,7 @@ var PublicProcurementContractArticleItemType = graphql.NewObject(graphql.ObjectC
 	},
 })
 
-var DropdownPublicProcurementParticleItemType = graphql.NewObject(graphql.ObjectConfig{
+var DropdownPublicProcurementArticleItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DropdownPublicProcurementParticleItemType",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
@@ -704,6 +710,60 @@ var PublicProcurementContractArticleInsertType = graphql.NewObject(graphql.Objec
 		},
 		"items": &graphql.Field{
 			Type: graphql.NewList(PublicProcurementContractArticleItemType),
+		},
+	},
+})
+
+var PublicProcurementContractArticleOverageItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "PublicProcurementContractArticleOverageItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"article_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"amount": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"created_at": &graphql.Field{
+			Type: graphql.String,
+		},
+		"updated_at": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+var PublicProcurementContractArticleOverageInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "PublicProcurementContractArticleOverageInsert",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: PublicProcurementContractArticleOverageItemType,
+		},
+	},
+})
+
+var PublicProcurementContractArticleOverageDeleteType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "PublicProcurementContractArticleOverageDelete",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
 		},
 	},
 })

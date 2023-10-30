@@ -18,12 +18,26 @@ type GetProcurementContractArticlesListResponseMS struct {
 }
 
 type ProcurementContractArticlesResponseItem struct {
-	Id         int                        `json:"id"`
-	Article    DropdownProcurementArticle `json:"public_procurement_article"`
-	Contract   DropdownSimple             `json:"contract"`
-	Amount     int                        `json:"amount" validate:"required"`
-	NetValue   float32                    `json:"net_value"`
-	GrossValue float32                    `json:"gross_value"`
-	CreatedAt  string                     `json:"created_at"`
-	UpdatedAt  string                     `json:"updated_at"`
+	Id           int                                                `json:"id"`
+	Article      DropdownProcurementArticle                         `json:"public_procurement_article"`
+	Contract     DropdownSimple                                     `json:"contract"`
+	Amount       int                                                `json:"amount"`
+	OverageList  []*structs.PublicProcurementContractArticleOverage `json:"overages"`
+	OverageTotal int                                                `json:"overage_total"`
+	NetValue     float32                                            `json:"net_value"`
+	GrossValue   float32                                            `json:"gross_value"`
+	CreatedAt    string                                             `json:"created_at"`
+	UpdatedAt    string                                             `json:"updated_at"`
+}
+
+type GetProcurementContractArticleOverageResponseMS struct {
+	Data structs.PublicProcurementContractArticleOverage `json:"data"`
+}
+
+type GetProcurementContractArticleOverageInput struct {
+	ContractArticleID *int `json:"article_id"`
+}
+
+type GetProcurementContractArticleOverageListResponseMS struct {
+	Data []*structs.PublicProcurementContractArticleOverage `json:"data"`
 }

@@ -92,6 +92,7 @@ var (
 	CONTRACTS_ENDPOINT                 string
 	OU_LIMITS_ENDPOINT                 string
 	CONTRACT_ARTICLE_ENDPOINT          string
+	CONTRACT_ARTICLE_OVERAGE_ENDPOINT  string
 	ORGANIZATION_UNIT_ARTICLE_ENDPOINT string
 
 	INVENTORY_ITEM_ENDOPOINT           string
@@ -184,7 +185,7 @@ func init() {
 	CONTRACT_ARTICLE_ENDPOINT = PROCUREMENT_MS_BASE_URL + "/contract-articles"
 	OU_LIMITS_ENDPOINT = PROCUREMENT_MS_BASE_URL + "/organization-unit-plan-limits"
 	ORGANIZATION_UNIT_ARTICLE_ENDPOINT = PROCUREMENT_MS_BASE_URL + "/organization-unit-articles"
-	CONTRACT_ARTICLE_ENDPOINT = PROCUREMENT_MS_BASE_URL + "/contract-articles"
+	CONTRACT_ARTICLE_OVERAGE_ENDPOINT = PROCUREMENT_MS_BASE_URL + "/contract-article-overages"
 
 	// basic inventory endpoints
 	INVENTORY_ITEM_ENDOPOINT = BASIC_INVENTORY_MS_BASE_URL + "/items"

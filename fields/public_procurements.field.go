@@ -263,3 +263,25 @@ var PublicProcurementContractArticleInsertField = &graphql.Field{
 	},
 	Resolve: resolvers.PublicProcurementContractArticleInsertResolver,
 }
+
+var PublicProcurementContractArticleOverageInsertField = &graphql.Field{
+	Type:        types.PublicProcurementContractArticleOverageInsertType,
+	Description: "Creates new or alter existing Public Procurement Contract Article Overage",
+	Args: graphql.FieldConfigArgument{
+		"data": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(mutations.PublicProcurementContractArticleOverageInsertMutation),
+		},
+	},
+	Resolve: resolvers.PublicProcurementContractArticleOverageInsertResolver,
+}
+
+var PublicProcurementContractArticleOverageDeleteField = &graphql.Field{
+	Type:        types.PublicProcurementContractArticleOverageDeleteType,
+	Description: "Deletes existing Public Procurement Contract Article Overage Item",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+	},
+	Resolve: resolvers.PublicProcurementContractArticleOverageDeleteResolver,
+}

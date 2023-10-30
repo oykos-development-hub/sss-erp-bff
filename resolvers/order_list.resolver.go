@@ -57,9 +57,19 @@ func processContractArticle(items *[]structs.OrderArticleItem, itemsMap map[int]
 		return err
 	}
 
+	overageList, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{ContractArticleID: &contractArticle.Id})
+	if err != nil {
+		return err
+	}
+
+	overageTotal := 0
+	for _, item := range overageList {
+		overageTotal += item.Amount
+	}
+
 	if existingItem, exists := itemsMap[contractArticle.PublicProcurementArticleId]; exists {
 		// Update the existing item
-		existingItem.Amount += contractArticle.Amount
+		existingItem.Amount += contractArticle.Amount + overageTotal
 		existingItem.TotalPrice += contractArticle.GrossValue
 	} else {
 		// Add new item
@@ -69,7 +79,7 @@ func processContractArticle(items *[]structs.OrderArticleItem, itemsMap map[int]
 			Title:         relatedPublicProcurementArticle.Title,
 			NetPrice:      relatedPublicProcurementArticle.NetPrice,
 			VatPercentage: relatedPublicProcurementArticle.VatPercentage,
-			Amount:        contractArticle.Amount,
+			Amount:        contractArticle.Amount + overageTotal,
 			Available:     contractArticle.Amount,
 			TotalPrice:    contractArticle.GrossValue,
 			Unit:          "kom",

@@ -90,6 +90,56 @@ var PublicProcurementContractArticleInsertResolver = func(params graphql.Resolve
 	return response, nil
 }
 
+var PublicProcurementContractArticleOverageInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.PublicProcurementContractArticleOverage
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	dataBytes, _ := json.Marshal(params.Args["data"])
+
+	err := json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	itemId := data.Id
+
+	if shared.IsInteger(itemId) && itemId != 0 {
+		res, err := updateProcurementContractArticleOverage(itemId, &data)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		response.Message = "You updated this item!"
+		response.Item = res
+	} else {
+		res, err := createProcurementContractArticleOverage(&data)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		response.Message = "You created this item!"
+		response.Item = res
+	}
+
+	return response, nil
+}
+
+var PublicProcurementContractArticleOverageDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	itemId := params.Args["id"].(int)
+
+	err := deleteProcurementContractArticleOverage(itemId)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
+	}, nil
+}
+
 func buildProcurementContractArticlesResponseItem(item *structs.PublicProcurementContractArticle) (*dto.ProcurementContractArticlesResponseItem, error) {
 	article, err := getProcurementArticle(item.PublicProcurementArticleId)
 	if err != nil {
@@ -98,6 +148,16 @@ func buildProcurementContractArticlesResponseItem(item *structs.PublicProcuremen
 	contract, err := getProcurementContract(item.PublicProcurementContractId)
 	if err != nil {
 		return nil, err
+	}
+
+	overageList, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{ContractArticleID: &item.Id})
+	if err != nil {
+		return nil, err
+	}
+
+	overageTotal := 0
+	for _, item := range overageList {
+		overageTotal += item.Amount
 	}
 
 	res := dto.ProcurementContractArticlesResponseItem{
@@ -112,19 +172,21 @@ func buildProcurementContractArticlesResponseItem(item *structs.PublicProcuremen
 			Id:    contract.Id,
 			Title: contract.SerialNumber,
 		},
-		Amount:     item.Amount,
-		NetValue:   item.NetValue,
-		GrossValue: item.GrossValue,
-		CreatedAt:  item.CreatedAt,
-		UpdatedAt:  item.UpdatedAt,
+		OverageList:  overageList,
+		Amount:       item.Amount,
+		OverageTotal: overageTotal,
+		NetValue:     item.NetValue,
+		GrossValue:   item.GrossValue,
+		CreatedAt:    item.CreatedAt,
+		UpdatedAt:    item.UpdatedAt,
 	}
 
 	return &res, nil
 }
 
-func createProcurementContractArticle(resolution *structs.PublicProcurementContractArticle) (*structs.PublicProcurementContractArticle, error) {
+func createProcurementContractArticle(article *structs.PublicProcurementContractArticle) (*structs.PublicProcurementContractArticle, error) {
 	res := &dto.GetProcurementContractArticleResponseMS{}
-	_, err := shared.MakeAPIRequest("POST", config.CONTRACT_ARTICLE_ENDPOINT, resolution, res)
+	_, err := shared.MakeAPIRequest("POST", config.CONTRACT_ARTICLE_ENDPOINT, article, res)
 	if err != nil {
 		return nil, err
 	}
@@ -132,9 +194,9 @@ func createProcurementContractArticle(resolution *structs.PublicProcurementContr
 	return &res.Data, nil
 }
 
-func updateProcurementContractArticle(id int, resolution *structs.PublicProcurementContractArticle) (*structs.PublicProcurementContractArticle, error) {
+func updateProcurementContractArticle(id int, article *structs.PublicProcurementContractArticle) (*structs.PublicProcurementContractArticle, error) {
 	res := &dto.GetProcurementContractArticleResponseMS{}
-	_, err := shared.MakeAPIRequest("PUT", config.CONTRACT_ARTICLE_ENDPOINT+"/"+strconv.Itoa(id), resolution, res)
+	_, err := shared.MakeAPIRequest("PUT", config.CONTRACT_ARTICLE_ENDPOINT+"/"+strconv.Itoa(id), article, res)
 	if err != nil {
 		return nil, err
 	}
@@ -150,4 +212,43 @@ func getProcurementContractArticlesList(input *dto.GetProcurementContractArticle
 	}
 
 	return res, nil
+}
+
+func createProcurementContractArticleOverage(articleOverage *structs.PublicProcurementContractArticleOverage) (*structs.PublicProcurementContractArticleOverage, error) {
+	res := &dto.GetProcurementContractArticleOverageResponseMS{}
+	_, err := shared.MakeAPIRequest("POST", config.CONTRACT_ARTICLE_OVERAGE_ENDPOINT, articleOverage, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func updateProcurementContractArticleOverage(id int, articleOverage *structs.PublicProcurementContractArticleOverage) (*structs.PublicProcurementContractArticleOverage, error) {
+	res := &dto.GetProcurementContractArticleOverageResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.CONTRACT_ARTICLE_OVERAGE_ENDPOINT+"/"+strconv.Itoa(id), articleOverage, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func getProcurementContractArticleOverageList(input *dto.GetProcurementContractArticleOverageInput) ([]*structs.PublicProcurementContractArticleOverage, error) {
+	res := &dto.GetProcurementContractArticleOverageListResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.CONTRACT_ARTICLE_OVERAGE_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
+func deleteProcurementContractArticleOverage(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.CONTRACT_ARTICLE_OVERAGE_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

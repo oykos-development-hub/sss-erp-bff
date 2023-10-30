@@ -69,7 +69,8 @@ func processContractArticle(items *[]structs.OrderArticleItem, itemsMap map[int]
 
 	if existingItem, exists := itemsMap[contractArticle.PublicProcurementArticleId]; exists {
 		// Update the existing item
-		existingItem.Amount += contractArticle.Amount + overageTotal
+		existingItem.Amount += contractArticle.Amount
+		existingItem.Available += contractArticle.Amount + overageTotal
 		existingItem.TotalPrice += contractArticle.GrossValue
 	} else {
 		// Add new item
@@ -79,8 +80,8 @@ func processContractArticle(items *[]structs.OrderArticleItem, itemsMap map[int]
 			Title:         relatedPublicProcurementArticle.Title,
 			NetPrice:      relatedPublicProcurementArticle.NetPrice,
 			VatPercentage: relatedPublicProcurementArticle.VatPercentage,
-			Amount:        contractArticle.Amount + overageTotal,
-			Available:     contractArticle.Amount,
+			Amount:        contractArticle.Amount,
+			Available:     contractArticle.Amount + overageTotal,
 			TotalPrice:    contractArticle.GrossValue,
 			Unit:          "kom",
 			Manufacturer:  relatedPublicProcurementArticle.Manufacturer,

@@ -711,6 +711,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 				Available:    article.Available,
 				Amount:       itemOrderArticle.Amount,
 				TotalPrice:   articleTotalPrice,
+				Price:        articleUnitPrice,
 			})
 		}
 	}

@@ -16,6 +16,9 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		"total_price": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"price": &graphql.Field{
+			Type: graphql.Float,
+		},
 		"total_neto": &graphql.Field{
 			Type: graphql.Float,
 		},

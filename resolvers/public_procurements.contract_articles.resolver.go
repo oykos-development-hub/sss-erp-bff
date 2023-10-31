@@ -187,12 +187,17 @@ func buildProcurementContractArticlesResponseItem(context context.Context, item 
 			Title: contract.SerialNumber,
 		},
 		OverageList:  overageList,
-		Amount:       articleResItem.Amount,
 		OverageTotal: overageTotal,
 		NetValue:     item.NetValue,
 		GrossValue:   item.GrossValue,
 		CreatedAt:    item.CreatedAt,
 		UpdatedAt:    item.UpdatedAt,
+	}
+
+	if organizationUnitID != nil && *organizationUnitID == 0 {
+		res.Amount = articleResItem.TotalAmount
+	} else {
+		res.Amount = articleResItem.Amount
 	}
 
 	return &res, nil

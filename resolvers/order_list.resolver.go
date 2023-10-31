@@ -59,6 +59,11 @@ func processContractArticle(context context.Context, items *[]structs.OrderArtic
 		return err
 	}
 
+	resProcurementArticle, err := buildProcurementArticleResponseItem(context, relatedPublicProcurementArticle, organizationUnitID)
+	if err != nil {
+		return err
+	}
+
 	overageList, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
 		ContractArticleID:  &contractArticle.Id,
 		OrganizationUnitID: organizationUnitID,
@@ -74,8 +79,8 @@ func processContractArticle(context context.Context, items *[]structs.OrderArtic
 
 	if existingItem, exists := itemsMap[contractArticle.PublicProcurementArticleId]; exists {
 		// Update the existing item
-		existingItem.Amount += contractArticle.Amount
-		existingItem.Available += contractArticle.Amount + overageTotal
+		existingItem.Amount += resProcurementArticle.Amount
+		existingItem.Available += resProcurementArticle.Amount + overageTotal
 		existingItem.TotalPrice += contractArticle.GrossValue
 	} else {
 		// Add new item
@@ -85,8 +90,8 @@ func processContractArticle(context context.Context, items *[]structs.OrderArtic
 			Title:         relatedPublicProcurementArticle.Title,
 			NetPrice:      relatedPublicProcurementArticle.NetPrice,
 			VatPercentage: relatedPublicProcurementArticle.VatPercentage,
-			Amount:        contractArticle.Amount,
-			Available:     contractArticle.Amount + overageTotal,
+			Amount:        resProcurementArticle.Amount,
+			Available:     resProcurementArticle.Amount + overageTotal,
 			TotalPrice:    contractArticle.GrossValue,
 			Unit:          "kom",
 			Manufacturer:  relatedPublicProcurementArticle.Manufacturer,
@@ -252,7 +257,14 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 		return shared.ErrorResponse("You must pass the item procurement id"), nil
 	}
 
-	articles, err := GetProcurementArticles(params.Context, publicProcurementID)
+	ctx := params.Context
+
+	if params.Args["organization_unit_id"] != nil {
+		organizationUnitID := params.Args["organization_unit_id"].(int)
+		ctx = context.WithValue(ctx, config.OrganizationUnitIDKey, &organizationUnitID)
+	}
+
+	articles, err := GetProcurementArticles(ctx, publicProcurementID)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -596,7 +608,7 @@ func buildOrderListInsertItem(context context.Context, item *structs.OrderListIn
 
 			for _, contractArticle := range relatedContractArticlesResponse.Data {
 				if article, exists := articleMap[contractArticle.PublicProcurementArticleId]; exists {
-					totalPrice += (contractArticle.GrossValue / float32(contractArticle.Amount)) * float32(article.Amount)
+					totalPrice += (contractArticle.GrossValue) * float32(article.Amount)
 				}
 			}
 		}

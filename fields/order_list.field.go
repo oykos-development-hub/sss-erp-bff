@@ -77,6 +77,9 @@ var OrderProcurementAvailableField = &graphql.Field{
 		"public_procurement_id": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
+		"organization_unit_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 	},
 	Resolve: resolvers.OrderProcurementAvailableResolver,
 }

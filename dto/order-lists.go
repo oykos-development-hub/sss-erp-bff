@@ -18,6 +18,7 @@ type GetOrderListInput struct {
 	Search              *string `json:"search"`
 	Status              *string `json:"status"`
 	PublicProcurementID *int    `json:"public_procurement_id"`
+	OrganizationUnitId  *int    `json:"organization_unit_id"`
 }
 
 type OrderListOverviewResponse struct {

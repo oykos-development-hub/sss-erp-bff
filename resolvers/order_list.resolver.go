@@ -138,6 +138,12 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 		total = 1
 	} else {
 		input := dto.GetOrderListInput{}
+
+		organizationUnitID, unitOK := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+
+		if unitOK && organizationUnitID != nil {
+			input.OrganizationUnitId = organizationUnitID
+		}
 		if shared.IsInteger(page) && page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum

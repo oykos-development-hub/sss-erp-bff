@@ -299,6 +299,7 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 				currentArticle.TotalPrice = currentArticle.TotalPrice * float32(currentArticle.Available-orderArticle.Amount/currentArticle.Available)
 				currentArticle.TotalPrice = currentArticle.TotalPrice * float32(currentArticle.Available-orderArticle.Amount/currentArticle.Available)
 				currentArticle.Available -= orderArticle.Amount
+				currentArticle.Price = currentArticle.TotalPrice / float32(currentArticle.Amount)
 			}
 		}
 		items = append(items, currentArticle)

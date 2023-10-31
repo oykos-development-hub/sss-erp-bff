@@ -35,6 +35,7 @@ type OrderArticleItem struct {
 	Amount              int     `json:"amount"`
 	Available           int     `json:"available"`
 	TotalPrice          float32 `json:"total_price"`
+	Price               float32 `json:"price"`
 	Unit                string  `json:"unit"`
 }
 

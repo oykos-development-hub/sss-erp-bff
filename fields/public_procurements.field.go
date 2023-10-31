@@ -249,6 +249,9 @@ var PublicProcurementContractArticlesOverviewField = &graphql.Field{
 		"contract_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"organization_unit_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 	},
 	Resolve: resolvers.PublicProcurementContractArticlesOverviewResolver,
 }

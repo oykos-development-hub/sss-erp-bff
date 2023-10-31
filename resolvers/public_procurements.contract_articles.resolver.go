@@ -5,6 +5,7 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
+	"context"
 	"encoding/json"
 	"strconv"
 
@@ -16,6 +17,12 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 	var total int
 
 	contract_id := params.Args["contract_id"]
+
+	var organizationUnitID *int
+	if params.Args["organization_unit_id"] != nil {
+		organizationUnitIDValue := params.Args["organization_unit_id"].(int)
+		organizationUnitID = &organizationUnitIDValue
+	}
 
 	input := dto.GetProcurementContractArticlesInput{}
 
@@ -31,7 +38,7 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 	total = contractsRes.Total
 
 	for _, contractArticle := range contractsRes.Data {
-		resItem, err := buildProcurementContractArticlesResponseItem(contractArticle)
+		resItem, err := buildProcurementContractArticlesResponseItem(params.Context, contractArticle, organizationUnitID)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -66,7 +73,7 @@ var PublicProcurementContractArticleInsertResolver = func(params graphql.Resolve
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementContractArticlesResponseItem(res)
+		item, err := buildProcurementContractArticlesResponseItem(params.Context, res, nil)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -78,7 +85,7 @@ var PublicProcurementContractArticleInsertResolver = func(params graphql.Resolve
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementContractArticlesResponseItem(res)
+		item, err := buildProcurementContractArticlesResponseItem(params.Context, res, nil)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -140,8 +147,12 @@ var PublicProcurementContractArticleOverageDeleteResolver = func(params graphql.
 	}, nil
 }
 
-func buildProcurementContractArticlesResponseItem(item *structs.PublicProcurementContractArticle) (*dto.ProcurementContractArticlesResponseItem, error) {
+func buildProcurementContractArticlesResponseItem(context context.Context, item *structs.PublicProcurementContractArticle, organizationUnitID *int) (*dto.ProcurementContractArticlesResponseItem, error) {
 	article, err := getProcurementArticle(item.PublicProcurementArticleId)
+	if err != nil {
+		return nil, err
+	}
+	articleResItem, err := buildProcurementArticleResponseItem(context, article, organizationUnitID)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +161,10 @@ func buildProcurementContractArticlesResponseItem(item *structs.PublicProcuremen
 		return nil, err
 	}
 
-	overageList, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{ContractArticleID: &item.Id})
+	overageList, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
+		ContractArticleID:  &item.Id,
+		OrganizationUnitID: organizationUnitID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +187,7 @@ func buildProcurementContractArticlesResponseItem(item *structs.PublicProcuremen
 			Title: contract.SerialNumber,
 		},
 		OverageList:  overageList,
-		Amount:       item.Amount,
+		Amount:       articleResItem.Amount,
 		OverageTotal: overageTotal,
 		NetValue:     item.NetValue,
 		GrossValue:   item.GrossValue,

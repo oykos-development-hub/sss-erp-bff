@@ -723,6 +723,9 @@ var PublicProcurementContractArticleOverageItemType = graphql.NewObject(graphql.
 		"article_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"organization_unit_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"amount": &graphql.Field{
 			Type: graphql.Int,
 		},

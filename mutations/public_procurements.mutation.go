@@ -228,5 +228,8 @@ var PublicProcurementContractArticleOverageInsertMutation = graphql.NewInputObje
 		"article_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
 	},
 })

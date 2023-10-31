@@ -32,7 +32,7 @@ var PublicProcurementPlanItemArticleInsertResolver = func(params graphql.Resolve
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementArticleResponseItem(params.Context, res)
+		item, err := buildProcurementArticleResponseItem(params.Context, res, nil)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -44,7 +44,7 @@ var PublicProcurementPlanItemArticleInsertResolver = func(params graphql.Resolve
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementArticleResponseItem(params.Context, res)
+		item, err := buildProcurementArticleResponseItem(params.Context, res, nil)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -70,8 +70,10 @@ var PublicProcurementPlanItemArticleDeleteResolver = func(params graphql.Resolve
 	}, nil
 }
 
-func buildProcurementArticleResponseItem(context context.Context, item *structs.PublicProcurementArticle) (*dto.ProcurementArticleResponseItem, error) {
-	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int)
+func buildProcurementArticleResponseItem(context context.Context, item *structs.PublicProcurementArticle, organizationUnitID *int) (*dto.ProcurementArticleResponseItem, error) {
+	if organizationUnitID == nil {
+		organizationUnitID, _ = context.Value(config.OrganizationUnitIDKey).(*int)
+	}
 	procurement, err := getProcurementItem(item.PublicProcurementId)
 	if err != nil {
 		return nil, err

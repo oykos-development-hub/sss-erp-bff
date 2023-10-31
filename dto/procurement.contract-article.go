@@ -35,7 +35,8 @@ type GetProcurementContractArticleOverageResponseMS struct {
 }
 
 type GetProcurementContractArticleOverageInput struct {
-	ContractArticleID *int `json:"article_id"`
+	ContractArticleID  *int `json:"article_id"`
+	OrganizationUnitID *int `json:"organization_unit_id"`
 }
 
 type GetProcurementContractArticleOverageListResponseMS struct {

@@ -250,7 +250,7 @@ func buildProcurementOUArticleResponseItem(context context.Context, item *struct
 	if err != nil {
 		return nil, err
 	}
-	articleResItem, err := buildProcurementArticleResponseItem(context, article)
+	articleResItem, err := buildProcurementArticleResponseItem(context, article, nil)
 	if err != nil {
 		return nil, err
 	}

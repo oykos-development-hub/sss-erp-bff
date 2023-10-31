@@ -187,7 +187,7 @@ func buildProcurementPlanResponseItem(context context.Context, plan *structs.Pub
 			}
 		}
 
-		resItem, err := buildProcurementItemResponseItem(context, item)
+		resItem, err := buildProcurementItemResponseItem(context, item, nil)
 		if err != nil {
 			return nil, err
 		}

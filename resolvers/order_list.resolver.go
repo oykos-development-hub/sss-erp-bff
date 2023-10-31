@@ -14,7 +14,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func GetProcurementArticles(publicProcurementId int) ([]structs.OrderArticleItem, error) {
+func GetProcurementArticles(context context.Context, publicProcurementId int) ([]structs.OrderArticleItem, error) {
 	items := []structs.OrderArticleItem{}
 	itemsMap := make(map[int]structs.OrderArticleItem)
 
@@ -26,7 +26,7 @@ func GetProcurementArticles(publicProcurementId int) ([]structs.OrderArticleItem
 	}
 
 	for _, contract := range relatedContractsResponse.Data {
-		if err := processContract(&items, itemsMap, contract); err != nil {
+		if err := processContract(context, &items, itemsMap, contract); err != nil {
 			return nil, err
 		}
 	}
@@ -34,7 +34,7 @@ func GetProcurementArticles(publicProcurementId int) ([]structs.OrderArticleItem
 	return items, nil
 }
 
-func processContract(items *[]structs.OrderArticleItem, itemsMap map[int]structs.OrderArticleItem, contract *structs.PublicProcurementContract) error {
+func processContract(context context.Context, items *[]structs.OrderArticleItem, itemsMap map[int]structs.OrderArticleItem, contract *structs.PublicProcurementContract) error {
 	relatedContractArticlesResponse, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
 		ContractID: &contract.Id,
 	})
@@ -43,7 +43,7 @@ func processContract(items *[]structs.OrderArticleItem, itemsMap map[int]structs
 	}
 
 	for _, contractArticle := range relatedContractArticlesResponse.Data {
-		if err := processContractArticle(items, itemsMap, contractArticle); err != nil {
+		if err := processContractArticle(context, items, itemsMap, contractArticle); err != nil {
 			return err
 		}
 	}
@@ -51,13 +51,18 @@ func processContract(items *[]structs.OrderArticleItem, itemsMap map[int]structs
 	return nil
 }
 
-func processContractArticle(items *[]structs.OrderArticleItem, itemsMap map[int]structs.OrderArticleItem, contractArticle *structs.PublicProcurementContractArticle) error {
+func processContractArticle(context context.Context, items *[]structs.OrderArticleItem, itemsMap map[int]structs.OrderArticleItem, contractArticle *structs.PublicProcurementContractArticle) error {
+	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int)
+
 	relatedPublicProcurementArticle, err := getProcurementArticle(contractArticle.PublicProcurementArticleId)
 	if err != nil {
 		return err
 	}
 
-	overageList, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{ContractArticleID: &contractArticle.Id})
+	overageList, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
+		ContractArticleID:  &contractArticle.Id,
+		OrganizationUnitID: organizationUnitID,
+	})
 	if err != nil {
 		return err
 	}
@@ -114,7 +119,7 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 			return shared.HandleAPIError(err)
 		}
 
-		orderListItem, err := buildOrderListResponseItem(orderList)
+		orderListItem, err := buildOrderListResponseItem(params.Context, orderList)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -151,7 +156,7 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 		}
 
 		for _, orderList := range orderLists.Data {
-			orderListItem, err := buildOrderListResponseItem(&orderList)
+			orderListItem, err := buildOrderListResponseItem(params.Context, &orderList)
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
@@ -206,7 +211,7 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 			}
 		}
 
-		item, err := buildOrderListResponseItem(res)
+		item, err := buildOrderListResponseItem(params.Context, res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -225,7 +230,7 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 			return shared.HandleAPIError(err)
 		}
 
-		item, err := buildOrderListResponseItem(res)
+		item, err := buildOrderListResponseItem(params.Context, res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -247,7 +252,7 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 		return shared.ErrorResponse("You must pass the item procurement id"), nil
 	}
 
-	articles, err := GetProcurementArticles(publicProcurementID)
+	articles, err := GetProcurementArticles(params.Context, publicProcurementID)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -628,7 +633,7 @@ func getOrderProcurementArticles(input *dto.GetOrderProcurementArticleInput) (*d
 	return res, nil
 }
 
-func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOverviewResponse, error) {
+func buildOrderListResponseItem(context context.Context, item *structs.OrderListItem) (*dto.OrderListOverviewResponse, error) {
 	totalPrice := float32(0.0)
 	totalNeto := float32(0.0)
 
@@ -654,7 +659,7 @@ func buildOrderListResponseItem(item *structs.OrderListItem) (*dto.OrderListOver
 		return nil, err
 	}
 
-	publicProcurementArticles, err := GetProcurementArticles(item.PublicProcurementId)
+	publicProcurementArticles, err := GetProcurementArticles(context, item.PublicProcurementId)
 	if err != nil {
 		return nil, err
 	}

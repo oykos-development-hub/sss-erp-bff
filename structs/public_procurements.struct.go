@@ -109,9 +109,10 @@ type PublicProcurementContractArticle struct {
 }
 
 type PublicProcurementContractArticleOverage struct {
-	Id        int    `json:"id"`
-	ArticleID int    `json:"article_id"`
-	Amount    int    `json:"amount"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	Id                 int    `json:"id"`
+	ArticleID          int    `json:"article_id"`
+	Amount             int    `json:"amount"`
+	OrganizationUnitID int    `json:"organization_unit_id"`
+	CreatedAt          string `json:"created_at"`
+	UpdatedAt          string `json:"updated_at"`
 }

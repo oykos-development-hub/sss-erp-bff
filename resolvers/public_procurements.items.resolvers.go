@@ -22,7 +22,7 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 			return shared.HandleAPIError(err)
 		}
 
-		resItem, _ := buildProcurementItemResponseItem(params.Context, item)
+		resItem, _ := buildProcurementItemResponseItem(params.Context, item, nil)
 		items = append(items, resItem)
 	} else {
 		procurements, err := getProcurementItemList(nil)
@@ -31,7 +31,7 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 		}
 
 		for _, item := range procurements {
-			resItem, _ := buildProcurementItemResponseItem(params.Context, item)
+			resItem, _ := buildProcurementItemResponseItem(params.Context, item, nil)
 			items = append(items, resItem)
 		}
 	}
@@ -65,7 +65,7 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		resItem, _ := buildProcurementItemResponseItem(params.Context, res)
+		resItem, _ := buildProcurementItemResponseItem(params.Context, res, nil)
 
 		response.Message = "You updated this item!"
 		response.Item = resItem
@@ -75,7 +75,7 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 			return shared.HandleAPIError(err)
 		}
 
-		resItem, _ := buildProcurementItemResponseItem(params.Context, res)
+		resItem, _ := buildProcurementItemResponseItem(params.Context, res, nil)
 
 		response.Message = "You created this item!"
 		response.Item = resItem
@@ -170,8 +170,10 @@ func isProcurementProcessed(procurementID int, organizationUnitID *int) bool {
 	return matchedArticleCount >= len(articles)
 }
 
-func buildProcurementItemResponseItem(context context.Context, item *structs.PublicProcurementItem) (*dto.ProcurementItemResponseItem, error) {
-	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int) // assert the type
+func buildProcurementItemResponseItem(context context.Context, item *structs.PublicProcurementItem, organizationUnitID *int) (*dto.ProcurementItemResponseItem, error) {
+	if organizationUnitID != nil {
+		organizationUnitID, _ = context.Value(config.OrganizationUnitIDKey).(*int) // assert the type
+	}
 
 	plan, _ := getProcurementPlan(item.PlanId)
 	planDropdown := dto.DropdownSimple{Id: plan.Id, Title: plan.Title}
@@ -182,7 +184,7 @@ func buildProcurementItemResponseItem(context context.Context, item *structs.Pub
 		return nil, err
 	}
 	for _, article := range articlesRaw {
-		articleResItem, err := buildProcurementArticleResponseItem(context, article)
+		articleResItem, err := buildProcurementArticleResponseItem(context, article, organizationUnitID)
 		if err != nil {
 			return nil, err
 		}

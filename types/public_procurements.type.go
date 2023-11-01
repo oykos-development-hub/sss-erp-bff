@@ -708,8 +708,8 @@ var PublicProcurementContractArticleInsertType = graphql.NewObject(graphql.Objec
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"item": &graphql.Field{
-			Type: PublicProcurementContractArticleItemType,
+		"items": &graphql.Field{
+			Type: graphql.NewList(PublicProcurementContractArticleItemType),
 		},
 	},
 })

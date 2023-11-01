@@ -105,7 +105,7 @@ var PublicProcurementPlanItemLimitsField = &graphql.Field{
 	Description: "Returns all Limits for a specific Public Procurement item",
 	Args: graphql.FieldConfigArgument{
 		"procurement_id": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 	},
 	Resolve: resolvers.PublicProcurementPlanItemLimitsResolver,

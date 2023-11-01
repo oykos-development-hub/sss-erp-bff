@@ -1,5 +1,5 @@
 include:
-  - template: Jobs/SAST.gitlab-ci.yml
+    - template: Jobs/SAST.gitlab-ci.yml
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -9,24 +9,24 @@ variables:
   DOCKER_HOST: tcp://docker:2375
 
 stages:
-  - test
-  - push_to_github
+    - test
+    - push_to_github
 
 code_tests:
-  stage: test
-  image: golang:1.19
-  before_script:
-    - go mod download
-  script:
-    - go test -race ./...
+    stage: test
+    image: golang:1.19
+    before_script:
+        - go mod download
+    script:
+        - go test -race ./...
 
 code_linter:
-  stage: test
-  image: golangci/golangci-lint:v1.50.1
-  before_script:
-    - go mod download
-  script:
-    - golangci-lint run ./...
+    stage: test
+    image: golangci/golangci-lint:v1.50.1
+    before_script:
+        - go mod download
+    script:
+        - golangci-lint run ./...
 
 push_to_github:
   stage: push_to_github
@@ -43,12 +43,12 @@ push_to_github:
   script:
     - cd $CI_PROJECT_DIR
     - if [ -d "../tmp" ]; then
-      cd ../tmp;
+        cd ../tmp;
       else
-      mkdir ../tmp;
-      cd ../tmp;
+        mkdir ../tmp;
+        cd ../tmp;
       fi
-    - rm -rf ./sss-erp-bff
+    - rm -rf ./sss-erp-bff  
     - git clone git@github.com:oykos-development-hub/sss-erp-bff.git
     - cd sss-erp-bff
     - git checkout development
@@ -58,3 +58,4 @@ push_to_github:
     - git config --global user.name "oykos-development-hub"
     - git commit -m "Update code from GitLab"
     - git push origin development
+

@@ -243,9 +243,6 @@ func main() {
 			"budget_Insert":                                   fields.BudgetInsertField,
 			"budget_Send":                                     fields.BudgetSendField,
 			"accountBudgetActivity_Insert":                    fields.AccountBudgetActivityInsertField,
-			"requestNotFinancially_Insert":                    fields.BudgetActivityNotFinanciallyInsertField,
-			"programNotFinancially_Insert":                    fields.BudgetActivityNotFinanciallyInsertField,
-			"goalsNotFinancially_Insert":                      fields.GoalsNotFinanciallyInsertField,
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -311,12 +308,9 @@ func main() {
 			"recipientUsers_Overview":                            fields.RecipientUsersField,
 			"account_Overview":                                   fields.AccountOverviewField,
 			"accountBudgetActivity_Overview":                     fields.AccountBudgetActivityOverviewField,
+			"activities_Overview":                                fields.ActivitiesOverviewField,
 			"budget_Overview":                                    fields.BudgetOverviewField,
 			"programs_Overview":                                  fields.ProgramOverviewField,
-			"requestNotFinancially_Overview":                     fields.BudgetActivityNotFinanciallyOverviewField,
-			"inductorNotFinancially_Overview":                    fields.InductorNotFinanciallyOverviewField,
-			"checkBudgetActivityNotFinanciallyIsDone":            fields.CheckBudgetActivityNotFinanciallyIsDoneField,
-			"activities_Overview":                                fields.ActivitiesOverviewField,
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

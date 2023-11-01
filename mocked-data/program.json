@@ -1,40 +1,4 @@
 [
   { "id": 1, "parent_id": 0, "title": "Rad Sudova" },
-  { "id": 2, "parent_id": 1, "title": "Rad Sudskog savjeta" },
-  {
-    "id": 7,
-    "title": "Rad osnovnog Suda Bar",
-    "parent_id": 2,
-    "organization_unit_id": 2
-  },
-  {
-    "id": 8,
-    "title": "Rad osnovnog Suda Niksic",
-    "parent_id": 2,
-    "organization_unit_id": 3
-  },
-  {
-    "id": 3,
-    "title": "Rad Sektora za finansijske poslove",
-    "parent_id": 2,
-    "organization_unit_id": 35314
-  },
-  {
-    "id": 4,
-    "title": "Rad Racunovodstva",
-    "parent_id": 2,
-    "organization_unit_id": 77554
-  },
-  {
-    "id": 5,
-    "title": "Rad Berane",
-    "parent_id": 2,
-    "organization_unit_id": 4
-  },
-  {
-    "id": 6,
-    "title": "Rad Sektora za rad sa strankama",
-    "parent_id": 2,
-    "organization_unit_id": 40216
-  }
+  { "id": 2, "parent_id": 1, "title": "Rad Sudskog savjeta" }
 ]

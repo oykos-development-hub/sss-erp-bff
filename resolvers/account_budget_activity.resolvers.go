@@ -30,35 +30,36 @@ func BudgetAccountItemProperties(basicInventoryItems []interface{}, budgetId int
 }
 
 var BudgetAccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	// var accounts []interface{}
+	// var budgetId int
+	// var activityId int
+	// if params.Args["budget_id"] == nil {
+	// 	budgetId = 0
+	// } else {
+	// 	budgetId = params.Args["budget_id"].(int)
+	// }
 
-	var accountFilters dto.GetAccountsFilter
-	if id, ok := params.Args["id"].(int); ok && id != 0 {
-		accountFilters.ID = &id
-	}
-	if search, ok := params.Args["search"].(string); ok && search != "" {
-		accountFilters.Search = &search
-	}
-	if page, ok := params.Args["page"].(int); ok && page != 0 {
-		accountFilters.Page = &page
-	}
-	if size, ok := params.Args["size"].(int); ok && size != 0 {
-		accountFilters.Size = &size
-	}
+	// if params.Args["activity_id"] == nil {
+	// 	activityId = 0
+	// } else {
+	// 	activityId = params.Args["activity_id"].(int)
+	// }
 
-	accounts, err := getAccountItems(&accountFilters)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	accountResItemlist, err := buildAccountItemResponseItemList(accounts.Data)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
+	// AccountType := &structs.AccountItem{}
+	// AccountData, err := shared.ReadJson(shared.GetDataRoot()+"/account.json", AccountType)
 
-	accountsTree, err := CreateTree(accountResItemlist)
-	if err != nil {
-		fmt.Printf("Create tree error - %s.\n", err)
-	}
-	// for _, account := range accountsTree {
+	// if err != nil {
+	// 	fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
+	// }
+
+	// // Populate data for each Basic Inventory Real Estates
+	// // accounts = AccountItemProperties(AccountData, 0)
+
+	// accounts, err = CreateTree(AccountData, budgetId, activityId)
+	// if err != nil {
+	// 	fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
+	// }
+	// for _, account := range accounts {
 	// 	if item, ok := account.(*structs.AccountItemNode); ok {
 	// 		updateParentValues(item)
 	// 	}
@@ -67,7 +68,7 @@ var BudgetAccountOverviewResolver = func(params graphql.ResolveParams) (interfac
 	return map[string]interface{}{
 		"status":  "success",
 		"message": "Here's the list you asked for!",
-		"items":   accountsTree,
+		"items":   nil,
 	}, nil
 }
 

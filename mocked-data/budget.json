@@ -1,16 +1,16 @@
 [
   {
+    "id": 1,
+    "year": "2023",
+    "source": "Opsti prihodi",
+    "type": "Tekuci",
+    "status": "U toku"
+  },
+  {
     "id": 2,
     "year": "2024",
     "source": "Opsti prihodi",
     "type": "Kapitalni",
     "status": "Zavrseno"
-  },
-  {
-    "id": 1,
-    "year": "2023",
-    "source": "Opsti prihodi",
-    "type": "Tekuci",
-    "status": "poslat"
   }
 ]

@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "budget_program_id": 1,
+    "title": "Goals 1",
+    "description": ""
+  },
+  {
+    "id": 2,
+    "budget_program_id": 1,
+    "title": "Goals 2",
+    "description": ""
+  },
+  {
+    "id": 3,
+    "budget_program_id": 1,
+    "title": "Goals 3",
+    "description": ""
+  },
+  {
+    "id": 4,
+    "budget_program_id": 2,
+    "title": "Goals 4 sub",
+    "description": ""
+  },
+  {
+    "id": 5,
+    "budget_program_id": 3,
+    "title": "Goals 5 act",
+    "description": ""
+  }
+]

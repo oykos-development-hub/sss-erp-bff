@@ -9,7 +9,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func ProgramItemProperties(basicInventoryItems []interface{}, id int, program ...interface{}) []interface{} {
+func ProgramItemProperties(basicInventoryItems []interface{}, id int, typeProgram string) []interface{} {
 	var items []interface{}
 
 	for _, item := range basicInventoryItems {
@@ -22,12 +22,17 @@ func ProgramItemProperties(basicInventoryItems []interface{}, id int, program ..
 		}
 
 		// Filtering by program
-		if len(program) > 0 && program[0] != nil && program[0] == true && mergedItem["parent_id"].(int) > 0 {
+		if len(typeProgram) > 0 && typeProgram == "program" && mergedItem["parent_id"].(int) > 0 {
+			continue
+		}
+
+		// Filtering by activities
+		if len(typeProgram) > 0 && typeProgram == "activities" && mergedItem["organization_unit_id"].(int) == 0 {
 			continue
 		}
 
 		// Filtering by subprogram
-		if len(program) > 0 && program[0] != nil && program[0] == false && mergedItem["parent_id"].(int) == 0 {
+		if len(typeProgram) > 0 && typeProgram == "subprogram" && mergedItem["organization_unit_id"].(int) > 0 || mergedItem["parent_id"].(int) == 0 {
 			continue
 		}
 
@@ -47,6 +52,22 @@ func ProgramItemProperties(basicInventoryItems []interface{}, id int, program ..
 			}
 		}
 
+		if shared.IsInteger(mergedItem["organization_unit_id"]) && mergedItem["organization_unit_id"].(int) > 0 {
+			var relatedOfficesOrganizationUnit = shared.FetchByProperty(
+				"organization_unit",
+				"Id",
+				mergedItem["organization_unit_id"],
+			)
+			if len(relatedOfficesOrganizationUnit) > 0 {
+				var relatedOrganizationUnit = shared.WriteStructToInterface(relatedOfficesOrganizationUnit[0])
+
+				mergedItem["organization_unit"] = map[string]interface{}{
+					"title": relatedOrganizationUnit["title"],
+					"id":    relatedOrganizationUnit["id"],
+				}
+			}
+		}
+
 		items = append(items, mergedItem)
 	}
 
@@ -57,11 +78,23 @@ var ProgramOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 	var items []interface{}
 	var total int
 	var id int
-	var program = params.Args["program"]
-	if params.Args["id"] == nil {
-		id = 0
-	} else {
+	var typeProgram string
+	var search string
+
+	if params.Args["id"].(int) > 0 {
 		id = params.Args["id"].(int)
+	}
+
+	if params.Args["type"] == nil {
+		typeProgram = ""
+	} else {
+		typeProgram = params.Args["type"].(string)
+	}
+
+	if params.Args["search"] == nil {
+		search = ""
+	} else {
+		search = params.Args["search"].(string)
 	}
 
 	page := params.Args["page"]
@@ -73,12 +106,12 @@ var ProgramOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 	if err != nil {
 		fmt.Printf("Fetching Program failed because of this error - %s.\n", err)
 	}
-
-	if params.Args["search"] != nil {
-		ProgramData = shared.FindByProperty(ProgramData, "Title", params.Args["search"].(string), true)
+	// Filtering by search
+	if search != "" && shared.IsString(search) {
+		ProgramData = shared.FindByProperty(ProgramData, "Title", search, true)
 	}
 	// Populate data for each Basic Inventory Real Estates
-	items = ProgramItemProperties(ProgramData, id, program)
+	items = ProgramItemProperties(ProgramData, id, typeProgram)
 
 	total = len(items)
 
@@ -124,7 +157,7 @@ var ProgramInsertResolver = func(params graphql.ResolveParams) (interface{}, err
 	sliceData := []interface{}{data}
 
 	// Populate data for each Basic Inventory
-	var populatedData = ProgramItemProperties(sliceData, itemId)
+	var populatedData = ProgramItemProperties(sliceData, itemId, "")
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -144,8 +177,7 @@ var ProgramDeleteResolver = func(params graphql.ResolveParams) (interface{}, err
 	}
 
 	if shared.IsInteger(itemId) && itemId != 0 {
-		ProgramData = shared.FilterByProperty(ProgramData, "Id", itemId)
-		ProgramData = shared.FilterByProperty(ProgramData, "ParentId", itemId)
+		ProgramData = DeleteProgramChildren(itemId.(int), ProgramData)
 	}
 
 	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/program.json"), ProgramData)
@@ -154,4 +186,34 @@ var ProgramDeleteResolver = func(params graphql.ResolveParams) (interface{}, err
 		"status":  "success",
 		"message": "You deleted this item!",
 	}, nil
+}
+
+func DeleteProgramChildren(itemId int, data []interface{}) []interface{} {
+	toDelete := map[int]bool{itemId: true}
+	prevLen := 0
+
+	for len(toDelete) != prevLen {
+		prevLen = len(toDelete)
+		for _, item := range data {
+			if item, ok := item.(*structs.ProgramItem); ok {
+				id := item.Id
+				parentId := item.ParentId
+				if _, exists := toDelete[parentId]; exists {
+					toDelete[id] = true
+				}
+			}
+		}
+	}
+
+	var result []interface{}
+	for _, item := range data {
+		if item, ok := item.(*structs.ProgramItem); ok {
+			id := item.Id
+			if _, exists := toDelete[id]; !exists {
+				result = append(result, item)
+			}
+		}
+	}
+
+	return result
 }

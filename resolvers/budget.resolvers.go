@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/dto"
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
@@ -90,11 +91,11 @@ var BudgetOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 		items = shared.Pagination(items, page.(int), size.(int))
 	}
 
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "Here's the list you asked for!",
-		"total":   total,
-		"items":   items,
+	return dto.Response{
+		Status:  "success",
+		Message: "You fetched items!",
+		Items:   items,
+		Total:   total,
 	}, nil
 }
 

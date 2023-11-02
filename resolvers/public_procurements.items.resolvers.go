@@ -171,7 +171,7 @@ func isProcurementProcessed(procurementID int, organizationUnitID *int) bool {
 }
 
 func buildProcurementItemResponseItem(context context.Context, item *structs.PublicProcurementItem, organizationUnitID *int) (*dto.ProcurementItemResponseItem, error) {
-	if organizationUnitID != nil {
+	if organizationUnitID == nil {
 		organizationUnitID, _ = context.Value(config.OrganizationUnitIDKey).(*int) // assert the type
 	}
 

@@ -110,6 +110,9 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"active": &graphql.Field{
 			Type: graphql.Boolean,
 		},
+		"inactive": &graphql.Field{
+			Type: graphql.String,
+		},
 		"deactivation_description": &graphql.Field{
 			Type: graphql.String,
 		},

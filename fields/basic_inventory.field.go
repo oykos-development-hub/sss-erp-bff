@@ -53,6 +53,9 @@ var BasicInventoryDeactivateField = &graphql.Field{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
+		"inactive": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 		"deactivation_description": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},

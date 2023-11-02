@@ -198,6 +198,9 @@ var BasicInventoryDeactivateResolver = func(params graphql.ResolveParams) (inter
 		if deactivation_description, ok := params.Args["deactivation_description"].(string); ok {
 			item.DeactivationDescription = deactivation_description
 		}
+		if inactive, ok := params.Args["inactive"].(string); ok && inactive != "" {
+			item.Inactive = &inactive
+		}
 
 		_, err = updateInventoryItem(id, item)
 		if err != nil {
@@ -416,6 +419,7 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 
 	res := dto.BasicInventoryResponseListItem{
 		Id:                     item.Id,
+		Active:                 item.Active,
 		Type:                   item.Type,
 		Title:                  item.Title,
 		Location:               item.Location,
@@ -653,6 +657,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		DonorTitle:                   item.DonorTitle,
 		InvoiceNumber:                item.InvoiceNumber,
 		Active:                       item.Active,
+		Inactive:                     *item.Inactive,
 		DeactivationDescription:      item.DeactivationDescription,
 		DateOfAssessment:             item.DateOfAssessment,
 		PriceOfAssessment:            item.PriceOfAssessment,

@@ -74,7 +74,7 @@ type BasicInventoryInsertItem struct {
 	LifetimeOfAssessmentInMonths int                            `json:"lifetime_of_assessment_in_months"`
 	Active                       bool                           `json:"active"`
 	DeactivationDescription      string                         `json:"deactivation_description"`
-	Inactive                     *string                        `json:"inactive"`
+	Inactive                     string                         `json:"inactive"`
 	CreatedAt                    string                         `json:"created_at"`
 	UpdatedAt                    string                         `json:"updated_at"`
 	InvoiceFileId                int                            `json:"invoice_file_id"`

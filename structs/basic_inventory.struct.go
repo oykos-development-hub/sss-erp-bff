@@ -97,6 +97,7 @@ type BasicInventoryItem struct {
 	DateOfPurchase           string `json:"date_of_purchase"`
 	Source                   string `json:"source"`
 	Active                   bool   `json:"active"`
+	Location                 string `json:"location"`
 }
 
 type BasicInventoryItemDispatch struct {

@@ -204,9 +204,7 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 	sourceUserDropdown := dto.DropdownSimple{}
 	if item.SourceUserProfileId != 0 {
 		user, _ := getUserProfileById(item.SourceUserProfileId)
-		/*if err != nil {
-			// return nil, err
-		}*/
+
 		if user != nil {
 			sourceUserDropdown = dto.DropdownSimple{Id: user.Id, Title: user.FirstName + " " + user.LastName}
 		}
@@ -215,9 +213,7 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 	targetUserDropdown := dto.DropdownSimple{}
 	if item.TargetUserProfileId != 0 {
 		user, _ := getUserProfileById(item.TargetUserProfileId)
-		/*if err != nil {
-			 return nil, err
-		}*/
+
 		if user != nil {
 			targetUserDropdown = dto.DropdownSimple{Id: user.Id, Title: user.FirstName + " " + user.LastName}
 		}
@@ -226,9 +222,7 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 	sourceOrganizationUnitDropdown := dto.DropdownSimple{}
 	if item.SourceOrganizationUnitId != 0 {
 		sourceOrganizationUnit, _ := getOrganizationUnitById(item.SourceOrganizationUnitId)
-		/*if err != nil {
-			// return nil, err
-		}*/
+
 		if sourceOrganizationUnit != nil {
 			sourceOrganizationUnitDropdown = dto.DropdownSimple{Id: sourceOrganizationUnit.Id, Title: sourceOrganizationUnit.Title}
 		}
@@ -237,9 +231,7 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 	targetOrganizationUnitDropdown := dto.DropdownSimple{}
 	if item.TargetOrganizationUnitId != 0 {
 		targetOrganizationUnit, _ := getOrganizationUnitById(item.TargetOrganizationUnitId)
-		/*if err != nil {
-			// return nil, err
-		}*/
+
 		if targetOrganizationUnit != nil {
 			targetOrganizationUnitDropdown = dto.DropdownSimple{Id: targetOrganizationUnit.Id, Title: targetOrganizationUnit.Title}
 		}
@@ -263,15 +255,16 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 				return nil, err
 			}
 
-			item := dto.BasicInventoryResponseItem{
+			itemArr := dto.BasicInventoryResponseItem{
 				Id:              itemInventory.Id,
 				Type:            itemInventory.Type,
 				InventoryNumber: itemInventory.InventoryNumber,
 				Title:           itemInventory.Title,
 				GrossPrice:      itemInventory.GrossPrice,
 				SerialNumber:    itemInventory.SerialNumber,
+				Location:        itemInventory.Location,
 			}
-			inventoryItems = append(inventoryItems, item)
+			inventoryItems = append(inventoryItems, itemArr)
 		}
 	}
 

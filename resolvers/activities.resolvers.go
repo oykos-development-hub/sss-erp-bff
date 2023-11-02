@@ -69,9 +69,7 @@ var ActivitiesOverviewResolver = func(params graphql.ResolveParams) (interface{}
 	var total int
 	var id int
 	var organizationUnitId int
-	if params.Args["id"] == nil {
-		id = 0
-	} else {
+	if params.Args["id"].(int) > 0 {
 		id = params.Args["id"].(int)
 	}
 

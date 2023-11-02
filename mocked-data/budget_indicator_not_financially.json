@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "code": "123",
+    "source": "test",
+    "base_year": "2012",
+    "gender_equality": "test",
+    "base_value": "test",
+    "source_information": "test",
+    "unit": "test",
+    "description": "test",
+    "planned_current_year": "test",
+    "revised_current_year": "test",
+    "value_current_year": "test",
+    "planned_next_year": "test",
+    "revised_next_year": "test",
+    "value_next_year": "test",
+    "planned_after_next_year": "test",
+    "revised_after_next_year": "test",
+    "value_after_next_year": "test"
+  }
+]

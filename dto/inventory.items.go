@@ -92,7 +92,7 @@ type BasicInventoryResponseItem struct {
 	DepreciationRate             string                                                         `json:"depreciation_rate"`
 	AmortizationValue            int                                                            `json:"amortization_value"`
 	Active                       bool                                                           `json:"active"`
-	Inactive                     string                                                         `json:"inactive"`
+	Inactive                     *string                                                        `json:"inactive"`
 	DeactivationDescription      string                                                         `json:"deactivation_description"`
 	CreatedAt                    string                                                         `json:"created_at"`
 	UpdatedAt                    string                                                         `json:"updated_at"`

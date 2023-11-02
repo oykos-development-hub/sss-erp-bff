@@ -199,7 +199,7 @@ var BasicInventoryDeactivateResolver = func(params graphql.ResolveParams) (inter
 			item.DeactivationDescription = deactivation_description
 		}
 		if inactive, ok := params.Args["inactive"].(string); ok && inactive != "" {
-			item.Inactive = inactive
+			item.Inactive = &inactive
 		}
 
 		_, err = updateInventoryItem(id, item)

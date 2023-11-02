@@ -538,7 +538,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		if assessment.Id != 0 {
 			assessmentResponse, _ := buildAssessmentResponse(&assessment)
 			if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
-				depreciationTypeId = assessmentResponse.Id
+				depreciationTypeId = assessmentResponse.DepreciationType.Id
 				grossPrice = assessmentResponse.GrossPriceDifference
 			} else {
 				indexAssessments++
@@ -552,7 +552,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	lifetimeOfAssessmentInMonths := 0
 	amortizationValue := 0
 	depreciationRate := 100
-	if item.DepreciationTypeId != 0 {
+	if depreciationTypeId != 0 {
 		settings, _ := getDropdownSettingById(depreciationTypeId)
 
 		if settings != nil {

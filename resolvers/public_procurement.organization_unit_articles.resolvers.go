@@ -234,7 +234,7 @@ func buildProcurementOUArticleDetailsResponseItem(context context.Context, planI
 			if err != nil {
 				return nil, err
 			}
-			if procurementID != nil && resItem.Article.PublicProcurement.Id != *procurementID {
+			if resItem.Article.PublicProcurement.Id != item.Id {
 				continue
 			}
 			responseItem.Articles = append(responseItem.Articles, resItem)

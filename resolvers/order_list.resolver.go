@@ -283,7 +283,9 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 
 	for _, item := range articles {
 		currentArticle := item // work with a copy to avoid modifying the range variable
-		currentArticle.Price = currentArticle.NetPrice
+		articleVat, _ := strconv.ParseFloat(currentArticle.VatPercentage, 32)
+		articleVat32 := float32(articleVat)
+		currentArticle.Price = currentArticle.NetPrice + currentArticle.NetPrice*(articleVat32/100)
 		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
 			ArticleID: &currentArticle.Id,
 		}
@@ -296,8 +298,7 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 		if relatedOrderProcurementArticleResponse.Total > 0 {
 			for _, orderArticle := range relatedOrderProcurementArticleResponse.Data {
 				// if article is used in another order, deduct the amount to get Available articles
-				currentArticle.TotalPrice = currentArticle.TotalPrice * float32(currentArticle.Available-orderArticle.Amount/currentArticle.Available)
-				currentArticle.TotalPrice = currentArticle.TotalPrice * float32(currentArticle.Available-orderArticle.Amount/currentArticle.Available)
+				currentArticle.TotalPrice = currentArticle.Price * float32(orderArticle.Amount)
 				currentArticle.Available -= orderArticle.Amount
 			}
 		}
@@ -695,13 +696,6 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 
 	for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
 		if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleId]; exists {
-			/*articleUnitPrice := article.TotalPrice / float32(article.Amount)
-			articleTotalPrice := articleUnitPrice * float32(itemOrderArticle.Amount)
-			articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
-			articleVat32 := float32(articleVat)
-			vatPrice := articleTotalPrice * articleVat32 / 100
-			totalPrice += articleTotalPrice
-			totalNeto += vatPrice*/
 			articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
 			articleVat32 := float32(articleVat)
 			articleUnitPrice := article.NetPrice + article.NetPrice*articleVat32/100

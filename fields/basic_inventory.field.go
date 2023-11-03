@@ -24,6 +24,9 @@ var BasicInventoryOverviewField = &graphql.Field{
 		"type": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
+		"status": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 		"class_type_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},

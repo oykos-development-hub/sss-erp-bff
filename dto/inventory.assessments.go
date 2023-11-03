@@ -21,8 +21,8 @@ type BasicInventoryResponseAssessment struct {
 	Active               bool           `json:"active"`
 	DepreciationType     DropdownSimple `json:"depreciation_type"`
 	UserProfile          DropdownSimple `json:"user_profile"`
-	GrossPriceNew        int            `json:"gross_price_new"`
-	GrossPriceDifference int            `json:"gross_price_difference"`
+	GrossPriceNew        float32        `json:"gross_price_new"`
+	GrossPriceDifference float32        `json:"gross_price_difference"`
 	DateOfAssessment     *string        `json:"date_of_assessment"`
 	CreatedAt            string         `json:"created_at"`
 	UpdatedAt            string         `json:"updated_at"`

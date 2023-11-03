@@ -315,7 +315,7 @@ func ProcessOrderArticleItem(ctx context.Context, article structs.OrderArticleIt
 
 	articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
 	articleVat32 := float32(articleVat)
-	article.Price = article.NetPrice + article.NetPrice*(articleVat32/100)
+	currentArticle.Price = article.NetPrice + article.NetPrice*(articleVat32/100)
 
 	getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
 		ArticleID: &currentArticle.Id,

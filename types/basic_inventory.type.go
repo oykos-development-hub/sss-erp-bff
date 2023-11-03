@@ -69,10 +69,10 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"gross_price": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"purchase_gross_price": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"description": &graphql.Field{
 			Type: graphql.String,
@@ -177,10 +177,10 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"gross_price": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"purchase_gross_price": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"date_of_purchase": &graphql.Field{
 			Type: graphql.String,

@@ -63,10 +63,10 @@ var BasicInventoryInsertMutation = graphql.NewInputObject(graphql.InputObjectCon
 			Type: graphql.Int,
 		},
 		"net_price": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"gross_price": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

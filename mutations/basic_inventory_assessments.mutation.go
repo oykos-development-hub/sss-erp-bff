@@ -27,10 +27,10 @@ var BasicInventoryAssessmentsMutation = graphql.NewInputObject(graphql.InputObje
 			Type: graphql.Int,
 		},
 		"gross_price_new": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"gross_price_difference": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"date_of_assessment": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

@@ -24,10 +24,10 @@ var BasicInventoryAssessmentsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"gross_price_new": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"gross_price_difference": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"date_of_assessment": &graphql.Field{
 			Type: graphql.String,

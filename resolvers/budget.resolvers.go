@@ -49,7 +49,7 @@ var BudgetOverviewResolver = func(params graphql.ResolveParams) (interface{}, er
 	var year string
 	var typeBudget string
 
-	if params.Args["id"].(int) > 0 {
+	if params.Args["id"] != nil && params.Args["id"].(int) > 0 {
 		id = params.Args["id"].(int)
 	}
 

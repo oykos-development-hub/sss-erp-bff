@@ -13,7 +13,7 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_order": &graphql.Field{
 			Type: graphql.String,
 		},
-		"total_price": &graphql.Field{
+		"total_bruto": &graphql.Field{
 			Type: graphql.Float,
 		},
 		"total_neto": &graphql.Field{

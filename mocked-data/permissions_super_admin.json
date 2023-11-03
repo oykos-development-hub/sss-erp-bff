@@ -92,16 +92,6 @@
   {
     "create": true,
     "delete": true,
-    "id": 41,
-    "parent_id": 4,
-    "read": true,
-    "route": "/accounting/order-form",
-    "title": "Narudžbenica",
-    "update": true
-  },
-  {
-    "create": true,
-    "delete": true,
     "id": 5,
     "parent_id": 0,
     "read": true,

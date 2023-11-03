@@ -24,7 +24,7 @@ type GetOrderListInput struct {
 type OrderListOverviewResponse struct {
 	Id                  int                                    `json:"id"`
 	DateOrder           string                                 `json:"date_order" validate:"required"`
-	TotalPrice          float32                                `json:"total_price"`
+	TotalBruto          float32                                `json:"total_bruto"`
 	TotalNeto           float32                                `json:"total_neto"`
 	PublicProcurementID int                                    `json:"public_procurement_id"`
 	SupplierID          int                                    `json:"supplier_id"`

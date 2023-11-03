@@ -658,7 +658,7 @@ func getOrderProcurementArticles(input *dto.GetOrderProcurementArticleInput) (*d
 }
 
 func buildOrderListResponseItem(context context.Context, item *structs.OrderListItem) (*dto.OrderListOverviewResponse, error) {
-	totalPrice := float32(0.0)
+	totalBruto := float32(0.0)
 	totalNeto := float32(0.0)
 
 	procurementItem, err := getProcurementItem(item.PublicProcurementId)
@@ -695,13 +695,21 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 
 	for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
 		if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleId]; exists {
-			articleUnitPrice := article.TotalPrice / float32(article.Amount)
+			/*articleUnitPrice := article.TotalPrice / float32(article.Amount)
 			articleTotalPrice := articleUnitPrice * float32(itemOrderArticle.Amount)
 			articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
 			articleVat32 := float32(articleVat)
 			vatPrice := articleTotalPrice * articleVat32 / 100
 			totalPrice += articleTotalPrice
-			totalNeto += vatPrice
+			totalNeto += vatPrice*/
+			articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
+			articleVat32 := float32(articleVat)
+			articleUnitPrice := article.NetPrice + article.NetPrice*articleVat32/100
+			articleTotalPrice := articleUnitPrice * float32(itemOrderArticle.Amount)
+			totalBruto += articleTotalPrice
+			vat := articleTotalPrice * (100 - articleVat32) / 100
+			totalNeto += vat
+
 			articles = append(articles, dto.DropdownProcurementAvailableArticle{
 				Id:           itemOrderArticle.Id,
 				Title:        article.Title,
@@ -711,19 +719,16 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 				Available:    article.Available,
 				Amount:       itemOrderArticle.Amount,
 				TotalPrice:   articleTotalPrice,
-				Price:        article.NetPrice,
+				Price:        articleUnitPrice,
 			})
 		}
 	}
 
-	item.TotalPrice = totalPrice
-	totalNeto = totalPrice - totalNeto
-
 	res := dto.OrderListOverviewResponse{
 		Id:                  item.Id,
 		DateOrder:           (string)(item.DateOrder),
-		TotalPrice:          item.TotalPrice,
 		TotalNeto:           totalNeto,
+		TotalBruto:          totalBruto,
 		PublicProcurementID: procurementItem.Id,
 		PublicProcurement: &dto.DropdownSimple{
 			Id:    procurementItem.Id,

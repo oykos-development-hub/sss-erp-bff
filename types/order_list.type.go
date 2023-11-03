@@ -142,6 +142,9 @@ var OrderListProcurementAvailableArticlesType = graphql.NewObject(graphql.Object
 		"price": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"total_price": &graphql.Field{
+			Type: graphql.Float,
+		},
 	},
 })
 

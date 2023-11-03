@@ -136,7 +136,7 @@ var OrderListProcurementAvailableArticlesType = graphql.NewObject(graphql.Object
 		"amount": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"total_price": &graphql.Field{
+		"vat_percentage": &graphql.Field{
 			Type: graphql.Float,
 		},
 		"price": &graphql.Field{

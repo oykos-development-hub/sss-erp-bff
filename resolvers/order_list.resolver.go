@@ -14,10 +14,66 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func GetProcurementArticles(context context.Context, publicProcurementId int) ([]structs.OrderArticleItem, error) {
-	items := []structs.OrderArticleItem{}
+// processContractArticle refactored to only take context and contractArticle, and return an OrderArticleItem.
+func processContractArticle(ctx context.Context, contractArticle *structs.PublicProcurementContractArticle) (structs.OrderArticleItem, error) {
+	organizationUnitID, _ := ctx.Value(config.OrganizationUnitIDKey).(*int)
+
+	// Get the related public procurement article details.
+	relatedPublicProcurementArticle, err := getProcurementArticle(contractArticle.PublicProcurementArticleId)
+	if err != nil {
+		return structs.OrderArticleItem{}, err
+	}
+
+	// Build response item based on the related article and possibly organization unit.
+	resProcurementArticle, err := buildProcurementArticleResponseItem(ctx, relatedPublicProcurementArticle, organizationUnitID)
+	if err != nil {
+		return structs.OrderArticleItem{}, err
+	}
+
+	// Determine the amount based on the organization unit.
+	amount := resProcurementArticle.Amount
+	if organizationUnitID != nil && *organizationUnitID == 0 {
+		amount = resProcurementArticle.TotalAmount
+	}
+
+	// Get overages for the contract article.
+	overageList, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
+		ContractArticleID:  &contractArticle.Id,
+		OrganizationUnitID: organizationUnitID,
+	})
+	if err != nil {
+		return structs.OrderArticleItem{}, err
+	}
+
+	// Calculate the total overage amount.
+	overageTotal := 0
+	for _, item := range overageList {
+		overageTotal += item.Amount
+	}
+
+	// Build the new item with the calculated amounts.
+	newItem := structs.OrderArticleItem{
+		Id:            relatedPublicProcurementArticle.Id,
+		Description:   relatedPublicProcurementArticle.Description,
+		Title:         relatedPublicProcurementArticle.Title,
+		NetPrice:      relatedPublicProcurementArticle.NetPrice,
+		VatPercentage: relatedPublicProcurementArticle.VatPercentage,
+		Amount:        amount,
+		Available:     amount + overageTotal,
+		TotalPrice:    contractArticle.GrossValue,
+		Unit:          "kom",
+		Manufacturer:  relatedPublicProcurementArticle.Manufacturer,
+	}
+
+	return newItem, nil
+}
+
+// GetProcurementArticles simplified to utilize the refactored processContractArticle function.
+func GetProcurementArticles(ctx context.Context, publicProcurementId int) ([]structs.OrderArticleItem, error) {
+	var items []structs.OrderArticleItem
 	itemsMap := make(map[int]structs.OrderArticleItem)
 
+	// Get related contracts.
 	relatedContractsResponse, err := getProcurementContractsList(&dto.GetProcurementContractsInput{
 		ProcurementID: &publicProcurementId,
 	})
@@ -25,89 +81,42 @@ func GetProcurementArticles(context context.Context, publicProcurementId int) ([
 		return nil, err
 	}
 
+	// Process each contract.
 	for _, contract := range relatedContractsResponse.Data {
-		if err := processContract(context, &items, itemsMap, contract); err != nil {
+		relatedContractArticlesResponse, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
+			ContractID: &contract.Id,
+		})
+		if err != nil {
 			return nil, err
 		}
+
+		// Process each contract article.
+		for _, contractArticle := range relatedContractArticlesResponse.Data {
+			newItem, err := processContractArticle(ctx, contractArticle)
+			if err != nil {
+				return nil, err
+			}
+
+			if existingItem, exists := itemsMap[newItem.Id]; exists {
+				// Update the existing item in the map if it exists.
+				existingItem.Amount += newItem.Amount
+				existingItem.Available += newItem.Available
+				existingItem.TotalPrice += newItem.TotalPrice
+				itemsMap[newItem.Id] = existingItem
+			} else {
+				// Add new item to the map and slice.
+				itemsMap[newItem.Id] = newItem
+			}
+		}
+	}
+
+	// Convert map to slice.
+	items = make([]structs.OrderArticleItem, 0, len(itemsMap))
+	for _, item := range itemsMap {
+		items = append(items, item)
 	}
 
 	return items, nil
-}
-
-func processContract(context context.Context, items *[]structs.OrderArticleItem, itemsMap map[int]structs.OrderArticleItem, contract *structs.PublicProcurementContract) error {
-	relatedContractArticlesResponse, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
-		ContractID: &contract.Id,
-	})
-	if err != nil {
-		return err
-	}
-
-	for _, contractArticle := range relatedContractArticlesResponse.Data {
-		if err := processContractArticle(context, items, itemsMap, contractArticle); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func processContractArticle(context context.Context, items *[]structs.OrderArticleItem, itemsMap map[int]structs.OrderArticleItem, contractArticle *structs.PublicProcurementContractArticle) error {
-	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int)
-
-	relatedPublicProcurementArticle, err := getProcurementArticle(contractArticle.PublicProcurementArticleId)
-	if err != nil {
-		return err
-	}
-
-	resProcurementArticle, err := buildProcurementArticleResponseItem(context, relatedPublicProcurementArticle, organizationUnitID)
-	if err != nil {
-		return err
-	}
-
-	amount := resProcurementArticle.Amount
-	// all organization units
-	if organizationUnitID != nil && *organizationUnitID == 0 {
-		amount = resProcurementArticle.TotalAmount
-	}
-
-	overageList, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
-		ContractArticleID:  &contractArticle.Id,
-		OrganizationUnitID: organizationUnitID,
-	})
-	if err != nil {
-		return err
-	}
-
-	overageTotal := 0
-	for _, item := range overageList {
-		overageTotal += item.Amount
-	}
-
-	if existingItem, exists := itemsMap[contractArticle.PublicProcurementArticleId]; exists {
-		// Update the existing item
-		existingItem.Amount += amount
-		existingItem.Available += amount + overageTotal
-		existingItem.TotalPrice += contractArticle.GrossValue
-	} else {
-		// Add new item
-		newItem := structs.OrderArticleItem{
-			Id:            relatedPublicProcurementArticle.Id,
-			Description:   relatedPublicProcurementArticle.Description,
-			Title:         relatedPublicProcurementArticle.Title,
-			NetPrice:      relatedPublicProcurementArticle.NetPrice,
-			VatPercentage: relatedPublicProcurementArticle.VatPercentage,
-			Amount:        amount,
-			Available:     amount + overageTotal,
-			TotalPrice:    contractArticle.GrossValue,
-			Unit:          "kom",
-			Manufacturer:  relatedPublicProcurementArticle.Manufacturer,
-		}
-
-		*items = append(*items, newItem)
-		itemsMap[newItem.Id] = newItem
-	}
-
-	return nil
 }
 
 var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -282,11 +291,11 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 	}
 
 	for _, item := range articles {
-		currentArticle := item // work with a copy to avoid modifying the range variable
-		articleVat, _ := strconv.ParseFloat(currentArticle.VatPercentage, 32)
-		articleVat32 := float32(articleVat)
-		currentArticle.Price = currentArticle.NetPrice + currentArticle.NetPrice*(articleVat32/100)
-		items = append(items, currentArticle)
+		processedArticle, err := ProcessOrderArticleItem(ctx, item)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		items = append(items, processedArticle)
 	}
 
 	total = len(items)
@@ -297,6 +306,35 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 		Total:   total,
 		Items:   items,
 	}, nil
+}
+
+// ProcessOrderArticleItem processes a single order article item to calculate its available amount and total price
+func ProcessOrderArticleItem(ctx context.Context, article structs.OrderArticleItem) (structs.OrderArticleItem, error) {
+	var err error
+	currentArticle := article // work with a copy to avoid modifying the original
+
+	articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
+	articleVat32 := float32(articleVat)
+	article.Price = article.NetPrice + article.NetPrice*(articleVat32/100)
+
+	getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
+		ArticleID: &currentArticle.Id,
+	}
+
+	relatedOrderProcurementArticleResponse, err := getOrderProcurementArticles(&getOrderProcurementArticleInput)
+	if err != nil {
+		return currentArticle, err
+	}
+
+	if relatedOrderProcurementArticleResponse.Total > 0 {
+		for _, orderArticle := range relatedOrderProcurementArticleResponse.Data {
+			// if article is used in another order, deduct the amount to get Available articles
+			currentArticle.TotalPrice *= float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
+			currentArticle.Available -= orderArticle.Amount
+		}
+	}
+
+	return currentArticle, nil
 }
 
 var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interface{}, error) {

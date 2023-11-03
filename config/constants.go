@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"path"
 	"strconv"
 
 	"github.com/joho/godotenv"
@@ -27,6 +28,10 @@ const (
 
 var (
 	DEBUG bool
+
+	REPORT_DIR_PATH string
+	REPORT_DIR_NAME string
+	BASE_APP_DIR    string
 
 	CORE_FRONTEND         string
 	HR_FRONTEND           string
@@ -111,11 +116,17 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 
+	BASE_APP_DIR = os.Getenv("BASE_APP_DIR")
+
 	debugValue, err := strconv.ParseBool(os.Getenv("DEBUG"))
 	if err != nil {
 		log.Fatal("Error parsing debug config")
 	}
 	DEBUG = debugValue
+
+	REPORT_DIR_PATH = os.Getenv("REPORT_DIR")
+
+	REPORT_DIR_NAME = path.Base(REPORT_DIR_PATH)
 
 	CORE_FRONTEND = os.Getenv("CORE_FRONTEND_URL")
 	HR_FRONTEND = os.Getenv("HR_FRONTEND_URL")

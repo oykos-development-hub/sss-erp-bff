@@ -213,6 +213,24 @@ var PublicProcurementPlanItemDetailsType = graphql.NewObject(graphql.ObjectConfi
 	},
 })
 
+var PublicProcurementPlanItemPDFType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "PublicProcurementPlanItemPDF",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var PublicProcurementPlanItemInsertType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "PublicProcurementPlanItemInsert",
 	Fields: graphql.Fields{

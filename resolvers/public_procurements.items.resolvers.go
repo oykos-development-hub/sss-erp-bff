@@ -5,11 +5,22 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
+	"os"
 	"strconv"
+	"strings"
 
 	"github.com/graphql-go/graphql"
+	"github.com/jung-kurt/gofpdf"
+	"github.com/unidoc/unipdf/v3/common/license"
+	"github.com/unidoc/unipdf/v3/creator"
+	"github.com/unidoc/unipdf/v3/model"
 )
 
 var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -42,6 +53,218 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 		Items:   items,
 		Total:   len(items),
 	}, nil
+}
+
+var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(int)
+	ctx := params.Context
+
+	if params.Args["organization_unit_id"] != nil {
+		organizationUnitID := params.Args["organization_unit_id"].(int)
+		ctx = context.WithValue(ctx, config.OrganizationUnitIDKey, &organizationUnitID)
+	}
+
+	organizationUnitID, _ := ctx.Value(config.OrganizationUnitIDKey).(*int)
+	organizationUnitTitle := ""
+	if organizationUnitID != nil && *organizationUnitID != 0 {
+		organizationUnit, _ := getOrganizationUnitById(*organizationUnitID)
+		organizationUnitTitle = organizationUnit.Title
+	}
+
+	item, err := getProcurementItem(id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	resItem, _ := buildProcurementItemResponseItem(ctx, item, nil)
+
+	if resItem.Status != structs.PostProcurementStatusContracted {
+		return shared.HandleAPIError(errors.New("procurement must be contracted"))
+	}
+
+	contract, _ := getProcurementContract(*resItem.ContractID)
+	contractRes, _ := buildProcurementContractResponseItem(contract)
+	contractArticles, _ := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{ContractID: &contract.Id})
+
+	err = license.SetMeteredKey(os.Getenv("UNIDOC_LICENSE_API_KEY"))
+	if err != nil {
+		panic(err)
+	}
+
+	c := creator.New()
+	c.SetPageMargins(50, 50, 50, 50)
+	c.NewPage()
+
+	// Define fonts
+	fontRegular, err := model.NewCompositePdfFontFromTTFFile(config.BASE_APP_DIR + "fonts/RobotoSlab-VariableFont_wght.ttf")
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	fontBold, err := model.NewCompositePdfFontFromTTFFile(config.BASE_APP_DIR + "fonts/RobotoSlab-Bold.ttf")
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	// Add Title
+	title := c.NewParagraph("Izvještaj o potrošnji i dostupnim količinama")
+	title.SetFont(fontBold)
+	title.SetFontSize(18)
+	title.SetMargins(0, 0, 0, 30)
+	title.SetTextAlignment(creator.TextAlignmentCenter)
+	err = c.Draw(title)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	subtitles := []string{
+		"JAVNA NABAVKA: " + resItem.Title,
+		"ORGANIZACIONA JEDINICA: " + organizationUnitTitle,
+		"DOBAVLJAČ: " + contractRes.Supplier.Title,
+	}
+
+	createSubtitle := func(text string) *creator.Paragraph {
+		subtitle := c.NewParagraph(text)
+		subtitle.SetFont(fontRegular)
+		subtitle.SetFontSize(12)
+		subtitle.SetMargins(20, 0, 10, 0)
+		return subtitle
+	}
+
+	for _, text := range subtitles {
+		subtitle := createSubtitle(text)
+		err = c.Draw(subtitle)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	table := c.NewTable(5) // We will have 5 columns.
+	table.SetMargins(0, 0, 30, 10)
+
+	// Set the headers for the table.
+	headers := []string{"OPIS PREDMETA NABAVKE", "BITNE KARAKTERISTIKE", "UGOVORENA KOLIČINA", "DOSTUPNA KOLIČINA", "POTROŠENA KOLIČINA"}
+	for _, headerText := range headers {
+		paragraph := c.NewParagraph(headerText)
+		paragraph.SetFont(fontRegular)
+		paragraph.SetFontSize(9)
+		paragraph.SetMargins(2, 2, 2, 2)
+		cell := table.NewCell()
+		cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+		_ = cell.SetContent(paragraph)
+	}
+
+	for _, article := range contractArticles.Data {
+		articleRes, _ := buildProcurementContractArticlesResponseItem(ctx, article)
+		articleOrderItem, _ := processContractArticle(ctx, article)
+
+		columns := []string{
+			articleRes.Article.Title,
+			articleRes.Article.Description,
+			fmt.Sprintf("%d", articleRes.Amount),
+			fmt.Sprintf("%d", articleOrderItem.Available),
+			fmt.Sprintf("%d", articleRes.Amount-articleOrderItem.Available),
+		}
+
+		for _, colText := range columns {
+			paragraph := c.NewParagraph(colText)
+			paragraph.SetFont(fontRegular)
+			paragraph.SetFontSize(9)
+			paragraph.SetMargins(2, 2, 2, 2)
+			cell := table.NewCell()
+			cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+			cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+			cell.SetVerticalAlignment(creator.CellVerticalAlignmentMiddle)
+			_ = cell.SetContent(paragraph)
+		}
+
+	}
+
+	// Set font and encoding
+	err = c.Draw(table)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	var buf bytes.Buffer
+	err = c.Write(&buf)
+	if err != nil {
+		return nil, err
+	}
+
+	encodedStr := base64.StdEncoding.EncodeToString(buf.Bytes())
+
+	// Return the path or a URL to the file
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's is your PDF file in base64 encode format!",
+		Item:    encodedStr,
+	}, nil
+}
+
+func WrapText(pdf *gofpdf.Fpdf, text string, width float64) []string {
+	var wrapped []string
+	var currentLine string
+	var currentWidth float64
+	words := strings.Fields(text) // Split the text into words
+
+	for _, word := range words {
+		// Get the word width using the provided font
+		wordWidth := pdf.GetStringWidth(word + " ")
+		if currentWidth+wordWidth > width {
+			// Add the current line to the wrapped lines and start a new line
+			if currentLine != "" {
+				wrapped = append(wrapped, currentLine)
+				currentLine = ""
+			}
+			currentWidth = 0
+		}
+		// If the word itself exceeds the width, split the word
+		if wordWidth > width {
+			if currentWidth > 0 {
+				// Add the current line to wrapped lines before splitting the word
+				wrapped = append(wrapped, currentLine)
+				currentLine = ""
+				currentWidth = 0
+			}
+			splitWord := splitWordByWidth(pdf, word, width)
+			wrapped = append(wrapped, splitWord...) // Append split word lines to wrapped lines
+			continue
+		}
+		// Add the word to the line
+		currentLine += word + " "
+		currentWidth += wordWidth
+	}
+	// Add any remaining text as a line
+	if strings.TrimSpace(currentLine) != "" {
+		wrapped = append(wrapped, strings.TrimSpace(currentLine))
+	}
+	return wrapped
+}
+
+// Helper function to split a single word that is too wide to fit in the width
+func splitWordByWidth(pdf *gofpdf.Fpdf, word string, width float64) []string {
+	var lines []string
+	var currentPart string
+	var currentWidth float64
+
+	for _, runeValue := range word {
+		// Get the character width
+		charWidth := pdf.GetStringWidth(string(runeValue))
+		if currentWidth+charWidth > width {
+			lines = append(lines, currentPart)
+			currentPart = ""
+			currentWidth = 0
+		}
+		currentPart += string(runeValue)
+		currentWidth += charWidth
+	}
+
+	// Add the last part of the word
+	if currentPart != "" {
+		lines = append(lines, currentPart)
+	}
+	return lines
 }
 
 var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {

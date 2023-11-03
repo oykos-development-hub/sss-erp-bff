@@ -295,6 +295,7 @@ func main() {
 			"publicProcurementPlans_Overview":                    fields.PublicProcurementPlansOverviewField,
 			"publicProcurementPlan_Details":                      fields.PublicProcurementPlanDetailsField,
 			"publicProcurementPlanItem_Details":                  fields.PublicProcurementPlanItemDetailsField,
+			"publicProcurementPlanItem_PDF":                      fields.PublicProcurementPlanItemPDFField,
 			"publicProcurementPlanItem_Limits":                   fields.PublicProcurementPlanItemLimitsField,
 			"publicProcurementOrganizationUnitArticles_Overview": fields.PublicProcurementOrganizationUnitArticlesOverviewField,
 			"publicProcurementOrganizationUnitArticles_Details":  fields.PublicProcurementOrganizationUnitArticlesDetailsField,
@@ -338,6 +339,7 @@ func main() {
 	// Create a new HTTP handler function to serve the JSON files
 	fs := http.FileServer(http.Dir("mocked-data"))
 	http.Handle("/mocked-data/", http.StripPrefix("/mocked-data", fs))
+
 	// Create a CORS-enabled handler
 	corsHandler := handlers.CORS(
 		handlers.AllowedOrigins([]string{

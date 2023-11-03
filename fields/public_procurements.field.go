@@ -78,6 +78,20 @@ var PublicProcurementPlanItemDetailsField = &graphql.Field{
 	Resolve: resolvers.PublicProcurementPlanItemDetailsResolver,
 }
 
+var PublicProcurementPlanItemPDFField = &graphql.Field{
+	Type:        types.PublicProcurementPlanItemPDFType,
+	Description: "Returns the PDF URL of Public Procurement",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"organization_unit_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.PublicProcurementPlanItemPDFResolver,
+}
+
 var PublicProcurementPlanItemInsertField = &graphql.Field{
 	Type:        types.PublicProcurementPlanItemInsertType,
 	Description: "Creates new or alter existing Public Procurement item",

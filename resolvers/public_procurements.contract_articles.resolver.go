@@ -18,10 +18,10 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 
 	contract_id := params.Args["contract_id"]
 
-	var organizationUnitID *int
+	ctx := params.Context
 	if params.Args["organization_unit_id"] != nil {
-		organizationUnitIDValue := params.Args["organization_unit_id"].(int)
-		organizationUnitID = &organizationUnitIDValue
+		organizationUnitID := params.Args["organization_unit_id"].(int)
+		ctx = context.WithValue(ctx, config.OrganizationUnitIDKey, &organizationUnitID)
 	}
 
 	input := dto.GetProcurementContractArticlesInput{}
@@ -38,7 +38,7 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 	total = contractsRes.Total
 
 	for _, contractArticle := range contractsRes.Data {
-		resItem, err := buildProcurementContractArticlesResponseItem(params.Context, contractArticle, organizationUnitID)
+		resItem, err := buildProcurementContractArticlesResponseItem(ctx, contractArticle)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -73,7 +73,7 @@ var PublicProcurementContractArticleInsertResolver = func(params graphql.Resolve
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementContractArticlesResponseItem(params.Context, res, nil)
+		item, err := buildProcurementContractArticlesResponseItem(params.Context, res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -85,7 +85,7 @@ var PublicProcurementContractArticleInsertResolver = func(params graphql.Resolve
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementContractArticlesResponseItem(params.Context, res, nil)
+		item, err := buildProcurementContractArticlesResponseItem(params.Context, res)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -147,7 +147,9 @@ var PublicProcurementContractArticleOverageDeleteResolver = func(params graphql.
 	}, nil
 }
 
-func buildProcurementContractArticlesResponseItem(context context.Context, item *structs.PublicProcurementContractArticle, organizationUnitID *int) (*dto.ProcurementContractArticlesResponseItem, error) {
+func buildProcurementContractArticlesResponseItem(context context.Context, item *structs.PublicProcurementContractArticle) (*dto.ProcurementContractArticlesResponseItem, error) {
+	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int)
+
 	article, err := getProcurementArticle(item.PublicProcurementArticleId)
 	if err != nil {
 		return nil, err

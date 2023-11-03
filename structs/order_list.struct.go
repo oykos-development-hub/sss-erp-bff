@@ -9,7 +9,7 @@ type OrderListItem struct {
 	Status              string  `json:"status"`
 	DateSystem          *string `json:"date_system"`
 	InvoiceDate         *string `json:"invoice_date"`
-	InvoiceNumber       *int    `json:"invoice_number"`
+	InvoiceNumber       *string `json:"invoice_number"`
 	OrganizationUnitId  int     `json:"organization_unit_id"`
 	OfficeId            *int    `json:"office_id"`
 	RecipientUserId     *int    `json:"recipient_user_id"`
@@ -56,7 +56,7 @@ type OrderReceiveItem struct {
 	OrderId       int     `json:"order_id"`
 	DateSystem    string  `json:"date_system"`
 	InvoiceDate   string  `json:"invoice_date"`
-	InvoiceNumber int     `json:"invoice_number"`
+	InvoiceNumber string  `json:"invoice_number"`
 	Description   *string `json:"description"`
 }
 

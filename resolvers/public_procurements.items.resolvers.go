@@ -12,13 +12,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/graphql-go/graphql"
 	"github.com/jung-kurt/gofpdf"
-	"github.com/unidoc/unipdf/v3/common/license"
 	"github.com/unidoc/unipdf/v3/creator"
 	"github.com/unidoc/unipdf/v3/model"
 )
@@ -85,11 +83,6 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 	contract, _ := getProcurementContract(*resItem.ContractID)
 	contractRes, _ := buildProcurementContractResponseItem(contract)
 	contractArticles, _ := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{ContractID: &contract.Id})
-
-	err = license.SetMeteredKey(os.Getenv("UNIDOC_LICENSE_API_KEY"))
-	if err != nil {
-		panic(err)
-	}
 
 	c := creator.New()
 	c.SetPageMargins(50, 50, 50, 50)

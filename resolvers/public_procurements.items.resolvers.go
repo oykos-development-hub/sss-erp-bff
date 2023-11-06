@@ -3,6 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/dto"
+	"bff/pdfutils"
 	"bff/shared"
 	"bff/structs"
 	"bytes"
@@ -11,12 +12,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
-	"strings"
+	"time"
 
 	"github.com/graphql-go/graphql"
-	"github.com/jung-kurt/gofpdf"
 	"github.com/unidoc/unipdf/v3/creator"
 	"github.com/unidoc/unipdf/v3/model"
 )
@@ -100,14 +99,13 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 	}
 
 	// Add Title
-	title := c.NewParagraph("Izvještaj o potrošnji i dostupnim količinama")
-	title.SetFont(fontBold)
-	title.SetFontSize(18)
-	title.SetMargins(0, 0, 0, 30)
-	title.SetTextAlignment(creator.TextAlignmentCenter)
+	title, err := pdfutils.CreateTitle(c, "Izvještaj o potrošnji i dostupnim količinama", fontBold)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
 	err = c.Draw(title)
 	if err != nil {
-		log.Fatal(err)
+		return shared.HandleAPIError(err)
 	}
 
 	subtitles := []string{
@@ -116,68 +114,52 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 		"DOBAVLJAČ: " + contractRes.Supplier.Title,
 	}
 
-	createSubtitle := func(text string) *creator.Paragraph {
-		subtitle := c.NewParagraph(text)
-		subtitle.SetFont(fontRegular)
-		subtitle.SetFontSize(12)
-		subtitle.SetMargins(20, 0, 10, 0)
-		return subtitle
-	}
-
 	for _, text := range subtitles {
-		subtitle := createSubtitle(text)
+		subtitle, err := pdfutils.CreateSubtitle(c, text, fontRegular)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
 		err = c.Draw(subtitle)
 		if err != nil {
-			log.Fatal(err)
+			return shared.HandleAPIError(err)
 		}
 	}
 
-	table := c.NewTable(5) // We will have 5 columns.
-	table.SetMargins(0, 0, 30, 10)
-
 	// Set the headers for the table.
 	headers := []string{"OPIS PREDMETA NABAVKE", "BITNE KARAKTERISTIKE", "UGOVORENA KOLIČINA", "DOSTUPNA KOLIČINA", "POTROŠENA KOLIČINA"}
-	for _, headerText := range headers {
-		paragraph := c.NewParagraph(headerText)
-		paragraph.SetFont(fontRegular)
-		paragraph.SetFontSize(9)
-		paragraph.SetMargins(2, 2, 2, 2)
-		cell := table.NewCell()
-		cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
-		_ = cell.SetContent(paragraph)
-	}
+	tableData := [][]string{}
 
 	for _, article := range contractArticles.Data {
 		articleRes, _ := buildProcurementContractArticlesResponseItem(ctx, article)
 		articleOrderItem, _ := processContractArticle(ctx, article)
 
-		columns := []string{
+		rowData := []string{
 			articleRes.Article.Title,
 			articleRes.Article.Description,
 			fmt.Sprintf("%d", articleRes.Amount),
 			fmt.Sprintf("%d", articleOrderItem.Available),
 			fmt.Sprintf("%d", articleRes.Amount-articleOrderItem.Available),
 		}
-
-		for _, colText := range columns {
-			paragraph := c.NewParagraph(colText)
-			paragraph.SetFont(fontRegular)
-			paragraph.SetFontSize(9)
-			paragraph.SetMargins(2, 2, 2, 2)
-			cell := table.NewCell()
-			cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
-			cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
-			cell.SetVerticalAlignment(creator.CellVerticalAlignmentMiddle)
-			_ = cell.SetContent(paragraph)
-		}
-
+		tableData = append(tableData, rowData)
 	}
 
-	// Set font and encoding
+	table, err := pdfutils.CreateTable(c, headers, tableData, fontRegular)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
 	err = c.Draw(table)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
+	// Add a hook that is called before drawing each page
+	c.DrawFooter(func(block *creator.Block, args creator.FooterFunctionArgs) {
+		p := c.NewParagraph(time.Now().Format("2006-01-02"))
+		p.SetFont(fontRegular)
+		p.SetFontSize(10)
+		p.SetPos(50, 20)
+		p.SetColor(creator.ColorRGBFrom8bit(63, 68, 76))
+		_ = block.Draw(p)
+	})
 
 	var buf bytes.Buffer
 	err = c.Write(&buf)
@@ -193,71 +175,6 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 		Message: "Here's is your PDF file in base64 encode format!",
 		Item:    encodedStr,
 	}, nil
-}
-
-func WrapText(pdf *gofpdf.Fpdf, text string, width float64) []string {
-	var wrapped []string
-	var currentLine string
-	var currentWidth float64
-	words := strings.Fields(text) // Split the text into words
-
-	for _, word := range words {
-		// Get the word width using the provided font
-		wordWidth := pdf.GetStringWidth(word + " ")
-		if currentWidth+wordWidth > width {
-			// Add the current line to the wrapped lines and start a new line
-			if currentLine != "" {
-				wrapped = append(wrapped, currentLine)
-				currentLine = ""
-			}
-			currentWidth = 0
-		}
-		// If the word itself exceeds the width, split the word
-		if wordWidth > width {
-			if currentWidth > 0 {
-				// Add the current line to wrapped lines before splitting the word
-				wrapped = append(wrapped, currentLine)
-				currentLine = ""
-				currentWidth = 0
-			}
-			splitWord := splitWordByWidth(pdf, word, width)
-			wrapped = append(wrapped, splitWord...) // Append split word lines to wrapped lines
-			continue
-		}
-		// Add the word to the line
-		currentLine += word + " "
-		currentWidth += wordWidth
-	}
-	// Add any remaining text as a line
-	if strings.TrimSpace(currentLine) != "" {
-		wrapped = append(wrapped, strings.TrimSpace(currentLine))
-	}
-	return wrapped
-}
-
-// Helper function to split a single word that is too wide to fit in the width
-func splitWordByWidth(pdf *gofpdf.Fpdf, word string, width float64) []string {
-	var lines []string
-	var currentPart string
-	var currentWidth float64
-
-	for _, runeValue := range word {
-		// Get the character width
-		charWidth := pdf.GetStringWidth(string(runeValue))
-		if currentWidth+charWidth > width {
-			lines = append(lines, currentPart)
-			currentPart = ""
-			currentWidth = 0
-		}
-		currentPart += string(runeValue)
-		currentWidth += charWidth
-	}
-
-	// Add the last part of the word
-	if currentPart != "" {
-		lines = append(lines, currentPart)
-	}
-	return lines
 }
 
 var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {

@@ -317,14 +317,29 @@ func createDispatchItem(item *structs.BasicInventoryDispatchItem) (*structs.Basi
 				InventoryId: item.InventoryId[i],
 				DispatchId:  res.Data.Id,
 			}
-			if item.Type == "return-revers" {
+
+			if item.Type != "revers" {
 				inventory, err := getInventoryItem(item.InventoryId[i])
 				if err != nil {
 					return nil, err
 				}
 
-				inventory.TargetOrganizationUnitId = 0
-				inventory.TargetUserProfileId = 0
+				targetOrganizationUnitID := 0
+				targetUserProfileID := 0
+				officeID := 0
+
+				if item.Type == "allocation" {
+					targetOrganizationUnitID = item.TargetOrganizationUnitId
+					targetUserProfileID = item.TargetUserProfileId
+					officeID = item.OfficeId
+				}
+				if item.Type == "return" {
+					targetOrganizationUnitID = item.TargetOrganizationUnitId
+				}
+
+				inventory.TargetOrganizationUnitId = targetOrganizationUnitID
+				inventory.TargetUserProfileId = targetUserProfileID
+				inventory.OfficeId = officeID
 
 				_, err = updateInventoryItem(inventory.Id, inventory)
 				if err != nil {

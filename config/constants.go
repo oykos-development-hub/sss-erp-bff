@@ -94,6 +94,7 @@ var (
 
 	PLANS_ENDPOINT                     string
 	ITEMS_ENDPOINT                     string
+	FORGOT_PASSWORD                    string
 	ARTICLES_ENDPOINT                  string
 	CONTRACTS_ENDPOINT                 string
 	OU_LIMITS_ENDPOINT                 string
@@ -156,6 +157,7 @@ func init() {
 	SUPPLIERS_ENDPOINT = CORE_MS_BASE_URL + "/suppliers"
 	LOGGED_IN_USER_ENDPOINT = CORE_MS_BASE_URL + "/logged-in-user"
 	ACCOUNT_ENDPOINT = CORE_MS_BASE_URL + "/accounts"
+	FORGOT_PASSWORD = CORE_MS_BASE_URL + "/v2/users/password/forgot"
 
 	// HR MS endpoints
 	USER_PROFILES_ENDPOINT = HR_MS_BASE_URL + "/user-profiles"

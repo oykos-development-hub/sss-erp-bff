@@ -81,6 +81,7 @@ func authMiddleware(next http.Handler) http.Handler {
 		// Check for the operations that don't require authentication
 		if bytes.Contains(body, []byte("login")) ||
 			bytes.Contains(body, []byte("refresh")) ||
+			bytes.Contains(body, []byte("ForgotPassword")) ||
 			bytes.Contains(body, []byte("settingsDropdown_")) ||
 			bytes.Contains(body, []byte("jobPositions")) ||
 			bytes.Contains(body, []byte("userProfile_")) {
@@ -265,6 +266,7 @@ func main() {
 			"refresh":                      fields.RefreshField,
 			"pin":                          fields.PinField,
 			"userAccount_Overview":         fields.UserAccountField,
+			"userAccount_ForgotPassword":   fields.UserForgotPassword,
 			"settingsDropdown_Overview":    fields.SettingsDropdownField,
 			"organizationUnits":            fields.OrganizationUnitsField,
 			"jobPositions":                 fields.JobPositionsField,

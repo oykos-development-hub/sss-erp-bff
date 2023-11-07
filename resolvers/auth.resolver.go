@@ -91,6 +91,20 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	}, nil
 }
 
+var ForgotPasswordResolver = func(p graphql.ResolveParams) (interface{}, error) {
+	email := p.Args["email"].(string)
+
+	err := resetPassword(email)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Password reset successful",
+	}, nil
+}
+
 func RefreshTokenResolver(p graphql.ResolveParams) (interface{}, error) {
 	request, ok := p.Context.Value(config.Requestkey).(*http.Request)
 	if !ok {
@@ -140,6 +154,17 @@ func logout(token string) error {
 		return err
 	}
 
+	return nil
+}
+
+func resetPassword(email string) error {
+	reqBody := dto.ResetRequestMS{
+		Email: email,
+	}
+	_, err := shared.MakeAPIRequest("POST", config.FORGOT_PASSWORD, reqBody, nil)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

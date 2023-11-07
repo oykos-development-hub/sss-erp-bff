@@ -7,6 +7,10 @@ type LoginRequestMS struct {
 	Password string `json:"password"`
 }
 
+type ResetRequestMS struct {
+	Email string `json:"email"`
+}
+
 type PinRequestMS struct {
 	Pin string `json:"pin"`
 }

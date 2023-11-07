@@ -100,6 +100,21 @@ var RefreshTokenType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var ForgotPasswordType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ForgotPassword",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var LogoutType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Logout",
 	Fields: graphql.Fields{

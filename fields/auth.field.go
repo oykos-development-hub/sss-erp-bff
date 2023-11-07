@@ -32,3 +32,14 @@ var RefreshField = &graphql.Field{
 	Description: "Returns a basic data for logged in user",
 	Resolve:     resolvers.RefreshTokenResolver,
 }
+
+var UserForgotPassword = &graphql.Field{
+	Type:        types.ForgotPasswordType,
+	Description: "Sends a new password on e-mail",
+	Args: graphql.FieldConfigArgument{
+		"email": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+	},
+	Resolve: resolvers.ForgotPasswordResolver,
+}

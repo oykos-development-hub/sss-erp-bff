@@ -211,6 +211,7 @@ func buildOrganizationUnitOverviewResponse(
 		ParentId:       organizationUnits.ParentId,
 		NumberOfJudges: organizationUnits.NumberOfJudges,
 		Title:          organizationUnits.Title,
+		Pib:            organizationUnits.Pib,
 		Abbreviation:   organizationUnits.Abbreviation,
 		Color:          organizationUnits.Color,
 		City:           organizationUnits.City,

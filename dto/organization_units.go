@@ -27,6 +27,7 @@ type OrganizationUnitsOverviewResponse struct {
 	Abbreviation   string                       `json:"abbreviation"`
 	City           string                       `json:"city"`
 	Address        string                       `json:"address"`
+	Pib            string                       `json:"pib"`
 	Color          string                       `json:"color"`
 	Icon           string                       `json:"icon"`
 	FolderId       int                          `json:"folder_id"`

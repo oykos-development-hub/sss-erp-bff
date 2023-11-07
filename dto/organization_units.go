@@ -25,6 +25,7 @@ type OrganizationUnitsOverviewResponse struct {
 	Title          string                       `json:"title"`
 	Description    string                       `json:"description"`
 	Abbreviation   string                       `json:"abbreviation"`
+	City           string                       `json:"city"`
 	Address        string                       `json:"address"`
 	Color          string                       `json:"color"`
 	Icon           string                       `json:"icon"`

@@ -213,6 +213,7 @@ func buildOrganizationUnitOverviewResponse(
 		Title:          organizationUnits.Title,
 		Abbreviation:   organizationUnits.Abbreviation,
 		Color:          organizationUnits.Color,
+		City:           organizationUnits.City,
 		Description:    organizationUnits.Description,
 		Address:        organizationUnits.Address,
 		Icon:           organizationUnits.Icon,

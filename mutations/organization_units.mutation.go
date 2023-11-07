@@ -17,6 +17,9 @@ var OrganizationUnitInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"title": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"city": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"abbreviation": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

@@ -5,6 +5,7 @@ type OrganizationUnits struct {
 	ParentId       *int   `json:"parent_id,omitempty"`
 	NumberOfJudges int    `json:"number_of_judges"`
 	Title          string `json:"title"`
+	City           string `json:"city"`
 	Description    string `json:"description"`
 	Pib            string `json:"pib"`
 	Abbreviation   string `json:"abbreviation"`

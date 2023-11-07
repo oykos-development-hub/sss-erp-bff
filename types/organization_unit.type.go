@@ -37,6 +37,9 @@ var OrganizationUnitItemType = graphql.NewObject(graphql.ObjectConfig{
 		"icon": &graphql.Field{
 			Type: graphql.String,
 		},
+		"city": &graphql.Field{
+			Type: graphql.String,
+		},
 		"folder_id": &graphql.Field{
 			Type: graphql.Int,
 		},
@@ -78,6 +81,9 @@ var OrganizationUnitParentType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"children": &graphql.Field{
 			Type: graphql.NewList(OrganizationUnitItemType),
+		},
+		"city": &graphql.Field{
+			Type: graphql.String,
 		},
 		"folder_id": &graphql.Field{
 			Type: graphql.Int,

@@ -32,6 +32,26 @@
   {
     "create": true,
     "delete": true,
+    "id": 13,
+    "parent_id": 1,
+    "read": true,
+    "route": "/finance/liabilities-receivables",
+    "title": "Obaveze i potraživanja",
+    "update": true
+  },
+  {
+    "create": true,
+    "delete": true,
+    "id": 131,
+    "parent_id": 13,
+    "read": true,
+    "route": "/finance/liabilities-receivables/invoices-overview",
+    "title": "Unos računa",
+    "update": true
+  },
+  {
+    "create": true,
+    "delete": true,
     "id": 2,
     "parent_id": 0,
     "read": true,

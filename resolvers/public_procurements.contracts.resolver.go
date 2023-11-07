@@ -134,6 +134,22 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 		return nil, err
 	}
 
+	var files []dto.DropdownSimple
+
+	for _, id := range item.File {
+		file, err := getFileByID(id)
+		if err != nil {
+			return nil, err
+		}
+
+		fileDropDown := dto.DropdownSimple{
+			Id:    file.ID,
+			Title: file.Name,
+		}
+
+		files = append(files, fileDropDown)
+	}
+
 	res := dto.ProcurementContractResponseItem{
 		Id:                  item.Id,
 		PublicProcurementId: item.PublicProcurementId,
@@ -144,7 +160,7 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 		NetValue:            item.NetValue,
 		GrossValue:          item.GrossValue,
 		VatValue:            item.VatValue,
-		FileId:              item.FileId,
+		File:                files,
 		CreatedAt:           item.CreatedAt,
 		UpdatedAt:           item.UpdatedAt,
 		PublicProcurement: dto.DropdownSimple{
@@ -222,4 +238,14 @@ func getProcurementContractsList(input *dto.GetProcurementContractsInput) (*dto.
 	}
 
 	return res, nil
+}
+
+func getFileByID(id int) (*structs.File, error) {
+	res := &dto.GetFileResponsePom{}
+	_, err := shared.MakeAPIRequest("GET", config.FILES_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data.Data, nil
 }

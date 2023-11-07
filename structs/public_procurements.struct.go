@@ -93,7 +93,7 @@ type PublicProcurementContract struct {
 	VatValue            *float32 `json:"vat_value"`
 	CreatedAt           string   `json:"created_at"`
 	UpdatedAt           string   `json:"updated_at"`
-	FileId              *int     `json:"file_id"`
+	File                []int    `json:"file"`
 }
 
 type PublicProcurementContractArticle struct {

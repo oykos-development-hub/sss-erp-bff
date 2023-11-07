@@ -45,6 +45,7 @@ var (
 	PROCUREMENT_MS_BASE_URL     string
 	BASIC_INVENTORY_MS_BASE_URL string
 	ACCOUNTING_MS_BASE_URL      string
+	FILE_MS_BASE_URL            string
 
 	LOGIN_ENDPOINT          string
 	LOGOUT_ENDPOINT         string
@@ -108,6 +109,8 @@ var (
 
 	ORDER_LISTS_ENDPOINT                string
 	ORDER_PROCUREMENT_ARTICLES_ENDPOINT string
+
+	FILES_ENDPOINT string
 )
 
 func init() {
@@ -140,6 +143,7 @@ func init() {
 	PROCUREMENT_MS_BASE_URL = os.Getenv("PROCUREMENT_MS_BASE_URL")
 	BASIC_INVENTORY_MS_BASE_URL = os.Getenv("BASIC_INVENTORY_MS_BASE_URL")
 	ACCOUNTING_MS_BASE_URL = os.Getenv("ACCOUNTING_MS_BASE_URL")
+	FILE_MS_BASE_URL = os.Getenv("FILE_MS_BASE_URL")
 
 	// CORE MS endpoints
 	LOGIN_ENDPOINT = CORE_MS_BASE_URL + "/users/login"
@@ -208,4 +212,6 @@ func init() {
 	// accounting endpoints
 	ORDER_LISTS_ENDPOINT = ACCOUNTING_MS_BASE_URL + "/order-lists"
 	ORDER_PROCUREMENT_ARTICLES_ENDPOINT = ACCOUNTING_MS_BASE_URL + "/order-procurement-articles"
+
+	FILES_ENDPOINT = FILE_MS_BASE_URL + "/files"
 }

@@ -132,6 +132,7 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 	publicProcurementID := params.Args["public_procurement_id"]
 	status, statusOK := params.Args["status"].(string)
 	search, searchOk := params.Args["search"].(string)
+	activePlan, _ := params.Args["active_plan"].(bool)
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		orderList, err := getOrderListById(id.(int))
@@ -145,6 +146,41 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 		}
 		items = []dto.OrderListOverviewResponse{*orderListItem}
 		total = 1
+	} else if activePlan {
+		inputPlans := dto.GetProcurementPlansInput{}
+		plans, err := getProcurementPlanList(&inputPlans)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		currentYear := time.Now().Year()
+		inputOrderList := dto.GetOrderListInput{}
+		for _, plan := range plans {
+
+			if plan.Year <= strconv.Itoa(currentYear) {
+				item, _ := buildProcurementPlanResponseItem(params.Context, plan, nil)
+
+				if item.Status == dto.PlanStatusPostBudgetClosed {
+					if len(item.Items) > 0 {
+						for _, procurement := range item.Items {
+							inputOrderList.PublicProcurementID = &procurement.Id
+							orderLists, err := getOrderLists(&inputOrderList)
+							if err != nil {
+								return shared.HandleAPIError(err)
+							}
+							for _, orderList := range orderLists.Data {
+								orderListItem, err := buildOrderListResponseItem(params.Context, &orderList)
+								if err != nil {
+									return shared.HandleAPIError(err)
+								}
+								items = append(items, *orderListItem)
+							}
+						}
+					}
+
+					break
+				}
+			}
+		}
 	} else {
 		input := dto.GetOrderListInput{}
 
@@ -246,6 +282,7 @@ var OrderListInsertResolver = func(params graphql.ResolveParams) (interface{}, e
 		response.Item = item
 	} else {
 		listInsertItem.Status = "Created"
+		listInsertItem.IsUsed = false
 		res, err := createOrderListItem(listInsertItem)
 		if err != nil {
 			return shared.HandleAPIError(err)

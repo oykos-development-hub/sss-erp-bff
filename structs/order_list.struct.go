@@ -14,6 +14,7 @@ type OrderListItem struct {
 	OfficeId            *int    `json:"office_id"`
 	RecipientUserId     *int    `json:"recipient_user_id"`
 	Description         *string `json:"description"`
+	IsUsed              bool    `json:"is_used"`
 }
 
 type OrderProcurementArticleItem struct {
@@ -45,6 +46,7 @@ type OrderListInsertItem struct {
 	PublicProcurementId int                      `json:"public_procurement_id"`
 	SupplierId          int                      `json:"supplier_id"`
 	Articles            []OrderArticleInsertItem `json:"articles"`
+	IsUsed              bool                     `json:"is_used"`
 }
 
 type OrderArticleInsertItem struct {

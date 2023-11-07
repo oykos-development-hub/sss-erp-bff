@@ -33,6 +33,9 @@ var OrderListOverviewField = &graphql.Field{
 		"public_procurement_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"active_plan": &graphql.ArgumentConfig{
+			Type: graphql.Boolean,
+		},
 	},
 	Resolve: resolvers.OrderListOverviewResolver,
 }

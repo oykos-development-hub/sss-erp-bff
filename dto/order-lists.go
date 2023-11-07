@@ -36,6 +36,7 @@ type OrderListOverviewResponse struct {
 	OfficeID            int                                    `json:"office_id"`
 	RecipientUserID     *int                                   `json:"recipient_user_id"`
 	Description         *string                                `json:"description"`
+	IsUsed              bool                                   `json:"is_used"`
 	CreatedAt           string                                 `json:"created_at"`
 	UpdatedAt           string                                 `json:"updated_at"`
 	PublicProcurement   *DropdownSimple                        `json:"public_procurement"`

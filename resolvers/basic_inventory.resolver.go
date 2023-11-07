@@ -142,7 +142,15 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 		return shared.HandleAPIError(err)
 	}
 
-	for _, item := range data {
+	for i, item := range data {
+		if i == 0 && item.OrderListId != 0 {
+			orderList, _ := getOrderListById(item.OrderListId)
+			orderList.IsUsed = true
+			_, err := updateOrderListItem(item.OrderListId, orderList)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		}
 		item.Active = true
 		if shared.IsInteger(item.Id) && item.Id != 0 {
 			itemRes, err := updateInventoryItem(item.Id, &item)

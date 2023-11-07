@@ -589,7 +589,7 @@ var PublicProcurementContractItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"file": &graphql.Field{
-			Type: graphql.NewList(DropdownItemType),
+			Type: graphql.NewList(FileDropdownItemType),
 		},
 	},
 })

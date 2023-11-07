@@ -134,7 +134,7 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 		return nil, err
 	}
 
-	var files []dto.DropdownSimple
+	var files []dto.FileDropdownSimple
 
 	for _, id := range item.File {
 		file, err := getFileByID(id)
@@ -142,9 +142,10 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 			return nil, err
 		}
 
-		fileDropDown := dto.DropdownSimple{
-			Id:    file.ID,
-			Title: file.Name,
+		fileDropDown := dto.FileDropdownSimple{
+			Id:   file.ID,
+			Name: file.Name,
+			Type: *file.Type,
 		}
 
 		files = append(files, fileDropDown)

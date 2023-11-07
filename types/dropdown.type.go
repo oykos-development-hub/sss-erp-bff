@@ -14,6 +14,21 @@ var DropdownItemType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var FileDropdownItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DropdownItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"name": &graphql.Field{
+			Type: graphql.String,
+		},
+		"type": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var DropdownBudgetIndentItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DropdownBudgetIndentItem",
 	Fields: graphql.Fields{

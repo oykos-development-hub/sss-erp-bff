@@ -15,7 +15,9 @@ type OrderListItem struct {
 	RecipientUserId     *int    `json:"recipient_user_id"`
 	Description         *string `json:"description"`
 	IsUsed              bool    `json:"is_used"`
-	File                []int   `json:"file"`
+	OrderFile           *int    `json:"order_file"`
+	ReceiveFile         *int    `json:"receive_file"`
+	MovementFile        *int    `json:"movement_file"`
 }
 
 type OrderProcurementArticleItem struct {
@@ -48,7 +50,7 @@ type OrderListInsertItem struct {
 	SupplierId          int                      `json:"supplier_id"`
 	Articles            []OrderArticleInsertItem `json:"articles"`
 	IsUsed              bool                     `json:"is_used"`
-	File                []int                    `json:"file"`
+	OrderFile           int                      `json:"order_file"`
 }
 
 type OrderArticleInsertItem struct {
@@ -62,10 +64,12 @@ type OrderReceiveItem struct {
 	InvoiceDate   string  `json:"invoice_date"`
 	InvoiceNumber string  `json:"invoice_number"`
 	Description   *string `json:"description"`
+	ReceiveFile   *int    `json:"receive_file"`
 }
 
 type OrderAssetMovementItem struct {
-	OrderId         int `json:"order_id"`
-	OfficeId        int `json:"office_id"`
-	RecipientUserId int `json:"recipient_user_id"`
+	OrderId         int  `json:"order_id"`
+	OfficeId        int  `json:"office_id"`
+	RecipientUserId int  `json:"recipient_user_id"`
+	MovementFile    *int `json:"movement_file"`
 }

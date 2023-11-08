@@ -26,8 +26,8 @@ var OrderListInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"articles": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(ArticlesInsertMutation),
 		},
-		"file": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(graphql.Int),
+		"order_file": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
 		},
 	},
 })
@@ -50,6 +50,9 @@ var OrderListReceiveMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"receive_file": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 	},
 })
 
@@ -63,6 +66,9 @@ var OrderListAssetMovementMutation = graphql.NewInputObject(graphql.InputObjectC
 			Type: graphql.Int,
 		},
 		"recipient_user_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"movement_file": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 	},

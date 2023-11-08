@@ -393,6 +393,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 	orderList.Status = "Movement"
 	orderList.RecipientUserId = &data.RecipientUserId
 	orderList.OfficeId = &data.OfficeId
+	orderList.MovementFile = data.MovementFile
 
 	_, err = updateOrderListItem(data.OrderId, orderList)
 	if err != nil {
@@ -522,6 +523,7 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	orderList.InvoiceNumber = &data.InvoiceNumber
 	orderList.DateSystem = &data.DateSystem
 	orderList.InvoiceDate = &data.InvoiceDate
+	orderList.ReceiveFile = data.ReceiveFile
 	if data.Description != nil {
 		orderList.Description = data.Description
 	}
@@ -696,7 +698,7 @@ func buildOrderListInsertItem(context context.Context, item *structs.OrderListIn
 		TotalPrice:          totalPrice,
 		PublicProcurementId: item.PublicProcurementId,
 		SupplierId:          supplierId,
-		File:                item.File,
+		OrderFile:           &item.OrderFile,
 	}
 
 	// Getting organizationUnitId from job position
@@ -782,20 +784,44 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		}
 	}
 
-	var files []dto.FileDropdownSimple
+	defaultFile := dto.FileDropdownSimple{
+		Id:   0,
+		Name: "",
+		Type: "",
+	}
 
-	for _, id := range item.File {
-		file, err := getFileByID(id)
+	orderFile := defaultFile
+	receiveFile := defaultFile
+	movementFile := defaultFile
+
+	if item.OrderFile != nil {
+		file, err := getFileByID(*item.OrderFile)
 		if err != nil {
 			return nil, err
 		}
+		orderFile.Id = *item.OrderFile
+		orderFile.Name = file.Name
+		orderFile.Type = *file.Type
+	}
 
-		files = append(files, dto.FileDropdownSimple{
-			Id:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
-		})
+	if item.ReceiveFile != nil {
+		file, err := getFileByID(*item.ReceiveFile)
+		if err != nil {
+			return nil, err
+		}
+		receiveFile.Id = file.ID
+		receiveFile.Name = file.Name
+		receiveFile.Type = *file.Type
+	}
 
+	if item.MovementFile != nil {
+		file, err := getFileByID(*item.MovementFile)
+		if err != nil {
+			return nil, err
+		}
+		movementFile.Id = file.ID
+		movementFile.Name = file.Name
+		movementFile.Type = *file.Type
 	}
 
 	res := dto.OrderListOverviewResponse{
@@ -816,7 +842,9 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		Description:        item.Description,
 		Status:             item.Status,
 		Articles:           &articles,
-		File:               files,
+		OrderFile:          orderFile,
+		ReceiveFile:        receiveFile,
+		MovementFile:       movementFile,
 	}
 
 	if item.RecipientUserId != nil {

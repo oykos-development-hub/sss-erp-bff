@@ -168,10 +168,14 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 								return shared.HandleAPIError(err)
 							}
 							for _, orderList := range orderLists.Data {
+								if orderList.IsUsed {
+									continue
+								}
 								orderListItem, err := buildOrderListResponseItem(params.Context, &orderList)
 								if err != nil {
 									return shared.HandleAPIError(err)
 								}
+
 								items = append(items, *orderListItem)
 							}
 						}

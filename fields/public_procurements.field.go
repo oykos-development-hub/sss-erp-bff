@@ -141,7 +141,7 @@ var PublicProcurementPlanItemArticleInsertField = &graphql.Field{
 	Description: "Creates new or alter existing Article for a specific Public Procurement item",
 	Args: graphql.FieldConfigArgument{
 		"data": &graphql.ArgumentConfig{
-			Type: graphql.NewNonNull(mutations.PublicProcurementPlanItemArticleInsertMutation),
+			Type: graphql.NewList(mutations.PublicProcurementPlanItemArticleInsertMutation),
 		},
 	},
 	Resolve: resolvers.PublicProcurementPlanItemArticleInsertResolver,

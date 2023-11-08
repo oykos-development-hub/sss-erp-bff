@@ -13,7 +13,7 @@ import (
 )
 
 var PublicProcurementPlanItemArticleInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.PublicProcurementArticle
+	var data []structs.PublicProcurementArticle
 	response := dto.ResponseSingle{
 		Status: "success",
 	}
@@ -25,34 +25,35 @@ var PublicProcurementPlanItemArticleInsertResolver = func(params graphql.Resolve
 		return shared.HandleAPIError(err)
 	}
 
-	itemId := data.Id
+	var items []*dto.ProcurementArticleResponseItem
+	for _, item := range data {
+		itemId := item.Id
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := updateProcurementArticle(itemId, &data)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		item, err := buildProcurementArticleResponseItem(params.Context, res, nil)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
+		if shared.IsInteger(itemId) && itemId != 0 {
+			res, err := updateProcurementArticle(itemId, &item)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			item, err := buildProcurementArticleResponseItem(params.Context, res, nil)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
 
-		response.Message = "You updated this item!"
-		response.Item = item
-	} else {
-		res, err := createProcurementArticle(&data)
-		if err != nil {
-			return shared.HandleAPIError(err)
+			items = append(items, item)
+		} else {
+			res, err := createProcurementArticle(&item)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			item, err := buildProcurementArticleResponseItem(params.Context, res, nil)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			items = append(items, item)
+			response.Message = "You created this item!"
 		}
-		item, err := buildProcurementArticleResponseItem(params.Context, res, nil)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		response.Message = "You created this item!"
-		response.Item = item
 	}
-
+	response.Item = items
 	return response, nil
 }
 

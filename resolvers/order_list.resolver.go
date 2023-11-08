@@ -794,7 +794,9 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 	receiveFile := defaultFile
 	movementFile := defaultFile
 
-	if item.OrderFile != nil {
+	zero := 0
+
+	if item.OrderFile != nil && item.OrderFile != &zero {
 		file, err := getFileByID(*item.OrderFile)
 		if err != nil {
 			return nil, err
@@ -804,7 +806,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		orderFile.Type = *file.Type
 	}
 
-	if item.ReceiveFile != nil {
+	if item.ReceiveFile != nil && item.ReceiveFile != &zero {
 		file, err := getFileByID(*item.ReceiveFile)
 		if err != nil {
 			return nil, err
@@ -814,7 +816,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		receiveFile.Type = *file.Type
 	}
 
-	if item.MovementFile != nil {
+	if item.MovementFile != nil && item.MovementFile != &zero {
 		file, err := getFileByID(*item.MovementFile)
 		if err != nil {
 			return nil, err

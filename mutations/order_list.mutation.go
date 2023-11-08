@@ -26,6 +26,9 @@ var OrderListInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"articles": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(ArticlesInsertMutation),
 		},
+		"file": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
 	},
 })
 

@@ -696,6 +696,7 @@ func buildOrderListInsertItem(context context.Context, item *structs.OrderListIn
 		TotalPrice:          totalPrice,
 		PublicProcurementId: item.PublicProcurementId,
 		SupplierId:          supplierId,
+		File:                item.File,
 	}
 
 	// Getting organizationUnitId from job position
@@ -781,6 +782,22 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		}
 	}
 
+	var files []dto.FileDropdownSimple
+
+	for _, id := range item.File {
+		file, err := getFileByID(id)
+		if err != nil {
+			return nil, err
+		}
+
+		files = append(files, dto.FileDropdownSimple{
+			Id:   file.ID,
+			Name: file.Name,
+			Type: *file.Type,
+		})
+
+	}
+
 	res := dto.OrderListOverviewResponse{
 		Id:                  item.Id,
 		DateOrder:           (string)(item.DateOrder),
@@ -799,6 +816,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		Description:        item.Description,
 		Status:             item.Status,
 		Articles:           &articles,
+		File:               files,
 	}
 
 	if item.RecipientUserId != nil {

@@ -44,4 +44,5 @@ type OrderListOverviewResponse struct {
 	RecipientUser       *DropdownSimple                        `json:"recipient_user"`
 	Office              *DropdownSimple                        `json:"office"`
 	Articles            *[]DropdownProcurementAvailableArticle `json:"articles"`
+	File                []FileDropdownSimple                   `json:"file"`
 }

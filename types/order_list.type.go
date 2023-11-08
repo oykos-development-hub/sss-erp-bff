@@ -52,6 +52,9 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		"description": &graphql.Field{
 			Type: graphql.String,
 		},
+		"file": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
+		},
 	},
 })
 

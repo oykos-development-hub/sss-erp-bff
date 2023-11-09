@@ -800,18 +800,20 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//title
 	pTitleParagraph := c.NewStyledParagraph()
-	pTitleParagraphBoldText := "Korisnik pokretnih stvari u državnoj svojini"
+	pTitleParagraph.SetMargins(5, 5, 10, 10)
+	pTitleParagraph.SetTextAlignment(creator.TextAlignmentCenter)
+	pTitleParagraphBoldText := "Korisnik pokretnih stvari u državnoj svojini "
 	pTitleParagraphText := "(državni organi,organi lokalne samouprave i javne službe čiji je osnivač Crna Gora, odnosno lokalna samouprava)"
 
 	pTitleParagraph.Append(pTitleParagraphBoldText).Style.Font = fontBold
 	pTitleParagraph.Append(pTitleParagraphText).Style.Font = fontRegular
 	cell := table.NewCell()
 	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
-	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentCenter)
 	_ = cell.SetContent(pTitleParagraph)
 
 	//Name of Organization unit
 	pNameOUParagraph := c.NewStyledParagraph()
+	pNameOUParagraph.SetMargins(5, 5, 10, 10)
 	pNameOUParagraphText := "1. Naziv: "
 	pNameOUParagraphBoldText := items.OrganizationUnit.Title
 
@@ -824,6 +826,7 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//City
 	pCityOUParagraph := c.NewStyledParagraph()
+	pCityOUParagraph.SetMargins(5, 5, 10, 10)
 	pCityOUParagraphText := "2. Sjedište (mjesto,opština): "
 	pCityOUParagraphBoldText := organizationUnit.City
 
@@ -836,6 +839,7 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//Address
 	pAddressOUParagraph := c.NewStyledParagraph()
+	pAddressOUParagraph.SetMargins(5, 5, 10, 10)
 	pAddressOUParagraphText := "3. Adresa (ulica,broj,sprat,kancelarija): "
 	pAddressOUParagraphBoldText := organizationUnit.Address
 
@@ -844,10 +848,12 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	cell = table.NewCell()
 	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
 	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+
 	_ = cell.SetContent(pAddressOUParagraph)
 
 	//Djelatnost
 	pDjelatnostParagraph := c.NewStyledParagraph()
+	pDjelatnostParagraph.SetMargins(5, 5, 10, 10)
 	pDjelatnostParagraphText := "4. Djelatnost (šifra): "
 	pDjelatnostParagraphBoldText := "84.23 Sudske i pravosudne djelatnosti"
 
@@ -860,28 +866,31 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//Movable inventory title
 	pMovableTitleParagraph := c.NewStyledParagraph()
+	pMovableTitleParagraph.SetMargins(5, 5, 10, 10)
+	pMovableTitleParagraph.SetTextAlignment(creator.TextAlignmentCenter)
 	pMovableTitleParagraphBoldText := "Pokretne stvari"
 
 	pMovableTitleParagraph.Append(pMovableTitleParagraphBoldText).Style.Font = fontBold
 	cell = table.NewCell()
 	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
-	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentCenter)
 	_ = cell.SetContent(pMovableTitleParagraph)
 
 	//Name Inventory
 	pNameInventoryParagraph := c.NewStyledParagraph()
+	pNameInventoryParagraph.SetMargins(5, 5, 10, 10)
 	pNameInventoryParagraphText := "1. Vrsta (oprema, prevozna sredstva i druge pokretne stvari koje se koriste za obavljanje funkcije): "
 	pNameInventoryParagraphBoldText := items.Title
 
 	pNameInventoryParagraph.Append(pNameInventoryParagraphText).Style.Font = fontRegular
 	pNameInventoryParagraph.Append(pNameInventoryParagraphBoldText).Style.Font = fontBold
-
+	cell = table.NewCell()
 	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
 	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
 	_ = cell.SetContent(pNameInventoryParagraph)
 
 	//Amount
 	pAmountParagraph := c.NewStyledParagraph()
+	pAmountParagraph.SetMargins(5, 5, 10, 10)
 	pAmountParagraphText := "2. Količina,komad i broj: "
 	pAmountParagraphBoldText := "1"
 
@@ -894,6 +903,7 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//InventoryNumber
 	pInventoryNumberParagraph := c.NewStyledParagraph()
+	pInventoryNumberParagraph.SetMargins(5, 5, 10, 10)
 	pInventoryNumberParagraphText := "3. Inventarski broj: "
 	pInventoryNumberParagraphBoldText := items.InventoryNumber
 
@@ -906,6 +916,7 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//Source
 	pSourceParagraph := c.NewStyledParagraph()
+	pSourceParagraph.SetMargins(5, 5, 10, 10)
 	pSourceParagraphText := "4. Način sticanja: "
 	pSourceParagraphBoldText := items.Source
 
@@ -918,6 +929,7 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//LifetimeOfAssessmentInMonths
 	pLifetimeOfAssessmentInMonthsParagraph := c.NewStyledParagraph()
+	pLifetimeOfAssessmentInMonthsParagraph.SetMargins(5, 5, 10, 10)
 	pLifetimeOfAssessmentInMonthsParagraphText := "5. Vijek trajanja: "
 	pLifetimeOfAssessmentInMonthsParagraphBoldText := fmt.Sprintf("%d", items.LifetimeOfAssessmentInMonths)
 
@@ -930,6 +942,7 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//PurchaseGrossPrice
 	pPurchaseGrossPriceParagraph := c.NewStyledParagraph()
+	pPurchaseGrossPriceParagraph.SetMargins(5, 5, 10, 10)
 	pPurchaseGrossPriceParagraphText := "6. Nabavna vrijednost: "
 	pPurchaseGrossPriceParagraphBoldText := fmt.Sprintf("%v", items.PurchaseGrossPrice)
 
@@ -942,6 +955,7 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//AmortizationValue
 	pAmortizationValueParagraph := c.NewStyledParagraph()
+	pAmortizationValueParagraph.SetMargins(5, 5, 10, 10)
 	pAmortizationValueParagraphText := "7. Ispravka  vrijednosti(ispravka/otpis vrijednosti predhodnih godina + amortizacija) : "
 	pAmortizationValueParagraphBoldText := fmt.Sprintf("€%v", items.AmortizationValue)
 
@@ -954,6 +968,7 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//GrossPrice
 	pGrossPriceParagraph := c.NewStyledParagraph()
+	pGrossPriceParagraph.SetMargins(5, 5, 10, 10)
 	pGrossPriceParagraphText := "8. Knjigovodstvena vrijednost / fer vrijednost (procijenjena vrijednost): "
 	pGrossPriceParagraphBoldText := fmt.Sprintf("€%v", items.GrossPrice)
 
@@ -966,7 +981,7 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//Note
 	pNoteParagraph := c.NewStyledParagraph()
-
+	pNoteParagraph.SetMargins(5, 5, 10, 10)
 	pNoteParagraphBoldText := "Napomena: "
 
 	pNoteParagraph.Append(pNoteParagraphBoldText).Style.Font = fontBold
@@ -977,7 +992,8 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 
 	//Footer
 	pFooterParagraph := c.NewStyledParagraph()
-	pFooterLeftParagraphText := "Datum _____________                                          M.P                                          Starješina organa______________"
+	pFooterParagraph.SetMargins(5, 5, 10, 10)
+	pFooterLeftParagraphText := "Datum _____________                                     M.P                                     Starješina organa______________"
 
 	cell = table.NewCell()
 	pFooterParagraph.Append(pFooterLeftParagraphText).Style.Font = fontRegular

@@ -744,6 +744,336 @@ func getDispatchItemByInventoryID(id int) ([]*structs.BasicInventoryDispatchItem
 	return res1.Data, nil
 }
 
+var FormNS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(int)
+
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || organizationUnitID == nil {
+		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+	}
+
+	organizationUnit, err := getOrganizationUnitById(*organizationUnitID)
+	if err != nil {
+		return nil, err
+	}
+
+	Item, err := getInventoryItem(id)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	items, err := buildInventoryItemResponse(Item, *organizationUnitID)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	c := creator.New()
+	c.SetPageMargins(50, 50, 50, 30)
+	c.NewPage()
+
+	// Define fonts
+	fontRegular, err := model.NewCompositePdfFontFromTTFFile(config.BASE_APP_DIR + "fonts/RobotoSlab-VariableFont_wght.ttf")
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	fontBold, err := model.NewCompositePdfFontFromTTFFile(config.BASE_APP_DIR + "fonts/RobotoSlab-Bold.ttf")
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	textTitle := "Obrazac " + items.SourceType
+
+	// Add Title
+	title, err := pdfutils.CreateTitle(c, textTitle, fontBold)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	err = c.Draw(title)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	// Create table with a single column.
+	table := c.NewTable(1)
+	table.SetMargins(0, 0, 10, 0)
+
+	//title
+	pTitleParagraph := c.NewStyledParagraph()
+	pTitleParagraph.SetMargins(5, 5, 10, 10)
+	pTitleParagraph.SetTextAlignment(creator.TextAlignmentCenter)
+	pTitleParagraphBoldText := "Korisnik nepokretnih stvari u državnoj svojini "
+	pTitleParagraphText := "(državni organi,organi lokalne samouprave i javne službe čiji je osnivač Crna Gora, odnosno lokalna samouprava)"
+
+	pTitleParagraph.Append(pTitleParagraphBoldText).Style.Font = fontBold
+	pTitleParagraph.Append(pTitleParagraphText).Style.Font = fontRegular
+	cell := table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	_ = cell.SetContent(pTitleParagraph)
+
+	//Name of Organization unit
+	pNameOUParagraph := c.NewStyledParagraph()
+	pNameOUParagraph.SetMargins(5, 5, 7, 7)
+	pNameOUParagraphText := "1. Naziv: "
+	pNameOUParagraphBoldText := items.OrganizationUnit.Title
+
+	pNameOUParagraph.Append(pNameOUParagraphText).Style.Font = fontRegular
+	pNameOUParagraph.Append(pNameOUParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pNameOUParagraph)
+
+	//City
+	pCityOUParagraph := c.NewStyledParagraph()
+	pCityOUParagraph.SetMargins(5, 5, 7, 7)
+	pCityOUParagraphText := "2. Sjedište (mjesto,opština): "
+	pCityOUParagraphBoldText := organizationUnit.City
+
+	pCityOUParagraph.Append(pCityOUParagraphText).Style.Font = fontRegular
+	pCityOUParagraph.Append(pCityOUParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pCityOUParagraph)
+
+	//Address
+	pAddressOUParagraph := c.NewStyledParagraph()
+	pAddressOUParagraph.SetMargins(5, 5, 7, 7)
+	pAddressOUParagraphText := "3. Adresa (ulica,broj,sprat,kancelarija): "
+	pAddressOUParagraphBoldText := organizationUnit.Address
+
+	pAddressOUParagraph.Append(pAddressOUParagraphText).Style.Font = fontRegular
+	pAddressOUParagraph.Append(pAddressOUParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+
+	_ = cell.SetContent(pAddressOUParagraph)
+
+	//Djelatnost
+	pDjelatnostParagraph := c.NewStyledParagraph()
+	pDjelatnostParagraph.SetMargins(5, 5, 7, 7)
+	pDjelatnostParagraphText := "4. Djelatnost (šifra): "
+	pDjelatnostParagraphBoldText := "84.23 Sudske i pravosudne djelatnosti"
+
+	pDjelatnostParagraph.Append(pDjelatnostParagraphText).Style.Font = fontRegular
+	pDjelatnostParagraph.Append(pDjelatnostParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pDjelatnostParagraph)
+
+	//Movable inventory title
+	pMovableTitleParagraph := c.NewStyledParagraph()
+	pMovableTitleParagraph.SetMargins(5, 5, 7, 7)
+	pMovableTitleParagraph.SetTextAlignment(creator.TextAlignmentCenter)
+	pMovableTitleParagraphBoldText := "Nepokretne stvari"
+
+	pMovableTitleParagraph.Append(pMovableTitleParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	_ = cell.SetContent(pMovableTitleParagraph)
+
+	//Name Inventory
+	pNameInventoryParagraph := c.NewStyledParagraph()
+	pNameInventoryParagraph.SetMargins(5, 5, 7, 7)
+	pNameInventoryParagraphText := "1. Vrsta (oprema, prevozna sredstva i druge pokretne stvari koje se koriste za obavljanje funkcije): "
+	pNameInventoryParagraphBoldText := items.RealEstate.TypeId
+
+	pNameInventoryParagraph.Append(pNameInventoryParagraphText).Style.Font = fontRegular
+	pNameInventoryParagraph.Append(pNameInventoryParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pNameInventoryParagraph)
+
+	//Amount
+	pAmountParagraph := c.NewStyledParagraph()
+	pAmountParagraph.SetMargins(5, 5, 7, 7)
+	pAmountParagraphText := "2. . Mjesto gdje se nepokretnost nalazi: "
+	pAmountParagraphBoldText := items.Location
+
+	pAmountParagraph.Append(pAmountParagraphText).Style.Font = fontRegular
+	pAmountParagraph.Append(pAmountParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pAmountParagraph)
+
+	//InventoryNumber
+	pInventoryNumberParagraph := c.NewStyledParagraph()
+	pInventoryNumberParagraph.SetMargins(5, 5, 7, 7)
+	pInventoryNumberParagraphText := "3. Površina (u m2): "
+	pInventoryNumberParagraphBoldText := fmt.Sprintf("%v", items.RealEstate.SquareArea)
+
+	pInventoryNumberParagraph.Append(pInventoryNumberParagraphText).Style.Font = fontRegular
+	pInventoryNumberParagraph.Append(pInventoryNumberParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pInventoryNumberParagraph)
+
+	//Source
+	pSourceParagraph := c.NewStyledParagraph()
+	pSourceParagraph.SetMargins(5, 5, 7, 7)
+	pSourceParagraphText := "4. Broj katastarske parcele, list nepokretnosti i katastarska opština: "
+	pSourceParagraphBoldText := items.RealEstate.LandSerialNumber
+
+	pSourceParagraph.Append(pSourceParagraphText).Style.Font = fontRegular
+	pSourceParagraph.Append(pSourceParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pSourceParagraph)
+
+	//PropertyDocument
+	pPropertyDocumentParagraph := c.NewStyledParagraph()
+	pPropertyDocumentParagraph.SetMargins(5, 5, 7, 7)
+	pPropertyDocumentParagraphText := "5. Isprave o svojini (osnov sticanja i prestanka prava svojine): "
+	pPropertyDocumentParagraphBoldText := items.RealEstate.PropertyDocument
+
+	pPropertyDocumentParagraph.Append(pPropertyDocumentParagraphText).Style.Font = fontRegular
+	pPropertyDocumentParagraph.Append(pPropertyDocumentParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pPropertyDocumentParagraph)
+
+	//PurchaseGrossPrice
+	pOwnershipScopeParagraph := c.NewStyledParagraph()
+	pOwnershipScopeParagraph.SetMargins(5, 5, 7, 7)
+	pOwnershipScopeParagraphText := "6. Obim prava: "
+	pOwnershipScopeParagraphBoldText := items.RealEstate.OwnershipScope
+
+	pOwnershipScopeParagraph.Append(pOwnershipScopeParagraphText).Style.Font = fontRegular
+	pOwnershipScopeParagraph.Append(pOwnershipScopeParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pOwnershipScopeParagraph)
+
+	//OwnershipInvestmentScope
+	pOwnershipInvestmentScopeParagraph := c.NewStyledParagraph()
+	pOwnershipInvestmentScopeParagraph.SetMargins(5, 5, 7, 7)
+	pOwnershipInvestmentScopeParagraphText := "7. Obim prava za imovinu stečenu zajedničkim ulaganjem: "
+	pOwnershipInvestmentScopeParagraphBoldText := items.RealEstate.OwnershipInvestmentScope
+
+	pOwnershipInvestmentScopeParagraph.Append(pOwnershipInvestmentScopeParagraphText).Style.Font = fontRegular
+	pOwnershipInvestmentScopeParagraph.Append(pOwnershipInvestmentScopeParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pOwnershipInvestmentScopeParagraph)
+
+	//LifetimeOfAssessmentInMonths
+	pLifetimeOfAssessmentInMonthsParagraph := c.NewStyledParagraph()
+	pLifetimeOfAssessmentInMonthsParagraph.SetMargins(5, 5, 7, 7)
+	pLifetimeOfAssessmentInMonthsParagraphText := "8. Vijek trajanja: "
+	pLifetimeOfAssessmentInMonthsParagraphBoldText := fmt.Sprintf("%d", items.LifetimeOfAssessmentInMonths)
+
+	pLifetimeOfAssessmentInMonthsParagraph.Append(pLifetimeOfAssessmentInMonthsParagraphText).Style.Font = fontRegular
+	pLifetimeOfAssessmentInMonthsParagraph.Append(pLifetimeOfAssessmentInMonthsParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pLifetimeOfAssessmentInMonthsParagraph)
+
+	//PurchaseGrossPrice
+	pPurchaseGrossPriceParagraph := c.NewStyledParagraph()
+	pPurchaseGrossPriceParagraph.SetMargins(5, 5, 7, 7)
+	pPurchaseGrossPriceParagraphText := "9. Nabavna vrijednost: "
+	pPurchaseGrossPriceParagraphBoldText := fmt.Sprintf("%v", items.PurchaseGrossPrice)
+
+	pPurchaseGrossPriceParagraph.Append(pPurchaseGrossPriceParagraphText).Style.Font = fontRegular
+	pPurchaseGrossPriceParagraph.Append(pPurchaseGrossPriceParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pPurchaseGrossPriceParagraph)
+
+	//AmortizationValue
+	pAmortizationValueParagraph := c.NewStyledParagraph()
+	pAmortizationValueParagraph.SetMargins(5, 5, 7, 7)
+	pAmortizationValueParagraphText := "10. Ispravka vrijednosti (ispravka/otpis vrijednosti predhodnih godina + amortizacija tekuće godine): "
+	pAmortizationValueParagraphBoldText := fmt.Sprintf("€%v", items.AmortizationValue)
+
+	pAmortizationValueParagraph.Append(pAmortizationValueParagraphText).Style.Font = fontRegular
+	pAmortizationValueParagraph.Append(pAmortizationValueParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pAmortizationValueParagraph)
+
+	//GrossPrice
+	pGrossPriceParagraph := c.NewStyledParagraph()
+	pGrossPriceParagraph.SetMargins(5, 5, 7, 7)
+	pGrossPriceParagraphText := "11. Knjigovodstvena vrijednost / fer vrijednost (procijenjena vrijednost): "
+	pGrossPriceParagraphBoldText := fmt.Sprintf("€%v", items.GrossPrice)
+
+	pGrossPriceParagraph.Append(pGrossPriceParagraphText).Style.Font = fontRegular
+	pGrossPriceParagraph.Append(pGrossPriceParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pGrossPriceParagraph)
+
+	//LimitationsDescription
+	pLimitationsDescriptionParagraph := c.NewStyledParagraph()
+	pLimitationsDescriptionParagraph.SetMargins(5, 5, 7, 7)
+	pLimitationsDescriptionParagraphText := "12. Tereti i ograničenja (založna prava, službenosti,restitucija i dr): "
+	pLimitationsDescriptionParagraphBoldText := items.RealEstate.LimitationsDescription
+
+	pLimitationsDescriptionParagraph.Append(pLimitationsDescriptionParagraphText).Style.Font = fontRegular
+	pLimitationsDescriptionParagraph.Append(pLimitationsDescriptionParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pLimitationsDescriptionParagraph)
+
+	//Note
+	pNoteParagraph := c.NewStyledParagraph()
+	pNoteParagraph.SetMargins(5, 5, 7, 7)
+	pNoteParagraphBoldText := "Napomena: "
+
+	pNoteParagraph.Append(pNoteParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pNoteParagraph)
+
+	//Footer
+	pFooterParagraph := c.NewStyledParagraph()
+	pFooterParagraph.SetMargins(5, 5, 7, 7)
+	pFooterLeftParagraphText := "Datum _____________                                     M.P                                     Starješina organa______________"
+
+	cell = table.NewCell()
+	pFooterParagraph.Append(pFooterLeftParagraphText).Style.Font = fontRegular
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	_ = cell.SetContent(pFooterParagraph)
+
+	err = c.Draw(table)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	var buf bytes.Buffer
+	err = c.Write(&buf)
+	if err != nil {
+		return nil, err
+	}
+
+	encodedStr := base64.StdEncoding.EncodeToString(buf.Bytes())
+	// Return the path or a URL to the file
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's is your PDF file in base64 encode format!",
+		Item:    encodedStr,
+	}, nil
+}
+
 var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"].(int)
 
@@ -783,9 +1113,10 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
+	textTitle := "Obrazac " + items.SourceType
 
 	// Add Title
-	title, err := pdfutils.CreateTitle(c, "Obrazac PS-1", fontBold)
+	title, err := pdfutils.CreateTitle(c, textTitle, fontBold)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}

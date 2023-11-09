@@ -317,6 +317,7 @@ func main() {
 			"basicInventory_Details":                             fields.BasicInventoryDetailsField,
 			"basicInventoryRealEstates_Overview":                 fields.BasicInventoryRealEstatesOverviewField,
 			"basicInventoryPS1_PDF":                              fields.FormPS1PDFField,
+			"basicInventoryNS1_PDF":                              fields.FormNS1PDFField,
 			"officesOfOrganizationUnits_Overview":                fields.OfficesOfOrganizationUnitOverviewField,
 			"basicInventoryDispatch_Overview":                    fields.BasicInventoryDispatchOverviewField,
 			"orderList_Overview":                                 fields.OrderListOverviewField,

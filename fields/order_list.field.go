@@ -101,7 +101,12 @@ var OrderListDeleteField = &graphql.Field{
 var RecipientUsersField = &graphql.Field{
 	Type:        types.RecipientUsersType,
 	Description: "Receive users List",
-	Resolve:     resolvers.RecipientUsersResolver,
+	Args: graphql.FieldConfigArgument{
+		"organization_unit_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.RecipientUsersResolver,
 }
 
 var OrderListReceiveDeleteField = &graphql.Field{

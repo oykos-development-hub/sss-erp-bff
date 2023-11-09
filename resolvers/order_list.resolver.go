@@ -733,8 +733,9 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		return nil, err
 	}
 
+	zero := 0
 	office := &dto.DropdownSimple{}
-	if item.OfficeId != nil {
+	if item.OfficeId != nil && *item.OfficeId > zero {
 		officeItem, _ := getDropdownSettingById(*item.OfficeId)
 		office.Title = officeItem.Title
 		office.Id = officeItem.Id
@@ -793,8 +794,6 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 	orderFile := defaultFile
 	receiveFile := defaultFile
 	movementFile := defaultFile
-
-	zero := 0
 
 	if item.OrderFile != nil && *item.OrderFile != zero {
 		file, err := getFileByID(*item.OrderFile)

@@ -45,8 +45,18 @@
     "id": 131,
     "parent_id": 13,
     "read": true,
-    "route": "/finance/liabilities-receivables/invoices-overview",
+    "route": "/finance/liabilities-receivables/invoices",
     "title": "Unos računa",
+    "update": true
+  },
+  {
+    "create": true,
+    "delete": true,
+    "id": 14,
+    "parent_id": 1,
+    "read": true,
+    "route": "/finance/reports",
+    "title": "Izvještaji",
     "update": true
   },
   {
@@ -92,11 +102,51 @@
   {
     "create": true,
     "delete": true,
+    "id": 24,
+    "parent_id": 2,
+    "read": true,
+    "route": "/inventory/reports",
+    "title": "Izvještaji",
+    "update": true
+  },
+  {
+    "create": true,
+    "delete": true,
     "id": 3,
     "parent_id": 0,
     "read": true,
     "route": "/procurements",
     "title": "Javne nabavke",
+    "update": true
+  },
+  {
+    "create": true,
+    "delete": true,
+    "id": 31,
+    "parent_id": 3,
+    "read": true,
+    "route": "/procurements/plans",
+    "title": "Planovi",
+    "update": true
+  },
+  {
+    "create": true,
+    "delete": true,
+    "id": 32,
+    "parent_id": 3,
+    "read": true,
+    "route": "/procurements/contracts",
+    "title": "Ugovori",
+    "update": true
+  },
+  {
+    "create": true,
+    "delete": true,
+    "id": 33,
+    "parent_id": 3,
+    "read": true,
+    "route": "/procurements/reports",
+    "title": "Izvještaji",
     "update": true
   },
   {
@@ -112,21 +162,31 @@
   {
     "create": true,
     "delete": true,
-    "id": 5,
-    "parent_id": 0,
+    "id": 41,
+    "parent_id": 4,
     "read": true,
-    "route": "/hr",
-    "title": "Ljudski resursi",
+    "route": "/accounting/order-form",
+    "title": "Narudžbenica",
     "update": true
   },
   {
     "create": true,
     "delete": true,
-    "id": 57,
-    "parent_id": 5,
+    "id": 42,
+    "parent_id": 4,
     "read": true,
-    "route": "/hr/job-positions",
-    "title": "Radna mjesta",
+    "route": "/accounting/reports",
+    "title": "Izvještaji",
+    "update": true
+  },
+  {
+    "create": true,
+    "delete": true,
+    "id": 5,
+    "parent_id": 0,
+    "read": true,
+    "route": "/hr",
+    "title": "Ljudski resursi",
     "update": true
   },
   {
@@ -222,21 +282,11 @@
   {
     "create": true,
     "delete": true,
-    "id": 31,
-    "parent_id": 3,
+    "id": 57,
+    "parent_id": 5,
     "read": true,
-    "route": "/procurements/plans",
-    "title": "Planovi",
-    "update": true
-  },
-  {
-    "create": true,
-    "delete": true,
-    "id": 32,
-    "parent_id": 3,
-    "read": true,
-    "route": "/procurements/contracts",
-    "title": "Ugovori",
+    "route": "/hr/reports",
+    "title": "Izvještaji",
     "update": true
   }
 ]

@@ -307,6 +307,7 @@ func main() {
 			"publicProcurementPlan_Details":                      fields.PublicProcurementPlanDetailsField,
 			"publicProcurementPlanItem_Details":                  fields.PublicProcurementPlanItemDetailsField,
 			"publicProcurementPlanItem_PDF":                      fields.PublicProcurementPlanItemPDFField,
+			"publicProcurementPlan_PDF":                          fields.PublicProcurementPlanPDFField,
 			"publicProcurementPlanItem_Limits":                   fields.PublicProcurementPlanItemLimitsField,
 			"publicProcurementOrganizationUnitArticles_Overview": fields.PublicProcurementOrganizationUnitArticlesOverviewField,
 			"publicProcurementOrganizationUnitArticles_Details":  fields.PublicProcurementOrganizationUnitArticlesDetailsField,

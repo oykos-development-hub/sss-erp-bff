@@ -49,6 +49,8 @@ type ProcurementPlanResponseItem struct {
 	Requests            int                            `json:"requests"`
 	RejectedDescription *string                        `json:"rejected_description"`
 	Items               []*ProcurementItemResponseItem `json:"items"`
+	TotalNet            float32                        `json:"total_net"`
+	TotalGross          float32                        `json:"total_gross"`
 	CreatedAt           string                         `json:"created_at"`
 	UpdatedAt           string                         `json:"updated_at"`
 }

@@ -21,6 +21,7 @@ type ProcurementItemResponseItem struct {
 	BudgetIndent      DropdownBudgetIndent              `json:"budget_indent"`
 	Plan              DropdownSimple                    `json:"plan_id"`
 	IsOpenProcurement bool                              `json:"is_open_procurement"`
+	TypeOfProcedure   string                            `json:""`
 	Title             string                            `json:"title"`
 	ArticleType       string                            `json:"article_type"`
 	Status            structs.ProcurementStatus         `json:"status"`
@@ -30,6 +31,8 @@ type ProcurementItemResponseItem struct {
 	FileId            *int                              `json:"file_id"`
 	Articles          []*ProcurementArticleResponseItem `json:"articles"`
 	ContractID        *int                              `json:"contract_id"`
+	TotalGross        float32                           `json:"total_gross"`
+	TotalNet          float32                           `json:"total_net"`
 	CreatedAt         string                            `json:"created_at"`
 	UpdatedAt         string                            `json:"updated_at"`
 }

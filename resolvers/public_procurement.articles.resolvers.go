@@ -107,12 +107,16 @@ func buildProcurementArticleResponseItem(context context.Context, item *structs.
 		}
 	}
 
+	// if it's simple procurement, then amount is entered directly to article by official
 	if !procurement.IsOpenProcurement {
 		res.Amount = item.Amount
 		res.TotalAmount = item.Amount
 	} else {
 		res.TotalAmount = totalAmount
 	}
+
+	vatPercentage, _ := strconv.ParseFloat(item.VatPercentage, 32)
+	res.GrossPrice = item.NetPrice + item.NetPrice*float32(vatPercentage)/100
 
 	return &res, nil
 }

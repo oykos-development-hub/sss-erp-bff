@@ -121,6 +121,7 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
+		subtitle.SetMargins(20, 0, 10, 0)
 		err = c.Draw(subtitle)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -307,11 +308,13 @@ func isProcurementProcessed(procurementID int, organizationUnitID *int) bool {
 
 func buildProcurementItemResponseItem(context context.Context, item *structs.PublicProcurementItem, organizationUnitID *int) (*dto.ProcurementItemResponseItem, error) {
 	if organizationUnitID == nil {
-		organizationUnitID, _ = context.Value(config.OrganizationUnitIDKey).(*int) // assert the type
+		organizationUnitID, _ = context.Value(config.OrganizationUnitIDKey).(*int)
 	}
 
 	plan, _ := getProcurementPlan(item.PlanId)
 	planDropdown := dto.DropdownSimple{Id: plan.Id, Title: plan.Title}
+	var totalGross float32
+	var totalNet float32
 
 	var articles []*dto.ProcurementArticleResponseItem
 	articlesRaw, err := getProcurementArticlesList(&dto.GetProcurementArticleListInputMS{ItemID: &item.Id})
@@ -323,6 +326,8 @@ func buildProcurementItemResponseItem(context context.Context, item *structs.Pub
 		if err != nil {
 			return nil, err
 		}
+		totalGross += articleResItem.GrossPrice * float32(articleResItem.TotalAmount)
+		totalNet += articleResItem.NetPrice * float32(articleResItem.TotalAmount)
 		articles = append(articles, articleResItem)
 	}
 
@@ -348,6 +353,11 @@ func buildProcurementItemResponseItem(context context.Context, item *structs.Pub
 		contractId = &contracts.Data[0].Id
 	}
 
+	typeOfProcedure := "Otvoreni postupak"
+	if !item.IsOpenProcurement {
+		typeOfProcedure = "Jednostavna nabavka"
+	}
+
 	res := dto.ProcurementItemResponseItem{
 		Id:    item.Id,
 		Title: item.Title,
@@ -366,6 +376,9 @@ func buildProcurementItemResponseItem(context context.Context, item *structs.Pub
 		FileId:            item.FileId,
 		Articles:          articles,
 		ContractID:        contractId,
+		TotalGross:        totalGross,
+		TotalNet:          totalNet,
+		TypeOfProcedure:   typeOfProcedure,
 		CreatedAt:         item.CreatedAt,
 		UpdatedAt:         item.UpdatedAt,
 	}

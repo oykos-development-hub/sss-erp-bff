@@ -14,7 +14,7 @@ import (
 
 var PublicProcurementPlanItemArticleInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var data []structs.PublicProcurementArticle
-	response := dto.ResponseSingle{
+	response := dto.Response{
 		Status: "success",
 	}
 
@@ -53,7 +53,7 @@ var PublicProcurementPlanItemArticleInsertResolver = func(params graphql.Resolve
 			response.Message = "You created this item!"
 		}
 	}
-	response.Item = items
+	response.Items = items
 	return response, nil
 }
 
@@ -107,7 +107,12 @@ func buildProcurementArticleResponseItem(context context.Context, item *structs.
 		}
 	}
 
-	res.TotalAmount = totalAmount
+	if !procurement.IsOpenProcurement {
+		res.Amount = item.Amount
+		res.TotalAmount = item.Amount
+	} else {
+		res.TotalAmount = totalAmount
+	}
 
 	return &res, nil
 }

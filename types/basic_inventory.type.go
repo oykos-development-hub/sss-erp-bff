@@ -274,3 +274,21 @@ var BasicInventoryInsertType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var FormPDFType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "FormPDFType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})

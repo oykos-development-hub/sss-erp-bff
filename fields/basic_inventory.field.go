@@ -87,3 +87,14 @@ var BasicInventoryInsertField = &graphql.Field{
 	},
 	Resolve: resolvers.BasicInventoryInsertResolver,
 }
+
+var FormPS1PDFField = &graphql.Field{
+	Type:        types.FormPDFType,
+	Description: "Returns the PDF URL of Public Procurement",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.FormPS1PDFResolver,
+}

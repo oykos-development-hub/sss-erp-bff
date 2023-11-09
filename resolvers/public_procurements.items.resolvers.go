@@ -81,8 +81,10 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 
 	contract, _ := getProcurementContract(*resItem.ContractID)
 	contractRes, _ := buildProcurementContractResponseItem(contract)
-	contractArticles, _ := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{ContractID: &contract.Id})
-
+	contractArticles, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{ContractID: &contract.Id})
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
 	c := creator.New()
 	c.SetPageMargins(50, 50, 50, 50)
 	c.NewPage()

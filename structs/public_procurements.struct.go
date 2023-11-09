@@ -49,6 +49,7 @@ type PublicProcurementArticle struct {
 	NetPrice            float32 `json:"net_price"`
 	VatPercentage       string  `json:"vat_percentage"`
 	Manufacturer        string  `json:"manufacturer"`
+	Amount              int     `json:"amount"`
 	CreatedAt           string  `json:"created_at"`
 	UpdatedAt           string  `json:"updated_at"`
 }

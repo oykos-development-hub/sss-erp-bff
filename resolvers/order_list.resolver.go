@@ -586,7 +586,7 @@ var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interfa
 	}
 
 	if orderList.ReceiveFile != nil && *orderList.ReceiveFile != 0 {
-		err := deleteFile(*orderList.MovementFile)
+		err := deleteFile(*orderList.ReceiveFile)
 
 		if err != nil {
 			return shared.HandleAPIError(err)

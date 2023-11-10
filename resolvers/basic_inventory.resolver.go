@@ -803,8 +803,16 @@ var FormNS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	pTitleParagraph := c.NewStyledParagraph()
 	pTitleParagraph.SetMargins(5, 5, 10, 10)
 	pTitleParagraph.SetTextAlignment(creator.TextAlignmentCenter)
-	pTitleParagraphBoldText := "Korisnik nepokretnih stvari u državnoj svojini "
-	pTitleParagraphText := "(državni organi,organi lokalne samouprave i javne službe čiji je osnivač Crna Gora, odnosno lokalna samouprava)"
+	var pTitleParagraphBoldText string
+	var pTitleParagraphText string
+
+	if items.SourceType == "NS1" {
+		pTitleParagraphBoldText = "Korisnik nepokretnih stvari u državnoj svojini "
+		pTitleParagraphText = "(državni organi,organi lokalne samouprave i javne službe čiji je osnivač Crna Gora, odnosno lokalna samouprava)"
+	} else {
+		pTitleParagraphBoldText = "Organi u čijoj su nadležnosti nepokretne stvari "
+		pTitleParagraphText = "(organi u čijoj su nadležnosti nepokretne stvari za koje vrše popis, odnosno identifikaciju)"
+	}
 
 	pTitleParagraph.Append(pTitleParagraphBoldText).Style.Font = fontBold
 	pTitleParagraph.Append(pTitleParagraphText).Style.Font = fontRegular
@@ -955,22 +963,27 @@ var FormNS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	_ = cell.SetContent(pOwnershipScopeParagraph)
 
 	//OwnershipInvestmentScope
-	pOwnershipInvestmentScopeParagraph := c.NewStyledParagraph()
-	pOwnershipInvestmentScopeParagraph.SetMargins(5, 5, 7, 7)
-	pOwnershipInvestmentScopeParagraphText := "7. Obim prava za imovinu stečenu zajedničkim ulaganjem: "
-	pOwnershipInvestmentScopeParagraphBoldText := items.RealEstate.OwnershipInvestmentScope
+	indexTable := 7
+	if items.SourceType == "NS1" {
+		pOwnershipInvestmentScopeParagraph := c.NewStyledParagraph()
+		pOwnershipInvestmentScopeParagraph.SetMargins(5, 5, 7, 7)
+		pOwnershipInvestmentScopeParagraphText := fmt.Sprintf("%d. Obim prava za imovinu stečenu zajedničkim ulaganjem: ", indexTable)
+		pOwnershipInvestmentScopeParagraphBoldText := items.RealEstate.OwnershipInvestmentScope
 
-	pOwnershipInvestmentScopeParagraph.Append(pOwnershipInvestmentScopeParagraphText).Style.Font = fontRegular
-	pOwnershipInvestmentScopeParagraph.Append(pOwnershipInvestmentScopeParagraphBoldText).Style.Font = fontBold
-	cell = table.NewCell()
-	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
-	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
-	_ = cell.SetContent(pOwnershipInvestmentScopeParagraph)
+		pOwnershipInvestmentScopeParagraph.Append(pOwnershipInvestmentScopeParagraphText).Style.Font = fontRegular
+		pOwnershipInvestmentScopeParagraph.Append(pOwnershipInvestmentScopeParagraphBoldText).Style.Font = fontBold
+		cell = table.NewCell()
+		cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+		cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+		_ = cell.SetContent(pOwnershipInvestmentScopeParagraph)
+		indexTable++
+	}
 
 	//LifetimeOfAssessmentInMonths
+
 	pLifetimeOfAssessmentInMonthsParagraph := c.NewStyledParagraph()
 	pLifetimeOfAssessmentInMonthsParagraph.SetMargins(5, 5, 7, 7)
-	pLifetimeOfAssessmentInMonthsParagraphText := "8. Vijek trajanja: "
+	pLifetimeOfAssessmentInMonthsParagraphText := fmt.Sprintf("%d. Vijek trajanja: ", indexTable)
 	pLifetimeOfAssessmentInMonthsParagraphBoldText := fmt.Sprintf("%d", items.LifetimeOfAssessmentInMonths)
 
 	pLifetimeOfAssessmentInMonthsParagraph.Append(pLifetimeOfAssessmentInMonthsParagraphText).Style.Font = fontRegular
@@ -981,10 +994,11 @@ var FormNS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	_ = cell.SetContent(pLifetimeOfAssessmentInMonthsParagraph)
 
 	//PurchaseGrossPrice
+	indexTable++
 	pPurchaseGrossPriceParagraph := c.NewStyledParagraph()
 	pPurchaseGrossPriceParagraph.SetMargins(5, 5, 7, 7)
-	pPurchaseGrossPriceParagraphText := "9. Nabavna vrijednost: "
-	pPurchaseGrossPriceParagraphBoldText := fmt.Sprintf("%v", items.PurchaseGrossPrice)
+	pPurchaseGrossPriceParagraphText := fmt.Sprintf("%d. Nabavna vrijednost: ", indexTable)
+	pPurchaseGrossPriceParagraphBoldText := fmt.Sprintf("€%v", items.PurchaseGrossPrice)
 
 	pPurchaseGrossPriceParagraph.Append(pPurchaseGrossPriceParagraphText).Style.Font = fontRegular
 	pPurchaseGrossPriceParagraph.Append(pPurchaseGrossPriceParagraphBoldText).Style.Font = fontBold
@@ -994,9 +1008,10 @@ var FormNS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	_ = cell.SetContent(pPurchaseGrossPriceParagraph)
 
 	//AmortizationValue
+	indexTable++
 	pAmortizationValueParagraph := c.NewStyledParagraph()
 	pAmortizationValueParagraph.SetMargins(5, 5, 7, 7)
-	pAmortizationValueParagraphText := "10. Ispravka vrijednosti (ispravka/otpis vrijednosti predhodnih godina + amortizacija tekuće godine): "
+	pAmortizationValueParagraphText := fmt.Sprintf("%d. Ispravka vrijednosti (ispravka/otpis vrijednosti predhodnih godina + amortizacija tekuće godine): ", indexTable)
 	pAmortizationValueParagraphBoldText := fmt.Sprintf("€%v", items.AmortizationValue)
 
 	pAmortizationValueParagraph.Append(pAmortizationValueParagraphText).Style.Font = fontRegular
@@ -1007,9 +1022,10 @@ var FormNS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	_ = cell.SetContent(pAmortizationValueParagraph)
 
 	//GrossPrice
+	indexTable++
 	pGrossPriceParagraph := c.NewStyledParagraph()
 	pGrossPriceParagraph.SetMargins(5, 5, 7, 7)
-	pGrossPriceParagraphText := "11. Knjigovodstvena vrijednost / fer vrijednost (procijenjena vrijednost): "
+	pGrossPriceParagraphText := fmt.Sprintf("%d. Knjigovodstvena vrijednost / fer vrijednost (procijenjena vrijednost): ", indexTable)
 	pGrossPriceParagraphBoldText := fmt.Sprintf("€%v", items.GrossPrice)
 
 	pGrossPriceParagraph.Append(pGrossPriceParagraphText).Style.Font = fontRegular
@@ -1020,17 +1036,20 @@ var FormNS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	_ = cell.SetContent(pGrossPriceParagraph)
 
 	//LimitationsDescription
-	pLimitationsDescriptionParagraph := c.NewStyledParagraph()
-	pLimitationsDescriptionParagraph.SetMargins(5, 5, 7, 7)
-	pLimitationsDescriptionParagraphText := "12. Tereti i ograničenja (založna prava, službenosti,restitucija i dr): "
-	pLimitationsDescriptionParagraphBoldText := items.RealEstate.LimitationsDescription
+	if items.SourceType == "NS1" {
+		indexTable++
+		pLimitationsDescriptionParagraph := c.NewStyledParagraph()
+		pLimitationsDescriptionParagraph.SetMargins(5, 5, 7, 7)
+		pLimitationsDescriptionParagraphText := fmt.Sprintf("%d. Tereti i ograničenja (založna prava, službenosti,restitucija i dr): ", indexTable)
+		pLimitationsDescriptionParagraphBoldText := items.RealEstate.LimitationsDescription
 
-	pLimitationsDescriptionParagraph.Append(pLimitationsDescriptionParagraphText).Style.Font = fontRegular
-	pLimitationsDescriptionParagraph.Append(pLimitationsDescriptionParagraphBoldText).Style.Font = fontBold
-	cell = table.NewCell()
-	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
-	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
-	_ = cell.SetContent(pLimitationsDescriptionParagraph)
+		pLimitationsDescriptionParagraph.Append(pLimitationsDescriptionParagraphText).Style.Font = fontRegular
+		pLimitationsDescriptionParagraph.Append(pLimitationsDescriptionParagraphBoldText).Style.Font = fontBold
+		cell = table.NewCell()
+		cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+		cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+		_ = cell.SetContent(pLimitationsDescriptionParagraph)
+	}
 
 	//Note
 	pNoteParagraph := c.NewStyledParagraph()
@@ -1133,9 +1152,15 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	pTitleParagraph := c.NewStyledParagraph()
 	pTitleParagraph.SetMargins(5, 5, 10, 10)
 	pTitleParagraph.SetTextAlignment(creator.TextAlignmentCenter)
-	pTitleParagraphBoldText := "Korisnik pokretnih stvari u državnoj svojini "
-	pTitleParagraphText := "(državni organi,organi lokalne samouprave i javne službe čiji je osnivač Crna Gora, odnosno lokalna samouprava)"
-
+	var pTitleParagraphBoldText string
+	var pTitleParagraphText string
+	if items.SourceType == "PS1" {
+		pTitleParagraphBoldText = "Korisnik pokretnih stvari u državnoj svojini "
+		pTitleParagraphText = "(državni organi,organi lokalne samouprave i javne službe čiji je osnivač Crna Gora, odnosno lokalna samouprava)"
+	} else {
+		pTitleParagraphBoldText = "Organi u čijoj su nadležnosti pokretne stvari "
+		pTitleParagraphText = "(organi u čijoj su nadležnosti pokretne stvari za koje vrše popis,odnosno indentifikacija)"
+	}
 	pTitleParagraph.Append(pTitleParagraphBoldText).Style.Font = fontBold
 	pTitleParagraph.Append(pTitleParagraphText).Style.Font = fontRegular
 	cell := table.NewCell()
@@ -1275,7 +1300,7 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	pPurchaseGrossPriceParagraph := c.NewStyledParagraph()
 	pPurchaseGrossPriceParagraph.SetMargins(5, 5, 10, 10)
 	pPurchaseGrossPriceParagraphText := "6. Nabavna vrijednost: "
-	pPurchaseGrossPriceParagraphBoldText := fmt.Sprintf("%v", items.PurchaseGrossPrice)
+	pPurchaseGrossPriceParagraphBoldText := fmt.Sprintf("€%v", items.PurchaseGrossPrice)
 
 	pPurchaseGrossPriceParagraph.Append(pPurchaseGrossPriceParagraphText).Style.Font = fontRegular
 	pPurchaseGrossPriceParagraph.Append(pPurchaseGrossPriceParagraphBoldText).Style.Font = fontBold
@@ -1309,6 +1334,19 @@ var FormPS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
 	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
 	_ = cell.SetContent(pGrossPriceParagraph)
+
+	//Inactive
+	pInactiveParagraph := c.NewStyledParagraph()
+	pInactiveParagraph.SetMargins(5, 5, 10, 10)
+	pInactiveParagraphText := "9. Broj i datum odluke, o utvrdjenom manjku,višku ili rashodovanju stvari: "
+	pInactiveParagraphBoldText := fmt.Sprintf("€%v", items.Inactive)
+
+	pInactiveParagraph.Append(pInactiveParagraphText).Style.Font = fontRegular
+	pInactiveParagraph.Append(pInactiveParagraphBoldText).Style.Font = fontBold
+	cell = table.NewCell()
+	cell.SetBorder(creator.CellBorderSideAll, creator.CellBorderStyleSingle, 1)
+	cell.SetHorizontalAlignment(creator.CellHorizontalAlignmentLeft)
+	_ = cell.SetContent(pInactiveParagraph)
 
 	//Note
 	pNoteParagraph := c.NewStyledParagraph()

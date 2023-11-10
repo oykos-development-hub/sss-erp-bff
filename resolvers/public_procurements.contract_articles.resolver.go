@@ -163,10 +163,11 @@ func buildProcurementContractArticlesResponseItem(context context.Context, item 
 		return nil, err
 	}
 
-	overageList, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
-		ContractArticleID:  &item.Id,
-		OrganizationUnitID: organizationUnitID,
-	})
+	overageInput := dto.GetProcurementContractArticleOverageInput{ContractArticleID: &item.Id}
+	if organizationUnitID != nil && *organizationUnitID != 0 {
+		overageInput.OrganizationUnitID = organizationUnitID
+	}
+	overageList, err := getProcurementContractArticleOverageList(&overageInput)
 	if err != nil {
 		return nil, err
 	}

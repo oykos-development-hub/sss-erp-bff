@@ -493,7 +493,37 @@ func deleteOrderArticles(itemId int) error {
 var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	itemId := params.Args["id"].(int)
 
-	err := deleteOrderArticles(itemId)
+	orderList, err := getOrderListById(itemId)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	if orderList.OrderFile != nil && *orderList.OrderFile != 0 {
+		err := deleteFile(*orderList.OrderFile)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+	}
+
+	if orderList.ReceiveFile != nil && *orderList.ReceiveFile != 0 {
+		err := deleteFile(*orderList.ReceiveFile)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+	}
+
+	if orderList.MovementFile != nil && *orderList.MovementFile != 0 {
+		err := deleteFile(*orderList.MovementFile)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+	}
+
+	err = deleteOrderArticles(itemId)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -547,6 +577,22 @@ var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interfa
 		return shared.HandleAPIError(err)
 	}
 
+	if orderList.MovementFile != nil && *orderList.MovementFile != 0 {
+		err := deleteFile(*orderList.MovementFile)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+	}
+
+	if orderList.ReceiveFile != nil && *orderList.ReceiveFile != 0 {
+		err := deleteFile(*orderList.MovementFile)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+	}
+
 	orderList.Status = "Created"
 	orderList.DateSystem = nil
 	orderList.InvoiceDate = nil
@@ -554,6 +600,8 @@ var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interfa
 	orderList.OfficeId = nil
 	orderList.RecipientUserId = nil
 	orderList.Description = nil
+	orderList.MovementFile = nil
+	orderList.ReceiveFile = nil
 
 	_, err = updateOrderListItem(id, orderList)
 	if err != nil {
@@ -575,9 +623,18 @@ var OrderListAssetMovementDeleteResolver = func(params graphql.ResolveParams) (i
 		return shared.HandleAPIError(err)
 	}
 
+	if orderList.MovementFile != nil && *orderList.MovementFile != 0 {
+		err := deleteFile(*orderList.MovementFile)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+	}
+
 	orderList.Status = "Received"
 	orderList.RecipientUserId = nil
 	orderList.OfficeId = nil
+	orderList.MovementFile = nil
 
 	_, err = updateOrderListItem(id, orderList)
 	if err != nil {
@@ -897,4 +954,13 @@ func getOrderLists(input *dto.GetOrderListInput) (*dto.GetOrderListsResponseMS, 
 	}
 
 	return res, nil
+}
+
+func deleteFile(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.FILES_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

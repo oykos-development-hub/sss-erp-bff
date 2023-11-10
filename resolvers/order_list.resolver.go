@@ -848,7 +848,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		MovementFile:       movementFile,
 	}
 
-	if item.RecipientUserId != nil {
+	if item.RecipientUserId != nil && *item.RecipientUserId > 0 {
 		userProfile, err := getUserProfileById(*item.RecipientUserId)
 		if err != nil {
 			return nil, err

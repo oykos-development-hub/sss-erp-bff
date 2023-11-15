@@ -3,21 +3,15 @@ package resolvers
 import (
 	"bff/config"
 	"bff/dto"
-	"bff/pdfutils"
 	"bff/shared"
 	"bff/structs"
-	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/graphql-go/graphql"
-	"github.com/unidoc/unipdf/v3/creator"
-	"github.com/unidoc/unipdf/v3/model"
 )
 
 var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -85,98 +79,39 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	c := creator.New()
-	c.SetPageMargins(50, 50, 50, 50)
-	c.NewPage()
 
-	// Define fonts
-	fontRegular, err := model.NewCompositePdfFontFromTTFFile(config.BASE_APP_DIR + "fonts/RobotoSlab-VariableFont_wght.ttf")
-	if err != nil {
-		return shared.HandleAPIError(err)
+	// Prepare subtitles
+	subtitles := dto.Subtitles{
+		PublicProcurement: resItem.Title,
+		OrganizationUnit:  organizationUnitTitle,
+		Supplier:          contractRes.Supplier.Title,
 	}
 
-	fontBold, err := model.NewCompositePdfFontFromTTFFile(config.BASE_APP_DIR + "fonts/RobotoSlab-Bold.ttf")
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	// Add Title
-	title, err := pdfutils.CreateTitle(c, "Izvještaj o potrošnji i dostupnim količinama", fontBold)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	err = c.Draw(title)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	subtitles := []string{
-		"JAVNA NABAVKA: " + resItem.Title,
-		"ORGANIZACIONA JEDINICA: " + organizationUnitTitle,
-		"DOBAVLJAČ: " + contractRes.Supplier.Title,
-	}
-
-	for _, text := range subtitles {
-		subtitle, err := pdfutils.CreateSubtitle(c, text, fontRegular)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		subtitle.SetMargins(20, 0, 10, 0)
-		err = c.Draw(subtitle)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-	}
-
-	// Set the headers for the table.
-	headers := []string{"OPIS PREDMETA NABAVKE", "BITNE KARAKTERISTIKE", "UGOVORENA KOLIČINA", "DOSTUPNA KOLIČINA", "POTROŠENA KOLIČINA"}
-	tableData := [][]string{}
-
+	var tableData []dto.TableDataRow
 	for _, article := range contractArticles.Data {
 		articleRes, _ := buildProcurementContractArticlesResponseItem(ctx, article)
 		articleOrderItem, _ := processContractArticle(ctx, article)
 
-		rowData := []string{
-			articleRes.Article.Title,
-			articleRes.Article.Description,
-			fmt.Sprintf("%d", articleRes.Amount),
-			fmt.Sprintf("%d", articleOrderItem.Available),
-			fmt.Sprintf("%d", articleRes.Amount-articleOrderItem.Available),
+		rowData := dto.TableDataRow{
+			ProcurementItem:  articleRes.Article.Title,
+			KeyFeatures:      articleRes.Article.Description,
+			ContractedAmount: fmt.Sprintf("%d", articleRes.Amount),
+			AvailableAmount:  fmt.Sprintf("%d", articleOrderItem.Available),
+			ConsumedAmount:   fmt.Sprintf("%d", articleRes.Amount-articleOrderItem.Available),
 		}
 		tableData = append(tableData, rowData)
 	}
 
-	table, err := pdfutils.CreateTable(c, headers, tableData, fontRegular)
-	if err != nil {
-		return shared.HandleAPIError(err)
+	responseItem := dto.PdfData{
+		Subtitles: subtitles,
+		TableData: tableData,
 	}
-	err = c.Draw(table)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	// Add a hook that is called before drawing each page
-	c.DrawFooter(func(block *creator.Block, args creator.FooterFunctionArgs) {
-		p := c.NewParagraph(time.Now().Format("2006-01-02"))
-		p.SetFont(fontRegular)
-		p.SetFontSize(10)
-		p.SetPos(50, 20)
-		p.SetColor(creator.ColorRGBFrom8bit(63, 68, 76))
-		_ = block.Draw(p)
-	})
-
-	var buf bytes.Buffer
-	err = c.Write(&buf)
-	if err != nil {
-		return nil, err
-	}
-
-	encodedStr := base64.StdEncoding.EncodeToString(buf.Bytes())
 
 	// Return the path or a URL to the file
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "Here's is your PDF file in base64 encode format!",
-		Item:    encodedStr,
+		Item:    responseItem,
 	}, nil
 }
 

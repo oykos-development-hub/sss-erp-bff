@@ -195,6 +195,54 @@ var PublicProcurementPlanItemDetailsItemType = graphql.NewObject(graphql.ObjectC
 	},
 })
 
+var ContractPdfReportItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ContractPdfReportItem",
+	Fields: graphql.Fields{
+		"subtitles": &graphql.Field{
+			Type: subtitlesType,
+		},
+		"table_data": &graphql.Field{
+			Type: graphql.NewList(tableDataRowType),
+		},
+	},
+})
+
+var subtitlesType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Subtitles",
+	Fields: graphql.Fields{
+		"public_procurement": &graphql.Field{
+			Type: graphql.String,
+		},
+		"organization_unit": &graphql.Field{
+			Type: graphql.String,
+		},
+		"supplier": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+var tableDataRowType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "TableDataRow",
+	Fields: graphql.Fields{
+		"procurement_item": &graphql.Field{
+			Type: graphql.String,
+		},
+		"key_features": &graphql.Field{
+			Type: graphql.String,
+		},
+		"contracted_amount": &graphql.Field{
+			Type: graphql.String,
+		},
+		"available_amount": &graphql.Field{
+			Type: graphql.String,
+		},
+		"consumed_amount": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var PublicProcurementPlanItemDetailsType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "PublicProcurementPlanItemDetails",
 	Fields: graphql.Fields{
@@ -226,7 +274,7 @@ var PublicProcurementPlanItemPDFType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"item": &graphql.Field{
-			Type: graphql.String,
+			Type: ContractPdfReportItemType,
 		},
 	},
 })

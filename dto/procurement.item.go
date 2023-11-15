@@ -36,3 +36,22 @@ type ProcurementItemResponseItem struct {
 	CreatedAt         string                            `json:"created_at"`
 	UpdatedAt         string                            `json:"updated_at"`
 }
+
+type Subtitles struct {
+	PublicProcurement string `json:"public_procurement"`
+	OrganizationUnit  string `json:"organization_unit"`
+	Supplier          string `json:"supplier"`
+}
+
+type TableDataRow struct {
+	ProcurementItem  string `json:"procurement_item"`
+	KeyFeatures      string `json:"key_features"`
+	ContractedAmount string `json:"contracted_amount"`
+	AvailableAmount  string `json:"available_amount"`
+	ConsumedAmount   string `json:"consumed_amount"`
+}
+
+type PdfData struct {
+	Subtitles Subtitles      `json:"subtitles"`
+	TableData []TableDataRow `json:"table_data"`
+}

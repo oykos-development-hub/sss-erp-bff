@@ -110,6 +110,9 @@ var (
 
 	ORDER_LISTS_ENDPOINT                string
 	ORDER_PROCUREMENT_ARTICLES_ENDPOINT string
+	MOVEMENTS_ENDPOINT                  string
+	MOVEMENT_ARTICLES_ENDPOINT          string
+	STOCK_ENDPOINT                      string
 
 	FILES_ENDPOINT string
 )
@@ -214,6 +217,10 @@ func init() {
 	// accounting endpoints
 	ORDER_LISTS_ENDPOINT = ACCOUNTING_MS_BASE_URL + "/order-lists"
 	ORDER_PROCUREMENT_ARTICLES_ENDPOINT = ACCOUNTING_MS_BASE_URL + "/order-procurement-articles"
+	MOVEMENTS_ENDPOINT = ACCOUNTING_MS_BASE_URL + "/movements"
+	MOVEMENT_ARTICLES_ENDPOINT = ACCOUNTING_MS_BASE_URL + "/movement-articles"
+	STOCK_ENDPOINT = ACCOUNTING_MS_BASE_URL + "/stocks"
 
+	//files endpoints
 	FILES_ENDPOINT = FILE_MS_BASE_URL + "/files"
 }

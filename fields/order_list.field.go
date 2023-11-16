@@ -62,7 +62,7 @@ var OrderListReceiveField = &graphql.Field{
 	Resolve: resolvers.OrderListReceiveResolver,
 }
 
-var OrderListAssetMovementField = &graphql.Field{
+var MovementInsertField = &graphql.Field{
 	Type:        types.OrderListAssetMovementType,
 	Description: "Asset Movement new or alter existing Order List",
 	Args: graphql.FieldConfigArgument{
@@ -120,7 +120,7 @@ var OrderListReceiveDeleteField = &graphql.Field{
 	Resolve: resolvers.OrderListReceiveDeleteResolver,
 }
 
-var OrderListAssetMovementDeleteField = &graphql.Field{
+var MovementDeleteField = &graphql.Field{
 	Type:        types.OrderListAssetMovementDeleteType,
 	Description: "Delete Asset Movement existing Order",
 	Args: graphql.FieldConfigArgument{
@@ -128,5 +128,53 @@ var OrderListAssetMovementDeleteField = &graphql.Field{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
-	Resolve: resolvers.OrderListAssetMovementDeleteResolver,
+	Resolve: resolvers.MovementDeleteResolver,
+}
+
+var StockOverviewFiled = &graphql.Field{
+	Type:        types.StockOverviewType,
+	Description: "Returns a data of stock items",
+	Args: graphql.FieldConfigArgument{
+		"page": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"size": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"title": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+	},
+	Resolve: resolvers.StockOverviewResolver,
+}
+
+var MovementOverviewField = &graphql.Field{
+	Type:        types.MovementOverviewType,
+	Description: "Returns a data of movement items",
+	Args: graphql.FieldConfigArgument{
+		"page": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"size": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"recipient_user_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"office_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.MovementOverviewResolver,
+}
+
+var MovementDetailsField = &graphql.Field{
+	Type:        types.MovementDetailsType,
+	Description: "Returns a data of movement item",
+	Args: graphql.FieldConfigArgument{
+		"id": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+	},
+	Resolve: resolvers.MovementDetailsResolver,
 }

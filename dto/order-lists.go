@@ -48,3 +48,74 @@ type OrderListOverviewResponse struct {
 	ReceiveFile         FileDropdownSimple                     `json:"receive_file"`
 	MovementFile        FileDropdownSimple                     `json:"movement_file"`
 }
+
+type StockFilter struct {
+	Page  *int    `json:"page"`
+	Size  *int    `json:"size"`
+	Title *string `json:"title"`
+}
+
+type GetStockResponseMS struct {
+	Data  []structs.StockArticle `json:"data"`
+	Total int                    `json:"total"`
+}
+
+type MovementFilter struct {
+	Page            *int `json:"page"`
+	Size            *int `json:"size"`
+	OfficeID        *int `json:"office_id"`
+	RecipientUserID *int `json:"recipient_user_id"`
+}
+
+type GetMovementResponseMS struct {
+	Data  []structs.Movement `json:"data"`
+	Total int                `json:"total"`
+}
+
+type GetSingleMovementResponseMS struct {
+	Data structs.Movement `json:"data"`
+}
+
+type GetSingleMovementArticleResponseMS struct {
+	Data MovementArticle `json:"data"`
+}
+
+type MovementResponse struct {
+	ID            int            `json:"id"`
+	Description   string         `json:"description"`
+	Office        DropdownSimple `json:"office"`
+	RecipientUser DropdownSimple `json:"recipient_user"`
+	DateOrder     string         `json:"date_order"`
+}
+
+type MovementDetailsResponse struct {
+	ID            int                `json:"id"`
+	Description   string             `json:"description"`
+	Office        DropdownSimple     `json:"office"`
+	RecipientUser DropdownSimple     `json:"recipient_user"`
+	DateOrder     string             `json:"date_order"`
+	Articles      []ArticlesDropdown `json:"articles"`
+}
+
+type ArticlesDropdown struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Amount      int    `json:"amount"`
+}
+
+type MovementArticle struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Amount      int    `json:"amount"`
+	MovementID  int    `json:"movement_id"`
+}
+
+type GetMovementArticleResponseMS struct {
+	Data  []MovementArticle `json:"data"`
+	Total int               `json:"total"`
+}
+
+type MovementArticlesFilter struct {
+	MovementID *int `json:"movement_id"`
+}

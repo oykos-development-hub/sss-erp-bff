@@ -378,34 +378,6 @@ func ProcessOrderArticleItem(ctx context.Context, article structs.OrderArticleIt
 	return currentArticle, nil
 }
 
-var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.OrderAssetMovementItem
-
-	dataBytes, _ := json.Marshal(params.Args["data"])
-	_ = json.Unmarshal(dataBytes, &data)
-
-	orderList, err := getOrderListById(data.OrderId)
-
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	orderList.Status = "Movement"
-	orderList.RecipientUserId = &data.RecipientUserId
-	orderList.OfficeId = &data.OfficeId
-	orderList.MovementFile = data.MovementFile
-
-	_, err = updateOrderListItem(data.OrderId, orderList)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You Asset Movement this order!",
-	}, nil
-}
-
 var RecipientUsersResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	organizationUnitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 
@@ -558,6 +530,44 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 		orderList.Description = data.Description
 	}
 
+	input := dto.GetOrderProcurementArticleInput{
+		OrderID: &orderList.Id,
+	}
+
+	articles, err := getOrderProcurementArticles(&input)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	for _, article := range articles.Data {
+		singleArticle, err := getProcurementArticle(article.ArticleId)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		stock, _ := getStockByName(singleArticle.Title)
+
+		if stock == nil {
+			input := dto.MovementArticle{
+				Amount:      article.Amount,
+				Title:       singleArticle.Title,
+				Description: singleArticle.Description,
+			}
+			err = createStock(input)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		} else {
+			stock.Amount += article.Amount
+			err = updateStock(*stock)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+		}
+
+	}
+
 	_, err = updateOrderListItem(data.OrderId, orderList)
 	if err != nil {
 		return shared.HandleAPIError(err)
@@ -611,39 +621,6 @@ var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interfa
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "You deleted received order!",
-	}, nil
-}
-
-var OrderListAssetMovementDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	id := params.Args["id"].(int)
-
-	orderList, err := getOrderListById(id)
-
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	if orderList.MovementFile != nil && *orderList.MovementFile != 0 {
-		err := deleteFile(*orderList.MovementFile)
-
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-	}
-
-	orderList.Status = "Received"
-	orderList.RecipientUserId = nil
-	orderList.OfficeId = nil
-	orderList.MovementFile = nil
-
-	_, err = updateOrderListItem(id, orderList)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You Asset Movement this order!",
 	}, nil
 }
 

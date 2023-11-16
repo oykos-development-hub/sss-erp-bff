@@ -255,3 +255,141 @@ var OrderListAssetMovementDeleteType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var StockOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "StockOverview",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(StockItem),
+		},
+	},
+})
+
+var StockItem = graphql.NewObject(graphql.ObjectConfig{
+	Name: "StockItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"amount": &graphql.Field{
+			Type: graphql.Int,
+		},
+	},
+})
+
+var MovementOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "MovementOverview",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(MovementItem),
+		},
+	},
+})
+
+var MovementItem = graphql.NewObject(graphql.ObjectConfig{
+	Name: "MovementItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"date_order": &graphql.Field{
+			Type: graphql.String,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"office": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"recipient_user": &graphql.Field{
+			Type: DropdownItemType,
+		},
+	},
+})
+
+var MovementDetailsType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "MovementDetails",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: MovementDetail,
+		},
+	},
+})
+
+var MovementDetail = graphql.NewObject(graphql.ObjectConfig{
+	Name: "MovementDetail",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"date_order": &graphql.Field{
+			Type: graphql.String,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"office": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"recipient_user": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"articles": &graphql.Field{
+			Type: graphql.NewList(ArticleType),
+		},
+	},
+})
+
+var ArticleType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ArticleType",
+	Fields: graphql.Fields{
+		"amount": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})

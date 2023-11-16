@@ -59,7 +59,7 @@ var OrderListReceiveMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 var OrderListAssetMovementMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "OrderListAssetMovementMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
-		"order_id": &graphql.InputObjectFieldConfig{
+		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"office_id": &graphql.InputObjectFieldConfig{
@@ -68,8 +68,17 @@ var OrderListAssetMovementMutation = graphql.NewInputObject(graphql.InputObjectC
 		"recipient_user_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"movement_file": &graphql.InputObjectFieldConfig{
+		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
+		},
+		"date_order": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"articles": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(ArticlesMovement),
 		},
 	},
 })
@@ -82,6 +91,21 @@ var ArticlesInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		},
 		"amount": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
+		},
+	},
+})
+
+var ArticlesMovement = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "ArticlesMovement",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"amount": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"title": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 	},
 })

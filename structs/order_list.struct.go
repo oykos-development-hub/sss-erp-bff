@@ -68,8 +68,27 @@ type OrderReceiveItem struct {
 }
 
 type OrderAssetMovementItem struct {
-	OrderId         int  `json:"order_id"`
-	OfficeId        int  `json:"office_id"`
-	RecipientUserId int  `json:"recipient_user_id"`
-	MovementFile    *int `json:"movement_file"`
+	ID              int            `json:"id"`
+	DateOrder       string         `json:"date_order"`
+	OfficeId        int            `json:"office_id"`
+	RecipientUserId int            `json:"recipient_user_id"`
+	FileID          int            `json:"file_id"`
+	Description     string         `json:"description"`
+	Articles        []StockArticle `json:"articles"`
+}
+
+type StockArticle struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Amount      int    `json:"amount"`
+}
+
+type Movement struct {
+	ID              int    `json:"id"`
+	Description     string `json:"description"`
+	OfficeID        int    `json:"office_id"`
+	RecipientUserID int    `json:"recipient_user_id"`
+	DateOrder       string `json:"date_order"`
+	FileID          int    `json:"file_id"`
 }

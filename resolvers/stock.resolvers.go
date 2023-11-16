@@ -204,6 +204,17 @@ func buildMovementDetailsResponse(id int) (*dto.MovementDetailsResponse, error) 
 		return nil, err
 	}
 
+	if movement.FileID != 0 {
+		file, err := getFileByID(movement.ID)
+
+		if err != nil {
+			return nil, err
+		}
+		item.File.Id = file.ID
+		item.File.Name = file.Name
+		item.File.Type = *file.Type
+	}
+
 	var movementArticles []dto.ArticlesDropdown
 	for _, article := range articles {
 		var movementArticle dto.ArticlesDropdown

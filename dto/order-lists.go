@@ -95,6 +95,7 @@ type MovementDetailsResponse struct {
 	RecipientUser DropdownSimple     `json:"recipient_user"`
 	DateOrder     string             `json:"date_order"`
 	Articles      []ArticlesDropdown `json:"articles"`
+	File          FileDropdownSimple `json:"file"`
 }
 
 type ArticlesDropdown struct {

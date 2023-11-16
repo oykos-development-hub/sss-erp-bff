@@ -376,6 +376,9 @@ var MovementDetail = graphql.NewObject(graphql.ObjectConfig{
 		"articles": &graphql.Field{
 			Type: graphql.NewList(ArticleType),
 		},
+		"file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
 	},
 })
 

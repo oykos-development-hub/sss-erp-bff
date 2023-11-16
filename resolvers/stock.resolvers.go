@@ -205,7 +205,7 @@ func buildMovementDetailsResponse(id int) (*dto.MovementDetailsResponse, error) 
 	}
 
 	if movement.FileID != 0 {
-		file, err := getFileByID(movement.ID)
+		file, err := getFileByID(movement.FileID)
 
 		if err != nil {
 			return nil, err

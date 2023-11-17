@@ -314,8 +314,7 @@ var MovementDeleteResolver = func(params graphql.ResolveParams) (interface{}, er
 	}
 
 	for _, article := range articles {
-		//????????????????????????????????????
-		stock, _ := getStockByName("test")
+		stock, _, _ := getStock(&dto.StockFilter{ArticleID: &article.ArticleID})
 
 		if stock == nil {
 			err = createStock(article)
@@ -324,8 +323,8 @@ var MovementDeleteResolver = func(params graphql.ResolveParams) (interface{}, er
 				return shared.HandleAPIError(err)
 			}
 		} else {
-			stock.Amount += article.Amount
-			err := updateStock(*stock)
+			stock[0].Amount += article.Amount
+			err := updateStock(stock[0])
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
@@ -394,23 +393,6 @@ func updateStock(input structs.StockArticle) error {
 	}
 
 	return nil
-}
-
-func getStockByName(name string) (*structs.StockArticle, error) {
-	input := dto.StockFilter{
-		Title: &name,
-	}
-	res := &dto.GetStockResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.STOCK_ENDPOINT, input, res)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(res.Data) != 0 {
-		return &res.Data[0], nil
-	}
-
-	return nil, nil
 }
 
 func createMovementArticle(input dto.MovementArticle) (*dto.MovementArticle, error) {

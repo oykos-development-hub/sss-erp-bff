@@ -540,26 +540,20 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	}
 
 	for _, article := range articles.Data {
-		singleArticle, err := getProcurementArticle(article.ArticleId)
-
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		stock, _ := getStockByName(singleArticle.Title)
+		stock, _, _ := getStock(&dto.StockFilter{ArticleID: &article.ArticleId})
 
 		if stock == nil {
 			input := dto.MovementArticle{
-				Amount: article.Amount,
-				//ArticleID: ???????????????????????,
+				Amount:    article.Amount,
+				ArticleID: article.ArticleId,
 			}
 			err = createStock(input)
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
 		} else {
-			stock.Amount += article.Amount
-			err = updateStock(*stock)
+			stock[0].Amount += article.Amount
+			err = updateStock(stock[0])
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}

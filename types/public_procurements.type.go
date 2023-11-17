@@ -207,6 +207,30 @@ var ContractPdfReportItemType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var PlanPdfReportItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "PlanPdfReportItem",
+	Fields: graphql.Fields{
+		"plan_id": &graphql.Field{
+			Type: graphql.String,
+		},
+		"year": &graphql.Field{
+			Type: graphql.String,
+		},
+		"published_date": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total_gross": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total_vat": &graphql.Field{
+			Type: graphql.String,
+		},
+		"table_data": &graphql.Field{
+			Type: graphql.NewList(PlanTableDataRowType),
+		},
+	},
+})
+
 var subtitlesType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Subtitles",
 	Fields: graphql.Fields{
@@ -238,6 +262,36 @@ var tableDataRowType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"consumed_amount": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+var PlanTableDataRowType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "PlanTableDataRow",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.String,
+		},
+		"article_type": &graphql.Field{
+			Type: graphql.String,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total_gross": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total_vat": &graphql.Field{
+			Type: graphql.String,
+		},
+		"type_of_procedure": &graphql.Field{
+			Type: graphql.String,
+		},
+		"budget_indent": &graphql.Field{
+			Type: graphql.String,
+		},
+		"funding_source": &graphql.Field{
 			Type: graphql.String,
 		},
 	},
@@ -292,7 +346,7 @@ var PublicProcurementPlanPDFType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"item": &graphql.Field{
-			Type: graphql.String,
+			Type: PlanPdfReportItemType,
 		},
 	},
 })

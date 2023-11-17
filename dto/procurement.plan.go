@@ -54,3 +54,23 @@ type ProcurementPlanResponseItem struct {
 	CreatedAt           string                         `json:"created_at"`
 	UpdatedAt           string                         `json:"updated_at"`
 }
+
+type PlanPDFResponse struct {
+	PlanID        string                `json:"plan_id"`
+	Year          string                `json:"year"`
+	PublishedDate string                `json:"published_date"`
+	TotalGross    string                `json:"total_gross"`
+	TotalVAT      string                `json:"total_vat"`
+	TableData     []PlanPDFTableDataRow `json:"table_data"`
+}
+
+type PlanPDFTableDataRow struct {
+	Id              string `json:"id"`
+	ArticleType     string `json:"article_type"`
+	Title           string `json:"title"`
+	TotalGross      string `json:"total_gross"`
+	TotalVAT        string `json:"total_vat"`
+	TypeOfProcedure string `json:"type_of_procedure"`
+	BudgetIndent    string `json:"budget_indent"`
+	FundingSource   string `json:"funding_source"`
+}

@@ -3,12 +3,9 @@ package resolvers
 import (
 	"bff/config"
 	"bff/dto"
-	"bff/pdfutils"
 	"bff/shared"
 	"bff/structs"
-	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,8 +13,6 @@ import (
 	"time"
 
 	"github.com/graphql-go/graphql"
-	"github.com/unidoc/unipdf/v3/creator"
-	"github.com/unidoc/unipdf/v3/model"
 )
 
 var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -459,76 +454,6 @@ var PublicProcurementPlanPDFResolver = func(params graphql.ResolveParams) (inter
 	}
 	planResItem, _ := buildProcurementPlanResponseItem(params.Context, plan, nil)
 
-	c := creator.New()
-	c.SetPageMargins(50, 50, 50, 50)
-	c.NewPage()
-
-	// Define fonts
-	fontRegular, err := model.NewCompositePdfFontFromTTFFile(config.BASE_APP_DIR + "fonts/RobotoSlab-VariableFont_wght.ttf")
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	fontBold, err := model.NewCompositePdfFontFromTTFFile(config.BASE_APP_DIR + "fonts/RobotoSlab-Bold.ttf")
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	// Add Title
-	title, err := pdfutils.CreateTitle(c, fmt.Sprintf("Pregled plana #%d", planID), fontBold)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	err = c.Draw(title)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	subtitle, err := pdfutils.CreateSubtitle(c, "1 PODACI O NARUČIOCU", fontBold)
-	subtitle.SetMargins(0, 0, 20, 0)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	err = c.Draw(subtitle)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	var verticalTableData map[string]string
-
-	verticalTableData = map[string]string{
-		"Naziv naručioca": "SEKRETARIJAT SUDSKOG SAVJETA",
-		"PIB":             "02721040",
-		"E-mail":          "javne.nabavke@sudstvo.me",
-		"Telefon":         "020/231-124",
-		"Internet adresa": "www.sudovi.me",
-		"Fax":             "020/231-128",
-		"Adresa":          "Miljana Vukova bb",
-		"Grad":            "Podgorica",
-		"Poštanski broj":  "81000",
-	}
-
-	table, err := pdfutils.CreateVerticalHeaderTable(c, verticalTableData, fontRegular)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	_ = table.SetColumnWidths(0.3, 0.7)
-
-	err = c.Draw(table)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	subtitle, err = pdfutils.CreateSubtitle(c, "2 OSNOVNI PODACI", fontBold)
-	subtitle.SetMargins(0, 0, 20, 0)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	err = c.Draw(subtitle)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
 	dateCurrentLayout := "2006-01-02T15:04:05Z"
 	dateOutputLayout := "02.01.2006. 15:04"
 
@@ -537,81 +462,36 @@ var PublicProcurementPlanPDFResolver = func(params graphql.ResolveParams) (inter
 		return shared.HandleAPIError(err)
 	}
 
-	verticalTableData = map[string]string{
-		"Naslov plana":            "SEKRETARIJAT SUDSKOG SAVJETA",
-		"Status":                  "Objavljen",
-		"Kontakt":                 "020/231-124",
-		"Odgovorna osoba":         "Vesna Aćimic",
-		"Godina":                  planResItem.Year,
-		"Datum objave":            t.Format(dateOutputLayout),
-		"Ukupna vrijednost plana": dto.FormatToEuro(planResItem.TotalGross),
-		"Ukupna vrijednost PDV":   dto.FormatToEuro(planResItem.TotalGross - planResItem.TotalNet),
-	}
+	var planPDFResponse dto.PlanPDFResponse
 
-	table, err = pdfutils.CreateVerticalHeaderTable(c, verticalTableData, fontRegular)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	_ = table.SetColumnWidths(0.3, 0.7)
+	planPDFResponse.TotalGross = dto.FormatToEuro(planResItem.TotalGross)
+	planPDFResponse.TotalVAT = dto.FormatToEuro(planResItem.TotalGross - planResItem.TotalNet)
+	planPDFResponse.PublishedDate = t.Format(dateOutputLayout)
+	planPDFResponse.Year = planResItem.Year
+	planPDFResponse.PlanID = strconv.Itoa(planResItem.Id)
 
-	err = c.Draw(table)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	subtitle, err = pdfutils.CreateSubtitle(c, "3 STAVKE PLANA", fontBold)
-	subtitle.SetMargins(0, 0, 20, 0)
-
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	err = c.Draw(subtitle)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	// Set the headers for the table.
-	headers := []string{"", "Vrsta predmeta", "Opis", " Vrijednost nabavke", "Vrijednost PDV", "Vrsta postupka", "Konto / Budžetska pozicija", "Izvor finansiranja"}
-	var horizontalTableData [][]string
+	var tableData []dto.PlanPDFTableDataRow
 
 	for index, procurement := range planResItem.Items {
-
-		rowData := []string{
-			fmt.Sprintf("%d", index+1),
-			procurement.ArticleType,
-			procurement.Title,
-			dto.FormatToEuro(procurement.TotalGross),
-			dto.FormatToEuro(procurement.TotalGross - procurement.TotalNet),
-			procurement.TypeOfProcedure,
-			procurement.BudgetIndent.SerialNumber,
-			"Budžet CG",
+		rowData := dto.PlanPDFTableDataRow{
+			Id:              fmt.Sprintf("%d", index+1),
+			ArticleType:     procurement.ArticleType,
+			Title:           procurement.Title,
+			TotalGross:      dto.FormatToEuro(procurement.TotalGross),
+			TotalVAT:        dto.FormatToEuro(procurement.TotalGross - procurement.TotalNet),
+			TypeOfProcedure: procurement.TypeOfProcedure,
+			BudgetIndent:    procurement.BudgetIndent.SerialNumber,
+			FundingSource:   "Budžet CG",
 		}
-		horizontalTableData = append(horizontalTableData, rowData)
+		tableData = append(tableData, rowData)
 	}
 
-	table, err = pdfutils.CreateTable(c, headers, horizontalTableData, fontRegular)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	_ = table.SetColumnWidths(0.09, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13)
-
-	err = c.Draw(table)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	var buf bytes.Buffer
-	err = c.Write(&buf)
-	if err != nil {
-		return nil, err
-	}
-
-	encodedStr := base64.StdEncoding.EncodeToString(buf.Bytes())
+	planPDFResponse.TableData = tableData
 
 	// Return the path or a URL to the file
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "Here's is your PDF file in base64 encode format!",
-		Item:    encodedStr,
+		Item:    planPDFResponse,
 	}, nil
 }

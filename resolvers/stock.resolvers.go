@@ -6,6 +6,7 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -83,6 +84,10 @@ var MovementOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 	page := params.Args["page"]
 	officeID, officeOk := params.Args["office_id"].(int)
 	userID, userOk := params.Args["recipient_user_id"].(int)
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || organizationUnitID == nil {
+		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+	}
 
 	if shared.IsInteger(page) && page.(int) > 0 {
 		pageNum := page.(int)
@@ -109,6 +114,28 @@ var MovementOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 	var response []dto.MovementResponse
 
 	for _, movement := range movementList {
+		organizationUnit := strconv.Itoa(*organizationUnitID)
+		res, err := getOfficeDropdownSettings(&dto.GetOfficesOfOrganizationInput{
+			Value: &organizationUnit,
+		})
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		flag := false
+
+		for _, item := range res.Data {
+			if item.Id == movement.OfficeID {
+				flag = true
+				continue
+			}
+		}
+
+		if !flag {
+			*total--
+			continue
+		}
+
 		var item dto.MovementResponse
 		item.ID = movement.ID
 		item.DateOrder = movement.DateOrder

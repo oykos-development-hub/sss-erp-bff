@@ -370,7 +370,7 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 
 	}
 
-	status := "Lager"
+	status := "Nezadužen"
 
 	if item.Type == "movable" && item.Active {
 		itemInventoryList, _ := getDispatchItemByInventoryID(item.Id)
@@ -389,7 +389,7 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 						case "allocation":
 							status = "Zadužen"
 						case "return":
-							status = "Lager"
+							status = "Nezadužen"
 						}
 					}
 					break
@@ -617,7 +617,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 
 	itemInventoryList, _ := getDispatchItemByInventoryID(item.Id)
 
-	status := "Lager"
+	status := "Nezadužen"
 	var movements []*dto.InventoryDispatchResponse
 	indexMovements := 0
 	if len(itemInventoryList) > 0 {
@@ -633,7 +633,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 				case "allocation":
 					status = "Zadužen"
 				case "return":
-					status = "Lager"
+					status = "Nezadužen"
 				}
 			} else {
 				indexAssessments++

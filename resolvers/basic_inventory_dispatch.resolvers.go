@@ -227,12 +227,13 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 			sourceOrganizationUnitDropdown = dto.DropdownSimple{Id: sourceOrganizationUnit.Id, Title: sourceOrganizationUnit.Title}
 		}
 	}
-
+	city := ""
 	targetOrganizationUnitDropdown := dto.DropdownSimple{}
 	if item.TargetOrganizationUnitId != 0 {
 		targetOrganizationUnit, _ := getOrganizationUnitById(item.TargetOrganizationUnitId)
 
 		if targetOrganizationUnit != nil {
+			city = targetOrganizationUnit.City
 			targetOrganizationUnitDropdown = dto.DropdownSimple{Id: targetOrganizationUnit.Id, Title: targetOrganizationUnit.Title}
 		}
 	}
@@ -281,6 +282,7 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 		InventoryType:          item.InventoryType,
 		Inventory:              inventoryItems,
 		Date:                   item.Date,
+		City:                   city,
 		CreatedAt:              item.CreatedAt,
 		UpdatedAt:              item.UpdatedAt,
 		DispatchDescription:    item.DispatchDescription,

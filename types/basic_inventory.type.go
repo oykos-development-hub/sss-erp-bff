@@ -53,6 +53,12 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"city": &graphql.Field{
+			Type: graphql.String,
+		},
+		"address": &graphql.Field{
+			Type: graphql.String,
+		},
 		"location": &graphql.Field{
 			Type: graphql.String,
 		},

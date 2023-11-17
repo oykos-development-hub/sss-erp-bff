@@ -76,6 +76,8 @@ type BasicInventoryResponseItem struct {
 	TargetUserProfile            DropdownSimple                                                 `json:"target_user_profile"`
 	OrganizationUnit             DropdownSimple                                                 `json:"organization_unit"`
 	TargetOrganizationUnit       DropdownSimple                                                 `json:"target_organization_unit"`
+	City                         string                                                         `json:"city"`
+	Address                      string                                                         `json:"address"`
 	Unit                         string                                                         `json:"unit"`
 	Amount                       int                                                            `json:"amount"`
 	NetPrice                     float32                                                        `json:"net_price"`

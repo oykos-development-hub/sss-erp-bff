@@ -517,10 +517,11 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 			targetUserDropdown = dto.DropdownSimple{Id: user.Id, Title: user.FirstName + " " + user.LastName}
 		}
 	}
-
+	var currentOrganizationUnit *structs.OrganizationUnits
 	organizationUnitDropdown := dto.DropdownSimple{}
 	if item.OrganizationUnitId != 0 {
 		organizationUnit, err := getOrganizationUnitById(item.OrganizationUnitId)
+		currentOrganizationUnit = organizationUnit
 		if err != nil {
 			return nil, err
 		}
@@ -532,6 +533,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	targetOrganizationUnitDropdown := dto.DropdownSimple{}
 	if item.TargetOrganizationUnitId != 0 {
 		targetOrganizationUnit, err := getOrganizationUnitById(item.TargetOrganizationUnitId)
+		currentOrganizationUnit = targetOrganizationUnit
 		if err != nil {
 			return nil, err
 		}
@@ -699,6 +701,8 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		AmortizationValue:            amortizationValue,
 		OrganizationUnit:             organizationUnitDropdown,
 		TargetOrganizationUnit:       targetOrganizationUnitDropdown,
+		City:                         currentOrganizationUnit.City,
+		Address:                      currentOrganizationUnit.Address,
 		Status:                       status,
 		CreatedAt:                    item.CreatedAt,
 		UpdatedAt:                    item.UpdatedAt,
@@ -900,7 +904,7 @@ var FormNS1PDFResolver = func(params graphql.ResolveParams) (interface{}, error)
 	//Amount
 	pAmountParagraph := c.NewStyledParagraph()
 	pAmountParagraph.SetMargins(5, 5, 7, 7)
-	pAmountParagraphText := "2. . Mjesto gdje se nepokretnost nalazi: "
+	pAmountParagraphText := "2. Mjesto gdje se nepokretnost nalazi: "
 	pAmountParagraphBoldText := items.Location
 
 	pAmountParagraph.Append(pAmountParagraphText).Style.Font = fontRegular

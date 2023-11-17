@@ -39,6 +39,7 @@ type InventoryDispatchResponse struct {
 	InventoryType          string                       `json:"inventory_type"`
 	Inventory              []BasicInventoryResponseItem `json:"inventory"`
 	Date                   string                       `json:"date"`
+	City                   string                       `json:"city"`
 	CreatedAt              string                       `json:"created_at"`
 	UpdatedAt              string                       `json:"updated_at"`
 	FileId                 int                          `json:"file_id"`

@@ -98,14 +98,11 @@ var ArticlesInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 var ArticlesMovement = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "ArticlesMovement",
 	Fields: graphql.InputObjectConfigFieldMap{
-		"amount": &graphql.InputObjectFieldConfig{
+		"quantity": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"title": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"description": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+		"article_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
 		},
 	},
 })

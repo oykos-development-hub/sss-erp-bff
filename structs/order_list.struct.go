@@ -84,6 +84,7 @@ type StockArticle struct {
 	Description string `json:"description"`
 	Year        string `json:"year"`
 	Amount      int    `json:"amount"`
+	Quantity    int    `json:"quantity"`
 }
 
 type Movement struct {

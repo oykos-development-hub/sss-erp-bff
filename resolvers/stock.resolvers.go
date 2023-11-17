@@ -62,11 +62,8 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 		article.Year = plan.Year
 		article.Title = fullArticle.Title
 		article.Description = fullArticle.Description
+		article.ArticleID = fullArticle.Id
 		articles = append(articles, article)
-	}
-
-	if searchOk && search != "" {
-		input.Title = &search
 	}
 
 	return dto.Response{
@@ -176,9 +173,8 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 
 		for _, article := range data.Articles {
 			var item dto.MovementArticle
-			item.Amount = article.Amount
-			item.Description = article.Description
-			item.Title = article.Title
+			item.Amount = article.Quantity
+			item.ArticleID = article.ArticleID
 			item.MovementID = movement.ID
 
 			_, err := createMovementArticle(item)
@@ -248,11 +244,28 @@ func buildMovementDetailsResponse(id int) (*dto.MovementDetailsResponse, error) 
 
 	var movementArticles []dto.ArticlesDropdown
 	for _, article := range articles {
+		fullArticle, err := getProcurementArticle(article.ArticleID)
+		if err != nil {
+			return nil, err
+		}
+
+		procurement, err := getProcurementItem(fullArticle.PublicProcurementId)
+		if err != nil {
+			return nil, err
+		}
+
+		plan, err := getProcurementPlan(procurement.PlanId)
+		if err != nil {
+			return nil, err
+		}
+
 		var movementArticle dto.ArticlesDropdown
 
-		movementArticle.Title = article.Title
-		movementArticle.Description = article.Description
+		movementArticle.Title = fullArticle.Title
+		movementArticle.Description = fullArticle.Description
 		movementArticle.Amount = article.Amount
+		movementArticle.Year = plan.Year
+		movementArticle.ArticleID = fullArticle.Id
 
 		movementArticles = append(movementArticles, movementArticle)
 	}
@@ -286,7 +299,8 @@ var MovementDeleteResolver = func(params graphql.ResolveParams) (interface{}, er
 	}
 
 	for _, article := range articles {
-		stock, _ := getStockByName(article.Title)
+		//????????????????????????????????????
+		stock, _ := getStockByName("test")
 
 		if stock == nil {
 			err = createStock(article)

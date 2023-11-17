@@ -99,17 +99,18 @@ type MovementDetailsResponse struct {
 }
 
 type ArticlesDropdown struct {
+	ArticleID   int    `json:"article_id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Amount      int    `json:"amount"`
+	Year        string `json:"year"`
 }
 
 type MovementArticle struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Amount      int    `json:"amount"`
-	MovementID  int    `json:"movement_id"`
+	ID         int `json:"id"`
+	ArticleID  int `json:"article_id"`
+	Amount     int `json:"amount"`
+	MovementID int `json:"movement_id"`
 }
 
 type GetMovementArticleResponseMS struct {

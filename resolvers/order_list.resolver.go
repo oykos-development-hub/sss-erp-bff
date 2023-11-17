@@ -550,9 +550,8 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 
 		if stock == nil {
 			input := dto.MovementArticle{
-				Amount:      article.Amount,
-				Title:       singleArticle.Title,
-				Description: singleArticle.Description,
+				Amount: article.Amount,
+				//ArticleID: ???????????????????????,
 			}
 			err = createStock(input)
 			if err != nil {

@@ -7,6 +7,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"strconv"
+	"strings"
 
 	"github.com/graphql-go/graphql"
 )
@@ -29,20 +30,50 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 		input.Size = &sizeNum
 	}
 
-	if searchOk && search != "" {
-		input.Title = &search
-	}
-
 	articleList, total, err := getStock(&input)
 	if err != nil {
 		return shared.HandleAPIError(err)
+	}
+
+	var articles []structs.StockArticle
+
+	for _, article := range articleList {
+		fullArticle, err := getProcurementArticle(article.ArticleID)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		if searchOk && search != "" {
+			if !strings.Contains(fullArticle.Title, search) {
+				*total--
+				continue
+			}
+		}
+
+		procurement, err := getProcurementItem(fullArticle.PublicProcurementId)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		plan, err := getProcurementPlan(procurement.PlanId)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		article.Year = plan.Year
+		article.Title = fullArticle.Title
+		article.Description = fullArticle.Description
+		articles = append(articles, article)
+	}
+
+	if searchOk && search != "" {
+		input.Title = &search
 	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 		Total:   *total,
-		Items:   articleList,
+		Items:   articles,
 	}, nil
 }
 

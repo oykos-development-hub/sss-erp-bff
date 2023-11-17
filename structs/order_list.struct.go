@@ -80,7 +80,9 @@ type OrderAssetMovementItem struct {
 type StockArticle struct {
 	ID          int    `json:"id"`
 	Title       string `json:"title"`
+	ArticleID   int    `json:"article_id"`
 	Description string `json:"description"`
+	Year        string `json:"year"`
 	Amount      int    `json:"amount"`
 }
 

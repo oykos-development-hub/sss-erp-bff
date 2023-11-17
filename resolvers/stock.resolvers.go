@@ -343,7 +343,7 @@ var MovementDeleteResolver = func(params graphql.ResolveParams) (interface{}, er
 	for _, article := range articles {
 		stock, _, _ := getStock(&dto.StockFilter{ArticleID: &article.ArticleID})
 
-		if stock == nil {
+		if len(stock) == 0 {
 			err = createStock(article)
 
 			if err != nil {

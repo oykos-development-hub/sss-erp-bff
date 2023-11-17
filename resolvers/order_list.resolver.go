@@ -542,7 +542,7 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	for _, article := range articles.Data {
 		stock, _, _ := getStock(&dto.StockFilter{ArticleID: &article.ArticleId})
 
-		if stock == nil {
+		if len(stock) == 0 {
 			input := dto.MovementArticle{
 				Amount:    article.Amount,
 				ArticleID: article.ArticleId,

@@ -182,6 +182,21 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
+
+			stockArticle, _, err := getStock(&dto.StockFilter{ArticleID: &item.ArticleID})
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
+			stockArticle[0].Amount -= article.Quantity
+
+			err = updateStock(stockArticle[0])
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
 		}
 	} else {
 		_, err := updateMovements(data)

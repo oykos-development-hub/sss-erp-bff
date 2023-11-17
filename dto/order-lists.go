@@ -50,9 +50,10 @@ type OrderListOverviewResponse struct {
 }
 
 type StockFilter struct {
-	Page  *int    `json:"page"`
-	Size  *int    `json:"size"`
-	Title *string `json:"title"`
+	Page      *int    `json:"page"`
+	Size      *int    `json:"size"`
+	Title     *string `json:"title"`
+	ArticleID *int    `json:"article_id"`
 }
 
 type GetStockResponseMS struct {

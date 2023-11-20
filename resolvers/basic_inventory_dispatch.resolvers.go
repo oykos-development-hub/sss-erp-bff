@@ -269,6 +269,20 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 		}
 	}
 
+	var fileDropdown dto.FileDropdownSimple
+
+	if item.FileId != 0 {
+		file, err := getFileByID(item.FileId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		fileDropdown.Id = file.ID
+		fileDropdown.Name = file.Name
+		fileDropdown.Type = *file.Type
+	}
+
 	res := dto.InventoryDispatchResponse{
 		ID:                     item.Id,
 		Type:                   item.Type,
@@ -286,7 +300,7 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 		CreatedAt:              item.CreatedAt,
 		UpdatedAt:              item.UpdatedAt,
 		DispatchDescription:    item.DispatchDescription,
-		FileId:                 item.FileId,
+		File:                   fileDropdown,
 	}
 
 	return &res, nil

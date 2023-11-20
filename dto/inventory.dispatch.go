@@ -42,5 +42,5 @@ type InventoryDispatchResponse struct {
 	City                   string                       `json:"city"`
 	CreatedAt              string                       `json:"created_at"`
 	UpdatedAt              string                       `json:"updated_at"`
-	FileId                 int                          `json:"file_id"`
+	File                   FileDropdownSimple           `json:"file"`
 }

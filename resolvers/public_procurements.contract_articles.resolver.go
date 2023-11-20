@@ -54,7 +54,7 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 }
 
 var PublicProcurementContractArticleInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.PublicProcurementContractArticle
+	var data []structs.PublicProcurementContractArticle
 	response := dto.ResponseSingle{
 		Status: "success",
 	}
@@ -66,34 +66,37 @@ var PublicProcurementContractArticleInsertResolver = func(params graphql.Resolve
 		return shared.HandleAPIError(err)
 	}
 
-	itemId := data.Id
+	var items []*dto.ProcurementContractArticlesResponseItem
+	for _, data := range data {
+		itemId := data.Id
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := updateProcurementContractArticle(itemId, &data)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		item, err := buildProcurementContractArticlesResponseItem(params.Context, res)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
+		if shared.IsInteger(itemId) && itemId != 0 {
+			res, err := updateProcurementContractArticle(itemId, &data)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			item, err := buildProcurementContractArticlesResponseItem(params.Context, res)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
 
-		response.Message = "You updated this item!"
-		response.Item = item
-	} else {
-		res, err := createProcurementContractArticle(&data)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		item, err := buildProcurementContractArticlesResponseItem(params.Context, res)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
+			response.Message = "You updated this item!"
+			items = append(items, item)
+		} else {
+			res, err := createProcurementContractArticle(&data)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			item, err := buildProcurementContractArticlesResponseItem(params.Context, res)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
 
-		response.Message = "You created this item!"
-		response.Item = item
+			response.Message = "You created this item!"
+			items = append(items, item)
+		}
 	}
-
+	response.Item = items
 	return response, nil
 }
 

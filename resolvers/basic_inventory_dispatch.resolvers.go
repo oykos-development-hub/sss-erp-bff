@@ -116,7 +116,21 @@ var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (i
 var BasicInventoryDispatchDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	itemId := params.Args["id"].(int)
 
-	err := deleteInventoryDispatch(itemId)
+	dispatch, err := getDispatchItemByID(itemId)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	if dispatch.FileId != 0 {
+		err := deleteFile(dispatch.FileId)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+	}
+
+	err = deleteInventoryDispatch(itemId)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}

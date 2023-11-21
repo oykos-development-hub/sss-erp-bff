@@ -15,6 +15,7 @@ type GetOrganizationUnitsInput struct {
 	Page     *int    `json:"page"`
 	Size     *int    `json:"page_size"`
 	ParentID *int    `json:"parent_id"`
+	IsParent *bool   `json:"is_parent"`
 	Search   *string `json:"search"`
 }
 

@@ -181,9 +181,9 @@ func DeleteUserAccount(id int) error {
 	return nil
 }
 
-func getRole(id int) (*structs.UserAccountRoles, error) {
+func getRole(id structs.UserRole) (*structs.UserAccountRoles, error) {
 	res := &dto.GetUserAccountRoleResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.ROLES_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	_, err := shared.MakeAPIRequest("GET", config.ROLES_ENDPOINT+"/"+strconv.Itoa(int(id)), nil, res)
 	if err != nil {
 		return nil, err
 	}

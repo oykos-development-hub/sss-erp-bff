@@ -68,26 +68,51 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		organizationUnit, _ = getOrganizationUnitById(systematization.OrganizationUnitId)
 	}
 
+	var organizationUnitList []dto.OrganizationUnitsOverviewResponse
+
+	if loginRes.Data.HasPermission(structs.PermissionManageOrganizationUnits) {
+		isParent := true
+		organizationUnits, err := getOrganizationUnits(&dto.GetOrganizationUnitsInput{IsParent: &isParent})
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		for _, organizationUnit := range organizationUnits.Data {
+			organizationUnitItem, err := buildOrganizationUnitOverviewResponse(&organizationUnit)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			organizationUnitList = append(organizationUnitList, *organizationUnitItem)
+		}
+	}
+
+	supplierListRes, err := getSupplierList(nil)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
 	return dto.LoginResponse{
-		Status:              "success",
-		Message:             "Welcome!",
-		Id:                  userProfile.Id,
-		RoleId:              loginRes.Data.RoleId,
-		FolderId:            0,
-		Email:               loginRes.Data.Email,
-		Phone:               loginRes.Data.Phone,
-		Token:               loginRes.Data.Token.Token,
-		CreatedAt:           userProfile.CreatedAt,
-		FirstName:           userProfile.FirstName,
-		LastName:            userProfile.LastName,
-		BirthLastName:       userProfile.BirthLastName,
-		Gender:              userProfile.Gender,
-		DateOfBecomingJudge: userProfile.DateOfBecomingJudge,
-		Permissions:         permissionsData,
-		Contract:            contractsResItem,
-		Engagement:          engagement,
-		JobPosition:         jobPosition,
-		OrganizationUnit:    organizationUnit,
+		Status:               "success",
+		Message:              "Welcome!",
+		Id:                   userProfile.Id,
+		RoleId:               loginRes.Data.RoleId,
+		FolderId:             0,
+		Email:                loginRes.Data.Email,
+		Phone:                loginRes.Data.Phone,
+		Token:                loginRes.Data.Token.Token,
+		CreatedAt:            userProfile.CreatedAt,
+		FirstName:            userProfile.FirstName,
+		LastName:             userProfile.LastName,
+		BirthLastName:        userProfile.BirthLastName,
+		Gender:               userProfile.Gender,
+		DateOfBecomingJudge:  userProfile.DateOfBecomingJudge,
+		Permissions:          permissionsData,
+		Contract:             contractsResItem,
+		Engagement:           engagement,
+		JobPosition:          jobPosition,
+		OrganizationUnit:     organizationUnit,
+		OrganizationUnitList: organizationUnitList,
+		SupplierList:         supplierListRes.Data,
 	}, nil
 }
 

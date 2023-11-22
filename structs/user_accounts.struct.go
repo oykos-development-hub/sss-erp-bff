@@ -21,11 +21,8 @@ func (user UserAccounts) GetPermissionsForRole() []UserPermission {
 	switch user.RoleId {
 	case UserRoleAdmin:
 		permissions = append(permissions, PermissionManageOrganizationUnits)
-		// Add other admin-specific permissions
 	case UserRoleOfficialForPublicProcurements:
 		permissions = append(permissions, PermissionManageOrganizationUnits)
-		// Add other permissions specific to this role
-		// Handle other roles
 	}
 	return permissions
 }

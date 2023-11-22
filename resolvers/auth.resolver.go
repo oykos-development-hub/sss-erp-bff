@@ -95,7 +95,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		Status:               "success",
 		Message:              "Welcome!",
 		Id:                   userProfile.Id,
-		RoleId:               loginRes.Data.RoleId,
+		RoleId:               int(loginRes.Data.RoleId),
 		FolderId:             0,
 		Email:                loginRes.Data.Email,
 		Phone:                loginRes.Data.Phone,

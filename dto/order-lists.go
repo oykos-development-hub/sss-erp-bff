@@ -100,6 +100,7 @@ type MovementDetailsResponse struct {
 }
 
 type ArticlesDropdown struct {
+	ID          int    `json:"id"`
 	ArticleID   int    `json:"article_id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`

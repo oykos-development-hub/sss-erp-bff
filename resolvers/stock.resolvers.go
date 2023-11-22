@@ -308,6 +308,7 @@ func buildMovementDetailsResponse(id int) (*dto.MovementDetailsResponse, error) 
 		movementArticle.Amount = article.Amount
 		movementArticle.Year = plan.Year
 		movementArticle.ArticleID = fullArticle.Id
+		movementArticle.ID = article.ID
 
 		movementArticles = append(movementArticles, movementArticle)
 	}

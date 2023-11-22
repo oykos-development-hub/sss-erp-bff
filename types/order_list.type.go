@@ -406,5 +406,8 @@ var ArticleType = graphql.NewObject(graphql.ObjectConfig{
 		"article_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })

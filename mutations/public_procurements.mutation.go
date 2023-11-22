@@ -121,7 +121,7 @@ var PublicProcurementPlanItemArticleInsertMutation = graphql.NewInputObject(grap
 		},
 		"visibility_type": &graphql.InputObjectFieldConfig{
 			Type:         graphql.Int,
-			DefaultValue: 1,
+			DefaultValue: 0,
 		},
 	},
 })

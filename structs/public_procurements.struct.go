@@ -43,7 +43,7 @@ type PublicProcurementItem struct {
 
 type VisibilityType int
 
-const VisibilityTypeNone VisibilityType = 1
+const VisibilityTypeNone VisibilityType = 0
 const VisibilityTypeAccounting VisibilityType = 2
 const VisibilityTypeInventory VisibilityType = 3
 

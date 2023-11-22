@@ -610,12 +610,25 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 
 				currentTime := time.Now()
 				years := currentTime.Year() - t.Year()
+				months := int(currentTime.Month() - t.Month())
+
+				if currentTime.Day() < t.Day() {
+					months--
+				}
 
 				if currentTime.YearDay() < t.YearDay() {
 					years--
 				}
-				if years > 0 {
-					amortizationValue = grossPrice / float32(lifetimeOfAssessmentInMonths) * float32(years)
+
+				if months < 0 {
+					years--
+					months += 12
+				}
+
+				totalMonths := years*12 + months
+
+				if totalMonths > 0 {
+					amortizationValue = grossPrice / float32(lifetimeOfAssessmentInMonths) / 12 * float32(totalMonths)
 				}
 			}
 		}

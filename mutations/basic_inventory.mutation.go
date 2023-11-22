@@ -89,7 +89,10 @@ var BasicInventoryInsertMutation = graphql.NewInputObject(graphql.InputObjectCon
 		"price_of_assessment": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"order_list_id": &graphql.InputObjectFieldConfig{
+		"contract_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"contract_article_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"date_of_assessment": &graphql.InputObjectFieldConfig{

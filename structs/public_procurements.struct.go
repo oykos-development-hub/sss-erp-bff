@@ -104,6 +104,7 @@ type PublicProcurementContractArticle struct {
 	NetValue                    float32 `json:"net_value"`
 	GrossValue                  float32 `json:"gross_value"`
 	VatPercentage               string  `json:"vat_percentage"`
+	UsedArticles                int     `json:"used_articles"`
 	CreatedAt                   string  `json:"created_at"`
 	UpdatedAt                   string  `json:"updated_at"`
 }

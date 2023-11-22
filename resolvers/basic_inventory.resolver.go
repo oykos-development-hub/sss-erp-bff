@@ -147,13 +147,21 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 		return shared.HandleAPIError(err)
 	}
 
-	for i, item := range data {
-		if i == 0 && item.OrderListId != 0 {
-			orderList, _ := getOrderListById(item.OrderListId)
-			orderList.IsUsed = true
-			_, err := updateOrderListItem(item.OrderListId, orderList)
-			if err != nil {
-				return shared.HandleAPIError(err)
+	for _, item := range data {
+		if item.ContractId > 0 && item.ContractArticleId > 0 {
+			articles, _ := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
+				ContractID: &item.ContractId,
+				ArticleID:  &item.ContractArticleId,
+			})
+
+			if len(articles.Data) > 0 {
+				article := articles.Data[0]
+
+				article.UsedArticles++
+				_, err := updateProcurementContractArticle(article.Id, article)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
 			}
 		}
 		item.Active = true
@@ -177,6 +185,7 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
+
 			assessment := structs.BasicInventoryAssessmentsTypesItem{
 				DepreciationTypeId:   item.DepreciationTypeId,
 				GrossPriceNew:        item.GrossPrice,
@@ -375,26 +384,21 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 	if item.Type == "movable" && item.Active {
 		itemInventoryList, _ := getDispatchItemByInventoryID(item.Id)
 		if len(itemInventoryList) > 0 {
-			for _, move := range itemInventoryList {
 
-				dispatchRes, err := getDispatchItemByID(move.DispatchId)
-				if err != nil {
-					return nil, err
-				}
-				if dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID {
-					if status == "" && dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID {
-						switch dispatchRes.Type {
-						case "revers":
-							status = "Revers"
-						case "allocation":
-							status = "Zadužen"
-						case "return":
-							status = "Nezadužen"
-						}
-					}
-					break
-				}
+			dispatchRes, err := getDispatchItemByID(itemInventoryList[0].DispatchId)
+			if err != nil {
+				return nil, err
 			}
+
+			switch dispatchRes.Type {
+			case "revers":
+				status = "Nezadužen"
+			case "allocation":
+				status = "Zadužen"
+			case "return":
+				status = "Nezadužen"
+			}
+
 		}
 	}
 	if !item.Active {

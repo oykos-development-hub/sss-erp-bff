@@ -10,6 +10,7 @@ type GetProcurementContractArticleResponseMS struct {
 
 type GetProcurementContractArticlesInput struct {
 	ContractID *int `json:"contract_id"`
+	ArticleID  *int `json:"article_id"`
 }
 
 type GetProcurementContractArticlesListResponseMS struct {
@@ -22,6 +23,7 @@ type ProcurementContractArticlesResponseItem struct {
 	Article      DropdownProcurementArticle                         `json:"public_procurement_article"`
 	Contract     DropdownSimple                                     `json:"contract"`
 	Amount       int                                                `json:"amount"`
+	UsedArticles int                                                `json:"used_articles"`
 	OverageList  []*structs.PublicProcurementContractArticleOverage `json:"overages"`
 	OverageTotal int                                                `json:"overage_total"`
 	NetValue     float32                                            `json:"net_value"`

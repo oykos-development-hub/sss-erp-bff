@@ -192,6 +192,7 @@ func buildProcurementContractArticlesResponseItem(context context.Context, item 
 			Id:    contract.Id,
 			Title: contract.SerialNumber,
 		},
+		UsedArticles: item.UsedArticles,
 		OverageList:  overageList,
 		OverageTotal: overageTotal,
 		NetValue:     item.NetValue,

@@ -89,6 +89,7 @@ func buildProcurementArticleResponseItem(context context.Context, item *structs.
 		NetPrice:          item.NetPrice,
 		VATPercentage:     &item.VatPercentage,
 		Manufacturer:      item.Manufacturer,
+		VisibilityType:    int(item.VisibilityType),
 		CreatedAt:         item.CreatedAt,
 		UpdatedAt:         item.UpdatedAt,
 	}

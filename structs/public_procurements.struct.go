@@ -41,17 +41,24 @@ type PublicProcurementItem struct {
 	FileId            *int               `json:"file_id"`
 }
 
+type VisibilityType int
+
+const VisibilityTypeNone VisibilityType = 1
+const VisibilityTypeAccounting VisibilityType = 2
+const VisibilityTypeInventory VisibilityType = 3
+
 type PublicProcurementArticle struct {
-	Id                  int     `json:"id"`
-	PublicProcurementId int     `json:"public_procurement_id"`
-	Title               string  `json:"title"`
-	Description         string  `json:"description"`
-	NetPrice            float32 `json:"net_price"`
-	VatPercentage       string  `json:"vat_percentage"`
-	Manufacturer        string  `json:"manufacturer"`
-	Amount              int     `json:"amount"`
-	CreatedAt           string  `json:"created_at"`
-	UpdatedAt           string  `json:"updated_at"`
+	Id                  int            `json:"id"`
+	PublicProcurementId int            `json:"public_procurement_id"`
+	Title               string         `json:"title"`
+	Description         string         `json:"description"`
+	NetPrice            float32        `json:"net_price"`
+	VatPercentage       string         `json:"vat_percentage"`
+	Manufacturer        string         `json:"manufacturer"`
+	Amount              int            `json:"amount"`
+	VisibilityType      VisibilityType `json:"visibility_type"`
+	CreatedAt           string         `json:"created_at"`
+	UpdatedAt           string         `json:"updated_at"`
 }
 
 type PublicProcurementLimit struct {

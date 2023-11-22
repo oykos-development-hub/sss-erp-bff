@@ -25,6 +25,7 @@ type ProcurementArticleResponseItem struct {
 	Amount            int            `json:"amount"`
 	TotalAmount       int            `json:"total_amount"`
 	GrossPrice        float32        `json:"gross_price"`
+	VisibilityType    int            `json:"visibility_type"`
 	CreatedAt         string         `json:"created_at"`
 	UpdatedAt         string         `json:"updated_at"`
 }

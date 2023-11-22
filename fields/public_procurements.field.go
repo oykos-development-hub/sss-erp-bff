@@ -280,6 +280,9 @@ var PublicProcurementContractArticlesOverviewField = &graphql.Field{
 		"organization_unit_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"visibility_type": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 	},
 	Resolve: resolvers.PublicProcurementContractArticlesOverviewResolver,
 }

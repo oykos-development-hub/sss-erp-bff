@@ -53,16 +53,17 @@ func processContractArticle(ctx context.Context, contractArticle *structs.Public
 
 	// Build the new item with the calculated amounts.
 	newItem := structs.OrderArticleItem{
-		Id:            relatedPublicProcurementArticle.Id,
-		Description:   relatedPublicProcurementArticle.Description,
-		Title:         relatedPublicProcurementArticle.Title,
-		NetPrice:      relatedPublicProcurementArticle.NetPrice,
-		VatPercentage: relatedPublicProcurementArticle.VatPercentage,
-		Amount:        amount,
-		Available:     amount + overageTotal,
-		TotalPrice:    contractArticle.GrossValue,
-		Unit:          "kom",
-		Manufacturer:  relatedPublicProcurementArticle.Manufacturer,
+		Id:             relatedPublicProcurementArticle.Id,
+		Description:    relatedPublicProcurementArticle.Description,
+		Title:          relatedPublicProcurementArticle.Title,
+		NetPrice:       relatedPublicProcurementArticle.NetPrice,
+		VatPercentage:  relatedPublicProcurementArticle.VatPercentage,
+		Amount:         amount,
+		Available:      amount + overageTotal,
+		TotalPrice:     contractArticle.GrossValue,
+		Unit:           "kom",
+		Manufacturer:   relatedPublicProcurementArticle.Manufacturer,
+		VisibilityType: relatedPublicProcurementArticle.VisibilityType,
 	}
 
 	return newItem, nil
@@ -319,6 +320,8 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 		return shared.ErrorResponse("You must pass the item procurement id"), nil
 	}
 
+	visibilityType := params.Args["visibility_type"]
+
 	ctx := params.Context
 
 	if params.Args["organization_unit_id"] != nil {
@@ -332,6 +335,9 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 	}
 
 	for _, item := range articles {
+		if visibilityType != nil && visibilityType.(int) > 0 && visibilityType.(int) != int(item.VisibilityType) {
+			continue
+		}
 		processedArticle, err := ProcessOrderArticleItem(ctx, item)
 		if err != nil {
 			return shared.HandleAPIError(err)

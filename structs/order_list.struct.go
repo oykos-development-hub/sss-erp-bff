@@ -28,19 +28,20 @@ type OrderProcurementArticleItem struct {
 }
 
 type OrderArticleItem struct {
-	Id                  int     `json:"id"`
-	BudgetIndentId      int     `json:"budget_indent_id"`
-	PublicProcurementId int     `json:"public_procurement_id"`
-	Title               string  `json:"title"`
-	Description         string  `json:"description"`
-	NetPrice            float32 `json:"net_price"`
-	VatPercentage       string  `json:"vat_percentage"`
-	Manufacturer        string  `json:"manufacturer"`
-	Amount              int     `json:"amount"`
-	Available           int     `json:"available"`
-	TotalPrice          float32 `json:"total_price"`
-	Price               float32 `json:"price"`
-	Unit                string  `json:"unit"`
+	Id                  int            `json:"id"`
+	BudgetIndentId      int            `json:"budget_indent_id"`
+	PublicProcurementId int            `json:"public_procurement_id"`
+	Title               string         `json:"title"`
+	Description         string         `json:"description"`
+	NetPrice            float32        `json:"net_price"`
+	VatPercentage       string         `json:"vat_percentage"`
+	Manufacturer        string         `json:"manufacturer"`
+	Amount              int            `json:"amount"`
+	Available           int            `json:"available"`
+	TotalPrice          float32        `json:"total_price"`
+	Price               float32        `json:"price"`
+	Unit                string         `json:"unit"`
+	VisibilityType      VisibilityType `json:"visibility_type"`
 }
 
 type OrderListInsertItem struct {

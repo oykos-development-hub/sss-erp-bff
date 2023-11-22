@@ -468,6 +468,9 @@ var PublicProcurementPlanItemArticleItemType = graphql.NewObject(graphql.ObjectC
 		"total_amount": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"visibility_type": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 

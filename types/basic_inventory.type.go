@@ -206,6 +206,9 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"location": &graphql.Field{
 			Type: graphql.String,
 		},
+		"has_assessments": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 	},
 })
 

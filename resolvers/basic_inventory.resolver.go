@@ -355,8 +355,10 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
 	assessments, _ := getMyInventoryAssessments(item.Id)
 	var grossPrice float32
+	hasAssessments := false
 	indexAssessments := 0
 	if len(assessments) > 0 {
+		hasAssessments = true
 		for i, assessment := range assessments {
 			if assessment.Id != 0 {
 				assessmentResponse, _ := buildAssessmentResponse(&assessment)
@@ -470,6 +472,7 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 		TargetOrganizationUnit: targetOrganizationUnitDropdown,
 		ClassType:              settingDropdownClassType,
 		Office:                 settingDropdownOfficeId,
+		HasAssessments:         hasAssessments,
 	}
 
 	return &res, nil
@@ -586,7 +589,6 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 			}
 			assessmentsResponse = append(assessmentsResponse, assessmentResponse)
 		}
-
 	}
 
 	settingDropdownDepreciationTypeId := dto.DropdownSimple{}

@@ -46,6 +46,7 @@ type BasicInventoryResponseListItem struct {
 	DateOfPurchase         string                                                         `json:"date_of_purchase"`
 	Status                 string                                                         `json:"status"`
 	SourceType             string                                                         `json:"source_type"`
+	HasAssessments         bool                                                           `json:"has_assessments"`
 	RealEstate             *structs.BasicInventoryRealEstatesItemResponseForInventoryItem `json:"real_estate"`
 	DepreciationType       DropdownSimple                                                 `json:"depreciation_type"`
 	OrganizationUnit       DropdownSimple                                                 `json:"organization_unit"`

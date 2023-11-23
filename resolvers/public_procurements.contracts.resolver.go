@@ -178,6 +178,36 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 		files = append(files, fileDropDown)
 	}
 
+	articles, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
+		ContractID: &item.Id,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	var netPrice, grossPrice float32
+
+	for _, article := range articles.Data {
+
+		orgUnitArticles, err := getOrganizationUnitArticlesList(dto.GetProcurementOrganizationUnitArticleListInputDTO{
+			ArticleID: &article.PublicProcurementArticleId,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		amount := 0
+
+		for _, orgArticle := range orgUnitArticles {
+			amount += orgArticle.Amount
+		}
+
+		netPrice += article.NetValue * float32(amount)
+		grossPrice += article.GrossValue * float32(amount)
+	}
+
 	res := dto.ProcurementContractResponseItem{
 		Id:                  item.Id,
 		PublicProcurementId: item.PublicProcurementId,
@@ -185,9 +215,8 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 		DateOfSigning:       (string)(item.DateOfSigning),
 		DateOfExpiry:        (*string)(item.DateOfExpiry),
 		SerialNumber:        item.SerialNumber,
-		NetValue:            item.NetValue,
-		GrossValue:          item.GrossValue,
-		VatValue:            item.VatValue,
+		NetValue:            &netPrice,
+		GrossValue:          &grossPrice,
 		File:                files,
 		CreatedAt:           item.CreatedAt,
 		UpdatedAt:           item.UpdatedAt,
@@ -276,4 +305,14 @@ func getFileByID(id int) (*structs.File, error) {
 	}
 
 	return res.Data.Data, nil
+}
+
+func getOrganizationUnitArticlesList(input dto.GetProcurementOrganizationUnitArticleListInputDTO) ([]dto.GetPublicProcurementOrganizationUnitArticle, error) {
+	res := &dto.GetOrganizationUnitArticleListResponse{}
+	_, err := shared.MakeAPIRequest("GET", config.ORGANIZATION_UNIT_ARTICLE_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
 }

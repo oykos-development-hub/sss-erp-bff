@@ -47,6 +47,23 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
+
+		orgUnitArticles, err := getOrganizationUnitArticlesList(dto.GetProcurementOrganizationUnitArticleListInputDTO{
+			ArticleID: &contractArticle.PublicProcurementArticleId,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		amount := 0
+
+		for _, orgArticle := range orgUnitArticles {
+			amount += orgArticle.Amount
+		}
+
+		resItem.Amount = amount
+
 		items = append(items, *resItem)
 	}
 

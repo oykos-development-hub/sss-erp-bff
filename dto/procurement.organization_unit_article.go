@@ -38,10 +38,30 @@ type GetProcurementOrganizationUnitArticleListInputDTO struct {
 	ArticleID          *int `json:"article_id" validate:"omitempty"`
 }
 
+type GetPublicProcurementOrganizationUnitArticle struct {
+	Id                         int    `json:"id"`
+	PublicProcurementArticleId int    `json:"public_procurement_article_id"`
+	OrganizationUnitId         int    `json:"organization_unit_id"`
+	Amount                     int    `json:"amount"`
+	Status                     string `json:"status"`
+	IsRejected                 bool   `json:"is_rejected"`
+	RejectedDescription        string `json:"rejected_description"`
+	CreatedAt                  string `json:"created_at"`
+	UpdatedAt                  string `json:"updated_at"`
+}
+
 type GetOrganizationUnitArticleResponseMS struct {
 	Data structs.PublicProcurementOrganizationUnitArticle `json:"data"`
 }
 
 type GetOrganizationUnitArticleListResponseMS struct {
 	Data []*structs.PublicProcurementOrganizationUnitArticle `json:"data"`
+}
+
+type GetOrganizationUnitArticleResponse struct {
+	Data GetPublicProcurementOrganizationUnitArticle `json:"data"`
+}
+
+type GetOrganizationUnitArticleListResponse struct {
+	Data []GetPublicProcurementOrganizationUnitArticle `json:"data"`
 }

@@ -50,10 +50,11 @@ type OrderListOverviewResponse struct {
 }
 
 type StockFilter struct {
-	Page      *int    `json:"page"`
-	Size      *int    `json:"size"`
-	Title     *string `json:"title"`
-	ArticleID *int    `json:"article_id"`
+	Page               *int    `json:"page"`
+	Size               *int    `json:"size"`
+	Title              *string `json:"title"`
+	ArticleID          *int    `json:"article_id"`
+	OrganizationUnitID *int    `json:"organization_unit_id"`
 }
 
 type GetStockResponseMS struct {
@@ -109,10 +110,11 @@ type ArticlesDropdown struct {
 }
 
 type MovementArticle struct {
-	ID         int `json:"id"`
-	ArticleID  int `json:"article_id"`
-	Amount     int `json:"amount"`
-	MovementID int `json:"movement_id"`
+	ID                 int `json:"id"`
+	ArticleID          int `json:"article_id"`
+	Amount             int `json:"amount"`
+	MovementID         int `json:"movement_id"`
+	OrganizationUnitID int `json:"organization_unit_id"`
 }
 
 type GetMovementArticleResponseMS struct {

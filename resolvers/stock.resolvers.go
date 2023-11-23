@@ -31,6 +31,13 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 		input.Size = &sizeNum
 	}
 
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || organizationUnitID == nil {
+		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+	}
+
+	input.OrganizationUnitID = organizationUnitID
+
 	articleList, total, err := getStock(&input)
 	if err != nil {
 		return shared.HandleAPIError(err)
@@ -210,7 +217,12 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 				return shared.HandleAPIError(err)
 			}
 
-			stockArticle, _, err := getStock(&dto.StockFilter{ArticleID: &item.ArticleID})
+			organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+			if !ok || organizationUnitID == nil {
+				return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			}
+
+			stockArticle, _, err := getStock(&dto.StockFilter{ArticleID: &item.ArticleID, OrganizationUnitID: organizationUnitID})
 
 			if err != nil {
 				return shared.HandleAPIError(err)
@@ -341,8 +353,17 @@ var MovementDeleteResolver = func(params graphql.ResolveParams) (interface{}, er
 		return shared.HandleAPIError(err)
 	}
 
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || organizationUnitID == nil {
+		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+	}
+
 	for _, article := range articles {
-		stock, _, _ := getStock(&dto.StockFilter{ArticleID: &article.ArticleID})
+		stock, _, _ := getStock(&dto.StockFilter{
+			ArticleID:          &article.ArticleID,
+			OrganizationUnitID: organizationUnitID})
+
+		article.OrganizationUnitID = *organizationUnitID
 
 		if len(stock) == 0 {
 			err = createStock(article)

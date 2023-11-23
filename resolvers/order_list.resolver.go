@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -545,13 +546,21 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 		return shared.HandleAPIError(err)
 	}
 
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || organizationUnitID == nil {
+		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+	}
+
 	for _, article := range articles.Data {
-		stock, _, _ := getStock(&dto.StockFilter{ArticleID: &article.ArticleId})
+		stock, _, _ := getStock(&dto.StockFilter{
+			ArticleID:          &article.ArticleId,
+			OrganizationUnitID: organizationUnitID})
 
 		if len(stock) == 0 {
 			input := dto.MovementArticle{
-				Amount:    article.Amount,
-				ArticleID: article.ArticleId,
+				Amount:             article.Amount,
+				ArticleID:          article.ArticleId,
+				OrganizationUnitID: *organizationUnitID,
 			}
 			err = createStock(input)
 			if err != nil {

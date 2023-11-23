@@ -79,13 +79,14 @@ type OrderAssetMovementItem struct {
 }
 
 type StockArticle struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`
-	ArticleID   int    `json:"article_id"`
-	Description string `json:"description"`
-	Year        string `json:"year"`
-	Amount      int    `json:"amount"`
-	Quantity    int    `json:"quantity"`
+	ID                 int    `json:"id"`
+	Title              string `json:"title"`
+	ArticleID          int    `json:"article_id"`
+	Description        string `json:"description"`
+	OrganizationUnitID int    `json:"organization_unit_id"`
+	Year               string `json:"year"`
+	Amount             int    `json:"amount"`
+	Quantity           int    `json:"quantity"`
 }
 
 type Movement struct {

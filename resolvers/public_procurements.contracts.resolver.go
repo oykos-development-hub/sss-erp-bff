@@ -111,6 +111,33 @@ var PublicProcurementContractInsertResolver = func(params graphql.ResolveParams)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
+
+		articles, err := getProcurementArticlesList(&dto.GetProcurementArticleListInputMS{
+			ItemID: &data.PublicProcurementId,
+		})
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		for _, article := range articles {
+			item := structs.PublicProcurementContractArticle{
+				PublicProcurementArticleId:  article.Id,
+				PublicProcurementContractId: res.Id,
+				NetValue:                    0,
+				GrossValue:                  0,
+				VatPercentage:               article.VatPercentage,
+				UsedArticles:                0,
+			}
+
+			_, err := createProcurementContractArticle(&item)
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
+		}
+
 		item, err := buildProcurementContractResponseItem(res)
 		if err != nil {
 			return shared.HandleAPIError(err)

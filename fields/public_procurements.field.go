@@ -287,6 +287,20 @@ var PublicProcurementContractArticlesOverviewField = &graphql.Field{
 	Resolve: resolvers.PublicProcurementContractArticlesOverviewResolver,
 }
 
+var PublicProcurementContractOrganizationUnitArticlesOverviewField = &graphql.Field{
+	Type:        types.PublicProcurementContractArticlesOverviewType,
+	Description: "Returns a data of Public Procurement Contract articles",
+	Args: graphql.FieldConfigArgument{
+		"contract_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+		"organization_unit_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
+	},
+	Resolve: resolvers.PublicProcurementContractArticlesOrganizationUnitResponseItem,
+}
+
 var PublicProcurementContractArticleInsertField = &graphql.Field{
 	Type:        types.PublicProcurementContractArticleInsertType,
 	Description: "Creates new or alter existing Public Procurement Contract article",

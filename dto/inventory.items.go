@@ -26,6 +26,7 @@ type InventoryItemFilter struct {
 	SourceType         *string `json:"source_type"`
 	DeprecationTypeID  *int    `json:"depreciation_type_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
+	ContractId         *int    `json:"contract_id "`
 	Page               *int    `json:"page"`
 	Size               *int    `json:"size"`
 }

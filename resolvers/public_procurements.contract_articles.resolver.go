@@ -12,6 +12,87 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+var PublicProcurementContractArticlesOrganizationUnitResponseItem = func(params graphql.ResolveParams) (interface{}, error) {
+	items := []dto.ProcurementContractArticlesResponseItem{}
+	var total int
+
+	contract_id := params.Args["contract_id"].(int)
+	organizationUnitID := params.Args["organization_unit_id"].(int)
+	visibilityType := params.Args["visibility_type"]
+
+	ctx := params.Context
+
+	input := dto.GetProcurementContractArticlesInput{}
+
+	if contract_id > 0 {
+		contractID := contract_id
+		input.ContractID = &contractID
+	}
+
+	contractsRes, err := getProcurementContract(contract_id)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	procurementRes, err := getProcurementItem(contractsRes.PublicProcurementId)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	procurement, err := buildProcurementItemResponseItem(params.Context, procurementRes, &organizationUnitID)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	contractsArticlesRes, err := getProcurementContractArticlesList(&input)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	total = contractsArticlesRes.Total
+
+	for _, contractArticle := range contractsArticlesRes.Data {
+		article, _ := getProcurementArticle(contractArticle.PublicProcurementArticleId)
+		if visibilityType != nil && visibilityType.(int) != int(article.VisibilityType) {
+			continue
+		}
+		resItem, err := buildProcurementContractArticlesResponseItem(ctx, contractArticle)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		resItem.Amount = returnAmountOrganizationUnitArticle(procurement.Articles, article.Id)
+		inventors, err := getAllInventoryItem(dto.InventoryItemFilter{
+			ContractId:         &contract_id,
+			OrganizationUnitID: &organizationUnitID,
+		})
+		resItem.Amount = resItem.Amount - inventors.Total
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		if resItem.Amount > 0 {
+			items = append(items, *resItem)
+		}
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   items,
+		Total:   total,
+	}, nil
+}
+
+func returnAmountOrganizationUnitArticle(articles []*dto.ProcurementArticleResponseItem, articleID int) int {
+	amount := 0
+	for _, article := range articles {
+		if article.Id == articleID {
+			amount = article.Amount
+			break
+		}
+	}
+
+	return amount
+}
+
 var PublicProcurementContractArticlesOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	items := []dto.ProcurementContractArticlesResponseItem{}
 	var total int

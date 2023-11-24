@@ -178,36 +178,6 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 		files = append(files, fileDropDown)
 	}
 
-	articles, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
-		ContractID: &item.Id,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	var netPrice, grossPrice float32
-
-	for _, article := range articles.Data {
-
-		orgUnitArticles, err := getOrganizationUnitArticlesList(dto.GetProcurementOrganizationUnitArticleListInputDTO{
-			ArticleID: &article.PublicProcurementArticleId,
-		})
-
-		if err != nil {
-			return nil, err
-		}
-
-		amount := 0
-
-		for _, orgArticle := range orgUnitArticles {
-			amount += orgArticle.Amount
-		}
-
-		netPrice += article.NetValue * float32(amount)
-		grossPrice += article.GrossValue * float32(amount)
-	}
-
 	res := dto.ProcurementContractResponseItem{
 		Id:                  item.Id,
 		PublicProcurementId: item.PublicProcurementId,
@@ -215,8 +185,8 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 		DateOfSigning:       (string)(item.DateOfSigning),
 		DateOfExpiry:        (*string)(item.DateOfExpiry),
 		SerialNumber:        item.SerialNumber,
-		NetValue:            &netPrice,
-		GrossValue:          &grossPrice,
+		NetValue:            item.NetValue,
+		GrossValue:          item.GrossValue,
 		File:                files,
 		CreatedAt:           item.CreatedAt,
 		UpdatedAt:           item.UpdatedAt,

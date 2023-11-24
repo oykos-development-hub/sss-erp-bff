@@ -101,9 +101,11 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 	visibilityType := params.Args["visibility_type"]
 
 	ctx := params.Context
+	var orgUnitID *int
 	if params.Args["organization_unit_id"] != nil {
 		organizationUnitID := params.Args["organization_unit_id"].(int)
 		ctx = context.WithValue(ctx, config.OrganizationUnitIDKey, &organizationUnitID)
+		orgUnitID = &organizationUnitID
 	}
 
 	input := dto.GetProcurementContractArticlesInput{}
@@ -129,9 +131,15 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 			return shared.HandleAPIError(err)
 		}
 
-		orgUnitArticles, err := getOrganizationUnitArticlesList(dto.GetProcurementOrganizationUnitArticleListInputDTO{
+		filter := dto.GetProcurementOrganizationUnitArticleListInputDTO{
 			ArticleID: &contractArticle.PublicProcurementArticleId,
-		})
+		}
+
+		if orgUnitID != nil {
+			filter.OrganizationUnitID = orgUnitID
+		}
+
+		orgUnitArticles, err := getOrganizationUnitArticlesList(filter)
 
 		if err != nil {
 			return nil, err

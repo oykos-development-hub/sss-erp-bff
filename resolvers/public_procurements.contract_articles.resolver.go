@@ -135,7 +135,7 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 			ArticleID: &contractArticle.PublicProcurementArticleId,
 		}
 
-		if orgUnitID != nil {
+		if orgUnitID != nil && *orgUnitID > 0 {
 			filter.OrganizationUnitID = orgUnitID
 		}
 

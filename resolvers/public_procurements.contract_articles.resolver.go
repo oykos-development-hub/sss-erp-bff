@@ -121,6 +121,18 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 	}
 	total = contractsRes.Total
 
+	contract, err := getProcurementContract(*input.ContractID)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	procurement, err := getProcurementItem(contract.PublicProcurementId)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
 	for _, contractArticle := range contractsRes.Data {
 		article, _ := getProcurementArticle(contractArticle.PublicProcurementArticleId)
 		if visibilityType != nil && visibilityType.(int) != int(article.VisibilityType) {
@@ -152,6 +164,10 @@ var PublicProcurementContractArticlesOverviewResolver = func(params graphql.Reso
 		}
 
 		resItem.Amount = amount
+
+		if !procurement.IsOpenProcurement {
+			resItem.Amount = article.Amount
+		}
 
 		items = append(items, *resItem)
 	}

@@ -29,10 +29,6 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 		sizeNum := size.(int)
 		input.Size = &sizeNum
 	}
-	if searchOk && size.(int) > 0 {
-		sizeNum := size.(int)
-		input.Size = &sizeNum
-	}
 
 	if searchOk && search != "" {
 		input.Title = &search

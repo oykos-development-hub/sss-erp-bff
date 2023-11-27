@@ -4,6 +4,7 @@ type BasicInventoryAssessmentsTypesItem struct {
 	Id                   int     `json:"id"`
 	Type                 string  `json:"type"`
 	InventoryId          int     `json:"inventory_id"`
+	EstimatedDuration    int     `json:"estimated_duration"`
 	Active               bool    `json:"active"`
 	DepreciationTypeId   int     `json:"depreciation_type_id"`
 	UserProfileId        int     `json:"user_profile_id"`

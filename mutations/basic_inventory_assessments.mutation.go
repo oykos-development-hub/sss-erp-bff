@@ -17,6 +17,9 @@ var BasicInventoryAssessmentsMutation = graphql.NewInputObject(graphql.InputObje
 		"active": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
+		"estimated_duration": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"depreciation_type_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

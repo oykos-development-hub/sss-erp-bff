@@ -119,6 +119,7 @@ func buildAssessmentResponse(item *structs.BasicInventoryAssessmentsTypesItem) (
 		GrossPriceNew:        item.GrossPriceNew,
 		GrossPriceDifference: item.GrossPriceDifference,
 		Active:               item.Active,
+		EstimatedDuration:    item.EstimatedDuration,
 		DateOfAssessment:     item.DateOfAssessment,
 		CreatedAt:            item.CreatedAt,
 		UpdatedAt:            item.UpdatedAt,

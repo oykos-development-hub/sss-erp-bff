@@ -18,6 +18,7 @@ type BasicInventoryResponseAssessment struct {
 	Id                   int            `json:"id"`
 	Type                 string         `json:"type"`
 	InventoryId          int            `json:"inventory_id"`
+	EstimatedDuration    int            `json:"estimated_duration"`
 	Active               bool           `json:"active"`
 	DepreciationType     DropdownSimple `json:"depreciation_type"`
 	UserProfile          DropdownSimple `json:"user_profile"`

@@ -7,6 +7,7 @@ import (
 	"bff/structs"
 	"context"
 	"encoding/json"
+	"math"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -55,7 +56,7 @@ var PublicProcurementContractArticlesOrganizationUnitResponseItem = func(params 
 		if visibilityType != nil && visibilityType.(int) != int(article.VisibilityType) {
 			continue
 		}
-		resItem, err := buildProcurementContractArticlesResponseItem(ctx, contractArticle)
+		resItem, err := buildProcurementContractArticlesOptionsResponseItem(ctx, contractArticle)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -275,6 +276,67 @@ var PublicProcurementContractArticleOverageDeleteResolver = func(params graphql.
 		Status:  "success",
 		Message: "You deleted this item!",
 	}, nil
+}
+
+func buildProcurementContractArticlesOptionsResponseItem(context context.Context, item *structs.PublicProcurementContractArticle) (*dto.ProcurementContractArticlesResponseItem, error) {
+	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int)
+
+	article, err := getProcurementArticle(item.PublicProcurementArticleId)
+	if err != nil {
+		return nil, err
+	}
+	articleResItem, err := buildProcurementArticleResponseItem(context, article, organizationUnitID)
+	if err != nil {
+		return nil, err
+	}
+	contract, err := getProcurementContract(item.PublicProcurementContractId)
+	if err != nil {
+		return nil, err
+	}
+
+	overageInput := dto.GetProcurementContractArticleOverageInput{ContractArticleID: &item.Id}
+	if organizationUnitID != nil && *organizationUnitID != 0 {
+		overageInput.OrganizationUnitID = organizationUnitID
+	}
+	overageList, err := getProcurementContractArticleOverageList(&overageInput)
+	if err != nil {
+		return nil, err
+	}
+
+	overageTotal := 0
+	for _, item := range overageList {
+		overageTotal += item.Amount
+	}
+
+	GrossValue := float32(math.Round(float64(*contract.GrossValue/float32(articleResItem.TotalAmount))*100) / 100)
+	res := dto.ProcurementContractArticlesResponseItem{
+		Id: item.Id,
+		Article: dto.DropdownProcurementArticle{
+			Id:            article.Id,
+			Title:         article.Title,
+			VatPercentage: article.VatPercentage,
+			Description:   article.Description,
+		},
+		Contract: dto.DropdownSimple{
+			Id:    contract.Id,
+			Title: contract.SerialNumber,
+		},
+		UsedArticles: item.UsedArticles,
+		OverageList:  overageList,
+		OverageTotal: overageTotal,
+		NetValue:     item.NetValue,
+		GrossValue:   GrossValue,
+		CreatedAt:    item.CreatedAt,
+		UpdatedAt:    item.UpdatedAt,
+	}
+
+	if organizationUnitID != nil && *organizationUnitID == 0 {
+		res.Amount = articleResItem.TotalAmount
+	} else {
+		res.Amount = articleResItem.Amount
+	}
+
+	return &res, nil
 }
 
 func buildProcurementContractArticlesResponseItem(context context.Context, item *structs.PublicProcurementContractArticle) (*dto.ProcurementContractArticlesResponseItem, error) {

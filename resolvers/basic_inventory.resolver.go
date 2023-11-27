@@ -143,22 +143,6 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 	}
 
 	for _, item := range data {
-		if item.ContractId > 0 && item.ContractArticleId > 0 {
-			articles, _ := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
-				ContractID: &item.ContractId,
-				ArticleID:  &item.ContractArticleId,
-			})
-
-			if len(articles.Data) > 0 {
-				article := articles.Data[0]
-
-				article.UsedArticles++
-				_, err := updateProcurementContractArticle(article.Id, article)
-				if err != nil {
-					return shared.HandleAPIError(err)
-				}
-			}
-		}
 		item.Active = true
 		if shared.IsInteger(item.Id) && item.Id != 0 {
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
@@ -180,6 +164,22 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 			itemRes, err := createInventoryItem(&item)
 			if err != nil {
 				return shared.HandleAPIError(err)
+			}
+			if item.ContractId > 0 && item.ContractArticleId > 0 {
+				articles, _ := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
+					ContractID: &item.ContractId,
+					ArticleID:  &item.ContractArticleId,
+				})
+
+				if len(articles.Data) > 0 {
+					article := articles.Data[0]
+
+					article.UsedArticles++
+					_, err := updateProcurementContractArticle(article.Id, article)
+					if err != nil {
+						return shared.HandleAPIError(err)
+					}
+				}
 			}
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
 			assessment := structs.BasicInventoryAssessmentsTypesItem{
@@ -206,6 +206,7 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 			}
 			responseItemList = append(responseItemList, items)
 		}
+
 	}
 	response.Items = responseItemList
 	return response, nil

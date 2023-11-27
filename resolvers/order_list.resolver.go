@@ -769,6 +769,10 @@ func buildOrderListInsertItem(context context.Context, item *structs.OrderListIn
 		}
 	}
 
+	if item.PublicProcurementId == 0 {
+		supplierId = &item.SupplierId
+	}
+
 	newItem = &structs.OrderListItem{
 		Id:                  item.Id,
 		DateOrder:           timeString,

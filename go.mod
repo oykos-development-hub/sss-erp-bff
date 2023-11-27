@@ -6,7 +6,6 @@ require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/graphql-go/graphql v0.8.1
 	github.com/graphql-go/handler v0.2.3
-	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/unidoc/unipdf/v3 v3.51.0
 )
@@ -15,7 +14,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gorilla/i18n v0.0.0-20150820051429-8b358169da46 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/unidoc/pkcs7 v0.2.0 // indirect
 	github.com/unidoc/timestamp v0.0.0-20200412005513-91597fd3793a // indirect

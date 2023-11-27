@@ -20,7 +20,6 @@ import (
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
 	"github.com/sirupsen/logrus"
-	"github.com/unidoc/unipdf/v3/common/license"
 )
 
 var logger = logrus.New()
@@ -40,14 +39,6 @@ func init() {
 
 	// Set the logger output to the log file
 	logger.SetOutput(logFile)
-
-	err = license.SetMeteredKey(os.Getenv("UNIDOC_LICENSE_API_KEY"))
-	if err != nil {
-		logger.WithFields(logrus.Fields{
-			"component": "license",
-			"error":     err.Error(),
-		}).Error("Failed to set UniDoc license key")
-	}
 }
 
 func extractTokenFromHeader(headerValue string) (string, error) {

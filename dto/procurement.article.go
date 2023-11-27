@@ -11,7 +11,10 @@ type GetProcurementArticleListResponseMS struct {
 }
 
 type GetProcurementArticleListInputMS struct {
-	ItemID *int `json:"public_procurement_id"`
+	ItemID      *int    `json:"public_procurement_id"`
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+	Year        *string `json:"year"`
 }
 
 type ProcurementArticleResponseItem struct {

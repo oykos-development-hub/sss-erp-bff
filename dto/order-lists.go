@@ -53,13 +53,18 @@ type StockFilter struct {
 	Page               *int    `json:"page"`
 	Size               *int    `json:"size"`
 	Title              *string `json:"title"`
-	ArticleID          *int    `json:"article_id"`
+	Year               *string `json:"year"`
+	Description        *string `json:"description"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 }
 
 type GetStockResponseMS struct {
 	Data  []structs.StockArticle `json:"data"`
 	Total int                    `json:"total"`
+}
+
+type GetSingleStockResponseMS struct {
+	Data structs.StockArticle `json:"data"`
 }
 
 type MovementFilter struct {
@@ -110,11 +115,13 @@ type ArticlesDropdown struct {
 }
 
 type MovementArticle struct {
-	ID                 int `json:"id"`
-	ArticleID          int `json:"article_id"`
-	Amount             int `json:"amount"`
-	MovementID         int `json:"movement_id"`
-	OrganizationUnitID int `json:"organization_unit_id"`
+	ID                 int    `json:"id"`
+	Year               string `json:"year"`
+	Title              string `json:"title"`
+	Description        string `json:"description"`
+	Amount             int    `json:"amount"`
+	MovementID         int    `json:"movement_id"`
+	OrganizationUnitID int    `json:"organization_unit_id"`
 }
 
 type GetMovementArticleResponseMS struct {

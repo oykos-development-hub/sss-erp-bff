@@ -552,14 +552,43 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	}
 
 	for _, article := range articles.Data {
+
+		if article.ArticleId != 0 {
+			currentArticle, err := getProcurementArticle(article.ArticleId)
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
+			procurement, err := getProcurementItem(currentArticle.PublicProcurementId)
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
+			plan, err := getProcurementPlan(procurement.PlanId)
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
+			article.Year = plan.Year
+			article.Title = currentArticle.Title
+			article.Description = currentArticle.Description
+		}
+
 		stock, _, _ := getStock(&dto.StockFilter{
-			ArticleID:          &article.ArticleId,
+			Year:               &article.Year,
+			Title:              &article.Title,
+			Description:        &article.Description,
 			OrganizationUnitID: organizationUnitID})
 
 		if len(stock) == 0 {
 			input := dto.MovementArticle{
 				Amount:             article.Amount,
-				ArticleID:          article.ArticleId,
+				Year:               article.Year,
+				Description:        article.Description,
+				Title:              article.Title,
 				OrganizationUnitID: *organizationUnitID,
 			}
 			err = createStock(input)
@@ -683,10 +712,16 @@ func deleteOrderList(id int) error {
 func createOrderListProcurementArticles(orderListId int, data structs.OrderListInsertItem) error {
 	for _, article := range data.Articles {
 		newArticle := structs.OrderProcurementArticleItem{
-			OrderId:   orderListId,
-			ArticleId: article.Id,
-			Amount:    article.Amount,
+			Amount:  article.Amount,
+			OrderId: orderListId,
 		}
+		if article.Id != 0 {
+			newArticle.ArticleId = article.Id
+		} else {
+			newArticle.Title = article.Title
+			newArticle.Description = article.Description
+		}
+
 		_, err := createOrderProcurementArticle(&newArticle)
 		if err != nil {
 			return err
@@ -738,7 +773,7 @@ func buildOrderListInsertItem(context context.Context, item *structs.OrderListIn
 		Id:                  item.Id,
 		DateOrder:           timeString,
 		TotalPrice:          totalPrice,
-		PublicProcurementId: item.PublicProcurementId,
+		PublicProcurementId: &item.PublicProcurementId,
 		SupplierId:          supplierId,
 		OrderFile:           &item.OrderFile,
 	}
@@ -767,64 +802,88 @@ func getOrderProcurementArticles(input *dto.GetOrderProcurementArticleInput) (*d
 }
 
 func buildOrderListResponseItem(context context.Context, item *structs.OrderListItem) (*dto.OrderListOverviewResponse, error) {
+
+	var res dto.OrderListOverviewResponse
+	var procurementDropdown dto.DropdownSimple
+	articles := []dto.DropdownProcurementAvailableArticle{}
 	totalBruto := float32(0.0)
 	totalNeto := float32(0.0)
+	zero := 0
 
-	procurementItem, err := getProcurementItem(item.PublicProcurementId)
-	if err != nil {
-		return nil, err
+	if item.PublicProcurementId != nil && *item.PublicProcurementId != zero {
+		procurementItem, err := getProcurementItem(*item.PublicProcurementId)
+		if err != nil {
+			return nil, err
+		}
+
+		procurementDropdown.Id = procurementItem.Id
+		procurementDropdown.Title = procurementItem.Title
+
+		// getting articles and total price
+		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
+			OrderID: &item.Id,
+		}
+		relatedOrderProcurementArticle, err := getOrderProcurementArticles(&getOrderProcurementArticleInput)
+		if err != nil {
+			return nil, err
+		}
+
+		publicProcurementArticles, err := GetProcurementArticles(context, *item.PublicProcurementId)
+		if err != nil {
+			return nil, err
+		}
+
+		publicProcurementArticlesMap := make(map[int]structs.OrderArticleItem)
+		for _, article := range publicProcurementArticles {
+			publicProcurementArticlesMap[article.Id] = article
+		}
+
+		for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
+			if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleId]; exists {
+				articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
+				articleVat32 := float32(articleVat)
+				articleUnitPrice := article.NetPrice + article.NetPrice*articleVat32/100
+				articleTotalPrice := articleUnitPrice * float32(itemOrderArticle.Amount)
+				totalBruto += articleTotalPrice
+				vat := articleTotalPrice * (100 - articleVat32) / 100
+				totalNeto += vat
+
+				articles = append(articles, dto.DropdownProcurementAvailableArticle{
+					Id:           itemOrderArticle.Id,
+					Title:        article.Title,
+					Manufacturer: article.Manufacturer,
+					Description:  article.Description,
+					Unit:         article.Unit,
+					Available:    article.Available,
+					Amount:       itemOrderArticle.Amount,
+					TotalPrice:   articleTotalPrice,
+					Price:        articleUnitPrice,
+				})
+			}
+		}
+	} else {
+		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
+			OrderID: &item.Id,
+		}
+		relatedOrderProcurementArticle, err := getOrderProcurementArticles(&getOrderProcurementArticleInput)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, article := range relatedOrderProcurementArticle.Data {
+			articles = append(articles, dto.DropdownProcurementAvailableArticle{
+				Title:       article.Title,
+				Description: article.Description,
+				Amount:      article.Amount,
+			})
+		}
 	}
 
-	zero := 0
 	office := &dto.DropdownSimple{}
 	if item.OfficeId != nil && *item.OfficeId > zero {
 		officeItem, _ := getDropdownSettingById(*item.OfficeId)
 		office.Title = officeItem.Title
 		office.Id = officeItem.Id
-	}
-
-	// getting articles and total price
-	articles := []dto.DropdownProcurementAvailableArticle{}
-	getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
-		OrderID: &item.Id,
-	}
-	relatedOrderProcurementArticle, err := getOrderProcurementArticles(&getOrderProcurementArticleInput)
-	if err != nil {
-		return nil, err
-	}
-
-	publicProcurementArticles, err := GetProcurementArticles(context, item.PublicProcurementId)
-	if err != nil {
-		return nil, err
-	}
-
-	publicProcurementArticlesMap := make(map[int]structs.OrderArticleItem)
-	for _, article := range publicProcurementArticles {
-		publicProcurementArticlesMap[article.Id] = article
-	}
-
-	for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
-		if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleId]; exists {
-			articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
-			articleVat32 := float32(articleVat)
-			articleUnitPrice := article.NetPrice + article.NetPrice*articleVat32/100
-			articleTotalPrice := articleUnitPrice * float32(itemOrderArticle.Amount)
-			totalBruto += articleTotalPrice
-			vat := articleTotalPrice * (100 - articleVat32) / 100
-			totalNeto += vat
-
-			articles = append(articles, dto.DropdownProcurementAvailableArticle{
-				Id:           itemOrderArticle.Id,
-				Title:        article.Title,
-				Manufacturer: article.Manufacturer,
-				Description:  article.Description,
-				Unit:         article.Unit,
-				Available:    article.Available,
-				Amount:       itemOrderArticle.Amount,
-				TotalPrice:   articleTotalPrice,
-				Price:        articleUnitPrice,
-			})
-		}
 	}
 
 	defaultFile := dto.FileDropdownSimple{
@@ -867,27 +926,24 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		movementFile.Type = *file.Type
 	}
 
-	res := dto.OrderListOverviewResponse{
+	res = dto.OrderListOverviewResponse{
 		Id:                  item.Id,
 		DateOrder:           (string)(item.DateOrder),
 		TotalNeto:           totalNeto,
 		TotalBruto:          totalBruto,
-		PublicProcurementID: procurementItem.Id,
-		PublicProcurement: &dto.DropdownSimple{
-			Id:    procurementItem.Id,
-			Title: procurementItem.Title,
-		},
-		DateSystem:         item.DateSystem,
-		InvoiceDate:        item.InvoiceDate,
-		OrganizationUnitID: item.OrganizationUnitId,
-		OfficeID:           office.Id,
-		Office:             office,
-		Description:        item.Description,
-		Status:             item.Status,
-		Articles:           &articles,
-		OrderFile:          orderFile,
-		ReceiveFile:        receiveFile,
-		MovementFile:       movementFile,
+		PublicProcurementID: procurementDropdown.Id,
+		PublicProcurement:   &procurementDropdown,
+		DateSystem:          item.DateSystem,
+		InvoiceDate:         item.InvoiceDate,
+		OrganizationUnitID:  item.OrganizationUnitId,
+		OfficeID:            office.Id,
+		Office:              office,
+		Description:         item.Description,
+		Status:              item.Status,
+		Articles:            &articles,
+		OrderFile:           orderFile,
+		ReceiveFile:         receiveFile,
+		MovementFile:        movementFile,
 	}
 
 	if item.RecipientUserId != nil && *item.RecipientUserId > 0 {

@@ -283,9 +283,6 @@ var StockItem = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"article_id": &graphql.Field{
-			Type: graphql.Int,
-		},
 		"year": &graphql.Field{
 			Type: graphql.String,
 		},

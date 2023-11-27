@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/graphql-go/graphql"
 )
@@ -30,6 +29,14 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 		sizeNum := size.(int)
 		input.Size = &sizeNum
 	}
+	if searchOk && size.(int) > 0 {
+		sizeNum := size.(int)
+		input.Size = &sizeNum
+	}
+
+	if searchOk && search != "" {
+		input.Title = &search
+	}
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
@@ -43,42 +50,11 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 		return shared.HandleAPIError(err)
 	}
 
-	var articles []structs.StockArticle
-
-	for _, article := range articleList {
-		fullArticle, err := getProcurementArticle(article.ArticleID)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-		if searchOk && search != "" {
-			if !strings.Contains(fullArticle.Title, search) {
-				*total--
-				continue
-			}
-		}
-
-		procurement, err := getProcurementItem(fullArticle.PublicProcurementId)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		plan, err := getProcurementPlan(procurement.PlanId)
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		article.Year = plan.Year
-		article.Title = fullArticle.Title
-		article.Description = fullArticle.Description
-		article.ArticleID = fullArticle.Id
-		articles = append(articles, article)
-	}
-
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 		Total:   *total,
-		Items:   articles,
+		Items:   articleList,
 	}, nil
 }
 
@@ -207,11 +183,19 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 
 		for _, article := range data.Articles {
 			var item dto.MovementArticle
-			item.Amount = article.Quantity
-			item.ArticleID = article.ArticleID
 			item.MovementID = movement.ID
 
-			_, err := createMovementArticle(item)
+			stockArticle, err := getStockByID(article.ID)
+			item.Title = stockArticle.Title
+			item.Description = stockArticle.Description
+			item.Year = stockArticle.Year
+			item.Amount = stockArticle.Amount
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
+			_, err = createMovementArticle(item)
 
 			if err != nil {
 				return shared.HandleAPIError(err)
@@ -222,20 +206,13 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 				return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 			}
 
-			stockArticle, _, err := getStock(&dto.StockFilter{ArticleID: &item.ArticleID, OrganizationUnitID: organizationUnitID})
+			stockArticle.Amount -= article.Quantity
+
+			err = updateStock(*stockArticle)
 
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
-
-			stockArticle[0].Amount -= article.Quantity
-
-			err = updateStock(stockArticle[0])
-
-			if err != nil {
-				return shared.HandleAPIError(err)
-			}
-
 		}
 	} else {
 		_, err := updateMovements(data)
@@ -298,29 +275,23 @@ func buildMovementDetailsResponse(id int) (*dto.MovementDetailsResponse, error) 
 
 	var movementArticles []dto.ArticlesDropdown
 	for _, article := range articles {
-		fullArticle, err := getProcurementArticle(article.ArticleID)
+		stockArticle, _, err := getStock(&dto.StockFilter{
+			Title:       &article.Title,
+			Description: &article.Description,
+			Year:        &article.Year,
+		})
+
 		if err != nil {
 			return nil, err
 		}
 
-		procurement, err := getProcurementItem(fullArticle.PublicProcurementId)
-		if err != nil {
-			return nil, err
+		movementArticle := dto.ArticlesDropdown{
+			Title:       stockArticle[0].Title,
+			Description: stockArticle[0].Description,
+			Year:        stockArticle[0].Year,
+			Amount:      article.Amount,
+			ID:          stockArticle[0].ID,
 		}
-
-		plan, err := getProcurementPlan(procurement.PlanId)
-		if err != nil {
-			return nil, err
-		}
-
-		var movementArticle dto.ArticlesDropdown
-
-		movementArticle.Title = fullArticle.Title
-		movementArticle.Description = fullArticle.Description
-		movementArticle.Amount = article.Amount
-		movementArticle.Year = plan.Year
-		movementArticle.ArticleID = fullArticle.Id
-		movementArticle.ID = article.ID
 
 		movementArticles = append(movementArticles, movementArticle)
 	}
@@ -360,7 +331,9 @@ var MovementDeleteResolver = func(params graphql.ResolveParams) (interface{}, er
 
 	for _, article := range articles {
 		stock, _, _ := getStock(&dto.StockFilter{
-			ArticleID:          &article.ArticleID,
+			Year:               &article.Year,
+			Title:              &article.Title,
+			Description:        &article.Description,
 			OrganizationUnitID: organizationUnitID})
 
 		article.OrganizationUnitID = *organizationUnitID
@@ -404,6 +377,16 @@ func getStock(input *dto.StockFilter) ([]structs.StockArticle, *int, error) {
 	}
 
 	return res.Data, &res.Total, nil
+}
+
+func getStockByID(id int) (*structs.StockArticle, error) {
+	res := &dto.GetSingleStockResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.STOCK_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
 }
 
 func getMovements(input *dto.MovementFilter) ([]structs.Movement, *int, error) {

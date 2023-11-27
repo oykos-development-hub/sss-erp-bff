@@ -4,7 +4,7 @@ type OrderListItem struct {
 	Id                  int     `json:"id"`
 	DateOrder           string  `json:"date_order"`
 	TotalPrice          float32 `json:"total_price"`
-	PublicProcurementId int     `json:"public_procurement_id"`
+	PublicProcurementId *int    `json:"public_procurement_id"`
 	SupplierId          *int    `json:"supplier_id"`
 	Status              string  `json:"status"`
 	DateSystem          *string `json:"date_system"`
@@ -21,10 +21,13 @@ type OrderListItem struct {
 }
 
 type OrderProcurementArticleItem struct {
-	Id        int `json:"id"`
-	OrderId   int `json:"order_id"`
-	ArticleId int `json:"article_id"`
-	Amount    int `json:"amount"`
+	Id          int    `json:"id"`
+	OrderId     int    `json:"order_id"`
+	ArticleId   int    `json:"article_id"`
+	Year        string `json:"year"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Amount      int    `json:"amount"`
 }
 
 type OrderArticleItem struct {
@@ -55,8 +58,10 @@ type OrderListInsertItem struct {
 }
 
 type OrderArticleInsertItem struct {
-	Id     int `json:"id"`
-	Amount int `json:"amount"`
+	Id          int    `json:"id"`
+	Amount      int    `json:"amount"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
 type OrderReceiveItem struct {

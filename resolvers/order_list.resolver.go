@@ -872,6 +872,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 
 		for _, article := range relatedOrderProcurementArticle.Data {
 			articles = append(articles, dto.DropdownProcurementAvailableArticle{
+				Id:          article.Id,
 				Title:       article.Title,
 				Description: article.Description,
 				Amount:      article.Amount,

@@ -127,6 +127,9 @@ var OrderListProcurementAvailableArticlesType = graphql.NewObject(graphql.Object
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"order_article_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},

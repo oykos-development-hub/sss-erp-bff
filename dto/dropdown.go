@@ -25,14 +25,15 @@ type DropdownProcurementArticle struct {
 }
 
 type DropdownProcurementAvailableArticle struct {
-	Id            int     `json:"id"`
-	Title         string  `json:"title"`
-	Manufacturer  string  `json:"manufacturer"`
-	Description   string  `json:"description"`
-	Unit          string  `json:"unit"`
-	Available     int     `json:"available"`
-	Amount        int     `json:"amount"`
-	Price         float32 `json:"price"`
-	TotalPrice    float32 `json:"total_price"`
-	VatPercentage string  `json:"vat_percentage"`
+	Id             int     `json:"id"`
+	OrderArticleID int     `json:"order_article_id"`
+	Title          string  `json:"title"`
+	Manufacturer   string  `json:"manufacturer"`
+	Description    string  `json:"description"`
+	Unit           string  `json:"unit"`
+	Available      int     `json:"available"`
+	Amount         int     `json:"amount"`
+	Price          float32 `json:"price"`
+	TotalPrice     float32 `json:"total_price"`
+	VatPercentage  string  `json:"vat_percentage"`
 }

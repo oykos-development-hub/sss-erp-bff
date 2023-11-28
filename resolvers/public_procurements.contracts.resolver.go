@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -19,6 +20,7 @@ var PublicProcurementContractsOverviewResolver = func(params graphql.ResolvePara
 	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
+	sortDateOfExpiry := params.Args["sort_date_of_expiration"]
 
 	procurement_id := params.Args["procurement_id"]
 	supplier_id := params.Args["supplier_id"]
@@ -39,6 +41,10 @@ var PublicProcurementContractsOverviewResolver = func(params graphql.ResolvePara
 	if shared.IsInteger(supplier_id) && supplier_id.(int) > 0 {
 		supplierID := supplier_id.(int)
 		input.SupplierID = &supplierID
+	}
+	if sortDateOfExpiry != nil && sortDateOfExpiry.(string) != "" {
+		dateOfExpiratioin := sortDateOfExpiry.(string)
+		input.SortDateOfExpiry = &dateOfExpiratioin
 	}
 
 	if shared.IsInteger(id) && id.(int) > 0 {
@@ -178,6 +184,11 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 		files = append(files, fileDropDown)
 	}
 
+	daysUntilExpiry, err := calculateDaysUntilExpiry(*item.DateOfExpiry)
+	if err != nil {
+		return nil, err
+	}
+
 	res := dto.ProcurementContractResponseItem{
 		Id:                  item.Id,
 		PublicProcurementId: item.PublicProcurementId,
@@ -198,9 +209,26 @@ func buildProcurementContractResponseItem(item *structs.PublicProcurementContrac
 			Id:    supplier.Id,
 			Title: supplier.Title,
 		},
+		DaysUntilExpiry: daysUntilExpiry,
 	}
 
 	return &res, nil
+}
+
+func calculateDaysUntilExpiry(expiryDateStr string) (int, error) {
+	// Parse the expiry date
+	expiryDate, err := time.Parse(time.RFC3339, expiryDateStr)
+	if err != nil {
+		return 0, err
+	}
+
+	// Get the current date (ignoring time of day)
+	now := time.Now()
+	current := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+
+	// Calculate the difference in days
+	duration := expiryDate.Sub(current)
+	return int(duration.Hours() / 24), nil
 }
 
 var PublicProcurementContractDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {

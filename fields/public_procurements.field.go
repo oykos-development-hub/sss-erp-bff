@@ -244,6 +244,9 @@ var PublicProcurementContractsOverviewField = &graphql.Field{
 		"supplier_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"sort_date_of_expiration": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 	},
 	Resolve: resolvers.PublicProcurementContractsOverviewResolver,
 }

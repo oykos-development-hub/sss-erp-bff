@@ -9,10 +9,11 @@ type GetProcurementContractResponseMS struct {
 }
 
 type GetProcurementContractsInput struct {
-	Page          *int `json:"page"`
-	Size          *int `json:"size"`
-	ProcurementID *int `json:"procurement_id"`
-	SupplierID    *int `json:"supplier_id"`
+	Page             *int    `json:"page"`
+	Size             *int    `json:"size"`
+	ProcurementID    *int    `json:"procurement_id"`
+	SupplierID       *int    `json:"supplier_id"`
+	SortDateOfExpiry *string `json:"sort_date_of_expiry"`
 }
 
 type GetProcurementContractListResponseMS struct {
@@ -35,4 +36,5 @@ type ProcurementContractResponseItem struct {
 	UpdatedAt           string               `json:"updated_at"`
 	PublicProcurement   DropdownSimple       `json:"public_procurement"`
 	Supplier            DropdownSimple       `json:"supplier"`
+	DaysUntilExpiry     int                  `json:"days_until_expiry"`
 }

@@ -66,6 +66,12 @@ var PublicProcurementPlanDetailsItemType = graphql.NewObject(graphql.ObjectConfi
 		"items": &graphql.Field{
 			Type: graphql.NewList(PublicProcurementPlanItemDetailsItemType),
 		},
+		"total_net": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"total_gross": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 
@@ -710,6 +716,9 @@ var PublicProcurementContractItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"updated_at": &graphql.Field{
 			Type: graphql.String,
+		},
+		"days_until_expiry": &graphql.Field{
+			Type: graphql.Int,
 		},
 		"file": &graphql.Field{
 			Type: graphql.NewList(FileDropdownItemType),

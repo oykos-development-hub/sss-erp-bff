@@ -203,8 +203,11 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			}
 
 			stockArticle.Amount -= article.Quantity
-
-			err = updateStock(*stockArticle)
+			if stockArticle.Amount > 0 {
+				err = updateStock(*stockArticle)
+			} else {
+				err = deleteStock(stockArticle.ID)
+			}
 
 			if err != nil {
 				return shared.HandleAPIError(err)
@@ -416,6 +419,15 @@ func createStock(input dto.MovementArticle) error {
 
 func updateStock(input structs.StockArticle) error {
 	_, err := shared.MakeAPIRequest("PUT", config.STOCK_ENDPOINT+"/"+strconv.Itoa(input.ID), input, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func deleteStock(id int) error {
+	_, err := shared.MakeAPIRequest("DELETE", config.STOCK_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}

@@ -46,11 +46,19 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 		return shared.HandleAPIError(err)
 	}
 
+	var articles []structs.StockArticle
+
+	for _, article := range articleList {
+		if article.Amount > 0 {
+			articles = append(articles, article)
+		}
+	}
+
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 		Total:   *total,
-		Items:   articleList,
+		Items:   articles,
 	}, nil
 }
 
@@ -203,11 +211,8 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			}
 
 			stockArticle.Amount -= article.Quantity
-			if stockArticle.Amount > 0 {
-				err = updateStock(*stockArticle)
-			} else {
-				err = deleteStock(stockArticle.ID)
-			}
+
+			err = updateStock(*stockArticle)
 
 			if err != nil {
 				return shared.HandleAPIError(err)
@@ -419,15 +424,6 @@ func createStock(input dto.MovementArticle) error {
 
 func updateStock(input structs.StockArticle) error {
 	_, err := shared.MakeAPIRequest("PUT", config.STOCK_ENDPOINT+"/"+strconv.Itoa(input.ID), input, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func deleteStock(id int) error {
-	_, err := shared.MakeAPIRequest("DELETE", config.STOCK_ENDPOINT+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}

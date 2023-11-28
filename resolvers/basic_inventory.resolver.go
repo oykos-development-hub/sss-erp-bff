@@ -367,6 +367,19 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 
 					if settings != nil {
 						settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+						if settings.Value != "" {
+							//Racunanje Datuma Obračun amortizacije (get DateOfPurchase and add value from Depreciation and return Calculation of depreciation)
+							layout := time.RFC3339Nano
+							t, _ := time.Parse(layout, item.DateOfPurchase)
+							valueDepreciation, err := strconv.Atoi(settings.Value)
+							if err == nil {
+								year := t.Year() + valueDepreciation
+								newDate := time.Date(year, t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
+								item.DateOfPurchase = newDate.Format(layout)
+							}
+
+						}
+
 					}
 					break
 				} else {

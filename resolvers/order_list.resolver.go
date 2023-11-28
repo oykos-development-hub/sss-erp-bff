@@ -583,10 +583,19 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 			Description:        &article.Description,
 			OrganizationUnitID: organizationUnitID})
 
+		var year string
+
+		if article.Year != "" {
+			year = article.Year
+		} else {
+			now := time.Now()
+			year = fmt.Sprintf("%d", now.Year())
+		}
+
 		if len(stock) == 0 {
 			input := dto.MovementArticle{
 				Amount:             article.Amount,
-				Year:               article.Year,
+				Year:               year,
 				Description:        article.Description,
 				Title:              article.Title,
 				OrganizationUnitID: *organizationUnitID,

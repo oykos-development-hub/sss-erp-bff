@@ -90,6 +90,38 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 	itemId := data.Id
 
 	if shared.IsInteger(itemId) && itemId != 0 {
+		oldRequest, err := getOrganizationUnitArticleByID(itemId)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		if !oldRequest.IsRejected && data.IsRejected {
+			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+			employees, err := getEmployeesOfOrganizationUnit(data.OrganizationUnitId)
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			for _, employee := range employees {
+				employeeAccount, err := GetUserAccountById(employee.UserAccountId)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+				if employeeAccount.RoleId == structs.UserRoleManagerOJ {
+					_, err := createNotification(&structs.Notifications{
+						Content:     "Vaš zahtjev je odbijen od strane službenika za javne nabavke. Molimo vas da pregledate komentar i ponovno pošaljete plan.",
+						Module:      "Javne nabavke",
+						FromUserID:  loggedInUser.Id,
+						ToUserID:    employeeAccount.Id,
+						FromContent: "Službenik za javne nabavke",
+						IsRead:      false,
+					})
+					if err != nil {
+						return shared.HandleAPIError(err)
+					}
+				}
+			}
+		}
+
 		res, err := updateProcurementOUArticle(itemId, &data)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -131,9 +163,49 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 		return shared.HandleAPIError(err)
 	}
 
+	isRejected := false
+
 	for _, ouArticle := range ouArticleList {
+		if ouArticle.Status == structs.ArticleStatusRejected {
+			isRejected = true
+		}
 		ouArticle.Status = structs.ArticleStatusRevision
 		_, err = updateProcurementOUArticle(ouArticle.Id, ouArticle)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+	}
+
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	unitID := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	unit, err := getOrganizationUnitById(*unitID)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	oficialOfProcurementsRole := structs.UserRoleOfficialForPublicProcurements
+	targetUsers, err := GetUserAccounts(&dto.GetUserAccountListInput{
+		RoleID: &oficialOfProcurementsRole,
+	})
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	for _, targetUser := range targetUsers.Data {
+		var content string
+		if isRejected {
+			content = fmt.Sprintf("Menadžer organizacione jedinice '%s' upravo je ažurirao i proslijedio svoj zahtjev s novim izmjenama.", unit.Title)
+		} else {
+			content = fmt.Sprintf("Menadžer organizacione jedinice '%s' je upravo proslijedio svoj zahtjev.", unit.Title)
+		}
+		_, err := createNotification(&structs.Notifications{
+			Content:     content,
+			Module:      "Javne nabavke",
+			FromUserID:  loggedInUser.Id,
+			ToUserID:    targetUser.Id,
+			FromContent: "Menadžer organizacione jedinice",
+			IsRead:      false,
+		})
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}

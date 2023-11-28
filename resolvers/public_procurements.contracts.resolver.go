@@ -329,3 +329,13 @@ func getOrganizationUnitArticlesList(input dto.GetProcurementOrganizationUnitArt
 
 	return res.Data, nil
 }
+
+func getOrganizationUnitArticleByID(id int) (*dto.GetPublicProcurementOrganizationUnitArticle, error) {
+	res := &dto.GetOrganizationUnitArticleResponse{}
+	_, err := shared.MakeAPIRequest("GET", config.ORGANIZATION_UNIT_ARTICLE_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}

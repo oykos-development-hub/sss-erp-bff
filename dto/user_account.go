@@ -16,11 +16,12 @@ type GetUserAccountRoleResponseMS struct {
 }
 
 type GetUserAccountListInput struct {
-	Page     *int              `json:"page"`
-	Size     *int              `json:"size"`
-	IsActive *bool             `json:"is_active"`
-	RoleID   *structs.UserRole `json:"role_id"`
-	Email    *string           `json:"email"`
+	Page      *int              `json:"page"`
+	Size      *int              `json:"size"`
+	IsActive  *bool             `json:"is_active"`
+	RoleID    *structs.UserRole `json:"role_id"`
+	Email     *string           `json:"email"`
+	ProfileID *int              `json:"profile_id"`
 }
 
 type DeactivateUserAccount struct {

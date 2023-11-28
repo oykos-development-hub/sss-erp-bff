@@ -5,6 +5,7 @@ type OrderListItem struct {
 	DateOrder           string  `json:"date_order"`
 	TotalPrice          float32 `json:"total_price"`
 	PublicProcurementId *int    `json:"public_procurement_id"`
+	GroupOfArticlesID   *int    `json:"group_of_articles_id"`
 	SupplierId          *int    `json:"supplier_id"`
 	Status              string  `json:"status"`
 	DateSystem          *string `json:"date_system"`
@@ -51,6 +52,7 @@ type OrderListInsertItem struct {
 	Id                  int                      `json:"id"`
 	DateOrder           string                   `json:"date_order"`
 	PublicProcurementId int                      `json:"public_procurement_id"`
+	GroupOfArticlesID   int                      `json:"group_of_articles_id"`
 	SupplierId          int                      `json:"supplier_id"`
 	Articles            []OrderArticleInsertItem `json:"articles"`
 	IsUsed              bool                     `json:"is_used"`

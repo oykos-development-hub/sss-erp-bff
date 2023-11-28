@@ -39,6 +39,7 @@ type OrderListOverviewResponse struct {
 	IsUsed              bool                                   `json:"is_used"`
 	CreatedAt           string                                 `json:"created_at"`
 	UpdatedAt           string                                 `json:"updated_at"`
+	GroupOfArticles     *DropdownSimple                        `json:"group_of_articles"`
 	PublicProcurement   *DropdownSimple                        `json:"public_procurement"`
 	Supplier            *DropdownSimple                        `json:"supplier"`
 	RecipientUser       *DropdownSimple                        `json:"recipient_user"`

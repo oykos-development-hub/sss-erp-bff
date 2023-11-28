@@ -778,6 +778,7 @@ func buildOrderListInsertItem(context context.Context, item *structs.OrderListIn
 		DateOrder:           timeString,
 		TotalPrice:          totalPrice,
 		PublicProcurementId: &item.PublicProcurementId,
+		GroupOfArticlesID:   &item.GroupOfArticlesID,
 		SupplierId:          supplierId,
 		OrderFile:           &item.OrderFile,
 	}
@@ -931,6 +932,17 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		movementFile.Type = *file.Type
 	}
 
+	var groupOfArticles dto.DropdownSimple
+	if item.GroupOfArticlesID != nil && *item.GroupOfArticlesID != zero {
+		getGroupOfArticles, err := getDropdownSettingById(*item.GroupOfArticlesID)
+
+		if err != nil {
+			return nil, err
+		}
+		groupOfArticles.Id = getGroupOfArticles.Id
+		groupOfArticles.Title = getGroupOfArticles.Title
+	}
+
 	res = dto.OrderListOverviewResponse{
 		Id:                  item.Id,
 		DateOrder:           (string)(item.DateOrder),
@@ -945,6 +957,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		Office:              office,
 		Description:         item.Description,
 		Status:              item.Status,
+		GroupOfArticles:     &groupOfArticles,
 		Articles:            &articles,
 		OrderFile:           orderFile,
 		ReceiveFile:         receiveFile,

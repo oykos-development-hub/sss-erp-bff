@@ -22,6 +22,9 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		"public_procurement": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"group_of_articles": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"supplier": &graphql.Field{
 			Type: DropdownItemType,
 		},

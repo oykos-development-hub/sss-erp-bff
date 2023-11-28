@@ -55,6 +55,7 @@ var (
 	ROLES_ENDPOINT          string
 	SETTINGS_ENDPOINT       string
 	SUPPLIERS_ENDPOINT      string
+	NOTIFICATIONS_ENDPOINT  string
 	LOGGED_IN_USER_ENDPOINT string
 	ACCOUNT_ENDPOINT        string
 
@@ -158,6 +159,7 @@ func init() {
 	USER_ACCOUNTS_ENDPOINT = CORE_MS_BASE_URL + "/users"
 	SETTINGS_ENDPOINT = CORE_MS_BASE_URL + "/settings"
 	SUPPLIERS_ENDPOINT = CORE_MS_BASE_URL + "/suppliers"
+	NOTIFICATIONS_ENDPOINT = CORE_MS_BASE_URL + "/notifications"
 	LOGGED_IN_USER_ENDPOINT = CORE_MS_BASE_URL + "/logged-in-user"
 	ACCOUNT_ENDPOINT = CORE_MS_BASE_URL + "/accounts"
 	FORGOT_PASSWORD = CORE_MS_BASE_URL + "/v2/users/password/forgot"

@@ -162,6 +162,35 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 	itemId := data.Id
 
 	if shared.IsInteger(itemId) && itemId != 0 {
+		oldPlan, err := getProcurementPlan(itemId)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		if oldPlan.DateOfPublishing == nil && data.DateOfPublishing != nil {
+			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+			managerRole := structs.UserRoleManagerOJ
+			targetUsers, err := GetUserAccounts(&dto.GetUserAccountListInput{
+				RoleID: &managerRole,
+			})
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			for _, targetUser := range targetUsers.Data {
+				_, err := createNotification(&structs.Notifications{
+					Content:     "Službenik za javne nabavke je proslijedio novi plan javnih nabavki na pregled i popunjavanje.",
+					Module:      "Javne nabavke",
+					FromUserID:  loggedInUser.Id,
+					ToUserID:    targetUser.Id,
+					FromContent: "Službenik za javne nabavke",
+					IsRead:      false,
+				})
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+			}
+		}
+
 		res, err := updateProcurementPlan(itemId, &data)
 		if err != nil {
 			return shared.HandleAPIError(err)

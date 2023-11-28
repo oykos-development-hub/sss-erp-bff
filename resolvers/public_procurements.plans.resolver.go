@@ -65,7 +65,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 			contract = &pomContract
 		}
 
-		resItem, err := buildProcurementPlanResponseItem(params.Context, plan, contract, nil)
+		resItem, err := buildProcurementPlanResponseItem(params.Context, plan, contract, &dto.GetProcurementItemListInputMS{})
 
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -166,7 +166,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementPlanResponseItem(params.Context, res, nil, nil)
+		item, err := buildProcurementPlanResponseItem(params.Context, res, nil, &dto.GetProcurementItemListInputMS{})
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -178,7 +178,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementPlanResponseItem(params.Context, res, nil, nil)
+		item, err := buildProcurementPlanResponseItem(params.Context, res, nil, &dto.GetProcurementItemListInputMS{})
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -496,7 +496,7 @@ var PublicProcurementPlanPDFResolver = func(params graphql.ResolveParams) (inter
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	planResItem, _ := buildProcurementPlanResponseItem(params.Context, plan, nil, nil)
+	planResItem, _ := buildProcurementPlanResponseItem(params.Context, plan, nil, &dto.GetProcurementItemListInputMS{})
 
 	dateCurrentLayout := "2006-01-02T15:04:05Z"
 	dateOutputLayout := "02.01.2006. 15:04"

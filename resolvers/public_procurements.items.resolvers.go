@@ -16,6 +16,9 @@ import (
 
 var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"]
+	sortByTitle := params.Args["sort_by_title"]
+	sortByPrice := params.Args["sort_by_price"]
+
 	items := []*dto.ProcurementItemResponseItem{}
 
 	if id != nil && id.(int) > 0 {
@@ -24,7 +27,19 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 			return shared.HandleAPIError(err)
 		}
 
-		resItem, _ := buildProcurementItemResponseItem(params.Context, item, nil)
+		filter := &dto.GetProcurementArticleListInputMS{}
+
+		if sortByTitle != nil && sortByTitle.(string) != "" {
+			value := sortByTitle.(string)
+			filter.SortByTitle = &value
+		}
+
+		if sortByPrice != nil && sortByPrice.(string) != "" {
+			value := sortByPrice.(string)
+			filter.SortByPrice = &value
+		}
+
+		resItem, _ := buildProcurementItemResponseItem(params.Context, item, nil, filter)
 		items = append(items, resItem)
 	} else {
 		procurements, err := getProcurementItemList(nil)
@@ -33,7 +48,7 @@ var PublicProcurementPlanItemDetailsResolver = func(params graphql.ResolveParams
 		}
 
 		for _, item := range procurements {
-			resItem, _ := buildProcurementItemResponseItem(params.Context, item, nil)
+			resItem, _ := buildProcurementItemResponseItem(params.Context, item, nil, &dto.GetProcurementArticleListInputMS{})
 			items = append(items, resItem)
 		}
 	}
@@ -67,7 +82,7 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 		return shared.HandleAPIError(err)
 	}
 
-	resItem, _ := buildProcurementItemResponseItem(ctx, item, nil)
+	resItem, _ := buildProcurementItemResponseItem(ctx, item, nil, &dto.GetProcurementArticleListInputMS{})
 
 	if resItem.Status != structs.PostProcurementStatusContracted {
 		return shared.HandleAPIError(errors.New("procurement must be contracted"))
@@ -136,7 +151,7 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		resItem, _ := buildProcurementItemResponseItem(params.Context, res, nil)
+		resItem, _ := buildProcurementItemResponseItem(params.Context, res, nil, &dto.GetProcurementArticleListInputMS{})
 
 		response.Message = "You updated this item!"
 		response.Item = resItem
@@ -146,7 +161,7 @@ var PublicProcurementPlanItemInsertResolver = func(params graphql.ResolveParams)
 			return shared.HandleAPIError(err)
 		}
 
-		resItem, _ := buildProcurementItemResponseItem(params.Context, res, nil)
+		resItem, _ := buildProcurementItemResponseItem(params.Context, res, nil, &dto.GetProcurementArticleListInputMS{})
 
 		response.Message = "You created this item!"
 		response.Item = resItem
@@ -241,7 +256,7 @@ func isProcurementProcessed(procurementID int, organizationUnitID *int) bool {
 	return matchedArticleCount >= len(articles)
 }
 
-func buildProcurementItemResponseItem(context context.Context, item *structs.PublicProcurementItem, organizationUnitID *int) (*dto.ProcurementItemResponseItem, error) {
+func buildProcurementItemResponseItem(context context.Context, item *structs.PublicProcurementItem, organizationUnitID *int, filter *dto.GetProcurementArticleListInputMS) (*dto.ProcurementItemResponseItem, error) {
 	if organizationUnitID == nil {
 		organizationUnitID, _ = context.Value(config.OrganizationUnitIDKey).(*int)
 	}
@@ -252,7 +267,8 @@ func buildProcurementItemResponseItem(context context.Context, item *structs.Pub
 	var totalNet float32
 
 	var articles []*dto.ProcurementArticleResponseItem
-	articlesRaw, err := getProcurementArticlesList(&dto.GetProcurementArticleListInputMS{ItemID: &item.Id})
+	filter.ItemID = &item.Id
+	articlesRaw, err := getProcurementArticlesList(filter)
 	if err != nil {
 		return nil, err
 	}

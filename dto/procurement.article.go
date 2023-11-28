@@ -15,6 +15,8 @@ type GetProcurementArticleListInputMS struct {
 	Title       *string `json:"title"`
 	Description *string `json:"description"`
 	Year        *string `json:"year"`
+	SortByTitle *string `json:"sort_by_title"`
+	SortByPrice *string `json:"sort_by_price"`
 }
 
 type ProcurementArticleResponseItem struct {

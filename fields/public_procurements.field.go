@@ -95,6 +95,12 @@ var PublicProcurementPlanItemDetailsField = &graphql.Field{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"sort_by_title": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_price": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 	},
 	Resolve: resolvers.PublicProcurementPlanItemDetailsResolver,
 }
@@ -265,7 +271,16 @@ var PublicProcurementContractsOverviewField = &graphql.Field{
 		"supplier_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
-		"sort_date_of_expiration": &graphql.ArgumentConfig{
+		"sort_by_date_of_expiry": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_date_of_signing": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_gross_value": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_serial_number": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
 	},

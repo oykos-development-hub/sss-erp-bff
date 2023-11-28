@@ -264,7 +264,7 @@ func buildProcurementPlanResponseItem(context context.Context, plan *structs.Pub
 			}
 		}
 
-		resItem, err := buildProcurementItemResponseItem(context, item, nil)
+		resItem, err := buildProcurementItemResponseItem(context, item, nil, &dto.GetProcurementArticleListInputMS{})
 		if err != nil {
 			return nil, err
 		}

@@ -40,7 +40,7 @@ var PublicProcurementContractArticlesOrganizationUnitResponseItem = func(params 
 		return shared.HandleAPIError(err)
 	}
 
-	procurement, err := buildProcurementItemResponseItem(params.Context, procurementRes, &organizationUnitID)
+	procurement, err := buildProcurementItemResponseItem(params.Context, procurementRes, &organizationUnitID, &dto.GetProcurementArticleListInputMS{})
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}

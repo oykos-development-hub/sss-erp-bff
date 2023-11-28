@@ -20,8 +20,11 @@ var PublicProcurementContractsOverviewResolver = func(params graphql.ResolvePara
 	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
-	sortDateOfExpiry := params.Args["sort_date_of_expiration"]
 
+	sortByDateOfExpiry := params.Args["sort_by_date_of_expiry"]
+	sortByDateOfSigning := params.Args["sort_by_date_of_signing"]
+	sortByGrossValue := params.Args["sort_by_gross_value"]
+	sortBySerialNumber := params.Args["sort_by_serial_number"]
 	procurement_id := params.Args["procurement_id"]
 	supplier_id := params.Args["supplier_id"]
 
@@ -42,9 +45,21 @@ var PublicProcurementContractsOverviewResolver = func(params graphql.ResolvePara
 		supplierID := supplier_id.(int)
 		input.SupplierID = &supplierID
 	}
-	if sortDateOfExpiry != nil && sortDateOfExpiry.(string) != "" {
-		dateOfExpiratioin := sortDateOfExpiry.(string)
-		input.SortDateOfExpiry = &dateOfExpiratioin
+	if sortByDateOfExpiry != nil && sortByDateOfExpiry.(string) != "" {
+		dateOfExpiratioin := sortByDateOfExpiry.(string)
+		input.SortByDateOfExpiry = &dateOfExpiratioin
+	}
+	if sortByDateOfSigning != nil && sortByDateOfSigning.(string) != "" {
+		value := sortByDateOfSigning.(string)
+		input.SortByDateOfSigning = &value
+	}
+	if sortByGrossValue != nil && sortByGrossValue.(string) != "" {
+		value := sortByGrossValue.(string)
+		input.SortByGrossValue = &value
+	}
+	if sortBySerialNumber != nil && sortBySerialNumber.(string) != "" {
+		value := sortBySerialNumber.(string)
+		input.SortBySerialNumber = &value
 	}
 
 	if shared.IsInteger(id) && id.(int) > 0 {

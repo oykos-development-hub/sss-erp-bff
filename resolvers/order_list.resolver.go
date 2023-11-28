@@ -159,7 +159,7 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 		for _, plan := range plans {
 
 			if plan.Year <= strconv.Itoa(currentYear) {
-				item, _ := buildProcurementPlanResponseItem(params.Context, plan, nil)
+				item, _ := buildProcurementPlanResponseItem(params.Context, plan, nil, nil)
 
 				if item.Status == dto.PlanStatusPostBudgetClosed {
 					if len(item.Items) > 0 {

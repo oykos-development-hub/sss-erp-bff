@@ -11,9 +11,13 @@ type GetProcurementItemListResponseMS struct {
 }
 
 type GetProcurementItemListInputMS struct {
-	Page   *int `json:"page"`
-	Size   *int `json:"size"`
-	PlanID *int `json:"plan_id"`
+	Page                   *int    `json:"page"`
+	Size                   *int    `json:"size"`
+	PlanID                 *int    `json:"plan_id"`
+	SortByTitle            *string `json:"sort_by_title"`
+	SortBySerialNumber     *string `json:"sort_by_serial_number"`
+	SortByDateOfPublishing *string `json:"sort_by_date_of_publishing"`
+	SortByDateOfAwarding   *string `json:"sort_by_date_of_awarding"`
 }
 
 type ProcurementItemResponseItem struct {

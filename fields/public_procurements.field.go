@@ -18,6 +18,15 @@ var PublicProcurementPlansOverviewField = &graphql.Field{
 		"size": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
+		"sort_by_year": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_title": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_date_of_publishing": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 		"year": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
@@ -40,6 +49,18 @@ var PublicProcurementPlanDetailsField = &graphql.Field{
 	Args: graphql.FieldConfigArgument{
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"sort_by_title": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_serial_number": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_date_of_publishing": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_date_of_awarding": &graphql.ArgumentConfig{
+			Type: graphql.String,
 		},
 	},
 	Resolve: resolvers.PublicProcurementPlanDetailsResolver,

@@ -25,6 +25,9 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 	year := params.Args["year"]
 	isPreBudget := params.Args["is_pre_budget"]
 	hasContract := params.Args["contract"]
+	sortByTitle := params.Args["sort_by_title"]
+	sortByYear := params.Args["sort_by_year"]
+	sortByDateOfPublishing := params.Args["sort_by_date_of_publishing"]
 
 	input := dto.GetProcurementPlansInput{}
 
@@ -35,6 +38,18 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 	if isPreBudget != nil {
 		isPreBudgetValue := isPreBudget.(bool)
 		input.IsPreBudget = &isPreBudgetValue
+	}
+	if sortByYear != nil && sortByYear.(string) != "" {
+		value := sortByYear.(string)
+		input.SortByYear = &value
+	}
+	if sortByTitle != nil && sortByTitle.(string) != "" {
+		value := sortByTitle.(string)
+		input.SortByTitle = &value
+	}
+	if sortByDateOfPublishing != nil && sortByDateOfPublishing.(string) != "" {
+		value := sortByDateOfPublishing.(string)
+		input.SortByDateOfPublishing = &value
 	}
 
 	plans, err := getProcurementPlanList(&input)
@@ -50,7 +65,7 @@ var PublicProcurementPlansOverviewResolver = func(params graphql.ResolveParams) 
 			contract = &pomContract
 		}
 
-		resItem, err := buildProcurementPlanResponseItem(params.Context, plan, contract)
+		resItem, err := buildProcurementPlanResponseItem(params.Context, plan, contract, nil)
 
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -86,7 +101,35 @@ var PublicProcurementPlanDetailsResolver = func(params graphql.ResolveParams) (i
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	resItem, err := buildProcurementPlanResponseItem(params.Context, plan, nil)
+
+	sortByTitle := params.Args["sort_by_title"]
+	sortBySerialNumber := params.Args["sort_by_serial_number"]
+	sortByDateOfPublishing := params.Args["sort_by_date_of_publishing"]
+	sortByDateOfAwarding := params.Args["sort_by_date_of_awarding"]
+
+	input := dto.GetProcurementItemListInputMS{PlanID: &plan.Id}
+
+	if sortByTitle != nil && sortByTitle.(string) != "" {
+		value := sortByTitle.(string)
+		input.SortByTitle = &value
+	}
+
+	if sortBySerialNumber != nil && sortBySerialNumber.(string) != "" {
+		value := sortBySerialNumber.(string)
+		input.SortBySerialNumber = &value
+	}
+
+	if sortByDateOfAwarding != nil && sortByDateOfAwarding.(string) != "" {
+		value := sortByDateOfAwarding.(string)
+		input.SortByDateOfAwarding = &value
+	}
+
+	if sortByDateOfPublishing != nil && sortByDateOfPublishing.(string) != "" {
+		value := sortByDateOfPublishing.(string)
+		input.SortByDateOfPublishing = &value
+	}
+
+	resItem, err := buildProcurementPlanResponseItem(params.Context, plan, nil, &input)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -123,7 +166,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementPlanResponseItem(params.Context, res, nil)
+		item, err := buildProcurementPlanResponseItem(params.Context, res, nil, nil)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -135,7 +178,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		item, err := buildProcurementPlanResponseItem(params.Context, res, nil)
+		item, err := buildProcurementPlanResponseItem(params.Context, res, nil, nil)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -147,9 +190,10 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 	return response, nil
 }
 
-func buildProcurementPlanResponseItem(context context.Context, plan *structs.PublicProcurementPlan, hasContract *bool) (*dto.ProcurementPlanResponseItem, error) {
+func buildProcurementPlanResponseItem(context context.Context, plan *structs.PublicProcurementPlan, hasContract *bool, filter *dto.GetProcurementItemListInputMS) (*dto.ProcurementPlanResponseItem, error) {
 	items := []*dto.ProcurementItemResponseItem{}
-	rawItems, err := getProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &plan.Id})
+	filter.PlanID = &plan.Id
+	rawItems, err := getProcurementItemList(filter)
 	if err != nil {
 		return nil, err
 	}
@@ -452,7 +496,7 @@ var PublicProcurementPlanPDFResolver = func(params graphql.ResolveParams) (inter
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
-	planResItem, _ := buildProcurementPlanResponseItem(params.Context, plan, nil)
+	planResItem, _ := buildProcurementPlanResponseItem(params.Context, plan, nil, nil)
 
 	dateCurrentLayout := "2006-01-02T15:04:05Z"
 	dateOutputLayout := "02.01.2006. 15:04"

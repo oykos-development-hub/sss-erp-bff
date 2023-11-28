@@ -9,9 +9,12 @@ type GetProcurementPlanResponseMS struct {
 }
 
 type GetProcurementPlansInput struct {
-	Year           *string `json:"year"`
-	IsPreBudget    *bool   `json:"is_pre_budget"`
-	TargetBudgetID *int    `json:"target_budget_id"`
+	Year                   *string `json:"year"`
+	IsPreBudget            *bool   `json:"is_pre_budget"`
+	TargetBudgetID         *int    `json:"target_budget_id"`
+	SortByYear             *string `json:"sort_by_year"`
+	SortByTitle            *string `json:"sort_by_title"`
+	SortByDateOfPublishing *string `json:"sort_by_date_of_publishing"`
 }
 
 type GetProcurementPlanListResponseMS struct {

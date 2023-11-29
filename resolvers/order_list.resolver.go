@@ -234,7 +234,7 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 				return shared.HandleAPIError(err)
 			}
 			items = append(items, *orderListItem)
-			price += orderListItem.TotalNeto
+			price += orderListItem.TotalBruto
 		}
 		total = orderLists.Total
 	}

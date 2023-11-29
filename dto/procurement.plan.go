@@ -50,6 +50,7 @@ type ProcurementPlanResponseItem struct {
 	PreBudgetId         *int                           `json:"pre_budget_id"`
 	FileId              *int                           `json:"file_id"`
 	Requests            int                            `json:"requests"`
+	ApprovedRequests    int                            `json:"approved_requests"`
 	RejectedDescription *string                        `json:"rejected_description"`
 	Items               []*ProcurementItemResponseItem `json:"items"`
 	TotalNet            float32                        `json:"total_net"`

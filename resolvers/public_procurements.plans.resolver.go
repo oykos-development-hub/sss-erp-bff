@@ -314,6 +314,7 @@ func buildProcurementPlanResponseItem(context context.Context, plan *structs.Pub
 	}
 
 	uniqueOrganizationUnits := make(map[int]bool)
+	approvedRequestsCount := 0
 
 	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int) // assert the type
 
@@ -327,6 +328,9 @@ func buildProcurementPlanResponseItem(context context.Context, plan *structs.Pub
 			}
 
 			for _, ouArticle := range oUArticles {
+				if ouArticle.Status == structs.ArticleStatusAccepted {
+					approvedRequestsCount++
+				}
 				if _, recorded := uniqueOrganizationUnits[ouArticle.OrganizationUnitId]; !recorded {
 					uniqueOrganizationUnits[ouArticle.OrganizationUnitId] = true
 					updateRejectedDescriptionIfNeeded(organizationUnitID, ouArticle, &res)
@@ -337,6 +341,8 @@ func buildProcurementPlanResponseItem(context context.Context, plan *structs.Pub
 	if status == dto.PlanStatusAdminPublished {
 		res.Requests = len(uniqueOrganizationUnits)
 	}
+
+	res.ApprovedRequests = approvedRequestsCount
 
 	return &res, nil
 }

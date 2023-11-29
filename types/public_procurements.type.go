@@ -60,6 +60,9 @@ var PublicProcurementPlanDetailsItemType = graphql.NewObject(graphql.ObjectConfi
 		"requests": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"approved_requests": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"rejected_description": &graphql.Field{
 			Type: graphql.String,
 		},

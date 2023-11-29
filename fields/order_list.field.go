@@ -36,6 +36,9 @@ var OrderListOverviewField = &graphql.Field{
 		"active_plan": &graphql.ArgumentConfig{
 			Type: graphql.Boolean,
 		},
+		"year": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 	},
 	Resolve: resolvers.OrderListOverviewResolver,
 }

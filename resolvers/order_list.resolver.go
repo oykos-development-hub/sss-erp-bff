@@ -125,6 +125,7 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 	var (
 		items []dto.OrderListOverviewResponse
 		total int
+		price float32
 	)
 
 	id := params.Args["id"]
@@ -135,6 +136,7 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 	status, statusOK := params.Args["status"].(string)
 	search, searchOk := params.Args["search"].(string)
 	activePlan, _ := params.Args["active_plan"].(bool)
+	year, yearOK := params.Args["year"].(string)
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		orderList, err := getOrderListById(id.(int))
@@ -218,17 +220,21 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 			input.Search = &search
 		}
 
+		if yearOK && year != "" {
+			input.Year = &year
+		}
+
 		orderLists, err := getOrderLists(&input)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-
 		for _, orderList := range orderLists.Data {
 			orderListItem, err := buildOrderListResponseItem(params.Context, &orderList)
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
 			items = append(items, *orderListItem)
+			price += orderListItem.TotalNeto
 		}
 		total = orderLists.Total
 	}
@@ -238,6 +244,7 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 		Message: "Here's the list you asked for!",
 		Total:   total,
 		Items:   items,
+		Price:   price,
 	}, nil
 }
 

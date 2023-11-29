@@ -17,6 +17,7 @@ type GetOrderListInput struct {
 	SupplierID          *int    `json:"supplier_id"`
 	Search              *string `json:"search"`
 	Status              *string `json:"status"`
+	Year                *string `json:"year"`
 	PublicProcurementID *int    `json:"public_procurement_id"`
 	OrganizationUnitId  *int    `json:"organization_unit_id"`
 }

@@ -10,6 +10,7 @@ type Response struct {
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
 	Total   int         `json:"total"`
+	Price   float32     `json:"price"`
 	Items   interface{} `json:"items"`
 	Summary interface{} `json:"summary"`
 }

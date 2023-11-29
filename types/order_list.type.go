@@ -82,6 +82,9 @@ var OrderListOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		"total": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"price": &graphql.Field{
+			Type: graphql.Float,
+		},
 		"items": &graphql.Field{
 			Type: graphql.NewList(OrderListItemType),
 		},

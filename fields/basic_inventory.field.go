@@ -45,6 +45,9 @@ var BasicInventoryOverviewField = &graphql.Field{
 		"organization_unit_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"expire": &graphql.ArgumentConfig{
+			Type: graphql.Boolean,
+		},
 	},
 	Resolve: resolvers.BasicInventoryOverviewResolver,
 }

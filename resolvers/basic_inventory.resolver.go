@@ -18,6 +18,9 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	var filter dto.InventoryItemFilter
 	var status string
 	sourceTypeStr := ""
+	var expireFilter bool
+	page := 1
+	size := 10
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
@@ -51,13 +54,16 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	if depreciationTypeID, ok := params.Args["depreciation_type_id"].(int); ok && depreciationTypeID != 0 {
 		filter.DeprecationTypeID = &depreciationTypeID
 	}
-
-	if page, ok := params.Args["page"].(int); ok && page != 0 {
-		filter.Page = &page
+	if expire, ok := params.Args["expire"].(bool); ok && expire {
+		expireFilter = expire
 	}
 
-	if size, ok := params.Args["size"].(int); ok && size != 0 {
-		filter.Size = &size
+	if pageProp, ok := params.Args["page"].(int); ok && pageProp != 0 {
+		page = pageProp
+	}
+
+	if sizeProp, ok := params.Args["size"].(int); ok && sizeProp != 0 {
+		size = sizeProp
 	}
 
 	if st, ok := params.Args["status"].(string); ok && st != "" {
@@ -79,19 +85,39 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 		if status != "" && resItem.Status != status {
 			continue
 		}
+		if expireFilter {
+			check, _ := isCurrentOrExpiredDate(resItem.DateOfPurchase)
+			if !check {
+				continue
+			}
+		}
 		items = append(items, resItem)
-
+		if len(items) >= page*size {
+			break
+		}
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
 	}
-
+	indexPagination := (page - 1) * size
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 		Total:   basicInventoryData.Total,
-		Items:   items,
+		Items:   items[indexPagination:],
 	}, nil
+}
+
+func isCurrentOrExpiredDate(dateStr string) (bool, error) {
+
+	parsedDate, err := time.Parse("2006-01-02T00:00:00Z", dateStr)
+	if err != nil {
+		return false, err
+	}
+
+	currentDate := time.Now()
+
+	return parsedDate.Year() == currentDate.Year() || parsedDate.Before(currentDate), nil
 }
 
 var BasicInventoryDetailsResolver = func(params graphql.ResolveParams) (interface{}, error) {

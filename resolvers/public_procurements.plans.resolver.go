@@ -328,10 +328,10 @@ func buildProcurementPlanResponseItem(context context.Context, plan *structs.Pub
 			}
 
 			for _, ouArticle := range oUArticles {
-				if ouArticle.Status == structs.ArticleStatusAccepted {
-					approvedRequestsCount++
-				}
 				if _, recorded := uniqueOrganizationUnits[ouArticle.OrganizationUnitId]; !recorded {
+					if ouArticle.Status == structs.ArticleStatusAccepted {
+						approvedRequestsCount++
+					}
 					uniqueOrganizationUnits[ouArticle.OrganizationUnitId] = true
 					updateRejectedDescriptionIfNeeded(organizationUnitID, ouArticle, &res)
 				}

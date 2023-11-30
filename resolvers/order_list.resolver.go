@@ -535,6 +535,8 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 		return shared.HandleAPIError(err)
 	}
 
+	status := orderList.Status
+
 	orderList.Status = "Receive"
 	orderList.InvoiceNumber = &data.InvoiceNumber
 	orderList.DateSystem = &data.DateSystem
@@ -557,68 +559,69 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	if !ok || organizationUnitID == nil {
 		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
+	if status == "Created" {
+		for _, article := range articles.Data {
 
-	for _, article := range articles.Data {
+			if article.ArticleId != 0 {
+				currentArticle, err := getProcurementArticle(article.ArticleId)
 
-		if article.ArticleId != 0 {
-			currentArticle, err := getProcurementArticle(article.ArticleId)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
 
-			if err != nil {
-				return shared.HandleAPIError(err)
+				procurement, err := getProcurementItem(currentArticle.PublicProcurementId)
+
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+
+				plan, err := getProcurementPlan(procurement.PlanId)
+
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+
+				article.Year = plan.Year
+				article.Title = currentArticle.Title
+				article.Description = currentArticle.Description
 			}
 
-			procurement, err := getProcurementItem(currentArticle.PublicProcurementId)
+			stock, _, _ := getStock(&dto.StockFilter{
+				Year:               &article.Year,
+				Title:              &article.Title,
+				Description:        &article.Description,
+				OrganizationUnitID: organizationUnitID})
 
-			if err != nil {
-				return shared.HandleAPIError(err)
+			var year string
+
+			if article.Year != "" {
+				year = article.Year
+			} else {
+				now := time.Now()
+				year = fmt.Sprintf("%d", now.Year())
 			}
 
-			plan, err := getProcurementPlan(procurement.PlanId)
-
-			if err != nil {
-				return shared.HandleAPIError(err)
+			if len(stock) == 0 {
+				input := dto.MovementArticle{
+					Amount:             article.Amount,
+					Year:               year,
+					Description:        article.Description,
+					Title:              article.Title,
+					OrganizationUnitID: *organizationUnitID,
+				}
+				err = createStock(input)
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+			} else {
+				stock[0].Amount += article.Amount
+				err = updateStock(stock[0])
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
 			}
 
-			article.Year = plan.Year
-			article.Title = currentArticle.Title
-			article.Description = currentArticle.Description
 		}
-
-		stock, _, _ := getStock(&dto.StockFilter{
-			Year:               &article.Year,
-			Title:              &article.Title,
-			Description:        &article.Description,
-			OrganizationUnitID: organizationUnitID})
-
-		var year string
-
-		if article.Year != "" {
-			year = article.Year
-		} else {
-			now := time.Now()
-			year = fmt.Sprintf("%d", now.Year())
-		}
-
-		if len(stock) == 0 {
-			input := dto.MovementArticle{
-				Amount:             article.Amount,
-				Year:               year,
-				Description:        article.Description,
-				Title:              article.Title,
-				OrganizationUnitID: *organizationUnitID,
-			}
-			err = createStock(input)
-			if err != nil {
-				return shared.HandleAPIError(err)
-			}
-		} else {
-			stock[0].Amount += article.Amount
-			err = updateStock(stock[0])
-			if err != nil {
-				return shared.HandleAPIError(err)
-			}
-		}
-
 	}
 
 	_, err = updateOrderListItem(data.OrderId, orderList)

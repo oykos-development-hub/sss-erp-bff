@@ -378,6 +378,7 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
 	assessments, _ := getMyInventoryAssessments(item.Id)
 	var grossPrice float32
+	var dateOfAssessment string
 	hasAssessments := false
 	indexAssessments := 0
 	if len(assessments) > 0 {
@@ -388,6 +389,7 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 				if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
 
 					grossPrice = assessmentResponse.GrossPriceDifference
+					dateOfAssessment = *assessmentResponse.DateOfAssessment
 
 					settings, _ := getDropdownSettingById(assessments[0].DepreciationTypeId)
 
@@ -500,6 +502,7 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 		GrossPrice:             grossPrice,
 		PurchaseGrossPrice:     item.GrossPrice,
 		DateOfPurchase:         item.DateOfPurchase,
+		DateOfAssessments:      dateOfAssessment,
 		Status:                 status,
 		SourceType:             item.SourceType,
 		RealEstate:             realEstateStruct,

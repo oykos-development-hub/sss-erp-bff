@@ -191,6 +191,9 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_purchase": &graphql.Field{
 			Type: graphql.String,
 		},
+		"date_of_assessments": &graphql.Field{
+			Type: graphql.String,
+		},
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},

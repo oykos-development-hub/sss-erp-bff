@@ -45,6 +45,7 @@ type BasicInventoryResponseListItem struct {
 	PurchaseGrossPrice     float32                                                        `json:"purchase_gross_price"`
 	GrossPrice             float32                                                        `json:"gross_price"`
 	DateOfPurchase         string                                                         `json:"date_of_purchase"`
+	DateOfAssessments      string                                                         `json:"date_of_assessments"`
 	Status                 string                                                         `json:"status"`
 	SourceType             string                                                         `json:"source_type"`
 	HasAssessments         bool                                                           `json:"has_assessments"`

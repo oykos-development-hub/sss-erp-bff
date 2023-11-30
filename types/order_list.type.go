@@ -346,6 +346,9 @@ var MovementItem = graphql.NewObject(graphql.ObjectConfig{
 		"recipient_user": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"articles": &graphql.Field{
+			Type: graphql.NewList(ArticleType),
+		},
 	},
 })
 

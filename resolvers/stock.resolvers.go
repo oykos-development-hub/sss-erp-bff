@@ -145,6 +145,37 @@ var MovementOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 
 		item.RecipientUser.Title = userItem.FirstName + " " + userItem.LastName
 		item.RecipientUser.Id = userItem.Id
+
+		articles, err := getMovementArticles(item.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		var movementArticles []dto.ArticlesDropdown
+		for _, article := range articles {
+			stockArticle, _, err := getStock(&dto.StockFilter{
+				Title:       &article.Title,
+				Description: &article.Description,
+				Year:        &article.Year,
+			})
+
+			if err != nil {
+				return nil, err
+			}
+
+			movementArticle := dto.ArticlesDropdown{
+				Title:       stockArticle[0].Title,
+				Description: stockArticle[0].Description,
+				Year:        stockArticle[0].Year,
+				Amount:      article.Amount,
+				ID:          stockArticle[0].ID,
+			}
+
+			movementArticles = append(movementArticles, movementArticle)
+		}
+
+		item.Articles = movementArticles
+
 		response = append(response, item)
 	}
 

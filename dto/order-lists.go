@@ -90,11 +90,12 @@ type GetSingleMovementArticleResponseMS struct {
 }
 
 type MovementResponse struct {
-	ID            int            `json:"id"`
-	Description   string         `json:"description"`
-	Office        DropdownSimple `json:"office"`
-	RecipientUser DropdownSimple `json:"recipient_user"`
-	DateOrder     string         `json:"date_order"`
+	ID            int                `json:"id"`
+	Description   string             `json:"description"`
+	Office        DropdownSimple     `json:"office"`
+	RecipientUser DropdownSimple     `json:"recipient_user"`
+	DateOrder     string             `json:"date_order"`
+	Articles      []ArticlesDropdown `json:"articles"`
 }
 
 type MovementDetailsResponse struct {

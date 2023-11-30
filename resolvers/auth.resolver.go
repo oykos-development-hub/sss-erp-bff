@@ -119,7 +119,48 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 var ForgotPasswordResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	email := p.Args["email"].(string)
 
-	err := resetPassword(email)
+	err := forgotPassword(email)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Mail send successful",
+	}, nil
+}
+
+var UserValidateMailResolver = func(p graphql.ResolveParams) (interface{}, error) {
+	email := p.Args["email"].(string)
+	token := p.Args["token"].(string)
+
+	input := dto.ResetPasswordVerify{
+		Email: email,
+		Token: token,
+	}
+
+	res, err := validateMail(&input)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:         "success",
+		Message:        "Email is valid",
+		EncryptedEmail: res.Data.EncryptedEmail,
+	}, nil
+}
+
+var UserResetPasswordResolver = func(p graphql.ResolveParams) (interface{}, error) {
+	encryptedEmail := p.Args["encrypted_email"].(string)
+	password := p.Args["password"].(string)
+
+	input := dto.ResetPassword{
+		EncryptedEmail: encryptedEmail,
+		Password:       password,
+	}
+
+	err := resetPassword(&input)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -182,11 +223,28 @@ func logout(token string) error {
 	return nil
 }
 
-func resetPassword(email string) error {
+func forgotPassword(email string) error {
 	reqBody := dto.ResetRequestMS{
 		Email: email,
 	}
-	_, err := shared.MakeAPIRequest("POST", config.FORGOT_PASSWORD, reqBody, nil)
+	_, err := shared.MakeAPIRequest("POST", config.FORGOT_PASSWORD_ENDPOINT, reqBody, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateMail(input *dto.ResetPasswordVerify) (*dto.ResetPasswordVerifyResponseMS, error) {
+	res := &dto.ResetPasswordVerifyResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.VALIDATE_MAIL_ENDPOINT, input, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func resetPassword(input *dto.ResetPassword) error {
+	_, err := shared.MakeAPIRequest("POST", config.RESET_PASSWORD_ENDPOINT, input, nil)
 	if err != nil {
 		return err
 	}

@@ -74,6 +74,8 @@ func authMiddleware(next http.Handler) http.Handler {
 		if bytes.Contains(body, []byte("login")) ||
 			bytes.Contains(body, []byte("refresh")) ||
 			bytes.Contains(body, []byte("ForgotPassword")) ||
+			bytes.Contains(body, []byte("ValidateMail")) ||
+			bytes.Contains(body, []byte("ResetPassword")) ||
 			bytes.Contains(body, []byte("settingsDropdown_")) ||
 			bytes.Contains(body, []byte("jobPositions")) ||
 			bytes.Contains(body, []byte("userProfile_")) {
@@ -259,6 +261,8 @@ func main() {
 			"pin":                          fields.PinField,
 			"userAccount_Overview":         fields.UserAccountField,
 			"userAccount_ForgotPassword":   fields.UserForgotPassword,
+			"userAccount_ValidateEmail":    fields.UserValidateMail,
+			"userAccount_ResetPassword":    fields.UserResetPassword,
 			"settingsDropdown_Overview":    fields.SettingsDropdownField,
 			"organizationUnits":            fields.OrganizationUnitsField,
 			"jobPositions":                 fields.JobPositionsField,

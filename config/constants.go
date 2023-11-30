@@ -95,7 +95,9 @@ var (
 
 	PLANS_ENDPOINT                     string
 	ITEMS_ENDPOINT                     string
-	FORGOT_PASSWORD                    string
+	FORGOT_PASSWORD_ENDPOINT           string
+	VALIDATE_MAIL_ENDPOINT             string
+	RESET_PASSWORD_ENDPOINT            string
 	ARTICLES_ENDPOINT                  string
 	CONTRACTS_ENDPOINT                 string
 	OU_LIMITS_ENDPOINT                 string
@@ -162,7 +164,9 @@ func init() {
 	NOTIFICATIONS_ENDPOINT = CORE_MS_BASE_URL + "/notifications"
 	LOGGED_IN_USER_ENDPOINT = CORE_MS_BASE_URL + "/logged-in-user"
 	ACCOUNT_ENDPOINT = CORE_MS_BASE_URL + "/accounts"
-	FORGOT_PASSWORD = CORE_MS_BASE_URL + "/v2/users/password/forgot"
+	FORGOT_PASSWORD_ENDPOINT = CORE_MS_BASE_URL + "/users/password/forgot"
+	VALIDATE_MAIL_ENDPOINT = CORE_MS_BASE_URL + "/users/password/validate-email"
+	RESET_PASSWORD_ENDPOINT = CORE_MS_BASE_URL + "/users/password/reset"
 
 	// HR MS endpoints
 	USER_PROFILES_ENDPOINT = HR_MS_BASE_URL + "/user-profiles"

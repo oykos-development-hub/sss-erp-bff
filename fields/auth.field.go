@@ -35,11 +35,39 @@ var RefreshField = &graphql.Field{
 
 var UserForgotPassword = &graphql.Field{
 	Type:        types.ForgotPasswordType,
-	Description: "Sends a new password on e-mail",
+	Description: "Sends an e-mail",
 	Args: graphql.FieldConfigArgument{
 		"email": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
 	},
 	Resolve: resolvers.ForgotPasswordResolver,
+}
+
+var UserValidateMail = &graphql.Field{
+	Type:        types.UserValidateMailType,
+	Description: "Validate e-mail",
+	Args: graphql.FieldConfigArgument{
+		"email": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"token": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+	},
+	Resolve: resolvers.UserValidateMailResolver,
+}
+
+var UserResetPassword = &graphql.Field{
+	Type:        types.UserResetPasswordType,
+	Description: "Reset password",
+	Args: graphql.FieldConfigArgument{
+		"encrypted_email": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"password": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+	},
+	Resolve: resolvers.UserResetPasswordResolver,
 }

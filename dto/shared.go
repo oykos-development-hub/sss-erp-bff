@@ -23,9 +23,10 @@ func ErrorResponse(err error) Response {
 }
 
 type ResponseSingle struct {
-	Status  string      `json:"status"`
-	Message string      `json:"message"`
-	Item    interface{} `json:"item,omitempty"`
+	Status         string      `json:"status"`
+	Message        string      `json:"message"`
+	EncryptedEmail string      `json:"encrypted_email"`
+	Item           interface{} `json:"item,omitempty"`
 }
 
 // FormatToEuro takes a float32 and returns it in European currency format with the Euro symbol.

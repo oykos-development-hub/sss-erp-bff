@@ -121,6 +121,39 @@ var ForgotPasswordType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var UserValidateMailType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserValidate",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"encrypted_email": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+var UserResetPasswordType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ResetPassword",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var LogoutType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "Logout",
 	Fields: graphql.Fields{

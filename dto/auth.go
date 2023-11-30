@@ -59,3 +59,21 @@ type RefreshTokenData struct {
 	Type  string `json:"type"`
 	Token string `json:"token"`
 }
+
+type ResetPasswordVerify struct {
+	Email string `json:"email"`
+	Token string `json:"token"`
+}
+
+type ResetPasswordVerifyResponse struct {
+	EncryptedEmail string `json:"encrypted_email"`
+}
+
+type ResetPasswordVerifyResponseMS struct {
+	Data ResetPasswordVerifyResponse `json:"data"`
+}
+
+type ResetPassword struct {
+	EncryptedEmail string `json:"encrypted_email"`
+	Password       string `json:"password"`
+}

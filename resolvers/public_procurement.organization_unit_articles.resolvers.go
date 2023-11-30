@@ -5,6 +5,7 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
+	"bff/websocketmanager"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -107,7 +108,7 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 					return shared.HandleAPIError(err)
 				}
 				if employeeAccount.RoleId == structs.UserRoleManagerOJ {
-					_, err := createNotification(&structs.Notifications{
+					_, err := websocketmanager.CreateNotification(&structs.Notifications{
 						Content:     "Vaš zahtjev je odbijen od strane službenika za javne nabavke. Molimo vas da pregledate komentar i ponovno pošaljete plan.",
 						Module:      "Javne nabavke",
 						FromUserID:  loggedInUser.Id,
@@ -198,7 +199,7 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 		} else {
 			content = fmt.Sprintf("Menadžer organizacione jedinice '%s' je upravo proslijedio svoj zahtjev.", unit.Title)
 		}
-		_, err := createNotification(&structs.Notifications{
+		_, err := websocketmanager.CreateNotification(&structs.Notifications{
 			Content:     content,
 			Module:      "Javne nabavke",
 			FromUserID:  loggedInUser.Id,

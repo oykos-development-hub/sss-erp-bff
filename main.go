@@ -5,6 +5,7 @@ import (
 	"bff/fields"
 	"bff/resolvers"
 	"bff/shared"
+	"bff/websocketmanager"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -219,8 +220,6 @@ func main() {
 			"publicProcurementContractArticleOverage_Delete":  fields.PublicProcurementContractArticleOverageDeleteField,
 			"suppliers_Insert":                                fields.SuppliersInsertField,
 			"suppliers_Delete":                                fields.SuppliersDeleteField,
-			"notifications_Read":                              fields.NotificationsReadField,
-			"notifications_Delete":                            fields.NotificationsDeleteField,
 			"basicInventory_Insert":                           fields.BasicInventoryInsertField,
 			"basicInventory_Deactivate":                       fields.BasicInventoryDeactivateField,
 			"basicInventoryAssessments_Insert":                fields.BasicInventoryAssessmentsInsertField,
@@ -308,7 +307,6 @@ func main() {
 			"publicProcurementContractArticles_Overview":                 fields.PublicProcurementContractArticlesOverviewField,
 			"publicProcurementContractArticlesOrganizationUnit_Overview": fields.PublicProcurementContractOrganizationUnitArticlesOverviewField,
 			"suppliers_Overview":                                         fields.SuppliersOverviewField,
-			"notifications_Overview":                                     fields.NotificationsOverviewField,
 			"basicInventory_Overview":                                    fields.BasicInventoryOverviewField,
 			"basicInventory_Details":                                     fields.BasicInventoryDetailsField,
 			"basicInventoryRealEstates_Overview":                         fields.BasicInventoryRealEstatesOverviewField,
@@ -387,6 +385,9 @@ func main() {
 			),
 		),
 	)
+
+	http.HandleFunc("/ws", websocketmanager.Handler)
+
 	// Start your HTTP server with the CORS-enabled handler
 	http.Handle("/", graphqlHandler)
 	_ = http.ListenAndServe(":8080", nil)

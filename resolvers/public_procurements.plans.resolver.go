@@ -5,6 +5,7 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
+	"bff/websocketmanager"
 	"context"
 	"encoding/json"
 	"errors"
@@ -177,7 +178,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 				return shared.HandleAPIError(err)
 			}
 			for _, targetUser := range targetUsers.Data {
-				_, err := createNotification(&structs.Notifications{
+				_, err := websocketmanager.CreateNotification(&structs.Notifications{
 					Content:     "Službenik za javne nabavke je proslijedio novi plan javnih nabavki na pregled i popunjavanje.",
 					Module:      "Javne nabavke",
 					FromUserID:  loggedInUser.Id,

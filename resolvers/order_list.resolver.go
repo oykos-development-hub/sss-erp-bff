@@ -826,6 +826,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 
 	var res dto.OrderListOverviewResponse
 	var procurementDropdown dto.DropdownSimple
+	var supplierDropdown dto.DropdownSimple
 	articles := []dto.DropdownProcurementAvailableArticle{}
 	totalBruto := float32(0.0)
 	totalNeto := float32(0.0)
@@ -839,6 +840,22 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 
 		procurementDropdown.Id = procurementItem.Id
 		procurementDropdown.Title = procurementItem.Title
+
+		contract, err := getProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &procurementItem.Id})
+		if err != nil {
+			return nil, err
+		}
+
+		supplier, err := getDropdownSettingById(contract.Data[0].SupplierId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		supplierDropdown = dto.DropdownSimple{
+			Id:    supplier.Id,
+			Title: supplier.Title,
+		}
 
 		// getting articles and total price
 		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
@@ -973,6 +990,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		Office:              office,
 		Description:         item.Description,
 		Status:              item.Status,
+		Supplier:            &supplierDropdown,
 		GroupOfArticles:     &groupOfArticles,
 		Articles:            &articles,
 		OrderFile:           orderFile,
@@ -992,7 +1010,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		res.RecipientUserID = item.RecipientUserId
 	}
 
-	if item.SupplierId != nil {
+	if item.SupplierId != nil && *item.SupplierId != 0 {
 		supplier, err := getSupplier(*item.SupplierId)
 		if err != nil {
 			return nil, err

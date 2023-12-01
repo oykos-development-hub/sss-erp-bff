@@ -559,7 +559,7 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	if !ok || organizationUnitID == nil {
 		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
-	if status == "Created" {
+	if status != "Receive" {
 		for _, article := range articles.Data {
 
 			if article.ArticleId != 0 {

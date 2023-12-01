@@ -99,7 +99,15 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 			return shared.HandleAPIError(err)
 		}
 
+		var notificationContent string
+
 		if oldRequest.Status != string(structs.ArticleStatusRejected) && data.IsRejected {
+			notificationContent = "Vaš zahtjev je odbijen. Molimo Vas da pregledate komentar i ponovno pošaljete plan."
+		} else if oldRequest.Status != string(structs.ArticleStatusAccepted) && !data.IsRejected {
+			notificationContent = "Vaš zahtjev za plan je odobren."
+		}
+
+		if notificationContent != "" {
 			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 			employees, err := getEmployeesOfOrganizationUnit(data.OrganizationUnitId)
 			if err != nil {
@@ -112,7 +120,7 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 				}
 				if employeeAccount.RoleId == structs.UserRoleManagerOJ {
 					_, err := websocketmanager.CreateNotification(&structs.Notifications{
-						Content:     "Vaš zahtjev je odbijen. Molimo Vas da pregledate komentar i ponovno pošaljete plan.",
+						Content:     notificationContent,
 						Module:      "Javne nabavke",
 						FromUserID:  loggedInUser.Id,
 						ToUserID:    employeeAccount.Id,

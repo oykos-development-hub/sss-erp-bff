@@ -104,3 +104,12 @@ type BasicInventoryResponseItem struct {
 	InvoiceFileId                int                                                            `json:"invoice_file_id"`
 	FileId                       int                                                            `json:"file_id"`
 }
+
+type ReportValueClassInventoryItem struct {
+	Id                 int     `json:"id"`
+	Title              string  `json:"title"`
+	Class              string  `json:"class"`
+	PurchaseGrossPrice float32 `json:"purchase_gross_price"`
+	GrossPrice         float32 `json:"gross_price"`
+	PriceOfAssessment  float32 `json:"price_of_assessment"`
+}

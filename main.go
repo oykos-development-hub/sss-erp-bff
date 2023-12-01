@@ -312,6 +312,7 @@ func main() {
 			"publicProcurementContractArticlesOrganizationUnit_Overview": fields.PublicProcurementContractOrganizationUnitArticlesOverviewField,
 			"suppliers_Overview":                                         fields.SuppliersOverviewField,
 			"basicInventory_Overview":                                    fields.BasicInventoryOverviewField,
+			"ReportValueClassInventory_PDF":                              fields.ReportValueClassInventoryField,
 			"basicInventory_Details":                                     fields.BasicInventoryDetailsField,
 			"basicInventoryRealEstates_Overview":                         fields.BasicInventoryRealEstatesOverviewField,
 			"officesOfOrganizationUnits_Overview":                        fields.OfficesOfOrganizationUnitOverviewField,

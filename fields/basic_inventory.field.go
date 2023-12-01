@@ -69,6 +69,13 @@ var BasicInventoryDeactivateField = &graphql.Field{
 	Resolve: resolvers.BasicInventoryDeactivateResolver,
 }
 
+var ReportValueClassInventoryField = &graphql.Field{
+	Type:        types.ReportValueClassInventoryType,
+	Description: "Returns a Report of Value class Basic Inventory items",
+
+	Resolve: resolvers.ReportValueClassInventoryResolver,
+}
+
 var BasicInventoryDetailsField = &graphql.Field{
 	Type:        types.BasicInventoryDetailsType,
 	Description: "Returns a data of Basic Inventory item Details",

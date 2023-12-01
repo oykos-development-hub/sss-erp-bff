@@ -13,6 +13,69 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+var ReportValueClassInventoryResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	input := dto.GetSettingsInput{
+		Entity: "inventory_class_type",
+	}
+	var report []dto.ReportValueClassInventoryItem
+	classTypes, err := getDropdownSettings(&input)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	for _, class := range classTypes.Data {
+		var filter dto.InventoryItemFilter
+
+		filter.ClassTypeID = &class.Id
+
+		basicInventoryData, err := getAllInventoryItem(filter)
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		var (
+			sumClassGrossPrice         float32
+			sumClassPurchaseGrossPrice float32
+			sumClassPriceOfAssessment  float32
+		)
+		for _, inventory := range basicInventoryData.Data {
+			assessments, _ := getMyInventoryAssessments(inventory.Id)
+
+			if len(assessments) > 0 {
+				for _, assessment := range assessments {
+					if assessment.Id != 0 {
+						assessmentResponse, _ := buildAssessmentResponse(&assessment)
+						if assessmentResponse != nil {
+
+							sumClassPriceOfAssessment += assessmentResponse.GrossPriceDifference
+							sumClassPurchaseGrossPrice += inventory.GrossPrice
+							sumClassGrossPrice += assessmentResponse.GrossPriceNew
+							break
+						}
+					}
+
+				}
+
+			}
+		}
+		report = append(report, dto.ReportValueClassInventoryItem{
+			Id:                 class.Id,
+			Title:              class.Title,
+			Class:              class.Abbreviation,
+			PurchaseGrossPrice: sumClassPurchaseGrossPrice,
+			PriceOfAssessment:  sumClassPriceOfAssessment,
+			GrossPrice:         sumClassGrossPrice,
+		})
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   report,
+	}, nil
+}
+
 var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var items []*dto.BasicInventoryResponseListItem
 	var filter dto.InventoryItemFilter
@@ -389,7 +452,9 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 				if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
 
 					grossPrice = assessmentResponse.GrossPriceDifference
-					dateOfAssessment = *assessmentResponse.DateOfAssessment
+					if len(assessments) > 1 {
+						dateOfAssessment = *assessmentResponse.DateOfAssessment
+					}
 
 					settings, _ := getDropdownSettingById(assessments[0].DepreciationTypeId)
 

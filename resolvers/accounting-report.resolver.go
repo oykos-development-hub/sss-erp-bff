@@ -74,6 +74,8 @@ var OverallSpendingResolver = func(params graphql.ResolveParams) (interface{}, e
 				}
 			}
 		}
+	} else {
+		response = articles
 	}
 
 	return dto.Response{

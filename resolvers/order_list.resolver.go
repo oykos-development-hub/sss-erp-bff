@@ -609,6 +609,13 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 					Title:              article.Title,
 					OrganizationUnitID: *organizationUnitID,
 				}
+
+				if orderList.GroupOfArticlesID != nil && *orderList.GroupOfArticlesID != 0 {
+					input.Exception = true
+				} else {
+					input.Exception = false
+				}
+
 				err = createStock(input)
 				if err != nil {
 					return shared.HandleAPIError(err)

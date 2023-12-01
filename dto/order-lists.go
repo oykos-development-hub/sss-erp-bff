@@ -122,6 +122,7 @@ type MovementArticle struct {
 	Year               string `json:"year"`
 	Title              string `json:"title"`
 	Description        string `json:"description"`
+	Exception          bool   `json:"exception"`
 	Amount             int    `json:"amount"`
 	MovementID         int    `json:"movement_id"`
 	OrganizationUnitID int    `json:"organization_unit_id"`

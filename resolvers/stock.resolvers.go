@@ -225,6 +225,7 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 			item.Description = stockArticle.Description
 			item.Year = stockArticle.Year
 			item.Amount = article.Quantity
+			item.Exception = stockArticle.Exception
 
 			if err != nil {
 				return shared.HandleAPIError(err)

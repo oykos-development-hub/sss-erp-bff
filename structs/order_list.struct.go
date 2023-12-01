@@ -90,6 +90,7 @@ type StockArticle struct {
 	Title              string `json:"title"`
 	ArticleID          int    `json:"article_id"`
 	Description        string `json:"description"`
+	Exception          bool   `json:"exception"`
 	OrganizationUnitID int    `json:"organization_unit_id"`
 	Year               string `json:"year"`
 	Amount             int    `json:"amount"`

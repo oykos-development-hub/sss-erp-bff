@@ -88,6 +88,9 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 		return shared.HandleAPIError(err)
 	}
 
+	article, _ := getProcurementArticle(data.PublicProcurementArticleId)
+	procurement, _ := getProcurementItem(article.PublicProcurementId)
+
 	itemId := data.Id
 
 	if shared.IsInteger(itemId) && itemId != 0 {
@@ -96,7 +99,7 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 			return shared.HandleAPIError(err)
 		}
 
-		if !oldRequest.IsRejected && data.IsRejected {
+		if oldRequest.Status != string(structs.ArticleStatusRejected) && data.IsRejected {
 			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 			employees, err := getEmployeesOfOrganizationUnit(data.OrganizationUnitId)
 			if err != nil {
@@ -109,12 +112,13 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 				}
 				if employeeAccount.RoleId == structs.UserRoleManagerOJ {
 					_, err := websocketmanager.CreateNotification(&structs.Notifications{
-						Content:     "Vaš zahtjev je odbijen od strane službenika za javne nabavke. Molimo vas da pregledate komentar i ponovno pošaljete plan.",
+						Content:     "Vaš zahtjev je odbijen. Molimo Vas da pregledate komentar i ponovno pošaljete plan.",
 						Module:      "Javne nabavke",
 						FromUserID:  loggedInUser.Id,
 						ToUserID:    employeeAccount.Id,
 						FromContent: "Službenik za javne nabavke",
 						IsRead:      false,
+						Path:        fmt.Sprintf("/procurements/plans/%d", procurement.PlanId),
 					})
 					if err != nil {
 						return shared.HandleAPIError(err)
@@ -195,16 +199,17 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 	for _, targetUser := range targetUsers.Data {
 		var content string
 		if isRejected {
-			content = fmt.Sprintf("Menadžer organizacione jedinice '%s' upravo je ažurirao i proslijedio svoj zahtjev s novim izmjenama.", unit.Title)
+			content = "Zahtjev sa novim izmjenama je ažuriran i proslijeđen."
 		} else {
-			content = fmt.Sprintf("Menadžer organizacione jedinice '%s' je upravo proslijedio svoj zahtjev.", unit.Title)
+			content = "Zahtjev je proslijeđen."
 		}
 		_, err := websocketmanager.CreateNotification(&structs.Notifications{
 			Content:     content,
 			Module:      "Javne nabavke",
 			FromUserID:  loggedInUser.Id,
+			Path:        fmt.Sprintf("/procurements/plans/%d", plan_id),
 			ToUserID:    targetUser.Id,
-			FromContent: "Menadžer organizacione jedinice",
+			FromContent: fmt.Sprintf("Menadžer %s", unit.Abbreviation),
 			IsRead:      false,
 		})
 		if err != nil {

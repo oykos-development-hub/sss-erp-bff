@@ -46,7 +46,7 @@ func CreateNotification(notification *structs.Notifications) (*structs.Notificat
 		return nil, err
 	}
 
-	BroadcastNotification(notificationJSON)
+	BroadcastNotification(notificationJSON, res.Data.ToUserID)
 
 	return &res.Data, nil
 }

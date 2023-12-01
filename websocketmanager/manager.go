@@ -14,16 +14,18 @@ var Manager = struct {
 	Clients: make(map[*Client]bool),
 }
 
-func BroadcastNotification(message []byte) {
+func BroadcastNotification(message []byte, userID int) {
 	Manager.Lock()
 	defer Manager.Unlock()
 
 	for client := range Manager.Clients {
-		err := client.Conn.WriteMessage(websocket.TextMessage, message)
-		if err != nil {
-			log.Println("Error writing message:", err)
-			client.Conn.Close()
-			delete(Manager.Clients, client)
+		if client.UserID == userID {
+			err := client.Conn.WriteMessage(websocket.TextMessage, message)
+			if err != nil {
+				log.Println("Error writing message:", err)
+				client.Conn.Close()
+				delete(Manager.Clients, client)
+			}
 		}
 	}
 }

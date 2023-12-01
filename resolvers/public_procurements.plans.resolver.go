@@ -179,11 +179,12 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 			}
 			for _, targetUser := range targetUsers.Data {
 				_, err := websocketmanager.CreateNotification(&structs.Notifications{
-					Content:     "Službenik za javne nabavke je proslijedio novi plan javnih nabavki na pregled i popunjavanje.",
+					Content:     "Proslijeđen je novi plan javnih nabavki na pregled i popunjavanje.",
 					Module:      "Javne nabavke",
 					FromUserID:  loggedInUser.Id,
 					ToUserID:    targetUser.Id,
 					FromContent: "Službenik za javne nabavke",
+					Path:        fmt.Sprintf("/procurements/plans/%d", data.Id),
 					IsRead:      false,
 				})
 				if err != nil {

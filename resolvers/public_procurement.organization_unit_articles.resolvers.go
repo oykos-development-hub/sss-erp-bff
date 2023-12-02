@@ -215,7 +215,7 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 			Content:     content,
 			Module:      "Javne nabavke",
 			FromUserID:  loggedInUser.Id,
-			Path:        fmt.Sprintf("/procurements/plans/%d", plan_id),
+			Path:        fmt.Sprintf("/procurements/plans/%d?tab=requests", plan_id),
 			ToUserID:    targetUser.Id,
 			FromContent: fmt.Sprintf("Menadžer %s", unit.Abbreviation),
 			IsRead:      false,

@@ -48,7 +48,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Manager.Lock()
-	Manager.Clients[client] = true
+	Manager.Clients[loggedInAccount.Id] = client
 	Manager.Unlock()
 
 	handleMessages(client)
@@ -70,6 +70,6 @@ func handleMessages(client *Client) {
 
 func removeClient(client *Client) {
 	Manager.Lock()
-	delete(Manager.Clients, client)
+	delete(Manager.Clients, client.UserID)
 	Manager.Unlock()
 }

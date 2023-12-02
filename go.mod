@@ -18,5 +18,6 @@ require (
 
 require (
 	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/google/uuid v1.4.0
 	github.com/joho/godotenv v1.5.1
 )

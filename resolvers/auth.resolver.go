@@ -5,6 +5,7 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
+	"bff/websocketmanager"
 	"errors"
 	"fmt"
 	"net/http"
@@ -201,11 +202,14 @@ func RefreshTokenResolver(p graphql.ResolveParams) (interface{}, error) {
 
 var LogoutResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	var authToken = p.Context.Value(config.TokenKey).(string)
+	user := p.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
 	err := logout(authToken)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
+
+	websocketmanager.RemoveClientByUserID(user.Id)
 
 	return dto.ResponseSingle{
 		Status:  "success",

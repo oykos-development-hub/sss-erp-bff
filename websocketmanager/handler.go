@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -26,7 +27,18 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := &Client{Conn: conn, UserID: loggedInAccount.Id}
+	client := &Client{
+		Conn:   conn,
+		UserID: loggedInAccount.Id,
+		ID:     uuid.New().String(),
+	}
+
+	if _, exists := Manager.Clients[loggedInAccount.Id]; !exists {
+		Manager.Clients[loggedInAccount.Id] = make(map[string]*Client)
+	}
+	Manager.Lock()
+	Manager.Clients[loggedInAccount.Id][client.ID] = client
+	Manager.Unlock()
 
 	notificiations, err := fetchNotifications(loggedInAccount.Id)
 	if err != nil {
@@ -47,10 +59,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Manager.Lock()
-	Manager.Clients[loggedInAccount.Id] = client
-	Manager.Unlock()
-
 	handleMessages(client)
 }
 
@@ -66,10 +74,4 @@ func handleMessages(client *Client) {
 
 		processMessage(client, msg)
 	}
-}
-
-func removeClient(client *Client) {
-	Manager.Lock()
-	delete(Manager.Clients, client.UserID)
-	Manager.Unlock()
 }

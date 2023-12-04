@@ -177,6 +177,14 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 			if err != nil {
 				return shared.HandleAPIError(err)
 			}
+			plan, _ := getProcurementPlan(data.Id)
+			planData := dto.ProcurementPlanNotification{
+				ID:          plan.Id,
+				IsPreBudget: plan.IsPreBudget,
+				Year:        plan.Year,
+			}
+			planDataJSON, _ := json.Marshal(planData)
+
 			for _, targetUser := range targetUsers.Data {
 				_, err := websocketmanager.CreateNotification(&structs.Notifications{
 					Content:     "Proslijeđen je novi plan javnih nabavki na pregled i popunjavanje.",
@@ -185,6 +193,7 @@ var PublicProcurementPlanInsertResolver = func(params graphql.ResolveParams) (in
 					ToUserID:    targetUser.Id,
 					FromContent: "Službenik za javne nabavke",
 					Path:        fmt.Sprintf("/procurements/plans/%d", data.Id),
+					Data:        planDataJSON,
 					IsRead:      false,
 				})
 				if err != nil {

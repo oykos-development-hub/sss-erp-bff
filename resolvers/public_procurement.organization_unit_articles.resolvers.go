@@ -119,6 +119,13 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 					return shared.HandleAPIError(err)
 				}
 				if employeeAccount.RoleId == structs.UserRoleManagerOJ {
+					plan, _ := getProcurementPlan(procurement.PlanId)
+					data := dto.ProcurementPlanNotification{
+						ID:          plan.Id,
+						IsPreBudget: plan.IsPreBudget,
+						Year:        plan.Year,
+					}
+					dataJSON, _ := json.Marshal(data)
 					_, err := websocketmanager.CreateNotification(&structs.Notifications{
 						Content:     notificationContent,
 						Module:      "Javne nabavke",
@@ -126,6 +133,7 @@ var PublicProcurementOrganizationUnitArticleInsertResolver = func(params graphql
 						ToUserID:    employeeAccount.Id,
 						FromContent: "Službenik za javne nabavke",
 						IsRead:      false,
+						Data:        dataJSON,
 						Path:        fmt.Sprintf("/procurements/plans/%d", procurement.PlanId),
 					})
 					if err != nil {
@@ -205,6 +213,14 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 	}
 
 	for _, targetUser := range targetUsers.Data {
+		plan, _ := getProcurementPlan(plan_id)
+		data := dto.ProcurementPlanNotification{
+			ID:          plan.Id,
+			IsPreBudget: plan.IsPreBudget,
+			Year:        plan.Year,
+		}
+		dataJSON, _ := json.Marshal(data)
+
 		var content string
 		if isRejected {
 			content = "Zahtjev sa novim izmjenama je ažuriran i proslijeđen."
@@ -219,6 +235,7 @@ var PublicProcurementSendPlanOnRevisionResolver = func(params graphql.ResolvePar
 			ToUserID:    targetUser.Id,
 			FromContent: fmt.Sprintf("Menadžer %s", unit.Abbreviation),
 			IsRead:      false,
+			Data:        dataJSON,
 		})
 		if err != nil {
 			return shared.HandleAPIError(err)

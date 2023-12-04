@@ -187,3 +187,14 @@ var MovementDetailsField = &graphql.Field{
 	},
 	Resolve: resolvers.MovementDetailsResolver,
 }
+
+var MovementArticlesField = &graphql.Field{
+	Type:        types.MovementArticlesType,
+	Description: "Returns a data of all avaliable articles",
+	Args: graphql.FieldConfigArgument{
+		"title": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+	},
+	Resolve: resolvers.MovementArticlesResolver,
+}

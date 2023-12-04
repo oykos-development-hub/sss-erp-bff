@@ -1,6 +1,7 @@
 package fields
 
 import (
+	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
 
@@ -11,23 +12,8 @@ var OverallSpendingField = &graphql.Field{
 	Type:        types.OverallSpendingType,
 	Description: "Returns a data for overall spending report",
 	Args: graphql.FieldConfigArgument{
-		"start_date": &graphql.ArgumentConfig{
-			Type: graphql.String,
-		},
-		"end_date": &graphql.ArgumentConfig{
-			Type: graphql.String,
-		},
-		"office_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"organization_unit_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"search": &graphql.ArgumentConfig{
-			Type: graphql.String,
-		},
-		"exception": &graphql.ArgumentConfig{
-			Type: graphql.Boolean,
+		"data": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(mutations.OverallSpendingMutation),
 		},
 	},
 	Resolve: resolvers.OverallSpendingResolver,

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -292,6 +293,45 @@ var MovementDetailsResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	if err != nil {
 		return shared.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   response,
+	}, nil
+}
+
+var MovementArticlesResolver = func(params graphql.ResolveParams) (interface{}, error) {
+	var response []string
+	title, titleOK := params.Args["title"].(string)
+	var titleFilter *string
+
+	if titleOK && title != "" {
+		titleFilter = &title
+	} else {
+		titleFilter = nil
+	}
+
+	articles, err := getMovementArticleList(dto.OveralSpendingFilter{
+		Title: titleFilter,
+	})
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	for _, article := range articles {
+		str := article.Year + " " + article.Title
+		found := false
+		for _, element := range response {
+			if strings.Contains(element, str) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			response = append(response, str)
+		}
 	}
 
 	return dto.Response{

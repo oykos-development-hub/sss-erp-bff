@@ -370,6 +370,24 @@ var MovementDetailsType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var MovementArticlesType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "MovementArticles",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(graphql.String),
+		},
+	},
+})
+
 var MovementDetail = graphql.NewObject(graphql.ObjectConfig{
 	Name: "MovementDetail",
 	Fields: graphql.Fields{

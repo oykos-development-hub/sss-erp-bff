@@ -4,43 +4,24 @@ import (
 	"bff/config"
 	"bff/dto"
 	"bff/shared"
+	"encoding/json"
 	"strconv"
+	"strings"
 
 	"github.com/graphql-go/graphql"
 )
 
 var OverallSpendingResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	startDate, startOK := params.Args["start_date"].(string)
-	endDate, endOK := params.Args["end_date"].(string)
-	officeID, officeIDOK := params.Args["office_id"].(int)
-	search, searchOK := params.Args["search"].(string)
-	exception, exceptionOK := params.Args["exception"].(bool)
-	orgUnitID, orgUnitIDOK := params.Args["organization_unit_id"].(int)
+	var data dto.OveralSpendingFilter
+
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	_ = json.Unmarshal(dataBytes, &data)
 
 	var filter dto.OveralSpendingFilter
+	flagArticles := false
 
-	if officeIDOK && officeID > 0 {
-		filter.OfficeID = &officeID
-	}
-
-	if startOK && startDate != "" {
-		filter.StartDate = &startDate
-	}
-
-	if endOK && endDate != "" {
-		filter.EndDate = &endDate
-	}
-
-	if searchOK && search != "" {
-		filter.Title = &search
-	}
-
-	if exceptionOK {
-		filter.Exception = &exception
-	}
-
-	if orgUnitIDOK && orgUnitID != 0 {
-		filter.OrganizationUnitID = &orgUnitID
+	if len(data.Articles) > 0 {
+		flagArticles = true
 	}
 
 	articles, err := getMovementArticleList(filter)
@@ -51,8 +32,8 @@ var OverallSpendingResolver = func(params graphql.ResolveParams) (interface{}, e
 
 	var response []dto.ArticleReport
 
-	if orgUnitIDOK && orgUnitID > 0 {
-		organizationUnitID := strconv.Itoa(orgUnitID)
+	if data.OrganizationUnitID != nil && *data.OrganizationUnitID > 0 {
+		organizationUnitID := strconv.Itoa(*data.OrganizationUnitID)
 		res, err := getOfficeDropdownSettings(&dto.GetOfficesOfOrganizationInput{
 			Value: &organizationUnitID,
 		})
@@ -74,13 +55,39 @@ var OverallSpendingResolver = func(params graphql.ResolveParams) (interface{}, e
 					}
 
 					if !found {
-						response = append(response, article)
+						if !flagArticles {
+							response = append(response, article)
+						} else {
+							for _, articleString := range data.Articles {
+								parts := strings.Split(articleString, " ")
+								if len(parts) != 2 {
+									continue
+								}
+								if parts[0] == article.Year && parts[1] == article.Title {
+									response = append(response, article)
+								}
+							}
+						}
 					}
 				}
 			}
 		}
 	} else {
-		response = articles
+		if !flagArticles {
+			response = articles
+		} else {
+			for _, article := range articles {
+				for _, articleString := range data.Articles {
+					parts := strings.SplitN(articleString, " ", 2)
+					if len(parts) != 2 {
+						continue
+					}
+					if strings.Contains(parts[0], article.Year) && strings.Contains(parts[1], article.Title) {
+						response = append(response, article)
+					}
+				}
+			}
+		}
 	}
 
 	return dto.Response{

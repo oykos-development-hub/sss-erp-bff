@@ -322,6 +322,7 @@ func main() {
 			"stock_Overview":                                             fields.StockOverviewFiled,
 			"movement_Overview":                                          fields.MovementOverviewField,
 			"movement_Details":                                           fields.MovementDetailsField,
+			"movementArticles_Overview":                                  fields.MovementArticlesField,
 			"recipientUsers_Overview":                                    fields.RecipientUsersField,
 			"overallSpending_Report":                                     fields.OverallSpendingField,
 			"account_Overview":                                           fields.AccountOverviewField,

@@ -11,7 +11,10 @@ var OverallSpendingField = &graphql.Field{
 	Type:        types.OverallSpendingType,
 	Description: "Returns a data for overall spending report",
 	Args: graphql.FieldConfigArgument{
-		"year": &graphql.ArgumentConfig{
+		"start_date": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"end_date": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
 		"office_id": &graphql.ArgumentConfig{

@@ -1,7 +1,8 @@
 package dto
 
 type OveralSpendingFilter struct {
-	Year               *string `json:"year"`
+	StartDate          *string `json:"start_date"`
+	EndDate            *string `json:"end_date"`
 	Title              *string `json:"title"`
 	OfficeID           *int    `json:"office_id"`
 	Exception          *bool   `json:"exception"`

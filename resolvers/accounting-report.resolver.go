@@ -10,7 +10,8 @@ import (
 )
 
 var OverallSpendingResolver = func(params graphql.ResolveParams) (interface{}, error) {
-	year, yearOK := params.Args["year"].(string)
+	startDate, startOK := params.Args["start_date"].(string)
+	endDate, endOK := params.Args["end_date"].(string)
 	officeID, officeIDOK := params.Args["office_id"].(int)
 	search, searchOK := params.Args["search"].(string)
 	exception, exceptionOK := params.Args["exception"].(bool)
@@ -22,8 +23,12 @@ var OverallSpendingResolver = func(params graphql.ResolveParams) (interface{}, e
 		filter.OfficeID = &officeID
 	}
 
-	if yearOK && year != "" {
-		filter.Year = &year
+	if startOK && startDate != "" {
+		filter.StartDate = &startDate
+	}
+
+	if endOK && endDate != "" {
+		filter.EndDate = &endDate
 	}
 
 	if searchOK && search != "" {

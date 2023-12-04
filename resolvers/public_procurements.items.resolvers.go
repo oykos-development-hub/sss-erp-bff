@@ -240,6 +240,10 @@ func isProcurementProcessed(procurementID int, organizationUnitID *int) bool {
 	}
 	articles, _ := getProcurementArticlesList(&dto.GetProcurementArticleListInputMS{ItemID: &procurementID})
 
+	if len(articles) == 0 {
+		return false
+	}
+
 	filledArticles, _ := getProcurementOUArticleList(
 		&dto.GetProcurementOrganizationUnitArticleListInputDTO{
 			OrganizationUnitID: organizationUnitID,

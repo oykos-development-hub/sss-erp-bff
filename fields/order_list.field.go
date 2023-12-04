@@ -150,6 +150,9 @@ var StockOverviewFiled = &graphql.Field{
 		"title": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
+		"date": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 	},
 	Resolve: resolvers.StockOverviewResolver,
 }

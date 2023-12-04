@@ -8,18 +8,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
 
 var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var (
-		input dto.StockFilter
+		input    dto.StockFilter
+		articles []structs.StockArticle
+		Total    int
 	)
 
 	size := params.Args["size"]
 	page := params.Args["page"]
 	search, searchOk := params.Args["title"].(string)
+	date, dateOk := params.Args["date"].(string)
 
 	if shared.IsInteger(page) && page.(int) > 0 {
 		pageNum := page.(int)
@@ -39,25 +43,119 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
-	input.OrganizationUnitID = organizationUnitID
+	if dateOk && date != "" {
+		statusReceive := "Receive"
+		orders, err := getOrderLists(&dto.GetOrderListInput{
+			InvoiceDate:        &date,
+			Status:             &statusReceive,
+			OrganizationUnitId: organizationUnitID,
+		})
 
-	articleList, total, err := getStock(&input)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
 
-	var articles []structs.StockArticle
+		for _, order := range orders.Data {
+			orderArticles, err := getOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{OrderID: &order.Id})
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+			for _, article := range orderArticles.Data {
+				flag := false
+				for _, articleInList := range articles {
+					if article.Title == articleInList.Title && article.Year == articleInList.Year {
+						articleInList.Amount += article.Amount
+						flag = true
+					}
+				}
+				if !flag {
+					var title, description, year string
 
-	for _, article := range articleList {
-		if article.Amount > 0 {
-			articles = append(articles, article)
+					if article.Title != "" && article.Description != "" {
+						title = article.Title
+						description = article.Description
+						format := "2006-02-01T15:04:05Z"
+
+						currDate, err := time.Parse(format, *order.InvoiceDate)
+						if err != nil {
+							return shared.HandleAPIError(err)
+						}
+
+						yearInt := currDate.Year()
+						year = strconv.Itoa(yearInt)
+					} else {
+						currentArticle, err := getProcurementArticle(article.ArticleId)
+
+						if err != nil {
+							return shared.HandleAPIError(err)
+						}
+
+						procurement, err := getProcurementItem(currentArticle.PublicProcurementId)
+
+						if err != nil {
+							return shared.HandleAPIError(err)
+						}
+
+						plan, err := getProcurementPlan(procurement.PlanId)
+
+						if err != nil {
+							return shared.HandleAPIError(err)
+						}
+
+						year = plan.Year
+						title = currentArticle.Title
+						description = currentArticle.Description
+					}
+
+					newArticle := structs.StockArticle{
+						Title:       title,
+						Description: description,
+						Year:        year,
+						Amount:      article.Amount,
+						ID:          article.Id,
+					}
+					articles = append(articles, newArticle)
+				}
+			}
+		}
+
+		movementArticles, err := getMovementArticleList(dto.OveralSpendingFilter{
+			EndDate:            &date,
+			OrganizationUnitID: organizationUnitID,
+		})
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		for i := 0; i < len(movementArticles); i++ {
+			for j := 0; j < len(articles); j++ {
+				if movementArticles[i].Title == articles[j].Title && movementArticles[i].Year == articles[j].Year {
+					articles[j].Amount -= movementArticles[i].Amount
+				}
+			}
+		}
+
+	} else {
+		input.OrganizationUnitID = organizationUnitID
+
+		articleList, total, err := getStock(&input)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+		Total = *total
+
+		for _, article := range articleList {
+			if article.Amount > 0 {
+				articles = append(articles, article)
+			}
 		}
 	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Total:   *total,
+		Total:   Total,
 		Items:   articles,
 	}, nil
 }

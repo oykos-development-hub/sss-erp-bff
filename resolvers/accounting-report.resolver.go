@@ -17,14 +17,13 @@ var OverallSpendingResolver = func(params graphql.ResolveParams) (interface{}, e
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	_ = json.Unmarshal(dataBytes, &data)
 
-	var filter dto.OveralSpendingFilter
 	flagArticles := false
 
 	if len(data.Articles) > 0 {
 		flagArticles = true
 	}
 
-	articles, err := getMovementArticleList(filter)
+	articles, err := getMovementArticleList(data)
 
 	if err != nil {
 		return shared.HandleAPIError(err)

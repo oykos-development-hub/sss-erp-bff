@@ -107,12 +107,14 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 		articleRes, _ := buildProcurementContractArticlesResponseItem(ctx, article)
 		articleOrderItem, _ := processContractArticle(ctx, article)
 
+		consumedAmount := articleRes.Amount + articleRes.OverageTotal - articleOrderItem.Available
+
 		rowData := dto.TableDataRow{
 			ProcurementItem:  articleRes.Article.Title,
 			KeyFeatures:      articleRes.Article.Description,
 			ContractedAmount: fmt.Sprintf("%d", articleRes.Amount),
 			AvailableAmount:  fmt.Sprintf("%d", articleOrderItem.Available),
-			ConsumedAmount:   fmt.Sprintf("%d", articleRes.Amount-articleOrderItem.Available),
+			ConsumedAmount:   fmt.Sprintf("%d", consumedAmount),
 		}
 		tableData = append(tableData, rowData)
 	}

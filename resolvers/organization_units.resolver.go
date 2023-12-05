@@ -59,10 +59,17 @@ var OrganizationUnitsResolver = func(params graphql.ResolveParams) (interface{},
 			return shared.HandleAPIError(err)
 		}
 
+		loggedInAccount := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+		profileOrganizationUnit := params.Context.Value(config.OrganizationUnitIDKey).(*structs.OrganizationUnits)
+
 		for _, organizationUnit := range organizationUnits.Data {
 			organizationUnitItem, err := buildOrganizationUnitOverviewResponse(&organizationUnit)
 			if err != nil {
 				return shared.HandleAPIError(err)
+			}
+			if !loggedInAccount.HasPermission(structs.PermissionManageOrganizationUnits) &&
+				profileOrganizationUnit.Id != organizationUnitItem.Id {
+				continue
 			}
 			items = append(items, *organizationUnitItem)
 		}

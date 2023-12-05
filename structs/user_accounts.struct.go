@@ -23,6 +23,8 @@ func (user UserAccounts) GetPermissionsForRole() []UserPermission {
 		permissions = append(permissions, PermissionManageOrganizationUnits)
 	case UserRoleOfficialForPublicProcurements:
 		permissions = append(permissions, PermissionManageOrganizationUnits)
+	case UserRoleManagerOJ:
+
 	}
 	return permissions
 }

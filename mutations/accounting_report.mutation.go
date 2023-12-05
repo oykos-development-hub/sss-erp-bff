@@ -15,7 +15,7 @@ var OverallSpendingMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"office_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"organization_unit_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,

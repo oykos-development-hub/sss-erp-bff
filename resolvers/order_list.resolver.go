@@ -856,7 +856,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 			return nil, err
 		}
 
-		supplier, err := getDropdownSettingById(contract.Data[0].SupplierId)
+		supplier, err := getSupplier(contract.Data[0].SupplierId)
 
 		if err != nil {
 			return nil, err

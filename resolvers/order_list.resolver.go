@@ -337,12 +337,13 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 		organizationUnitID = params.Args["organization_unit_id"].(int)
 		ctx = context.WithValue(ctx, config.OrganizationUnitIDKey, &organizationUnitID)
 	} else {
-		organizationUnitId, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		/*organizationUnitId, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitId == nil {
 			return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
-		organizationUnitID = *organizationUnitId
+		organizationUnitID = *organizationUnitId*/
+		organizationUnitID = 0
 	}
 
 	articles, err := GetProcurementArticles(ctx, publicProcurementID)
@@ -399,8 +400,11 @@ func ProcessOrderArticleItem(ctx context.Context, article structs.OrderArticleIt
 				return currentArticle, err
 			}
 
-			if order.OrganizationUnitId == organizationUnitID {
+			if organizationUnitID > 0 && order.OrganizationUnitId == organizationUnitID {
 				// if article is used in another order, deduct the amount to get Available articles
+				currentArticle.TotalPrice *= float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
+				currentArticle.Available -= orderArticle.Amount
+			} else if organizationUnitID == 0 {
 				currentArticle.TotalPrice *= float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
 				currentArticle.Available -= orderArticle.Amount
 			}

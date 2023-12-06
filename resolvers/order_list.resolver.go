@@ -331,10 +331,18 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 	visibilityType := params.Args["visibility_type"]
 
 	ctx := params.Context
+	var organizationUnitID int
 
-	if params.Args["organization_unit_id"] != nil {
-		organizationUnitID := params.Args["organization_unit_id"].(int)
+	if params.Args["organization_unit_id"] != nil && params.Args["organization_unit_id"].(int) != 0 {
+		organizationUnitID = params.Args["organization_unit_id"].(int)
 		ctx = context.WithValue(ctx, config.OrganizationUnitIDKey, &organizationUnitID)
+	} else {
+		organizationUnitId, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitId == nil {
+			return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		}
+
+		organizationUnitID = *organizationUnitId
 	}
 
 	articles, err := GetProcurementArticles(ctx, publicProcurementID)
@@ -346,11 +354,13 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 		if visibilityType != nil && visibilityType.(int) > 0 && visibilityType.(int) != int(item.VisibilityType) {
 			continue
 		}
-		processedArticle, err := ProcessOrderArticleItem(ctx, item)
+		processedArticle, err := ProcessOrderArticleItem(ctx, item, organizationUnitID)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
+
 		items = append(items, processedArticle)
+
 	}
 
 	total = len(items)
@@ -364,7 +374,7 @@ var OrderProcurementAvailableResolver = func(params graphql.ResolveParams) (inte
 }
 
 // ProcessOrderArticleItem processes a single order article item to calculate its available amount and total price
-func ProcessOrderArticleItem(ctx context.Context, article structs.OrderArticleItem) (structs.OrderArticleItem, error) {
+func ProcessOrderArticleItem(ctx context.Context, article structs.OrderArticleItem, organizationUnitID int) (structs.OrderArticleItem, error) {
 	var err error
 	currentArticle := article // work with a copy to avoid modifying the original
 
@@ -383,9 +393,17 @@ func ProcessOrderArticleItem(ctx context.Context, article structs.OrderArticleIt
 
 	if relatedOrderProcurementArticleResponse.Total > 0 {
 		for _, orderArticle := range relatedOrderProcurementArticleResponse.Data {
-			// if article is used in another order, deduct the amount to get Available articles
-			currentArticle.TotalPrice *= float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
-			currentArticle.Available -= orderArticle.Amount
+			order, err := getOrderListById(orderArticle.OrderId)
+
+			if err != nil {
+				return currentArticle, err
+			}
+
+			if order.OrganizationUnitId == organizationUnitID {
+				// if article is used in another order, deduct the amount to get Available articles
+				currentArticle.TotalPrice *= float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
+				currentArticle.Available -= orderArticle.Amount
+			}
 		}
 	}
 

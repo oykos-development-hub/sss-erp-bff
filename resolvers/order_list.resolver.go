@@ -404,11 +404,26 @@ func ProcessOrderArticleItem(ctx context.Context, article structs.OrderArticleIt
 				// if article is used in another order, deduct the amount to get Available articles
 				currentArticle.TotalPrice *= float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
 				currentArticle.Available -= orderArticle.Amount
-			} else if organizationUnitID == 0 {
-				currentArticle.TotalPrice *= float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
-				currentArticle.Available -= orderArticle.Amount
 			}
 		}
+	}
+
+	if organizationUnitID == 0 {
+		articles, err := getOrganizationUnitArticlesList(dto.GetProcurementOrganizationUnitArticleListInputDTO{
+			ArticleID: &currentArticle.Id,
+		})
+		if err != nil {
+			return currentArticle, nil
+		}
+		amount := 0
+		for _, article := range articles {
+			amount += article.Amount
+		}
+
+		for _, article := range relatedOrderProcurementArticleResponse.Data {
+			amount -= article.Amount
+		}
+		currentArticle.Available = amount
 	}
 
 	return currentArticle, nil

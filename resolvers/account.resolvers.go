@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"unicode"
 
 	"github.com/graphql-go/graphql"
 )
@@ -71,22 +72,21 @@ var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 			Items:   accountResItemlist,
 		}, nil
 	}
-	/*
-		if level, ok := params.Args["level"].(int); ok {
-			accountsMap := make(map[int]*dto.AccountItemResponseItem)
-			for _, account := range accountResItemlist {
-				accountsMap[account.ID] = account
-			}
-
-			var filteredAccounts []*dto.AccountItemResponseItem
-			for _, account := range accountResItemlist {
-				if determineLevel(account, accountsMap) == level {
-					filteredAccounts = append(filteredAccounts, account)
-				}
-			}
-			accountResItemlist = filteredAccounts
+	if level, ok := params.Args["level"].(int); ok {
+		accountsMap := make(map[int]*dto.AccountItemResponseItem)
+		for _, account := range accountResItemlist {
+			accountsMap[account.ID] = account
 		}
-	*/
+
+		var filteredAccounts []*dto.AccountItemResponseItem
+		for _, account := range accountResItemlist {
+			if determineLevel(account.SerialNumber) == level {
+				filteredAccounts = append(filteredAccounts, account)
+			}
+		}
+		accountResItemlist = filteredAccounts
+	}
+
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
@@ -95,19 +95,18 @@ var AccountOverviewResolver = func(params graphql.ResolveParams) (interface{}, e
 	}, nil
 }
 
-/*
-	func determineLevel(account *dto.AccountItemResponseItem, accountsMap map[int]*dto.AccountItemResponseItem) int {
-		level := 0
-		for account.ParentId != nil {
-			account = accountsMap[*account.ParentId]
-			if account == nil {
-				break
-			}
-			level++
+func determineLevel(serialNumber string) int {
+	count := 0
+
+	for _, char := range serialNumber {
+		if unicode.IsDigit(char) {
+			count++
 		}
-		return level
 	}
-*/
+
+	return count - 1
+}
+
 var AccountInsertResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.AccountItem
 	dataBytes, _ := json.Marshal(params.Args["data"])

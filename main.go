@@ -3,7 +3,6 @@ package main
 import (
 	"bff/config"
 	"bff/fields"
-	"bff/files"
 	"bff/resolvers"
 	"bff/shared"
 	"bff/websocketmanager"
@@ -18,7 +17,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/handlers"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
@@ -397,33 +395,8 @@ func main() {
 
 	http.HandleFunc("/ws", websocketmanager.Handler)
 
-	filesRouter := chi.NewRouter()
-
-	filesRouter.Post("/upload", files.UploadHandler)
-	filesRouter.Delete("/delete/{id}", files.DeleteHandler)
-	filesRouter.Post("/batch-delete", files.MultipleDeleteHandler)
-	filesRouter.Get("/download/{id}", files.DownloadHandler)
-	filesRouter.Get("/overview/{id}", files.OverviewHandler)
-
-	filesRouter.Post("/read-articles-price", files.ReadArticlesPriceHandler)
-	filesRouter.Post("/read-articles", files.ReadArticlesHandler)
-	filesRouter.Post("/read-articles-simple-procurement", files.ReadArticlesSimpleProcurementHandler)
-
-	filesHandler := errorHandlerMiddleware(
-		corsHandler(
-			authMiddleware(
-				addResponseWriterToContext(
-					RequestContextMiddleware(filesRouter),
-				),
-			),
-		),
-	)
-
-	mainRouter := chi.NewRouter()
-	mainRouter.Handle("/", graphqlHandler)
-	mainRouter.Mount("/files", filesHandler)
-
-	http.Handle("/", mainRouter)
+	// Start your HTTP server with the CORS-enabled handler
+	http.Handle("/", graphqlHandler)
 	_ = http.ListenAndServe(":8080", nil)
 }
 

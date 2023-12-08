@@ -72,7 +72,7 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 				if !flag {
 					var title, description, year string
 
-					if article.Id == 0 {
+					if article.ArticleId == 0 {
 						title = article.Title
 						description = article.Description
 						format := "2006-02-01T15:04:05Z"

@@ -64,3 +64,7 @@ type ProcurementArticleResponse struct {
 type MultipleDeleteFiles struct {
 	Files []int `json:"files"`
 }
+
+type errorResponse struct {
+	Message string `json:"message"`
+}

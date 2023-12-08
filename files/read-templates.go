@@ -5,13 +5,10 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
-	"io"
+	"errors"
 	"math"
 	"net/http"
-	"os"
 	"strconv"
-
-	"github.com/360EntSecGroup-Skylar/excelize"
 )
 
 func ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
@@ -22,11 +19,7 @@ func ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
 	publicProcurementID, err := strconv.Atoi(procurementID)
 
 	if err != nil {
-		response.Message = "You must provide valid public_procurement_id"
-		response.Error = err.Error()
-		response.Status = "failed"
-		_ = MarshalAndWriteJSON(w, response)
-		w.WriteHeader(http.StatusBadRequest)
+		handleError(w, err, http.StatusBadRequest)
 		return
 	}
 
@@ -35,22 +28,14 @@ func ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
 	contractID, err := strconv.Atoi(contractid)
 
 	if err != nil {
-		response.Message = "You must provide valid contract_id"
-		response.Error = err.Error()
-		response.Status = "failed"
-		_ = MarshalAndWriteJSON(w, response)
-		w.WriteHeader(http.StatusBadRequest)
+		handleError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	xlsFile, err := openFile(r)
+	xlsFile, err := openExcelFile(r)
 
 	if err != nil {
-		response.Message = "Error during opening file"
-		response.Error = err.Error()
-		response.Status = "failed"
-		_ = MarshalAndWriteJSON(w, response)
-		w.WriteHeader(http.StatusBadRequest)
+		handleError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -61,11 +46,7 @@ func ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
 	for _, sheetName := range sheetMap {
 		rows, err := xlsFile.Rows(sheetName)
 		if err != nil {
-			response.Message = "Error during reading file"
-			response.Error = err.Error()
-			response.Status = "failed"
-			_ = MarshalAndWriteJSON(w, response)
-			w.WriteHeader(http.StatusInternalServerError)
+			handleError(w, err, http.StatusInternalServerError)
 			return
 		}
 
@@ -79,11 +60,7 @@ func ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
 
 			cols := rows.Columns()
 			if err != nil {
-				response.Message = "Error during reading column value"
-				response.Error = err.Error()
-				response.Status = "failed"
-				_ = MarshalAndWriteJSON(w, response)
-				w.WriteHeader(http.StatusInternalServerError)
+				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
 
@@ -105,11 +82,7 @@ func ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
 					floatValue, err := strconv.ParseFloat(value, 32)
 
 					if err != nil {
-						response.Message = "Error during converting neto price"
-						response.Error = err.Error()
-						response.Status = "failed"
-						_ = MarshalAndWriteJSON(w, response)
-						w.WriteHeader(http.StatusInternalServerError)
+						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
 					price = float32(floatValue)
@@ -129,19 +102,13 @@ func ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
 			res, err := getProcurementArticlesList(&input)
 
 			if err != nil {
-				response.Message = "Error during fetching articles"
-				response.Error = err.Error()
-				response.Status = "failed"
-				_ = MarshalAndWriteJSON(w, response)
-				w.WriteHeader(http.StatusInternalServerError)
+				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
 
 			if len(res) == 0 {
-				response.Message = "Artiklal \"" + title + "\" nije validan."
-				response.Status = "failed"
-				_ = MarshalAndWriteJSON(w, response)
-				w.WriteHeader(http.StatusInternalServerError)
+				err = errors.New("article \"" + title + "\" is not valid.")
+				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
 
@@ -150,11 +117,7 @@ func ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
 			})
 
 			if err != nil {
-				response.Message = "Error during checking article"
-				response.Error = err.Error()
-				response.Status = "failed"
-				_ = MarshalAndWriteJSON(w, response)
-				w.WriteHeader(http.StatusInternalServerError)
+				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
 
@@ -190,22 +153,14 @@ func ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	publicProcurementID, err := strconv.Atoi(procurementID)
 
 	if err != nil {
-		response.Message = "You must provide valid public_procurement_id"
-		response.Error = err.Error()
-		response.Status = "failed"
-		_ = MarshalAndWriteJSON(w, response)
-		w.WriteHeader(http.StatusBadRequest)
+		handleError(w, err, http.StatusBadRequest)
 		return
 	}
 
-	xlsFile, err := openFile(r)
+	xlsFile, err := openExcelFile(r)
 
 	if err != nil {
-		response.Message = "Error during opening file"
-		response.Error = err.Error()
-		response.Status = "failed"
-		_ = MarshalAndWriteJSON(w, response)
-		w.WriteHeader(http.StatusInternalServerError)
+		handleError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -220,11 +175,7 @@ func ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 
 		rows, err := xlsFile.Rows(sheetName)
 		if err != nil {
-			response.Message = "Error during reading file"
-			response.Error = err.Error()
-			response.Status = "failed"
-			_ = MarshalAndWriteJSON(w, response)
-			w.WriteHeader(http.StatusInternalServerError)
+			handleError(w, err, http.StatusInternalServerError)
 			return
 		}
 
@@ -238,11 +189,7 @@ func ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 
 			cols := rows.Columns()
 			if err != nil {
-				response.Message = "Error during reading column value"
-				response.Error = err.Error()
-				response.Status = "failed"
-				_ = MarshalAndWriteJSON(w, response)
-				w.WriteHeader(http.StatusInternalServerError)
+				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
 
@@ -262,11 +209,7 @@ func ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 					floatValue, err := strconv.ParseFloat(value, 32)
 
 					if err != nil {
-						response.Message = "Error during converting neto price"
-						response.Error = err.Error()
-						response.Status = "failed"
-						_ = MarshalAndWriteJSON(w, response)
-						w.WriteHeader(http.StatusInternalServerError)
+						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
 					article.NetPrice = float32(floatValue)
@@ -279,11 +222,7 @@ func ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 
 					if err != nil {
 						if err != nil {
-							response.Message = "Error during converting vat percentage"
-							response.Error = err.Error()
-							response.Status = "failed"
-							_ = MarshalAndWriteJSON(w, response)
-							w.WriteHeader(http.StatusInternalServerError)
+							handleError(w, err, http.StatusInternalServerError)
 							return
 						}
 					}
@@ -328,22 +267,14 @@ func ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r *http.Request
 	publicProcurementID, err := strconv.Atoi(procurementID)
 
 	if err != nil {
-		response.Message = "You must provide valid public_procurement_id"
-		response.Error = err.Error()
-		response.Status = "failed"
-		_ = MarshalAndWriteJSON(w, response)
-		w.WriteHeader(http.StatusBadRequest)
+		handleError(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	xlsFile, err := openFile(r)
+	xlsFile, err := openExcelFile(r)
 
 	if err != nil {
-		response.Message = "Error during opening file"
-		response.Error = err.Error()
-		response.Status = "failed"
-		_ = MarshalAndWriteJSON(w, response)
-		w.WriteHeader(http.StatusInternalServerError)
+		handleError(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -358,11 +289,7 @@ func ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r *http.Request
 
 		rows, err := xlsFile.Rows(sheetName)
 		if err != nil {
-			response.Message = "Error during reading file"
-			response.Error = err.Error()
-			response.Status = "failed"
-			_ = MarshalAndWriteJSON(w, response)
-			w.WriteHeader(http.StatusInternalServerError)
+			handleError(w, err, http.StatusInternalServerError)
 			return
 		}
 
@@ -376,11 +303,7 @@ func ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r *http.Request
 
 			cols := rows.Columns()
 			if err != nil {
-				response.Message = "Error during reading column value"
-				response.Error = err.Error()
-				response.Status = "failed"
-				_ = MarshalAndWriteJSON(w, response)
-				w.WriteHeader(http.StatusInternalServerError)
+				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
 
@@ -400,11 +323,7 @@ func ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r *http.Request
 					floatValue, err := strconv.ParseFloat(value, 32)
 
 					if err != nil {
-						response.Message = "Error during converting neto price"
-						response.Error = err.Error()
-						response.Status = "failed"
-						_ = MarshalAndWriteJSON(w, response)
-						w.WriteHeader(http.StatusInternalServerError)
+						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
 					article.NetPrice = float32(floatValue)
@@ -417,11 +336,7 @@ func ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r *http.Request
 
 					if err != nil {
 						if err != nil {
-							response.Message = "Error during converting vat percentage"
-							response.Error = err.Error()
-							response.Status = "failed"
-							_ = MarshalAndWriteJSON(w, response)
-							w.WriteHeader(http.StatusInternalServerError)
+							handleError(w, err, http.StatusInternalServerError)
 							return
 						}
 					}
@@ -440,11 +355,7 @@ func ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r *http.Request
 					amount, err := strconv.ParseFloat(value, 64)
 
 					if err != nil {
-						response.Message = "Error during converting amount"
-						response.Error = err.Error()
-						response.Status = "failed"
-						_ = MarshalAndWriteJSON(w, response)
-						w.WriteHeader(http.StatusInternalServerError)
+						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
 
@@ -493,38 +404,4 @@ func getProcurementContractArticlesList(input *dto.GetProcurementContractArticle
 	}
 
 	return res, nil
-}
-
-func openFile(r *http.Request) (*excelize.File, error) {
-	maxFileSize := int64(100 * 1024 * 1024) // file maximum 100 MB
-
-	err := r.ParseMultipartForm(maxFileSize)
-	if err != nil {
-		return nil, err
-	}
-
-	file, _, err := r.FormFile("file")
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	tempFile, err := os.CreateTemp("", "uploaded-file-")
-	if err != nil {
-		return nil, err
-	}
-	defer tempFile.Close()
-
-	_, err = io.Copy(tempFile, file)
-	if err != nil {
-		return nil, err
-	}
-
-	xlsFile, err := excelize.OpenFile(tempFile.Name())
-
-	if err != nil {
-		return nil, err
-	}
-
-	return xlsFile, nil
 }

@@ -58,13 +58,14 @@ var OverallSpendingResolver = func(params graphql.ResolveParams) (interface{}, e
 							response = append(response, article)
 						} else {
 							for _, articleString := range data.Articles {
-								parts := strings.Split(articleString, " ")
+								parts := strings.SplitN(articleString, " ", 2)
 								if len(parts) != 2 {
 									continue
 								}
-								if parts[0] == article.Year && parts[1] == article.Title {
+								if strings.Contains(parts[0], article.Year) && strings.Contains(parts[1], article.Title) {
 									response = append(response, article)
 								}
+
 							}
 						}
 					}

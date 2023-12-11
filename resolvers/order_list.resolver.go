@@ -585,9 +585,9 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	status := orderList.Status
 
 	orderList.Status = "Receive"
-	orderList.InvoiceNumber = &data.InvoiceNumber
+	orderList.InvoiceNumber = data.InvoiceNumber
 	orderList.DateSystem = &data.DateSystem
-	orderList.InvoiceDate = &data.InvoiceDate
+	orderList.InvoiceDate = data.InvoiceDate
 	orderList.ReceiveFile = data.ReceiveFile
 	if data.Description != nil {
 		orderList.Description = data.Description

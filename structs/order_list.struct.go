@@ -69,8 +69,8 @@ type OrderArticleInsertItem struct {
 type OrderReceiveItem struct {
 	OrderId       int     `json:"order_id"`
 	DateSystem    string  `json:"date_system"`
-	InvoiceDate   string  `json:"invoice_date"`
-	InvoiceNumber string  `json:"invoice_number"`
+	InvoiceDate   *string `json:"invoice_date"`
+	InvoiceNumber *string `json:"invoice_number"`
 	Description   *string `json:"description"`
 	ReceiveFile   *int    `json:"receive_file"`
 }

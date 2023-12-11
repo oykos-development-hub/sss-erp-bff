@@ -407,6 +407,7 @@ func main() {
 
 	filesRouter.Post("/read-articles-price", files.ReadArticlesPriceHandler)
 	filesRouter.Post("/read-articles", files.ReadArticlesHandler)
+	filesRouter.Post("/read-articles-donation", files.ReadArticlesDonationHandler)
 	filesRouter.Post("/read-articles-simple-procurement", files.ReadArticlesSimpleProcurementHandler)
 
 	filesHandler := errorHandlerMiddleware(

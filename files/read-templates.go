@@ -259,6 +259,75 @@ func ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	_ = MarshalAndWriteJSON(w, response)
 }
 
+func ReadArticlesDonationHandler(w http.ResponseWriter, r *http.Request) {
+	var response ProcurementArticleResponse
+
+	xlsFile, err := openExcelFile(r)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	var articles []structs.PublicProcurementArticle
+
+	sheetMap := xlsFile.GetSheetMap()
+
+	for _, sheetName := range sheetMap {
+		if sheetName != "Stavke" {
+			continue
+		}
+
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := 0
+
+		for rows.Next() {
+			if rowindex == 0 {
+				rowindex++
+				continue
+			}
+
+			cols := rows.Columns()
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			var article structs.PublicProcurementArticle
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				switch cellIndex {
+				case 0:
+					article.Title = value
+				case 1:
+					if value == "" {
+						break
+					}
+
+					floatValue, err := strconv.ParseFloat(value, 32)
+
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+					article.NetPrice = float32(floatValue)
+
+				}
+			}
+			articles = append(articles, article)
+		}
+	}
+	response.Data = articles
+	response.Status = "success"
+	response.Message = "File was read successfuly"
+	_ = MarshalAndWriteJSON(w, response)
+}
+
 func ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r *http.Request) {
 	var response ProcurementArticleResponse
 

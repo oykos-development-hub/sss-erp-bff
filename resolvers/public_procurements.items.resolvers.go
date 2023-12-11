@@ -90,7 +90,8 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 
 	contract, _ := getProcurementContract(*resItem.ContractID)
 	contractRes, _ := buildProcurementContractResponseItem(contract)
-	contractArticles, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{ContractID: &contract.Id})
+
+	articles, err := GetProcurementArticles(ctx, resItem.Id)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -103,18 +104,19 @@ var PublicProcurementPlanItemPDFResolver = func(params graphql.ResolveParams) (i
 	}
 
 	var tableData []dto.TableDataRow
-	for _, article := range contractArticles.Data {
-		articleRes, _ := buildProcurementContractArticlesResponseItem(ctx, article)
-		articleOrderItem, _ := processContractArticle(ctx, article)
+	for _, article := range articles {
+		articleRes, err := ProcessOrderArticleItem(ctx, article, *organizationUnitID)
 
-		consumedAmount := articleRes.Amount + articleRes.OverageTotal - articleOrderItem.Available
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
 
 		rowData := dto.TableDataRow{
-			ProcurementItem:  articleRes.Article.Title,
-			KeyFeatures:      articleRes.Article.Description,
+			ProcurementItem:  article.Title,
+			KeyFeatures:      article.Description,
 			ContractedAmount: fmt.Sprintf("%d", articleRes.Amount),
-			AvailableAmount:  fmt.Sprintf("%d", articleOrderItem.Available),
-			ConsumedAmount:   fmt.Sprintf("%d", consumedAmount),
+			AvailableAmount:  fmt.Sprintf("%d", articleRes.Available),
+			ConsumedAmount:   fmt.Sprintf("%d", articleRes.Amount-articleRes.Available),
 		}
 		tableData = append(tableData, rowData)
 	}

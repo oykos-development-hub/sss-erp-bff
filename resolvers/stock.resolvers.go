@@ -57,7 +57,7 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 	if dateOk && date != "" {
 		statusReceive := "Receive"
 		orders, err := getOrderLists(&dto.GetOrderListInput{
-			InvoiceDate:        &date,
+			DateSystem:         &date,
 			Status:             &statusReceive,
 			OrganizationUnitId: organizationUnitID,
 		})

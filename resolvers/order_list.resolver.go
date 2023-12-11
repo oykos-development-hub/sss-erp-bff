@@ -447,6 +447,18 @@ func ProcessOrderArticleItem(ctx context.Context, article structs.OrderArticleIt
 
 	currentArticle.Available -= len(articleInventory.Data)
 
+	overages, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
+		ContractArticleID:  &article.Id,
+		OrganizationUnitID: &organizationUnitID})
+
+	if err != nil {
+		return currentArticle, err
+	}
+
+	for _, overage := range overages {
+		currentArticle.Available += overage.Amount
+	}
+
 	return currentArticle, nil
 }
 

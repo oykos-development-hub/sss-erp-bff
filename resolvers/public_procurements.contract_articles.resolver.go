@@ -7,7 +7,6 @@ import (
 	"bff/structs"
 	"context"
 	"encoding/json"
-	"math"
 	"strconv"
 
 	"github.com/graphql-go/graphql"
@@ -308,7 +307,12 @@ func buildProcurementContractArticlesOptionsResponseItem(context context.Context
 		overageTotal += item.Amount
 	}
 
-	GrossValue := float32(math.Round(float64(*contract.GrossValue/float32(articleResItem.TotalAmount))*100) / 100)
+	//GrossValue := float32(math.Round(float64(*contract.GrossValue/float32(articleResItem.TotalAmount))*100) / 100)
+	vatPercentage, err := strconv.ParseFloat(article.VatPercentage, 64)
+	if err != nil {
+		return nil, err
+	}
+	GrossValue := item.NetValue + item.NetValue*float32(vatPercentage)/100
 	res := dto.ProcurementContractArticlesResponseItem{
 		Id: item.Id,
 		Article: dto.DropdownProcurementArticle{

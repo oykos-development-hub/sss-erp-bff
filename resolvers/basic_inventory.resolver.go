@@ -19,6 +19,11 @@ var ReportValueClassInventoryResolver = func(params graphql.ResolveParams) (inte
 	}
 	var report []dto.ReportValueClassInventoryItem
 	classTypes, err := getDropdownSettings(&input)
+	var (
+		sumClassGrossPriceAllItem         float32
+		sumClassPurchaseGrossPriceAllItem float32
+		sumClassPriceOfAssessmentAllItem  float32
+	)
 
 	if err != nil {
 		return shared.HandleAPIError(err)
@@ -48,9 +53,49 @@ var ReportValueClassInventoryResolver = func(params graphql.ResolveParams) (inte
 						assessmentResponse, _ := buildAssessmentResponse(&assessment)
 						if assessmentResponse != nil {
 
-							sumClassPriceOfAssessment += assessmentResponse.GrossPriceDifference
 							sumClassPurchaseGrossPrice += inventory.GrossPrice
-							sumClassGrossPrice += assessmentResponse.GrossPriceNew
+							sumClassGrossPrice += assessmentResponse.GrossPriceDifference
+
+							lifetimeOfAssessmentInMonths := 0
+
+							if inventory.DepreciationTypeId != 0 {
+								settings, _ := getDropdownSettingById(inventory.DepreciationTypeId)
+
+								if settings != nil {
+									num, _ := strconv.Atoi(settings.Value)
+									if num > -1 {
+										lifetimeOfAssessmentInMonths = num
+									}
+									if lifetimeOfAssessmentInMonths > 0 {
+										layout := time.RFC3339Nano
+
+										t, _ := time.Parse(layout, inventory.CreatedAt)
+
+										currentTime := time.Now()
+										years := currentTime.Year() - t.Year()
+										months := int(currentTime.Month() - t.Month())
+
+										if currentTime.Day() < t.Day() {
+											months--
+										}
+
+										if currentTime.YearDay() < t.YearDay() {
+											years--
+										}
+
+										if months < 0 {
+											years--
+											months += 12
+										}
+
+										totalMonths := years*12 + months
+
+										if totalMonths > 0 {
+											sumClassPriceOfAssessment += assessmentResponse.GrossPriceDifference / float32(lifetimeOfAssessmentInMonths) / 12 * float32(totalMonths)
+										}
+									}
+								}
+							}
 							break
 						}
 					}
@@ -58,21 +103,30 @@ var ReportValueClassInventoryResolver = func(params graphql.ResolveParams) (inte
 				}
 
 			}
+
 		}
+		sumClassGrossPriceAllItem += sumClassGrossPrice
+		sumClassPurchaseGrossPriceAllItem += sumClassPurchaseGrossPrice
+		sumClassPriceOfAssessmentAllItem += sumClassPriceOfAssessment
 		report = append(report, dto.ReportValueClassInventoryItem{
 			Id:                 class.Id,
 			Title:              class.Title,
 			Class:              class.Abbreviation,
-			PurchaseGrossPrice: sumClassPurchaseGrossPrice,
-			PriceOfAssessment:  sumClassPriceOfAssessment,
-			GrossPrice:         sumClassGrossPrice,
+			PurchaseGrossPrice: float32(int(sumClassPurchaseGrossPrice*100+0.5)) / 100,
+			PriceOfAssessment:  float32(int(sumClassPriceOfAssessment*100+0.5)) / 100,
+			GrossPrice:         float32(int(sumClassGrossPrice*100+0.5)) / 100,
 		})
 	}
-
-	return dto.Response{
+	response := dto.ReportValueClassInventory{
+		Values:             report,
+		PurchaseGrossPrice: float32(int(sumClassPurchaseGrossPriceAllItem*100+0.5)) / 100,
+		PriceOfAssessment:  float32(int(sumClassPriceOfAssessmentAllItem*100+0.5)) / 100,
+		GrossPrice:         float32(int(sumClassGrossPriceAllItem*100+0.5)) / 100,
+	}
+	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   report,
+		Item:    response,
 	}, nil
 }
 

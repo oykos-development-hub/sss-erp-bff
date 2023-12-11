@@ -22,6 +22,7 @@ var OrganizationUnitsResolver = func(params graphql.ResolveParams) (interface{},
 	size := params.Args["size"]
 	parent_id := params.Args["parent_id"]
 	search, searchOk := params.Args["search"].(string)
+	settings := params.Args["settings"].(bool)
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		organizationUnit, err := getOrganizationUnitById(id.(int))
@@ -68,7 +69,7 @@ var OrganizationUnitsResolver = func(params graphql.ResolveParams) (interface{},
 				return shared.HandleAPIError(err)
 			}
 			if !loggedInAccount.HasPermission(structs.PermissionManageOrganizationUnits) &&
-				*profileOrganizationUnit != organizationUnitItem.Id {
+				*profileOrganizationUnit != organizationUnitItem.Id && !settings {
 				continue
 			}
 			items = append(items, *organizationUnitItem)

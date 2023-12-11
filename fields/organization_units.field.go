@@ -27,6 +27,9 @@ var OrganizationUnitsField = &graphql.Field{
 		"size": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"settings": &graphql.ArgumentConfig{
+			Type: graphql.Boolean,
+		},
 	},
 	Resolve: resolvers.OrganizationUnitsResolver,
 }

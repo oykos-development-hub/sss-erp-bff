@@ -114,3 +114,10 @@ type ReportValueClassInventoryItem struct {
 	GrossPrice         float32 `json:"gross_price"`
 	PriceOfAssessment  float32 `json:"price_of_assessment"`
 }
+
+type ReportValueClassInventory struct {
+	Values             []ReportValueClassInventoryItem `json:"items"`
+	PurchaseGrossPrice float32                         `json:"purchase_gross_price"`
+	GrossPrice         float32                         `json:"gross_price"`
+	PriceOfAssessment  float32                         `json:"price_of_assessment"`
+}

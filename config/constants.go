@@ -118,7 +118,10 @@ var (
 	MOVEMENT_ARTICLES_ENDPOINT          string
 	STOCK_ENDPOINT                      string
 
-	FILES_ENDPOINT string
+	FILES_ENDPOINT                 string
+	FILES_MULTIPLE_DELETE_ENDPOINT string
+	FILES_DOWNLOAD_ENDPOINT        string
+	FILES_OVERVIEW_ENDPOINT        string
 )
 
 func init() {
@@ -231,4 +234,7 @@ func init() {
 
 	//files endpoints
 	FILES_ENDPOINT = FILE_MS_BASE_URL + "/files"
+	FILES_DOWNLOAD_ENDPOINT = FILE_MS_BASE_URL + "/file-overview"
+	FILES_OVERVIEW_ENDPOINT = FILE_MS_BASE_URL + "/download"
+	FILES_MULTIPLE_DELETE_ENDPOINT = FILE_MS_BASE_URL + "/files/batch-delete"
 }

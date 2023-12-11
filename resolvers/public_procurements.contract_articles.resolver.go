@@ -369,6 +369,14 @@ func buildProcurementContractArticlesResponseItem(context context.Context, item 
 		overageTotal += item.Amount
 	}
 
+	vatPercentage, err := strconv.ParseFloat(article.VatPercentage, 64)
+
+	if err != nil {
+		return nil, err
+	}
+
+	grossPrice := item.NetValue + item.NetValue*float32(vatPercentage)/100
+
 	res := dto.ProcurementContractArticlesResponseItem{
 		Id: item.Id,
 		Article: dto.DropdownProcurementArticle{
@@ -385,7 +393,7 @@ func buildProcurementContractArticlesResponseItem(context context.Context, item 
 		OverageList:  overageList,
 		OverageTotal: overageTotal,
 		NetValue:     item.NetValue,
-		GrossValue:   item.GrossValue,
+		GrossValue:   grossPrice,
 		CreatedAt:    item.CreatedAt,
 		UpdatedAt:    item.UpdatedAt,
 	}

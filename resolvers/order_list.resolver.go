@@ -436,6 +436,17 @@ func ProcessOrderArticleItem(ctx context.Context, article structs.OrderArticleIt
 		currentArticle.Available = amount
 	}
 
+	articleInventory, err := getAllInventoryItem(dto.InventoryItemFilter{
+		ArticleId:          &article.Id,
+		OrganizationUnitID: &organizationUnitID,
+	})
+
+	if err != nil {
+		return currentArticle, err
+	}
+
+	currentArticle.Available -= len(articleInventory.Data)
+
 	return currentArticle, nil
 }
 

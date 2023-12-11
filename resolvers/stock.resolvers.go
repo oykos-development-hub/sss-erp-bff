@@ -25,6 +25,8 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 	page := params.Args["page"]
 	search, searchOk := params.Args["title"].(string)
 	date, dateOk := params.Args["date"].(string)
+	sortByYear, sortByYearOk := params.Args["sort_by_year"].(string)
+	sortByAmount, sortByAmountOK := params.Args["sort_by_amount"].(string)
 
 	if shared.IsInteger(page) && page.(int) > 0 {
 		pageNum := page.(int)
@@ -37,6 +39,14 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 
 	if searchOk && search != "" {
 		input.Title = &search
+	}
+
+	if sortByAmountOK && sortByAmount != "" {
+		input.SortByAmount = &sortByAmount
+	}
+
+	if sortByYearOk && sortByYear != "" {
+		input.SortByYear = &sortByYear
 	}
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
@@ -170,6 +180,8 @@ var MovementOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 	page := params.Args["page"]
 	officeID, officeOk := params.Args["office_id"].(int)
 	userID, userOk := params.Args["recipient_user_id"].(int)
+	sortByDateOrder, sortByDateOrderOK := params.Args["sort_by_date_order"].(string)
+
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
 		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
@@ -190,6 +202,10 @@ var MovementOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 
 	if userOk && userID != 0 {
 		input.RecipientUserID = &userID
+	}
+
+	if sortByDateOrderOK && sortByDateOrder != "" {
+		input.SortByDateOrder = &sortByDateOrder
 	}
 
 	movementList, total, err := getMovements(&input)

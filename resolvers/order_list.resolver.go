@@ -137,6 +137,8 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 	search, searchOk := params.Args["search"].(string)
 	activePlan, _ := params.Args["active_plan"].(bool)
 	year, yearOK := params.Args["year"].(string)
+	sortByTotalPrice, sortByTotalPriceOK := params.Args["sort_by_total_price"].(string)
+	sortByDateOrder, sortByDateOrderOK := params.Args["sort_by_date_order"].(string)
 
 	if id != nil && shared.IsInteger(id) && id != 0 {
 		orderList, err := getOrderListById(id.(int))
@@ -222,6 +224,14 @@ var OrderListOverviewResolver = func(params graphql.ResolveParams) (interface{},
 
 		if yearOK && year != "" {
 			input.Year = &year
+		}
+
+		if sortByDateOrderOK && sortByDateOrder != "" {
+			input.SortByDateOrder = &sortByDateOrder
+		}
+
+		if sortByTotalPriceOK && sortByTotalPrice != "" {
+			input.SortByTotalPrice = &sortByTotalPrice
 		}
 
 		orderLists, err := getOrderLists(&input)

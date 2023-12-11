@@ -39,6 +39,12 @@ var OrderListOverviewField = &graphql.Field{
 		"year": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
+		"sort_by_date_order": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_total_price": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 	},
 	Resolve: resolvers.OrderListOverviewResolver,
 }
@@ -153,6 +159,12 @@ var StockOverviewFiled = &graphql.Field{
 		"date": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
+		"sort_by_amount": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+		"sort_by_year": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 	},
 	Resolve: resolvers.StockOverviewResolver,
 }
@@ -172,6 +184,9 @@ var MovementOverviewField = &graphql.Field{
 		},
 		"office_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
+		},
+		"sort_by_date_order": &graphql.ArgumentConfig{
+			Type: graphql.String,
 		},
 	},
 	Resolve: resolvers.MovementOverviewResolver,

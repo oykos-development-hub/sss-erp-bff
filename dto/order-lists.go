@@ -21,6 +21,8 @@ type GetOrderListInput struct {
 	InvoiceDate         *string `json:"invoice_date"`
 	PublicProcurementID *int    `json:"public_procurement_id"`
 	OrganizationUnitId  *int    `json:"organization_unit_id"`
+	SortByDateOrder     *string `json:"sort_by_date_order"`
+	SortByTotalPrice    *string `json:"sort_by_total_price"`
 }
 
 type OrderListOverviewResponse struct {
@@ -59,6 +61,8 @@ type StockFilter struct {
 	Year               *string `json:"year"`
 	Description        *string `json:"description"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
+	SortByAmount       *string `json:"sort_by_amount"`
+	SortByYear         *string `json:"sort_by_year"`
 }
 
 type GetStockResponseMS struct {
@@ -71,10 +75,11 @@ type GetSingleStockResponseMS struct {
 }
 
 type MovementFilter struct {
-	Page            *int `json:"page"`
-	Size            *int `json:"size"`
-	OfficeID        *int `json:"office_id"`
-	RecipientUserID *int `json:"recipient_user_id"`
+	Page            *int    `json:"page"`
+	Size            *int    `json:"size"`
+	OfficeID        *int    `json:"office_id"`
+	RecipientUserID *int    `json:"recipient_user_id"`
+	SortByDateOrder *string `json:"sort_by_date_order"`
 }
 
 type GetMovementResponseMS struct {

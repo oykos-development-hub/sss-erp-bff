@@ -142,7 +142,7 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 
 		for i := 0; i < len(movementArticles); i++ {
 			for j := 0; j < len(articles); j++ {
-				if movementArticles[i].Title == articles[j].Title && movementArticles[i].Year == articles[j].Year {
+				if officeInOrgUnit(movementArticles[i].OfficeID, *organizationUnitID) && movementArticles[i].Title == articles[j].Title && movementArticles[i].Year == articles[j].Year {
 					articles[j].Amount -= movementArticles[i].Amount
 				}
 			}
@@ -668,4 +668,23 @@ func getMovementArticles(id int) ([]dto.MovementArticle, error) {
 	}
 
 	return res.Data, nil
+}
+
+func officeInOrgUnit(OfficeID int, OrganizationUnitID int) bool {
+	orgUnitString := strconv.Itoa(OrganizationUnitID)
+
+	res, err := getOfficeDropdownSettings(&dto.GetOfficesOfOrganizationInput{
+		Value: &orgUnitString,
+	})
+
+	if err != nil {
+		return false
+	}
+
+	for _, office := range res.Data {
+		if office.Id == OfficeID {
+			return true
+		}
+	}
+	return false
 }

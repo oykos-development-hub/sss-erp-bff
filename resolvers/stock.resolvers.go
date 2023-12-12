@@ -73,18 +73,41 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 			}
 			for _, article := range orderArticles.Data {
 				flag := false
-				for _, articleInList := range articles {
-					if article.Title == articleInList.Title && article.Year == articleInList.Year {
-						articleInList.Amount += article.Amount
+
+				if article.ArticleId != 0 {
+					currentArticle, err := getProcurementArticle(article.ArticleId)
+
+					if err != nil {
+						return shared.HandleAPIError(err)
+					}
+
+					procurement, err := getProcurementItem(currentArticle.PublicProcurementId)
+
+					if err != nil {
+						return shared.HandleAPIError(err)
+					}
+
+					plan, err := getProcurementPlan(procurement.PlanId)
+
+					if err != nil {
+						return shared.HandleAPIError(err)
+					}
+					article.Year = plan.Year
+					article.Title = currentArticle.Title
+					article.Description = currentArticle.Description
+				}
+
+				for i := 0; i < len(articles); i++ {
+					if article.Title == articles[i].Title && article.Year == articles[i].Year {
+						articles[i].Amount += article.Amount
 						flag = true
+						break
 					}
 				}
+
 				if !flag {
-					var title, description, year string
 
 					if article.ArticleId == 0 {
-						title = article.Title
-						description = article.Description
 						format := "2006-02-01T15:04:05Z"
 
 						currDate, err := time.Parse(format, *order.InvoiceDate)
@@ -93,35 +116,13 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 						}
 
 						yearInt := currDate.Year()
-						year = strconv.Itoa(yearInt)
-					} else {
-						currentArticle, err := getProcurementArticle(article.ArticleId)
-
-						if err != nil {
-							return shared.HandleAPIError(err)
-						}
-
-						procurement, err := getProcurementItem(currentArticle.PublicProcurementId)
-
-						if err != nil {
-							return shared.HandleAPIError(err)
-						}
-
-						plan, err := getProcurementPlan(procurement.PlanId)
-
-						if err != nil {
-							return shared.HandleAPIError(err)
-						}
-
-						year = plan.Year
-						title = currentArticle.Title
-						description = currentArticle.Description
+						article.Year = strconv.Itoa(yearInt)
 					}
 
 					newArticle := structs.StockArticle{
-						Title:       title,
-						Description: description,
-						Year:        year,
+						Title:       article.Title,
+						Description: article.Description,
+						Year:        article.Year,
 						Amount:      article.Amount,
 						ID:          article.Id,
 					}

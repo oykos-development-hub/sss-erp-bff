@@ -27,6 +27,7 @@ var PublicProcurementContractsOverviewResolver = func(params graphql.ResolvePara
 	sortBySerialNumber := params.Args["sort_by_serial_number"]
 	procurement_id := params.Args["procurement_id"]
 	supplier_id := params.Args["supplier_id"]
+	year := params.Args["year"]
 
 	input := dto.GetProcurementContractsInput{}
 	if shared.IsInteger(page) && page.(int) > 0 {
@@ -60,6 +61,10 @@ var PublicProcurementContractsOverviewResolver = func(params graphql.ResolvePara
 	if sortBySerialNumber != nil && sortBySerialNumber.(string) != "" {
 		value := sortBySerialNumber.(string)
 		input.SortBySerialNumber = &value
+	}
+	if year != nil && year.(string) != "" {
+		value := year.(string)
+		input.Year = &value
 	}
 
 	if shared.IsInteger(id) && id.(int) > 0 {

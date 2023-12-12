@@ -268,6 +268,9 @@ var PublicProcurementContractsOverviewField = &graphql.Field{
 		"procurement_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
+		"year": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 		"supplier_id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},

@@ -13,6 +13,7 @@ type GetProcurementContractsInput struct {
 	Size                *int    `json:"size"`
 	ProcurementID       *int    `json:"procurement_id"`
 	SupplierID          *int    `json:"supplier_id"`
+	Year                *string `json:"year"`
 	SortByDateOfExpiry  *string `json:"sort_by_date_of_expiry"`
 	SortByDateOfSigning *string `json:"sort_by_date_of_signing"`
 	SortByGrossValue    *string `json:"sort_by_gross_value"`

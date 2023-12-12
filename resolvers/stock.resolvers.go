@@ -106,7 +106,6 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 				}
 
 				if !flag {
-
 					if article.ArticleId == 0 {
 						format := "2006-02-01T15:04:05Z"
 
@@ -142,7 +141,7 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 
 		for i := 0; i < len(movementArticles); i++ {
 			for j := 0; j < len(articles); j++ {
-				if officeInOrgUnit(movementArticles[i].OfficeID, *organizationUnitID) && movementArticles[i].Title == articles[j].Title && movementArticles[i].Year == articles[j].Year {
+				if movementArticles[i].Title == articles[j].Title && movementArticles[i].Year == articles[j].Year && officeInOrgUnit(movementArticles[i].OfficeID, *organizationUnitID) {
 					articles[j].Amount -= movementArticles[i].Amount
 				}
 			}

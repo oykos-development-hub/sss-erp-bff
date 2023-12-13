@@ -57,10 +57,13 @@ func handleError(w http.ResponseWriter, err error, statusCode int) {
 	_ = MarshalAndWriteJSON(w, errorResponse{Message: err.Error()})
 }
 
-func makeBackendRequest(method, url string, body io.Reader) (*http.Response, int, error) {
+func makeBackendRequest(method, url string, body io.Reader, contentType string) (*http.Response, int, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, 0, err
+	}
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
 	}
 
 	httpClient := &http.Client{}

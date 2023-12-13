@@ -30,7 +30,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	var requestBody bytes.Buffer
 	writer := multipart.NewWriter(&requestBody)
-	defer writer.Close()
 
 	part, err := writer.CreateFormFile("file", fileHeader.Filename)
 	if err != nil {
@@ -44,7 +43,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	backendResponse, status, err := makeBackendRequest(http.MethodPost, config.FILES_ENDPOINT, &requestBody)
+	writer.Close() //mora ovako jer se iz nekog neznanog razloga ne kopira fajl kako treba
+	backendResponse, status, err := makeBackendRequest(http.MethodPost, config.FILES_ENDPOINT, &requestBody, writer.FormDataContentType())
 	if err != nil {
 		handleError(w, err, status)
 		return
@@ -74,7 +74,7 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	backendFileURL := config.FILES_ENDPOINT + "/" + id
 
-	backendResponse, status, err := makeBackendRequest(http.MethodDelete, backendFileURL, nil)
+	backendResponse, status, err := makeBackendRequest(http.MethodDelete, backendFileURL, nil, "")
 	if err != nil {
 		handleError(w, err, status)
 		return
@@ -103,7 +103,7 @@ func MultipleDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	backendFileURL := config.FILES_MULTIPLE_DELETE_ENDPOINT
 
-	backendResponse, status, err := makeBackendRequest(http.MethodPost, backendFileURL, bytes.NewBuffer(jsonData))
+	backendResponse, status, err := makeBackendRequest(http.MethodPost, backendFileURL, bytes.NewBuffer(jsonData), "")
 	if err != nil {
 		handleError(w, err, status)
 		return
@@ -119,7 +119,7 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 
 	backendFileURL := config.FILES_DOWNLOAD_ENDPOINT + "/" + id
 
-	backendResponse, status, err := makeBackendRequest(http.MethodGet, backendFileURL, nil)
+	backendResponse, status, err := makeBackendRequest(http.MethodGet, backendFileURL, nil, "")
 	if err != nil {
 		handleError(w, err, status)
 		return
@@ -148,7 +148,7 @@ func OverviewHandler(w http.ResponseWriter, r *http.Request) {
 
 	backendFileURL := config.FILES_OVERVIEW_ENDPOINT + "/" + id
 
-	backendResponse, status, err := makeBackendRequest(http.MethodGet, backendFileURL, nil)
+	backendResponse, status, err := makeBackendRequest(http.MethodGet, backendFileURL, nil, "")
 	if err != nil {
 		handleError(w, err, status)
 		return
@@ -176,7 +176,7 @@ func OverviewHandler(w http.ResponseWriter, r *http.Request) {
 func GetFileData(fileID string) (*FileGetByIDResponse, int, error) {
 	backendURL := fmt.Sprintf(config.FILES_ENDPOINT + "/" + fileID)
 
-	response, status, err := makeBackendRequest(http.MethodGet, backendURL, nil)
+	response, status, err := makeBackendRequest(http.MethodGet, backendURL, nil, "")
 
 	if err != nil {
 		return nil, status, err

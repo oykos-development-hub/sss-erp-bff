@@ -6,9 +6,9 @@ import (
 )
 
 type FileResponseData struct {
-	Data    *FileResponse `json:"data"`
-	Message string        `json:"message"`
-	Error   string        `json:"error"`
+	Data    []FileResponseDTO `json:"data"`
+	Message string            `json:"message"`
+	Error   string            `json:"error"`
 }
 
 type FileResponse struct {

@@ -563,11 +563,10 @@ var OrderListDeleteResolver = func(params graphql.ResolveParams) (interface{}, e
 		}
 	}
 
-	if orderList.ReceiveFile != nil && *orderList.ReceiveFile != 0 {
-		err := deleteFile(*orderList.ReceiveFile)
-
+	for _, fileID := range orderList.ReceiveFile {
+		err := deleteFile(fileID)
 		if err != nil {
-			return shared.HandleAPIError(err)
+			return nil, err
 		}
 	}
 
@@ -719,9 +718,8 @@ var OrderListReceiveDeleteResolver = func(params graphql.ResolveParams) (interfa
 		}
 	}
 
-	if orderList.ReceiveFile != nil && *orderList.ReceiveFile != 0 {
-		err := deleteFile(*orderList.ReceiveFile)
-
+	for _, fileID := range orderList.ReceiveFile {
+		err := deleteFile(fileID)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
@@ -1029,7 +1027,7 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 	}
 
 	orderFile := defaultFile
-	receiveFile := defaultFile
+	receiveFile := []dto.FileDropdownSimple{}
 	movementFile := defaultFile
 
 	if item.OrderFile != nil && *item.OrderFile != zero {
@@ -1042,14 +1040,17 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 		orderFile.Type = *file.Type
 	}
 
-	if item.ReceiveFile != nil && *item.ReceiveFile != zero {
-		file, err := getFileByID(*item.ReceiveFile)
+	for _, fileID := range item.ReceiveFile {
+		file, err := getFileByID(fileID)
 		if err != nil {
 			return nil, err
 		}
-		receiveFile.Id = file.ID
-		receiveFile.Name = file.Name
-		receiveFile.Type = *file.Type
+
+		receiveFile = append(receiveFile, dto.FileDropdownSimple{
+			Id:   file.ID,
+			Name: file.Name,
+			Type: *file.Type,
+		})
 	}
 
 	if item.MovementFile != nil && *item.MovementFile != zero {

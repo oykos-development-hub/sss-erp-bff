@@ -50,7 +50,7 @@ type OrderListOverviewResponse struct {
 	Office              *DropdownSimple                        `json:"office"`
 	Articles            *[]DropdownProcurementAvailableArticle `json:"articles"`
 	OrderFile           FileDropdownSimple                     `json:"order_file"`
-	ReceiveFile         FileDropdownSimple                     `json:"receive_file"`
+	ReceiveFile         []FileDropdownSimple                   `json:"receive_file"`
 	MovementFile        FileDropdownSimple                     `json:"movement_file"`
 }
 

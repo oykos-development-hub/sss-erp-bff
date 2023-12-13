@@ -17,7 +17,7 @@ type OrderListItem struct {
 	Description         *string `json:"description"`
 	IsUsed              bool    `json:"is_used"`
 	OrderFile           *int    `json:"order_file"`
-	ReceiveFile         *int    `json:"receive_file"`
+	ReceiveFile         []int   `json:"receive_file"`
 	MovementFile        *int    `json:"movement_file"`
 }
 
@@ -76,7 +76,7 @@ type OrderReceiveItem struct {
 	InvoiceDate   *string                  `json:"invoice_date"`
 	InvoiceNumber *string                  `json:"invoice_number"`
 	Description   *string                  `json:"description"`
-	ReceiveFile   *int                     `json:"receive_file"`
+	ReceiveFile   []int                    `json:"receive_file"`
 	Articles      []OrderArticleInsertItem `json:"articles"`
 }
 

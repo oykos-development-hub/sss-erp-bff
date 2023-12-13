@@ -54,7 +54,7 @@ var OrderListReceiveMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"receive_file": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.NewList(graphql.Int),
 		},
 		"articles": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(ArticlesInsertMutation),

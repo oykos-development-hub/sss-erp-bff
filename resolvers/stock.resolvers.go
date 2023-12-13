@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -81,20 +80,16 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 						return shared.HandleAPIError(err)
 					}
 
-					procurement, err := getProcurementItem(currentArticle.PublicProcurementId)
-
-					if err != nil {
-						return shared.HandleAPIError(err)
-					}
-
-					plan, err := getProcurementPlan(procurement.PlanId)
-
-					if err != nil {
-						return shared.HandleAPIError(err)
-					}
-					article.Year = plan.Year
 					article.Title = currentArticle.Title
 					article.Description = currentArticle.Description
+					article.NetPrice = currentArticle.NetPrice
+					vatPercentageInt, err := strconv.Atoi(currentArticle.VatPercentage)
+
+					if err != nil {
+						return nil, err
+					}
+
+					article.VatPercentage = vatPercentageInt
 				}
 
 				for i := 0; i < len(articles); i++ {
@@ -106,24 +101,14 @@ var StockOverviewResolver = func(params graphql.ResolveParams) (interface{}, err
 				}
 
 				if !flag {
-					if article.ArticleId == 0 {
-						format := "2006-02-01T15:04:05Z"
-
-						currDate, err := time.Parse(format, *order.InvoiceDate)
-						if err != nil {
-							return shared.HandleAPIError(err)
-						}
-
-						yearInt := currDate.Year()
-						article.Year = strconv.Itoa(yearInt)
-					}
-
 					newArticle := structs.StockArticle{
-						Title:       article.Title,
-						Description: article.Description,
-						Year:        article.Year,
-						Amount:      article.Amount,
-						ID:          article.Id,
+						Title:         article.Title,
+						Description:   article.Description,
+						Year:          article.Year,
+						Amount:        article.Amount,
+						ID:            article.Id,
+						NetPrice:      article.NetPrice,
+						VatPercentage: article.VatPercentage,
 					}
 					articles = append(articles, newArticle)
 				}
@@ -187,6 +172,8 @@ var MovementOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
+	input.OrganizationUnitID = organizationUnitID
+
 	if shared.IsInteger(page) && page.(int) > 0 {
 		pageNum := page.(int)
 		input.Page = &pageNum
@@ -216,28 +203,6 @@ var MovementOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 	var response []dto.MovementResponse
 
 	for _, movement := range movementList {
-		organizationUnit := strconv.Itoa(*organizationUnitID)
-		res, err := getOfficeDropdownSettings(&dto.GetOfficesOfOrganizationInput{
-			Value: &organizationUnit,
-		})
-		if err != nil {
-			return shared.HandleAPIError(err)
-		}
-
-		flag := false
-
-		for _, item := range res.Data {
-			if item.Id == movement.OfficeID {
-				flag = true
-				continue
-			}
-		}
-
-		if !flag {
-			*total--
-			continue
-		}
-
 		var item dto.MovementResponse
 		item.ID = movement.ID
 		item.DateOrder = movement.DateOrder
@@ -245,18 +210,18 @@ var MovementOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 
 		officeItem, _ := getDropdownSettingById(movement.OfficeID)
 
-		/*if err != nil {
+		if err != nil {
 			return shared.HandleAPIError(err)
-		}*/
+		}
 
 		item.Office.Title = officeItem.Title
 		item.Office.Id = officeItem.Id
 
 		userItem, _ := getUserProfileById(movement.RecipientUserID)
 
-		/*if err != nil {
+		if err != nil {
 			return shared.HandleAPIError(err)
-		}*/
+		}
 
 		item.RecipientUser.Title = userItem.FirstName + " " + userItem.LastName
 		item.RecipientUser.Id = userItem.Id
@@ -266,24 +231,22 @@ var MovementOverviewResolver = func(params graphql.ResolveParams) (interface{}, 
 			return nil, err
 		}
 
-		var movementArticles []dto.ArticlesDropdown
+		var movementArticles []dto.MovementArticle
 		for _, article := range articles {
-			stockArticle, _, err := getStock(&dto.StockFilter{
-				Title:       &article.Title,
-				Description: &article.Description,
-				Year:        &article.Year,
-			})
+			stockArticle, err := getStockByID(article.StockID)
 
 			if err != nil {
 				return nil, err
 			}
 
-			movementArticle := dto.ArticlesDropdown{
-				Title:       stockArticle[0].Title,
-				Description: stockArticle[0].Description,
-				Year:        stockArticle[0].Year,
-				Amount:      article.Amount,
-				ID:          stockArticle[0].ID,
+			movementArticle := dto.MovementArticle{
+				Title:         stockArticle.Title,
+				Description:   stockArticle.Description,
+				Year:          stockArticle.Year,
+				Amount:        article.Amount,
+				ID:            stockArticle.ID,
+				NetPrice:      stockArticle.NetPrice,
+				VatPercentage: stockArticle.VatPercentage,
 			}
 
 			movementArticles = append(movementArticles, movementArticle)
@@ -364,6 +327,13 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 	_ = json.Unmarshal(dataBytes, &data)
 
 	if data.ID == 0 {
+		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitID == nil {
+			return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		}
+
+		data.OrganizationUnitID = *organizationUnitID
+
 		movement, err := createMovements(data)
 
 		if err != nil {
@@ -371,15 +341,11 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 		}
 
 		for _, article := range data.Articles {
-			var item dto.MovementArticle
-			item.MovementID = movement.ID
-
-			stockArticle, err := getStockByID(article.ID)
-			item.Title = stockArticle.Title
-			item.Description = stockArticle.Description
-			item.Year = stockArticle.Year
-			item.Amount = article.Quantity
-			item.Exception = stockArticle.Exception
+			item := dto.MovementArticle{
+				StockID:    article.ID,
+				MovementID: movement.ID,
+				Amount:     article.Quantity,
+			}
 
 			if err != nil {
 				return shared.HandleAPIError(err)
@@ -391,9 +357,10 @@ var OrderListAssetMovementResolver = func(params graphql.ResolveParams) (interfa
 				return shared.HandleAPIError(err)
 			}
 
-			organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-			if !ok || organizationUnitID == nil {
-				return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			stockArticle, err := getStockByID(article.ID)
+
+			if err != nil {
+				return shared.HandleAPIError(err)
 			}
 
 			stockArticle.Amount -= article.Quantity
@@ -463,24 +430,22 @@ func buildMovementDetailsResponse(id int) (*dto.MovementDetailsResponse, error) 
 		item.File.Type = *file.Type
 	}
 
-	var movementArticles []dto.ArticlesDropdown
+	var movementArticles []dto.MovementArticle
 	for _, article := range articles {
-		stockArticle, _, err := getStock(&dto.StockFilter{
-			Title:       &article.Title,
-			Description: &article.Description,
-			Year:        &article.Year,
-		})
+		stockArticle, err := getStockByID(article.StockID)
 
 		if err != nil {
 			return nil, err
 		}
 
-		movementArticle := dto.ArticlesDropdown{
-			Title:       stockArticle[0].Title,
-			Description: stockArticle[0].Description,
-			Year:        stockArticle[0].Year,
-			Amount:      article.Amount,
-			ID:          stockArticle[0].ID,
+		movementArticle := dto.MovementArticle{
+			Title:         stockArticle.Title,
+			Description:   stockArticle.Description,
+			Year:          stockArticle.Year,
+			Amount:        article.Amount,
+			ID:            stockArticle.ID,
+			NetPrice:      stockArticle.NetPrice,
+			VatPercentage: stockArticle.VatPercentage,
 		}
 
 		movementArticles = append(movementArticles, movementArticle)
@@ -520,31 +485,20 @@ var MovementDeleteResolver = func(params graphql.ResolveParams) (interface{}, er
 	}
 
 	for _, article := range articles {
-		stock, _, _ := getStock(&dto.StockFilter{
-			Year:               &article.Year,
-			Title:              &article.Title,
-			Description:        &article.Description,
-			OrganizationUnitID: organizationUnitID})
-
-		article.OrganizationUnitID = *organizationUnitID
-
-		if len(stock) == 0 {
-			err = createStock(article)
-
-			if err != nil {
-				return shared.HandleAPIError(err)
-			}
-		} else {
-			stock[0].Amount += article.Amount
-			err := updateStock(stock[0])
-			if err != nil {
-				return shared.HandleAPIError(err)
-			}
-		}
+		stock, err := getStockByID(article.StockID)
 
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
+
+		article.OrganizationUnitID = *organizationUnitID
+
+		stock.Amount += article.Amount
+		err = updateStock(*stock)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
 	}
 
 	err = deleteMovement(id)

@@ -155,6 +155,9 @@ var OrderListProcurementAvailableArticlesType = graphql.NewObject(graphql.Object
 			Type: graphql.Int,
 		},
 		"vat_percentage": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"net_price": &graphql.Field{
 			Type: graphql.Float,
 		},
 		"price": &graphql.Field{
@@ -304,6 +307,12 @@ var StockItem = graphql.NewObject(graphql.ObjectConfig{
 		"amount": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"net_price": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"vat_percentage": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 
@@ -434,6 +443,12 @@ var ArticleType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"net_price": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"vat_percentage": &graphql.Field{
 			Type: graphql.Int,
 		},
 	},

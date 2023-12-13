@@ -101,6 +101,12 @@ var ArticlesInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"net_price": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"vat_percentage": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 	},
 })
 

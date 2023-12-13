@@ -631,7 +631,6 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 	}
 	if status != "Receive" {
 		for _, article := range articles.Data {
-
 			if article.ArticleId != 0 {
 				currentArticle, err := getProcurementArticle(article.ArticleId)
 
@@ -639,21 +638,16 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 					return shared.HandleAPIError(err)
 				}
 
-				procurement, err := getProcurementItem(currentArticle.PublicProcurementId)
+				vatPercentageInt, err := strconv.Atoi(currentArticle.VatPercentage)
 
 				if err != nil {
 					return shared.HandleAPIError(err)
 				}
 
-				plan, err := getProcurementPlan(procurement.PlanId)
-
-				if err != nil {
-					return shared.HandleAPIError(err)
-				}
-
-				article.Year = plan.Year
 				article.Title = currentArticle.Title
 				article.Description = currentArticle.Description
+				article.NetPrice = currentArticle.NetPrice
+				article.VatPercentage = vatPercentageInt
 			}
 
 			stock, _, _ := getStock(&dto.StockFilter{
@@ -662,21 +656,14 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 				Description:        &article.Description,
 				OrganizationUnitID: organizationUnitID})
 
-			var year string
-
-			if article.Year != "" {
-				year = article.Year
-			} else {
-				now := time.Now()
-				year = fmt.Sprintf("%d", now.Year())
-			}
-
 			if len(stock) == 0 {
 				input := dto.MovementArticle{
 					Amount:             article.Amount,
-					Year:               year,
+					Year:               article.Year,
 					Description:        article.Description,
 					Title:              article.Title,
+					NetPrice:           article.NetPrice,
+					VatPercentage:      article.VatPercentage,
 					OrganizationUnitID: *organizationUnitID,
 				}
 
@@ -813,9 +800,31 @@ func createOrderListProcurementArticles(orderListId int, data structs.OrderListI
 		}
 		if article.Id != 0 {
 			newArticle.ArticleId = article.Id
+			article, err := getProcurementArticle(article.Id)
+			if err != nil {
+				return err
+			}
+
+			procurement, err := getProcurementItem(article.PublicProcurementId)
+			if err != nil {
+				return err
+			}
+
+			plan, err := getProcurementPlan(procurement.PlanId)
+
+			if err != nil {
+				return err
+			}
+
+			newArticle.Year = plan.Year
+
 		} else {
 			newArticle.Title = article.Title
 			newArticle.Description = article.Description
+			newArticle.NetPrice = article.NetPrice
+			newArticle.VatPercentage = article.VatPercentage
+			newArticle.Amount = article.Amount
+			newArticle.Year = strconv.Itoa(time.Now().Year())
 		}
 
 		_, err := createOrderProcurementArticle(&newArticle)
@@ -967,15 +976,17 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 				totalNeto += vat
 
 				articles = append(articles, dto.DropdownProcurementAvailableArticle{
-					Id:           itemOrderArticle.Id,
-					Title:        article.Title,
-					Manufacturer: article.Manufacturer,
-					Description:  article.Description,
-					Unit:         article.Unit,
-					Available:    article.Available,
-					Amount:       itemOrderArticle.Amount,
-					TotalPrice:   articleTotalPrice,
-					Price:        articleUnitPrice,
+					Id:            itemOrderArticle.Id,
+					Title:         article.Title,
+					Manufacturer:  article.Manufacturer,
+					Description:   article.Description,
+					Unit:          article.Unit,
+					Available:     article.Available,
+					Amount:        itemOrderArticle.Amount,
+					TotalPrice:    articleTotalPrice,
+					Price:         articleUnitPrice,
+					NetPrice:      article.NetPrice,
+					VatPercentage: article.VatPercentage,
 				})
 			}
 		}
@@ -990,10 +1001,12 @@ func buildOrderListResponseItem(context context.Context, item *structs.OrderList
 
 		for _, article := range relatedOrderProcurementArticle.Data {
 			articles = append(articles, dto.DropdownProcurementAvailableArticle{
-				Id:          article.Id,
-				Title:       article.Title,
-				Description: article.Description,
-				Amount:      article.Amount,
+				Id:            article.Id,
+				Title:         article.Title,
+				Description:   article.Description,
+				Amount:        article.Amount,
+				NetPrice:      article.NetPrice,
+				VatPercentage: strconv.Itoa(article.VatPercentage),
 			})
 		}
 	}

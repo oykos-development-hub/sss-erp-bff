@@ -22,13 +22,15 @@ type OrderListItem struct {
 }
 
 type OrderProcurementArticleItem struct {
-	Id          int    `json:"id"`
-	OrderId     int    `json:"order_id"`
-	ArticleId   int    `json:"article_id"`
-	Year        string `json:"year"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Amount      int    `json:"amount"`
+	Id            int     `json:"id"`
+	OrderId       int     `json:"order_id"`
+	ArticleId     int     `json:"article_id"`
+	Year          string  `json:"year"`
+	Title         string  `json:"title"`
+	Description   string  `json:"description"`
+	Amount        int     `json:"amount"`
+	NetPrice      float32 `json:"net_price"`
+	VatPercentage int     `json:"vat_percentage"`
 }
 
 type OrderArticleItem struct {
@@ -60,10 +62,12 @@ type OrderListInsertItem struct {
 }
 
 type OrderArticleInsertItem struct {
-	Id          int    `json:"id"`
-	Amount      int    `json:"amount"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Id            int     `json:"id"`
+	Amount        int     `json:"amount"`
+	Title         string  `json:"title"`
+	Description   string  `json:"description"`
+	NetPrice      float32 `json:"net_price"`
+	VatPercentage int     `json:"vat_percentage"`
 }
 
 type OrderReceiveItem struct {
@@ -76,25 +80,28 @@ type OrderReceiveItem struct {
 }
 
 type OrderAssetMovementItem struct {
-	ID              int            `json:"id"`
-	DateOrder       string         `json:"date_order"`
-	OfficeId        int            `json:"office_id"`
-	RecipientUserId int            `json:"recipient_user_id"`
-	FileID          int            `json:"file_id"`
-	Description     string         `json:"description"`
-	Articles        []StockArticle `json:"articles"`
+	ID                 int            `json:"id"`
+	DateOrder          string         `json:"date_order"`
+	OfficeId           int            `json:"office_id"`
+	RecipientUserId    int            `json:"recipient_user_id"`
+	FileID             int            `json:"file_id"`
+	Description        string         `json:"description"`
+	OrganizationUnitID int            `json:"organization_unit_id"`
+	Articles           []StockArticle `json:"articles"`
 }
 
 type StockArticle struct {
-	ID                 int    `json:"id"`
-	Title              string `json:"title"`
-	ArticleID          int    `json:"article_id"`
-	Description        string `json:"description"`
-	Exception          bool   `json:"exception"`
-	OrganizationUnitID int    `json:"organization_unit_id"`
-	Year               string `json:"year"`
-	Amount             int    `json:"amount"`
-	Quantity           int    `json:"quantity"`
+	ID                 int     `json:"id"`
+	Title              string  `json:"title"`
+	ArticleID          int     `json:"article_id"`
+	Description        string  `json:"description"`
+	Exception          bool    `json:"exception"`
+	OrganizationUnitID int     `json:"organization_unit_id"`
+	NetPrice           float32 `json:"net_price"`
+	VatPercentage      int     `json:"vat_percentage"`
+	Year               string  `json:"year"`
+	Amount             int     `json:"amount"`
+	Quantity           int     `json:"quantity"`
 }
 
 type Movement struct {

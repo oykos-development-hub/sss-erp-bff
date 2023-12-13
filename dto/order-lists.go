@@ -75,11 +75,12 @@ type GetSingleStockResponseMS struct {
 }
 
 type MovementFilter struct {
-	Page            *int    `json:"page"`
-	Size            *int    `json:"size"`
-	OfficeID        *int    `json:"office_id"`
-	RecipientUserID *int    `json:"recipient_user_id"`
-	SortByDateOrder *string `json:"sort_by_date_order"`
+	Page               *int    `json:"page"`
+	Size               *int    `json:"size"`
+	OfficeID           *int    `json:"office_id"`
+	RecipientUserID    *int    `json:"recipient_user_id"`
+	OrganizationUnitID *int    `json:"organization_unit_id"`
+	SortByDateOrder    *string `json:"sort_by_date_order"`
 }
 
 type GetMovementResponseMS struct {
@@ -96,12 +97,12 @@ type GetSingleMovementArticleResponseMS struct {
 }
 
 type MovementResponse struct {
-	ID            int                `json:"id"`
-	Description   string             `json:"description"`
-	Office        DropdownSimple     `json:"office"`
-	RecipientUser DropdownSimple     `json:"recipient_user"`
-	DateOrder     string             `json:"date_order"`
-	Articles      []ArticlesDropdown `json:"articles"`
+	ID            int               `json:"id"`
+	Description   string            `json:"description"`
+	Office        DropdownSimple    `json:"office"`
+	RecipientUser DropdownSimple    `json:"recipient_user"`
+	DateOrder     string            `json:"date_order"`
+	Articles      []MovementArticle `json:"articles"`
 }
 
 type MovementDetailsResponse struct {
@@ -110,7 +111,7 @@ type MovementDetailsResponse struct {
 	Office        DropdownSimple     `json:"office"`
 	RecipientUser DropdownSimple     `json:"recipient_user"`
 	DateOrder     string             `json:"date_order"`
-	Articles      []ArticlesDropdown `json:"articles"`
+	Articles      []MovementArticle  `json:"articles"`
 	File          FileDropdownSimple `json:"file"`
 }
 
@@ -124,14 +125,17 @@ type ArticlesDropdown struct {
 }
 
 type MovementArticle struct {
-	ID                 int    `json:"id"`
-	Year               string `json:"year"`
-	Title              string `json:"title"`
-	Description        string `json:"description"`
-	Exception          bool   `json:"exception"`
-	Amount             int    `json:"amount"`
-	MovementID         int    `json:"movement_id"`
-	OrganizationUnitID int    `json:"organization_unit_id"`
+	ID                 int     `json:"id"`
+	Year               string  `json:"year"`
+	Title              string  `json:"title"`
+	Description        string  `json:"description"`
+	Exception          bool    `json:"exception"`
+	Amount             int     `json:"amount"`
+	NetPrice           float32 `json:"net_price"`
+	VatPercentage      int     `json:"vat_percentage"`
+	StockID            int     `json:"stock_id"`
+	MovementID         int     `json:"movement_id"`
+	OrganizationUnitID int     `json:"organization_unit_id"`
 }
 
 type GetMovementArticleResponseMS struct {

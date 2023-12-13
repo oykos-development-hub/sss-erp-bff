@@ -148,6 +148,9 @@ var OrderListProcurementAvailableArticlesType = graphql.NewObject(graphql.Object
 		"unit": &graphql.Field{
 			Type: graphql.String,
 		},
+		"year": &graphql.Field{
+			Type: graphql.String,
+		},
 		"available": &graphql.Field{
 			Type: graphql.Int,
 		},

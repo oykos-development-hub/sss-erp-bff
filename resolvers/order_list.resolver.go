@@ -616,23 +616,47 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 		orderList.Description = data.Description
 	}
 
-	input := dto.GetOrderProcurementArticleInput{
-		OrderID: &orderList.Id,
-	}
-
-	articles, err := getOrderProcurementArticles(&input)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
 		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 	if status != "Receive" {
-		for _, article := range articles.Data {
-			if article.ArticleId != 0 {
-				currentArticle, err := getProcurementArticle(article.ArticleId)
+		if orderList.GroupOfArticlesID != nil && *orderList.GroupOfArticlesID != 0 {
+			for _, article := range data.Articles {
+				orderArticle, err := getOrderProcurementArticleByID(article.Id)
+
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+
+				orderArticle.NetPrice = article.NetPrice
+				orderArticle.VatPercentage = article.VatPercentage
+
+				stock, _, _ := getStock(&dto.StockFilter{
+					Year:               &orderArticle.Year,
+					Title:              &orderArticle.Title,
+					Description:        &orderArticle.Description,
+					NetPrice:           &orderArticle.NetPrice,
+					VatPercentage:      &orderArticle.VatPercentage,
+					OrganizationUnitID: organizationUnitID})
+
+				err = addOnStock(stock, *orderArticle, *organizationUnitID)
+
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+			}
+		} else {
+			orderArticles, err := getOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{
+				OrderID: &orderList.Id,
+			})
+
+			if err != nil {
+				return shared.HandleAPIError(err)
+			}
+
+			for _, orderArticle := range orderArticles.Data {
+				currentArticle, err := getProcurementArticle(orderArticle.ArticleId)
 
 				if err != nil {
 					return shared.HandleAPIError(err)
@@ -644,47 +668,27 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 					return shared.HandleAPIError(err)
 				}
 
-				article.Title = currentArticle.Title
-				article.Description = currentArticle.Description
-				article.NetPrice = currentArticle.NetPrice
-				article.VatPercentage = vatPercentageInt
-			}
+				stockArticle, _, err := getStock(&dto.StockFilter{
+					Title:              &currentArticle.Title,
+					Year:               &orderArticle.Year,
+					OrganizationUnitID: organizationUnitID,
+				})
 
-			stock, _, _ := getStock(&dto.StockFilter{
-				Year:               &article.Year,
-				Title:              &article.Title,
-				Description:        &article.Description,
-				OrganizationUnitID: organizationUnitID})
-
-			if len(stock) == 0 {
-				input := dto.MovementArticle{
-					Amount:             article.Amount,
-					Year:               article.Year,
-					Description:        article.Description,
-					Title:              article.Title,
-					NetPrice:           article.NetPrice,
-					VatPercentage:      article.VatPercentage,
-					OrganizationUnitID: *organizationUnitID,
-				}
-
-				if orderList.GroupOfArticlesID != nil && *orderList.GroupOfArticlesID != 0 {
-					input.Exception = true
-				} else {
-					input.Exception = false
-				}
-
-				err = createStock(input)
 				if err != nil {
 					return shared.HandleAPIError(err)
 				}
-			} else {
-				stock[0].Amount += article.Amount
-				err = updateStock(stock[0])
+
+				orderArticle.Title = currentArticle.Title
+				orderArticle.Description = currentArticle.Description
+				orderArticle.NetPrice = currentArticle.NetPrice
+				orderArticle.VatPercentage = vatPercentageInt
+
+				err = addOnStock(stockArticle, orderArticle, *organizationUnitID)
+
 				if err != nil {
 					return shared.HandleAPIError(err)
 				}
 			}
-
 		}
 	}
 
@@ -1148,5 +1152,43 @@ func deleteFile(id int) error {
 		return err
 	}
 
+	return nil
+}
+
+func getOrderProcurementArticleByID(id int) (*structs.OrderProcurementArticleItem, error) {
+	res := &dto.GetOrderProcurementArticleResponseMS{}
+	_, err := shared.MakeAPIRequest("GET", config.ORDER_PROCUREMENT_ARTICLES_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func addOnStock(stock []structs.StockArticle, article structs.OrderProcurementArticleItem, organizationUnitID int) error {
+
+	if len(stock) == 0 {
+		input := dto.MovementArticle{
+			Amount:             article.Amount,
+			Year:               article.Year,
+			Description:        article.Description,
+			Title:              article.Title,
+			NetPrice:           article.NetPrice,
+			VatPercentage:      article.VatPercentage,
+			OrganizationUnitID: organizationUnitID,
+			Exception:          true,
+		}
+
+		err := createStock(input)
+		if err != nil {
+			return err
+		}
+	} else {
+		stock[0].Amount += article.Amount
+		err := updateStock(stock[0])
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

@@ -16,6 +16,11 @@ import (
 var BasicInventoryDispatchOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
 	var items []*dto.InventoryDispatchResponse
 	var filter dto.InventoryDispatchFilter
+	organizationUnitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+
+	if organizationUnitID != nil {
+		filter.OrganizationUnitID = organizationUnitID
+	}
 
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		filter.ID = &id

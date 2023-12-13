@@ -19,7 +19,8 @@ type InventoryDispatchFilter struct {
 	ID                       *int    `json:"id"`
 	Type                     *string `json:"type"`
 	InventoryType            *string `json:"inventory_type"`
-	SourceOrganizationUnitID *int    `json:"source_organiation_unit_id"`
+	SourceOrganizationUnitID *int    `json:"source_organization_unit_id"`
+	OrganizationUnitID       *int    `json:"organization_unit_id"`
 	Accepted                 *bool   `json:"accepted"`
 	Page                     *int    `json:"page"`
 	Size                     *int    `json:"size"`

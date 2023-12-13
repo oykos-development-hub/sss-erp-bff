@@ -65,7 +65,7 @@ var LoginType = graphql.NewObject(graphql.ObjectConfig{
 			Type: EngagementType,
 		},
 		"permissions": &graphql.Field{
-			Type: graphql.NewList(PermissionType),
+			Type: graphql.NewList(GetPermissionForRoleType()),
 		},
 		"organization_units": &graphql.Field{
 			Type: graphql.NewList(OrganizationUnitParentType),

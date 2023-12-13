@@ -31,6 +31,8 @@ code_linter:
 push_to_github:
   stage: push_to_github
   image: ubuntu:latest
+  only:
+    - develop
   before_script:
     - apt-get update
     - apt-get install -y git openssh-client rsync

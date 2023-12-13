@@ -11,10 +11,6 @@ type GetUserAccountResponseMS struct {
 	Data structs.UserAccounts `json:"data"`
 }
 
-type GetUserAccountRoleResponseMS struct {
-	Data structs.UserAccountRoles `json:"data"`
-}
-
 type GetUserAccountListInput struct {
 	Page      *int              `json:"page"`
 	Size      *int              `json:"size"`

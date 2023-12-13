@@ -7,7 +7,6 @@ import (
 	"bff/structs"
 	"bff/websocketmanager"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/graphql-go/graphql"
@@ -29,16 +28,19 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		return shared.HandleAPIError(err)
 	}
 
+	roleID := int(loginRes.Data.RoleId)
+
 	httpResponseWriter := p.Context.Value((config.HttpResponseWriterKey)).(http.ResponseWriter)
 	for _, cookie := range cookies {
 		http.SetCookie(httpResponseWriter, cookie)
 	}
 
-	PermissionsType := &structs.Permissions{}
-	permissionsData, permissionsDataErr := shared.ReadJson(shared.GetDataRoot()+"/permissions_super_admin.json", PermissionsType)
-
-	if permissionsDataErr != nil {
-		fmt.Printf("Fetching permissions failed because of this error - %s.\n", permissionsDataErr)
+	permissions, err := getPermissionList(roleID)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+	if err != nil {
+		return shared.HandleAPIError(err)
 	}
 
 	userProfile, err := GetUserProfileByUserAccountID(loginRes.Data.Id)
@@ -96,7 +98,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		Status:               "success",
 		Message:              "Welcome!",
 		Id:                   userProfile.Id,
-		RoleId:               int(loginRes.Data.RoleId),
+		RoleId:               roleID,
 		FolderId:             0,
 		Email:                loginRes.Data.Email,
 		Phone:                loginRes.Data.Phone,
@@ -107,7 +109,7 @@ var LoginResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		BirthLastName:        userProfile.BirthLastName,
 		Gender:               userProfile.Gender,
 		DateOfBecomingJudge:  userProfile.DateOfBecomingJudge,
-		Permissions:          permissionsData,
+		Permissions:          permissions,
 		Contract:             contractsResItem,
 		Engagement:           engagement,
 		JobPosition:          jobPosition,

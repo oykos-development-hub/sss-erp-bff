@@ -23,7 +23,7 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 		entityStruct = &structs.UserProfiles{}
 	case "role", "roles", "user_account_role", "user_account_roles":
 		endpoint = "user_account_roles.json"
-		entityStruct = &structs.UserAccountRoles{}
+		entityStruct = &structs.Roles{}
 	case "position", "positions", "job_position", "job_positions":
 		endpoint = "job_positions.json"
 		entityStruct = &structs.JobPositions{}

@@ -155,6 +155,8 @@ func main() {
 	mutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{
+			"role_Insert":                                     fields.RoleInsertField,
+			"permissions_Update":                              fields.PermissionsUpdate,
 			"userAccount_Insert":                              fields.UserAccountInsertField,
 			"userAccount_Delete":                              fields.UserAccountDeleteField,
 			"settingsDropdown_Insert":                         fields.SettingsDropdownInsertField,
@@ -257,6 +259,9 @@ func main() {
 	query := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootQuery",
 		Fields: graphql.Fields{
+			"role_Overview":                fields.RoleOverviewField,
+			"role_Details":                 fields.RoleDetailsField,
+			"permissionsForRole":           fields.PermissionsForRoleField,
 			"login":                        fields.LoginField,
 			"logout":                       fields.LogoutField,
 			"refresh":                      fields.RefreshField,

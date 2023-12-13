@@ -181,16 +181,6 @@ func DeleteUserAccount(id int) error {
 	return nil
 }
 
-func getRole(id structs.UserRole) (*structs.UserAccountRoles, error) {
-	res := &dto.GetUserAccountRoleResponseMS{}
-	_, err := shared.MakeAPIRequest("GET", config.ROLES_ENDPOINT+"/"+strconv.Itoa(int(id)), nil, res)
-	if err != nil {
-		return nil, err
-	}
-
-	return &res.Data, nil
-}
-
 func GetLoggedInUser(token string) (*structs.UserAccounts, error) {
 	res := &dto.GetUserAccountResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.LOGGED_IN_USER_ENDPOINT, nil, res, map[string]string{"Authorization": "Bearer " + token})

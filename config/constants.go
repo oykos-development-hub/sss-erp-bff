@@ -53,6 +53,7 @@ var (
 	PIN_ENDPOINT            string
 	USER_ACCOUNTS_ENDPOINT  string
 	ROLES_ENDPOINT          string
+	PERMISSIONS_ENDPOINT    string
 	SETTINGS_ENDPOINT       string
 	SUPPLIERS_ENDPOINT      string
 	NOTIFICATIONS_ENDPOINT  string
@@ -161,6 +162,7 @@ func init() {
 	LOGOUT_ENDPOINT = CORE_MS_BASE_URL + "/users/logout"
 	REFRESH_ENDPOINT = CORE_MS_BASE_URL + "/refresh"
 	ROLES_ENDPOINT = CORE_MS_BASE_URL + "/roles"
+	PERMISSIONS_ENDPOINT = CORE_MS_BASE_URL + "/permissions"
 	PIN_ENDPOINT = CORE_MS_BASE_URL + "/users/validate-pin"
 	USER_ACCOUNTS_ENDPOINT = CORE_MS_BASE_URL + "/users"
 	SETTINGS_ENDPOINT = CORE_MS_BASE_URL + "/settings"

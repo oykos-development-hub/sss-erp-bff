@@ -4,6 +4,7 @@ import (
 	"bff/config"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -21,42 +22,58 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, fileHeader, err := r.FormFile("file")
-	if err != nil {
-		handleError(w, err, http.StatusBadRequest)
-		return
-	}
-	defer file.Close()
+	files := r.MultipartForm.File["file"]
 
-	var requestBody bytes.Buffer
-	writer := multipart.NewWriter(&requestBody)
-
-	part, err := writer.CreateFormFile("file", fileHeader.Filename)
-	if err != nil {
-		handleError(w, err, http.StatusInternalServerError)
+	if len(files) == 0 {
+		handleError(w, errors.New("you must provide files"), http.StatusBadRequest)
 		return
 	}
 
-	_, err = io.Copy(part, file)
-	if err != nil {
-		handleError(w, err, http.StatusInternalServerError)
-		return
+	for _, fileHeader := range files {
+		file, err := fileHeader.Open()
+		if err != nil {
+			handleError(w, err, http.StatusBadRequest)
+			return
+		}
+
+		defer file.Close()
+
+		var requestBody bytes.Buffer
+		writer := multipart.NewWriter(&requestBody)
+
+		part, err := writer.CreateFormFile("file", fileHeader.Filename)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		_, err = io.Copy(part, file)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		writer.Close() //mora ovako jer se iz nekog neznanog razloga ne kopira fajl kako treba
+		backendResponse, status, err := makeBackendRequest(http.MethodPost, config.FILES_ENDPOINT, &requestBody, writer.FormDataContentType())
+		if err != nil {
+			handleError(w, err, status)
+			return
+		}
+		defer backendResponse.Body.Close()
+
+		var resp FileResponseData
+
+		decoder := json.NewDecoder(backendResponse.Body)
+		if err := decoder.Decode(&resp); err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		response.Data = append(response.Data, resp.Data...)
+
 	}
 
-	writer.Close() //mora ovako jer se iz nekog neznanog razloga ne kopira fajl kako treba
-	backendResponse, status, err := makeBackendRequest(http.MethodPost, config.FILES_ENDPOINT, &requestBody, writer.FormDataContentType())
-	if err != nil {
-		handleError(w, err, status)
-		return
-	}
-	defer backendResponse.Body.Close()
-
-	decoder := json.NewDecoder(backendResponse.Body)
-	if err := decoder.Decode(&response); err != nil {
-		handleError(w, err, http.StatusInternalServerError)
-		return
-	}
-
+	response.Status = "success"
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		handleError(w, err, http.StatusInternalServerError)
@@ -69,7 +86,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
-	var response FileGetByIDResponse
+	var response SingleFileResponse
 	id := chi.URLParam(r, "id")
 
 	backendFileURL := config.FILES_ENDPOINT + "/" + id
@@ -82,11 +99,12 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	defer backendResponse.Body.Close()
 
 	response.Message = "File was successfully deleted"
+	response.Status = "success"
 	_ = MarshalAndWriteJSON(w, response)
 }
 
 func MultipleDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	var response FileGetByIDResponse
+	var response SingleFileResponse
 
 	var input MultipleDeleteFiles
 	decoder := json.NewDecoder(r.Body)
@@ -110,6 +128,7 @@ func MultipleDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer backendResponse.Body.Close()
 
+	response.Status = "success"
 	response.Message = "Files were successfully deleted"
 	_ = MarshalAndWriteJSON(w, response)
 }
@@ -133,7 +152,7 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filename := fileData.Data.Data.Name
+	filename := fileData.Data.Name
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
 
 	_, err = io.Copy(w, backendResponse.Body)
@@ -163,7 +182,7 @@ func OverviewHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filename := fileData.Data.Data.Name
+	filename := fileData.Data.Name
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
 
 	_, err = io.Copy(w, backendResponse.Body)
@@ -173,7 +192,7 @@ func OverviewHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetFileData(fileID string) (*FileGetByIDResponse, int, error) {
+func GetFileData(fileID string) (*SingleFileResponse, int, error) {
 	backendURL := fmt.Sprintf(config.FILES_ENDPOINT + "/" + fileID)
 
 	response, status, err := makeBackendRequest(http.MethodGet, backendURL, nil, "")
@@ -182,7 +201,7 @@ func GetFileData(fileID string) (*FileGetByIDResponse, int, error) {
 		return nil, status, err
 	}
 
-	var fileData FileGetByIDResponse
+	var fileData SingleFileResponse
 	decoder := json.NewDecoder(response.Body)
 	if err := decoder.Decode(&fileData); err != nil {
 		return nil, status, err

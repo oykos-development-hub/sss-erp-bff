@@ -455,6 +455,87 @@ func ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r *http.Request
 	_ = MarshalAndWriteJSON(w, response)
 }
 
+func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
+	var response ExpireInventoriesResponse
+
+	xlsFile, err := openExcelFile(r)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	sheetMap := xlsFile.GetSheetMap()
+
+	for _, sheetName := range sheetMap {
+		if sheetName != "Stavke" {
+			continue
+		}
+
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := 0
+
+		for rows.Next() {
+			if rowindex == 0 {
+				rowindex++
+				continue
+			}
+
+			cols := rows.Columns()
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			var dispatch structs.BasicInventoryAssessmentsTypesItem
+			dispatch.Type = "financial"
+			dispatch.Active = true
+
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				switch cellIndex {
+				case 0:
+					inventoryID, _ := strconv.Atoi(value)
+					dispatch.InventoryId = inventoryID
+				case 1:
+					continue
+				case 2:
+					floatValue, err := strconv.ParseFloat(value, 32)
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+					dispatch.GrossPriceDifference = float32(floatValue)
+				case 3:
+					dispatch.DateOfAssessment = &value
+				}
+			}
+
+			item, err := getInventoryItem(dispatch.InventoryId)
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			dispatch.DepreciationTypeId = item.DepreciationTypeId
+			_, err = createAssessments(&dispatch)
+
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+			}
+		}
+	}
+
+	response.Status = "success"
+	response.Message = "Inventory items was updates successfully"
+	_ = MarshalAndWriteJSON(w, response)
+}
+
 func getProcurementArticlesList(input *dto.GetProcurementArticleListInputMS) ([]*structs.PublicProcurementArticle, error) {
 	res := &dto.GetProcurementArticleListResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.ARTICLES_ENDPOINT, input, res)
@@ -473,4 +554,24 @@ func getProcurementContractArticlesList(input *dto.GetProcurementContractArticle
 	}
 
 	return res, nil
+}
+
+func getInventoryItem(id int) (*structs.BasicInventoryInsertItem, error) {
+	res := dto.GetBasicInventoryInsertItem{}
+	_, err := shared.MakeAPIRequest("GET", config.INVENTORY_ITEM_ENDOPOINT+"/"+strconv.Itoa(id), nil, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
+func createAssessments(data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error) {
+	res := &dto.AssessmentResponseMS{}
+	_, err := shared.MakeAPIRequest("POST", config.ASSESSMENTS_ENDPOINT, data, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
 }

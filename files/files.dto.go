@@ -9,6 +9,7 @@ type FileResponseData struct {
 	Data    []FileResponseDTO `json:"data"`
 	Message string            `json:"message"`
 	Error   string            `json:"error"`
+	Status  string            `json:"status"`
 }
 
 type FileResponse struct {
@@ -16,15 +17,10 @@ type FileResponse struct {
 	Status string            `json:"status"`
 }
 
-type FileGetByIDResponse struct {
-	Data    *SingleFileResponse `json:"data"`
-	Message string              `json:"message"`
-	Error   string              `json:"error"`
-}
-
 type SingleFileResponse struct {
-	Data   *FileResponseDTO `json:"data"`
-	Status string           `json:"status"`
+	Data    *FileResponseDTO `json:"data"`
+	Message string           `json:"message"`
+	Status  string           `json:"status"`
 }
 
 type FileResponseDTO struct {
@@ -61,10 +57,18 @@ type ProcurementArticleResponse struct {
 	Error   string                             `json:"error"`
 }
 
+type ExpireInventoriesResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Error   string `json:"error"`
+}
+
 type MultipleDeleteFiles struct {
-	Files []int `json:"files"`
+	Files  []int  `json:"files"`
+	Status string `json:"status"`
 }
 
 type errorResponse struct {
 	Message string `json:"message"`
+	Status  string `json:"status"`
 }

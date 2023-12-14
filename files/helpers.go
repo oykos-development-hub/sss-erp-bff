@@ -54,7 +54,9 @@ func openExcelFile(r *http.Request) (*excelize.File, error) {
 func handleError(w http.ResponseWriter, err error, statusCode int) {
 	log.Printf("Error: %s - %v", err.Error(), err)
 	w.WriteHeader(statusCode)
-	_ = MarshalAndWriteJSON(w, errorResponse{Message: err.Error()})
+	_ = MarshalAndWriteJSON(w, errorResponse{
+		Message: err.Error(),
+		Status:  "failed"})
 }
 
 func makeBackendRequest(method, url string, body io.Reader, contentType string) (*http.Response, int, error) {

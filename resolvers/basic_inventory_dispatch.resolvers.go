@@ -5,6 +5,8 @@ import (
 	"bff/dto"
 	"bff/shared"
 	"bff/structs"
+	"bff/websocketmanager"
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -105,6 +107,11 @@ var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (i
 			return shared.HandleAPIError(err)
 		}
 
+		err = sendInventoryDispatchNotification(params.Context, itemRes.SourceOrganizationUnitId, itemRes.TargetOrganizationUnitId)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
 		response.Message = "You created this item!"
 		items, err = buildInventoryDispatchResponse(itemRes)
 
@@ -116,6 +123,32 @@ var BasicInventoryDispatchInsertResolver = func(params graphql.ResolveParams) (i
 
 	response.Item = items
 	return response, nil
+}
+
+func sendInventoryDispatchNotification(ctx context.Context, sourceOrganizationUnitID int, targetOrganziationUnitID int) error {
+	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	sourceOrganizationUnit, _ := getOrganizationUnitById(sourceOrganizationUnitID)
+	employees, _ := getEmployeesOfOrganizationUnit(targetOrganziationUnitID)
+	for _, employee := range employees {
+		userAccount, _ := GetUserAccountById(employee.UserAccountId)
+		if userAccount.RoleId == structs.UserRoleManagerOJ {
+			_, err := websocketmanager.CreateNotification(&structs.Notifications{
+				Content:     "Kreiran je revers. Potrebno je da ga odobrite ili odbijete.",
+				Module:      "Javne nabavke",
+				FromUserID:  loggedInUser.Id,
+				ToUserID:    userAccount.Id,
+				FromContent: "Menadžer organizacione jedinice - " + sourceOrganizationUnit.Title,
+				Path:        "/inventory/movable-inventory/receive-inventory",
+				Data:        nil,
+				IsRead:      false,
+			})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 var BasicInventoryDispatchDeleteResolver = func(params graphql.ResolveParams) (interface{}, error) {

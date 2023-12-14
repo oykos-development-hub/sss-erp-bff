@@ -129,16 +129,44 @@ func sendInventoryDispatchNotification(ctx context.Context, sourceOrganizationUn
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	sourceOrganizationUnit, _ := getOrganizationUnitById(sourceOrganizationUnitID)
 	employees, _ := getEmployeesOfOrganizationUnit(targetOrganziationUnitID)
+
 	for _, employee := range employees {
 		userAccount, _ := GetUserAccountById(employee.UserAccountId)
 		if userAccount.RoleId == structs.UserRoleManagerOJ {
 			_, err := websocketmanager.CreateNotification(&structs.Notifications{
 				Content:     "Kreiran je revers. Potrebno je da ga odobrite ili odbijete.",
-				Module:      "Javne nabavke",
+				Module:      "Osnovna sredstva",
 				FromUserID:  loggedInUser.Id,
 				ToUserID:    userAccount.Id,
 				FromContent: "Menadžer organizacione jedinice - " + sourceOrganizationUnit.Title,
 				Path:        "/inventory/movable-inventory/receive-inventory",
+				Data:        nil,
+				IsRead:      false,
+			})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func sendInventoryDispatchAcceptNotification(ctx context.Context, sourceOrganizationUnitID int, targetOrganziationUnitID int) error {
+	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetOrganizationUnit, _ := getOrganizationUnitById(targetOrganziationUnitID)
+	employees, _ := getEmployeesOfOrganizationUnit(sourceOrganizationUnitID)
+
+	for _, employee := range employees {
+		userAccount, _ := GetUserAccountById(employee.UserAccountId)
+		if userAccount.RoleId == structs.UserRoleManagerOJ {
+			_, err := websocketmanager.CreateNotification(&structs.Notifications{
+				Content:     "Revers je prihvaćen.",
+				Module:      "Osnovna sredstva",
+				FromUserID:  loggedInUser.Id,
+				ToUserID:    userAccount.Id,
+				FromContent: "Menadžer organizacione jedinice - " + targetOrganizationUnit.Title,
+				Path:        "/inventory/movable-inventory",
 				Data:        nil,
 				IsRead:      false,
 			})
@@ -219,6 +247,11 @@ var BasicInventoryDispatchAcceptResolver = func(params graphql.ResolveParams) (i
 	currentDate := time.Now()
 	dispatch.Date = currentDate.Format("2006-01-02T15:04:05.999999Z07:00")
 	_, err = updateDispatchItem(dispatch.Id, dispatch)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	err = sendInventoryDispatchAcceptNotification(params.Context, dispatch.SourceOrganizationUnitId, dispatch.TargetOrganizationUnitId)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}

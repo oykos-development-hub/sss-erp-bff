@@ -152,16 +152,24 @@ func sendInventoryDispatchNotification(ctx context.Context, sourceOrganizationUn
 	return nil
 }
 
-func sendInventoryDispatchAcceptNotification(ctx context.Context, sourceOrganizationUnitID int, targetOrganziationUnitID int) error {
+func createInventoryDispatchApprovalnotification(ctx context.Context, sourceOrganizationUnitID int, targetOrganziationUnitID int, isAccepted bool) error {
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	targetOrganizationUnit, _ := getOrganizationUnitById(targetOrganziationUnitID)
 	employees, _ := getEmployeesOfOrganizationUnit(sourceOrganizationUnitID)
+
+	var content string
+
+	if isAccepted {
+		content = "Revers je prihvaćen."
+	} else {
+		content = "Revers je obijen."
+	}
 
 	for _, employee := range employees {
 		userAccount, _ := GetUserAccountById(employee.UserAccountId)
 		if userAccount.RoleId == structs.UserRoleManagerOJ {
 			_, err := websocketmanager.CreateNotification(&structs.Notifications{
-				Content:     "Revers je prihvaćen.",
+				Content:     content,
 				Module:      "Osnovna sredstva",
 				FromUserID:  loggedInUser.Id,
 				ToUserID:    userAccount.Id,
@@ -197,6 +205,11 @@ var BasicInventoryDispatchDeleteResolver = func(params graphql.ResolveParams) (i
 	}
 
 	err = deleteInventoryDispatch(itemId)
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	err = createInventoryDispatchApprovalnotification(params.Context, dispatch.SourceOrganizationUnitId, dispatch.TargetOrganizationUnitId, false)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
@@ -251,7 +264,7 @@ var BasicInventoryDispatchAcceptResolver = func(params graphql.ResolveParams) (i
 		return shared.HandleAPIError(err)
 	}
 
-	err = sendInventoryDispatchAcceptNotification(params.Context, dispatch.SourceOrganizationUnitId, dispatch.TargetOrganizationUnitId)
+	err = createInventoryDispatchApprovalnotification(params.Context, dispatch.SourceOrganizationUnitId, dispatch.TargetOrganizationUnitId, true)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}

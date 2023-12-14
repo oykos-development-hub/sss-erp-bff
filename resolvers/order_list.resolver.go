@@ -631,6 +631,12 @@ var OrderListReceiveResolver = func(params graphql.ResolveParams) (interface{}, 
 				orderArticle.NetPrice = article.NetPrice
 				orderArticle.VatPercentage = article.VatPercentage
 
+				_, err = updateOrderProcurementArticle(orderArticle)
+
+				if err != nil {
+					return shared.HandleAPIError(err)
+				}
+
 				stock, _, _ := getStock(&dto.StockFilter{
 					Year:               &orderArticle.Year,
 					Title:              &orderArticle.Title,
@@ -1159,6 +1165,16 @@ func deleteFile(id int) error {
 func getOrderProcurementArticleByID(id int) (*structs.OrderProcurementArticleItem, error) {
 	res := &dto.GetOrderProcurementArticleResponseMS{}
 	_, err := shared.MakeAPIRequest("GET", config.ORDER_PROCUREMENT_ARTICLES_ENDPOINT+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func updateOrderProcurementArticle(item *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error) {
+	res := &dto.GetOrderProcurementArticleResponseMS{}
+	_, err := shared.MakeAPIRequest("PUT", config.ORDER_PROCUREMENT_ARTICLES_ENDPOINT+"/"+strconv.Itoa(item.Id), item, res)
 	if err != nil {
 		return nil, err
 	}

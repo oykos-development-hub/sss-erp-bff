@@ -297,7 +297,9 @@ func ReadArticlesDonationHandler(w http.ResponseWriter, r *http.Request) {
 				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
-
+			if len(cols) == 0 {
+				break
+			}
 			var article structs.PublicProcurementArticle
 			for cellIndex, cellValue := range cols {
 				value := cellValue

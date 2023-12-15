@@ -139,11 +139,6 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	page := 1
 	size := 10
 
-	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-	if !ok || organizationUnitID == nil {
-		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
-	}
-
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		filter.ID = &id
 	}
@@ -187,11 +182,19 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 		status = st
 	}
 
-	filter.OrganizationUnitID = organizationUnitID
+	if organizationUnitId, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitId != 0 {
+		filter.OrganizationUnitID = &organizationUnitId
+	}
+
 	basicInventoryData, err := getAllInventoryItem(filter)
 
 	if err != nil {
 		return shared.HandleAPIError(err)
+	}
+
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || organizationUnitID == nil {
+		return shared.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	for _, item := range basicInventoryData.Data {

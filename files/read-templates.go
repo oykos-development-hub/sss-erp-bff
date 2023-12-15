@@ -260,7 +260,7 @@ func ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ReadArticlesDonationHandler(w http.ResponseWriter, r *http.Request) {
-	var response ProcurementArticleResponse
+	var response DonationArticleResponse
 
 	xlsFile, err := openExcelFile(r)
 
@@ -269,7 +269,7 @@ func ReadArticlesDonationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var articles []structs.PublicProcurementArticle
+	var articles []structs.ReadArticlesDonation
 
 	sheetMap := xlsFile.GetSheetMap()
 
@@ -300,11 +300,14 @@ func ReadArticlesDonationHandler(w http.ResponseWriter, r *http.Request) {
 			if len(cols) == 0 {
 				break
 			}
-			var article structs.PublicProcurementArticle
+			var article structs.ReadArticlesDonation
 			for cellIndex, cellValue := range cols {
 				value := cellValue
 				switch cellIndex {
 				case 0:
+					if value == "" {
+						break
+					}
 					article.Title = value
 				case 1:
 					if value == "" {
@@ -317,11 +320,22 @@ func ReadArticlesDonationHandler(w http.ResponseWriter, r *http.Request) {
 						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
-					article.NetPrice = float32(floatValue)
+					article.GrossPrice = float32(floatValue)
+				case 2:
+					if value == "" {
+						break
+					}
+					article.SerialNumber = value
+				case 3:
 
+					article.Description = value
 				}
+
 			}
-			articles = append(articles, article)
+			if article.SerialNumber != "" {
+				articles = append(articles, article)
+			}
+
 		}
 	}
 	response.Data = articles

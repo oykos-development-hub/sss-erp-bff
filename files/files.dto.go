@@ -57,6 +57,13 @@ type ProcurementArticleResponse struct {
 	Error   string                             `json:"error"`
 }
 
+type DonationArticleResponse struct {
+	Data    []structs.ReadArticlesDonation `json:"data"`
+	Status  string                         `json:"status"`
+	Message string                         `json:"message"`
+	Error   string                         `json:"error"`
+}
+
 type ExpireInventoriesResponse struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`

@@ -116,6 +116,7 @@ func buildAssessmentResponse(item *structs.BasicInventoryAssessmentsTypesItem) (
 		InventoryId:          item.InventoryId,
 		DepreciationType:     settingDropdownDepreciationTypeId,
 		UserProfile:          userDropdown,
+		ResidualPrice:        item.ResidualPrice,
 		GrossPriceNew:        item.GrossPriceNew,
 		GrossPriceDifference: item.GrossPriceDifference,
 		Active:               item.Active,

@@ -32,6 +32,9 @@ var BasicInventoryAssessmentsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"gross_price_difference": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"residual_price": &graphql.Field{
+			Type: graphql.Float,
+		},
 		"date_of_assessment": &graphql.Field{
 			Type: graphql.String,
 		},

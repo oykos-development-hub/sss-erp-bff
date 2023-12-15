@@ -6,6 +6,8 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+	"errors"
+
 	"fmt"
 	"strconv"
 	"time"
@@ -19,6 +21,7 @@ var ReportValueClassInventoryResolver = func(params graphql.ResolveParams) (inte
 	}
 	var report []dto.ReportValueClassInventoryItem
 	classTypes, err := getDropdownSettings(&input)
+
 	var (
 		sumClassGrossPriceAllItem         float32
 		sumClassPurchaseGrossPriceAllItem float32
@@ -211,7 +214,10 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 				continue
 			}
 		}
-		items = append(items, resItem)
+
+		if status == "Otpisan" || resItem.Active {
+			items = append(items, resItem)
+		}
 		if len(items) >= page*size {
 			break
 		}
@@ -286,6 +292,20 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
 		return shared.HandleAPIError(err)
+	}
+
+	responseItem, isSuccess, typeErr, err := checkInsertInventoryData(data)
+
+	if err != nil {
+		return shared.HandleAPIError(err)
+	}
+
+	if !isSuccess {
+		if typeErr == 1 {
+			return shared.HandleAPIError(errors.New("Serijski broj artikla " + responseItem.Title + " već postoji!"))
+		} else {
+			return shared.HandleAPIError(errors.New("Inventarski broj artikla " + responseItem.Title + " već postoji!"))
+		}
 	}
 
 	for _, item := range data {
@@ -566,7 +586,7 @@ func buildInventoryResponse(item *structs.BasicInventoryInsertItem, organization
 		}
 	}
 	if !item.Active {
-		status = "Deaktiviran"
+		status = "Otpisan"
 	}
 
 	realEstateStruct := &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{}
@@ -739,6 +759,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	assessments, _ := getMyInventoryAssessments(item.Id)
 	depreciationTypeId := 0
 	var grossPrice float32
+	var residualPrice *float32
 	indexAssessments := 0
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
 	for i, assessment := range assessments {
@@ -747,6 +768,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 			if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
 				depreciationTypeId = assessmentResponse.DepreciationType.Id
 				grossPrice = assessmentResponse.GrossPriceDifference
+				residualPrice = assessmentResponse.ResidualPrice
 			} else {
 				indexAssessments++
 			}
@@ -867,6 +889,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		Amount:                       item.Amount,
 		NetPrice:                     item.NetPrice,
 		GrossPrice:                   grossPrice,
+		ResidualPrice:                residualPrice,
 		PurchaseGrossPrice:           item.GrossPrice,
 		Description:                  item.Description,
 		DateOfPurchase:               item.DateOfPurchase,
@@ -928,4 +951,48 @@ func getDispatchItemByInventoryID(id int) ([]*structs.BasicInventoryDispatchItem
 	}
 
 	return res1.Data, nil
+}
+
+func checkInsertInventoryData(input []structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, bool, int, error) {
+	inventoryMap := make(map[string]bool)
+	serialMap := make(map[string]bool)
+
+	for _, item := range input {
+		if serialMap[item.SerialNumber] {
+			return &item, false, 1, nil
+		}
+		if inventoryMap[item.InventoryNumber] {
+			return &item, false, 2, nil
+		}
+
+		inventoryMap[item.InventoryNumber] = true
+		serialMap[item.SerialNumber] = true
+	}
+
+	for _, item := range input {
+		inventoryItem, err := getAllInventoryItem(dto.InventoryItemFilter{
+			SerialNumber: &item.SerialNumber,
+		})
+
+		if err != nil {
+			return nil, false, 0, err
+		}
+
+		if len(inventoryItem.Data) != 0 {
+			return &item, false, 1, nil
+		}
+
+		inventoryItem, err = getAllInventoryItem(dto.InventoryItemFilter{
+			InventoryNumber: &item.InventoryNumber,
+		})
+
+		if err != nil {
+			return nil, false, 0, err
+		}
+
+		if len(inventoryItem.Data) != 0 {
+			return &item, false, 2, nil
+		}
+	}
+	return nil, true, 0, nil
 }

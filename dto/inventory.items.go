@@ -28,6 +28,8 @@ type InventoryItemFilter struct {
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 	ContractId         *int    `json:"contract_id "`
 	ArticleId          *int    `json:"article_id"`
+	SerialNumber       *string `json:"serial_number"`
+	InventoryNumber    *string `json:"inventory_number"`
 	Page               *int    `json:"page"`
 	Size               *int    `json:"size"`
 }
@@ -45,6 +47,7 @@ type BasicInventoryResponseListItem struct {
 	InventoryNumber        string                                                         `json:"inventory_number"`
 	PurchaseGrossPrice     float32                                                        `json:"purchase_gross_price"`
 	GrossPrice             float32                                                        `json:"gross_price"`
+	ResidualPrice          *float32                                                       `json:"residual_price"`
 	DateOfPurchase         string                                                         `json:"date_of_purchase"`
 	DateOfAssessments      string                                                         `json:"date_of_assessments"`
 	Status                 string                                                         `json:"status"`
@@ -87,6 +90,7 @@ type BasicInventoryResponseItem struct {
 	NetPrice                     float32                                                        `json:"net_price"`
 	PurchaseGrossPrice           float32                                                        `json:"purchase_gross_price"`
 	GrossPrice                   float32                                                        `json:"gross_price"`
+	ResidualPrice                *float32                                                       `json:"residual_price"`
 	Description                  string                                                         `json:"description"`
 	DateOfPurchase               string                                                         `json:"date_of_purchase"`
 	Source                       string                                                         `json:"source"`

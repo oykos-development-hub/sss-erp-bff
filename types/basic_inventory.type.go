@@ -77,6 +77,9 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"gross_price": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"residual_price": &graphql.Field{
+			Type: graphql.Float,
+		},
 		"purchase_gross_price": &graphql.Field{
 			Type: graphql.Float,
 		},

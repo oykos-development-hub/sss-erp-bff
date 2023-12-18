@@ -398,6 +398,10 @@ var BasicInventoryDeactivateResolver = func(params graphql.ResolveParams) (inter
 			item.Inactive = &inactive
 		}
 
+		if fileId, ok := params.Args["file_id"].(int); ok && fileId != 0 {
+			item.DeactivationFileID = fileId
+		}
+
 		_, err = updateInventoryItem(id, item)
 		if err != nil {
 			return shared.HandleAPIError(err)
@@ -864,6 +868,27 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		} else {
 			item.SourceType = "PS2"
 		}
+	}
+
+	if !item.Active {
+
+		file, err := getFileByID(item.DeactivationFileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		fileDropdown := dto.FileDropdownSimple{
+			Id:   file.ID,
+			Type: *file.Type,
+			Name: file.Name,
+		}
+
+		movements = append(movements, &dto.InventoryDispatchResponse{
+			DeactivationDescription: item.DeactivationDescription,
+			DateOfDeactivation:      *item.Inactive,
+			DeactivationFile:        fileDropdown,
+		})
 	}
 
 	res := dto.BasicInventoryResponseItem{

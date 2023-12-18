@@ -56,6 +56,15 @@ var BasicInventoryDispatchItemType = graphql.NewObject(graphql.ObjectConfig{
 		"file": &graphql.Field{
 			Type: FileDropdownItemType,
 		},
+		"deactivation_description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"deactivation_file_id": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
+		"date_of_deactivation": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })
 

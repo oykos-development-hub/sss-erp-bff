@@ -27,21 +27,24 @@ type InventoryDispatchFilter struct {
 }
 
 type InventoryDispatchResponse struct {
-	ID                     int                          `json:"id"`
-	Type                   string                       `json:"type"`
-	SourceUserProfile      DropdownSimple               `json:"source_user_profile"`
-	TargetUserProfile      DropdownSimple               `json:"target_user_profile"`
-	SourceOrganizationUnit DropdownSimple               `json:"source_organization_unit"`
-	TargetOrganizationUnit DropdownSimple               `json:"target_organization_unit"`
-	Office                 DropdownSimple               `json:"office"`
-	IsAccepted             bool                         `json:"is_accepted"`
-	SerialNumber           string                       `json:"serial_number"`
-	DispatchDescription    string                       `json:"dispatch_description"`
-	InventoryType          string                       `json:"inventory_type"`
-	Inventory              []BasicInventoryResponseItem `json:"inventory"`
-	Date                   string                       `json:"date"`
-	City                   string                       `json:"city"`
-	CreatedAt              string                       `json:"created_at"`
-	UpdatedAt              string                       `json:"updated_at"`
-	File                   FileDropdownSimple           `json:"file"`
+	ID                      int                          `json:"id"`
+	Type                    string                       `json:"type"`
+	SourceUserProfile       DropdownSimple               `json:"source_user_profile"`
+	TargetUserProfile       DropdownSimple               `json:"target_user_profile"`
+	SourceOrganizationUnit  DropdownSimple               `json:"source_organization_unit"`
+	TargetOrganizationUnit  DropdownSimple               `json:"target_organization_unit"`
+	Office                  DropdownSimple               `json:"office"`
+	IsAccepted              bool                         `json:"is_accepted"`
+	SerialNumber            string                       `json:"serial_number"`
+	DispatchDescription     string                       `json:"dispatch_description"`
+	InventoryType           string                       `json:"inventory_type"`
+	Inventory               []BasicInventoryResponseItem `json:"inventory"`
+	Date                    string                       `json:"date"`
+	City                    string                       `json:"city"`
+	CreatedAt               string                       `json:"created_at"`
+	UpdatedAt               string                       `json:"updated_at"`
+	File                    FileDropdownSimple           `json:"file"`
+	DeactivationDescription string                       `json:"deactivation_description"`
+	DeactivationFile        FileDropdownSimple           `json:"deactivation_file_id"`
+	DateOfDeactivation      string                       `json:"date_of_deactivation"`
 }

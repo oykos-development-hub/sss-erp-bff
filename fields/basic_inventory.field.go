@@ -65,6 +65,9 @@ var BasicInventoryDeactivateField = &graphql.Field{
 		"deactivation_description": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
+		"file_id": &graphql.ArgumentConfig{
+			Type: graphql.Int,
+		},
 	},
 	Resolve: resolvers.BasicInventoryDeactivateResolver,
 }

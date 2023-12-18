@@ -78,6 +78,7 @@ type BasicInventoryInsertItem struct {
 	CreatedAt                    string                         `json:"created_at"`
 	UpdatedAt                    string                         `json:"updated_at"`
 	InvoiceFileId                int                            `json:"invoice_file_id"`
+	DeactivationFileID           int                            `json:"deactivation_file_id"`
 	FileId                       int                            `json:"file_id"`
 	ContractId                   int                            `json:"contract_id"`
 	ContractArticleId            int                            `json:"contract_article_id"`

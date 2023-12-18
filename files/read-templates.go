@@ -9,7 +9,6 @@ import (
 	"math"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 func ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
@@ -527,21 +526,21 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 				case 3:
 					floatValue, err := strconv.ParseFloat(value, 32)
 					if err != nil {
-						handleError(w, err, http.StatusInternalServerError)
-						return
+						outerloop = false
 					}
 					dispatch.GrossPriceDifference = float32(floatValue)
 				case 4:
-					inputFormat := "01-02-06"
-					outputFormat := "2006-01-02T15:04:05Z"
-
-					parsedDate, err := time.Parse(inputFormat, value)
+					estimatedDuration, err := strconv.Atoi(value)
 					if err != nil {
-						break
+						outerloop = false
 					}
-
-					formattedDate := parsedDate.Format(outputFormat)
-					dispatch.DateOfAssessment = &formattedDate
+					dispatch.EstimatedDuration = estimatedDuration
+				case 5:
+					residualPrice, err := strconv.ParseFloat(value, 32)
+					if err != nil {
+						continue
+					}
+					*dispatch.ResidualPrice = float32(residualPrice)
 				}
 			}
 

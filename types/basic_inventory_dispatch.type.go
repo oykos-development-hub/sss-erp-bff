@@ -8,6 +8,9 @@ var BasicInventoryDispatchItemType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"dispatch_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"type": &graphql.Field{
 			Type: graphql.String,
 		},

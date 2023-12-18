@@ -527,8 +527,7 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 				case 4:
 					floatValue, err := strconv.ParseFloat(value, 32)
 					if err != nil {
-						handleError(w, err, http.StatusInternalServerError)
-						return
+						outerloop = false
 					}
 					dispatch.GrossPriceDifference = float32(floatValue)
 				case 5:

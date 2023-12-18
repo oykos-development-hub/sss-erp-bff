@@ -28,6 +28,7 @@ type InventoryDispatchFilter struct {
 
 type InventoryDispatchResponse struct {
 	ID                      int                          `json:"id"`
+	DispatchID              int                          `json:"dispatch_id"`
 	Type                    string                       `json:"type"`
 	SourceUserProfile       DropdownSimple               `json:"source_user_profile"`
 	TargetUserProfile       DropdownSimple               `json:"target_user_profile"`

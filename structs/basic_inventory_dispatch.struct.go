@@ -2,6 +2,7 @@ package structs
 
 type BasicInventoryDispatchItem struct {
 	Id                       int    `json:"id"`
+	DispatchID               int    `json:"dispatch_id"`
 	SourceUserProfileId      int    `json:"source_user_profile_id"`
 	TargetUserProfileId      int    `json:"target_user_profile_id"`
 	SourceOrganizationUnitId int    `json:"source_organization_unit_id"`

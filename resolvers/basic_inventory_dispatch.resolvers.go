@@ -383,6 +383,7 @@ func buildInventoryDispatchResponse(item *structs.BasicInventoryDispatchItem) (*
 
 	res := dto.InventoryDispatchResponse{
 		ID:                     item.Id,
+		DispatchID:             item.DispatchID,
 		Type:                   item.Type,
 		SerialNumber:           item.SerialNumber,
 		Office:                 settingDropdownOfficeId,

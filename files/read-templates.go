@@ -9,6 +9,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
@@ -484,10 +485,6 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 	sheetMap := xlsFile.GetSheetMap()
 
 	for _, sheetName := range sheetMap {
-		if sheetName != "Stavke" {
-			continue
-		}
-
 		rows, err := xlsFile.Rows(sheetName)
 		if err != nil {
 			handleError(w, err, http.StatusInternalServerError)
@@ -497,6 +494,7 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 		rowindex := 0
 
 		for rows.Next() {
+			outerloop := true
 			if rowindex == 0 {
 				rowindex++
 				continue
@@ -516,20 +514,39 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 				value := cellValue
 				switch cellIndex {
 				case 0:
-					inventoryID, _ := strconv.Atoi(value)
-					dispatch.InventoryId = inventoryID
-				case 1:
-					continue
-				case 2:
+					inventory, err := getAllInventoryItem(dto.InventoryItemFilter{InventoryNumber: &value})
+
+					if err != nil || len(inventory.Data) == 0 {
+						response.Message += "Inventarski broj " + value + " nije validan, ili ne postoji artikal sa tim brojem. "
+						outerloop = false
+						continue
+					}
+
+					dispatch.InventoryId = inventory.Data[0].Id
+
+				case 3:
 					floatValue, err := strconv.ParseFloat(value, 32)
 					if err != nil {
 						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
 					dispatch.GrossPriceDifference = float32(floatValue)
-				case 3:
-					dispatch.DateOfAssessment = &value
+				case 4:
+					inputFormat := "01-02-06"
+					outputFormat := "2006-01-02T15:04:05Z"
+
+					parsedDate, err := time.Parse(inputFormat, value)
+					if err != nil {
+						break
+					}
+
+					formattedDate := parsedDate.Format(outputFormat)
+					dispatch.DateOfAssessment = &formattedDate
 				}
+			}
+
+			if !outerloop {
+				break
 			}
 
 			item, err := getInventoryItem(dispatch.InventoryId)
@@ -548,7 +565,6 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.Status = "success"
-	response.Message = "Inventory items was updates successfully"
 	_ = MarshalAndWriteJSON(w, response)
 }
 

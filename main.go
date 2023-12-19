@@ -415,6 +415,7 @@ func main() {
 	filesRouter.Post("/read-articles-donation", files.ReadArticlesDonationHandler)
 	filesRouter.Post("/read-articles-simple-procurement", files.ReadArticlesSimpleProcurementHandler)
 	filesRouter.Post("/read-expire-inventories", files.ReadExpireInventoriesHandler)
+	filesRouter.Post("/read-expire-imovable-inventories", files.ReadExpireImovableInventoriesHandler)
 
 	filesHandler := errorHandlerMiddleware(
 		corsHandler(

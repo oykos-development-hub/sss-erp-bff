@@ -513,15 +513,21 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 			var dispatch structs.BasicInventoryAssessmentsTypesItem
 			dispatch.Type = "financial"
 			dispatch.Active = true
+			var inventoryNumber string
 
 			for cellIndex, cellValue := range cols {
 				value := cellValue
 				switch cellIndex {
 				case 0:
+					inventoryNumber = value
+
 					inventory, err := getAllInventoryItem(dto.InventoryItemFilter{InventoryNumber: &value})
 
 					if err != nil || len(inventory.Data) == 0 {
 						response.Message += "Inventarski broj " + value + " nije validan, ili ne postoji artikal sa tim brojem. "
+						outerloop = false
+						continue
+					} else if inventoryNumber == "" {
 						outerloop = false
 						continue
 					}
@@ -550,8 +556,130 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
+			if inventoryNumber == "" && dispatch.InventoryId == 0 && dispatch.EstimatedDuration == 0 && dispatch.GrossPriceDifference == 0 && dispatch.ResidualPrice == nil {
+				response.Status = "success"
+				_ = MarshalAndWriteJSON(w, response)
+				return
+			}
+
 			if !outerloop {
-				break
+				continue
+			}
+
+			item, err := getInventoryItem(dispatch.InventoryId)
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+			now := time.Now()
+			nowString := now.Format("2006-01-02T00:00:00Z")
+			dispatch.DateOfAssessment = &nowString
+			dispatch.DepreciationTypeId = item.DepreciationTypeId
+			_, err = createAssessments(&dispatch)
+
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+			}
+		}
+	}
+
+	response.Status = "success"
+	_ = MarshalAndWriteJSON(w, response)
+}
+
+func ReadExpireImovableInventoriesHandler(w http.ResponseWriter, r *http.Request) {
+	var response ExpireInventoriesResponse
+
+	xlsFile, err := openExcelFile(r)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	sheetMap := xlsFile.GetSheetMap()
+
+	for _, sheetName := range sheetMap {
+		if sheetName != "Stavke" {
+			break
+		}
+
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := 0
+
+		for rows.Next() {
+			outerloop := true
+			if rowindex == 0 {
+				rowindex++
+				continue
+			}
+
+			cols := rows.Columns()
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			var dispatch structs.BasicInventoryAssessmentsTypesItem
+			dispatch.Type = "financial"
+			dispatch.Active = true
+			var location string
+
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				switch cellIndex {
+				case 0:
+					location = value
+
+					if value == "" {
+						continue
+					}
+
+					inventory, err := getAllInventoryItem(dto.InventoryItemFilter{Location: &value})
+
+					if err != nil || len(inventory.Data) == 0 {
+						response.Message += "Lokacija " + value + " nije validna ili ne postoji sredstvo na toj lokaciji. "
+						outerloop = false
+						continue
+					}
+
+					dispatch.InventoryId = inventory.Data[0].Id
+
+				case 4:
+					floatValue, err := strconv.ParseFloat(value, 32)
+					if err != nil {
+						outerloop = false
+					}
+					dispatch.GrossPriceDifference = float32(floatValue)
+				case 5:
+					estimatedDuration, err := strconv.Atoi(value)
+					if err != nil {
+						outerloop = false
+					}
+					dispatch.EstimatedDuration = estimatedDuration
+				case 6:
+					residualPrice, err := strconv.ParseFloat(value, 32)
+					if err != nil {
+						continue
+					}
+					residualPriceFloat := float32(residualPrice)
+					dispatch.ResidualPrice = &residualPriceFloat
+				}
+			}
+
+			if location == "" && dispatch.InventoryId == 0 && dispatch.EstimatedDuration == 0 && dispatch.GrossPriceDifference == 0 && dispatch.ResidualPrice == nil {
+				response.Status = "success"
+				_ = MarshalAndWriteJSON(w, response)
+				return
+			}
+
+			if !outerloop {
+				continue
 			}
 
 			item, err := getInventoryItem(dispatch.InventoryId)

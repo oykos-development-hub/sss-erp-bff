@@ -28,7 +28,8 @@ var OrganizationUnitsField = &graphql.Field{
 			Type: graphql.Int,
 		},
 		"settings": &graphql.ArgumentConfig{
-			Type: graphql.Boolean,
+			Type:         graphql.Boolean,
+			DefaultValue: false,
 		},
 	},
 	Resolve: resolvers.OrganizationUnitsResolver,

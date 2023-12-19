@@ -30,6 +30,7 @@ type InventoryItemFilter struct {
 	ArticleId          *int    `json:"article_id"`
 	SerialNumber       *string `json:"serial_number"`
 	InventoryNumber    *string `json:"inventory_number"`
+	Location           *string `json:"location"`
 	Page               *int    `json:"page"`
 	Size               *int    `json:"size"`
 }

@@ -765,6 +765,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	var grossPrice float32
 	var residualPrice *float32
 	indexAssessments := 0
+	lifetimeOfAssessmentInMonths := 0
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
 	for i, assessment := range assessments {
 		if assessment.Id != 0 {
@@ -773,6 +774,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 				depreciationTypeId = assessmentResponse.DepreciationType.Id
 				grossPrice = assessmentResponse.GrossPriceDifference
 				residualPrice = assessmentResponse.ResidualPrice
+				lifetimeOfAssessmentInMonths = assessmentResponse.EstimatedDuration
 			} else {
 				indexAssessments++
 			}
@@ -781,7 +783,6 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 	}
 
 	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
-	lifetimeOfAssessmentInMonths := 0
 	var amortizationValue float32
 	depreciationRate := 100
 	if depreciationTypeId != 0 {

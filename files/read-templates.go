@@ -260,6 +260,79 @@ func ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	_ = MarshalAndWriteJSON(w, response)
 }
 
+func ReadArticlesInventoryHandler(w http.ResponseWriter, r *http.Request) {
+	var response DonationArticleResponse
+
+	xlsFile, err := openExcelFile(r)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	var articles []structs.ReadArticlesDonation
+
+	sheetMap := xlsFile.GetSheetMap()
+
+	for _, sheetName := range sheetMap {
+		if sheetName != "Stavke" {
+			continue
+		}
+
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := 0
+
+		for rows.Next() {
+			if rowindex == 0 {
+				rowindex++
+				continue
+			}
+
+			cols := rows.Columns()
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+			if len(cols) == 0 {
+				break
+			}
+			var article structs.ReadArticlesDonation
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				switch cellIndex {
+				case 0:
+					if value == "" {
+						break
+					}
+					article.Title = value
+				case 1:
+					if value == "" {
+						break
+					}
+					article.SerialNumber = value
+				case 2:
+
+					article.Description = value
+				}
+
+			}
+			if article.SerialNumber != "" {
+				articles = append(articles, article)
+			}
+
+		}
+	}
+	response.Data = articles
+	response.Status = "success"
+	response.Message = "File was read successfuly"
+	_ = MarshalAndWriteJSON(w, response)
+}
+
 func ReadArticlesDonationHandler(w http.ResponseWriter, r *http.Request) {
 	var response DonationArticleResponse
 

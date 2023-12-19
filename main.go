@@ -412,6 +412,7 @@ func main() {
 
 	filesRouter.Post("/read-articles-price", files.ReadArticlesPriceHandler)
 	filesRouter.Post("/read-articles", files.ReadArticlesHandler)
+	filesRouter.Post("/read-articles-inventory", files.ReadArticlesInventoryHandler)
 	filesRouter.Post("/read-articles-donation", files.ReadArticlesDonationHandler)
 	filesRouter.Post("/read-articles-simple-procurement", files.ReadArticlesSimpleProcurementHandler)
 	filesRouter.Post("/read-expire-inventories", files.ReadExpireInventoriesHandler)

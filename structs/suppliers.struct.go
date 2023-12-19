@@ -3,6 +3,7 @@ package structs
 type Suppliers struct {
 	Id           int    `json:"id"`
 	Title        string `json:"title"`
+	Entity       string `json:"entity"`
 	Abbreviation string `json:"abbreviation"`
 	OfficialId   string `json:"official_id"`
 	Address      string `json:"address"`

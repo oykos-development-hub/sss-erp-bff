@@ -14,6 +14,9 @@ var SuppliersItemType = graphql.NewObject(graphql.ObjectConfig{
 		"abbreviation": &graphql.Field{
 			Type: graphql.String,
 		},
+		"entity": &graphql.Field{
+			Type: graphql.String,
+		},
 		"official_id": &graphql.Field{
 			Type: graphql.String,
 		},

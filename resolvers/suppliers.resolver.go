@@ -16,6 +16,7 @@ var SuppliersOverviewResolver = func(params graphql.ResolveParams) (interface{},
 	page := params.Args["page"]
 	size := params.Args["size"]
 	search := params.Args["search"]
+	entity := params.Args["entity"]
 
 	if shared.IsInteger(id) && id.(int) > 0 {
 		supplier, err := getSupplier(id.(int))
@@ -35,6 +36,12 @@ var SuppliersOverviewResolver = func(params graphql.ResolveParams) (interface{},
 		if search != nil {
 			searchValue := search.(string)
 			input.Search = &searchValue
+
+		}
+
+		if entity != nil {
+			entityValue := entity.(string)
+			input.Entity = &entityValue
 
 		}
 		if page != nil && size != nil {

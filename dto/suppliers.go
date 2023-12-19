@@ -7,6 +7,7 @@ type GetSupplierResponseMS struct {
 }
 
 type GetSupplierInputMS struct {
+	Entity *string `json:"entity"`
 	Search *string `json:"search"`
 	Page   *int    `json:"page"`
 	Size   *int    `json:"size"`

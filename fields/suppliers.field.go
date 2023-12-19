@@ -4,6 +4,7 @@ import (
 	"bff/mutations"
 	"bff/resolvers"
 	"bff/types"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -22,6 +23,9 @@ var SuppliersOverviewField = &graphql.Field{
 		},
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
+		},
+		"entity": &graphql.ArgumentConfig{
+			Type: graphql.String,
 		},
 	},
 	Resolve: resolvers.SuppliersOverviewResolver,

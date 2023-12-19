@@ -485,6 +485,10 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 	sheetMap := xlsFile.GetSheetMap()
 
 	for _, sheetName := range sheetMap {
+		if sheetName != "Stavke" {
+			break
+		}
+
 		rows, err := xlsFile.Rows(sheetName)
 		if err != nil {
 			handleError(w, err, http.StatusInternalServerError)
@@ -531,34 +535,18 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 					}
 					dispatch.GrossPriceDifference = float32(floatValue)
 				case 5:
-					inputFormat := "01-02-06"
-					outputFormat := "2006-01-02T15:04:05Z"
-
-					parsedDate, err := time.Parse(inputFormat, value)
-					if err != nil {
-						break
-					}
-
-					formattedDate := parsedDate.Format(outputFormat)
-					dispatch.DateOfAssessment = &formattedDate
-				case 6:
-					floatValue, err := strconv.ParseFloat(value, 32)
-					if err != nil {
-						outerloop = false
-					}
-					dispatch.GrossPriceDifference = float32(floatValue)
-				case 7:
 					estimatedDuration, err := strconv.Atoi(value)
 					if err != nil {
 						outerloop = false
 					}
 					dispatch.EstimatedDuration = estimatedDuration
-				case 8:
+				case 6:
 					residualPrice, err := strconv.ParseFloat(value, 32)
 					if err != nil {
 						continue
 					}
-					*dispatch.ResidualPrice = float32(residualPrice)
+					residualPriceFloat := float32(residualPrice)
+					dispatch.ResidualPrice = &residualPriceFloat
 				}
 			}
 
@@ -571,7 +559,9 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
-
+			now := time.Now()
+			nowString := now.Format("2006-01-02T00:00:00Z")
+			dispatch.DateOfAssessment = &nowString
 			dispatch.DepreciationTypeId = item.DepreciationTypeId
 			_, err = createAssessments(&dispatch)
 

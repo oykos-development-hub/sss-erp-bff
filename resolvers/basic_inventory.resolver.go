@@ -791,7 +791,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		if settings != nil {
 			settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
 			num, _ := strconv.Atoi(settings.Value)
-			if num > -1 {
+			if num > -1 && lifetimeOfAssessmentInMonths == 0 {
 				lifetimeOfAssessmentInMonths = num
 			}
 			if lifetimeOfAssessmentInMonths > 0 {

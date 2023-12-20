@@ -139,8 +139,14 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	var status string
 	sourceTypeStr := ""
 	var expireFilter bool
-	page := 1
-	size := 10
+
+	if page, ok := params.Args["page"].(int); ok && page != 0 {
+		filter.Page = &page
+	}
+
+	if size, ok := params.Args["size"].(int); ok && size != 0 {
+		filter.Size = &size
+	}
 
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		filter.ID = &id
@@ -171,14 +177,6 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 	}
 	if expire, ok := params.Args["expire"].(bool); ok && expire {
 		expireFilter = expire
-	}
-
-	if pageProp, ok := params.Args["page"].(int); ok && pageProp != 0 {
-		page = pageProp
-	}
-
-	if sizeProp, ok := params.Args["size"].(int); ok && sizeProp != 0 {
-		size = sizeProp
 	}
 
 	if st, ok := params.Args["status"].(string); ok && st != "" {
@@ -218,19 +216,17 @@ var BasicInventoryOverviewResolver = func(params graphql.ResolveParams) (interfa
 		if status == "Otpisan" || resItem.Active {
 			items = append(items, resItem)
 		}
-		if len(items) >= page*size {
-			break
-		}
+
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
 	}
-	indexPagination := (page - 1) * size
+
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 		Total:   basicInventoryData.Total,
-		Items:   items[indexPagination:],
+		Items:   items,
 	}, nil
 }
 

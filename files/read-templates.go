@@ -558,7 +558,7 @@ func ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Request) {
 	sheetMap := xlsFile.GetSheetMap()
 
 	for _, sheetName := range sheetMap {
-		if sheetName != "Stavke" {
+		if sheetName != "Stavke" && sheetName != "Sheet1" {
 			break
 		}
 

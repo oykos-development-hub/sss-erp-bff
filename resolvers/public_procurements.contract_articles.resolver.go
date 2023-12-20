@@ -61,9 +61,9 @@ var PublicProcurementContractArticlesOrganizationUnitResponseItem = func(params 
 		}
 		resItem.Amount = returnAmountOrganizationUnitArticle(procurement.Articles, article.Id)
 		inventors, err := getAllInventoryItem(dto.InventoryItemFilter{
-			ContractId:         &contract_id,
-			OrganizationUnitID: &organizationUnitID,
-			ArticleId:          &article.Id,
+			ContractId: &contract_id,
+			//	OrganizationUnitID: &organizationUnitID,
+			ArticleId: &article.Id,
 		})
 		resItem.Amount = resItem.Amount - inventors.Total
 		if err != nil {

@@ -16,61 +16,80 @@ var PublicProcurementContractArticlesOrganizationUnitResponseItem = func(params 
 	items := []dto.ProcurementContractArticlesResponseItem{}
 	var total int
 
-	contract_id := params.Args["contract_id"].(int)
-	organizationUnitID := params.Args["organization_unit_id"].(int)
-	visibilityType := params.Args["visibility_type"]
+	contractId := params.Args["contract_id"].(int)
 
-	ctx := params.Context
+	articles, err := getProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{ContractID: &contractId})
 
-	input := dto.GetProcurementContractArticlesInput{}
-
-	if contract_id > 0 {
-		contractID := contract_id
-		input.ContractID = &contractID
-	}
-
-	contractsRes, err := getProcurementContract(contract_id)
 	if err != nil {
 		return shared.HandleAPIError(err)
 	}
 
-	procurementRes, err := getProcurementItem(contractsRes.PublicProcurementId)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
+	for _, article := range articles.Data {
+		articlesInOrgUnit, err := getProcurementOUArticleList(&dto.GetProcurementOrganizationUnitArticleListInputDTO{
+			ArticleID: &article.PublicProcurementArticleId})
 
-	procurement, err := buildProcurementItemResponseItem(params.Context, procurementRes, &organizationUnitID, &dto.GetProcurementArticleListInputMS{})
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-
-	contractsArticlesRes, err := getProcurementContractArticlesList(&input)
-	if err != nil {
-		return shared.HandleAPIError(err)
-	}
-	total = contractsArticlesRes.Total
-
-	for _, contractArticle := range contractsArticlesRes.Data {
-		article, _ := getProcurementArticle(contractArticle.PublicProcurementArticleId)
-		if visibilityType != nil && visibilityType.(int) != int(article.VisibilityType) {
-			continue
-		}
-		resItem, err := buildProcurementContractArticlesOptionsResponseItem(ctx, contractArticle)
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		resItem.Amount = returnAmountOrganizationUnitArticle(procurement.Articles, article.Id)
+		amount := 0
+		for _, articleInOrgUnit := range articlesInOrgUnit {
+			amount += articleInOrgUnit.Amount
+		}
+
 		inventors, err := getAllInventoryItem(dto.InventoryItemFilter{
-			ContractId: &contract_id,
-			//	OrganizationUnitID: &organizationUnitID,
-			ArticleId: &article.Id,
+			ArticleId: &article.PublicProcurementArticleId,
 		})
-		resItem.Amount = resItem.Amount - inventors.Total
+
+		amount = amount - inventors.Total
 		if err != nil {
 			return shared.HandleAPIError(err)
 		}
-		if resItem.Amount > 0 {
-			items = append(items, *resItem)
+
+		articleData, err := getProcurementArticle(article.PublicProcurementArticleId)
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		articleOverages, err := getProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
+			ContractArticleID: &articleData.Id,
+		})
+
+		if err != nil {
+			return shared.HandleAPIError(err)
+		}
+
+		var total int
+
+		for _, overage := range articleOverages {
+			total += overage.Amount
+		}
+
+		amount += total
+		vatPercentageFloat, err := strconv.ParseFloat(articleData.VatPercentage, 32)
+
+		var grossValue float32
+
+		if err != nil {
+			grossValue = 0
+		} else {
+			grossValue = article.NetValue + article.NetValue*float32(vatPercentageFloat)/100
+		}
+
+		if amount > 0 {
+			items = append(items, dto.ProcurementContractArticlesResponseItem{
+				Id: article.PublicProcurementArticleId,
+				Article: dto.DropdownProcurementArticle{
+					Id:            articleData.Id,
+					Title:         articleData.Title,
+					VatPercentage: articleData.VatPercentage,
+					Description:   articleData.Description,
+				},
+				Amount:       amount,
+				NetValue:     articleData.NetPrice,
+				GrossValue:   grossValue,
+				OverageList:  articleOverages,
+				OverageTotal: total,
+			})
 		}
 	}
 
@@ -80,18 +99,6 @@ var PublicProcurementContractArticlesOrganizationUnitResponseItem = func(params 
 		Items:   items,
 		Total:   total,
 	}, nil
-}
-
-func returnAmountOrganizationUnitArticle(articles []*dto.ProcurementArticleResponseItem, articleID int) int {
-	amount := 0
-	for _, article := range articles {
-		if article.Id == articleID {
-			amount = article.Amount
-			break
-		}
-	}
-
-	return amount
 }
 
 var PublicProcurementContractArticlesOverviewResolver = func(params graphql.ResolveParams) (interface{}, error) {
@@ -276,72 +283,6 @@ var PublicProcurementContractArticleOverageDeleteResolver = func(params graphql.
 		Status:  "success",
 		Message: "You deleted this item!",
 	}, nil
-}
-
-func buildProcurementContractArticlesOptionsResponseItem(context context.Context, item *structs.PublicProcurementContractArticle) (*dto.ProcurementContractArticlesResponseItem, error) {
-	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int)
-
-	article, err := getProcurementArticle(item.PublicProcurementArticleId)
-	if err != nil {
-		return nil, err
-	}
-	articleResItem, err := buildProcurementArticleResponseItem(context, article, organizationUnitID)
-	if err != nil {
-		return nil, err
-	}
-	contract, err := getProcurementContract(item.PublicProcurementContractId)
-	if err != nil {
-		return nil, err
-	}
-
-	overageInput := dto.GetProcurementContractArticleOverageInput{ContractArticleID: &item.Id}
-	if organizationUnitID != nil && *organizationUnitID != 0 {
-		overageInput.OrganizationUnitID = organizationUnitID
-	}
-	overageList, err := getProcurementContractArticleOverageList(&overageInput)
-	if err != nil {
-		return nil, err
-	}
-
-	overageTotal := 0
-	for _, item := range overageList {
-		overageTotal += item.Amount
-	}
-
-	//GrossValue := float32(math.Round(float64(*contract.GrossValue/float32(articleResItem.TotalAmount))*100) / 100)
-	vatPercentage, err := strconv.ParseFloat(article.VatPercentage, 64)
-	if err != nil {
-		return nil, err
-	}
-	GrossValue := item.NetValue + item.NetValue*float32(vatPercentage)/100
-	res := dto.ProcurementContractArticlesResponseItem{
-		Id: item.Id,
-		Article: dto.DropdownProcurementArticle{
-			Id:            article.Id,
-			Title:         article.Title,
-			VatPercentage: article.VatPercentage,
-			Description:   article.Description,
-		},
-		Contract: dto.DropdownSimple{
-			Id:    contract.Id,
-			Title: contract.SerialNumber,
-		},
-		UsedArticles: item.UsedArticles,
-		OverageList:  overageList,
-		OverageTotal: overageTotal,
-		NetValue:     item.NetValue,
-		GrossValue:   GrossValue,
-		CreatedAt:    item.CreatedAt,
-		UpdatedAt:    item.UpdatedAt,
-	}
-
-	if organizationUnitID != nil && *organizationUnitID == 0 {
-		res.Amount = articleResItem.TotalAmount
-	} else {
-		res.Amount = articleResItem.Amount
-	}
-
-	return &res, nil
 }
 
 func buildProcurementContractArticlesResponseItem(context context.Context, item *structs.PublicProcurementContractArticle) (*dto.ProcurementContractArticlesResponseItem, error) {

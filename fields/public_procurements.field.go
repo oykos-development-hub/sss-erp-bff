@@ -334,13 +334,7 @@ var PublicProcurementContractOrganizationUnitArticlesOverviewField = &graphql.Fi
 	Description: "Returns a data of Public Procurement Contract articles",
 	Args: graphql.FieldConfigArgument{
 		"contract_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"organization_unit_id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
-		"visibility_type": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 	Resolve: resolvers.PublicProcurementContractArticlesOrganizationUnitResponseItem,

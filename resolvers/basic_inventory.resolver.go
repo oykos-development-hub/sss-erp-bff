@@ -867,7 +867,7 @@ func buildInventoryItemResponse(item *structs.BasicInventoryInsertItem, organiza
 		}
 	}
 
-	if !item.Active {
+	if !item.Active && item.DeactivationFileID != 0 {
 
 		file, err := getFileByID(item.DeactivationFileID)
 

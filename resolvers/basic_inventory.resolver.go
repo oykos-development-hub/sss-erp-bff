@@ -296,7 +296,7 @@ var BasicInventoryInsertResolver = func(params graphql.ResolveParams) (interface
 		return shared.HandleAPIError(err)
 	}
 
-	if !isSuccess {
+	if !isSuccess && len(data) > 0 && data[0].Type == "movable" && data[0].Id != 0 {
 		if typeErr == 1 {
 			return shared.HandleAPIError(errors.New("Serijski broj artikla " + responseItem.Title + " već postoji!"))
 		} else {

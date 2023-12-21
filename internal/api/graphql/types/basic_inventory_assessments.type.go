@@ -20,6 +20,9 @@ var BasicInventoryAssessmentsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"estimated_duration": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"depreciation_rate": &graphql.Field{
+			Type: graphql.String,
+		},
 		"depreciation_type": &graphql.Field{
 			Type: DropdownItemType,
 		},

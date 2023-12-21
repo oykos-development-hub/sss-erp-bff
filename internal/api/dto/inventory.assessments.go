@@ -21,6 +21,7 @@ type BasicInventoryResponseAssessment struct {
 	EstimatedDuration    int            `json:"estimated_duration"`
 	Active               bool           `json:"active"`
 	ResidualPrice        *float32       `json:"residual_price"`
+	DepreciationRate     string         `json:"depreciation_rate"`
 	DepreciationType     DropdownSimple `json:"depreciation_type"`
 	UserProfile          DropdownSimple `json:"user_profile"`
 	GrossPriceNew        float32        `json:"gross_price_new"`

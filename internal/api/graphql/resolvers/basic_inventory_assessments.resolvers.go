@@ -7,6 +7,7 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
@@ -84,11 +85,15 @@ func buildAssessmentResponse(
 		userDropdown.Title = user.FirstName + " " + user.LastName
 	}
 
+	depreciationRateInt := 100 / item.EstimatedDuration
+	depreciationRateString := strconv.Itoa(depreciationRateInt) + "%"
+
 	res := dto.BasicInventoryResponseAssessment{
 		Id:                   item.Id,
 		Type:                 item.Type,
 		InventoryId:          item.InventoryId,
 		DepreciationType:     settingDropdownDepreciationTypeId,
+		DepreciationRate:     depreciationRateString,
 		UserProfile:          userDropdown,
 		ResidualPrice:        item.ResidualPrice,
 		GrossPriceNew:        item.GrossPriceNew,

@@ -265,9 +265,11 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 		item.TargetOrganizationUnitId = dispatch.TargetOrganizationUnitId
 
-		_, err = r.Repo.UpdateInventoryItem(item.Id, item)
-		if err != nil {
-			return errors.HandleAPIError(err)
+		if item.TargetOrganizationUnitId != 0 {
+			_, err = r.Repo.UpdateInventoryItem(item.Id, item)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
 		}
 	}
 	currentDate := time.Now()

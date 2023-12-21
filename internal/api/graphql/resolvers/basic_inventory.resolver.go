@@ -203,7 +203,16 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 			continue
 		}
 		if expireFilter {
-			check, _ := isCurrentOrExpiredDate(resItem.DateOfPurchase)
+			date, err := time.Parse("2006-01-02T00:00:00Z", resItem.DateOfAssessments)
+			if err != nil {
+				continue
+			}
+
+			dateOfExpiry := date.AddDate(resItem.EstimatedDuration, 0, 0)
+
+			newDateStr := dateOfExpiry.Format("2006-01-02T00:00:00Z")
+
+			check, _ := isCurrentOrExpiredDate(newDateStr)
 			if !check {
 				continue
 			}
@@ -478,6 +487,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	assessments, _ := r.GetMyInventoryAssessments(item.Id)
 	var grossPrice float32
 	var dateOfAssessment string
+	var estimatedDuration int
 	hasAssessments := false
 	indexAssessments := 0
 	if len(assessments) > 0 {
@@ -488,33 +498,10 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 				if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
 					grossPrice = assessmentResponse.GrossPriceDifference
 					dateOfAssessment = *assessmentResponse.DateOfAssessment
-
-					settings, _ := r.GetDropdownSettingById(assessments[i].DepreciationTypeId)
-
-					if settings != nil {
-						settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
-						if settings.Value != "" {
-							//Racunanje Datuma Obračun amortizacije (get DateOfPurchase and add value from Depreciation and return Calculation of depreciation)
-							layout := time.RFC3339Nano
-							t, _ := time.Parse(layout, item.DateOfPurchase)
-							valueDepreciation, err := strconv.Atoi(settings.Value)
-							if err == nil {
-								year := t.Year() + valueDepreciation
-								newDate := time.Date(year, t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), t.Location())
-								item.DateOfPurchase = newDate.Format(layout)
-							}
-
-						}
-
-					}
-					break
-				} else {
-					indexAssessments++
+					estimatedDuration = assessmentResponse.EstimatedDuration
 				}
 			}
-
 		}
-
 	}
 
 	status := "Nezadužen"
@@ -598,6 +585,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		Title:                  item.Title,
 		Location:               item.Location,
 		InventoryNumber:        item.InventoryNumber,
+		EstimatedDuration:      estimatedDuration,
 		GrossPrice:             grossPrice,
 		PurchaseGrossPrice:     item.GrossPrice,
 		DateOfPurchase:         item.DateOfPurchase,
@@ -728,19 +716,19 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	depreciationTypeId := 0
 	var grossPrice float32
 	var residualPrice *float32
+	var dateOfAssessment string
 	indexAssessments := 0
 	lifetimeOfAssessmentInMonths := 0
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
 	for i, assessment := range assessments {
 		if assessment.Id != 0 {
 			assessmentResponse, _ := buildAssessmentResponse(r, &assessment)
-			if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
+			if assessmentResponse != nil && i == 0 && assessmentResponse.Type == "financial" {
 				depreciationTypeId = assessmentResponse.DepreciationType.Id
 				grossPrice = assessmentResponse.GrossPriceDifference
 				residualPrice = assessmentResponse.ResidualPrice
 				lifetimeOfAssessmentInMonths = assessmentResponse.EstimatedDuration
-			} else {
-				indexAssessments++
+				dateOfAssessment = *assessmentResponse.DateOfAssessment
 			}
 			assessmentsResponse = append(assessmentsResponse, assessmentResponse)
 		}
@@ -890,7 +878,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		Active:                       item.Active,
 		Inactive:                     item.Inactive,
 		DeactivationDescription:      item.DeactivationDescription,
-		DateOfAssessment:             item.DateOfAssessment,
+		DateOfAssessment:             &dateOfAssessment,
 		PriceOfAssessment:            item.PriceOfAssessment,
 		LifetimeOfAssessmentInMonths: lifetimeOfAssessmentInMonths,
 		DepreciationRate:             fmt.Sprintf("%d%%", depreciationRate),

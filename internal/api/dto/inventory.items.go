@@ -51,6 +51,7 @@ type BasicInventoryResponseListItem struct {
 	ResidualPrice          *float32                                                       `json:"residual_price"`
 	DateOfPurchase         string                                                         `json:"date_of_purchase"`
 	DateOfAssessments      string                                                         `json:"date_of_assessments"`
+	EstimatedDuration      int                                                            `json:"estimated_duration"`
 	Status                 string                                                         `json:"status"`
 	SourceType             string                                                         `json:"source_type"`
 	HasAssessments         bool                                                           `json:"has_assessments"`

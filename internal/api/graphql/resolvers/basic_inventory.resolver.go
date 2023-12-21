@@ -137,6 +137,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	var items []*dto.BasicInventoryResponseListItem
 	var filter dto.InventoryItemFilter
 	var status string
+	var typeOfImmovable string
 	sourceTypeStr := ""
 	var expireFilter bool
 
@@ -175,6 +176,10 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		status = st
 	}
 
+	if typeImmovement, ok := params.Args["type_of_immovable_property"].(string); ok && typeImmovement != "" {
+		typeOfImmovable = typeImmovement
+	}
+
 	if organizationUnitId, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitId != 0 {
 		filter.OrganizationUnitID = &organizationUnitId
 	}
@@ -205,7 +210,9 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		}
 
 		if status == "Otpisan" || resItem.Active {
-			items = append(items, resItem)
+			if typeOfImmovable != "" && resItem.RealEstate.TypeId == typeOfImmovable {
+				items = append(items, resItem)
+			}
 		}
 
 		if err != nil {
@@ -453,13 +460,10 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 			if assessment.Id != 0 {
 				assessmentResponse, _ := buildAssessmentResponse(r, &assessment)
 				if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
-
 					grossPrice = assessmentResponse.GrossPriceDifference
-					if len(assessments) > 1 {
-						dateOfAssessment = *assessmentResponse.DateOfAssessment
-					}
+					dateOfAssessment = *assessmentResponse.DateOfAssessment
 
-					settings, _ := r.GetDropdownSettingById(assessments[0].DepreciationTypeId)
+					settings, _ := r.GetDropdownSettingById(assessments[i].DepreciationTypeId)
 
 					if settings != nil {
 						settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}

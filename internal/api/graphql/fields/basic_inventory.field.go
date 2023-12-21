@@ -39,6 +39,9 @@ func (f *Field) BasicInventoryOverviewField() *graphql.Field {
 			"source_type": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"type_of_immovable_property": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
 			"depreciation_type_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},

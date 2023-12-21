@@ -47,6 +47,7 @@ type BasicInventoryInsertItem struct {
 	ClassTypeId                  int                            `json:"class_type_id"`
 	DepreciationTypeId           int                            `json:"depreciation_type_id"`
 	SupplierId                   int                            `json:"supplier_id"`
+	DonorId                      int                            `json:"donor_id"`
 	RealEstate                   *BasicInventoryRealEstatesItem `json:"real_estate"`
 	RealEstateId                 int                            `json:"real_estate_id"`
 	SerialNumber                 string                         `json:"serial_number"`

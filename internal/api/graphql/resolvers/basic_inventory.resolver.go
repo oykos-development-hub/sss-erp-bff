@@ -610,6 +610,19 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			suppliersDropdown = dto.DropdownSimple{Id: suppliers.Id, Title: suppliers.Title}
 		}
 	}
+
+	donorDropdown := dto.DropdownSimple{}
+	if item.DonorId != 0 {
+		donor, err := r.GetSupplier(item.DonorId)
+		if err != nil {
+			return nil, err
+		}
+
+		if donor != nil {
+			donorDropdown = dto.DropdownSimple{Id: donor.Id, Title: donor.Title}
+		}
+	}
+
 	settingDropdownOfficeId := dto.DropdownSimple{}
 	if item.OfficeId != 0 {
 		settings, err := r.GetDropdownSettingById(item.OfficeId)
@@ -821,6 +834,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		ClassType:                    settingDropdownClassType,
 		DepreciationType:             settingDropdownDepreciationTypeId,
 		Supplier:                     suppliersDropdown,
+		Donor:                        donorDropdown,
 		RealEstate:                   realEstateStruct,
 		Assessments:                  assessmentsResponse,
 		Movements:                    movements,

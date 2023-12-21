@@ -26,6 +26,9 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"supplier": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"donor": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"real_estate": &graphql.Field{
 			Type: BasicInventoryRealEstatesItemType,
 		},

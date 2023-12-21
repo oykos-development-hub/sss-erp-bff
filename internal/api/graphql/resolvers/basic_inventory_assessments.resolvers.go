@@ -113,10 +113,11 @@ func buildAssessmentResponse(
 }
 
 func calculateMonthlyConsumption(startDateStr string, annualPercentage int, initialPrice float32) float32 {
-	startDate, _ := time.Parse("2006-01-02", startDateStr)
+	startDate, _ := time.Parse("2006-01-02T00:00:00Z", startDateStr)
 	today := time.Now()
 
-	months := int(today.Sub(startDate).Hours() / 24 / 30.44)
+	monthFloat := today.Sub(startDate).Abs().Hours() / 24 / 30.44
+	months := int(monthFloat)
 
 	totalConsumption := float32(0)
 	for i := 0; i < months; i++ {

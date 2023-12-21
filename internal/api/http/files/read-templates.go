@@ -268,6 +268,35 @@ func (h *Handler) ReadArticlesInventoryHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	contractIDString := r.FormValue("contract_id")
+
+	contractID, err := strconv.Atoi(contractIDString)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	contractArticles, err := h.Repo.GetProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
+		ContractID: &contractID})
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	var articlesData []structs.PublicProcurementArticle
+
+	for _, article := range contractArticles.Data {
+		articleData, err := h.Repo.GetProcurementArticle(article.PublicProcurementArticleId)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		articlesData = append(articlesData, *articleData)
+	}
+
 	var articles []structs.ReadArticlesDonation
 
 	sheetMap := xlsFile.GetSheetMap()
@@ -320,6 +349,22 @@ func (h *Handler) ReadArticlesInventoryHandler(w http.ResponseWriter, r *http.Re
 
 			}
 			if article.SerialNumber != "" {
+
+				for _, articleData := range articlesData {
+					if articleData.Title == article.Title {
+						vatPercentageFloat, err := strconv.ParseFloat(articleData.VatPercentage, 32)
+
+						if err != nil {
+							handleError(w, err, http.StatusInternalServerError)
+							return
+						}
+
+						article.GrossPrice = articleData.NetPrice + articleData.NetPrice*float32(vatPercentageFloat)/100
+						article.ArticleID = articleData.Id
+						break
+					}
+				}
+
 				articles = append(articles, article)
 			}
 

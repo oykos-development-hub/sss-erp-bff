@@ -67,6 +67,7 @@ type ReadArticlesDonation struct {
 	GrossPrice   float32 `json:"gross_price"`
 	SerialNumber string  `json:"serial_number"`
 	Description  string  `json:"description"`
+	ArticleID    int     `json:"article_id"`
 }
 
 type PublicProcurementLimit struct {

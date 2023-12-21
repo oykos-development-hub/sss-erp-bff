@@ -4,12 +4,14 @@ import (
 	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
+	apierrors "bff/internal/api/errors"
 	"bff/internal/api/repository"
 	"bff/internal/api/websockets/notifications"
 	"bff/shared"
 	"bff/structs"
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -58,8 +60,13 @@ func (r *Resolver) BasicInventoryDispatchOverviewResolver(params graphql.Resolve
 		return errors.HandleAPIError(err)
 	}
 
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || organizationUnitID == nil {
+		return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+	}
+
 	for _, item := range data.Data {
-		resItem, err := buildInventoryDispatchResponse(r.Repo, item)
+		resItem, err := buildInventoryDispatchResponse(r.Repo, item, *organizationUnitID)
 		items = append(items, resItem)
 
 		if err != nil {
@@ -89,6 +96,11 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 		return errors.HandleAPIError(err)
 	}
 
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || organizationUnitID == nil {
+		return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+	}
+
 	if shared.IsInteger(data.Id) && data.Id != 0 {
 		itemRes, err := r.Repo.UpdateDispatchItem(data.Id, &data)
 		if err != nil {
@@ -96,7 +108,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 		}
 		response.Message = "You updated this item!"
 
-		items, err = buildInventoryDispatchResponse(r.Repo, itemRes)
+		items, err = buildInventoryDispatchResponse(r.Repo, itemRes, *organizationUnitID)
 
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -113,7 +125,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 		}
 
 		response.Message = "You created this item!"
-		items, err = buildInventoryDispatchResponse(r.Repo, itemRes)
+		items, err = buildInventoryDispatchResponse(r.Repo, itemRes, *organizationUnitID)
 
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -291,7 +303,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 }
 
-func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterface, item *structs.BasicInventoryDispatchItem) (*dto.InventoryDispatchResponse, error) {
+func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterface, item *structs.BasicInventoryDispatchItem, organizationUnitID int) (*dto.InventoryDispatchResponse, error) {
 	settings, err := repo.GetDropdownSettingById(item.OfficeId)
 	if err != nil {
 		if apiErr, ok := err.(*errors.APIError); ok && apiErr.StatusCode != 404 {
@@ -314,7 +326,7 @@ func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterf
 	}
 
 	targetUserDropdown := dto.DropdownSimple{}
-	if item.TargetUserProfileId != 0 {
+	if item.TargetUserProfileId != 0 && item.SourceOrganizationUnitId == organizationUnitID {
 		user, _ := repo.GetUserProfileById(item.TargetUserProfileId)
 
 		if user != nil {

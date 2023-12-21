@@ -832,7 +832,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			} else {
 				indexAssessments++
 			}
-			dispatch, _ := buildInventoryDispatchResponse(r, dispatchRes)
+			dispatch, _ := buildInventoryDispatchResponse(r, dispatchRes, organizationUnitID)
 			movements = append(movements, dispatch)
 		}
 	}

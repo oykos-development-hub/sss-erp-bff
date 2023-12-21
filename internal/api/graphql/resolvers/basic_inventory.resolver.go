@@ -219,10 +219,36 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 			return apierrors.HandleAPIError(err)
 		}
 	}
+
+	if page, ok := params.Args["page"].(int); ok && page != 0 {
+		filter.Page = &page
+	}
+
+	if size, ok := params.Args["size"].(int); ok && size != 0 {
+		filter.Size = &size
+	}
+
+	total := len(items)
+	if filter.Page != nil && filter.Size != nil {
+		start := (*filter.Page - 1) * *filter.Size
+		end := start + *filter.Size
+
+		if start >= len(items) {
+			items = []*dto.BasicInventoryResponseListItem{}
+		} else {
+
+			if end > len(items) {
+				end = len(items)
+			}
+
+			items = items[start:end]
+		}
+	}
+
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Total:   basicInventoryData.Total,
+		Total:   total,
 		Items:   items,
 	}, nil
 }

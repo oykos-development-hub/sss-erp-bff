@@ -297,6 +297,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 	for _, item := range data {
 		item.ArticleId = item.ContractArticleId
 		item.Active = true
+		item.OrganizationUnitId = *organizationUnitID
 		if shared.IsInteger(item.Id) && item.Id != 0 {
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
 			itemRes, err := r.Repo.UpdateInventoryItem(item.Id, &item)

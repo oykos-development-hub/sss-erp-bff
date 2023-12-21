@@ -378,8 +378,22 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 					}
 				}
 			}
+
+			depreciationType, err := r.Repo.GetDropdownSettingById(item.DepreciationTypeId)
+
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			estimatedDuration, err := strconv.Atoi(depreciationType.Value)
+
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
 			assessment := structs.BasicInventoryAssessmentsTypesItem{
+				EstimatedDuration:    estimatedDuration,
 				DepreciationTypeId:   item.DepreciationTypeId,
 				GrossPriceNew:        item.GrossPrice,
 				GrossPriceDifference: item.GrossPrice,

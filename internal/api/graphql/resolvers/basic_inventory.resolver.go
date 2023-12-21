@@ -541,8 +541,8 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 
 	if item.Type == "movable" && item.Active {
 		itemInventoryList, _ := r.GetDispatchItemByInventoryID(item.Id)
-		for _, move := range itemInventoryList {
-			dispatchRes, err := r.GetDispatchItemByID(move.DispatchId)
+		if len(itemInventoryList) > 0 {
+			dispatchRes, err := r.GetDispatchItemByID(itemInventoryList[0].DispatchId)
 			if err != nil {
 				return nil, err
 			}
@@ -556,10 +556,8 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 				} else {
 					status = "Nezaduženo"
 				}
-				break
 			}
 		}
-
 	}
 	if !item.Active {
 		status = "Otpisano"

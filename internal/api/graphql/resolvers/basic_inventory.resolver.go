@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -385,10 +386,18 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 				return apierrors.HandleAPIError(err)
 			}
 
-			estimatedDuration, err := strconv.Atoi(depreciationType.Value)
+			value, err := strconv.Atoi(depreciationType.Value)
 
 			if err != nil {
 				return apierrors.HandleAPIError(err)
+			}
+
+			var estimatedDuration int
+
+			if value != 0 {
+				estimatedDuration = 100 / value
+			} else {
+				estimatedDuration = math.MaxInt
 			}
 
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100

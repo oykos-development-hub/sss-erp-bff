@@ -491,23 +491,24 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 
 	if item.Type == "movable" && item.Active {
 		itemInventoryList, _ := r.GetDispatchItemByInventoryID(item.Id)
-		if len(itemInventoryList) > 0 {
-
-			dispatchRes, err := r.GetDispatchItemByID(itemInventoryList[0].DispatchId)
+		for _, move := range itemInventoryList {
+			dispatchRes, err := r.GetDispatchItemByID(move.DispatchId)
 			if err != nil {
 				return nil, err
 			}
-
-			switch dispatchRes.Type {
-			case "revers":
-				status = "Nezadužen"
-			case "allocation":
-				status = "Zadužen"
-			case "return":
-				status = "Nezadužen"
+			if dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID {
+				switch dispatchRes.Type {
+				case "revers":
+					status = "Revers"
+				case "allocation":
+					status = "Zadužen"
+				case "return":
+					status = "Nezadužen"
+				}
+				break
 			}
-
 		}
+
 	}
 	if !item.Active {
 		status = "Otpisan"

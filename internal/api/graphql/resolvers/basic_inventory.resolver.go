@@ -546,17 +546,16 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 			if err != nil {
 				return nil, err
 			}
-			if dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID {
-				if dispatchRes.Type == "revers" && !dispatchRes.IsAccepted {
-					status = "Poslato"
-				} else if (dispatchRes.Type == "revers" && dispatchRes.IsAccepted && item.OrganizationUnitId == organizationUnitID) || item.TargetOrganizationUnitId != 0 {
-					status = "Prihvaćeno"
-				} else if dispatchRes.Type == "allocation" {
-					status = "Zaduženo"
-				} else {
-					status = "Nezaduženo"
-				}
+			if dispatchRes.Type == "revers" && !dispatchRes.IsAccepted {
+				status = "Poslato"
+			} else if item.TargetOrganizationUnitId != 0 || (dispatchRes.Type == "revers" && dispatchRes.IsAccepted && item.OrganizationUnitId == organizationUnitID) {
+				status = "Prihvaćeno"
+			} else if dispatchRes.Type == "allocation" {
+				status = "Zaduženo"
+			} else {
+				status = "Nezaduženo"
 			}
+
 		}
 	}
 	if !item.Active {

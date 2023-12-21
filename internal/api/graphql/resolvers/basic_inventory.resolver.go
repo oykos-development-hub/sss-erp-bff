@@ -813,18 +813,17 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	status := "Nezaduženo"
 	var movements []*dto.InventoryDispatchResponse
-	indexMovements := 0
 	if len(itemInventoryList) > 0 {
 		for i, move := range itemInventoryList {
 			dispatchRes, err := r.GetDispatchItemByID(move.DispatchId)
 			if err != nil {
 				return nil, err
 			}
-			if (dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID) && i == indexMovements {
-				if dispatchRes.Type == "revers" && dispatchRes.IsAccepted {
-					status = "Prihvaćeno"
-				} else if dispatchRes.Type == "revers" {
+			if i == 0 {
+				if dispatchRes.Type == "revers" && !dispatchRes.IsAccepted {
 					status = "Poslato"
+				} else if (item.TargetOrganizationUnitId != 0 && item.TargetOrganizationUnitId != organizationUnitID) || (dispatchRes.Type == "revers" && dispatchRes.IsAccepted && item.OrganizationUnitId == organizationUnitID) {
+					status = "Prihvaćeno"
 				} else if dispatchRes.Type == "allocation" {
 					status = "Zaduženo"
 				} else {

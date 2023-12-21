@@ -134,7 +134,7 @@ func (r *Resolver) JobPositionDeleteResolver(params graphql.ResolveParams) (inte
 	itemId := params.Args["id"]
 
 	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
-		return apierrors.HandleAPIError(errors.New("You must pass the item id"))
+		return apierrors.HandleAPIError(errors.New("you must pass the item id"))
 	}
 
 	err := r.Repo.DeleteJobPositions(itemId.(int))
@@ -260,7 +260,7 @@ func (r *Resolver) JobPositionInOrganizationUnitDeleteResolver(params graphql.Re
 	itemId := params.Args["id"]
 
 	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
-		return apierrors.HandleAPIError(errors.New("You must pass the item id"))
+		return apierrors.HandleAPIError(errors.New("you must pass the item id"))
 	}
 
 	err := r.Repo.DeleteJobPositionsInOrganizationUnits(itemId.(int))

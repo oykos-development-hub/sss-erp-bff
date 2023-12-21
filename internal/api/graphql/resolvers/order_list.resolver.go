@@ -337,7 +337,7 @@ func (r *Resolver) OrderProcurementAvailableResolver(params graphql.ResolveParam
 	)
 	publicProcurementID, ok := params.Args["public_procurement_id"].(int)
 	if !ok || publicProcurementID <= 0 {
-		return apierrors.HandleAPIError(errors.New("You must pass the item procurement id"))
+		return apierrors.HandleAPIError(errors.New("you must pass the item procurement id"))
 	}
 
 	visibilityType := params.Args["visibility_type"]

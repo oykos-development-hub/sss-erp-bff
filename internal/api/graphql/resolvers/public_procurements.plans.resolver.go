@@ -478,7 +478,7 @@ func (r *Resolver) PublicProcurementPlanDeleteResolver(params graphql.ResolvePar
 	err := r.Repo.DeleteProcurementPlan(itemId)
 	if err != nil {
 		fmt.Printf("Deleting procurement plan failed because of this error - %s.\n", err)
-		return fmt.Errorf("Error deleting the id"), nil
+		return fmt.Errorf("error deleting the id"), nil
 	}
 
 	return dto.ResponseSingle{

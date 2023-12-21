@@ -589,7 +589,7 @@ func (h *Handler) ReadExpireImovableInventoriesHandler(w http.ResponseWriter, r 
 	sheetMap := xlsFile.GetSheetMap()
 
 	for _, sheetName := range sheetMap {
-		if sheetName != "Stavke" {
+		if sheetName != "Stavke" && sheetName != "Sheet1" {
 			break
 		}
 

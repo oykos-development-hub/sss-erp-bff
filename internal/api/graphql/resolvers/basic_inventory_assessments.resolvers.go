@@ -8,6 +8,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"strconv"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -88,6 +89,8 @@ func buildAssessmentResponse(
 	depreciationRateInt := 100 / item.EstimatedDuration
 	depreciationRateString := strconv.Itoa(depreciationRateInt) + "%"
 
+	grossPriceNew := calculateMonthlyConsumption(*item.DateOfAssessment, depreciationRateInt, item.GrossPriceDifference)
+
 	res := dto.BasicInventoryResponseAssessment{
 		Id:                   item.Id,
 		Type:                 item.Type,
@@ -96,7 +99,7 @@ func buildAssessmentResponse(
 		DepreciationRate:     depreciationRateString,
 		UserProfile:          userDropdown,
 		ResidualPrice:        item.ResidualPrice,
-		GrossPriceNew:        item.GrossPriceNew,
+		GrossPriceNew:        grossPriceNew,
 		GrossPriceDifference: item.GrossPriceDifference,
 		Active:               item.Active,
 		EstimatedDuration:    item.EstimatedDuration,
@@ -107,4 +110,19 @@ func buildAssessmentResponse(
 	}
 
 	return &res, nil
+}
+
+func calculateMonthlyConsumption(startDateStr string, annualPercentage int, initialPrice float32) float32 {
+	startDate, _ := time.Parse("2006-01-02", startDateStr)
+	today := time.Now()
+
+	months := int(today.Sub(startDate).Hours() / 24 / 30.44)
+
+	totalConsumption := float32(0)
+	for i := 0; i < months; i++ {
+		monthlyConsumption := initialPrice * float32(annualPercentage) / 100 / 12
+		totalConsumption += monthlyConsumption
+	}
+
+	return totalConsumption
 }

@@ -118,7 +118,7 @@ func calculateMonthlyConsumption(startDateStr string, annualPercentage int, init
 
 	endDate := startDate.AddDate(estimatedDuration, 0, 0)
 
-	if today.Before(endDate) {
+	if endDate.Before(today) {
 		return initialPrice
 	}
 

@@ -210,7 +210,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		}
 
 		if status == "Otpisan" || resItem.Active {
-			if typeOfImmovable == "" || (typeOfImmovable != "" && resItem.RealEstate.TypeId == typeOfImmovable) {
+			if len(typeOfImmovable) == 0 || (typeOfImmovable != "" && resItem.RealEstate.TypeId == typeOfImmovable) {
 				items = append(items, resItem)
 			}
 		}

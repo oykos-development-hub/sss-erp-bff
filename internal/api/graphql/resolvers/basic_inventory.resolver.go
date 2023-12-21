@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math"
 	"strconv"
 	"time"
 
@@ -397,7 +396,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 			if value != 0 {
 				estimatedDuration = 100 / value
 			} else {
-				estimatedDuration = math.MaxInt
+				estimatedDuration = 10000
 			}
 
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100

@@ -360,7 +360,7 @@ func (h *Handler) ReadArticlesInventoryHandler(w http.ResponseWriter, r *http.Re
 						}
 
 						article.GrossPrice = articleData.NetPrice + articleData.NetPrice*float32(vatPercentageFloat)/100
-						article.ArticleID = articleData.Id
+						article.ID = articleData.Id
 						break
 					}
 				}

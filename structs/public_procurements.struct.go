@@ -63,6 +63,7 @@ type PublicProcurementArticle struct {
 
 // ReadArticlesDonation
 type ReadArticlesDonation struct {
+	ID           int     `json:"id"`
 	Title        string  `json:"title"`
 	GrossPrice   float32 `json:"gross_price"`
 	SerialNumber string  `json:"serial_number"`

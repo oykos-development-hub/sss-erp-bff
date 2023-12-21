@@ -531,7 +531,7 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 					dispatch.GrossPriceDifference = float32(floatValue)
 				case 5:
 					estimatedDuration, err := strconv.Atoi(value)
-					if err != nil {
+					if err != nil && estimatedDuration > 0 {
 						outerloop = false
 					}
 					dispatch.EstimatedDuration = estimatedDuration

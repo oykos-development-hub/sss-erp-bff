@@ -89,7 +89,7 @@ func buildAssessmentResponse(
 	depreciationRateInt := 100 / item.EstimatedDuration
 	depreciationRateString := strconv.Itoa(depreciationRateInt) + "%"
 
-	grossPriceNew := calculateMonthlyConsumption(*item.DateOfAssessment, depreciationRateInt, item.GrossPriceDifference)
+	grossPriceNew := calculateMonthlyConsumption(*item.DateOfAssessment, depreciationRateInt, item.GrossPriceDifference, item.EstimatedDuration)
 
 	res := dto.BasicInventoryResponseAssessment{
 		Id:                   item.Id,
@@ -112,9 +112,15 @@ func buildAssessmentResponse(
 	return &res, nil
 }
 
-func calculateMonthlyConsumption(startDateStr string, annualPercentage int, initialPrice float32) float32 {
+func calculateMonthlyConsumption(startDateStr string, annualPercentage int, initialPrice float32, estimatedDuration int) float32 {
 	startDate, _ := time.Parse("2006-01-02T00:00:00Z", startDateStr)
 	today := time.Now()
+
+	endDate := startDate.AddDate(estimatedDuration, 0, 0)
+
+	if today.Before(endDate) {
+		return initialPrice
+	}
 
 	monthFloat := today.Sub(startDate).Abs().Hours() / 24 / 30.44
 	months := int(monthFloat)

@@ -484,11 +484,16 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	}
 
 	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
+	var depreciationType *structs.SettingsDropdown
 
-	depreciationType, err := r.GetDropdownSettingById(item.DepreciationTypeId)
+	if item.DepreciationTypeId != 0 {
+		depreciationTypeDropDown, err := r.GetDropdownSettingById(item.DepreciationTypeId)
 
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+		depreciationType.Id = depreciationTypeDropDown.Id
+		depreciationType.Title = depreciationTypeDropDown.Title
 	}
 
 	settingDropdownClassType.Id = depreciationType.Id

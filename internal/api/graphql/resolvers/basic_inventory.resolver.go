@@ -537,7 +537,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		}
 	}
 
-	status := "Nezadužen"
+	status := "Nezaduženo"
 
 	if item.Type == "movable" && item.Active {
 		itemInventoryList, _ := r.GetDispatchItemByInventoryID(item.Id)
@@ -547,13 +547,14 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 				return nil, err
 			}
 			if dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID {
-				switch dispatchRes.Type {
-				case "revers":
-					status = "Revers"
-				case "allocation":
-					status = "Zadužen"
-				case "return":
-					status = "Nezadužen"
+				if dispatchRes.Type == "revers" && dispatchRes.IsAccepted {
+					status = "Prihvaćeno"
+				} else if dispatchRes.Type == "revers" {
+					status = "Poslato"
+				} else if dispatchRes.Type == "allocation" {
+					status = "Zaduženo"
+				} else {
+					status = "Nezaduženo"
 				}
 				break
 			}
@@ -561,7 +562,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 
 	}
 	if !item.Active {
-		status = "Otpisan"
+		status = "Otpisano"
 	}
 
 	realEstateStruct := &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{}
@@ -813,7 +814,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	itemInventoryList, _ := r.GetDispatchItemByInventoryID(item.Id)
 
-	status := "Nezadužen"
+	status := "Nezaduženo"
 	var movements []*dto.InventoryDispatchResponse
 	indexMovements := 0
 	if len(itemInventoryList) > 0 {
@@ -823,13 +824,14 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 				return nil, err
 			}
 			if (dispatchRes.TargetOrganizationUnitId == organizationUnitID || dispatchRes.SourceOrganizationUnitId == organizationUnitID) && i == indexMovements {
-				switch dispatchRes.Type {
-				case "revers":
-					status = "Revers"
-				case "allocation":
-					status = "Zadužen"
-				case "return":
-					status = "Nezadužen"
+				if dispatchRes.Type == "revers" && dispatchRes.IsAccepted {
+					status = "Prihvaćeno"
+				} else if dispatchRes.Type == "revers" {
+					status = "Poslato"
+				} else if dispatchRes.Type == "allocation" {
+					status = "Zaduženo"
+				} else {
+					status = "Nezaduženo"
 				}
 			} else {
 				indexAssessments++

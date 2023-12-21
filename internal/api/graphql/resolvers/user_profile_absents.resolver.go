@@ -1,0 +1,616 @@
+package resolvers
+
+import (
+	"bff/config"
+	"bff/internal/api/dto"
+	"bff/internal/api/errors"
+	"bff/internal/api/repository"
+	"bff/shared"
+	"bff/structs"
+	"encoding/json"
+	"fmt"
+	"strconv"
+	"time"
+
+	"github.com/graphql-go/graphql"
+)
+
+const (
+	VacationTypeValue string = "vacation"
+)
+
+func (r *Resolver) UserProfileVacationResolver(params graphql.ResolveParams) (interface{}, error) {
+	userProfileId := params.Args["user_profile_id"].(int)
+
+	resolutions, err := r.Repo.GetEmployeeResolutions(userProfileId, nil)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	vacationResItemList, err := buildVacationResponseItemList(r.Repo, resolutions)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   vacationResItemList,
+	}, nil
+}
+
+func buildVacationResponseItemList(r repository.MicroserviceRepositoryInterface, items []*structs.Resolution) (resItemList []*dto.Vacation, err error) {
+	for _, item := range items {
+		resItem, err := buildVacationResItem(r, item)
+		if err != nil {
+			return nil, err
+		}
+		resItemList = append(resItemList, resItem)
+	}
+	return
+}
+
+func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.Vacation
+	var inputData structs.Resolution
+	vacationTypeValue := VacationTypeValue
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	_ = json.Unmarshal(dataBytes, &data)
+
+	vacationType, err := r.Repo.GetDropdownSettings(&dto.GetSettingsInput{Value: &vacationTypeValue, Entity: config.ResolutionTypes})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	inputData.ResolutionTypeId = vacationType.Data[0].Id
+	inputData.DateOfStart = time.Date(data.Year, time.January, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02T15:04:05Z")
+	inputData.DateOfEnd = time.Date(data.Year, time.December, 31, 23, 59, 59, 999999999, time.UTC).Format("2006-01-02T15:04:05Z")
+	inputData.Id = data.Id
+	inputData.FileId = data.FileId
+	inputData.UserProfileId = data.UserProfileId
+	inputData.Value = strconv.Itoa(data.NumberOfDays)
+	inputData.ResolutionPurpose = data.ResolutionPurpose
+
+	if shared.IsInteger(inputData.Id) && inputData.Id != 0 {
+		resolution, err := r.Repo.UpdateResolution(inputData.Id, &inputData)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		resolutionResItem, err := buildVacationResItem(r.Repo, resolution)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		response.Item = resolutionResItem
+		response.Message = "You updated this item!"
+	} else {
+		resolution, err := r.Repo.CreateResolution(&inputData)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		resolutionResItem, err := buildVacationResItem(r.Repo, resolution)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		response.Item = resolutionResItem
+		response.Message = "You created this item!"
+	}
+
+	return response, nil
+}
+
+func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *structs.Resolution) (*dto.Vacation, error) {
+	userProfile, err := r.GetUserProfileById(item.UserProfileId)
+	if err != nil {
+		return nil, err
+	}
+	resolutionType, err := r.GetDropdownSettingById(item.ResolutionTypeId)
+	if err != nil {
+		return nil, err
+	}
+
+	dataOfStart, _ := time.Parse("2006-01-02T15:04:05Z", item.DateOfStart)
+	numberOfDays, _ := strconv.Atoi(item.Value)
+
+	return &dto.Vacation{
+		Id:                item.Id,
+		ResolutionPurpose: item.ResolutionPurpose,
+		UserProfile: dto.DropdownSimple{
+			Id:    userProfile.Id,
+			Title: userProfile.GetFullName(),
+		},
+		ResolutionType: dto.DropdownSimple{
+			Id:    resolutionType.Id,
+			Title: resolutionType.Title,
+		},
+		Year:         dataOfStart.Year(),
+		NumberOfDays: numberOfDays,
+		FileId:       item.FileId,
+		CreatedAt:    item.CreatedAt,
+		UpdatedAt:    item.UpdatedAt,
+	}, nil
+}
+
+func (r *Resolver) UserProfileAbsentResolver(params graphql.ResolveParams) (interface{}, error) {
+	var (
+		absentSummary dto.AbsentsSummary
+	//	usedDays      int
+	)
+
+	profileID := params.Args["user_profile_id"].(int)
+
+	// year ago
+	sumDaysOfCurrentYear, availableDaysOfCurrentYear, availableDaysOfPreviousYear, err := GetNumberOfCurrentAndPreviousYearAvailableDays(r.Repo, profileID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	// get all absents in a period of current year
+	currentYear := time.Now().Year()
+	startOfYear := time.Date(currentYear, time.January, 1, 0, 0, 0, 0, time.UTC)
+	endOfYear := time.Date(currentYear, time.December, 31, 23, 59, 59, 999999999, time.UTC)
+	absents, err := r.Repo.GetEmployeeAbsents(profileID, &dto.EmployeeAbsentsInput{From: &startOfYear, To: &endOfYear})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	for _, absent := range absents {
+		absentType, err := r.Repo.GetAbsentTypeById(absent.AbsentTypeId)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		absent.AbsentType = *absentType
+
+		/*if absentType.AccountingDaysOff {
+			daysTakenBeforeJuly, daysTakenAfterJuly := getTakenVacationDaysBeforeAndAfterJuly(absent.DateOfStart, absent.DateOfEnd)
+
+			// Subtract vacation days taken before July from available previous year days
+			if daysTakenBeforeJuly > 0 {
+				if availableDaysOfPreviousYear >= daysTakenBeforeJuly {
+					availableDaysOfPreviousYear -= daysTakenBeforeJuly
+				} else {
+					// if available days from previous year are not enough, we should use current year too
+					availableDaysOfCurrentYear -= daysTakenBeforeJuly - availableDaysOfPreviousYear
+					availableDaysOfPreviousYear = 0
+				}
+			}
+			// Subtract vacation days taken after July from available current year vacation days
+			if daysTakenAfterJuly > 0 {
+				availableDaysOfCurrentYear -= daysTakenAfterJuly
+			}
+
+			usedDays += (daysTakenBeforeJuly + daysTakenAfterJuly)
+		}*/
+	}
+
+	allAbsents, _ := r.Repo.GetEmployeeAbsents(profileID, nil)
+	for _, absent := range allAbsents {
+		if absent.TargetOrganizationUnitID != nil {
+			organizationUnit, err := r.Repo.GetOrganizationUnitById(*absent.TargetOrganizationUnitID)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+			absent.TargetOrganizationUnit = organizationUnit
+		}
+
+		absentType, err := r.Repo.GetAbsentTypeById(absent.AbsentTypeId)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		absent.AbsentType = *absentType
+	}
+
+	absentSummary.CurrentAvailableDays = availableDaysOfCurrentYear
+	absentSummary.PastAvailableDays = availableDaysOfPreviousYear
+	absentSummary.UsedDays = sumDaysOfCurrentYear - availableDaysOfCurrentYear
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the items you asked for!",
+		Summary: absentSummary,
+		Items:   allAbsents,
+	}, nil
+}
+
+/*
+	func getTakenVacationDaysBeforeAndAfterJuly(startDate string, endDate string) (int, int) {
+		// Parse the date string
+		start, _ := time.Parse(time.RFC3339, startDate)
+		end, _ := time.Parse(time.RFC3339, endDate)
+
+		currentYear := time.Now().Year()
+
+		workingDaysBeforeJuly := 0
+		workingDaysAfterJuly := 0
+
+		july := time.Date(currentYear, time.July, 1, 0, 0, 0, 0, start.Location())
+
+		for !start.After(end) {
+			if start.Year() == currentYear && start.Weekday() != time.Saturday && start.Weekday() != time.Sunday {
+				if start.After(july) {
+					workingDaysAfterJuly++
+				} else {
+					workingDaysBeforeJuly++
+				}
+			}
+			start = start.AddDate(0, 0, 1)
+		}
+
+		return workingDaysBeforeJuly, workingDaysAfterJuly
+	}
+*/
+func GetNumberOfCurrentAndPreviousYearAvailableDays(r repository.MicroserviceRepositoryInterface, profileID int) (int, int, int, error) {
+	currentYear := time.Now().Year()
+	startDatePreviousYear := time.Date(currentYear-1, time.January, 1, 0, 0, 0, 0, time.UTC)
+	endDateCurrentYear := time.Date(currentYear, time.December, 31, 23, 59, 59, 0, time.UTC)
+
+	vacationDays := 0
+	pastVacationDays := 0
+	resolutions, err := r.GetEmployeeResolutions(profileID, &dto.EmployeeResolutionListInput{From: &startDatePreviousYear, To: &endDateCurrentYear})
+	if err != nil {
+		fmt.Println("error getting employee resolution - " + err.Error())
+	}
+
+	for _, resolution := range resolutions {
+		resolutionType, err := r.GetDropdownSettingById(resolution.ResolutionTypeId)
+		if err != nil {
+			return 0, 0, 0, err
+		}
+		resolution.ResolutionType = resolutionType
+	}
+
+	for _, resolution := range resolutions {
+		if resolution.ResolutionType.Value != VacationTypeValue {
+			continue
+		}
+
+		start, _ := time.Parse(time.RFC3339, resolution.DateOfStart)
+
+		if start.Year() == time.Now().Year() {
+			totalDays, _ := strconv.Atoi(resolution.Value)
+			vacationDays += totalDays
+		} else {
+			totalDays, _ := strconv.Atoi(resolution.Value)
+			pastVacationDays += totalDays
+		}
+	}
+
+	usedDays, err := calculateUsedDays(r, profileID)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	//pastVacationDays -= usedDaysPreviousYear
+	pastVacationDays -= usedDays
+	currentYearVacationDays := vacationDays
+
+	if pastVacationDays < 0 {
+		vacationDays += pastVacationDays
+		pastVacationDays = 0
+	}
+
+	return currentYearVacationDays, vacationDays, pastVacationDays, nil
+}
+
+func calculateUsedDays(r repository.MicroserviceRepositoryInterface, profileID int) (int, error) {
+	usedDays := 0
+	absents, err := r.GetEmployeeAbsents(profileID, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	for _, absent := range absents {
+		start, _ := time.Parse(time.RFC3339, absent.DateOfStart)
+		end, _ := time.Parse(time.RFC3339, absent.DateOfEnd)
+
+		absentType, err := r.GetAbsentTypeById(absent.AbsentTypeId)
+		if err != nil {
+			return 0, err
+		}
+
+		if absentType.AccountingDaysOff {
+			usedDays += countWorkingDaysBetweenDates(start, end)
+		}
+	}
+
+	return usedDays, nil
+}
+
+/*
+	func calculateUsedDaysOfPreviousYear(profileID int) (int, error) {
+		currentYear := time.Now().Year()
+		startDatePreviousYear := time.Date(currentYear-1, time.January, 1, 0, 0, 0, 0, time.UTC)
+		endDatePreviousYear := time.Date(currentYear-1, time.December, 31, 23, 59, 59, 0, time.UTC)
+
+		// Initialize usedDays variable
+		usedDaysPreviousYear := 0
+
+		// Get all absents of the employee in the previous year
+		absents, err := r.Repo.GetEmployeeAbsents(profileID, &dto.EmployeeAbsentsInput{From: &startDatePreviousYear, To: &endDatePreviousYear})
+		if err != nil {
+			return 0, err
+		}
+
+		for _, absent := range absents {
+			start, _ := time.Parse(time.RFC3339, absent.DateOfStart)
+			end, _ := time.Parse(time.RFC3339, absent.DateOfEnd)
+
+			absentType, err := r.Repo.GetAbsentTypeById(absent.AbsentTypeId)
+			if err != nil {
+				return 0, err
+			}
+
+			if absentType.AccountingDaysOff {
+				usedDaysPreviousYear += countWorkingDaysBetweenDates(start, end)
+			}
+		}
+
+		return usedDaysPreviousYear, nil
+	}
+*/
+func countWorkingDaysBetweenDates(start, end time.Time) int {
+	daysCount := 0
+
+	for !start.After(end) {
+		if start.Weekday() != time.Saturday && start.Weekday() != time.Sunday {
+			daysCount++
+		}
+		start = start.AddDate(0, 0, 1)
+	}
+
+	return daysCount
+}
+
+func (r *Resolver) UserProfileAbsentInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var err error
+	var data structs.Absent
+	var item *structs.Absent
+
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	dataBytes, _ := json.Marshal(params.Args["data"])
+
+	err = json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
+		return errors.ErrorResponse("Bad request: user profile absent data"), nil
+	}
+
+	absentType, err := r.Repo.GetAbsentTypeById(data.AbsentTypeId)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	if absentType.Title == "Godišnji odmor" {
+		_, currYearDays, pastYearDays, err := GetNumberOfCurrentAndPreviousYearAvailableDays(r.Repo, data.UserProfileId)
+
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		dateOfStart, err := time.Parse("2006-01-02T15:04:05.000Z", data.DateOfStart)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		dateOfEnd, err := time.Parse("2006-01-02T15:04:05.000Z", data.DateOfEnd)
+
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		newUsedData := countWorkingDaysBetweenDates(dateOfStart, dateOfEnd)
+
+		if newUsedData > (currYearDays + pastYearDays) {
+			err = fmt.Errorf("limit is reached")
+			return errors.HandleAPIError(err)
+		}
+	}
+
+	if shared.IsInteger(data.Id) && data.Id != 0 {
+		item, err = r.Repo.UpdateAbsent(data.Id, &data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Message = "You updated this item!"
+	} else {
+		item, err = r.Repo.CreateAbsent(&data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Message = "You created this item!"
+	}
+
+	resItem, err := buildAbsentResponseItem(r.Repo, *item)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	response.Item = resItem
+
+	return response, nil
+}
+
+func buildAbsentResponseItem(r repository.MicroserviceRepositoryInterface, absent structs.Absent) (*structs.Absent, error) {
+	absentType, err := r.GetAbsentTypeById(absent.AbsentTypeId)
+	if err != nil {
+		return nil, err
+	}
+	absent.AbsentType = *absentType
+
+	if absent.TargetOrganizationUnitID != nil {
+		organizationUnit, err := r.GetOrganizationUnitById(*absent.TargetOrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+		absent.TargetOrganizationUnit = organizationUnit
+	}
+
+	return &absent, nil
+}
+
+func (r *Resolver) UserProfileAbsentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemId := params.Args["id"].(int)
+
+	err := r.Repo.DeleteAbsent(itemId)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
+	}, nil
+}
+
+func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{}, error) {
+	userID := params.Args["user_profile_id"].(int)
+
+	user, err := r.Repo.GetUserProfileById(userID)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	userResponse, err := buildUserProfileOverviewResponse(r.Repo, user)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	active := true
+
+	if userResponse.IsJudge {
+		input := dto.GetJudgeResolutionListInputMS{
+			Active: &active,
+		}
+
+		resolution, err := r.Repo.GetJudgeResolutionList(&input)
+
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		filter := dto.JudgeResolutionsOrganizationUnitInput{
+			UserProfileId: &userID,
+			ResolutionId:  &resolution.Data[0].Id,
+		}
+
+		judge, _, err := r.Repo.GetJudgeResolutionOrganizationUnit(&filter)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		err = r.Repo.DeleteJJudgeResolutionOrganizationUnit(judge[0].Id)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		contract, err := r.Repo.GetEmployeeContracts(userID, nil)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		now := time.Now()
+		format := "2006-01-02T00:00:00Z"
+		dateOfEnd := now.Format(format)
+		dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
+		yearsDiff := now.Year() - dateOfStart.Year()
+		monthsDiff := int(now.Month()) - int(dateOfStart.Month())
+
+		if monthsDiff < 0 {
+			monthsDiff += 12
+			yearsDiff--
+		}
+
+		totalMonths := (yearsDiff * 12) + monthsDiff
+
+		experience := structs.Experience{
+			UserProfileId:             userID,
+			OrganizationUnitId:        judge[0].OrganizationUnitId,
+			Relevant:                  true,
+			DateOfStart:               *contract[0].DateOfStart,
+			DateOfEnd:                 dateOfEnd,
+			AmountOfExperience:        totalMonths,
+			AmountOfInsuredExperience: totalMonths,
+		}
+		_, err = r.Repo.CreateExperience(&experience)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+	} else {
+		contract, err := r.Repo.GetEmployeeContracts(userID, nil)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		employeeInOrgUnit, err := r.Repo.GetEmployeesInOrganizationUnitsByProfileId(userID)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		if employeeInOrgUnit != nil {
+			err = r.Repo.DeleteEmployeeInOrganizationUnitByID(employeeInOrgUnit.Id)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			now := time.Now()
+			format := "2006-01-02T00:00:00Z"
+			dateOfEnd := now.Format(format)
+			dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
+			yearsDiff := now.Year() - dateOfStart.Year()
+			monthsDiff := int(now.Month()) - int(dateOfStart.Month())
+
+			if monthsDiff < 0 {
+				monthsDiff += 12
+				yearsDiff--
+			}
+
+			totalMonths := (yearsDiff * 12) + monthsDiff
+			experience := structs.Experience{
+				UserProfileId:             userID,
+				OrganizationUnitId:        contract[0].OrganizationUnitID,
+				Relevant:                  true,
+				DateOfStart:               *contract[0].DateOfStart,
+				DateOfEnd:                 dateOfEnd,
+				AmountOfExperience:        totalMonths,
+				AmountOfInsuredExperience: totalMonths,
+			}
+			_, err = r.Repo.CreateExperience(&experience)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+			contract[0].JobPositionInOrganizationUnitID = 0
+			contract[0].OrganizationUnitDepartmentID = nil
+			contract[0].Active = false
+			_, err = r.Repo.UpdateEmployeeContract(contract[0].Id, contract[0])
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+		}
+	}
+
+	active = false
+	user.ActiveContract = &active
+	_, err = r.Repo.UpdateUserProfile(user.Id, *user)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	_, err = r.Repo.DeactivateUserAccount(user.UserAccountId)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deactivated this user!",
+	}, nil
+}

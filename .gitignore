@@ -1,7 +1,6 @@
 .vscode
 .env
 tmp
-/log/
 vendor
 __debug_bin
 reports

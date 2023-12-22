@@ -60,17 +60,6 @@ func handleError(w http.ResponseWriter, err error, statusCode int) {
 	)
 }
 
-//todoooo
-// func getAllInventoryItem(filter dto.InventoryItemFilter) (*dto.GetAllBasicInventoryItem, error) {
-// 	res := &dto.GetAllBasicInventoryItem{}
-// 	_, err := makeAPIRequest("GET", config.INVENTORY_ITEM_ENDOPOINT, filter, &res)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return res, nil
-// }
-
 func makeBackendRequest(method, url string, body io.Reader, contentType string) (*http.Response, int, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {

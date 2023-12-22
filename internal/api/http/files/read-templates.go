@@ -63,9 +63,12 @@ func (h *Handler) ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Reques
 				return
 			}
 
-			var article ContractArticleResponseDTO
-			var title, description string
-			var price float32
+			var (
+				article            ContractArticleResponseDTO
+				title, description string
+				price              float32
+			)
+
 			for cellIndex, cellValue := range cols {
 				value := cellValue
 				switch cellIndex {

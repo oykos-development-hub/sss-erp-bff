@@ -525,7 +525,6 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 					}
 
 					dispatch.InventoryId = inventory.Data[0].Id
-
 				case 4:
 					floatValue, err := strconv.ParseFloat(value, 32)
 					if err != nil {
@@ -533,7 +532,11 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 					}
 					dispatch.GrossPriceDifference = float32(floatValue)
 				case 5:
-					estimatedDuration, err := strconv.Atoi(value)
+					f, err := strconv.ParseFloat(value, 64)
+					if err != nil {
+						outerloop = false
+					}
+					estimatedDuration := int(f)
 					if err != nil && estimatedDuration > 0 {
 						outerloop = false
 					}
@@ -567,11 +570,22 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 			nowString := now.Format("2006-01-02T00:00:00Z")
 			dispatch.DateOfAssessment = &nowString
 			dispatch.DepreciationTypeId = item.DepreciationTypeId
-			_, err = h.Repo.CreateAssessments(&dispatch)
 
-			if err != nil {
-				handleError(w, err, http.StatusInternalServerError)
-			}
+			response.Data = append(response.Data, dispatch)
+			// item, err := h.Repo.GetInventoryItem(dispatch.InventoryId)
+			// if err != nil {
+			// 	handleError(w, err, http.StatusInternalServerError)
+			// 	return
+			// }
+			// now := time.Now()
+			// nowString := now.Format("2006-01-02T00:00:00Z")
+			// dispatch.DateOfAssessment = &nowString
+			// dispatch.DepreciationTypeId = item.DepreciationTypeId
+			// _, err = h.Repo.CreateAssessments(&dispatch)
+
+			// if err != nil {
+			// 	handleError(w, err, http.StatusInternalServerError)
+			// }
 		}
 	}
 

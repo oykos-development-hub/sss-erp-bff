@@ -70,9 +70,10 @@ type DonationArticleResponse struct {
 }
 
 type ExpireInventoriesResponse struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-	Error   string `json:"error"`
+	Status  string                                       `json:"status"`
+	Message string                                       `json:"message"`
+	Error   string                                       `json:"error"`
+	Data    []structs.BasicInventoryAssessmentsTypesItem `json:"data"`
 }
 
 type errorResponse struct {

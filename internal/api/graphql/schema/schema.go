@@ -91,6 +91,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"basicInventory_Insert":                           fields.BasicInventoryInsertField(),
 			"basicInventory_Deactivate":                       fields.BasicInventoryDeactivateField(),
 			"basicInventoryAssessments_Insert":                fields.BasicInventoryAssessmentsInsertField(),
+			"basicEXCLInventoryAssessments_Insert":            fields.BasicEXCLInventoryAssessmentsInsertField(),
 			"basicInventoryAssessments_Delete":                fields.BasicInventoryAssessmentsDeleteField(),
 			"basicInventoryDispatch_Insert":                   fields.BasicInventoryDispatchInsertField(),
 			"basicInventoryDispatch_Delete":                   fields.BasicInventoryDispatchDeleteField(),

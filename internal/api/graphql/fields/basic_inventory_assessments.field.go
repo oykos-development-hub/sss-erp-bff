@@ -19,6 +19,20 @@ func (f *Field) BasicInventoryAssessmentsInsertField() *graphql.Field {
 		Resolve: f.Resolvers.BasicInventoryAssessmentsInsertResolver,
 	}
 }
+
+func (f *Field) BasicEXCLInventoryAssessmentsInsertField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.BasicEXCLInventoryAssessmentsInsertType,
+		Description: "Creates new or alter existing EXCL Basic Inventory Assessment",
+		Args: graphql.FieldConfigArgument{
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewList(mutations.BasicInventoryAssessmentsMutation),
+			},
+		},
+		Resolve: f.Resolvers.BasicEXCLInventoryAssessmentsInsertResolver,
+	}
+}
+
 func (f *Field) BasicInventoryAssessmentsDeleteField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.BasicInventoryAssessmentsDeleteType,

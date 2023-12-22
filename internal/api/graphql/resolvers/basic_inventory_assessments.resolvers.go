@@ -47,6 +47,41 @@ func (r *Resolver) BasicInventoryAssessmentsInsertResolver(params graphql.Resolv
 	}, nil
 }
 
+func (r *Resolver) BasicEXCLInventoryAssessmentsInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var dataArr []structs.BasicInventoryAssessmentsTypesItem
+	var assessmentResponse *structs.BasicInventoryAssessmentsTypesItem
+	var items []dto.BasicInventoryResponseAssessment
+	var err error
+	dataBytes, _ := json.Marshal(params.Args["data"])
+
+	_ = json.Unmarshal(dataBytes, &dataArr)
+	if len(dataArr) > 0 {
+		for _, data := range dataArr {
+			assessmentResponse, err = r.Repo.CreateAssessments(&data)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			item, err := buildAssessmentResponse(r.Repo, assessmentResponse)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			items = append(items, *item)
+		}
+	}
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "You inserted/updated this item!",
+		Items:   items,
+	}, nil
+}
+
 func (r *Resolver) BasicInventoryAssessmentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemId := params.Args["id"].(int)
 

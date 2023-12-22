@@ -71,6 +71,24 @@ var BasicInventoryAssessmentsInsertType = graphql.NewObject(graphql.ObjectConfig
 	},
 })
 
+var BasicEXCLInventoryAssessmentsInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BasicEXCLInventoryAssessmentsInsert",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(BasicInventoryAssessmentsItemType),
+		},
+	},
+})
+
 var BasicInventoryAssessmentsDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "BasicInventoryAssessmentsDelete",
 	Fields: graphql.Fields{

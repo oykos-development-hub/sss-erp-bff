@@ -840,6 +840,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		}
 	}
 
+	if !item.Active {
+		status = "Otpisano"
+	}
+
 	if item.Type == "immovable" {
 		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitID == item.OrganizationUnitId {
 			item.SourceType = "NS1"

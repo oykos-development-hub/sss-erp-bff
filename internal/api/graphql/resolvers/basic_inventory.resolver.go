@@ -530,8 +530,11 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 				assessmentResponse, _ := buildAssessmentResponse(r, &assessment)
 				if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
 					grossPrice = assessmentResponse.GrossPriceDifference
-					dateOfAssessment = *assessmentResponse.DateOfAssessment
+					if len(assessments) > 1 {
+						dateOfAssessment = *assessmentResponse.DateOfAssessment
+					}
 					estimatedDuration = assessmentResponse.EstimatedDuration
+					break
 				}
 			}
 		}

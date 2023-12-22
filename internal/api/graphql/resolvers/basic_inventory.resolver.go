@@ -875,11 +875,13 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			Name: file.Name,
 		}
 
-		movements = append(movements, &dto.InventoryDispatchResponse{
+		movement := &dto.InventoryDispatchResponse{
 			DeactivationDescription: item.DeactivationDescription,
 			DateOfDeactivation:      *item.Inactive,
 			DeactivationFile:        fileDropdown,
-		})
+		}
+
+		movements = append([]*dto.InventoryDispatchResponse{movement}, movements...)
 	}
 
 	res := dto.BasicInventoryResponseItem{

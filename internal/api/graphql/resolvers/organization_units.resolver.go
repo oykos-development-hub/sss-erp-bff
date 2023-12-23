@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 
@@ -21,12 +20,12 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
-	parent_id := params.Args["parent_id"]
+	parentID := params.Args["parent_id"]
 	search, searchOk := params.Args["search"].(string)
 	settings := params.Args["settings"].(bool)
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		organizationUnit, err := r.Repo.GetOrganizationUnitById(id.(int))
+	if id != nil && id != 0 {
+		organizationUnit, err := r.Repo.GetOrganizationUnitByID(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -40,16 +39,16 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 		total = 1
 	} else {
 		input := dto.GetOrganizationUnitsInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
+		if page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum
 		}
-		if shared.IsInteger(size) && size.(int) > 0 {
+		if size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}
-		if shared.IsInteger(parent_id) && parent_id.(int) > 0 {
-			parentID := parent_id.(int)
+		if parentID.(int) > 0 {
+			parentID := parentID.(int)
 			input.ParentID = &parentID
 		}
 		if searchOk && search != "" {
@@ -70,7 +69,7 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 				return errors.HandleAPIError(err)
 			}
 			if !loggedInAccount.HasPermission(structs.PermissionManageOrganizationUnits) &&
-				*profileOrganizationUnit != organizationUnitItem.Id && !settings {
+				*profileOrganizationUnit != organizationUnitItem.ID && !settings {
 				continue
 			}
 			items = append(items, *organizationUnitItem)
@@ -94,9 +93,9 @@ func (r *Resolver) OrganizationUnitInsertResolver(params graphql.ResolveParams) 
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		organizationUnitResponse, err = r.Repo.UpdateOrganizationUnits(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		organizationUnitResponse, err = r.Repo.UpdateOrganizationUnits(itemID, &data)
 	} else {
 		organizationUnitResponse, err = r.Repo.CreateOrganizationUnits(&data)
 	}
@@ -114,9 +113,9 @@ func (r *Resolver) OrganizationUnitInsertResolver(params graphql.ResolveParams) 
 }
 
 func (r *Resolver) OrganizationUnitDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 
-	err := r.Repo.DeleteOrganizationUnits(itemId.(int))
+	err := r.Repo.DeleteOrganizationUnits(itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -133,7 +132,7 @@ func buildOrganizationUnitOverviewResponse(
 	organizationUnits *structs.OrganizationUnits,
 ) (*dto.OrganizationUnitsOverviewResponse, error) {
 	input := dto.GetOrganizationUnitsInput{}
-	input.ParentID = &organizationUnits.Id
+	input.ParentID = &organizationUnits.ID
 
 	organizationUnitsChildrenResponse, err := r.GetOrganizationUnits(&input)
 	if err != nil {
@@ -141,8 +140,8 @@ func buildOrganizationUnitOverviewResponse(
 	}
 
 	return &dto.OrganizationUnitsOverviewResponse{
-		Id:             organizationUnits.Id,
-		ParentId:       organizationUnits.ParentId,
+		ID:             organizationUnits.ID,
+		ParentID:       organizationUnits.ParentID,
 		NumberOfJudges: organizationUnits.NumberOfJudges,
 		Title:          organizationUnits.Title,
 		Pib:            organizationUnits.Pib,
@@ -153,6 +152,6 @@ func buildOrganizationUnitOverviewResponse(
 		Address:        organizationUnits.Address,
 		Icon:           organizationUnits.Icon,
 		Children:       &organizationUnitsChildrenResponse.Data,
-		FolderId:       organizationUnits.FolderId,
+		FolderID:       organizationUnits.FolderID,
 	}, nil
 }

@@ -4,7 +4,6 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"strconv"
@@ -21,9 +20,9 @@ func (r *Resolver) BasicInventoryAssessmentsInsertResolver(params graphql.Resolv
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		assessmentResponse, err = r.Repo.UpdateAssessments(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		assessmentResponse, err = r.Repo.UpdateAssessments(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -83,9 +82,9 @@ func (r *Resolver) BasicEXCLInventoryAssessmentsInsertResolver(params graphql.Re
 }
 
 func (r *Resolver) BasicInventoryAssessmentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteAssessment(itemId)
+	err := r.Repo.DeleteAssessment(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -100,24 +99,24 @@ func buildAssessmentResponse(
 	r repository.MicroserviceRepositoryInterface,
 	item *structs.BasicInventoryAssessmentsTypesItem,
 ) (*dto.BasicInventoryResponseAssessment, error) {
-	settings, err := r.GetDropdownSettingById(item.DepreciationTypeId)
+	settings, err := r.GetDropdownSettingByID(item.DepreciationTypeID)
 	if err != nil {
 		return nil, err
 	}
 
-	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
+	settingDropdownDepreciationTypeID := dto.DropdownSimple{}
 	if settings != nil {
-		settingDropdownDepreciationTypeId.Id = settings.Id
-		settingDropdownDepreciationTypeId.Title = settings.Title
+		settingDropdownDepreciationTypeID.ID = settings.ID
+		settingDropdownDepreciationTypeID.Title = settings.Title
 	}
 
 	userDropdown := dto.DropdownSimple{}
-	if item.UserProfileId != 0 {
-		user, err := r.GetUserProfileById(item.UserProfileId)
+	if item.UserProfileID != 0 {
+		user, err := r.GetUserProfileByID(item.UserProfileID)
 		if err != nil {
 			return nil, err
 		}
-		userDropdown.Id = user.Id
+		userDropdown.ID = user.ID
 		userDropdown.Title = user.FirstName + " " + user.LastName
 	}
 
@@ -127,10 +126,10 @@ func buildAssessmentResponse(
 	grossPriceNew := calculateMonthlyConsumption(*item.DateOfAssessment, depreciationRateInt, item.GrossPriceDifference, item.EstimatedDuration)
 
 	res := dto.BasicInventoryResponseAssessment{
-		Id:                   item.Id,
+		ID:                   item.ID,
 		Type:                 item.Type,
-		InventoryId:          item.InventoryId,
-		DepreciationType:     settingDropdownDepreciationTypeId,
+		InventoryID:          item.InventoryID,
+		DepreciationType:     settingDropdownDepreciationTypeID,
 		DepreciationRate:     depreciationRateString,
 		UserProfile:          userDropdown,
 		ResidualPrice:        item.ResidualPrice,
@@ -141,7 +140,7 @@ func buildAssessmentResponse(
 		DateOfAssessment:     item.DateOfAssessment,
 		CreatedAt:            item.CreatedAt,
 		UpdatedAt:            item.UpdatedAt,
-		FileId:               item.FileId,
+		FileID:               item.FileID,
 	}
 
 	return &res, nil

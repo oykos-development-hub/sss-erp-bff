@@ -9,7 +9,7 @@ import (
 
 func (repo *MicroserviceRepository) GetEmployeeContracts(employeeID int, input *dto.GetEmployeeContracts) ([]*structs.Contracts, error) {
 	res := &dto.GetEmployeeContractListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(employeeID)+"/contracts", input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(employeeID)+"/contracts", input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) GetEmployeeContracts(employeeID int, input *
 }
 
 func (repo *MicroserviceRepository) DeleteEmployeeContract(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EMPLOYEE_CONTRACTS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EmployeeContracts+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func (repo *MicroserviceRepository) DeleteEmployeeContract(id int) error {
 
 func (repo *MicroserviceRepository) CreateUserProfile(user structs.UserProfiles) (*structs.UserProfiles, error) {
 	res := &dto.GetUserProfileResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.USER_PROFILES, user, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.UserProfiles, user, res)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (repo *MicroserviceRepository) CreateUserProfile(user structs.UserProfiles)
 
 func (repo *MicroserviceRepository) GetUserProfiles(input *dto.GetUserProfilesInput) ([]*structs.UserProfiles, error) {
 	res := &dto.GetUserProfileListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (repo *MicroserviceRepository) GetUserProfiles(input *dto.GetUserProfilesIn
 func (repo *MicroserviceRepository) GetUserProfileByUserAccountID(accountID int) (*structs.UserProfiles, error) {
 	input := &dto.GetUserProfilesInput{AccountID: &accountID}
 	res := &dto.GetUserProfileListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -60,9 +60,9 @@ func (repo *MicroserviceRepository) GetUserProfileByUserAccountID(accountID int)
 	return res.Data[0], nil
 }
 
-func (repo *MicroserviceRepository) GetUserProfileById(id int) (*structs.UserProfiles, error) {
+func (repo *MicroserviceRepository) GetUserProfileByID(id int) (*structs.UserProfiles, error) {
 	res := &dto.GetUserProfileResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (repo *MicroserviceRepository) GetUserProfileById(id int) (*structs.UserPro
 }
 
 func (repo *MicroserviceRepository) DeleteUserProfile(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func (repo *MicroserviceRepository) DeleteUserProfile(id int) error {
 
 func (repo *MicroserviceRepository) UpdateUserProfile(userID int, user structs.UserProfiles) (*structs.UserProfiles, error) {
 	res := &dto.GetUserProfileResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(userID), user, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(userID), user, res)
 	if err != nil {
 		return nil, err
 	}
@@ -89,9 +89,9 @@ func (repo *MicroserviceRepository) UpdateUserProfile(userID int, user structs.U
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) GetEmployeesInOrganizationUnitsByProfileId(profileId int) (*structs.EmployeesInOrganizationUnits, error) {
+func (repo *MicroserviceRepository) GetEmployeesInOrganizationUnitsByProfileID(profileID int) (*structs.EmployeesInOrganizationUnits, error) {
 	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(profileId)+"/employee-in-organization-unit", nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(profileID)+"/employee-in-organization-unit", nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (repo *MicroserviceRepository) GetEmployeesInOrganizationUnitsByProfileId(p
 
 func (repo *MicroserviceRepository) GetEmployeesInOrganizationUnitList(input *dto.GetEmployeesInOrganizationUnitInput) ([]*structs.EmployeesInOrganizationUnits, error) {
 	res := &dto.GetEmployeesInOrganizationUnitsListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.EMPLOYEES_IN_ORGANIZATION_UNITS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.EmployeesInOrganizationUnits, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (repo *MicroserviceRepository) GetEmployeesInOrganizationUnitList(input *dt
 
 func (repo *MicroserviceRepository) UpdateEmployeeContract(id int, contract *structs.Contracts) (*structs.Contracts, error) {
 	res := &dto.GetUserProfileContractResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EMPLOYEE_CONTRACTS+"/"+strconv.Itoa(id), contract, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EmployeeContracts+"/"+strconv.Itoa(id), contract, res)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (repo *MicroserviceRepository) UpdateEmployeeContract(id int, contract *str
 
 func (repo *MicroserviceRepository) CreateEmployeeContract(contract *structs.Contracts) (*structs.Contracts, error) {
 	res := &dto.GetUserProfileContractResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EMPLOYEE_CONTRACTS, contract, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EmployeeContracts, contract, res)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func (repo *MicroserviceRepository) CreateEmployeeContract(contract *structs.Con
 
 func (repo *MicroserviceRepository) CreateEmployeeEducation(education *structs.Education) (*structs.Education, error) {
 	res := &dto.GetEmployeeEducationResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EMPLOYEE_EDUCATIONS, education, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EmployeeEducations, education, res)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func (repo *MicroserviceRepository) CreateEmployeeEducation(education *structs.E
 
 func (repo *MicroserviceRepository) UpdateEmployeeEducation(id int, education *structs.Education) (*structs.Education, error) {
 	res := &dto.GetEmployeeEducationResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EMPLOYEE_EDUCATIONS+"/"+strconv.Itoa(id), education, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EmployeeEducations+"/"+strconv.Itoa(id), education, res)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func (repo *MicroserviceRepository) UpdateEmployeeEducation(id int, education *s
 }
 
 func (repo *MicroserviceRepository) DeleteEmployeeEducation(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EMPLOYEE_EDUCATIONS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EmployeeEducations+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func (repo *MicroserviceRepository) DeleteEmployeeEducation(id int) error {
 
 func (repo *MicroserviceRepository) GetEmployeeEducations(input dto.EducationInput) ([]structs.Education, error) {
 	res := &dto.GetEmployeeEducationListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.EMPLOYEE_EDUCATIONS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.EmployeeEducations, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func (repo *MicroserviceRepository) GetEmployeeEducations(input dto.EducationInp
 
 func (repo *MicroserviceRepository) UpdateExperience(id int, contract *structs.Experience) (*structs.Experience, error) {
 	res := &dto.ExperienceItemResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EMPLOYEE_EXPERIENCES+"/"+strconv.Itoa(id), contract, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EmployeeExperiences+"/"+strconv.Itoa(id), contract, res)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (repo *MicroserviceRepository) UpdateExperience(id int, contract *structs.E
 
 func (repo *MicroserviceRepository) CreateExperience(contract *structs.Experience) (*structs.Experience, error) {
 	res := &dto.ExperienceItemResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EMPLOYEE_EXPERIENCES, contract, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EmployeeExperiences, contract, res)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func (repo *MicroserviceRepository) CreateExperience(contract *structs.Experienc
 }
 
 func (repo *MicroserviceRepository) DeleteExperience(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EMPLOYEE_EXPERIENCES+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EmployeeExperiences+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -199,7 +199,7 @@ func (repo *MicroserviceRepository) DeleteExperience(id int) error {
 
 func (repo *MicroserviceRepository) GetEmployeeExperiences(employeeID int) ([]*structs.Experience, error) {
 	res := &dto.GetEmployeeExperienceListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(employeeID)+"/experiences", nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(employeeID)+"/experiences", nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +209,7 @@ func (repo *MicroserviceRepository) GetEmployeeExperiences(employeeID int) ([]*s
 
 func (repo *MicroserviceRepository) CreateEmployeeFamilyMember(familyMember *structs.Family) (*structs.Family, error) {
 	res := &dto.GetEmployeeFamilyMemberResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EMPLOYEE_FAMILY_MEMBERS, familyMember, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EmployeeFamilyMembers, familyMember, res)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +219,7 @@ func (repo *MicroserviceRepository) CreateEmployeeFamilyMember(familyMember *str
 
 func (repo *MicroserviceRepository) UpdateEmployeeFamilyMember(id int, education *structs.Family) (*structs.Family, error) {
 	res := &dto.GetEmployeeFamilyMemberResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EMPLOYEE_FAMILY_MEMBERS+"/"+strconv.Itoa(id), education, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EmployeeFamilyMembers+"/"+strconv.Itoa(id), education, res)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func (repo *MicroserviceRepository) UpdateEmployeeFamilyMember(id int, education
 }
 
 func (repo *MicroserviceRepository) DeleteEmployeeFamilyMember(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EMPLOYEE_FAMILY_MEMBERS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EmployeeFamilyMembers+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -238,7 +238,7 @@ func (repo *MicroserviceRepository) DeleteEmployeeFamilyMember(id int) error {
 
 func (repo *MicroserviceRepository) GetEmployeeFamilyMembers(employeeID int) ([]*structs.Family, error) {
 	res := &dto.GetEmployeeFamilyMemberListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(employeeID)+"/family-members", nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(employeeID)+"/family-members", nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +247,7 @@ func (repo *MicroserviceRepository) GetEmployeeFamilyMembers(employeeID int) ([]
 }
 
 func (repo *MicroserviceRepository) DeleteAbsentType(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.ABSENT_TYPE+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.AbsentType+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -257,7 +257,7 @@ func (repo *MicroserviceRepository) DeleteAbsentType(id int) error {
 
 func (repo *MicroserviceRepository) UpdateAbsentType(id int, absent *structs.AbsentType) (*structs.AbsentType, error) {
 	res := &dto.GetAbsentTypeResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.ABSENT_TYPE+"/"+strconv.Itoa(id), absent, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.AbsentType+"/"+strconv.Itoa(id), absent, res)
 	if err != nil {
 		return nil, err
 	}
@@ -267,7 +267,7 @@ func (repo *MicroserviceRepository) UpdateAbsentType(id int, absent *structs.Abs
 
 func (repo *MicroserviceRepository) CreateAbsentType(absent *structs.AbsentType) (*structs.AbsentType, error) {
 	res := &dto.GetAbsentTypeResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.ABSENT_TYPE, absent, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.AbsentType, absent, res)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +277,7 @@ func (repo *MicroserviceRepository) CreateAbsentType(absent *structs.AbsentType)
 
 func (repo *MicroserviceRepository) GetAbsentTypes() (*dto.GetAbsentTypeListResponseMS, error) {
 	res := &dto.GetAbsentTypeListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.ABSENT_TYPE, nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.AbsentType, nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -285,9 +285,9 @@ func (repo *MicroserviceRepository) GetAbsentTypes() (*dto.GetAbsentTypeListResp
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) GetAbsentTypeById(absentTypeId int) (*structs.AbsentType, error) {
+func (repo *MicroserviceRepository) GetAbsentTypeByID(absentTypeID int) (*structs.AbsentType, error) {
 	res := &dto.GetAbsentTypeResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.ABSENT_TYPE+"/"+strconv.Itoa(absentTypeId), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.AbsentType+"/"+strconv.Itoa(absentTypeID), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -297,7 +297,7 @@ func (repo *MicroserviceRepository) GetAbsentTypeById(absentTypeId int) (*struct
 
 func (repo *MicroserviceRepository) CreateAbsent(absent *structs.Absent) (*structs.Absent, error) {
 	res := &dto.GetAbsentResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EMPLOYEE_ABSENTS, absent, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EmployeeAbsents, absent, res)
 	if err != nil {
 		return nil, err
 	}
@@ -307,7 +307,7 @@ func (repo *MicroserviceRepository) CreateAbsent(absent *structs.Absent) (*struc
 
 func (repo *MicroserviceRepository) UpdateAbsent(id int, absent *structs.Absent) (*structs.Absent, error) {
 	res := &dto.GetAbsentResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EMPLOYEE_ABSENTS+"/"+strconv.Itoa(id), absent, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EmployeeAbsents+"/"+strconv.Itoa(id), absent, res)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +316,7 @@ func (repo *MicroserviceRepository) UpdateAbsent(id int, absent *structs.Absent)
 }
 
 func (repo *MicroserviceRepository) DeleteAbsent(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EMPLOYEE_ABSENTS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EmployeeAbsents+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -326,7 +326,7 @@ func (repo *MicroserviceRepository) DeleteAbsent(id int) error {
 
 func (repo *MicroserviceRepository) GetEmployeeAbsents(userProfileID int, input *dto.EmployeeAbsentsInput) ([]*structs.Absent, error) {
 	res := &dto.GetAbsentListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(userProfileID)+"/absents", input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(userProfileID)+"/absents", input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -334,9 +334,9 @@ func (repo *MicroserviceRepository) GetEmployeeAbsents(userProfileID int, input 
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) GetAbsentById(absentID int) (*structs.Absent, error) {
+func (repo *MicroserviceRepository) GetAbsentByID(absentID int) (*structs.Absent, error) {
 	res := &dto.GetAbsentResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.EMPLOYEE_ABSENTS+"/"+strconv.Itoa(absentID), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.EmployeeAbsents+"/"+strconv.Itoa(absentID), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -346,7 +346,7 @@ func (repo *MicroserviceRepository) GetAbsentById(absentID int) (*structs.Absent
 
 func (repo *MicroserviceRepository) GetEmployeeEvaluations(userProfileID int) ([]*structs.Evaluation, error) {
 	res := &dto.GetEmployeeEvaluationListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(userProfileID)+"/evaluations", nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(userProfileID)+"/evaluations", nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -356,7 +356,7 @@ func (repo *MicroserviceRepository) GetEmployeeEvaluations(userProfileID int) ([
 
 func (repo *MicroserviceRepository) GetEvaluation(evaulationID int) (*structs.Evaluation, error) {
 	res := &dto.GetEvaluationResponse{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.EVALUATIONS+"/"+strconv.Itoa(evaulationID), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.Evaluations+"/"+strconv.Itoa(evaulationID), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -366,7 +366,7 @@ func (repo *MicroserviceRepository) GetEvaluation(evaulationID int) (*structs.Ev
 
 func (repo *MicroserviceRepository) UpdateEmployeeEvaluation(id int, evaluation *structs.Evaluation) (*structs.Evaluation, error) {
 	res := dto.GetEvaluationResponse{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.EVALUATIONS+"/"+strconv.Itoa(id), evaluation, &res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Evaluations+"/"+strconv.Itoa(id), evaluation, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -376,7 +376,7 @@ func (repo *MicroserviceRepository) UpdateEmployeeEvaluation(id int, evaluation 
 
 func (repo *MicroserviceRepository) CreateEmployeeEvaluation(evaluation *structs.Evaluation) (*structs.Evaluation, error) {
 	res := dto.GetEvaluationResponse{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EVALUATIONS, evaluation, &res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Evaluations, evaluation, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -385,7 +385,7 @@ func (repo *MicroserviceRepository) CreateEmployeeEvaluation(evaluation *structs
 }
 
 func (repo *MicroserviceRepository) DeleteEvaluation(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EVALUATIONS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Evaluations+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -395,7 +395,7 @@ func (repo *MicroserviceRepository) DeleteEvaluation(id int) error {
 
 func (repo *MicroserviceRepository) GetEmployeeForeigners(userProfileID int) ([]*structs.Foreigners, error) {
 	res := dto.GetEmployeeForeignersListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(userProfileID)+"/foreigners", nil, &res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(userProfileID)+"/foreigners", nil, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -405,7 +405,7 @@ func (repo *MicroserviceRepository) GetEmployeeForeigners(userProfileID int) ([]
 
 func (repo *MicroserviceRepository) UpdateEmployeeForeigner(id int, foreigner *structs.Foreigners) (*structs.Foreigners, error) {
 	res := dto.GetEmployeeForeignersResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.FOREIGNERS+"/"+strconv.Itoa(id), foreigner, &res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Foreigners+"/"+strconv.Itoa(id), foreigner, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -415,7 +415,7 @@ func (repo *MicroserviceRepository) UpdateEmployeeForeigner(id int, foreigner *s
 
 func (repo *MicroserviceRepository) CreateEmployeeForeigner(foreigner *structs.Foreigners) (*structs.Foreigners, error) {
 	res := dto.GetEmployeeForeignersResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.FOREIGNERS, foreigner, &res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Foreigners, foreigner, &res)
 	//foreigners
 	if err != nil {
 		return nil, err
@@ -425,7 +425,7 @@ func (repo *MicroserviceRepository) CreateEmployeeForeigner(foreigner *structs.F
 }
 
 func (repo *MicroserviceRepository) DeleteForeigner(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.FOREIGNERS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Foreigners+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -435,7 +435,7 @@ func (repo *MicroserviceRepository) DeleteForeigner(id int) error {
 
 func (repo *MicroserviceRepository) GetEmployeeResolutions(employeeID int, input *dto.EmployeeResolutionListInput) ([]*structs.Resolution, error) {
 	res := &dto.GetResolutionListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(employeeID)+"/resolutions", nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(employeeID)+"/resolutions", input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -445,7 +445,7 @@ func (repo *MicroserviceRepository) GetEmployeeResolutions(employeeID int, input
 
 func (repo *MicroserviceRepository) GetEmployeeResolution(id int) (*structs.Resolution, error) {
 	res := &dto.GetResolutionResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.RESOLUTIONS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.Resolutions+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -456,7 +456,7 @@ func (repo *MicroserviceRepository) GetEmployeeResolution(id int) (*structs.Reso
 func (repo *MicroserviceRepository) UpdateResolution(id int, resolution *structs.Resolution) (*structs.Resolution, error) {
 
 	res := &dto.GetResolutionResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.RESOLUTIONS+"/"+strconv.Itoa(id), resolution, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Resolutions+"/"+strconv.Itoa(id), resolution, res)
 	if err != nil {
 		return nil, err
 	}
@@ -466,7 +466,7 @@ func (repo *MicroserviceRepository) UpdateResolution(id int, resolution *structs
 
 func (repo *MicroserviceRepository) CreateResolution(resolution *structs.Resolution) (*structs.Resolution, error) {
 	res := &dto.GetResolutionResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.RESOLUTIONS, resolution, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Resolutions, resolution, res)
 	if err != nil {
 		return nil, err
 	}
@@ -475,7 +475,7 @@ func (repo *MicroserviceRepository) CreateResolution(resolution *structs.Resolut
 }
 
 func (repo *MicroserviceRepository) DeleteResolution(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.RESOLUTIONS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Resolutions+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -485,7 +485,7 @@ func (repo *MicroserviceRepository) DeleteResolution(id int) error {
 
 func (repo *MicroserviceRepository) GetEmployeeSalaryParams(userProfileID int) ([]*structs.SalaryParams, error) {
 	res := &dto.GetEmployeeSalaryParamsListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.USER_PROFILES+"/"+strconv.Itoa(userProfileID)+"/salaries", nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(userProfileID)+"/salaries", nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -495,7 +495,7 @@ func (repo *MicroserviceRepository) GetEmployeeSalaryParams(userProfileID int) (
 
 func (repo *MicroserviceRepository) CreateEmployeeSalaryParams(salaries *structs.SalaryParams) (*structs.SalaryParams, error) {
 	res := dto.GetEmployeeSalaryParamsResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.SALARIES, salaries, &res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Salaries, salaries, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -504,7 +504,7 @@ func (repo *MicroserviceRepository) CreateEmployeeSalaryParams(salaries *structs
 }
 
 func (repo *MicroserviceRepository) DeleteSalaryParams(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.SALARIES+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Salaries+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -514,7 +514,7 @@ func (repo *MicroserviceRepository) DeleteSalaryParams(id int) error {
 
 func (repo *MicroserviceRepository) UpdateEmployeeSalaryParams(id int, salaries *structs.SalaryParams) (*structs.SalaryParams, error) {
 	res := dto.GetEmployeeSalaryParamsResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.SALARIES+"/"+strconv.Itoa(id), salaries, &res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Salaries+"/"+strconv.Itoa(id), salaries, &res)
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -20,9 +19,9 @@ const (
 )
 
 func (r *Resolver) UserProfileVacationResolver(params graphql.ResolveParams) (interface{}, error) {
-	userProfileId := params.Args["user_profile_id"].(int)
+	userProfileID := params.Args["user_profile_id"].(int)
 
-	resolutions, err := r.Repo.GetEmployeeResolutions(userProfileId, nil)
+	resolutions, err := r.Repo.GetEmployeeResolutions(userProfileID, nil)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -64,17 +63,17 @@ func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.Re
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
-	inputData.ResolutionTypeId = vacationType.Data[0].Id
+	inputData.ResolutionTypeID = vacationType.Data[0].ID
 	inputData.DateOfStart = time.Date(data.Year, time.January, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02T15:04:05Z")
 	inputData.DateOfEnd = time.Date(data.Year, time.December, 31, 23, 59, 59, 999999999, time.UTC).Format("2006-01-02T15:04:05Z")
-	inputData.Id = data.Id
-	inputData.FileId = data.FileId
-	inputData.UserProfileId = data.UserProfileId
+	inputData.ID = data.ID
+	inputData.FileID = data.FileID
+	inputData.UserProfileID = data.UserProfileID
 	inputData.Value = strconv.Itoa(data.NumberOfDays)
 	inputData.ResolutionPurpose = data.ResolutionPurpose
 
-	if shared.IsInteger(inputData.Id) && inputData.Id != 0 {
-		resolution, err := r.Repo.UpdateResolution(inputData.Id, &inputData)
+	if inputData.ID != 0 {
+		resolution, err := r.Repo.UpdateResolution(inputData.ID, &inputData)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -101,11 +100,11 @@ func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.Re
 }
 
 func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *structs.Resolution) (*dto.Vacation, error) {
-	userProfile, err := r.GetUserProfileById(item.UserProfileId)
+	userProfile, err := r.GetUserProfileByID(item.UserProfileID)
 	if err != nil {
 		return nil, err
 	}
-	resolutionType, err := r.GetDropdownSettingById(item.ResolutionTypeId)
+	resolutionType, err := r.GetDropdownSettingByID(item.ResolutionTypeID)
 	if err != nil {
 		return nil, err
 	}
@@ -114,19 +113,19 @@ func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *st
 	numberOfDays, _ := strconv.Atoi(item.Value)
 
 	return &dto.Vacation{
-		Id:                item.Id,
+		ID:                item.ID,
 		ResolutionPurpose: item.ResolutionPurpose,
 		UserProfile: dto.DropdownSimple{
-			Id:    userProfile.Id,
+			ID:    userProfile.ID,
 			Title: userProfile.GetFullName(),
 		},
 		ResolutionType: dto.DropdownSimple{
-			Id:    resolutionType.Id,
+			ID:    resolutionType.ID,
 			Title: resolutionType.Title,
 		},
 		Year:         dataOfStart.Year(),
 		NumberOfDays: numberOfDays,
-		FileId:       item.FileId,
+		FileID:       item.FileID,
 		CreatedAt:    item.CreatedAt,
 		UpdatedAt:    item.UpdatedAt,
 	}, nil
@@ -156,7 +155,7 @@ func (r *Resolver) UserProfileAbsentResolver(params graphql.ResolveParams) (inte
 	}
 
 	for _, absent := range absents {
-		absentType, err := r.Repo.GetAbsentTypeById(absent.AbsentTypeId)
+		absentType, err := r.Repo.GetAbsentTypeByID(absent.AbsentTypeID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -187,14 +186,14 @@ func (r *Resolver) UserProfileAbsentResolver(params graphql.ResolveParams) (inte
 	allAbsents, _ := r.Repo.GetEmployeeAbsents(profileID, nil)
 	for _, absent := range allAbsents {
 		if absent.TargetOrganizationUnitID != nil {
-			organizationUnit, err := r.Repo.GetOrganizationUnitById(*absent.TargetOrganizationUnitID)
+			organizationUnit, err := r.Repo.GetOrganizationUnitByID(*absent.TargetOrganizationUnitID)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
 			absent.TargetOrganizationUnit = organizationUnit
 		}
 
-		absentType, err := r.Repo.GetAbsentTypeById(absent.AbsentTypeId)
+		absentType, err := r.Repo.GetAbsentTypeByID(absent.AbsentTypeID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -253,7 +252,7 @@ func GetNumberOfCurrentAndPreviousYearAvailableDays(r repository.MicroserviceRep
 	}
 
 	for _, resolution := range resolutions {
-		resolutionType, err := r.GetDropdownSettingById(resolution.ResolutionTypeId)
+		resolutionType, err := r.GetDropdownSettingByID(resolution.ResolutionTypeID)
 		if err != nil {
 			return 0, 0, 0, err
 		}
@@ -304,7 +303,7 @@ func calculateUsedDays(r repository.MicroserviceRepositoryInterface, profileID i
 		start, _ := time.Parse(time.RFC3339, absent.DateOfStart)
 		end, _ := time.Parse(time.RFC3339, absent.DateOfEnd)
 
-		absentType, err := r.GetAbsentTypeById(absent.AbsentTypeId)
+		absentType, err := r.GetAbsentTypeByID(absent.AbsentTypeID)
 		if err != nil {
 			return 0, err
 		}
@@ -336,7 +335,7 @@ func calculateUsedDays(r repository.MicroserviceRepositoryInterface, profileID i
 			start, _ := time.Parse(time.RFC3339, absent.DateOfStart)
 			end, _ := time.Parse(time.RFC3339, absent.DateOfEnd)
 
-			absentType, err := r.Repo.GetAbsentTypeById(absent.AbsentTypeId)
+			absentType, err := r.Repo.GetAbsentTypeByID(absent.AbsentTypeID)
 			if err != nil {
 				return 0, err
 			}
@@ -379,14 +378,14 @@ func (r *Resolver) UserProfileAbsentInsertResolver(params graphql.ResolveParams)
 		return errors.ErrorResponse("Bad request: user profile absent data"), nil
 	}
 
-	absentType, err := r.Repo.GetAbsentTypeById(data.AbsentTypeId)
+	absentType, err := r.Repo.GetAbsentTypeByID(data.AbsentTypeID)
 
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
 	if absentType.Title == "Godišnji odmor" {
-		_, currYearDays, pastYearDays, err := GetNumberOfCurrentAndPreviousYearAvailableDays(r.Repo, data.UserProfileId)
+		_, currYearDays, pastYearDays, err := GetNumberOfCurrentAndPreviousYearAvailableDays(r.Repo, data.UserProfileID)
 
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -410,8 +409,8 @@ func (r *Resolver) UserProfileAbsentInsertResolver(params graphql.ResolveParams)
 		}
 	}
 
-	if shared.IsInteger(data.Id) && data.Id != 0 {
-		item, err = r.Repo.UpdateAbsent(data.Id, &data)
+	if data.ID != 0 {
+		item, err = r.Repo.UpdateAbsent(data.ID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -437,14 +436,14 @@ func (r *Resolver) UserProfileAbsentInsertResolver(params graphql.ResolveParams)
 }
 
 func buildAbsentResponseItem(r repository.MicroserviceRepositoryInterface, absent structs.Absent) (*structs.Absent, error) {
-	absentType, err := r.GetAbsentTypeById(absent.AbsentTypeId)
+	absentType, err := r.GetAbsentTypeByID(absent.AbsentTypeID)
 	if err != nil {
 		return nil, err
 	}
 	absent.AbsentType = *absentType
 
 	if absent.TargetOrganizationUnitID != nil {
-		organizationUnit, err := r.GetOrganizationUnitById(*absent.TargetOrganizationUnitID)
+		organizationUnit, err := r.GetOrganizationUnitByID(*absent.TargetOrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
@@ -455,9 +454,9 @@ func buildAbsentResponseItem(r repository.MicroserviceRepositoryInterface, absen
 }
 
 func (r *Resolver) UserProfileAbsentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteAbsent(itemId)
+	err := r.Repo.DeleteAbsent(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -471,7 +470,7 @@ func (r *Resolver) UserProfileAbsentDeleteResolver(params graphql.ResolveParams)
 func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{}, error) {
 	userID := params.Args["user_profile_id"].(int)
 
-	user, err := r.Repo.GetUserProfileById(userID)
+	user, err := r.Repo.GetUserProfileByID(userID)
 
 	if err != nil {
 		return errors.HandleAPIError(err)
@@ -496,8 +495,8 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 		}
 
 		filter := dto.JudgeResolutionsOrganizationUnitInput{
-			UserProfileId: &userID,
-			ResolutionId:  &resolution.Data[0].Id,
+			UserProfileID: &userID,
+			ResolutionID:  &resolution.Data[0].ID,
 		}
 
 		judge, _, err := r.Repo.GetJudgeResolutionOrganizationUnit(&filter)
@@ -505,7 +504,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 			return errors.HandleAPIError(err)
 		}
 
-		err = r.Repo.DeleteJJudgeResolutionOrganizationUnit(judge[0].Id)
+		err = r.Repo.DeleteJJudgeResolutionOrganizationUnit(judge[0].ID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -529,8 +528,8 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 		totalMonths := (yearsDiff * 12) + monthsDiff
 
 		experience := structs.Experience{
-			UserProfileId:             userID,
-			OrganizationUnitId:        judge[0].OrganizationUnitId,
+			UserProfileID:             userID,
+			OrganizationUnitID:        judge[0].OrganizationUnitID,
 			Relevant:                  true,
 			DateOfStart:               *contract[0].DateOfStart,
 			DateOfEnd:                 dateOfEnd,
@@ -548,13 +547,13 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 			return errors.HandleAPIError(err)
 		}
 
-		employeeInOrgUnit, err := r.Repo.GetEmployeesInOrganizationUnitsByProfileId(userID)
+		employeeInOrgUnit, err := r.Repo.GetEmployeesInOrganizationUnitsByProfileID(userID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 
 		if employeeInOrgUnit != nil {
-			err = r.Repo.DeleteEmployeeInOrganizationUnitByID(employeeInOrgUnit.Id)
+			err = r.Repo.DeleteEmployeeInOrganizationUnitByID(employeeInOrgUnit.ID)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -573,8 +572,8 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 
 			totalMonths := (yearsDiff * 12) + monthsDiff
 			experience := structs.Experience{
-				UserProfileId:             userID,
-				OrganizationUnitId:        contract[0].OrganizationUnitID,
+				UserProfileID:             userID,
+				OrganizationUnitID:        contract[0].OrganizationUnitID,
 				Relevant:                  true,
 				DateOfStart:               *contract[0].DateOfStart,
 				DateOfEnd:                 dateOfEnd,
@@ -588,7 +587,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 			contract[0].JobPositionInOrganizationUnitID = 0
 			contract[0].OrganizationUnitDepartmentID = nil
 			contract[0].Active = false
-			_, err = r.Repo.UpdateEmployeeContract(contract[0].Id, contract[0])
+			_, err = r.Repo.UpdateEmployeeContract(contract[0].ID, contract[0])
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -597,13 +596,13 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 
 	active = false
 	user.ActiveContract = &active
-	_, err = r.Repo.UpdateUserProfile(user.Id, *user)
+	_, err = r.Repo.UpdateUserProfile(user.ID, *user)
 
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
-	_, err = r.Repo.DeactivateUserAccount(user.UserAccountId)
+	_, err = r.Repo.DeactivateUserAccount(user.UserAccountID)
 
 	if err != nil {
 		return errors.HandleAPIError(err)

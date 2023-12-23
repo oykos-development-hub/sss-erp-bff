@@ -3,14 +3,13 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 
 	"github.com/graphql-go/graphql"
 )
 
-func (r *Resolver) AbsentTypeResolver(params graphql.ResolveParams) (interface{}, error) {
+func (r *Resolver) AbsentTypeResolver(_ graphql.ResolveParams) (interface{}, error) {
 	absentTypesAll, err := r.Repo.GetAbsentTypes()
 	if err != nil {
 		return errors.HandleAPIError(err)
@@ -39,9 +38,9 @@ func (r *Resolver) AbsentTypeInsertResolver(params graphql.ResolveParams) (inter
 		return errors.HandleAPIError(err)
 	}
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		item, err := r.Repo.UpdateAbsentType(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		item, err := r.Repo.UpdateAbsentType(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -62,9 +61,9 @@ func (r *Resolver) AbsentTypeInsertResolver(params graphql.ResolveParams) (inter
 }
 
 func (r *Resolver) AbsentTypeDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 
-	err := r.Repo.DeleteAbsentType(itemId.(int))
+	err := r.Repo.DeleteAbsentType(itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

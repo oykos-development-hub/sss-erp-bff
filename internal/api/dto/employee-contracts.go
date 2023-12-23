@@ -1,7 +1,7 @@
 package dto
 
 type Contract struct {
-	Id                            int             `json:"id"`
+	ID                            int             `json:"id"`
 	Title                         string          `json:"title"`
 	ContractType                  DropdownSimple  `json:"contract_type"`
 	OrganizationUnit              DropdownSimple  `json:"organization_unit"`
@@ -23,5 +23,5 @@ type Contract struct {
 	DateOfEnd                     *string         `json:"date_of_end"`
 	CreatedAt                     string          `json:"created_at"`
 	UpdatedAt                     string          `json:"updated_at"`
-	FileId                        *int            `json:"file_id"`
+	FileID                        *int            `json:"file_id"`
 }

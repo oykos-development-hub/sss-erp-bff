@@ -12,7 +12,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func BudgetAccountItemProperties(basicInventoryItems []interface{}, budgetId int) []interface{} {
+func BudgetAccountItemProperties(basicInventoryItems []interface{}, budgetID int) []interface{} {
 	var items []interface{}
 
 	for _, item := range basicInventoryItems {
@@ -20,7 +20,7 @@ func BudgetAccountItemProperties(basicInventoryItems []interface{}, budgetId int
 		var mergedItem = shared.WriteStructToInterface(item)
 
 		// Filtering by budget ID
-		if shared.IsInteger(budgetId) && budgetId != 0 && budgetId != mergedItem["budget_id"] {
+		if budgetID != 0 && budgetID != mergedItem["budget_id"] {
 			continue
 		}
 
@@ -82,23 +82,23 @@ func (r *Resolver) BudgetAccountInsertResolver(params graphql.ResolveParams) (in
 
 	if len(dataArray) > 0 {
 		for _, data := range dataArray {
-			itemId := data.Id
+			itemID := data.ID
 
-			AccountBudgetActivityData, err := shared.ReadJson(shared.GetDataRoot()+"/account_budget_activity.json", AccountBudgetActivityItemType)
+			AccountBudgetActivityData, err := shared.ReadJSON(shared.GetDataRoot()+"/account_budget_activity.json", AccountBudgetActivityItemType)
 
 			if err != nil {
 				fmt.Printf("Fetching Account Budget Activity failed because of this error - %s.\n", err)
 			}
 
-			if shared.IsInteger(itemId) && itemId != 0 {
-				AccountBudgetActivityData = shared.FilterByProperty(AccountBudgetActivityData, "Id", itemId)
+			if itemID != 0 {
+				AccountBudgetActivityData = shared.FilterByProperty(AccountBudgetActivityData, "ID", itemID)
 			} else {
-				data.Id = shared.GetRandomNumber()
+				data.ID = shared.GetRandomNumber()
 			}
 
 			var updatedData = append(AccountBudgetActivityData, data)
 
-			_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/account_budget_activity.json"), updatedData)
+			_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/account_budget_activity.json"), updatedData)
 		}
 	}
 
@@ -115,15 +115,15 @@ func CreateTree(nodes []*dto.AccountItemResponseItem) ([]*dto.AccountItemRespons
 	// Create map and identify root nodes
 	for _, node := range nodes {
 		mappedNodes[node.ID] = node
-		if node.ParentId == nil {
+		if node.ParentID == nil {
 			rootNodes = append(rootNodes, node)
 		}
 	}
 
 	// Populate children for each node
 	for _, node := range nodes {
-		if node.ParentId != nil {
-			if parentNode, exists := mappedNodes[*node.ParentId]; exists {
+		if node.ParentID != nil {
+			if parentNode, exists := mappedNodes[*node.ParentID]; exists {
 				parentNode.Children = append(parentNode.Children, node)
 			}
 		}

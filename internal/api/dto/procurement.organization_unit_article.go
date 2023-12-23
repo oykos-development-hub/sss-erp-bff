@@ -5,7 +5,7 @@ import (
 )
 
 type ProcurementItemWithOrganizationUnitArticleResponseItem struct {
-	Id                int                                               `json:"id"`
+	ID                int                                               `json:"id"`
 	BudgetIndent      DropdownSimple                                    `json:"budget_indent"`
 	Plan              DropdownSimple                                    `json:"plan"`
 	IsOpenProcurement bool                                              `json:"is_open_procurement"`
@@ -22,7 +22,7 @@ type ProcurementItemWithOrganizationUnitArticleResponseItem struct {
 }
 
 type ProcurementOrganizationUnitArticleResponseItem struct {
-	Id                  int                            `json:"id"`
+	ID                  int                            `json:"id"`
 	Article             ProcurementArticleResponseItem `json:"public_procurement_article"`
 	OrganizationUnit    DropdownSimple                 `json:"organization_unit"`
 	Amount              int                            `json:"amount"`
@@ -39,9 +39,9 @@ type GetProcurementOrganizationUnitArticleListInputDTO struct {
 }
 
 type GetPublicProcurementOrganizationUnitArticle struct {
-	Id                         int    `json:"id"`
-	PublicProcurementArticleId int    `json:"public_procurement_article_id"`
-	OrganizationUnitId         int    `json:"organization_unit_id"`
+	ID                         int    `json:"id"`
+	PublicProcurementArticleID int    `json:"public_procurement_article_id"`
+	OrganizationUnitID         int    `json:"organization_unit_id"`
 	Amount                     int    `json:"amount"`
 	Status                     string `json:"status"`
 	IsRejected                 bool   `json:"is_rejected"`

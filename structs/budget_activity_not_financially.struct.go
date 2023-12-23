@@ -1,8 +1,8 @@
 package structs
 
 type BudgetActivityNotFinanciallyItem struct {
-	Id                               int    `json:"id"`
-	RequestId                        int    `json:"request_id"`
+	ID                               int    `json:"id"`
+	RequestID                        int    `json:"request_id"`
 	PersonResponsibleNameSurname     string `json:"person_responsible_name_surname"`
 	PersonResponsibleWorkingPlace    string `json:"person_responsible_working_place"`
 	PersonResponsibleTelephoneNumber string `json:"person_responsible_telephone_number"`
@@ -14,22 +14,22 @@ type BudgetActivityNotFinanciallyItem struct {
 }
 
 type BudgetActivityNotFinanciallyProgramItem struct {
-	Id                     int    `json:"id"`
-	BudgetNotFinanciallyId int    `json:"budget_not_financially_id"` // foreign key BudgetActivityNotFinanciallyItem
-	ProgramId              int    `json:"program_id"`                // foreign key ProgramItem
+	ID                     int    `json:"id"`
+	BudgetNotFinanciallyID int    `json:"budget_not_financially_id"` // foreign key BudgetActivityNotFinanciallyItem
+	ProgramID              int    `json:"program_id"`                // foreign key ProgramItem
 	Description            string `json:"description"`
 }
 
 type BudgetActivityNotFinanciallyGoalsItem struct {
-	Id              int    `json:"id"`
-	BudgetProgramId int    `json:"budget_program_id"` // foreign key BudgetActivityNotFinanciallyProgramItem
+	ID              int    `json:"id"`
+	BudgetProgramID int    `json:"budget_program_id"` // foreign key BudgetActivityNotFinanciallyProgramItem
 	Title           string `json:"title"`
 	Description     string `json:"description"`
 }
 
 type BudgetActivityNotFinanciallyIndicatorItem struct {
-	Id                   int    `json:"id"`
-	GoalsId              int    `json:"goals_id"` // foreign key BudgetActivityNotFinanciallyProgramItem
+	ID                   int    `json:"id"`
+	GoalsID              int    `json:"goals_id"` // foreign key BudgetActivityNotFinanciallyProgramItem
 	Code                 string `json:"code"`
 	Source               string `json:"source"`
 	BaseYear             string `json:"base_year"`

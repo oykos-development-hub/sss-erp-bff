@@ -1,6 +1,6 @@
 package structs
 
-//test
+// test
 type CreateUser struct {
 	UserProfileID                  int         `json:"id"`
 	UserAccountID                  int         `json:"user_account_id"`
@@ -19,7 +19,7 @@ type CreateUser struct {
 	Address                        string      `json:"address"`
 	BankAccount                    string      `json:"bank_account"`
 	BankName                       string      `json:"bank_name"`
-	OfficialPersonalId             string      `json:"official_personal_id"`
+	OfficialPersonalID             string      `json:"official_personal_id"`
 	OfficialPersonalDocumentNumber string      `json:"official_personal_document_number"`
 	OfficialPersonalDocumentIssuer string      `json:"official_personal_document_issuer"`
 	Gender                         string      `json:"gender"`
@@ -30,9 +30,9 @@ type CreateUser struct {
 	MaritalStatus                  string      `json:"marital_status"`
 	DateOfTakingOath               string      `json:"date_of_taking_oath"`
 	DateOfBecomingJudge            string      `json:"date_of_becoming_judge"`
-	EngagementTypeId               int         `json:"engagement_type_id"`
+	EngagementTypeID               int         `json:"engagement_type_id"`
 	NationalMinority               string      `json:"national_minority"`
-	PositionInOrganizationUnitId   string      `json:"position_in_organization_unit_id"`
+	PositionInOrganizationUnitID   string      `json:"position_in_organization_unit_id"`
 	Contracts                      []Contracts `json:"contracts"`
 	Email                          string      `json:"email"`
 	SecondaryEmail                 string      `json:"secondary_email"`

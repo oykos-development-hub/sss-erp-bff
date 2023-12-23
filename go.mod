@@ -15,8 +15,8 @@ require github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 require (
 	github.com/gorilla/websocket v1.5.1 // direct
 	github.com/stretchr/testify v1.8.4 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 )
 
 require (

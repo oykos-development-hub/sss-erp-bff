@@ -22,7 +22,7 @@ var WriteStructToInterface = func(source interface{}) map[string]interface{} {
 	for i := 0; i < sourceValue.NumField(); i++ {
 		field := sourceValue.Type().Field(i)
 		fieldName := field.Name
-		key := ToSnakeCase(fieldName, true)
+		key := ToSnakeCase(fieldName)
 		value := sourceValue.FieldByName(fieldName).Interface()
 		item[key] = value
 	}

@@ -8,7 +8,7 @@ import (
 
 func (repo *MicroserviceRepository) GetTenderTypeList(input *dto.GetJobTenderTypeInputMS) ([]*structs.JobTenderTypes, error) {
 	res := &dto.GetJobTenderTypeListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JOB_TENDER_TYPES, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenderTypes, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) GetTenderTypeList(input *dto.GetJobTenderTyp
 
 func (repo *MicroserviceRepository) GetTenderType(id int) (*structs.JobTenderTypes, error) {
 	res := &dto.GetJobTenderTypeResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JOB_TENDER_TYPES+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenderTypes+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func (repo *MicroserviceRepository) GetTenderType(id int) (*structs.JobTenderTyp
 }
 
 func (repo *MicroserviceRepository) DeleteJobTenderType(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JOB_TENDER_TYPES+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobTenderTypes+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (repo *MicroserviceRepository) DeleteJobTenderType(id int) error {
 
 func (repo *MicroserviceRepository) CreateJobTenderType(jobTender *structs.JobTenderTypes) (*structs.JobTenderTypes, error) {
 	res := &dto.GetJobTenderTypeResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JOB_TENDER_TYPES, jobTender, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JobTenderTypes, jobTender, res)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (repo *MicroserviceRepository) CreateJobTenderType(jobTender *structs.JobTe
 
 func (repo *MicroserviceRepository) UpdateJobTenderType(id int, jobTender *structs.JobTenderTypes) (*structs.JobTenderTypes, error) {
 	res := &dto.GetJobTenderTypeResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JOB_TENDER_TYPES+"/"+strconv.Itoa(id), jobTender, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobTenderTypes+"/"+strconv.Itoa(id), jobTender, res)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderType(id int, jobTender *struc
 
 func (repo *MicroserviceRepository) CreateJobTender(jobTender *structs.JobTenders) (*structs.JobTenders, error) {
 	res := &dto.GetJobTenderResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JOB_TENDERS, jobTender, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JobTenders, jobTender, res)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (repo *MicroserviceRepository) CreateJobTender(jobTender *structs.JobTender
 
 func (repo *MicroserviceRepository) UpdateJobTender(id int, jobTender *structs.JobTenders) (*structs.JobTenders, error) {
 	res := &dto.GetJobTenderResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JOB_TENDERS+"/"+strconv.Itoa(id), jobTender, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobTenders+"/"+strconv.Itoa(id), jobTender, res)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (repo *MicroserviceRepository) UpdateJobTender(id int, jobTender *structs.J
 
 func (repo *MicroserviceRepository) GetJobTender(id int) (*structs.JobTenders, error) {
 	res := &dto.GetJobTenderResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JOB_TENDERS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenders+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (repo *MicroserviceRepository) GetJobTender(id int) (*structs.JobTenders, e
 
 func (repo *MicroserviceRepository) GetJobTenderList() ([]*structs.JobTenders, error) {
 	res := &dto.GetJobTenderListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JOB_TENDERS, nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenders, nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (repo *MicroserviceRepository) GetJobTenderList() ([]*structs.JobTenders, e
 }
 
 func (repo *MicroserviceRepository) DeleteJobTender(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JOB_TENDERS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobTenders+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func (repo *MicroserviceRepository) DeleteJobTender(id int) error {
 
 func (repo *MicroserviceRepository) CreateJobTenderApplication(jobTender *structs.JobTenderApplications) (*structs.JobTenderApplications, error) {
 	res := &dto.GetJobTenderApplicationResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JOB_TENDER_APPLICATIONS, jobTender, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JobTenderApplications, jobTender, res)
 	if err != nil {
 		return nil, err
 	}
@@ -117,11 +117,11 @@ func (repo *MicroserviceRepository) CreateJobTenderApplication(jobTender *struct
 func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender *structs.JobTenderApplications) (*structs.JobTenderApplications, error) {
 	currentTenderApplication, _ := repo.GetTenderApplication(id)
 	if currentTenderApplication.Status != "Izabran" && jobTender.Status == "Izabran" {
-		applications, _ := repo.GetTenderApplicationList(&dto.GetJobTenderApplicationsInput{JobTenderID: &currentTenderApplication.JobTenderId})
+		applications, _ := repo.GetTenderApplicationList(&dto.GetJobTenderApplicationsInput{JobTenderID: &currentTenderApplication.JobTenderID})
 		for _, application := range applications.Data {
-			if currentTenderApplication.Id != application.Id {
+			if currentTenderApplication.ID != application.ID {
 				application.Status = "Nije izabran"
-				_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JOB_TENDER_APPLICATIONS+"/"+strconv.Itoa(application.Id), application, nil)
+				_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobTenderApplications+"/"+strconv.Itoa(application.ID), application, nil)
 				if err != nil {
 					return nil, err
 				}
@@ -129,7 +129,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 		}
 	}
 	res := &dto.GetJobTenderApplicationResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JOB_TENDER_APPLICATIONS+"/"+strconv.Itoa(id), jobTender, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobTenderApplications+"/"+strconv.Itoa(id), jobTender, res)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 }
 
 func (repo *MicroserviceRepository) DeleteJobTenderApplication(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JOB_TENDER_APPLICATIONS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobTenderApplications+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -148,7 +148,7 @@ func (repo *MicroserviceRepository) DeleteJobTenderApplication(id int) error {
 
 func (repo *MicroserviceRepository) GetTenderApplication(id int) (*structs.JobTenderApplications, error) {
 	res := &dto.GetJobTenderApplicationResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JOB_TENDER_APPLICATIONS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenderApplications+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func (repo *MicroserviceRepository) GetTenderApplication(id int) (*structs.JobTe
 
 func (repo *MicroserviceRepository) GetTenderApplicationList(input *dto.GetJobTenderApplicationsInput) (*dto.GetJobTenderApplicationListResponseMS, error) {
 	res := &dto.GetJobTenderApplicationListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JOB_TENDER_APPLICATIONS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenderApplications, input, res)
 	if err != nil {
 		return nil, err
 	}

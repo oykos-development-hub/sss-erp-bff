@@ -4,7 +4,6 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 
@@ -50,10 +49,10 @@ func (r *Resolver) PublicProcurementPlanItemLimitInsertResolver(params graphql.R
 		return errors.HandleAPIError(err)
 	}
 
-	itemId := data.Id
+	itemID := data.ID
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := r.Repo.UpdateProcurementOULimit(itemId, &data)
+	if itemID != 0 {
+		res, err := r.Repo.UpdateProcurementOULimit(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -82,26 +81,26 @@ func (r *Resolver) PublicProcurementPlanItemLimitInsertResolver(params graphql.R
 }
 
 func buildProcurementOULimitResponseItem(r repository.MicroserviceRepositoryInterface, limit *structs.PublicProcurementLimit) (*dto.ProcurementOULimitResponseItem, error) {
-	item, err := r.GetProcurementItem(limit.PublicProcurementId)
+	item, err := r.GetProcurementItem(limit.PublicProcurementID)
 	if err != nil {
 		return nil, err
 	}
 	itemDropdown := dto.DropdownSimple{
-		Id:    item.Id,
+		ID:    item.ID,
 		Title: item.Title,
 	}
 
-	organization, err := r.GetOrganizationUnitById(limit.OrganizationUnitId)
+	organization, err := r.GetOrganizationUnitByID(limit.OrganizationUnitID)
 	if err != nil {
 		return nil, err
 	}
 	organizationDropdown := dto.DropdownSimple{
-		Id:    organization.Id,
+		ID:    organization.ID,
 		Title: organization.Title,
 	}
 
 	res := dto.ProcurementOULimitResponseItem{
-		Id:                limit.Id,
+		ID:                limit.ID,
 		OrganizationUnit:  organizationDropdown,
 		PublicProcurement: itemDropdown,
 		Limit:             limit.Limit,

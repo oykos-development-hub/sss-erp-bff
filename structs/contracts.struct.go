@@ -1,14 +1,14 @@
 package structs
 
 type Contracts struct {
-	Id                              int     `json:"id"`
+	ID                              int     `json:"id"`
 	Title                           string  `json:"title"`
-	ContractTypeId                  int     `json:"contract_type_id"`
+	ContractTypeID                  int     `json:"contract_type_id"`
 	OrganizationUnitID              int     `json:"organization_unit_id"`
 	OrganizationUnitDepartmentID    *int    `json:"organization_unit_department_id"`
 	NumberOfConference              *string `json:"number_of_conference"`
 	JobPositionInOrganizationUnitID int     `json:"job_position_in_organization_unit_id"`
-	UserProfileId                   int     `json:"user_profile_id"`
+	UserProfileID                   int     `json:"user_profile_id"`
 	Abbreviation                    *string `json:"abbreviation"`
 	Description                     *string `json:"description"`
 	Active                          bool    `json:"active"`
@@ -23,11 +23,11 @@ type Contracts struct {
 	DateOfEnd                       *string `json:"date_of_end"`
 	CreatedAt                       string  `json:"created_at"`
 	UpdatedAt                       string  `json:"updated_at"`
-	FileId                          *int    `json:"file_id"`
+	FileID                          *int    `json:"file_id"`
 }
 
 type ContractType struct {
-	Id           int    `json:"id"`
+	ID           int    `json:"id"`
 	Title        string `json:"title"`
 	Abbreviation string `json:"abbreviation"`
 	Color        string `json:"color"`

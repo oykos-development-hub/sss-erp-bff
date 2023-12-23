@@ -3,7 +3,7 @@ package structs
 import "encoding/json"
 
 type Notifications struct {
-	Id          int             `json:"id"`
+	ID          int             `json:"id"`
 	Content     string          `json:"content"`
 	Module      string          `json:"module"`
 	FromContent string          `json:"from_content"`

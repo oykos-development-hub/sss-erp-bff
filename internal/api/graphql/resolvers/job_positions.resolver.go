@@ -3,7 +3,6 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	apierrors "bff/internal/api/errors"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"errors"
@@ -22,8 +21,8 @@ func (r *Resolver) JobPositionsResolver(params graphql.ResolveParams) (interface
 	size := params.Args["size"]
 	search, searchOk := params.Args["search"].(string)
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		jobPositionResponse, err := r.Repo.GetJobPositionById(id.(int))
+	if id != nil && id != 0 {
+		jobPositionResponse, err := r.Repo.GetJobPositionByID(id.(int))
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -31,11 +30,11 @@ func (r *Resolver) JobPositionsResolver(params graphql.ResolveParams) (interface
 		total = 1
 	} else {
 		input := dto.GetJobPositionsInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
+		if page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum
 		}
-		if shared.IsInteger(size) && size.(int) > 0 {
+		if size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}
@@ -63,17 +62,17 @@ func (r *Resolver) JobPositionsOrganizationUnitResolver(params graphql.ResolvePa
 	var (
 		items              []structs.JobPositionsInOrganizationUnitsSettings
 		total              int
-		organizationUnitId int
+		organizationUnitID int
 	)
 
 	if params.Args["organization_unit_id"] == nil {
-		organizationUnitId = 0
+		organizationUnitID = 0
 	} else {
-		organizationUnitId = params.Args["organization_unit_id"].(int)
+		organizationUnitID = params.Args["organization_unit_id"].(int)
 	}
 
 	input := dto.GetJobPositionInOrganizationUnitsInput{
-		OrganizationUnitID: &organizationUnitId,
+		OrganizationUnitID: &organizationUnitID,
 	}
 	jobPositionsInOrganizationUnitsResponse, err := r.Repo.GetJobPositionsInOrganizationUnits(&input)
 	if err != nil {
@@ -81,12 +80,12 @@ func (r *Resolver) JobPositionsOrganizationUnitResolver(params graphql.ResolvePa
 	}
 
 	for _, jobPositionsInOrganizationUnits := range jobPositionsInOrganizationUnitsResponse.Data {
-		getJobPositionResponse, err := r.Repo.GetJobPositionById(jobPositionsInOrganizationUnits.JobPositionId)
+		getJobPositionResponse, err := r.Repo.GetJobPositionByID(jobPositionsInOrganizationUnits.JobPositionID)
 		if err != nil {
 			return &items, err
 		}
 		item := structs.JobPositionsInOrganizationUnitsSettings{
-			Id:    jobPositionsInOrganizationUnits.Id,
+			ID:    jobPositionsInOrganizationUnits.ID,
 			Title: getJobPositionResponse.Title,
 		}
 		items = append(items, item)
@@ -110,9 +109,9 @@ func (r *Resolver) JobPositionInsertResolver(params graphql.ResolveParams) (inte
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		jobPositionResponse, err = r.Repo.UpdateJobPositions(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		jobPositionResponse, err = r.Repo.UpdateJobPositions(itemID, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -131,13 +130,13 @@ func (r *Resolver) JobPositionInsertResolver(params graphql.ResolveParams) (inte
 }
 
 func (r *Resolver) JobPositionDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 
-	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
+	if !(itemID.(int) <= 0) {
 		return apierrors.HandleAPIError(errors.New("you must pass the item id"))
 	}
 
-	err := r.Repo.DeleteJobPositions(itemId.(int))
+	err := r.Repo.DeleteJobPositions(itemID.(int))
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -155,7 +154,7 @@ func (r *Resolver) JobPositionInOrganizationUnitInsertResolver(params graphql.Re
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
 	_ = json.Unmarshal(dataBytes, &data)
-	if data.Id > 0 {
+	if data.ID > 0 {
 		jobPositionInOrganizationUnit, err = r.Repo.UpdateJobPositionsInOrganizationUnits(&data)
 	} else {
 		jobPositionInOrganizationUnit, err = r.Repo.CreateJobPositionsInOrganizationUnits(&data)
@@ -165,7 +164,7 @@ func (r *Resolver) JobPositionInOrganizationUnitInsertResolver(params graphql.Re
 		return apierrors.HandleAPIError(err)
 	}
 
-	err = r.Repo.DeleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnit.Data.Id)
+	err = r.Repo.DeleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnit.Data.ID)
 
 	if len(data.Employees) > 0 {
 
@@ -173,17 +172,17 @@ func (r *Resolver) JobPositionInOrganizationUnitInsertResolver(params graphql.Re
 			return apierrors.HandleAPIError(err)
 		}
 
-		for _, employeeId := range data.Employees {
+		for _, employeeID := range data.Employees {
 			input := &structs.EmployeesInOrganizationUnits{
-				PositionInOrganizationUnitId: jobPositionInOrganizationUnit.Data.Id,
-				UserProfileId:                employeeId,
+				PositionInOrganizationUnitID: jobPositionInOrganizationUnit.Data.ID,
+				UserProfileID:                employeeID,
 			}
 			res, err := r.Repo.CreateEmployeesInOrganizationUnits(input)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
 
-			jobPositionInOrganizationUnit.Data.Employees = append(jobPositionInOrganizationUnit.Data.Employees, res.Id)
+			jobPositionInOrganizationUnit.Data.Employees = append(jobPositionInOrganizationUnit.Data.Employees, res.ID)
 		}
 
 	}
@@ -199,16 +198,16 @@ func (r *Resolver) JobPositionInOrganizationUnitResolver(params graphql.ResolveP
 	var (
 		items              []structs.JobPositionsInOrganizationUnitsSettings
 		total              int
-		organizationUnitId int
-		officeUnitId       int
+		organizationUnitID int
+		officeUnitID       int
 	)
 
 	if params.Args["organization_unit_id"] != nil && params.Args["office_unit_id"] != nil {
-		organizationUnitId = params.Args["organization_unit_id"].(int)
-		officeUnitId = params.Args["office_unit_id"].(int)
-		var myBool int = 2
+		organizationUnitID = params.Args["organization_unit_id"].(int)
+		officeUnitID = params.Args["office_unit_id"].(int)
+		myBool := 2
 		input := dto.GetSystematizationsInput{}
-		input.OrganizationUnitID = &organizationUnitId
+		input.OrganizationUnitID = &organizationUnitID
 		input.Active = &myBool
 
 		systematizationsResponse, err := r.Repo.GetSystematizations(&input)
@@ -219,8 +218,8 @@ func (r *Resolver) JobPositionInOrganizationUnitResolver(params graphql.ResolveP
 		if len(systematizationsResponse.Data) > 0 {
 			for _, systematization := range systematizationsResponse.Data {
 				input := dto.GetJobPositionInOrganizationUnitsInput{
-					OrganizationUnitID: &officeUnitId,
-					SystematizationID:  &systematization.Id,
+					OrganizationUnitID: &officeUnitID,
+					SystematizationID:  &systematization.ID,
 				}
 				jobPositionsInOrganizationUnits, err := r.Repo.GetJobPositionsInOrganizationUnits(&input)
 				if err != nil {
@@ -228,17 +227,17 @@ func (r *Resolver) JobPositionInOrganizationUnitResolver(params graphql.ResolveP
 				}
 				for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
 					input := dto.GetEmployeesInOrganizationUnitInput{
-						PositionInOrganizationUnit: &jobPositionOU.Id,
+						PositionInOrganizationUnit: &jobPositionOU.ID,
 					}
 					employeesInOrganizationUnit, _ := r.Repo.GetEmployeesInOrganizationUnitList(&input)
 
 					if len(employeesInOrganizationUnit) < jobPositionOU.AvailableSlots {
-						jobPosition, err := r.Repo.GetJobPositionById(jobPositionOU.JobPositionId)
+						jobPosition, err := r.Repo.GetJobPositionByID(jobPositionOU.JobPositionID)
 						if err != nil {
 							return nil, err
 						}
 						items = append(items, structs.JobPositionsInOrganizationUnitsSettings{
-							Id:    jobPositionOU.Id,
+							ID:    jobPositionOU.ID,
 							Title: jobPosition.Title,
 						})
 					}
@@ -257,13 +256,13 @@ func (r *Resolver) JobPositionInOrganizationUnitResolver(params graphql.ResolveP
 	}, nil
 }
 func (r *Resolver) JobPositionInOrganizationUnitDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 
-	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
+	if !(itemID.(int) <= 0) {
 		return apierrors.HandleAPIError(errors.New("you must pass the item id"))
 	}
 
-	err := r.Repo.DeleteJobPositionsInOrganizationUnits(itemId.(int))
+	err := r.Repo.DeleteJobPositionsInOrganizationUnits(itemID.(int))
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}

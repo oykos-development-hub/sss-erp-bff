@@ -1,19 +1,19 @@
 package structs
 
 type OrderListItem struct {
-	Id                  int     `json:"id"`
+	ID                  int     `json:"id"`
 	DateOrder           string  `json:"date_order"`
 	TotalPrice          float32 `json:"total_price"`
-	PublicProcurementId *int    `json:"public_procurement_id"`
+	PublicProcurementID *int    `json:"public_procurement_id"`
 	GroupOfArticlesID   *int    `json:"group_of_articles_id"`
-	SupplierId          *int    `json:"supplier_id"`
+	SupplierID          *int    `json:"supplier_id"`
 	Status              string  `json:"status"`
 	DateSystem          *string `json:"date_system"`
 	InvoiceDate         *string `json:"invoice_date"`
 	InvoiceNumber       *string `json:"invoice_number"`
-	OrganizationUnitId  int     `json:"organization_unit_id"`
-	OfficeId            *int    `json:"office_id"`
-	RecipientUserId     *int    `json:"recipient_user_id"`
+	OrganizationUnitID  int     `json:"organization_unit_id"`
+	OfficeID            *int    `json:"office_id"`
+	RecipientUserID     *int    `json:"recipient_user_id"`
 	Description         *string `json:"description"`
 	IsUsed              bool    `json:"is_used"`
 	OrderFile           *int    `json:"order_file"`
@@ -22,9 +22,9 @@ type OrderListItem struct {
 }
 
 type OrderProcurementArticleItem struct {
-	Id            int     `json:"id"`
-	OrderId       int     `json:"order_id"`
-	ArticleId     int     `json:"article_id"`
+	ID            int     `json:"id"`
+	OrderID       int     `json:"order_id"`
+	ArticleID     int     `json:"article_id"`
 	Year          string  `json:"year"`
 	Title         string  `json:"title"`
 	Description   string  `json:"description"`
@@ -34,9 +34,9 @@ type OrderProcurementArticleItem struct {
 }
 
 type OrderArticleItem struct {
-	Id                  int            `json:"id"`
-	BudgetIndentId      int            `json:"budget_indent_id"`
-	PublicProcurementId int            `json:"public_procurement_id"`
+	ID                  int            `json:"id"`
+	BudgetIndentID      int            `json:"budget_indent_id"`
+	PublicProcurementID int            `json:"public_procurement_id"`
 	Title               string         `json:"title"`
 	Description         string         `json:"description"`
 	NetPrice            float32        `json:"net_price"`
@@ -51,18 +51,18 @@ type OrderArticleItem struct {
 }
 
 type OrderListInsertItem struct {
-	Id                  int                      `json:"id"`
+	ID                  int                      `json:"id"`
 	DateOrder           string                   `json:"date_order"`
-	PublicProcurementId int                      `json:"public_procurement_id"`
+	PublicProcurementID int                      `json:"public_procurement_id"`
 	GroupOfArticlesID   int                      `json:"group_of_articles_id"`
-	SupplierId          int                      `json:"supplier_id"`
+	SupplierID          int                      `json:"supplier_id"`
 	Articles            []OrderArticleInsertItem `json:"articles"`
 	IsUsed              bool                     `json:"is_used"`
 	OrderFile           int                      `json:"order_file"`
 }
 
 type OrderArticleInsertItem struct {
-	Id            int     `json:"id"`
+	ID            int     `json:"id"`
 	Amount        int     `json:"amount"`
 	Title         string  `json:"title"`
 	Description   string  `json:"description"`
@@ -71,7 +71,7 @@ type OrderArticleInsertItem struct {
 }
 
 type OrderReceiveItem struct {
-	OrderId       int                      `json:"order_id"`
+	OrderID       int                      `json:"order_id"`
 	DateSystem    string                   `json:"date_system"`
 	InvoiceDate   *string                  `json:"invoice_date"`
 	InvoiceNumber *string                  `json:"invoice_number"`
@@ -83,8 +83,8 @@ type OrderReceiveItem struct {
 type OrderAssetMovementItem struct {
 	ID                 int            `json:"id"`
 	DateOrder          string         `json:"date_order"`
-	OfficeId           int            `json:"office_id"`
-	RecipientUserId    int            `json:"recipient_user_id"`
+	OfficeID           int            `json:"office_id"`
+	RecipientUserID    int            `json:"recipient_user_id"`
 	FileID             int            `json:"file_id"`
 	Description        string         `json:"description"`
 	OrganizationUnitID int            `json:"organization_unit_id"`

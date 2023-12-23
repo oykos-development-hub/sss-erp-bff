@@ -13,7 +13,7 @@ type GetJobTenderListResponseMS struct {
 }
 
 type JobTenderResponseItem struct {
-	Id                  int                       `json:"id"`
+	ID                  int                       `json:"id"`
 	OrganizationUnit    structs.OrganizationUnits `json:"organization_unit"`
 	JobPosition         *structs.JobPositions     `json:"job_position"`
 	Type                structs.JobTenderTypes    `json:"type"`
@@ -24,7 +24,7 @@ type JobTenderResponseItem struct {
 	DateOfStart         string                    `json:"date_of_start"`
 	DateOfEnd           *string                   `json:"date_of_end"`
 	NumberOfVacantSeats int                       `json:"number_of_vacant_seats"`
-	FileId              int                       `json:"file_id"`
+	FileID              int                       `json:"file_id"`
 	CreatedAt           string                    `json:"created_at"`
 	UpdatedAt           string                    `json:"updated_at"`
 }
@@ -35,7 +35,7 @@ type GetJobTenderApplicationsInput struct {
 	JobTenderID        *int    `json:"job_tender_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 	Search             *string `json:"search"`
-	UserProfileId      *int    `json:"user_profile_id"`
+	UserProfileID      *int    `json:"user_profile_id"`
 }
 
 type GetJobTenderTypeResponseMS struct {
@@ -60,7 +60,7 @@ type GetJobTenderApplicationListResponseMS struct {
 }
 
 type JobTenderApplicationResponseItem struct {
-	Id                 int                    `json:"id"`
+	ID                 int                    `json:"id"`
 	UserProfile        *DropdownSimple        `json:"user_profile"`
 	JobTender          *JobTenderResponseItem `json:"job_tender"`
 	OrganizationUnit   *DropdownSimple        `json:"organization_unit"`
@@ -75,7 +75,7 @@ type JobTenderApplicationResponseItem struct {
 	Evaluation         string                 `json:"evaluation"`
 	DateOfAplication   *string                `json:"date_of_application"`
 	Status             string                 `json:"status"`
-	FileId             int                    `json:"file_id"`
+	FileID             int                    `json:"file_id"`
 	CreatedAt          string                 `json:"created_at"`
 	UpdatedAt          string                 `json:"updated_at"`
 }

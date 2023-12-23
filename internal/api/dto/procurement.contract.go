@@ -27,9 +27,9 @@ type GetProcurementContractListResponseMS struct {
 }
 
 type ProcurementContractResponseItem struct {
-	Id                  int                  `json:"id"`
-	PublicProcurementId int                  `json:"public_procurement_id"`
-	SupplierId          int                  `json:"supplier_id"`
+	ID                  int                  `json:"id"`
+	PublicProcurementID int                  `json:"public_procurement_id"`
+	SupplierID          int                  `json:"supplier_id"`
 	SerialNumber        string               `json:"serial_number"`
 	DateOfSigning       string               `json:"date_of_signing"`
 	DateOfExpiry        *string              `json:"date_of_expiry"`

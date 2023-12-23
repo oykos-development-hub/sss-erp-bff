@@ -30,7 +30,7 @@ package resolvers
 // 	size := params.Args["size"]
 
 // 	AccountType := &structs.AccountItemPath{}
-// 	AccountData, err := shared.ReadJson(shared.GetDataRoot()+"/account.json", AccountType)
+// 	AccountData, err := shared.ReadJSON(shared.GetDataRoot()+"/account.json", AccountType)
 
 // 	if err != nil {
 // 		fmt.Printf("Fetching Account failed because of this error - %s.\n", err)
@@ -44,7 +44,7 @@ package resolvers
 // 	childMap := make(map[int][]*structs.AccountItemPath)
 // 	for _, node := range AccountData {
 // 		if nodeMap, ok := node.(*structs.AccountItemPath); ok {
-// 			childMap[nodeMap.ParentId] = append(childMap[nodeMap.ParentId], nodeMap)
+// 			childMap[nodeMap.ParentID] = append(childMap[nodeMap.ParentID], nodeMap)
 // 		}
 // 	}
 
@@ -61,7 +61,7 @@ package resolvers
 // 	}
 
 // 	// Filtering by Pagination params
-// 	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+// 	if page != 0 && size != 0 {
 // 		items = shared.Pagination(items, page.(int), size.(int))
 // 	}
 
@@ -73,8 +73,8 @@ package resolvers
 // 	}, nil
 // }
 
-// func appendChildren(result *[]interface{}, childMap map[int][]*structs.AccountItemPath, parentId int, parentPath string) {
-// 	children, exist := childMap[parentId]
+// func appendChildren(result *[]interface{}, childMap map[int][]*structs.AccountItemPath, parentID int, parentPath string) {
+// 	children, exist := childMap[parentID]
 // 	if !exist {
 // 		return
 // 	}
@@ -82,6 +82,6 @@ package resolvers
 // 	for _, child := range children {
 // 		child.Path = parentPath + "/" + child.SerialNumber
 // 		*result = append(*result, child)
-// 		appendChildren(result, childMap, child.Id, child.Path)
+// 		appendChildren(result, childMap, child.ID, child.Path)
 // 	}
 // }

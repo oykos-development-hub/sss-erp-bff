@@ -7,7 +7,7 @@ import (
 )
 
 func (repo *MicroserviceRepository) DeleteOrganizationUnits(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.ORGANIZATION_UNITS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.OrganizationUnits+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -17,7 +17,7 @@ func (repo *MicroserviceRepository) DeleteOrganizationUnits(id int) error {
 
 func (repo *MicroserviceRepository) GetOrganizationUnits(input *dto.GetOrganizationUnitsInput) (*dto.GetOrganizationUnitsResponseMS, error) {
 	res := &dto.GetOrganizationUnitsResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.ORGANIZATION_UNITS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.OrganizationUnits, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -25,9 +25,9 @@ func (repo *MicroserviceRepository) GetOrganizationUnits(input *dto.GetOrganizat
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) GetOrganizationUnitById(id int) (*structs.OrganizationUnits, error) {
+func (repo *MicroserviceRepository) GetOrganizationUnitByID(id int) (*structs.OrganizationUnits, error) {
 	res := &dto.GetOrganizationUnitResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.ORGANIZATION_UNITS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.OrganizationUnits+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (repo *MicroserviceRepository) GetOrganizationUnitById(id int) (*structs.Or
 
 func (repo *MicroserviceRepository) UpdateOrganizationUnits(id int, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error) {
 	res := &dto.GetOrganizationUnitResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.ORGANIZATION_UNITS+"/"+strconv.Itoa(id), data, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.OrganizationUnits+"/"+strconv.Itoa(id), data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (repo *MicroserviceRepository) UpdateOrganizationUnits(id int, data *struct
 
 func (repo *MicroserviceRepository) CreateOrganizationUnits(data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error) {
 	res := &dto.GetOrganizationUnitResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.ORGANIZATION_UNITS, data, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.OrganizationUnits, data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +55,8 @@ func (repo *MicroserviceRepository) CreateOrganizationUnits(data *structs.Organi
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) GetOrganizationUnitIdByUserProfile(id int) (*int, error) {
-	employeesInOrganizationUnit, err := repo.GetEmployeesInOrganizationUnitsByProfileId(id)
+func (repo *MicroserviceRepository) GetOrganizationUnitIDByUserProfile(id int) (*int, error) {
+	employeesInOrganizationUnit, err := repo.GetEmployeesInOrganizationUnitsByProfileID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -65,15 +65,15 @@ func (repo *MicroserviceRepository) GetOrganizationUnitIdByUserProfile(id int) (
 		return nil, nil
 	}
 
-	jobPositionInOrganizationUnit, err := repo.GetJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
+	jobPositionInOrganizationUnit, err := repo.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 	if err != nil {
 		return nil, err
 	}
 
-	systematization, err := repo.GetSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+	systematization, err := repo.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &systematization.OrganizationUnitId, nil
+	return &systematization.OrganizationUnitID, nil
 }

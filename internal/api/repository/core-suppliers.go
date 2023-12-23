@@ -8,7 +8,7 @@ import (
 
 func (repo *MicroserviceRepository) CreateSupplier(supplier *structs.Suppliers) (*structs.Suppliers, error) {
 	res := &dto.GetSupplierResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.SUPPLIERS, supplier, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Suppliers, supplier, res)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) CreateSupplier(supplier *structs.Suppliers) 
 
 func (repo *MicroserviceRepository) UpdateSupplier(id int, supplier *structs.Suppliers) (*structs.Suppliers, error) {
 	res := &dto.GetSupplierResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.SUPPLIERS+"/"+strconv.Itoa(id), supplier, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Suppliers+"/"+strconv.Itoa(id), supplier, res)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func (repo *MicroserviceRepository) UpdateSupplier(id int, supplier *structs.Sup
 }
 
 func (repo *MicroserviceRepository) DeleteSupplier(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.SUPPLIERS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.Suppliers+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (repo *MicroserviceRepository) DeleteSupplier(id int) error {
 
 func (repo *MicroserviceRepository) GetSupplier(id int) (*structs.Suppliers, error) {
 	res := &dto.GetSupplierResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.SUPPLIERS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Suppliers+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (repo *MicroserviceRepository) GetSupplier(id int) (*structs.Suppliers, err
 
 func (repo *MicroserviceRepository) GetSupplierList(input *dto.GetSupplierInputMS) (*dto.GetSupplierListResponseMS, error) {
 	res := &dto.GetSupplierListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.SUPPLIERS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Suppliers, input, res)
 	if err != nil {
 		return nil, err
 	}

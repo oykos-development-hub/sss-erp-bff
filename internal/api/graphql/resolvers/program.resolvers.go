@@ -17,7 +17,7 @@ func ProgramItemProperties(basicInventoryItems []interface{}, id int, typeProgra
 		var mergedItem = shared.WriteStructToInterface(item)
 
 		// Filtering by ID
-		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+		if id != 0 && id != mergedItem["id"] {
 			continue
 		}
 
@@ -39,7 +39,7 @@ func ProgramItemProperties(basicInventoryItems []interface{}, id int, typeProgra
 		if shared.IsInteger(mergedItem["parent_id"]) && mergedItem["parent_id"].(int) > 0 {
 			var relatedProgram = shared.FetchByProperty(
 				"program",
-				"Id",
+				"ID",
 				mergedItem["parent_id"],
 			)
 			if len(relatedProgram) > 0 {
@@ -55,7 +55,7 @@ func ProgramItemProperties(basicInventoryItems []interface{}, id int, typeProgra
 		if shared.IsInteger(mergedItem["organization_unit_id"]) && mergedItem["organization_unit_id"].(int) > 0 {
 			var relatedOfficesOrganizationUnit = shared.FetchByProperty(
 				"organization_unit",
-				"Id",
+				"ID",
 				mergedItem["organization_unit_id"],
 			)
 			if len(relatedOfficesOrganizationUnit) > 0 {
@@ -101,7 +101,7 @@ func (r *Resolver) ProgramOverviewResolver(params graphql.ResolveParams) (interf
 	size := params.Args["size"]
 
 	ProgramType := &structs.ProgramItem{}
-	ProgramData, err := shared.ReadJson(shared.GetDataRoot()+"/program.json", ProgramType)
+	ProgramData, err := shared.ReadJSON(shared.GetDataRoot()+"/program.json", ProgramType)
 
 	if err != nil {
 		fmt.Printf("Fetching Program failed because of this error - %s.\n", err)
@@ -116,7 +116,7 @@ func (r *Resolver) ProgramOverviewResolver(params graphql.ResolveParams) (interf
 	total = len(items)
 
 	// Filtering by Pagination params
-	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+	if page != 0 && size != 0 {
 		items = shared.Pagination(items, page.(int), size.(int))
 	}
 
@@ -136,28 +136,28 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
+	itemID := data.ID
 
-	ProgramData, err := shared.ReadJson(shared.GetDataRoot()+"/program.json", ProgramItemType)
+	ProgramData, err := shared.ReadJSON(shared.GetDataRoot()+"/program.json", ProgramItemType)
 
 	if err != nil {
 		fmt.Printf("Fetching Program failed because of this error - %s.\n", err)
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		ProgramData = shared.FilterByProperty(ProgramData, "Id", itemId)
+	if itemID != 0 {
+		ProgramData = shared.FilterByProperty(ProgramData, "ID", itemID)
 	} else {
-		data.Id = shared.GetRandomNumber()
+		data.ID = shared.GetRandomNumber()
 	}
 
 	var updatedData = append(ProgramData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/program.json"), updatedData)
+	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/program.json"), updatedData)
 
 	sliceData := []interface{}{data}
 
 	// Populate data for each Basic Inventory
-	var populatedData = ProgramItemProperties(sliceData, itemId, "")
+	var populatedData = ProgramItemProperties(sliceData, itemID, "")
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -168,19 +168,19 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 
 func (r *Resolver) ProgramDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 	ProgramItemType := &structs.ProgramItem{}
-	ProgramData, err := shared.ReadJson(shared.GetDataRoot()+"/program.json", ProgramItemType)
+	ProgramData, err := shared.ReadJSON(shared.GetDataRoot()+"/program.json", ProgramItemType)
 
 	if err != nil {
 		fmt.Printf("Fetching Program failed because of this error - %s.\n", err)
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		ProgramData = DeleteProgramChildren(itemId.(int), ProgramData)
+	if itemID != 0 {
+		ProgramData = DeleteProgramChildren(itemID.(int), ProgramData)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/program.json"), ProgramData)
+	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/program.json"), ProgramData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -188,17 +188,17 @@ func (r *Resolver) ProgramDeleteResolver(params graphql.ResolveParams) (interfac
 	}, nil
 }
 
-func DeleteProgramChildren(itemId int, data []interface{}) []interface{} {
-	toDelete := map[int]bool{itemId: true}
+func DeleteProgramChildren(itemID int, data []interface{}) []interface{} {
+	toDelete := map[int]bool{itemID: true}
 	prevLen := 0
 
 	for len(toDelete) != prevLen {
 		prevLen = len(toDelete)
 		for _, item := range data {
 			if item, ok := item.(*structs.ProgramItem); ok {
-				id := item.Id
-				parentId := item.ParentId
-				if _, exists := toDelete[parentId]; exists {
+				id := item.ID
+				parentID := item.ParentID
+				if _, exists := toDelete[parentID]; exists {
 					toDelete[id] = true
 				}
 			}
@@ -208,7 +208,7 @@ func DeleteProgramChildren(itemId int, data []interface{}) []interface{} {
 	var result []interface{}
 	for _, item := range data {
 		if item, ok := item.(*structs.ProgramItem); ok {
-			id := item.Id
+			id := item.ID
 			if _, exists := toDelete[id]; !exists {
 				result = append(result, item)
 			}

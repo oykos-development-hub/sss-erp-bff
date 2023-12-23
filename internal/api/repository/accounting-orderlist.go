@@ -9,7 +9,7 @@ import (
 
 func (repo *MicroserviceRepository) UpdateOrderListItem(id int, orderListItem *structs.OrderListItem) (*structs.OrderListItem, error) {
 	res := &dto.GetOrderListResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.ORDER_LISTS+"/"+strconv.Itoa(id), orderListItem, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.OrderLists+"/"+strconv.Itoa(id), orderListItem, res)
 	if err != nil {
 		return nil, err
 	}
@@ -19,7 +19,7 @@ func (repo *MicroserviceRepository) UpdateOrderListItem(id int, orderListItem *s
 
 func (repo *MicroserviceRepository) CreateOrderListItem(orderListItem *structs.OrderListItem) (*structs.OrderListItem, error) {
 	res := &dto.GetOrderListResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.ORDER_LISTS, orderListItem, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.OrderLists, orderListItem, res)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func (repo *MicroserviceRepository) CreateOrderListItem(orderListItem *structs.O
 
 func (repo *MicroserviceRepository) CreateOrderProcurementArticle(orderProcurementArticleItem *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error) {
 	res := &dto.GetOrderProcurementArticleResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.ORDER_PROCUREMENT_ARTICLES, orderProcurementArticleItem, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.OrderProcurementArticles, orderProcurementArticleItem, res)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (repo *MicroserviceRepository) CreateOrderProcurementArticle(orderProcureme
 }
 
 func (repo *MicroserviceRepository) DeleteOrderProcurementArticle(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Accounting.ORDER_PROCUREMENT_ARTICLES+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Accounting.OrderProcurementArticles+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (repo *MicroserviceRepository) DeleteOrderProcurementArticle(id int) error 
 }
 
 func (repo *MicroserviceRepository) DeleteOrderList(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Accounting.ORDER_LISTS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Accounting.OrderLists+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -55,25 +55,25 @@ func (repo *MicroserviceRepository) DeleteOrderList(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateOrderListProcurementArticles(orderListId int, data structs.OrderListInsertItem) error {
+func (repo *MicroserviceRepository) CreateOrderListProcurementArticles(orderListID int, data structs.OrderListInsertItem) error {
 	for _, article := range data.Articles {
 		newArticle := structs.OrderProcurementArticleItem{
 			Amount:  article.Amount,
-			OrderId: orderListId,
+			OrderID: orderListID,
 		}
-		if article.Id != 0 {
-			newArticle.ArticleId = article.Id
-			article, err := repo.GetProcurementArticle(article.Id)
+		if article.ID != 0 {
+			newArticle.ArticleID = article.ID
+			article, err := repo.GetProcurementArticle(article.ID)
 			if err != nil {
 				return err
 			}
 
-			procurement, err := repo.GetProcurementItem(article.PublicProcurementId)
+			procurement, err := repo.GetProcurementItem(article.PublicProcurementID)
 			if err != nil {
 				return err
 			}
 
-			plan, err := repo.GetProcurementPlan(procurement.PlanId)
+			plan, err := repo.GetProcurementPlan(procurement.PlanID)
 
 			if err != nil {
 				return err
@@ -100,7 +100,7 @@ func (repo *MicroserviceRepository) CreateOrderListProcurementArticles(orderList
 
 func (repo *MicroserviceRepository) GetOrderProcurementArticles(input *dto.GetOrderProcurementArticleInput) (*dto.GetOrderProcurementArticlesResponseMS, error) {
 	res := &dto.GetOrderProcurementArticlesResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.ORDER_PROCUREMENT_ARTICLES, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.OrderProcurementArticles, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -108,9 +108,9 @@ func (repo *MicroserviceRepository) GetOrderProcurementArticles(input *dto.GetOr
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) GetOrderListById(id int) (*structs.OrderListItem, error) {
+func (repo *MicroserviceRepository) GetOrderListByID(id int) (*structs.OrderListItem, error) {
 	res := &dto.GetOrderListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.ORDER_LISTS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.OrderLists+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (repo *MicroserviceRepository) GetOrderListById(id int) (*structs.OrderList
 
 func (repo *MicroserviceRepository) GetOrderLists(input *dto.GetOrderListInput) (*dto.GetOrderListsResponseMS, error) {
 	res := &dto.GetOrderListsResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.ORDER_LISTS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.OrderLists, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (repo *MicroserviceRepository) GetOrderLists(input *dto.GetOrderListInput) 
 
 func (repo *MicroserviceRepository) GetOrderProcurementArticleByID(id int) (*structs.OrderProcurementArticleItem, error) {
 	res := &dto.GetOrderProcurementArticleResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.ORDER_PROCUREMENT_ARTICLES+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.OrderProcurementArticles+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (repo *MicroserviceRepository) GetOrderProcurementArticleByID(id int) (*str
 
 func (repo *MicroserviceRepository) UpdateOrderProcurementArticle(item *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error) {
 	res := &dto.GetOrderProcurementArticleResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.ORDER_PROCUREMENT_ARTICLES+"/"+strconv.Itoa(item.Id), item, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.OrderProcurementArticles+"/"+strconv.Itoa(item.ID), item, res)
 	if err != nil {
 		return nil, err
 	}

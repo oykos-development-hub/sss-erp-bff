@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func WriteJson(path string, data []interface{}) error {
+func WriteJSON(path string, data []interface{}) error {
 	if len(path) == 0 {
 		return errors.New("argument 'path' cannot be empty")
 	}

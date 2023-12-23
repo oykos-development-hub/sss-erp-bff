@@ -1,15 +1,15 @@
 package structs
 
 type AccountItem struct {
-	Id           int    `json:"id"`
+	ID           int    `json:"id"`
 	Title        string `json:"title"`
-	ParentId     *int   `json:"parent_id"`
+	ParentID     *int   `json:"parent_id"`
 	SerialNumber string `json:"serial_number"`
 }
 
 type AccountItemNode struct {
-	Id                 int    `json:"id"`
-	ParentId           int    `json:"parent_id"`
+	ID                 int    `json:"id"`
+	ParentID           int    `json:"parent_id"`
 	SerialNumber       string `json:"serial_number"`
 	Title              string `json:"title"`
 	ValueCurrentYear   int    `json:"value_current_year"`
@@ -19,8 +19,8 @@ type AccountItemNode struct {
 }
 
 type AccountItemPath struct {
-	Id           int    `json:"id"`
-	ParentId     int    `json:"parent_id"`
+	ID           int    `json:"id"`
+	ParentID     int    `json:"parent_id"`
 	SerialNumber string `json:"serial_number"`
 	Title        string `json:"title"`
 	Path         string `json:"path"`

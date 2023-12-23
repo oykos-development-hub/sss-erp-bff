@@ -115,7 +115,7 @@ func (h *Handler) ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Reques
 			}
 
 			contractArticle, err := h.Repo.GetProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
-				ArticleID: &res[0].Id,
+				ArticleID: &res[0].ID,
 			})
 
 			if err != nil {
@@ -124,12 +124,12 @@ func (h *Handler) ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Reques
 			}
 
 			if len(contractArticle.Data) > 0 {
-				article.ID = contractArticle.Data[0].Id
+				article.ID = contractArticle.Data[0].ID
 			}
 
 			vatPercentage, _ := strconv.ParseFloat(res[0].VatPercentage, 32)
 			vatFloat32 := float32(vatPercentage)
-			article.ArticleID = res[0].Id
+			article.ArticleID = res[0].ID
 			grossValue := price + price*vatFloat32/100
 			grossValue = float32(math.Round(float64(grossValue)*100) / 100)
 			article.NetValue = &price
@@ -244,7 +244,7 @@ func (h *Handler) ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			article.PublicProcurementId = publicProcurementID
+			article.PublicProcurementID = publicProcurementID
 
 			if article.Title == "" || article.NetPrice == 0 || article.VatPercentage == "" {
 				break
@@ -291,7 +291,7 @@ func (h *Handler) ReadArticlesInventoryHandler(w http.ResponseWriter, r *http.Re
 	var articlesData []structs.PublicProcurementArticle
 
 	for _, article := range contractArticles.Data {
-		articleData, err := h.Repo.GetProcurementArticle(article.PublicProcurementArticleId)
+		articleData, err := h.Repo.GetProcurementArticle(article.PublicProcurementArticleID)
 		if err != nil {
 			handleError(w, err, http.StatusInternalServerError)
 			return
@@ -363,7 +363,7 @@ func (h *Handler) ReadArticlesInventoryHandler(w http.ResponseWriter, r *http.Re
 						}
 
 						article.GrossPrice = articleData.NetPrice + articleData.NetPrice*float32(vatPercentageFloat)/100
-						article.ID = articleData.Id
+						article.ID = articleData.ID
 						break
 					}
 				}
@@ -524,7 +524,8 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 						continue
 					}
 
-					dispatch.InventoryId = inventory.Data[0].Id
+					dispatch.InventoryID = inventory.Data[0].ID
+
 				case 4:
 					floatValue, err := strconv.ParseFloat(value, 32)
 					if err != nil {
@@ -551,7 +552,7 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 				}
 			}
 
-			if inventoryNumber == "" && dispatch.InventoryId == 0 && dispatch.EstimatedDuration == 0 && dispatch.GrossPriceDifference == 0 && dispatch.ResidualPrice == nil {
+			if inventoryNumber == "" && dispatch.InventoryID == 0 && dispatch.EstimatedDuration == 0 && dispatch.GrossPriceDifference == 0 && dispatch.ResidualPrice == nil {
 				response.Status = "success"
 				_ = MarshalAndWriteJSON(w, response)
 				return
@@ -561,7 +562,7 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 				continue
 			}
 
-			item, err := h.Repo.GetInventoryItem(dispatch.InventoryId)
+			item, err := h.Repo.GetInventoryItem(dispatch.InventoryID)
 			if err != nil {
 				handleError(w, err, http.StatusInternalServerError)
 				return
@@ -569,7 +570,7 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 			now := time.Now()
 			nowString := now.Format("2006-01-02T00:00:00Z")
 			dispatch.DateOfAssessment = &nowString
-			dispatch.DepreciationTypeId = item.DepreciationTypeId
+			dispatch.DepreciationTypeID = item.DepreciationTypeID
 
 			response.Data = append(response.Data, dispatch)
 			// item, err := h.Repo.GetInventoryItem(dispatch.InventoryId)
@@ -654,7 +655,7 @@ func (h *Handler) ReadExpireImovableInventoriesHandler(w http.ResponseWriter, r 
 						continue
 					}
 
-					dispatch.InventoryId = inventory.Data[0].Id
+					dispatch.InventoryID = inventory.Data[0].ID
 
 				case 4:
 					floatValue, err := strconv.ParseFloat(value, 32)
@@ -678,7 +679,7 @@ func (h *Handler) ReadExpireImovableInventoriesHandler(w http.ResponseWriter, r 
 				}
 			}
 
-			if location == "" && dispatch.InventoryId == 0 && dispatch.EstimatedDuration == 0 && dispatch.GrossPriceDifference == 0 && dispatch.ResidualPrice == nil {
+			if location == "" && dispatch.InventoryID == 0 && dispatch.EstimatedDuration == 0 && dispatch.GrossPriceDifference == 0 && dispatch.ResidualPrice == nil {
 				response.Status = "success"
 				_ = MarshalAndWriteJSON(w, response)
 				return
@@ -688,7 +689,7 @@ func (h *Handler) ReadExpireImovableInventoriesHandler(w http.ResponseWriter, r 
 				continue
 			}
 
-			item, err := h.Repo.GetInventoryItem(dispatch.InventoryId)
+			item, err := h.Repo.GetInventoryItem(dispatch.InventoryID)
 			if err != nil {
 				handleError(w, err, http.StatusInternalServerError)
 				return
@@ -696,7 +697,7 @@ func (h *Handler) ReadExpireImovableInventoriesHandler(w http.ResponseWriter, r 
 			now := time.Now()
 			nowString := now.Format("2006-01-02T00:00:00Z")
 			dispatch.DateOfAssessment = &nowString
-			dispatch.DepreciationTypeId = item.DepreciationTypeId
+			dispatch.DepreciationTypeID = item.DepreciationTypeID
 			_, err = h.Repo.CreateAssessments(&dispatch)
 
 			if err != nil {
@@ -819,7 +820,7 @@ func (h *Handler) ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r 
 				}
 			}
 
-			article.PublicProcurementId = publicProcurementID
+			article.PublicProcurementID = publicProcurementID
 
 			if article.Title == "" || article.NetPrice == 0 || article.VatPercentage == "" {
 				break

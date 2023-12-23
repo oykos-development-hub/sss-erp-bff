@@ -84,7 +84,7 @@ func (h *Handler) UploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		writer.Close() //mora ovako jer se iz nekog neznanog razloga ne kopira fajl kako treba
-		backendResponse, status, err := makeBackendRequest(http.MethodPost, h.Config.Microservices.Files.FILES, &requestBody, writer.FormDataContentType())
+		backendResponse, status, err := makeBackendRequest(http.MethodPost, h.Config.Microservices.Files.Files, &requestBody, writer.FormDataContentType())
 		if err != nil {
 			handleError(w, err, status)
 			return
@@ -119,7 +119,7 @@ func (h *Handler) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	var response SingleFileResponse
 	id := chi.URLParam(r, "id")
 
-	backendFileURL := h.Config.Microservices.Files.FILES + "/" + id
+	backendFileURL := h.Config.Microservices.Files.Files + "/" + id
 
 	backendResponse, status, err := makeBackendRequest(http.MethodDelete, backendFileURL, nil, "")
 	if err != nil {
@@ -149,7 +149,7 @@ func (h *Handler) MultipleDeleteHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	backendFileURL := h.Config.Microservices.Files.FILES_MULTIPLE_DELETE
+	backendFileURL := h.Config.Microservices.Files.FilesMultipleDelete
 
 	backendResponse, status, err := makeBackendRequest(http.MethodPost, backendFileURL, bytes.NewBuffer(jsonData), "")
 	if err != nil {
@@ -166,7 +166,7 @@ func (h *Handler) MultipleDeleteHandler(w http.ResponseWriter, r *http.Request) 
 func (h *Handler) DownloadHandler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	backendFileURL := h.Config.Microservices.Files.FILES_DOWNLOAD + "/" + id
+	backendFileURL := h.Config.Microservices.Files.FilesDownload + "/" + id
 
 	backendResponse, status, err := makeBackendRequest(http.MethodGet, backendFileURL, nil, "")
 	if err != nil {
@@ -195,7 +195,7 @@ func (h *Handler) DownloadHandler(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) OverviewHandler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	backendFileURL := h.Config.Microservices.Files.FILES_OVERVIEW + "/" + id
+	backendFileURL := h.Config.Microservices.Files.FilesOverview + "/" + id
 
 	backendResponse, status, err := makeBackendRequest(http.MethodGet, backendFileURL, nil, "")
 	if err != nil {
@@ -223,7 +223,7 @@ func (h *Handler) OverviewHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetFileData(fileID string) (*SingleFileResponse, int, error) {
-	backendURL := fmt.Sprintf(h.Config.Microservices.Files.FILES + "/" + fileID)
+	backendURL := fmt.Sprintf(h.Config.Microservices.Files.Files + "/" + fileID)
 
 	response, status, err := makeBackendRequest(http.MethodGet, backendURL, nil, "")
 

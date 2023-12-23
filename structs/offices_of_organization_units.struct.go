@@ -1,8 +1,8 @@
 package structs
 
 type OfficesOfOrganizationUnitItem struct {
-	Id                 int    `json:"id"`
-	OrganizationUnitId int    `json:"organization_unit_id"`
+	ID                 int    `json:"id"`
+	OrganizationUnitID int    `json:"organization_unit_id"`
 	Title              string `json:"title"`
 	Abbreviation       string `json:"abbreviation"`
 	Description        string `json:"description"`

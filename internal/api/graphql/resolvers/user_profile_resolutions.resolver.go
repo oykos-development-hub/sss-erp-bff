@@ -4,7 +4,6 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 
@@ -12,9 +11,9 @@ import (
 )
 
 func (r *Resolver) UserProfileResolutionResolver(params graphql.ResolveParams) (interface{}, error) {
-	userProfileId := params.Args["user_profile_id"].(int)
+	userProfileID := params.Args["user_profile_id"].(int)
 
-	resolutions, err := r.Repo.GetEmployeeResolutions(userProfileId, nil)
+	resolutions, err := r.Repo.GetEmployeeResolutions(userProfileID, nil)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -39,9 +38,9 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		resolution, err := r.Repo.UpdateResolution(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		resolution, err := r.Repo.UpdateResolution(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -68,9 +67,9 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 }
 
 func (r *Resolver) UserProfileResolutionDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteResolution(itemId)
+	err := r.Repo.DeleteResolution(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -93,24 +92,24 @@ func buildResolutionResponseItemList(r repository.MicroserviceRepositoryInterfac
 }
 
 func buildResolutionResItem(r repository.MicroserviceRepositoryInterface, item *structs.Resolution) (*dto.Resolution, error) {
-	userProfile, err := r.GetUserProfileById(item.UserProfileId)
+	userProfile, err := r.GetUserProfileByID(item.UserProfileID)
 	if err != nil {
 		return nil, err
 	}
-	resolutionType, err := r.GetDropdownSettingById(item.ResolutionTypeId)
+	resolutionType, err := r.GetDropdownSettingByID(item.ResolutionTypeID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &dto.Resolution{
-		Id:                item.Id,
+		ID:                item.ID,
 		ResolutionPurpose: item.ResolutionPurpose,
 		UserProfile: dto.DropdownSimple{
-			Id:    userProfile.Id,
+			ID:    userProfile.ID,
 			Title: userProfile.GetFullName(),
 		},
 		ResolutionType: dto.DropdownSimple{
-			Id:    resolutionType.Id,
+			ID:    resolutionType.ID,
 			Title: resolutionType.Title,
 		},
 		IsAffect:    item.IsAffect,

@@ -38,7 +38,7 @@ type MicroserviceRepositoryInterface interface {
 	CreateMovements(input structs.OrderAssetMovementItem) (*structs.Movement, error)
 	CreateNotification(notification *structs.Notifications) (*structs.Notifications, error)
 	CreateOrderListItem(orderListItem *structs.OrderListItem) (*structs.OrderListItem, error)
-	CreateOrderListProcurementArticles(orderListId int, data structs.OrderListInsertItem) error
+	CreateOrderListProcurementArticles(orderListID int, data structs.OrderListInsertItem) error
 	CreateOrderProcurementArticle(orderProcurementArticleItem *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error)
 	CreateOrganizationUnits(data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error)
 	CreateProcurementArticle(article *structs.PublicProcurementArticle) (*structs.PublicProcurementArticle, error)
@@ -71,8 +71,8 @@ type MicroserviceRepositoryInterface interface {
 	DeleteEmployeeContract(id int) error
 	DeleteEmployeeEducation(id int) error
 	DeleteEmployeeFamilyMember(id int) error
-	DeleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnitId int) error
-	DeleteEmployeeInOrganizationUnitByID(jobPositionInOrganizationUnitId int) error
+	DeleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnitID int) error
+	DeleteEmployeeInOrganizationUnitByID(jobPositionInOrganizationUnitID int) error
 	DeleteEvaluation(id int) error
 	DeleteExperience(id int) error
 	DeleteFile(id int) error
@@ -87,7 +87,7 @@ type MicroserviceRepositoryInterface interface {
 	DeleteJudgeNorm(id int) error
 	DeleteJudgeResolution(id int) error
 	DeleteMovement(id int) error
-	DeleteNotification(notificationId int) error
+	DeleteNotification(notificationID int) error
 	DeleteOrderList(id int) error
 	DeleteOrderProcurementArticle(id int) error
 	DeleteOrganizationUnits(id int) error
@@ -108,18 +108,18 @@ type MicroserviceRepositoryInterface interface {
 	DeleteSystematization(id int) error
 	DeleteUserAccount(id int) error
 	DeleteUserProfile(id int) error
-	FetchNotifications(userId int) ([]*structs.Notifications, error)
+	FetchNotifications(userID int) ([]*structs.Notifications, error)
 	ForgotPassword(email string) error
-	GetAbsentById(absentID int) (*structs.Absent, error)
-	GetAbsentTypeById(absentTypeId int) (*structs.AbsentType, error)
+	GetAbsentByID(absentID int) (*structs.Absent, error)
+	GetAbsentTypeByID(absentTypeID int) (*structs.AbsentType, error)
 	GetAbsentTypes() (*dto.GetAbsentTypeListResponseMS, error)
-	GetAccountItemById(id int) (*structs.AccountItem, error)
+	GetAccountItemByID(id int) (*structs.AccountItem, error)
 	GetAccountItems(filters *dto.GetAccountsFilter) (*dto.GetAccountItemListResponseMS, error)
 	GetAllInventoryDispatches(filter dto.InventoryDispatchFilter) (*dto.GetAllBasicInventoryDispatches, error)
 	GetAllInventoryItem(filter dto.InventoryItemFilter) (*dto.GetAllBasicInventoryItem, error)
 	GetDispatchItemByID(id int) (*structs.BasicInventoryDispatchItem, error)
 	GetDispatchItemByInventoryID(id int) ([]*structs.BasicInventoryDispatchItemsItem, error)
-	GetDropdownSettingById(id int) (*structs.SettingsDropdown, error)
+	GetDropdownSettingByID(id int) (*structs.SettingsDropdown, error)
 	GetDropdownSettings(input *dto.GetSettingsInput) (*dto.GetDropdownTypesResponseMS, error)
 	GetEmployeeAbsents(userProfileID int, input *dto.EmployeeAbsentsInput) ([]*structs.Absent, error)
 	GetEmployeeContracts(employeeID int, input *dto.GetEmployeeContracts) ([]*structs.Contracts, error)
@@ -132,16 +132,16 @@ type MicroserviceRepositoryInterface interface {
 	GetEmployeeResolutions(employeeID int, input *dto.EmployeeResolutionListInput) ([]*structs.Resolution, error)
 	GetEmployeeSalaryParams(userProfileID int) ([]*structs.SalaryParams, error)
 	GetEmployeesInOrganizationUnitList(input *dto.GetEmployeesInOrganizationUnitInput) ([]*structs.EmployeesInOrganizationUnits, error)
-	GetEmployeesInOrganizationUnitsByProfileId(profileId int) (*structs.EmployeesInOrganizationUnits, error)
+	GetEmployeesInOrganizationUnitsByProfileID(profileID int) (*structs.EmployeesInOrganizationUnits, error)
 	GetEvaluation(evaulationID int) (*structs.Evaluation, error)
 	GetFileByID(id int) (*structs.File, error)
 	GetInventoryItem(id int) (*structs.BasicInventoryInsertItem, error)
 	GetInventoryRealEstate(id int) (*structs.BasicInventoryRealEstatesItem, error)
 	GetInventoryRealEstatesList(input *dto.GetInventoryRealEstateListInputMS) (*dto.GetInventoryRealEstateListResponseMS, error)
-	GetJobPositionById(id int) (*structs.JobPositions, error)
+	GetJobPositionByID(id int) (*structs.JobPositions, error)
 	GetJobPositions(input *dto.GetJobPositionsInput) (*dto.GetJobPositionsResponseMS, error)
 	GetJobPositionsInOrganizationUnits(input *dto.GetJobPositionInOrganizationUnitsInput) (*dto.GetJobPositionsInOrganizationUnitsResponseMS, error)
-	GetJobPositionsInOrganizationUnitsById(id int) (*structs.JobPositionsInOrganizationUnits, error)
+	GetJobPositionsInOrganizationUnitsByID(id int) (*structs.JobPositionsInOrganizationUnits, error)
 	GetJobTender(id int) (*structs.JobTenders, error)
 	GetJobTenderList() ([]*structs.JobTenders, error)
 	GetJudgeNormListByEmployee(userProfileID int) ([]structs.JudgeNorms, error)
@@ -159,14 +159,14 @@ type MicroserviceRepositoryInterface interface {
 	GetMyInventoryRealEstate(id int) (*structs.BasicInventoryRealEstatesItem, error)
 	GetNotification(id int) (*structs.Notifications, error)
 	GetOfficeDropdownSettings(input *dto.GetOfficesOfOrganizationInput) (*dto.GetDropdownTypesResponseMS, error)
-	GetOrderListById(id int) (*structs.OrderListItem, error)
+	GetOrderListByID(id int) (*structs.OrderListItem, error)
 	GetOrderLists(input *dto.GetOrderListInput) (*dto.GetOrderListsResponseMS, error)
 	GetOrderProcurementArticleByID(id int) (*structs.OrderProcurementArticleItem, error)
 	GetOrderProcurementArticles(input *dto.GetOrderProcurementArticleInput) (*dto.GetOrderProcurementArticlesResponseMS, error)
 	GetOrganizationUnitArticleByID(id int) (*dto.GetPublicProcurementOrganizationUnitArticle, error)
 	GetOrganizationUnitArticlesList(input dto.GetProcurementOrganizationUnitArticleListInputDTO) ([]dto.GetPublicProcurementOrganizationUnitArticle, error)
-	GetOrganizationUnitById(id int) (*structs.OrganizationUnits, error)
-	GetOrganizationUnitIdByUserProfile(id int) (*int, error)
+	GetOrganizationUnitByID(id int) (*structs.OrganizationUnits, error)
+	GetOrganizationUnitIDByUserProfile(id int) (*int, error)
 	GetOrganizationUnits(input *dto.GetOrganizationUnitsInput) (*dto.GetOrganizationUnitsResponseMS, error)
 	GetPermissionList(roleID int) ([]structs.Permissions, error)
 	GetProcurementArticle(id int) (*structs.PublicProcurementArticle, error)
@@ -181,7 +181,7 @@ type MicroserviceRepositoryInterface interface {
 	GetProcurementOULimitList(input *dto.GetProcurementOULimitListInputMS) ([]*structs.PublicProcurementLimit, error)
 	GetProcurementPlan(id int) (*structs.PublicProcurementPlan, error)
 	GetProcurementPlanList(input *dto.GetProcurementPlansInput) ([]*structs.PublicProcurementPlan, error)
-	GetRevisionById(id int) (*structs.Revision, error)
+	GetRevisionByID(id int) (*structs.Revision, error)
 	GetRevisionList(input *dto.GetRevisionsInput) (*dto.GetRevisionListResponseMS, error)
 	GetRevisionOrgUnitList(input *dto.RevisionOrgUnitFilter) ([]*dto.RevisionOrgUnit, error)
 	GetRevisionPlanByID(id int) (*dto.RevisionPlanItem, error)
@@ -198,15 +198,15 @@ type MicroserviceRepositoryInterface interface {
 	GetStockByID(id int) (*structs.StockArticle, error)
 	GetSupplier(id int) (*structs.Suppliers, error)
 	GetSupplierList(input *dto.GetSupplierInputMS) (*dto.GetSupplierListResponseMS, error)
-	GetSystematizationById(id int) (*structs.Systematization, error)
+	GetSystematizationByID(id int) (*structs.Systematization, error)
 	GetSystematizations(input *dto.GetSystematizationsInput) (*dto.GetSystematizationsResponseMS, error)
 	GetTenderApplication(id int) (*structs.JobTenderApplications, error)
 	GetTenderApplicationList(input *dto.GetJobTenderApplicationsInput) (*dto.GetJobTenderApplicationListResponseMS, error)
 	GetTenderType(id int) (*structs.JobTenderTypes, error)
 	GetTenderTypeList(input *dto.GetJobTenderTypeInputMS) ([]*structs.JobTenderTypes, error)
-	GetUserAccountById(id int) (*structs.UserAccounts, error)
+	GetUserAccountByID(id int) (*structs.UserAccounts, error)
 	GetUserAccounts(input *dto.GetUserAccountListInput) (*dto.GetUserAccountListResponseMS, error)
-	GetUserProfileById(id int) (*structs.UserProfiles, error)
+	GetUserProfileByID(id int) (*structs.UserProfiles, error)
 	GetUserProfileByUserAccountID(accountID int) (*structs.UserProfiles, error)
 	GetUserProfiles(input *dto.GetUserProfilesInput) ([]*structs.UserProfiles, error)
 	LoginUser(email string, password string) (*dto.LoginResponseMS, []*http.Cookie, error)

@@ -4,7 +4,6 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 
@@ -21,12 +20,12 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 	page := params.Args["page"]
 	size := params.Args["size"]
 	active := params.Args["active"]
-	organizationUnitId := params.Args["organization_unit_id"]
+	organizationUnitID := params.Args["organization_unit_id"]
 	year := params.Args["year"]
 	search := params.Args["search"]
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		systematization, err := r.Repo.GetSystematizationById(id.(int))
+	if id != nil && id != 0 {
+		systematization, err := r.Repo.GetSystematizationByID(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -38,17 +37,17 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 		total = 1
 	} else {
 		input := dto.GetSystematizationsInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
+		if page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum
 		}
-		if shared.IsInteger(size) && size.(int) > 0 {
+		if size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}
-		if shared.IsInteger(organizationUnitId) && organizationUnitId.(int) > 0 {
-			organizationUnitId := organizationUnitId.(int)
-			input.OrganizationUnitID = &organizationUnitId
+		if organizationUnitID.(int) > 0 {
+			organizationUnitID := organizationUnitID.(int)
+			input.OrganizationUnitID = &organizationUnitID
 		}
 		if year != nil {
 			yearInput := year.(string)
@@ -58,7 +57,7 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 			searchInput := search.(string)
 			input.Search = &searchInput
 		}
-		if shared.IsInteger(active) && active.(int) > 0 {
+		if active.(int) > 0 {
 			activeValue := active.(int)
 			input.Active = &activeValue
 		}
@@ -87,7 +86,7 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 
 func (r *Resolver) SystematizationResolver(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"]
-	systematization, err := r.Repo.GetSystematizationById(id.(int))
+	systematization, err := r.Repo.GetSystematizationByID(id.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -104,7 +103,7 @@ func (r *Resolver) SystematizationResolver(params graphql.ResolveParams) (interf
 }
 
 func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (interface{}, error) {
-	var booActive int = 2
+	booActive := 2
 	var data structs.Systematization
 	var systematization *structs.Systematization
 	var err error
@@ -113,9 +112,9 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		systematization, err = r.Repo.UpdateSystematization(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		systematization, err = r.Repo.UpdateSystematization(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -127,23 +126,23 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 	}
 
 	input := dto.GetSystematizationsInput{}
-	input.OrganizationUnitID = &systematization.OrganizationUnitId
+	input.OrganizationUnitID = &systematization.OrganizationUnitID
 	input.Active = &booActive
 
 	systematizationsActiveResponse, _ := r.Repo.GetSystematizations(&input)
 	// Getting Sectors
 	inputOrganizationUnits := dto.GetOrganizationUnitsInput{
-		ParentID: &systematization.OrganizationUnitId,
+		ParentID: &systematization.OrganizationUnitID,
 	}
 	organizationUnitsResponse, err := r.Repo.GetOrganizationUnits(&inputOrganizationUnits)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
-	if (!shared.IsInteger(itemId) || itemId == 0) && len(systematizationsActiveResponse.Data) > 0 {
+	if (itemID == 0) && len(systematizationsActiveResponse.Data) > 0 {
 		for _, sector := range organizationUnitsResponse.Data {
 			input := dto.GetJobPositionInOrganizationUnitsInput{
-				OrganizationUnitID: &sector.Id,
-				SystematizationID:  &systematizationsActiveResponse.Data[0].Id,
+				OrganizationUnitID: &sector.ID,
+				SystematizationID:  &systematizationsActiveResponse.Data[0].ID,
 			}
 			jobPositionsInOrganizationUnits, err := r.Repo.GetJobPositionsInOrganizationUnits(&input)
 			if err != nil {
@@ -152,24 +151,24 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
 				var jobPositionsInOrganizationUnitRes *dto.GetJobPositionInOrganizationUnitsResponseMS
 				jobPositionsInOrganizationUnitRes, _ = r.Repo.CreateJobPositionsInOrganizationUnits(&structs.JobPositionsInOrganizationUnits{
-					SystematizationId:        systematization.Id,
-					ParentOrganizationUnitId: jobPositionOU.ParentOrganizationUnitId,
-					JobPositionId:            jobPositionOU.JobPositionId,
+					SystematizationID:        systematization.ID,
+					ParentOrganizationUnitID: jobPositionOU.ParentOrganizationUnitID,
+					JobPositionID:            jobPositionOU.JobPositionID,
 					AvailableSlots:           jobPositionOU.AvailableSlots,
 					Requirements:             jobPositionOU.Requirements,
 					Description:              jobPositionOU.Description,
 				})
 
 				input := dto.GetEmployeesInOrganizationUnitInput{
-					PositionInOrganizationUnit: &jobPositionOU.Id,
+					PositionInOrganizationUnit: &jobPositionOU.ID,
 				}
 				employeesInOrganizationUnit, _ := r.Repo.GetEmployeesInOrganizationUnitList(&input)
 
 				if len(employeesInOrganizationUnit) > 0 {
 					for _, employee := range employeesInOrganizationUnit {
 						input := &structs.EmployeesInOrganizationUnits{
-							PositionInOrganizationUnitId: jobPositionsInOrganizationUnitRes.Data.Id,
-							UserProfileId:                employee.UserProfileId,
+							PositionInOrganizationUnitID: jobPositionsInOrganizationUnitRes.Data.ID,
+							UserProfileID:                employee.UserProfileID,
 						}
 						_, err := r.Repo.CreateEmployeesInOrganizationUnits(input)
 						if err != nil {
@@ -189,9 +188,9 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 	if systematization.Active == 2 {
 		if len(systematizationsActiveResponse.Data) > 0 {
 			for _, sys := range systematizationsActiveResponse.Data {
-				if sys.Id != systematization.Id {
+				if sys.ID != systematization.ID {
 					sys.Active = 1
-					_, _ = r.Repo.UpdateSystematization(sys.Id, &sys)
+					_, _ = r.Repo.UpdateSystematization(sys.ID, &sys)
 				}
 			}
 		}
@@ -211,13 +210,13 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 }
 
 func (r *Resolver) SystematizationDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 
-	if !shared.IsInteger(itemId) && !(itemId.(int) <= 0) {
+	if !(itemID.(int) <= 0) {
 		return errors.ErrorResponse("You must pass the item id"), nil
 	}
 
-	err := r.Repo.DeleteSystematization(itemId.(int))
+	err := r.Repo.DeleteSystematization(itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -231,12 +230,12 @@ func (r *Resolver) SystematizationDeleteResolver(params graphql.ResolveParams) (
 func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInterface, systematization *structs.Systematization) (dto.SystematizationOverviewResponse, error) {
 
 	result := dto.SystematizationOverviewResponse{
-		Id:                 systematization.Id,
-		UserProfileId:      systematization.UserProfileId,
-		OrganizationUnitId: systematization.OrganizationUnitId,
+		ID:                 systematization.ID,
+		UserProfileID:      systematization.UserProfileID,
+		OrganizationUnitID: systematization.OrganizationUnitID,
 		Description:        systematization.Description,
 		SerialNumber:       systematization.SerialNumber,
-		FileId:             systematization.FileId,
+		FileID:             systematization.FileID,
 		Active:             systematization.Active,
 		DateOfActivation:   systematization.DateOfActivation,
 		Sectors:            &[]dto.OrganizationUnitsSectorResponse{},
@@ -246,7 +245,7 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 	}
 
 	// Getting Organization Unit
-	var relatedOrganizationUnit, err = r.GetOrganizationUnitById(systematization.OrganizationUnitId)
+	var relatedOrganizationUnit, err = r.GetOrganizationUnitByID(systematization.OrganizationUnitID)
 	if err != nil {
 		return result, err
 	}
@@ -254,7 +253,7 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 
 	// Getting Sectors
 	inputOrganizationUnits := dto.GetOrganizationUnitsInput{
-		ParentID: &systematization.OrganizationUnitId,
+		ParentID: &systematization.OrganizationUnitID,
 	}
 	organizationUnitsResponse, err := r.GetOrganizationUnits(&inputOrganizationUnits)
 	if err != nil {
@@ -267,10 +266,10 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 	// Getting Job positions
 	if result.Sectors != nil {
 		for i, sector := range *result.Sectors {
-			// jobPositionInOrganizationBySectorId getJobPositionsInOrganizationUnits
+			// jobPositionInOrganizationBySectorID getJobPositionsInOrganizationUnits
 			input := dto.GetJobPositionInOrganizationUnitsInput{
-				OrganizationUnitID: &sector.Id,
-				SystematizationID:  &systematization.Id,
+				OrganizationUnitID: &sector.ID,
+				SystematizationID:  &systematization.ID,
 			}
 			jobPositionsInOrganizationUnits, err := r.GetJobPositionsInOrganizationUnits(&input)
 			if err != nil {
@@ -278,42 +277,42 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 			}
 			var jobPositionsOrganizationUnits []dto.JobPositionsOrganizationUnits
 			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
-				jobPosition, err := r.GetJobPositionById(jobPositionOU.JobPositionId)
+				jobPosition, err := r.GetJobPositionByID(jobPositionOU.JobPositionID)
 				if err != nil {
 					return result, err
 				}
 
 				input := dto.GetEmployeesInOrganizationUnitInput{
-					PositionInOrganizationUnit: &jobPositionOU.Id,
+					PositionInOrganizationUnit: &jobPositionOU.ID,
 				}
 				employeesInOrganizationUnit, _ := r.GetEmployeesInOrganizationUnitList(&input)
 				var employees []dto.DropdownSimple
 				for _, employeeID := range employeesInOrganizationUnit {
-					employee, err := r.GetUserProfileById(employeeID.UserProfileId)
+					employee, err := r.GetUserProfileByID(employeeID.UserProfileID)
 					if err != nil {
 						return result, err
 					}
 					employees = append(employees, dto.DropdownSimple{
-						Id:    employeeID.UserProfileId,
+						ID:    employeeID.UserProfileID,
 						Title: employee.FirstName + " " + employee.LastName,
 					})
 					if !jobPosition.IsJudgePresident {
 						result.ActiveEmployees = append(result.ActiveEmployees, structs.ActiveEmployees{
-							Id:       employeeID.UserProfileId,
+							ID:       employeeID.UserProfileID,
 							FullName: employee.FirstName + " " + employee.LastName,
 							JobPositions: structs.SettingsDropdown{
-								Id:    jobPosition.Id,
+								ID:    jobPosition.ID,
 								Title: jobPosition.Title,
 							},
 							Sector: sector.Title,
 						})
 					}
 				}
-				// jobEmployeesByPositionInOrganizationId
+				// jobEmployeesByPositionInOrganizationID
 				jobPositionsOrganizationUnits = append(jobPositionsOrganizationUnits, dto.JobPositionsOrganizationUnits{
-					Id: jobPositionOU.Id,
+					ID: jobPositionOU.ID,
 					JobPositions: dto.DropdownSimple{
-						Id:    jobPosition.Id,
+						ID:    jobPosition.ID,
 						Title: jobPosition.Title,
 					},
 					Description:    jobPositionOU.Description,

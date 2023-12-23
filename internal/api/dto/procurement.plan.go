@@ -37,7 +37,7 @@ const (
 )
 
 type ProcurementPlanResponseItem struct {
-	Id                  int                            `json:"id"`
+	ID                  int                            `json:"id"`
 	PreBudgetPlan       *DropdownSimple                `json:"pre_budget_plan"`
 	IsPreBudget         bool                           `json:"is_pre_budget"`
 	Active              bool                           `json:"active"`
@@ -47,8 +47,8 @@ type ProcurementPlanResponseItem struct {
 	SerialNumber        *string                        `json:"serial_number"`
 	DateOfPublishing    *string                        `json:"date_of_publishing"`
 	DateOfClosing       *string                        `json:"date_of_closing"`
-	PreBudgetId         *int                           `json:"pre_budget_id"`
-	FileId              *int                           `json:"file_id"`
+	PreBudgetID         *int                           `json:"pre_budget_id"`
+	FileID              *int                           `json:"file_id"`
 	Requests            int                            `json:"requests"`
 	ApprovedRequests    int                            `json:"approved_requests"`
 	RejectedDescription *string                        `json:"rejected_description"`
@@ -69,7 +69,7 @@ type PlanPDFResponse struct {
 }
 
 type PlanPDFTableDataRow struct {
-	Id              string `json:"id"`
+	ID              string `json:"id"`
 	ArticleType     string `json:"article_type"`
 	Title           string `json:"title"`
 	TotalGross      string `json:"total_gross"`

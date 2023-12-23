@@ -17,7 +17,7 @@ type GetOrderProcurementArticleInput struct {
 }
 
 type OrderProcurementArticleOverviewResponse struct {
-	Id                   int                                    `json:"id"`
+	ID                   int                                    `json:"id"`
 	DateOrder            string                                 `json:"date_order" validate:"required"`
 	TotalPrice           int                                    `json:"total_price"`
 	PublicProcurementID  int                                    `json:"public_procurement_id"`

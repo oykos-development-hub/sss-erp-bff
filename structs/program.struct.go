@@ -1,8 +1,8 @@
 package structs
 
 type ProgramItem struct {
-	Id                 int    `json:"id"`
-	ParentId           int    `json:"parent_id"`
+	ID                 int    `json:"id"`
+	ParentID           int    `json:"parent_id"`
 	Title              string `json:"title"`
-	OrganizationUnitId int    `json:"organization_unit_id"`
+	OrganizationUnitID int    `json:"organization_unit_id"`
 }

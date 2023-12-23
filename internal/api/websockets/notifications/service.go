@@ -72,14 +72,14 @@ func (s *Websockets) CreateNotification(notification *structs.Notifications) (*s
 func processNotificationMessage(repo repository.MicroserviceRepositoryInterface, msg []byte) {
 	var message struct {
 		Action         ActionType `json:"action"`
-		NotificationId int        `json:"notification_id"`
+		NotificationID int        `json:"notification_id"`
 	}
 	_ = json.Unmarshal(msg, &message)
 
 	switch message.Action {
 	case ActionRead:
-		_ = repo.MarkNotificationRead(message.NotificationId)
+		_ = repo.MarkNotificationRead(message.NotificationID)
 	case ActionDelete:
-		_ = repo.DeleteNotification(message.NotificationId)
+		_ = repo.DeleteNotification(message.NotificationID)
 	}
 }

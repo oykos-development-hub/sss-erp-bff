@@ -20,13 +20,13 @@ type GetOrderListInput struct {
 	Year                *string `json:"year"`
 	DateSystem          *string `json:"date_system"`
 	PublicProcurementID *int    `json:"public_procurement_id"`
-	OrganizationUnitId  *int    `json:"organization_unit_id"`
+	OrganizationUnitID  *int    `json:"organization_unit_id"`
 	SortByDateOrder     *string `json:"sort_by_date_order"`
 	SortByTotalPrice    *string `json:"sort_by_total_price"`
 }
 
 type OrderListOverviewResponse struct {
-	Id                  int                                    `json:"id"`
+	ID                  int                                    `json:"id"`
 	DateOrder           string                                 `json:"date_order" validate:"required"`
 	TotalBruto          float32                                `json:"total_bruto"`
 	TotalNeto           float32                                `json:"total_neto"`

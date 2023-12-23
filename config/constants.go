@@ -3,10 +3,10 @@ package config
 type ContextKey string
 
 const (
-	HttpResponseWriterKey ContextKey = "httpResponseWriter"
+	HTTPResponseWriterKey ContextKey = "httpResponseWriter"
 	Requestkey            ContextKey = "request"
 
-	HttpHeadersKey        ContextKey = "httpHeaders"
+	HTTPHeadersKey        ContextKey = "httpHeaders"
 	TokenKey              ContextKey = "token"
 	LoggedInAccountKey    ContextKey = "logged_in_account"
 	LoggedInProfileKey    ContextKey = "logged_in_profile"

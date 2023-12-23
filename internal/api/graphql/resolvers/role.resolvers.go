@@ -3,7 +3,6 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 
@@ -35,7 +34,7 @@ func (r *Resolver) RoleDetailsResolver(params graphql.ResolveParams) (interface{
 	}, nil
 }
 
-func (r *Resolver) RoleOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+func (r *Resolver) RoleOverviewResolver(_ graphql.ResolveParams) (interface{}, error) {
 	roleList, err := r.Repo.GetRoleList()
 	if err != nil {
 		return errors.HandleAPIError(err)
@@ -54,10 +53,10 @@ func (r *Resolver) RolesInsertResolver(params graphql.ResolveParams) (interface{
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
+	itemID := data.ID
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		roleRes, err := r.Repo.UpdateRole(itemId, data)
+	if itemID != 0 {
+		roleRes, err := r.Repo.UpdateRole(itemID, data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -67,16 +66,15 @@ func (r *Resolver) RolesInsertResolver(params graphql.ResolveParams) (interface{
 			Message: "You updated this item!",
 			Item:    roleRes,
 		}, nil
-	} else {
-		roleRes, err := r.Repo.CreateRole(data)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		return dto.ResponseSingle{
-			Status:  "success",
-			Message: "You created this item!",
-			Item:    roleRes,
-		}, nil
 	}
+	roleRes, err := r.Repo.CreateRole(data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You created this item!",
+		Item:    roleRes,
+	}, nil
 }

@@ -9,7 +9,7 @@ import (
 	// "fmt"
 )
 
-func ReadJson(path string, responseType interface{}) ([]interface{}, error) {
+func ReadJSON(path string, responseType interface{}) ([]interface{}, error) {
 	// Create a new instance of the response type
 	response := reflect.New(reflect.SliceOf(reflect.TypeOf(responseType))).Interface()
 

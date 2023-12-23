@@ -12,13 +12,13 @@ import (
 const (
 	defaultAppPort = 8080
 
-	defaultCoreApi         = "http://localhost:4000"
-	defaultHRApi           = "http://localhost:4100"
-	defaultProcurementsApi = "http://localhost:4200"
-	defaultInventoryApi    = "http://localhost:4300"
-	defaultAccountingApi   = "http://localhost:4400"
-	defaultFileApi         = "http://localhost:4500"
-	defaultFinanceApi      = "http://localhost:4600"
+	defaultCoreAPI         = "http://localhost:4000"
+	defaultHRAPI           = "http://localhost:4100"
+	defaultProcurementsAPI = "http://localhost:4200"
+	defaultInventoryAPI    = "http://localhost:4300"
+	defaultAccountingAPI   = "http://localhost:4400"
+	defaultFileAPI         = "http://localhost:4500"
+	defaultFinanceAPI      = "http://localhost:4600"
 
 	defaultCoreFE         = "http://localhost:3000"
 	defaultHRFE           = "http://localhost:3001"
@@ -58,98 +58,98 @@ type MicroservicesConfig struct {
 }
 
 type ProcurementMS struct {
-	BASE                      string
-	PLANS                     string
-	ITEMS                     string
-	ARTICLES                  string
-	CONTRACTS                 string
-	OU_LIMITS                 string
-	CONTRACT_ARTICLE          string
-	CONTRACT_ARTICLE_OVERAGE  string
-	ORGANIZATION_UNIT_ARTICLE string
+	Base                    string
+	Plans                   string
+	Items                   string
+	Articles                string
+	Contracts               string
+	OULimits                string
+	ContractArticle         string
+	ContractArticleOverage  string
+	OrganizationUnitArticle string
 }
 
 type CoreMS struct {
-	BASE            string
-	LOGIN           string
-	LOGOUT          string
-	REFRESH         string
-	PIN             string
-	USER_ACCOUNTS   string
-	ROLES           string
-	PERMISSIONS     string
-	SETTINGS        string
-	SUPPLIERS       string
-	NOTIFICATIONS   string
-	LOGGED_IN_USER  string
-	ACCOUNT         string
-	FORGOT_PASSWORD string
-	VALIDATE_MAIL   string
-	RESET_PASSWORD  string
+	Base           string
+	Login          string
+	Logout         string
+	Refresh        string
+	Pin            string
+	UserAccounts   string
+	Roles          string
+	Permissions    string
+	Settings       string
+	Suppliers      string
+	Notifications  string
+	LoggedInUser   string
+	Account        string
+	ForgotPassword string
+	ValidateMail   string
+	ResetPassword  string
 }
 
 type HrMS struct {
-	BASE                                  string
-	EVALUATIONS                           string
-	EVALUATION_TYPES                      string
-	FOREIGNERS                            string
-	SALARIES                              string
-	ORGANIZATION_UNITS                    string
-	JOB_POSITIONS                         string
-	JOB_POSITIONS_IN_ORGANIZATION_UNITS   string
-	EDUCATION_TYPES                       string
-	USER_PROFILES                         string
-	EMPLOYEE_CONTRACTS                    string
-	EMPLOYEE_EDUCATIONS                   string
-	EMPLOYEE_EXPERIENCES                  string
-	EMPLOYEES_IN_ORGANIZATION_UNITS       string
-	EMPLOYEES_IN_ORGANIZATION_UNITS_BY_ID string
-	RESOLUTIONS                           string
-	SYSTEMATIZATIONS                      string
-	EMPLOYEE_FAMILY_MEMBERS               string
-	JUDGE_NORM                            string
-	JUDGES                                string
-	ABSENT_TYPE                           string
-	EMPLOYEE_ABSENTS                      string
-	REVISIONS                             string
-	JOB_TENDERS                           string
-	JOB_TENDER_TYPES                      string
-	JOB_TENDER_APPLICATIONS               string
-	JUDGE_RESOLUTIONS                     string
-	JUDGE_RESOLUTION_ITEMS                string
-	REVISION_PLAN                         string
-	REVISION                              string
-	REVISION_TIPS                         string
-	REVISORS                              string
-	REVISION_REVISORS                     string
-	REVISION_ORG_UNIT                     string
+	Base                            string
+	Evaluations                     string
+	EvaluationTypes                 string
+	Foreigners                      string
+	Salaries                        string
+	OrganizationUnits               string
+	JobPositions                    string
+	JobPositionInOrganizationUnits  string
+	EducationTypes                  string
+	UserProfiles                    string
+	EmployeeContracts               string
+	EmployeeEducations              string
+	EmployeeExperiences             string
+	EmployeesInOrganizationUnits    string
+	EmployeesInOrganizationUnitByID string
+	Resolutions                     string
+	Systematization                 string
+	EmployeeFamilyMembers           string
+	JudgeNorm                       string
+	Judges                          string
+	AbsentType                      string
+	EmployeeAbsents                 string
+	Revisions                       string
+	JobTenders                      string
+	JobTenderTypes                  string
+	JobTenderApplications           string
+	JudgeResolutions                string
+	JudgeResolutionItems            string
+	RevisionPlan                    string
+	Revision                        string
+	RevisionTips                    string
+	Revisors                        string
+	RevisionRevisors                string
+	RevisionOrgUnit                 string
 }
 
 type AccountingMS struct {
-	Base                       string
-	ORDER_LISTS                string
-	ORDER_PROCUREMENT_ARTICLES string
-	MOVEMENTS                  string
-	MOVEMENT_REPORT            string
-	MOVEMENT_ARTICLES          string
-	STOCK                      string
+	Base                     string
+	OrderLists               string
+	OrderProcurementArticles string
+	Movements                string
+	MovementReport           string
+	MovementArticles         string
+	Stock                    string
 }
 
 type InventoryMS struct {
-	Base           string
-	ITEM           string
-	REAL_ESTATES   string
-	ASSESSMENTS    string
-	DISPATCH       string
-	DISPATCH_ITEMS string
+	Base          string
+	Item          string
+	RealEstates   string
+	Assessments   string
+	Dispatch      string
+	DispatchItems string
 }
 
 type FilesMS struct {
-	Base                  string
-	FILES                 string
-	FILES_MULTIPLE_DELETE string
-	FILES_DOWNLOAD        string
-	FILES_OVERVIEW        string
+	Base                string
+	Files               string
+	FilesMultipleDelete string
+	FilesDownload       string
+	FilesOverview       string
 }
 
 func getEnvString(key string, defaultValue string) string {
@@ -189,110 +189,110 @@ func LoadDefaultConfig() (*Config, error) {
 		log.Fatal("Error loading .env file")
 	}
 
-	baseAppDir, exists := os.LookupEnv("BASE_APP_DIR")
+	baseAppDir, exists := os.LookupEnv("Base_APP_DIR")
 	if !exists {
-		return nil, errors.New("BASE_APP_DIR environment variable is required but not set")
+		return nil, errors.New("Base_APP_DIR environment variable is required but not set")
 	}
 
-	hrBase := getEnvString("HR_MS_BASE_URL", defaultHRApi)
-	coreBase := getEnvString("CORE_MS_BASE_URL", defaultCoreApi)
-	procurementsBase := getEnvString("PROCUREMENT_MS_BASE_URL", defaultProcurementsApi)
-	accountingBase := getEnvString("ACCOUNTING_MS_BASE_URL", defaultAccountingApi)
-	inventoryBase := getEnvString("BASIC_INVENTORY_MS_BASE_URL", defaultInventoryApi)
-	filesBase := getEnvString("FILE_MS_BASE_URL", defaultFileApi)
+	hrBase := getEnvString("HR_MS_BASE_URL", defaultHRAPI)
+	coreBase := getEnvString("CORE_MS_BASE_URL", defaultCoreAPI)
+	procurementsBase := getEnvString("PROCUREMENT_MS_BASE_URL", defaultProcurementsAPI)
+	accountingBase := getEnvString("AccountING_MS_BASE_URL", defaultAccountingAPI)
+	inventoryBase := getEnvString("BASIC_INVENTORY_MS_BASE_URL", defaultInventoryAPI)
+	filesBase := getEnvString("FILE_MS_BASE_URL", defaultFileAPI)
 
 	return &Config{
 		BaseAppDir: baseAppDir,
 		AppPort:    getEnvInt("APP_PORT", defaultAppPort),
 		Microservices: MicroservicesConfig{
 			HR: HrMS{
-				BASE:                                  hrBase,
-				USER_PROFILES:                         hrBase + "/user-profiles",
-				EMPLOYEE_CONTRACTS:                    hrBase + "/employee-contracts",
-				EMPLOYEE_EDUCATIONS:                   hrBase + "/employee-educations",
-				EMPLOYEE_EXPERIENCES:                  hrBase + "/employee-experiences",
-				EVALUATION_TYPES:                      hrBase + "/evaluation-types",
-				EVALUATIONS:                           hrBase + "/evaluations",
-				FOREIGNERS:                            hrBase + "/foreigners",
-				SALARIES:                              hrBase + "/salaries",
-				EDUCATION_TYPES:                       hrBase + "/education-types",
-				ORGANIZATION_UNITS:                    hrBase + "/organization-units",
-				SYSTEMATIZATIONS:                      hrBase + "/systematizations",
-				JOB_POSITIONS:                         hrBase + "/job-positions",
-				JOB_POSITIONS_IN_ORGANIZATION_UNITS:   hrBase + "/job-positions-in-organization-units",
-				EMPLOYEES_IN_ORGANIZATION_UNITS:       hrBase + "/employees-in-organization-units",
-				EMPLOYEES_IN_ORGANIZATION_UNITS_BY_ID: hrBase + "/employees-in-organization-units-by-id",
-				RESOLUTIONS:                           hrBase + "/employee-resolutions",
-				EMPLOYEE_FAMILY_MEMBERS:               hrBase + "/employee-family-members",
-				JUDGE_NORM:                            hrBase + "/user-norms",
-				JUDGES:                                hrBase + "/judges",
-				ABSENT_TYPE:                           hrBase + "/absent-types",
-				EMPLOYEE_ABSENTS:                      hrBase + "/employee-absents",
-				REVISIONS:                             hrBase + "/revisions-of-organization-units",
-				JOB_TENDERS:                           hrBase + "/tenders-in-organization-units",
-				JOB_TENDER_TYPES:                      hrBase + "/tender-types",
-				JOB_TENDER_APPLICATIONS:               hrBase + "/tender-applications-in-organization-units",
-				JUDGE_RESOLUTIONS:                     hrBase + "/judge-number-resolutions",
-				JUDGE_RESOLUTION_ITEMS:                hrBase + "/judge-number-resolution-organization-units",
-				REVISION_PLAN:                         hrBase + "/plans",
-				REVISION:                              hrBase + "/revisions",
-				REVISION_TIPS:                         hrBase + "/revision-tips",
-				REVISORS:                              hrBase + "/get-revisors",
-				REVISION_REVISORS:                     hrBase + "/revision-revisors",
-				REVISION_ORG_UNIT:                     hrBase + "/revisions-in-organization-units",
+				Base:                            hrBase,
+				UserProfiles:                    hrBase + "/user-profiles",
+				EmployeeContracts:               hrBase + "/employee-contracts",
+				EmployeeEducations:              hrBase + "/employee-educations",
+				EmployeeExperiences:             hrBase + "/employee-experiences",
+				EvaluationTypes:                 hrBase + "/evaluation-types",
+				Evaluations:                     hrBase + "/evaluations",
+				Foreigners:                      hrBase + "/foreigners",
+				Salaries:                        hrBase + "/salaries",
+				EducationTypes:                  hrBase + "/education-types",
+				OrganizationUnits:               hrBase + "/organization-units",
+				Systematization:                 hrBase + "/systematizations",
+				JobPositions:                    hrBase + "/job-positions",
+				JobPositionInOrganizationUnits:  hrBase + "/job-positions-in-organization-units",
+				EmployeesInOrganizationUnits:    hrBase + "/employees-in-organization-units",
+				EmployeesInOrganizationUnitByID: hrBase + "/employees-in-organization-units-by-id",
+				Resolutions:                     hrBase + "/employee-resolutions",
+				EmployeeFamilyMembers:           hrBase + "/employee-family-members",
+				JudgeNorm:                       hrBase + "/user-norms",
+				Judges:                          hrBase + "/judges",
+				AbsentType:                      hrBase + "/absent-types",
+				EmployeeAbsents:                 hrBase + "/employee-absents",
+				Revisions:                       hrBase + "/revisions-of-organization-units",
+				JobTenders:                      hrBase + "/tenders-in-organization-units",
+				JobTenderTypes:                  hrBase + "/tender-types",
+				JobTenderApplications:           hrBase + "/tender-applications-in-organization-units",
+				JudgeResolutions:                hrBase + "/judge-number-resolutions",
+				JudgeResolutionItems:            hrBase + "/judge-number-resolution-organization-units",
+				RevisionPlan:                    hrBase + "/plans",
+				Revision:                        hrBase + "/revisions",
+				RevisionTips:                    hrBase + "/revision-tips",
+				Revisors:                        hrBase + "/get-revisors",
+				RevisionRevisors:                hrBase + "/revision-revisors",
+				RevisionOrgUnit:                 hrBase + "/revisions-in-organization-units",
 			},
 			Core: CoreMS{
-				BASE:            coreBase,
-				LOGIN:           coreBase + "/users/login",
-				LOGOUT:          coreBase + "/users/logout",
-				REFRESH:         coreBase + "/refresh",
-				ROLES:           coreBase + "/roles",
-				PERMISSIONS:     coreBase + "/permissions",
-				PIN:             coreBase + "/users/validate-pin",
-				USER_ACCOUNTS:   coreBase + "/users",
-				SETTINGS:        coreBase + "/settings",
-				SUPPLIERS:       coreBase + "/suppliers",
-				NOTIFICATIONS:   coreBase + "/notifications",
-				LOGGED_IN_USER:  coreBase + "/logged-in-user",
-				ACCOUNT:         coreBase + "/accounts",
-				FORGOT_PASSWORD: coreBase + "/users/password/forgot",
-				VALIDATE_MAIL:   coreBase + "/users/password/validate-email",
-				RESET_PASSWORD:  coreBase + "/users/password/reset",
+				Base:           coreBase,
+				Login:          coreBase + "/users/login",
+				Logout:         coreBase + "/users/logout",
+				Refresh:        coreBase + "/refresh",
+				Roles:          coreBase + "/roles",
+				Permissions:    coreBase + "/permissions",
+				Pin:            coreBase + "/users/validate-pin",
+				UserAccounts:   coreBase + "/users",
+				Settings:       coreBase + "/settings",
+				Suppliers:      coreBase + "/suppliers",
+				Notifications:  coreBase + "/notifications",
+				LoggedInUser:   coreBase + "/logged-in-user",
+				Account:        coreBase + "/accounts",
+				ForgotPassword: coreBase + "/users/password/forgot",
+				ValidateMail:   coreBase + "/users/password/validate-email",
+				ResetPassword:  coreBase + "/users/password/reset",
 			},
 			Procurements: ProcurementMS{
-				BASE:                      procurementsBase,
-				PLANS:                     procurementsBase + "/plans",
-				ITEMS:                     procurementsBase + "/items",
-				ARTICLES:                  procurementsBase + "/articles",
-				CONTRACTS:                 procurementsBase + "/contracts",
-				CONTRACT_ARTICLE:          procurementsBase + "/contract-articles",
-				OU_LIMITS:                 procurementsBase + "/organization-unit-plan-limits",
-				ORGANIZATION_UNIT_ARTICLE: procurementsBase + "/organization-unit-articles",
-				CONTRACT_ARTICLE_OVERAGE:  procurementsBase + "/contract-article-overages",
+				Base:                    procurementsBase,
+				Plans:                   procurementsBase + "/plans",
+				Items:                   procurementsBase + "/items",
+				Articles:                procurementsBase + "/articles",
+				Contracts:               procurementsBase + "/contracts",
+				ContractArticle:         procurementsBase + "/contract-articles",
+				OULimits:                procurementsBase + "/organization-unit-plan-limits",
+				OrganizationUnitArticle: procurementsBase + "/organization-unit-articles",
+				ContractArticleOverage:  procurementsBase + "/contract-article-overages",
 			},
 			Inventory: InventoryMS{
-				Base:           inventoryBase,
-				ITEM:           inventoryBase + "/items",
-				REAL_ESTATES:   inventoryBase + "/real-estates",
-				ASSESSMENTS:    inventoryBase + "/assessments",
-				DISPATCH:       inventoryBase + "/dispatches",
-				DISPATCH_ITEMS: inventoryBase + "/dispatch-items",
+				Base:          inventoryBase,
+				Item:          inventoryBase + "/items",
+				RealEstates:   inventoryBase + "/real-estates",
+				Assessments:   inventoryBase + "/assessments",
+				Dispatch:      inventoryBase + "/dispatches",
+				DispatchItems: inventoryBase + "/dispatch-items",
 			},
 			Files: FilesMS{
-				Base:                  filesBase,
-				FILES:                 filesBase + "/files",
-				FILES_DOWNLOAD:        filesBase + "/file-overview",
-				FILES_OVERVIEW:        filesBase + "/download",
-				FILES_MULTIPLE_DELETE: filesBase + "/files/batch-delete",
+				Base:                filesBase,
+				Files:               filesBase + "/files",
+				FilesDownload:       filesBase + "/file-overview",
+				FilesOverview:       filesBase + "/download",
+				FilesMultipleDelete: filesBase + "/files/batch-delete",
 			},
 			Accounting: AccountingMS{
-				Base:                       accountingBase,
-				ORDER_LISTS:                accountingBase + "/order-lists",
-				ORDER_PROCUREMENT_ARTICLES: accountingBase + "/order-procurement-articles",
-				MOVEMENTS:                  accountingBase + "/movements",
-				MOVEMENT_REPORT:            accountingBase + "/movements-report",
-				MOVEMENT_ARTICLES:          accountingBase + "/movement-articles",
-				STOCK:                      accountingBase + "/stocks",
+				Base:                     accountingBase,
+				OrderLists:               accountingBase + "/order-lists",
+				OrderProcurementArticles: accountingBase + "/order-procurement-articles",
+				Movements:                accountingBase + "/movements",
+				MovementReport:           accountingBase + "/movements-report",
+				MovementArticles:         accountingBase + "/movement-articles",
+				Stock:                    accountingBase + "/stocks",
 			},
 		},
 		Frontend: FrontendConfig{
@@ -300,7 +300,7 @@ func LoadDefaultConfig() (*Config, error) {
 			HR:           getEnvString("HR_FRONTEND_URL", defaultHRFE),
 			Procurements: getEnvString("PROCUREMENTS_FRONTEND_URL", defaultProcurementsFE),
 			Inventory:    getEnvString("INVENTORY_FRONTEND_URL", defaultInventoryFE),
-			Accounting:   getEnvString("ACCOUNTING_FRONTEND_URL", defaultAccountingFE),
+			Accounting:   getEnvString("AccountING_FRONTEND_URL", defaultAccountingFE),
 			Finance:      getEnvString("FINANCE_FRONTEND_URL", defaultFinanceFE),
 		},
 		Debug: getEnvBool("DEBUG", defaultIsDebug),

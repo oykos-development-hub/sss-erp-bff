@@ -23,12 +23,12 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 	page := params.Args["page"].(int)
 	size := params.Args["size"].(int)
 	organizationUnitID := params.Args["organization_unit_id"]
-	jobPositionId := params.Args["job_position_id"]
+	jobPositionID := params.Args["job_position_id"]
 	isActive, isActiveOk := params.Args["is_active"].(bool)
 	name, nameOk := params.Args["name"].(string)
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		user, err := r.Repo.GetUserProfileById(id.(int))
+	if id != nil && id != 0 {
+		user, err := r.Repo.GetUserProfileByID(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -61,13 +61,13 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 				total--
 				continue
 			}
-			if shared.IsInteger(organizationUnitID) && organizationUnitID.(int) > 0 &&
-				resItem.OrganizationUnit.Id != organizationUnitID {
+			if organizationUnitID.(int) > 0 &&
+				resItem.OrganizationUnit.ID != organizationUnitID {
 				total--
 				continue
 			}
-			if shared.IsInteger(jobPositionId) && jobPositionId.(int) > 0 &&
-				resItem.JobPosition.Id != jobPositionId {
+			if jobPositionID.(int) > 0 &&
+				resItem.JobPosition.ID != jobPositionID {
 				total--
 				continue
 			}
@@ -115,53 +115,53 @@ func buildUserProfileOverviewResponse(
 		jobPositionDropdown      structs.SettingsDropdown
 		isJudge, isPresident     bool
 	)
-	account, err := r.GetUserAccountById(profile.UserAccountId)
+	account, err := r.GetUserAccountByID(profile.UserAccountID)
 	if err != nil {
 		return nil, err
 	}
 
-	role, err := r.GetRole(account.RoleId)
+	role, err := r.GetRole(account.RoleID)
 	if err != nil {
 		return nil, err
 	}
 
-	employeesInOrganizationUnit, _ := r.GetEmployeesInOrganizationUnitsByProfileId(profile.Id)
+	employeesInOrganizationUnit, _ := r.GetEmployeesInOrganizationUnitsByProfileID(profile.ID)
 
 	if employeesInOrganizationUnit != nil {
-		jobPositionInOrganizationUnit, err := r.GetJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
+		jobPositionInOrganizationUnit, err := r.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
 
-		jobPosition, err := r.GetJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
+		jobPosition, err := r.GetJobPositionByID(jobPositionInOrganizationUnit.JobPositionID)
 		if err != nil {
 			return nil, err
 		}
-		jobPositionDropdown.Id = jobPosition.Id
+		jobPositionDropdown.ID = jobPosition.ID
 		jobPositionDropdown.Title = jobPosition.Title
 
-		systematization, _ := r.GetSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
+		systematization, _ := r.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
 
-		organizationUnit, err := r.GetOrganizationUnitById(systematization.OrganizationUnitId)
+		organizationUnit, err := r.GetOrganizationUnitByID(systematization.OrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
-		organizationUnitDropdown.Id = organizationUnit.Id
+		organizationUnitDropdown.ID = organizationUnit.ID
 		organizationUnitDropdown.Title = organizationUnit.Title
 	}
 
-	contract, err := r.GetEmployeeContracts(profile.Id, nil)
+	contract, err := r.GetEmployeeContracts(profile.ID, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if len(contract) > 0 {
-		orgUnit, err := r.GetOrganizationUnitById(contract[0].OrganizationUnitID)
+		orgUnit, err := r.GetOrganizationUnitByID(contract[0].OrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
-		organizationUnitDropdown.Id = orgUnit.Id
+		organizationUnitDropdown.ID = orgUnit.ID
 		organizationUnitDropdown.Title = orgUnit.Title
 
 	}
@@ -175,8 +175,8 @@ func buildUserProfileOverviewResponse(
 	if len(resolution.Data) > 0 {
 
 		judgeResolutionOrganizationUnit, _, err := r.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-			UserProfileId: &profile.Id,
-			ResolutionId:  &resolution.Data[0].Id,
+			UserProfileID: &profile.ID,
+			ResolutionID:  &resolution.Data[0].ID,
 		})
 
 		if err != nil {
@@ -191,7 +191,7 @@ func buildUserProfileOverviewResponse(
 
 	if isJudge {
 		filter := dto.JudgeResolutionsOrganizationUnitInput{
-			UserProfileId: &profile.Id,
+			UserProfileID: &profile.ID,
 		}
 		judge, _, err := r.GetJudgeResolutionOrganizationUnit(&filter)
 
@@ -199,18 +199,18 @@ func buildUserProfileOverviewResponse(
 			return nil, err
 		}
 
-		orgUnit, err := r.GetOrganizationUnitById(judge[0].OrganizationUnitId)
+		orgUnit, err := r.GetOrganizationUnitByID(judge[0].OrganizationUnitID)
 
 		if err != nil {
 			return nil, err
 		}
 
-		organizationUnitDropdown.Id = orgUnit.Id
+		organizationUnitDropdown.ID = orgUnit.ID
 		organizationUnitDropdown.Title = orgUnit.Title
 	}
 
 	return &dto.UserProfileOverviewResponse{
-		ID:          profile.Id,
+		ID:          profile.ID,
 		FirstName:   profile.FirstName,
 		LastName:    profile.LastName,
 		DateOfBirth: profile.DateOfBirth,
@@ -220,7 +220,7 @@ func buildUserProfileOverviewResponse(
 		IsJudge:     isJudge,
 		IsPresident: isPresident,
 		Role: structs.SettingsDropdown{
-			Id:    role.Id,
+			ID:    role.ID,
 			Title: role.Title,
 		},
 		OrganizationUnit: organizationUnitDropdown,
@@ -231,9 +231,9 @@ func buildUserProfileOverviewResponse(
 }
 
 func (r *Resolver) UserProfileBasicResolver(params graphql.ResolveParams) (interface{}, error) {
-	profileId := params.Args["user_profile_id"]
+	profileID := params.Args["user_profile_id"]
 
-	profile, err := r.Repo.GetUserProfileById(profileId.(int))
+	profile, err := r.Repo.GetUserProfileByID(profileID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -261,7 +261,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
-	userAccountData.Id = userProfileData.UserAccountId
+	userAccountData.ID = userProfileData.UserAccountID
 
 	err = json.Unmarshal(dataBytes, &userAccountData)
 	if err != nil {
@@ -293,31 +293,31 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 		return errors.HandleAPIError(err)
 	}
 
-	userProfileData.UserAccountId = userAccountRes.Id
+	userProfileData.UserAccountID = userAccountRes.ID
 	userProfileRes, err = r.Repo.CreateUserProfile(userProfileData)
 	if err != nil {
-		_ = r.Repo.DeleteUserAccount(userAccountRes.Id)
+		_ = r.Repo.DeleteUserAccount(userAccountRes.ID)
 		return errors.HandleAPIError(err)
 	}
 
 	if activeContract.Contract != nil {
-		activeContract.Contract.UserProfileId = userProfileRes.Id
+		activeContract.Contract.UserProfileID = userProfileRes.ID
 		_, err := r.Repo.CreateEmployeeContract(activeContract.Contract)
 		if err != nil {
-			_ = r.Repo.DeleteUserAccount(userAccountRes.Id)
-			_ = r.Repo.DeleteUserProfile(userProfileRes.Id)
+			_ = r.Repo.DeleteUserAccount(userAccountRes.ID)
+			_ = r.Repo.DeleteUserProfile(userProfileRes.ID)
 			return errors.HandleAPIError(err)
 		}
 
 		if activeContract.Contract.JobPositionInOrganizationUnitID > 0 {
 			input := &structs.EmployeesInOrganizationUnits{
-				PositionInOrganizationUnitId: activeContract.Contract.JobPositionInOrganizationUnitID,
-				UserProfileId:                userProfileRes.Id,
+				PositionInOrganizationUnitID: activeContract.Contract.JobPositionInOrganizationUnitID,
+				UserProfileID:                userProfileRes.ID,
 			}
 			_, err = r.Repo.CreateEmployeesInOrganizationUnits(input)
 			if err != nil {
-				_ = r.Repo.DeleteUserAccount(userAccountRes.Id)
-				_ = r.Repo.DeleteUserProfile(userProfileRes.Id)
+				_ = r.Repo.DeleteUserAccount(userAccountRes.ID)
+				_ = r.Repo.DeleteUserProfile(userProfileRes.ID)
 				return errors.HandleAPIError(err)
 			}
 		}
@@ -332,15 +332,15 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 	if len(resolution.Data) > 0 {
 		if userProfileData.IsJudge {
 			inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
-				UserProfileId:      userProfileRes.Id,
-				OrganizationUnitId: activeContract.Contract.OrganizationUnitID,
-				ResolutionId:       resolution.Data[0].Id,
+				UserProfileID:      userProfileRes.ID,
+				OrganizationUnitID: activeContract.Contract.OrganizationUnitID,
+				ResolutionID:       resolution.Data[0].ID,
 				IsPresident:        userProfileData.IsPresident,
 			}
 			_, err := r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
 			if err != nil {
-				_ = r.Repo.DeleteUserAccount(userAccountRes.Id)
-				_ = r.Repo.DeleteUserProfile(userProfileRes.Id)
+				_ = r.Repo.DeleteUserAccount(userAccountRes.ID)
+				_ = r.Repo.DeleteUserProfile(userProfileRes.ID)
 				return errors.HandleAPIError(err)
 			}
 		}
@@ -379,21 +379,21 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 	inactive := false
 	if activeContract.Contract != nil {
 		userProfileData.ActiveContract = &active
-		activeContract.Contract.UserProfileId = userProfileData.Id
-		if activeContract.Contract.Id == 0 {
+		activeContract.Contract.UserProfileID = userProfileData.ID
+		if activeContract.Contract.ID == 0 {
 			_, err = r.Repo.CreateEmployeeContract(activeContract.Contract)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
 		} else {
-			_, err = r.Repo.UpdateEmployeeContract(activeContract.Contract.Id, activeContract.Contract)
+			_, err = r.Repo.UpdateEmployeeContract(activeContract.Contract.ID, activeContract.Contract)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
 		}
 		if activeContract.Contract.JobPositionInOrganizationUnitID > -1 {
-			var myBool int = 2
-			var check bool = true
+			myBool := 2
+			check := true
 			inputSys := dto.GetSystematizationsInput{}
 			inputSys.OrganizationUnitID = &activeContract.Contract.OrganizationUnitID
 			inputSys.Active = &myBool
@@ -405,7 +405,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 			if len(systematizationsResponse.Data) > 0 {
 				for _, systematization := range systematizationsResponse.Data {
 					inputJpbPos := dto.GetJobPositionInOrganizationUnitsInput{
-						SystematizationID: &systematization.Id,
+						SystematizationID: &systematization.ID,
 					}
 					jobPositionsInOrganizationUnits, err := r.Repo.GetJobPositionsInOrganizationUnits(&inputJpbPos)
 					if err != nil {
@@ -415,17 +415,17 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 						for _, job := range jobPositionsInOrganizationUnits.Data {
 
 							input := dto.GetEmployeesInOrganizationUnitInput{
-								PositionInOrganizationUnit: &job.Id,
-								UserProfileId:              &userProfileData.Id,
+								PositionInOrganizationUnit: &job.ID,
+								UserProfileID:              &userProfileData.ID,
 							}
 							employeesInOrganizationUnit, _ := r.Repo.GetEmployeesInOrganizationUnitList(&input)
 							if len(employeesInOrganizationUnit) > 0 {
 								for _, emp := range employeesInOrganizationUnit {
-									if emp.UserProfileId == userProfileData.Id {
-										if emp.PositionInOrganizationUnitId == activeContract.Contract.JobPositionInOrganizationUnitID {
+									if emp.UserProfileID == userProfileData.ID {
+										if emp.PositionInOrganizationUnitID == activeContract.Contract.JobPositionInOrganizationUnitID {
 											check = false
 										} else {
-											err := r.Repo.DeleteEmployeeInOrganizationUnit(emp.Id)
+											err := r.Repo.DeleteEmployeeInOrganizationUnit(emp.ID)
 											if err != nil {
 												return errors.HandleAPIError(err)
 											}
@@ -440,8 +440,8 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 			}
 			if activeContract.Contract.JobPositionInOrganizationUnitID > 0 && check {
 				input := &structs.EmployeesInOrganizationUnits{
-					PositionInOrganizationUnitId: activeContract.Contract.JobPositionInOrganizationUnitID,
-					UserProfileId:                userProfileData.Id,
+					PositionInOrganizationUnitID: activeContract.Contract.JobPositionInOrganizationUnitID,
+					UserProfileID:                userProfileData.ID,
 				}
 				_, err = r.Repo.CreateEmployeesInOrganizationUnits(input)
 				if err != nil {
@@ -460,18 +460,18 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 	if len(resolution.Data) > 0 {
 		judgeResolutionOrganizationUnit, _, _ := r.Repo.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-			OrganizationUnitId: &activeContract.Contract.OrganizationUnitID,
-			UserProfileId:      &userProfileData.Id,
-			ResolutionId:       &resolution.Data[0].Id,
+			OrganizationUnitID: &activeContract.Contract.OrganizationUnitID,
+			UserProfileID:      &userProfileData.ID,
+			ResolutionID:       &resolution.Data[0].ID,
 		})
 
 		if len(judgeResolutionOrganizationUnit) > 0 {
 			if userProfileData.IsJudge {
 				inputUpdate := dto.JudgeResolutionsOrganizationUnitItem{
-					Id:                 judgeResolutionOrganizationUnit[0].Id,
-					UserProfileId:      userProfileData.Id,
-					OrganizationUnitId: activeContract.Contract.OrganizationUnitID,
-					ResolutionId:       resolution.Data[0].Id,
+					ID:                 judgeResolutionOrganizationUnit[0].ID,
+					UserProfileID:      userProfileData.ID,
+					OrganizationUnitID: activeContract.Contract.OrganizationUnitID,
+					ResolutionID:       resolution.Data[0].ID,
 					IsPresident:        userProfileData.IsPresident,
 				}
 				_, err := r.Repo.UpdateJudgeResolutionOrganizationUnit(&inputUpdate)
@@ -479,7 +479,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 					return errors.HandleAPIError(err)
 				}
 			} else {
-				err := r.Repo.DeleteJJudgeResolutionOrganizationUnit(judgeResolutionOrganizationUnit[0].Id)
+				err := r.Repo.DeleteJJudgeResolutionOrganizationUnit(judgeResolutionOrganizationUnit[0].ID)
 				if err != nil {
 					return errors.HandleAPIError(err)
 				}
@@ -487,9 +487,9 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 		}
 		if len(judgeResolutionOrganizationUnit) == 0 && userProfileData.IsJudge {
 			inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
-				UserProfileId:      userProfileData.Id,
-				OrganizationUnitId: activeContract.Contract.OrganizationUnitID,
-				ResolutionId:       resolution.Data[0].Id,
+				UserProfileID:      userProfileData.ID,
+				OrganizationUnitID: activeContract.Contract.OrganizationUnitID,
+				ResolutionID:       resolution.Data[0].ID,
 				IsPresident:        userProfileData.IsPresident,
 			}
 			_, err := r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
@@ -500,7 +500,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 	}
 
-	userProfileRes, err := r.Repo.UpdateUserProfile(userProfileData.Id, userProfileData)
+	userProfileRes, err := r.Repo.UpdateUserProfile(userProfileData.ID, userProfileData)
 	if err != nil {
 		fmt.Printf("Creating the user profile failed because of this error - %s.\n", err)
 		return errors.ErrorResponse("Error creating the user profile data"), nil
@@ -534,9 +534,9 @@ func (r *Resolver) UserProfileContractInsertResolver(params graphql.ResolveParam
 		return errors.ErrorResponse("Error updating user profile contract data"), nil
 	}
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		item, err := r.Repo.UpdateEmployeeContract(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		item, err := r.Repo.UpdateEmployeeContract(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -564,9 +564,9 @@ func (r *Resolver) UserProfileContractInsertResolver(params graphql.ResolveParam
 }
 
 func (r *Resolver) UserProfileContractDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 
-	err := r.Repo.DeleteEmployeeContract(itemId.(int))
+	err := r.Repo.DeleteEmployeeContract(itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -578,12 +578,12 @@ func (r *Resolver) UserProfileContractDeleteResolver(params graphql.ResolveParam
 }
 
 func buildEducationResItem(r repository.MicroserviceRepositoryInterface, education structs.Education) (*dto.Education, error) {
-	educationType, err := r.GetDropdownSettingById(education.TypeId)
+	educationType, err := r.GetDropdownSettingByID(education.TypeID)
 	if err != nil {
 		return nil, err
 	}
 	educationResItem := &dto.Education{
-		Id:                  education.Id,
+		ID:                  education.ID,
 		Title:               education.Title,
 		Description:         education.Description,
 		Price:               education.Price,
@@ -595,12 +595,12 @@ func buildEducationResItem(r repository.MicroserviceRepositoryInterface, educati
 		Score:               education.Score,
 		CreatedAt:           education.CreatedAt,
 		UpdatedAt:           education.UpdatedAt,
-		FileId:              education.FileId,
-		UserProfileId:       education.UserProfileId,
+		FileID:              education.FileID,
+		UserProfileID:       education.UserProfileID,
 		ExpertiseLevel:      education.ExpertiseLevel,
 	}
 
-	educationResItem.Type = dto.DropdownSimple{Id: educationType.Id, Title: educationType.Title}
+	educationResItem.Type = dto.DropdownSimple{ID: educationType.ID, Title: educationType.Title}
 
 	return educationResItem, nil
 }
@@ -631,7 +631,7 @@ func (r *Resolver) UserProfileEducationResolver(params graphql.ResolveParams) (i
 	for _, educationType := range educationTypes.Data {
 		educations, err := r.Repo.GetEmployeeEducations(dto.EducationInput{
 			UserProfileID: userProfileID,
-			TypeID:        &educationType.Id,
+			TypeID:        &educationType.ID,
 		})
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -663,9 +663,9 @@ func (r *Resolver) UserProfileEducationInsertResolver(params graphql.ResolvePara
 	}
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		employeeEducation, err = r.Repo.UpdateEmployeeEducation(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		employeeEducation, err = r.Repo.UpdateEmployeeEducation(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -688,9 +688,9 @@ func (r *Resolver) UserProfileEducationInsertResolver(params graphql.ResolvePara
 }
 
 func (r *Resolver) UserProfileEducationDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 
-	err := r.Repo.DeleteEmployeeEducation(itemId.(int))
+	err := r.Repo.DeleteEmployeeEducation(itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -732,9 +732,9 @@ func (r *Resolver) UserProfileExperienceInsertResolver(params graphql.ResolvePar
 		return errors.ErrorResponse("Error updating experience data"), nil
 	}
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		item, err := r.Repo.UpdateExperience(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		item, err := r.Repo.UpdateExperience(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -753,9 +753,9 @@ func (r *Resolver) UserProfileExperienceInsertResolver(params graphql.ResolvePar
 }
 
 func (r *Resolver) UserProfileExperienceDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 
-	err := r.Repo.DeleteExperience(itemId.(int))
+	err := r.Repo.DeleteExperience(itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -790,9 +790,9 @@ func (r *Resolver) UserProfileFamilyInsertResolver(params graphql.ResolveParams)
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := r.Repo.UpdateEmployeeFamilyMember(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		res, err := r.Repo.UpdateEmployeeFamilyMember(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -811,9 +811,9 @@ func (r *Resolver) UserProfileFamilyInsertResolver(params graphql.ResolveParams)
 }
 
 func (r *Resolver) UserProfileFamilyDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 
-	err := r.Repo.DeleteEmployeeFamilyMember(itemId.(int))
+	err := r.Repo.DeleteEmployeeFamilyMember(itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -837,7 +837,7 @@ func buildContractResponseItemList(r repository.MicroserviceRepositoryInterface,
 
 func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, contract structs.Contracts) (*dto.Contract, error) {
 	responseContract := &dto.Contract{
-		Id:                 contract.Id,
+		ID:                 contract.ID,
 		Title:              contract.Title,
 		Abbreviation:       contract.Abbreviation,
 		Description:        contract.Description,
@@ -854,37 +854,37 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 		DateOfEligibility:  contract.DateOfEligibility,
 		CreatedAt:          contract.CreatedAt,
 		UpdatedAt:          contract.UpdatedAt,
-		FileId:             contract.FileId,
+		FileID:             contract.FileID,
 	}
 
-	contractType, err := r.GetDropdownSettingById(contract.ContractTypeId)
+	contractType, err := r.GetDropdownSettingByID(contract.ContractTypeID)
 	if err != nil {
 		return nil, err
 	}
-	responseContract.ContractType = dto.DropdownSimple{Id: contractType.Id, Title: contractType.Title}
+	responseContract.ContractType = dto.DropdownSimple{ID: contractType.ID, Title: contractType.Title}
 
-	userProfile, err := r.GetUserProfileById(contract.UserProfileId)
+	userProfile, err := r.GetUserProfileByID(contract.UserProfileID)
 	if err != nil {
 		return nil, err
 	}
-	responseContract.UserProfile = dto.DropdownSimple{Id: userProfile.Id, Title: userProfile.GetFullName()}
+	responseContract.UserProfile = dto.DropdownSimple{ID: userProfile.ID, Title: userProfile.GetFullName()}
 
-	organizationUnit, err := r.GetOrganizationUnitById(contract.OrganizationUnitID)
+	organizationUnit, err := r.GetOrganizationUnitByID(contract.OrganizationUnitID)
 	if err != nil {
 		return nil, err
 	}
-	responseContract.OrganizationUnit = dto.DropdownSimple{Id: organizationUnit.Id, Title: organizationUnit.Title}
+	responseContract.OrganizationUnit = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
 
 	if contract.Active {
 		if contract.OrganizationUnitDepartmentID != nil {
-			department, err := r.GetOrganizationUnitById(*contract.OrganizationUnitDepartmentID)
+			department, err := r.GetOrganizationUnitByID(*contract.OrganizationUnitDepartmentID)
 			if err != nil {
 				return nil, err
 			}
-			responseContract.Department = &dto.DropdownSimple{Id: department.Id, Title: department.Title}
+			responseContract.Department = &dto.DropdownSimple{ID: department.ID, Title: department.Title}
 		}
 
-		var myBool int = 2
+		myBool := 2
 		inputSys := dto.GetSystematizationsInput{}
 		inputSys.OrganizationUnitID = &contract.OrganizationUnitID
 		inputSys.Active = &myBool
@@ -898,7 +898,7 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 			for _, systematization := range systematizationsResponse.Data {
 
 				inputJpbPos := dto.GetJobPositionInOrganizationUnitsInput{
-					SystematizationID: &systematization.Id,
+					SystematizationID: &systematization.ID,
 				}
 				jobPositionsInOrganizationUnits, err := r.GetJobPositionsInOrganizationUnits(&inputJpbPos)
 				if err != nil {
@@ -907,23 +907,23 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 				if len(jobPositionsInOrganizationUnits.Data) > 0 {
 					for _, job := range jobPositionsInOrganizationUnits.Data {
 						input := dto.GetEmployeesInOrganizationUnitInput{
-							PositionInOrganizationUnit: &job.Id,
-							UserProfileId:              &userProfile.Id,
+							PositionInOrganizationUnit: &job.ID,
+							UserProfileID:              &userProfile.ID,
 						}
 						employeesInOrganizationUnit, _ := r.GetEmployeesInOrganizationUnitList(&input)
-						if len(employeesInOrganizationUnit) > 0 && employeesInOrganizationUnit[0].UserProfileId == userProfile.Id {
+						if len(employeesInOrganizationUnit) > 0 && employeesInOrganizationUnit[0].UserProfileID == userProfile.ID {
 							jobPositionInOU = job
 						}
 					}
 				}
 			}
 		}
-		if jobPositionInOU.JobPositionId > 0 {
-			jobPosition, err := r.GetJobPositionById(jobPositionInOU.JobPositionId)
+		if jobPositionInOU.JobPositionID > 0 {
+			jobPosition, err := r.GetJobPositionByID(jobPositionInOU.JobPositionID)
 			if err != nil {
 				return nil, err
 			}
-			responseContract.JobPositionInOrganizationUnit = dto.DropdownSimple{Id: jobPositionInOU.Id, Title: jobPosition.Title}
+			responseContract.JobPositionInOrganizationUnit = dto.DropdownSimple{ID: jobPositionInOU.ID, Title: jobPosition.Title}
 		}
 	}
 
@@ -934,7 +934,7 @@ func buildUserProfileBasicResponse(
 	r repository.MicroserviceRepositoryInterface,
 	profile *structs.UserProfiles,
 ) (*dto.UserProfileBasicResponse, error) {
-	account, err := r.GetUserAccountById(profile.UserAccountId)
+	account, err := r.GetUserAccountByID(profile.UserAccountID)
 
 	if err != nil {
 		return nil, err
@@ -946,7 +946,7 @@ func buildUserProfileBasicResponse(
 		jobPositionInOrganizationUnitID int
 	)
 
-	employeesInOrganizationUnit, _ := r.GetEmployeesInOrganizationUnitsByProfileId(profile.Id)
+	employeesInOrganizationUnit, _ := r.GetEmployeesInOrganizationUnitsByProfileID(profile.ID)
 	if err != nil {
 		if apiErr, ok := err.(*errors.APIError); ok && apiErr.StatusCode != 404 {
 			return nil, err
@@ -954,25 +954,25 @@ func buildUserProfileBasicResponse(
 	}
 
 	if employeesInOrganizationUnit != nil {
-		jobPositionInOrganizationUnit, err := r.GetJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
+		jobPositionInOrganizationUnit, err := r.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
-		jobPositionInOrganizationUnitID = jobPositionInOrganizationUnit.Id
+		jobPositionInOrganizationUnitID = jobPositionInOrganizationUnit.ID
 
-		jobPosition, err = r.GetJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
+		jobPosition, err = r.GetJobPositionByID(jobPositionInOrganizationUnit.JobPositionID)
 		if err != nil {
 			return nil, err
 		}
 
-		organizationUnit, err = r.GetOrganizationUnitById(jobPositionInOrganizationUnit.ParentOrganizationUnitId)
+		organizationUnit, err = r.GetOrganizationUnitByID(jobPositionInOrganizationUnit.ParentOrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	userProfileResItem := &dto.UserProfileBasicResponse{
-		ID:                            profile.Id,
+		ID:                            profile.ID,
 		FirstName:                     profile.FirstName,
 		LastName:                      profile.LastName,
 		DateOfBirth:                   profile.DateOfBirth,
@@ -988,7 +988,7 @@ func buildUserProfileBasicResponse(
 		BankAccount:                   profile.BankAccount,
 		BankName:                      profile.BankName,
 		PersonalID:                    profile.PersonalID,
-		OfficialPersonalID:            profile.OfficialPersonalId,
+		OfficialPersonalID:            profile.OfficialPersonalID,
 		OfficialPersonalDocNumber:     profile.OfficialPersonalDocumentNumber,
 		OfficialPersonalDocIssuer:     profile.OfficialPersonalDocumentIssuer,
 		Gender:                        profile.Gender,
@@ -1008,7 +1008,7 @@ func buildUserProfileBasicResponse(
 		NationalMinority:              profile.NationalMinority,
 	}
 	active := true
-	contracts, err := r.GetEmployeeContracts(profile.Id, nil)
+	contracts, err := r.GetEmployeeContracts(profile.ID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1021,7 +1021,7 @@ func buildUserProfileBasicResponse(
 		userProfileResItem.Contract = contractResponseItem
 
 		// need check user is judge or president
-		if contractResponseItem.OrganizationUnit.Id > 0 {
+		if contractResponseItem.OrganizationUnit.ID > 0 {
 
 			input := dto.GetJudgeResolutionListInputMS{
 				Active: &active,
@@ -1030,11 +1030,11 @@ func buildUserProfileBasicResponse(
 			resolution, _ := r.GetJudgeResolutionList(&input)
 
 			if len(resolution.Data) > 0 {
-				resolutionId := resolution.Data[0].Id
+				resolutionID := resolution.Data[0].ID
 				judgeResolutionOrganizationUnit, _, err := r.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-					OrganizationUnitId: &contractResponseItem.OrganizationUnit.Id,
-					ResolutionId:       &resolutionId,
-					UserProfileId:      &profile.Id,
+					OrganizationUnitID: &contractResponseItem.OrganizationUnit.ID,
+					ResolutionID:       &resolutionID,
+					UserProfileID:      &profile.ID,
 				})
 				if err != nil {
 					return nil, err

@@ -1,8 +1,8 @@
 package structs
 
 type JudgeNorms struct {
-	Id                       int     `json:"id"`
-	UserProfileId            int     `json:"user_profile_id"`
+	ID                       int     `json:"id"`
+	UserProfileID            int     `json:"user_profile_id"`
 	Topic                    string  `json:"topic"`
 	Title                    string  `json:"title"`
 	PercentageOfNormDecrease float32 `json:"percentage_of_norm_decrease"`
@@ -19,7 +19,7 @@ type JudgeNorms struct {
 }
 
 type JudgeResolutions struct {
-	Id           int                     `json:"id"`
+	ID           int                     `json:"id"`
 	SerialNumber string                  `json:"serial_number"`
 	CreatedAt    string                  `json:"created_at"`
 	UpdatedAt    string                  `json:"updated_at"`
@@ -28,9 +28,9 @@ type JudgeResolutions struct {
 }
 
 type JudgeResolutionItems struct {
-	Id                 int `json:"id"`
-	ResolutionId       int `json:"resolution_id"`
-	OrganizationUnitId int `json:"organization_unit_id"`
+	ID                 int `json:"id"`
+	ResolutionID       int `json:"resolution_id"`
+	OrganizationUnitID int `json:"organization_unit_id"`
 	NumberOfJudges     int `json:"number_of_judges"`
 	NumberOfPresidents int `json:"number_of_presidents"`
 }

@@ -8,7 +8,7 @@ import (
 
 func (repo *MicroserviceRepository) CreateProcurementPlan(resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error) {
 	res := &dto.GetProcurementPlanResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.PLANS, resolution, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.Plans, resolution, res)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) CreateProcurementPlan(resolution *structs.Pu
 
 func (repo *MicroserviceRepository) UpdateProcurementPlan(id int, resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error) {
 	res := &dto.GetProcurementPlanResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.PLANS+"/"+strconv.Itoa(id), resolution, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.Plans+"/"+strconv.Itoa(id), resolution, res)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func (repo *MicroserviceRepository) UpdateProcurementPlan(id int, resolution *st
 }
 
 func (repo *MicroserviceRepository) DeleteProcurementPlan(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.PLANS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.Plans+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (repo *MicroserviceRepository) DeleteProcurementPlan(id int) error {
 
 func (repo *MicroserviceRepository) GetProcurementPlan(id int) (*structs.PublicProcurementPlan, error) {
 	res := &dto.GetProcurementPlanResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.PLANS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.Plans+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (repo *MicroserviceRepository) GetProcurementPlan(id int) (*structs.PublicP
 
 func (repo *MicroserviceRepository) GetProcurementPlanList(input *dto.GetProcurementPlansInput) ([]*structs.PublicProcurementPlan, error) {
 	res := &dto.GetProcurementPlanListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.PLANS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.Plans, input, res)
 	if err != nil {
 		return nil, err
 	}

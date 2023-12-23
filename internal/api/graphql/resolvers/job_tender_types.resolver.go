@@ -3,7 +3,6 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 
@@ -15,7 +14,7 @@ func (r *Resolver) JobTenderTypesResolver(params graphql.ResolveParams) (interfa
 	search := params.Args["search"]
 	var items []*structs.JobTenderTypes
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
+	if id != nil && id != 0 {
 		tenderType, err := r.Repo.GetTenderType(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -50,9 +49,9 @@ func (r *Resolver) JobTenderTypeInsertResolver(params graphql.ResolveParams) (in
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := r.Repo.UpdateJobTenderType(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		res, err := r.Repo.UpdateJobTenderType(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -73,9 +72,9 @@ func (r *Resolver) JobTenderTypeInsertResolver(params graphql.ResolveParams) (in
 }
 
 func (r *Resolver) JobTenderTypeDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteJobTenderType(itemId)
+	err := r.Repo.DeleteJobTenderType(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

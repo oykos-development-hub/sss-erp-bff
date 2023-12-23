@@ -3,7 +3,6 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 
@@ -22,8 +21,8 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 	isActive, isActiveOk := params.Args["is_active"].(bool)
 	email, emailOk := params.Args["email"].(string)
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		user, err := r.Repo.GetUserAccountById(id.(int))
+	if id != nil && id != 0 {
+		user, err := r.Repo.GetUserAccountByID(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -31,11 +30,11 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 		total = 1
 	} else {
 		input := dto.GetUserAccountListInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
+		if page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum
 		}
-		if shared.IsInteger(size) && size.(int) > 0 {
+		if size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}
@@ -68,14 +67,14 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
+	itemID := data.ID
 
-	if shared.IsInteger(itemId) && itemId != 0 {
+	if itemID != 0 {
 		var dataUpdate structs.UserAccounts
 		dataBytes, _ := json.Marshal(params.Args["data"])
 		_ = json.Unmarshal(dataBytes, &dataUpdate)
 
-		userResponse, err := r.Repo.UpdateUserAccount(itemId, dataUpdate)
+		userResponse, err := r.Repo.UpdateUserAccount(itemID, dataUpdate)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -85,26 +84,25 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 			Message: "You updated this item!",
 			Item:    userResponse,
 		}, nil
-	} else {
-		userResponse, err := r.Repo.CreateUserAccount(data)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		return dto.ResponseSingle{
-			Status:  "success",
-			Message: "You created this item!",
-			Item:    userResponse,
-		}, nil
 	}
+	userResponse, err := r.Repo.CreateUserAccount(data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You created this item!",
+		Item:    userResponse,
+	}, nil
 }
 
 func (r *Resolver) UserAccountDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"]
-	if !shared.IsInteger(id) || id == 0 {
+	if id == 0 {
 		return errors.ErrorResponse("You must pass the id"), nil
 	}
-	user, _ := r.Repo.GetUserAccountById(id.(int))
+	user, _ := r.Repo.GetUserAccountByID(id.(int))
 	user.Active = false
 	_, err := r.Repo.UpdateUserAccount(id.(int), *user)
 	if err != nil {

@@ -14,7 +14,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func PopulateOfficesOfOrganizationUnitItemProperties(basicInventoryItems []interface{}, id int, organizationUnitId int, search string) []interface{} {
+func PopulateOfficesOfOrganizationUnitItemProperties(basicInventoryItems []interface{}, id int, organizationUnitID int, search string) []interface{} {
 	var items []interface{}
 
 	for _, item := range basicInventoryItems {
@@ -22,12 +22,12 @@ func PopulateOfficesOfOrganizationUnitItemProperties(basicInventoryItems []inter
 		var mergedItem = shared.WriteStructToInterface(item)
 
 		// Filtering by ID
-		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+		if id != 0 && id != mergedItem["id"] {
 			continue
 		}
 
-		// Filtering by organizationUnitId
-		if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 && organizationUnitId != mergedItem["organization_unit_id"] {
+		// Filtering by organizationUnitID
+		if organizationUnitID != 0 && organizationUnitID != mergedItem["organization_unit_id"] {
 			continue
 		}
 
@@ -39,7 +39,7 @@ func PopulateOfficesOfOrganizationUnitItemProperties(basicInventoryItems []inter
 		if mergedItem["organization_unit_id"].(int) > 0 {
 			var relatedOfficesOrganizationUnit = shared.FetchByProperty(
 				"organization_unit",
-				"Id",
+				"ID",
 				mergedItem["organization_unit_id"],
 			)
 			if len(relatedOfficesOrganizationUnit) > 0 {
@@ -66,7 +66,7 @@ func (r *Resolver) OfficesOfOrganizationUnitOverviewResolver(params graphql.Reso
 	var total int
 
 	if id != nil && id.(int) != 0 {
-		setting, err := r.Repo.GetDropdownSettingById(id.(int))
+		setting, err := r.Repo.GetDropdownSettingByID(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -136,14 +136,14 @@ func (r *Resolver) OfficesOfOrganizationUnitInsertResolver(params graphql.Resolv
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
+	itemID := data.ID
 
 	response := dto.ResponseSingle{
 		Status: "success",
 	}
 
 	arg := structs.SettingsDropdown{
-		Value:        strconv.Itoa(data.OrganizationUnitId),
+		Value:        strconv.Itoa(data.OrganizationUnitID),
 		Title:        data.Title,
 		Abbreviation: data.Abbreviation,
 		Description:  data.Description,
@@ -152,8 +152,8 @@ func (r *Resolver) OfficesOfOrganizationUnitInsertResolver(params graphql.Resolv
 		Entity:       config.OfficeTypes,
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		itemRes, err := r.Repo.UpdateDropdownSettings(itemId, &arg)
+	if itemID != 0 {
+		itemRes, err := r.Repo.UpdateDropdownSettings(itemID, &arg)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -185,9 +185,9 @@ func (r *Resolver) OfficesOfOrganizationUnitInsertResolver(params graphql.Resolv
 }
 
 func (r *Resolver) OfficesOfOrganizationUnitDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	setting, err := r.Repo.GetDropdownSettingById(itemId)
+	setting, err := r.Repo.GetDropdownSettingByID(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -198,7 +198,7 @@ func (r *Resolver) OfficesOfOrganizationUnitDeleteResolver(params graphql.Resolv
 		}, nil
 	}
 
-	err = r.Repo.DeleteDropdownSettings(itemId)
+	err = r.Repo.DeleteDropdownSettings(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -210,25 +210,25 @@ func (r *Resolver) OfficesOfOrganizationUnitDeleteResolver(params graphql.Resolv
 }
 
 func buildOfficeOfOrganizationUnit(r repository.MicroserviceRepositoryInterface, item *structs.SettingsDropdown) (*dto.OfficesOfOrganizationResponse, error) {
-	organizationUnitId, err := strconv.Atoi(item.Value)
+	organizationUnitID, err := strconv.Atoi(item.Value)
 
 	if err != nil {
 		return nil, err
 	}
 
 	organizationUnitDropdown := dto.DropdownSimple{}
-	if organizationUnitId != 0 {
-		organizationUnit, err := r.GetOrganizationUnitById(organizationUnitId)
+	if organizationUnitID != 0 {
+		organizationUnit, err := r.GetOrganizationUnitByID(organizationUnitID)
 		if err != nil {
 			return nil, err
 		}
 		if organizationUnit != nil {
-			organizationUnitDropdown = dto.DropdownSimple{Id: organizationUnit.Id, Title: organizationUnit.Title}
+			organizationUnitDropdown = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
 		}
 	}
 
 	data := dto.OfficesOfOrganizationResponse{
-		Id:               item.Id,
+		ID:               item.ID,
 		OrganizationUnit: organizationUnitDropdown,
 		Title:            item.Title,
 		Abbreviation:     item.Abbreviation,

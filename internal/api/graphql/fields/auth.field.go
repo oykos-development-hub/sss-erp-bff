@@ -6,15 +6,15 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func (r *Field) LogoutField() *graphql.Field {
+func (f *Field) LogoutField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.LogoutType,
 		Description: "Logout the user",
-		Resolve:     r.Resolvers.LogoutResolver,
+		Resolve:     f.Resolvers.LogoutResolver,
 	}
 }
 
-func (r *Field) LoginField() *graphql.Field {
+func (f *Field) LoginField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.LoginType,
 		Description: "Returns a basic data for logged in user",
@@ -26,7 +26,7 @@ func (r *Field) LoginField() *graphql.Field {
 				Type: graphql.NewNonNull(graphql.String),
 			},
 		},
-		Resolve: r.Resolvers.LoginResolver,
+		Resolve: f.Resolvers.LoginResolver,
 	}
 }
 

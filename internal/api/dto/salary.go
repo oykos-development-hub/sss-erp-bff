@@ -1,7 +1,7 @@
 package dto
 
 type SalaryParams struct {
-	Id                  int            `json:"id,omitempty"`
+	ID                  int            `json:"id,omitempty"`
 	UserProfile         DropdownSimple `json:"user_profile"`
 	OrganizationUnit    DropdownSimple `json:"organization_unit"`
 	Resolution          Resolution     `json:"resolution"`

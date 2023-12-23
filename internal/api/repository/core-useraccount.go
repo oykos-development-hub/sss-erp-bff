@@ -8,7 +8,7 @@ import (
 
 func (repo *MicroserviceRepository) GetUserAccounts(input *dto.GetUserAccountListInput) (*dto.GetUserAccountListResponseMS, error) {
 	res := &dto.GetUserAccountListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.USER_ACCOUNTS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.UserAccounts, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) GetUserAccounts(input *dto.GetUserAccountLis
 
 func (repo *MicroserviceRepository) UpdateUserAccount(userID int, user structs.UserAccounts) (*structs.UserAccounts, error) {
 	res := &dto.GetUserAccountResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.USER_ACCOUNTS+"/"+strconv.Itoa(userID), user, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res)
 	if err != nil {
 		return nil, err
 	}
@@ -26,9 +26,9 @@ func (repo *MicroserviceRepository) UpdateUserAccount(userID int, user structs.U
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) GetUserAccountById(id int) (*structs.UserAccounts, error) {
+func (repo *MicroserviceRepository) GetUserAccountByID(id int) (*structs.UserAccounts, error) {
 	res := &dto.GetUserAccountResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.USER_ACCOUNTS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (repo *MicroserviceRepository) GetUserAccountById(id int) (*structs.UserAcc
 
 func (repo *MicroserviceRepository) CreateUserAccount(user structs.UserAccounts) (*structs.UserAccounts, error) {
 	res := &dto.GetUserAccountResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.USER_ACCOUNTS, user, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.UserAccounts, user, res)
 
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (repo *MicroserviceRepository) DeactivateUserAccount(userID int) (*structs.
 	user := dto.DeactivateUserAccount{
 		Active: false,
 	}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.USER_ACCOUNTS+"/"+strconv.Itoa(userID), user, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (repo *MicroserviceRepository) DeactivateUserAccount(userID int) (*structs.
 }
 
 func (repo *MicroserviceRepository) DeleteUserAccount(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.USER_ACCOUNTS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}

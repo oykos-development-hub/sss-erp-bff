@@ -1,9 +1,9 @@
 package structs
 
 type Evaluation struct {
-	Id               int              `json:"id"`
-	UserProfileId    int              `json:"user_profile_id"`
-	EvaluationTypeId int              `json:"evaluation_type_id"`
+	ID               int              `json:"id"`
+	UserProfileID    int              `json:"user_profile_id"`
+	EvaluationTypeID int              `json:"evaluation_type_id"`
 	EvaluationType   SettingsDropdown `json:"evaluation_type"`
 	Score            string           `json:"score"`
 	DateOfEvaluation *string          `json:"date_of_evaluation"`
@@ -11,11 +11,11 @@ type Evaluation struct {
 	IsRelevant       bool             `json:"is_relevant"`
 	CreatedAt        string           `json:"created_at"`
 	UpdatedAt        string           `json:"updated_at"`
-	FileId           int              `json:"file_id"`
+	FileID           int              `json:"file_id"`
 }
 
 type EvaluationType struct {
-	Id           int    `json:"id"`
+	ID           int    `json:"id"`
 	Title        string `json:"title"`
 	Abbreviation string `json:"abbreviation"`
 	Description  string `json:"description"`

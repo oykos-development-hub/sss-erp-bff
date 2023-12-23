@@ -10,7 +10,7 @@ import (
 
 func (repo *MicroserviceRepository) GetAllInventoryDispatches(filter dto.InventoryDispatchFilter) (*dto.GetAllBasicInventoryDispatches, error) {
 	res := &dto.GetAllBasicInventoryDispatches{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.DISPATCH, filter, &res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Dispatch, filter, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +21,7 @@ func (repo *MicroserviceRepository) GetAllInventoryDispatches(filter dto.Invento
 func (repo *MicroserviceRepository) GetMyInventoryDispatchesItems(filter *dto.DispatchInventoryItemFilter) ([]*structs.BasicInventoryDispatchItemsItem, error) {
 	res := &dto.GetAllBasicInventoryDispatchItems{}
 
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.DISPATCH_ITEMS, filter, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.DispatchItems, filter, res)
 
 	if err != nil {
 		fmt.Printf("Fetching Inventory items failed because of this error - %s.\n", err)
@@ -34,46 +34,46 @@ func (repo *MicroserviceRepository) GetMyInventoryDispatchesItems(filter *dto.Di
 func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error) {
 	res := dto.GetBasicInventoryDispatch{}
 
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.DISPATCH, item, &res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Dispatch, item, &res)
 	if err != nil {
 		return nil, err
 	}
 
-	if item.InventoryId != nil {
-		for i := 0; i < len(item.InventoryId); i++ {
+	if item.InventoryID != nil {
+		for i := 0; i < len(item.InventoryID); i++ {
 			itemDispatch := structs.BasicInventoryDispatchItemsItem{
-				InventoryId: item.InventoryId[i],
-				DispatchId:  res.Data.Id,
+				InventoryID: item.InventoryID[i],
+				DispatchID:  res.Data.ID,
 			}
 
 			if item.Type != "revers" {
-				inventory, err := repo.GetInventoryItem(item.InventoryId[i])
+				inventory, err := repo.GetInventoryItem(item.InventoryID[i])
 				if err != nil {
 					return nil, err
 				}
 
 				targetOrganizationUnitID := 0
 				targetUserProfileID := 0
-				officeID := 0
+				OfficeID := 0
 
 				if item.Type == "allocation" {
-					targetUserProfileID = item.TargetUserProfileId
-					officeID = item.OfficeId
+					targetUserProfileID = item.TargetUserProfileID
+					OfficeID = item.OfficeID
 				}
 				if item.Type == "return" {
-					inventory.TargetOrganizationUnitId = targetOrganizationUnitID
+					inventory.TargetOrganizationUnitID = targetOrganizationUnitID
 				}
 
-				inventory.TargetUserProfileId = targetUserProfileID
-				inventory.OfficeId = officeID
+				inventory.TargetUserProfileID = targetUserProfileID
+				inventory.OfficeID = OfficeID
 
-				_, err = repo.UpdateInventoryItem(inventory.Id, inventory)
+				_, err = repo.UpdateInventoryItem(inventory.ID, inventory)
 				if err != nil {
 					return nil, err
 				}
 
 			}
-			_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.DISPATCH_ITEMS, itemDispatch, nil)
+			_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.DispatchItems, itemDispatch, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -86,33 +86,33 @@ func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInvent
 func (repo *MicroserviceRepository) UpdateDispatchItem(id int, item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error) {
 	dispatch := dto.GetBasicInventoryDispatch{}
 
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.DISPATCH+"/"+strconv.Itoa(id), item, &dispatch)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(id), item, &dispatch)
 	if err != nil {
 		return nil, err
 	}
 
-	if item.InventoryId != nil {
+	if item.InventoryID != nil {
 		filter := dto.DispatchInventoryItemFilter{
-			DispatchID: &item.Id,
+			DispatchID: &item.ID,
 		}
 
 		dispatchItems, _ := repo.GetMyInventoryDispatchesItems(&filter)
 
 		for _, dispatch := range dispatchItems {
-			_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.DISPATCH_ITEMS+"/"+strconv.Itoa(dispatch.Id), nil, nil)
+			_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.DispatchItems+"/"+strconv.Itoa(dispatch.ID), nil, nil)
 
 			if err != nil {
 				return nil, err
 			}
 		}
 
-		for _, inventoryID := range item.InventoryId {
+		for _, inventoryID := range item.InventoryID {
 			itemDispatch := structs.BasicInventoryDispatchItemsItem{
-				InventoryId: inventoryID,
-				DispatchId:  dispatch.Data.Id,
+				InventoryID: inventoryID,
+				DispatchID:  dispatch.Data.ID,
 			}
 
-			_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.DISPATCH_ITEMS, itemDispatch, nil)
+			_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.DispatchItems, itemDispatch, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -123,7 +123,7 @@ func (repo *MicroserviceRepository) UpdateDispatchItem(id int, item *structs.Bas
 }
 
 func (repo *MicroserviceRepository) DeleteInventoryDispatch(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.DISPATCH+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func (repo *MicroserviceRepository) DeleteInventoryDispatch(id int) error {
 func (repo *MicroserviceRepository) GetDispatchItemByID(id int) (*structs.BasicInventoryDispatchItem, error) {
 	res := dto.GetBasicInventoryDispatch{}
 
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.DISPATCH+"/"+strconv.Itoa(id), nil, &res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(id), nil, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func (repo *MicroserviceRepository) GetDispatchItemByID(id int) (*structs.BasicI
 
 func (repo *MicroserviceRepository) CreateAssessments(data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error) {
 	res := &dto.AssessmentResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.ASSESSMENTS, data, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Assessments, data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (repo *MicroserviceRepository) CreateAssessments(data *structs.BasicInvento
 
 func (repo *MicroserviceRepository) UpdateAssessments(id int, data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error) {
 	res := &dto.AssessmentResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.ASSESSMENTS+"/"+strconv.Itoa(id), data, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Assessments+"/"+strconv.Itoa(id), data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (repo *MicroserviceRepository) UpdateAssessments(id int, data *structs.Basi
 }
 
 func (repo *MicroserviceRepository) DeleteAssessment(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.ASSESSMENTS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.Assessments+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -174,14 +174,14 @@ func (repo *MicroserviceRepository) DeleteAssessment(id int) error {
 func (repo *MicroserviceRepository) CreateInventoryItem(item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error) {
 	res := dto.GetBasicInventoryInsertItem{}
 
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.ITEM, item, &res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Item, item, &res)
 	if err != nil {
 		return nil, err
 	}
 
 	if item.RealEstate != nil {
-		item.RealEstate.ItemId = res.Data.Id
-		_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.REAL_ESTATES, item.RealEstate, nil)
+		item.RealEstate.ItemID = res.Data.ID
+		_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.RealEstates, item.RealEstate, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -194,20 +194,20 @@ func (repo *MicroserviceRepository) UpdateInventoryItem(id int, item *structs.Ba
 	res := dto.GetBasicInventoryInsertItem{}
 	res1 := dto.GetBasicInventoryInsertItem{}
 
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.ITEM+"/"+strconv.Itoa(id), item, &res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Item+"/"+strconv.Itoa(id), item, &res)
 	if err != nil {
 		return nil, err
 	}
 
 	if item.RealEstate != nil {
-		item.RealEstate.ItemId = res.Data.Id
-		if item.RealEstate.Id != 0 {
-			_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.REAL_ESTATES+"/"+strconv.Itoa(item.RealEstate.Id), item.RealEstate, &res1)
+		item.RealEstate.ItemID = res.Data.ID
+		if item.RealEstate.ID != 0 {
+			_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.RealEstates+"/"+strconv.Itoa(item.RealEstate.ID), item.RealEstate, &res1)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.REAL_ESTATES, item.RealEstate, &res1)
+			_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.RealEstates, item.RealEstate, &res1)
 			if err != nil {
 				return nil, err
 			}
@@ -219,7 +219,7 @@ func (repo *MicroserviceRepository) UpdateInventoryItem(id int, item *structs.Ba
 
 func (repo *MicroserviceRepository) GetInventoryItem(id int) (*structs.BasicInventoryInsertItem, error) {
 	res := dto.GetBasicInventoryInsertItem{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.ITEM+"/"+strconv.Itoa(id), nil, &res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Item+"/"+strconv.Itoa(id), nil, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +229,7 @@ func (repo *MicroserviceRepository) GetInventoryItem(id int) (*structs.BasicInve
 
 func (repo *MicroserviceRepository) GetAllInventoryItem(filter dto.InventoryItemFilter) (*dto.GetAllBasicInventoryItem, error) {
 	res := &dto.GetAllBasicInventoryItem{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.ITEM, filter, &res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Item, filter, &res)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +251,7 @@ func (repo *MicroserviceRepository) GetMyInventoryRealEstate(id int) (*structs.B
 
 func (repo *MicroserviceRepository) GetMyInventoryAssessments(id int) ([]structs.BasicInventoryAssessmentsTypesItem, error) {
 	res := &dto.AssessmentResponseArrayMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.ASSESSMENTS+"/"+strconv.Itoa(id)+"/item", nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Assessments+"/"+strconv.Itoa(id)+"/item", nil, res)
 
 	if err != nil {
 		if apiErr, ok := err.(*errors.APIError); ok && apiErr.StatusCode != 404 {
@@ -276,7 +276,7 @@ func (repo *MicroserviceRepository) GetDispatchItemByInventoryID(id int) ([]*str
 
 func (repo *MicroserviceRepository) GetInventoryRealEstatesList(input *dto.GetInventoryRealEstateListInputMS) (*dto.GetInventoryRealEstateListResponseMS, error) {
 	res := &dto.GetInventoryRealEstateListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.REAL_ESTATES, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.RealEstates, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -286,7 +286,7 @@ func (repo *MicroserviceRepository) GetInventoryRealEstatesList(input *dto.GetIn
 
 func (repo *MicroserviceRepository) GetInventoryRealEstate(id int) (*structs.BasicInventoryRealEstatesItem, error) {
 	res := &dto.GetInventoryRealEstateResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.REAL_ESTATES+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.RealEstates+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}

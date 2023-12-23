@@ -158,7 +158,7 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 		entityStruct = &structs.BudgetActivityNotFinanciallyIndicatorItem{}
 	}
 
-	entityData, entityDataErr := ReadJson(GetDataRoot()+"/"+endpoint, entityStruct)
+	entityData, entityDataErr := ReadJSON(GetDataRoot()+"/"+endpoint, entityStruct)
 
 	if entityDataErr != nil {
 		fmt.Printf("Fetching "+entity+" failed because of this error - %s.\n", entityDataErr)

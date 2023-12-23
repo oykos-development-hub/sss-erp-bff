@@ -1,8 +1,8 @@
 package structs
 
 type SalaryParams struct {
-	Id                  int              `json:"id,omitempty"`
-	UserProfileId       int              `json:"user_profile_id"`
+	ID                  int              `json:"id,omitempty"`
+	UserProfileID       int              `json:"user_profile_id"`
 	OrganizationUnitID  int              `json:"organization_unit_id"`
 	OrganizationUnit    SettingsDropdown `json:"organization_unit"`
 	BenefitedTrack      bool             `json:"benefited_track"`
@@ -13,7 +13,7 @@ type SalaryParams struct {
 	WeeklyWorkHours     string           `json:"weekly_work_hours"`
 	EducationRank       string           `json:"education_rank"`
 	EducationNaming     string           `json:"education_naming"`
-	UserResolutionId    *int             `json:"user_resolution_id,omitempty"`
+	UserResolutionID    *int             `json:"user_resolution_id,omitempty"`
 	ObligationReduction string           `json:"obligation_reduction"`
 	CreatedAt           string           `json:"created_at"`
 	UpdatedAt           string           `json:"updated_at"`

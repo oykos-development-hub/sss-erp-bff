@@ -20,12 +20,12 @@ type GetJobPositionsInput struct {
 
 type GetEmployeesInOrganizationUnitInput struct {
 	PositionInOrganizationUnit *int  `json:"position_in_organization_unit_id"`
-	UserProfileId              *int  `json:"user_profile_id"`
+	UserProfileID              *int  `json:"user_profile_id"`
 	Active                     *bool `json:"active"`
 }
 
 type JobPositionsInSectorResponse struct {
-	Id               int    `json:"id"`
+	ID               int    `json:"id"`
 	Title            string `json:"title"`
 	Abbreviation     string `json:"abbreviation"`
 	Description      string `json:"description"`

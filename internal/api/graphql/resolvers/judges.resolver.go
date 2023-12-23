@@ -36,11 +36,11 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 	}
 	if orgUnitID != nil {
 		OrgUnit := orgUnitID.(int)
-		filter.OrganizationUnitId = &OrgUnit
+		filter.OrganizationUnitID = &OrgUnit
 	}
 	if id != nil {
 		user := id.(int)
-		filter.UserProfileId = &user
+		filter.UserProfileID = &user
 	}
 
 	active := true
@@ -59,7 +59,7 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 		return response, nil
 	}
 
-	filter.ResolutionId = &resolution.Data[0].Id
+	filter.ResolutionID = &resolution.Data[0].ID
 	judges, total, err := r.Repo.GetJudgeResolutionOrganizationUnit(&filter)
 
 	if err != nil {
@@ -69,7 +69,7 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 	var responseItems []*dto.Judges
 
 	for _, judge := range judges {
-		judgeUser, err := buildJudgeResponseItem(r.Repo, judge.UserProfileId, judge.OrganizationUnitId, judge.IsPresident)
+		judgeUser, err := buildJudgeResponseItem(r.Repo, judge.UserProfileID, judge.OrganizationUnitID, judge.IsPresident)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -82,25 +82,25 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 }
 
 func buildJudgeResponseItem(r repository.MicroserviceRepositoryInterface, userProfileID, organizationUnitID int, isPresident bool) (*dto.Judges, error) {
-	userProfile, err := r.GetUserProfileById(userProfileID)
+	userProfile, err := r.GetUserProfileByID(userProfileID)
 	if err != nil {
 		return nil, err
 	}
-	userAccount, err := r.GetUserAccountById(userProfile.UserAccountId)
+	userAccount, err := r.GetUserAccountByID(userProfile.UserAccountID)
 	if err != nil {
 		return nil, err
 	}
 
-	organizationUnit, err := r.GetOrganizationUnitById(organizationUnitID)
+	organizationUnit, err := r.GetOrganizationUnitByID(organizationUnitID)
 	if err != nil {
 		return nil, err
 	}
 	organizationUnitDropdown := structs.SettingsDropdown{
-		Id:    organizationUnit.Id,
+		ID:    organizationUnit.ID,
 		Title: organizationUnit.Title,
 	}
 
-	norms, err := r.GetJudgeNormListByEmployee(userProfile.Id)
+	norms, err := r.GetJudgeNormListByEmployee(userProfile.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -111,13 +111,13 @@ func buildJudgeResponseItem(r repository.MicroserviceRepositoryInterface, userPr
 	}
 
 	return &dto.Judges{
-		ID:               userProfile.Id,
+		ID:               userProfile.ID,
 		FirstName:        userProfile.FirstName,
 		LastName:         userProfile.LastName,
 		IsJudgePresident: isPresident,
 		OrganizationUnit: organizationUnitDropdown,
 		Norms:            normResItemList,
-		FolderID:         userAccount.FolderId,
+		FolderID:         userAccount.FolderID,
 		CreatedAt:        userProfile.CreatedAt,
 		UpdatedAt:        userProfile.UpdatedAt,
 	}, nil
@@ -140,8 +140,8 @@ func buildNormResItemList(r repository.MicroserviceRepositoryInterface, norms []
 
 func buildNormResItem(r repository.MicroserviceRepositoryInterface, norm structs.JudgeNorms) (*dto.NormResItem, error) {
 	normResItem := &dto.NormResItem{
-		Id:                       norm.Id,
-		UserProfileId:            norm.UserProfileId,
+		ID:                       norm.ID,
+		UserProfileID:            norm.UserProfileID,
 		Topic:                    norm.Topic,
 		Title:                    norm.Title,
 		PercentageOfNormDecrease: norm.PercentageOfNormDecrease,
@@ -159,7 +159,7 @@ func buildNormResItem(r repository.MicroserviceRepositoryInterface, norm structs
 			return nil, err
 		}
 
-		evaluationType, err := r.GetDropdownSettingById(evaluation.EvaluationTypeId)
+		evaluationType, err := r.GetDropdownSettingByID(evaluation.EvaluationTypeID)
 		if err != nil {
 			return nil, err
 		}
@@ -167,7 +167,7 @@ func buildNormResItem(r repository.MicroserviceRepositoryInterface, norm structs
 		evaluation.EvaluationType = *evaluationType
 	}
 	if norm.RelocationID != nil {
-		relocation, err := r.GetAbsentById(*norm.RelocationID)
+		relocation, err := r.GetAbsentByID(*norm.RelocationID)
 		if err != nil {
 			return nil, err
 		}
@@ -192,9 +192,9 @@ func (r *Resolver) JudgeNormInsertResolver(params graphql.ResolveParams) (interf
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := r.Repo.UpdateJudgeNorm(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		res, err := r.Repo.UpdateJudgeNorm(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -213,9 +213,9 @@ func (r *Resolver) JudgeNormInsertResolver(params graphql.ResolveParams) (interf
 }
 
 func (r *Resolver) JudgeNormDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteJudgeNorm(itemId)
+	err := r.Repo.DeleteJudgeNorm(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -255,7 +255,7 @@ func (r *Resolver) JudgeResolutionsResolver(params graphql.ResolveParams) (inter
 		resolutionList = append(resolutionList, resolutions.Data...)
 	}
 
-	resolutionResponseList, err := processResolutions(r.Repo, resolutionList, page, size)
+	resolutionResponseList, err := processResolutions(r.Repo, resolutionList)
 	if err != nil {
 		return dto.ErrorResponse(err), nil
 	}
@@ -284,18 +284,18 @@ func (r *Resolver) CheckJudgeAndPresidentIsAvailable(params graphql.ResolveParam
 		President: false,
 	}
 
-	organizationUnitId := params.Args["organization_unit_id"]
-	if shared.IsInteger(organizationUnitId) && organizationUnitId.(int) > 0 {
+	organizationUnitID := params.Args["organization_unit_id"]
+	if organizationUnitID.(int) > 0 {
 
 		resolution, _ := r.Repo.GetJudgeResolutionList(&input)
 
 		if len(resolution.Data) > 0 {
-			orgUnitID := organizationUnitId.(int)
-			resolutionID := resolution.Data[0].Id
+			orgUnitID := organizationUnitID.(int)
+			resolutionID := resolution.Data[0].ID
 
 			judgeResolutionOrganizationUnit, _, err := r.Repo.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-				OrganizationUnitId: &orgUnitID,
-				ResolutionId:       &resolutionID,
+				OrganizationUnitID: &orgUnitID,
+				ResolutionID:       &resolutionID,
 			})
 
 			if err != nil {
@@ -305,7 +305,7 @@ func (r *Resolver) CheckJudgeAndPresidentIsAvailable(params graphql.ResolveParam
 			numberOfJudges := len(judgeResolutionOrganizationUnit)
 
 			itemsInput := dto.GetJudgeResolutionItemListInputMS{
-				ResolutionID: &resolution.Data[0].Id,
+				ResolutionID: &resolution.Data[0].ID,
 			}
 			resolutionItems, err := r.Repo.GetJudgeResolutionItemsList(&itemsInput)
 			if err != nil {
@@ -314,7 +314,7 @@ func (r *Resolver) CheckJudgeAndPresidentIsAvailable(params graphql.ResolveParam
 
 			if len(resolutionItems) > 0 {
 				for _, item := range resolutionItems {
-					if item.OrganizationUnitId == organizationUnitId {
+					if item.OrganizationUnitID == organizationUnitID {
 						if numberOfJudges < item.NumberOfJudges {
 							check.Judge = true
 						}
@@ -335,7 +335,7 @@ func (r *Resolver) CheckJudgeAndPresidentIsAvailable(params graphql.ResolveParam
 	return response, nil
 }
 
-func processResolutions(r repository.MicroserviceRepositoryInterface, resolutionList []*structs.JudgeResolutions, page, size int) ([]*dto.JudgeResolutionsResponseItem, error) {
+func processResolutions(r repository.MicroserviceRepositoryInterface, resolutionList []*structs.JudgeResolutions) ([]*dto.JudgeResolutionsResponseItem, error) {
 	var resolutionResponseList []*dto.JudgeResolutionsResponseItem
 
 	// Process JudgeResolutions concurrently
@@ -361,7 +361,7 @@ func processResolutions(r repository.MicroserviceRepositoryInterface, resolution
 
 func processJudgeResolution(r repository.MicroserviceRepositoryInterface, resolution *structs.JudgeResolutions) (*dto.JudgeResolutionsResponseItem, error) {
 	itemsInput := dto.GetJudgeResolutionItemListInputMS{
-		ResolutionID: &resolution.Id,
+		ResolutionID: &resolution.ID,
 	}
 	resolutionItems, err := r.GetJudgeResolutionItemsList(&itemsInput)
 	if err != nil {
@@ -374,7 +374,7 @@ func processJudgeResolution(r repository.MicroserviceRepositoryInterface, resolu
 	}
 
 	resolutionResponseItem := &dto.JudgeResolutionsResponseItem{
-		Id:                   resolution.Id,
+		ID:                   resolution.ID,
 		SerialNumber:         resolution.SerialNumber,
 		CreatedAt:            resolution.CreatedAt,
 		UpdatedAt:            resolution.UpdatedAt,
@@ -417,20 +417,20 @@ func processResolutionItems(r repository.MicroserviceRepositoryInterface, resolu
 }
 
 func buildResolutionItemResponseItem(r repository.MicroserviceRepositoryInterface, item *structs.JudgeResolutionItems) (*dto.JudgeResolutionItemResponseItem, error) {
-	organizationUnit, err := r.GetOrganizationUnitById(item.OrganizationUnitId)
+	organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
 	if err != nil {
 		return nil, err
 	}
-	organizationUnitDropdown := structs.SettingsDropdown{Id: organizationUnit.Id, Title: organizationUnit.Title}
+	organizationUnitDropdown := structs.SettingsDropdown{ID: organizationUnit.ID, Title: organizationUnit.Title}
 
-	numberOfJudgesInOU, numberOfPresidents, numberOfEmployees, numberOfRelocations, err := calculateEmployeeStats(r, organizationUnit.Id, item.Id)
+	numberOfJudgesInOU, numberOfPresidents, numberOfEmployees, numberOfRelocations, err := calculateEmployeeStats(r, organizationUnit.ID, item.ID)
 	if err != nil {
 		fmt.Printf("Calculating number of presindents failed beacuse of error: %v\n", err)
 	}
 
 	return &dto.JudgeResolutionItemResponseItem{
-		Id:                       item.Id,
-		ResolutionId:             item.ResolutionId,
+		ID:                       item.ID,
+		ResolutionID:             item.ResolutionID,
 		OrganizationUnit:         organizationUnitDropdown,
 		AvailableSlotsJudges:     item.NumberOfJudges,
 		AvailableSlotsPredisents: item.NumberOfPresidents,
@@ -444,8 +444,8 @@ func buildResolutionItemResponseItem(r repository.MicroserviceRepositoryInterfac
 
 func (r *Resolver) OrganizationUintCalculateEmployeeStats(params graphql.ResolveParams) (interface{}, error) {
 	var response []dto.JudgeResolutionItemResponseItem
-	var page int = 1
-	var size int = 1000
+	page := 1
+	size := 1000
 	resID := params.Args["resolution_id"]
 	active := params.Args["active"]
 	input := dto.GetOrganizationUnitsInput{
@@ -478,7 +478,7 @@ func (r *Resolver) OrganizationUintCalculateEmployeeStats(params graphql.Resolve
 			}, nil
 		}
 
-		resolutionID = resolution.Data[0].Id
+		resolutionID = resolution.Data[0].ID
 	} else if resID.(int) != 0 {
 		resolutionID = resID.(int)
 	} else {
@@ -491,12 +491,12 @@ func (r *Resolver) OrganizationUintCalculateEmployeeStats(params graphql.Resolve
 
 	for _, organizationUnit := range organizationUnits.Data {
 
-		if organizationUnit.ParentId != nil {
+		if organizationUnit.ParentID != nil {
 			continue
 		}
-		organizationUnitDropdown := structs.SettingsDropdown{Id: organizationUnit.Id, Title: organizationUnit.Title}
+		organizationUnitDropdown := structs.SettingsDropdown{ID: organizationUnit.ID, Title: organizationUnit.Title}
 
-		numberOfJudgesInOU, numberOfPresidents, numberOfEmployees, numberOfRelocations, err := calculateEmployeeStats(r.Repo, organizationUnit.Id, resolutionID)
+		numberOfJudgesInOU, numberOfPresidents, numberOfEmployees, numberOfRelocations, err := calculateEmployeeStats(r.Repo, organizationUnit.ID, resolutionID)
 		if err != nil {
 			fmt.Printf("Calculating number of presindents failed beacuse of error: %v\n", err)
 		}
@@ -522,8 +522,8 @@ func calculateEmployeeStats(r repository.MicroserviceRepositoryInterface, id int
 	var numberOfEmployees, numberOfJudges, totalRelocations, numberOfJudgePresidents int
 
 	input := &dto.JudgeResolutionsOrganizationUnitInput{
-		OrganizationUnitId: &id,
-		ResolutionId:       &resID,
+		OrganizationUnitID: &id,
+		ResolutionID:       &resID,
 	}
 	judgeResolutionOrganizationUnit, _, err := r.GetJudgeResolutionOrganizationUnit(input)
 
@@ -548,12 +548,12 @@ func calculateEmployeeStats(r repository.MicroserviceRepositoryInterface, id int
 // 	var numberOfRelocations int
 // 	for _, employee := range employees {
 // 		today := time.Now()
-// 		absents, err := r.Repo.GetEmployeeAbsents(employee.UserProfileId, &dto.EmployeeAbsentsInput{Date: &today})
+// 		absents, err := r.Repo.GetEmployeeAbsents(employee.UserProfileID, &dto.EmployeeAbsentsInput{Date: &today})
 // 		if err != nil {
 // 			return 0, err
 // 		}
 // 		for _, absent := range absents {
-// 			absentType, err := r.Repo.GetAbsentTypeById(absent.AbsentTypeId)
+// 			absentType, err := r.Repo.GetAbsentTypeByID(absent.AbsentTypeID)
 // 			if err != nil {
 // 				return 0, err
 // 			}
@@ -579,18 +579,18 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
+	itemID := data.ID
+	if itemID != 0 {
 		judgeResolution := structs.JudgeResolutions{
 			SerialNumber: data.SerialNumber,
 			Active:       data.Active,
 		}
-		resolution, err = r.Repo.UpdateJudgeResolutions(itemId, &judgeResolution)
+		resolution, err = r.Repo.UpdateJudgeResolutions(itemID, &judgeResolution)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 
-		updatedItems, err := insertOrUpdateResolutionItemList(r.Repo, data.Items, resolution.Id)
+		updatedItems, err := insertOrUpdateResolutionItemList(r.Repo, data.Items, resolution.ID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -615,19 +615,19 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 		}
 
 			for _, res := range resolutions.Data {
-			//if res.Active && resolution.Id != res.Id {
+			//if res.Active && resolution.ID != res.ID {
 				judgeResolution := structs.JudgeResolutions{
 					SerialNumber: res.SerialNumber,
 					Active:       false,
 				}
-				_, err = r.Repo.UpdateJudgeResolutions(res.Id, &judgeResolution)
+				_, err = r.Repo.UpdateJudgeResolutions(res.ID, &judgeResolution)
 				if err != nil {
 					return errors.HandleAPIError(err)
 				}
 		*/
-		oldResID := resolution.Id - 1
+		oldResID := resolution.ID - 1
 		judgesResolution, _, err := r.Repo.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-			ResolutionId: &oldResID,
+			ResolutionID: &oldResID,
 		})
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -636,9 +636,9 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 		if len(judgesResolution) > 0 {
 			for _, judge := range judgesResolution {
 				inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
-					UserProfileId:      judge.UserProfileId,
-					OrganizationUnitId: judge.OrganizationUnitId,
-					ResolutionId:       resolution.Id,
+					UserProfileID:      judge.UserProfileID,
+					OrganizationUnitID: judge.OrganizationUnitID,
+					ResolutionID:       resolution.ID,
 					IsPresident:        judge.IsPresident,
 				}
 				_, err := r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
@@ -651,7 +651,7 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 			}
 		}
 
-		updatedItems, err := insertOrUpdateResolutionItemList(r.Repo, data.Items, resolution.Id)
+		updatedItems, err := insertOrUpdateResolutionItemList(r.Repo, data.Items, resolution.ID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -674,13 +674,13 @@ func insertOrUpdateResolutionItemList(r repository.MicroserviceRepositoryInterfa
 	var updateItemsList []*structs.JudgeResolutionItems
 	for _, item := range items {
 		judgeResolutionItem := structs.JudgeResolutionItems{
-			ResolutionId:       resolutionID,
-			OrganizationUnitId: item.OrganizationUnitId,
+			ResolutionID:       resolutionID,
+			OrganizationUnitID: item.OrganizationUnitID,
 			NumberOfJudges:     item.NumberOfJudges,
 			NumberOfPresidents: item.NumberOfPresidents,
 		}
-		if item.Id > 0 {
-			item, err := r.UpdateJudgeResolutionItems(item.Id, &judgeResolutionItem)
+		if item.ID > 0 {
+			item, err := r.UpdateJudgeResolutionItems(item.ID, &judgeResolutionItem)
 			if err != nil {
 				fmt.Printf("Updating Judge Resolution Items failed because of this error - %s.\n", err)
 				return nil, err
@@ -699,9 +699,9 @@ func insertOrUpdateResolutionItemList(r repository.MicroserviceRepositoryInterfa
 }
 
 func (r *Resolver) JudgeResolutionDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteJudgeResolution(itemId)
+	err := r.Repo.DeleteJudgeResolution(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

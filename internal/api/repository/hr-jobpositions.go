@@ -6,9 +6,9 @@ import (
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) GetJobPositionById(id int) (*structs.JobPositions, error) {
+func (repo *MicroserviceRepository) GetJobPositionByID(id int) (*structs.JobPositions, error) {
 	res := &dto.GetJobPositionResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JOB_POSITIONS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobPositions+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) GetJobPositionById(id int) (*structs.JobPosi
 
 func (repo *MicroserviceRepository) GetJobPositions(input *dto.GetJobPositionsInput) (*dto.GetJobPositionsResponseMS, error) {
 	res := &dto.GetJobPositionsResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JOB_POSITIONS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobPositions, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (repo *MicroserviceRepository) GetJobPositions(input *dto.GetJobPositionsIn
 
 func (repo *MicroserviceRepository) UpdateJobPositions(id int, data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error) {
 	res := &dto.GetJobPositionResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JOB_POSITIONS+"/"+strconv.Itoa(id), data, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobPositions+"/"+strconv.Itoa(id), data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (repo *MicroserviceRepository) UpdateJobPositions(id int, data *structs.Job
 
 func (repo *MicroserviceRepository) CreateJobPositions(data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error) {
 	res := &dto.GetJobPositionResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JOB_POSITIONS, data, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JobPositions, data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (repo *MicroserviceRepository) CreateJobPositions(data *structs.JobPosition
 }
 
 func (repo *MicroserviceRepository) DeleteJobPositions(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JOB_POSITIONS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobPositions+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (repo *MicroserviceRepository) DeleteJobPositions(id int) error {
 
 func (repo *MicroserviceRepository) CreateJobPositionsInOrganizationUnits(data *structs.JobPositionsInOrganizationUnits) (*dto.GetJobPositionInOrganizationUnitsResponseMS, error) {
 	res := &dto.GetJobPositionInOrganizationUnitsResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JOB_POSITIONS_IN_ORGANIZATION_UNITS, data, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JobPositionInOrganizationUnits, data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (repo *MicroserviceRepository) CreateJobPositionsInOrganizationUnits(data *
 
 func (repo *MicroserviceRepository) UpdateJobPositionsInOrganizationUnits(data *structs.JobPositionsInOrganizationUnits) (*dto.GetJobPositionInOrganizationUnitsResponseMS, error) {
 	res := &dto.GetJobPositionInOrganizationUnitsResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JOB_POSITIONS_IN_ORGANIZATION_UNITS+"/"+strconv.Itoa(data.Id), data, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobPositionInOrganizationUnits+"/"+strconv.Itoa(data.ID), data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +75,9 @@ func (repo *MicroserviceRepository) UpdateJobPositionsInOrganizationUnits(data *
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) GetJobPositionsInOrganizationUnitsById(id int) (*structs.JobPositionsInOrganizationUnits, error) {
+func (repo *MicroserviceRepository) GetJobPositionsInOrganizationUnitsByID(id int) (*structs.JobPositionsInOrganizationUnits, error) {
 	res := &dto.GetJobPositionInOrganizationUnitsResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JOB_POSITIONS_IN_ORGANIZATION_UNITS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobPositionInOrganizationUnits+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (repo *MicroserviceRepository) GetJobPositionsInOrganizationUnitsById(id in
 }
 
 func (repo *MicroserviceRepository) DeleteJobPositionsInOrganizationUnits(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JOB_POSITIONS_IN_ORGANIZATION_UNITS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobPositionInOrganizationUnits+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func (repo *MicroserviceRepository) DeleteJobPositionsInOrganizationUnits(id int
 
 func (repo *MicroserviceRepository) GetJobPositionsInOrganizationUnits(input *dto.GetJobPositionInOrganizationUnitsInput) (*dto.GetJobPositionsInOrganizationUnitsResponseMS, error) {
 	res := &dto.GetJobPositionsInOrganizationUnitsResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JOB_POSITIONS_IN_ORGANIZATION_UNITS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobPositionInOrganizationUnits, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (repo *MicroserviceRepository) GetJobPositionsInOrganizationUnits(input *dt
 
 func (repo *MicroserviceRepository) CreateEmployeesInOrganizationUnits(data *structs.EmployeesInOrganizationUnits) (*structs.EmployeesInOrganizationUnits, error) {
 	res := &dto.GetEmployeesInOrganizationUnitsResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EMPLOYEES_IN_ORGANIZATION_UNITS, data, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.EmployeesInOrganizationUnits, data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -114,8 +114,8 @@ func (repo *MicroserviceRepository) CreateEmployeesInOrganizationUnits(data *str
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnitId int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EMPLOYEES_IN_ORGANIZATION_UNITS+"/"+strconv.Itoa(jobPositionInOrganizationUnitId), nil, nil)
+func (repo *MicroserviceRepository) DeleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnitID int) error {
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EmployeesInOrganizationUnits+"/"+strconv.Itoa(jobPositionInOrganizationUnitID), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -123,8 +123,8 @@ func (repo *MicroserviceRepository) DeleteEmployeeInOrganizationUnit(jobPosition
 	return nil
 }
 
-func (repo *MicroserviceRepository) DeleteEmployeeInOrganizationUnitByID(jobPositionInOrganizationUnitId int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EMPLOYEES_IN_ORGANIZATION_UNITS_BY_ID+"/"+strconv.Itoa(jobPositionInOrganizationUnitId), nil, nil)
+func (repo *MicroserviceRepository) DeleteEmployeeInOrganizationUnitByID(jobPositionInOrganizationUnitID int) error {
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.EmployeesInOrganizationUnitByID+"/"+strconv.Itoa(jobPositionInOrganizationUnitID), nil, nil)
 	if err != nil {
 		return err
 	}

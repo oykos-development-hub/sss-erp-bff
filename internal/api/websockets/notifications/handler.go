@@ -26,13 +26,13 @@ func (ws *Websockets) Handler(w http.ResponseWriter, r *http.Request) {
 
 	client := &websockets.Client{
 		Conn:   conn,
-		UserID: loggedInAccount.Id,
+		UserID: loggedInAccount.ID,
 		ID:     uuid.New().String(),
 	}
 
 	ws.Wsmanager.AddClient(client)
 
-	notificiations, err := ws.Repo.FetchNotifications(loggedInAccount.Id)
+	notificiations, err := ws.Repo.FetchNotifications(loggedInAccount.ID)
 	if err != nil {
 		log.Println("Error fetching initial data:", err)
 		return

@@ -21,7 +21,7 @@ type GetProcurementItemListInputMS struct {
 }
 
 type ProcurementItemResponseItem struct {
-	Id                int                               `json:"id"`
+	ID                int                               `json:"id"`
 	BudgetIndent      DropdownBudgetIndent              `json:"budget_indent"`
 	Plan              DropdownSimple                    `json:"plan_id"`
 	IsOpenProcurement bool                              `json:"is_open_procurement"`
@@ -32,7 +32,7 @@ type ProcurementItemResponseItem struct {
 	SerialNumber      *string                           `json:"serial_number"`
 	DateOfPublishing  *string                           `json:"date_of_publishing"`
 	DateOfAwarding    *string                           `json:"date_of_awarding"`
-	FileId            *int                              `json:"file_id"`
+	FileID            *int                              `json:"file_id"`
 	Articles          []*ProcurementArticleResponseItem `json:"articles"`
 	ContractID        *int                              `json:"contract_id"`
 	TotalGross        float32                           `json:"total_gross"`

@@ -59,20 +59,20 @@ func (r *Resolver) PublicProcurementPlansOverviewResolver(params graphql.Resolve
 	}
 
 	for _, plan := range plans {
-		var contract *bool = nil
+		var contract *bool
 
 		if hasContract != nil {
 			pomContract := hasContract.(bool)
 			contract = &pomContract
 		}
 
-		resItem, err := buildProcurementPlanResponseItem(r.Repo, params.Context, plan, contract, &dto.GetProcurementItemListInputMS{})
+		resItem, err := buildProcurementPlanResponseItem(params.Context, r.Repo, plan, contract, &dto.GetProcurementItemListInputMS{})
 
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 		if resItem == nil {
-			fmt.Printf("user does not have access to this plan id: %d", plan.Id)
+			fmt.Printf("user does not have access to this plan id: %d", plan.ID)
 			continue
 		}
 		if status != nil && dto.PlanStatus(status.(string)) != resItem.Status {
@@ -108,7 +108,7 @@ func (r *Resolver) PublicProcurementPlanDetailsResolver(params graphql.ResolvePa
 	sortByDateOfPublishing := params.Args["sort_by_date_of_publishing"]
 	sortByDateOfAwarding := params.Args["sort_by_date_of_awarding"]
 
-	input := dto.GetProcurementItemListInputMS{PlanID: &plan.Id}
+	input := dto.GetProcurementItemListInputMS{PlanID: &plan.ID}
 
 	if sortByTitle != nil && sortByTitle.(string) != "" {
 		value := sortByTitle.(string)
@@ -130,12 +130,12 @@ func (r *Resolver) PublicProcurementPlanDetailsResolver(params graphql.ResolvePa
 		input.SortByDateOfPublishing = &value
 	}
 
-	resItem, err := buildProcurementPlanResponseItem(r.Repo, params.Context, plan, nil, &input)
+	resItem, err := buildProcurementPlanResponseItem(params.Context, r.Repo, plan, nil, &input)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 	if resItem == nil {
-		return errors.HandleAPIError(fmt.Errorf("user does not have access to this plan id: %d", plan.Id))
+		return errors.HandleAPIError(fmt.Errorf("user does not have access to this plan id: %d", plan.ID))
 	}
 	return dto.ResponseSingle{
 		Status:  "success",
@@ -160,10 +160,10 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 		return errors.HandleAPIError(err)
 	}
 
-	itemId := data.Id
+	itemID := data.ID
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		oldPlan, err := r.Repo.GetProcurementPlan(itemId)
+	if itemID != 0 {
+		oldPlan, err := r.Repo.GetProcurementPlan(itemID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -177,9 +177,9 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
-			plan, _ := r.Repo.GetProcurementPlan(data.Id)
+			plan, _ := r.Repo.GetProcurementPlan(data.ID)
 			planData := dto.ProcurementPlanNotification{
-				ID:          plan.Id,
+				ID:          plan.ID,
 				IsPreBudget: plan.IsPreBudget,
 				Year:        plan.Year,
 			}
@@ -189,10 +189,10 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 				_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
 					Content:     "Proslijeđen je novi plan javnih nabavki na pregled i popunjavanje.",
 					Module:      "Javne nabavke",
-					FromUserID:  loggedInUser.Id,
-					ToUserID:    targetUser.Id,
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    targetUser.ID,
 					FromContent: "Službenik za javne nabavke",
-					Path:        fmt.Sprintf("/procurements/plans/%d", data.Id),
+					Path:        fmt.Sprintf("/procurements/plans/%d", data.ID),
 					Data:        planDataJSON,
 					IsRead:      false,
 				})
@@ -202,11 +202,11 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 			}
 		}
 
-		res, err := r.Repo.UpdateProcurementPlan(itemId, &data)
+		res, err := r.Repo.UpdateProcurementPlan(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-		item, err := buildProcurementPlanResponseItem(r.Repo, params.Context, res, nil, &dto.GetProcurementItemListInputMS{})
+		item, err := buildProcurementPlanResponseItem(params.Context, r.Repo, res, nil, &dto.GetProcurementItemListInputMS{})
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -218,7 +218,7 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-		item, err := buildProcurementPlanResponseItem(r.Repo, params.Context, res, nil, &dto.GetProcurementItemListInputMS{})
+		item, err := buildProcurementPlanResponseItem(params.Context, r.Repo, res, nil, &dto.GetProcurementItemListInputMS{})
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -230,9 +230,9 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 	return response, nil
 }
 
-func buildProcurementPlanResponseItem(r repository.MicroserviceRepositoryInterface, context context.Context, plan *structs.PublicProcurementPlan, hasContract *bool, filter *dto.GetProcurementItemListInputMS) (*dto.ProcurementPlanResponseItem, error) {
+func buildProcurementPlanResponseItem(context context.Context, r repository.MicroserviceRepositoryInterface, plan *structs.PublicProcurementPlan, hasContract *bool, filter *dto.GetProcurementItemListInputMS) (*dto.ProcurementPlanResponseItem, error) {
 	items := []*dto.ProcurementItemResponseItem{}
-	filter.PlanID = &plan.Id
+	filter.PlanID = &plan.ID
 	rawItems, err := r.GetProcurementItemList(filter)
 	if err != nil {
 		return nil, err
@@ -248,7 +248,7 @@ func buildProcurementPlanResponseItem(r repository.MicroserviceRepositoryInterfa
 
 		if hasContract != nil && *hasContract == contYes {
 			filter := dto.GetProcurementContractsInput{
-				ProcurementID: &item.Id,
+				ProcurementID: &item.ID,
 			}
 
 			contract, err := r.GetProcurementContractsList(&filter)
@@ -262,7 +262,7 @@ func buildProcurementPlanResponseItem(r repository.MicroserviceRepositoryInterfa
 
 		} else if hasContract != nil && *hasContract == contNo {
 			filter := dto.GetProcurementContractsInput{
-				ProcurementID: &item.Id,
+				ProcurementID: &item.ID,
 			}
 
 			contract, err := r.GetProcurementContractsList(&filter)
@@ -275,7 +275,7 @@ func buildProcurementPlanResponseItem(r repository.MicroserviceRepositoryInterfa
 			}
 		}
 
-		resItem, err := buildProcurementItemResponseItem(r, context, item, nil, &dto.GetProcurementArticleListInputMS{})
+		resItem, err := buildProcurementItemResponseItem(context, r, item, nil, &dto.GetProcurementArticleListInputMS{})
 		if err != nil {
 			return nil, err
 		}
@@ -285,7 +285,7 @@ func buildProcurementPlanResponseItem(r repository.MicroserviceRepositoryInterfa
 		items = append(items, resItem)
 	}
 
-	status, err := BuildStatus(r, context, plan)
+	status, err := BuildStatus(context, r, plan)
 	if err != nil {
 		return nil, err
 	}
@@ -295,7 +295,7 @@ func buildProcurementPlanResponseItem(r repository.MicroserviceRepositoryInterfa
 	}
 
 	res := dto.ProcurementPlanResponseItem{
-		Id:               plan.Id,
+		ID:               plan.ID,
 		IsPreBudget:      plan.IsPreBudget,
 		Active:           plan.Active,
 		Year:             plan.Year,
@@ -304,8 +304,8 @@ func buildProcurementPlanResponseItem(r repository.MicroserviceRepositoryInterfa
 		SerialNumber:     plan.SerialNumber,
 		DateOfPublishing: plan.DateOfPublishing,
 		DateOfClosing:    plan.DateOfClosing,
-		PreBudgetId:      plan.PreBudgetId,
-		FileId:           plan.FileId,
+		PreBudgetID:      plan.PreBudgetID,
+		FileID:           plan.FileID,
 		TotalNet:         totalNet,
 		TotalGross:       totalGross,
 		CreatedAt:        plan.CreatedAt,
@@ -313,13 +313,13 @@ func buildProcurementPlanResponseItem(r repository.MicroserviceRepositoryInterfa
 		Items:            items,
 	}
 
-	if plan.PreBudgetId != nil {
-		plan, err := r.GetProcurementPlan(*plan.PreBudgetId)
+	if plan.PreBudgetID != nil {
+		plan, err := r.GetProcurementPlan(*plan.PreBudgetID)
 		if err != nil {
 			return nil, err
 		}
 		res.PreBudgetPlan = &dto.DropdownSimple{
-			Id:    plan.Id,
+			ID:    plan.ID,
 			Title: plan.Title,
 		}
 	}
@@ -333,17 +333,17 @@ func buildProcurementPlanResponseItem(r repository.MicroserviceRepositoryInterfa
 		if len(procurement.Articles) > 0 {
 			firstArticle := procurement.Articles[0]
 
-			oUArticles, err := r.GetProcurementOUArticleList(&dto.GetProcurementOrganizationUnitArticleListInputDTO{ArticleID: &firstArticle.Id})
+			oUArticles, err := r.GetProcurementOUArticleList(&dto.GetProcurementOrganizationUnitArticleListInputDTO{ArticleID: &firstArticle.ID})
 			if err != nil {
 				return nil, err
 			}
 
 			for _, ouArticle := range oUArticles {
-				if _, recorded := uniqueOrganizationUnits[ouArticle.OrganizationUnitId]; !recorded {
+				if _, recorded := uniqueOrganizationUnits[ouArticle.OrganizationUnitID]; !recorded {
 					if ouArticle.Status == structs.ArticleStatusAccepted {
 						approvedRequestsCount++
 					}
-					uniqueOrganizationUnits[ouArticle.OrganizationUnitId] = true
+					uniqueOrganizationUnits[ouArticle.OrganizationUnitID] = true
 					updateRejectedDescriptionIfNeeded(organizationUnitID, ouArticle, &res)
 				}
 			}
@@ -359,12 +359,12 @@ func buildProcurementPlanResponseItem(r repository.MicroserviceRepositoryInterfa
 }
 
 func updateRejectedDescriptionIfNeeded(organizationUnitID *int, ouArticle *structs.PublicProcurementOrganizationUnitArticle, res *dto.ProcurementPlanResponseItem) {
-	if organizationUnitID != nil && *organizationUnitID == ouArticle.OrganizationUnitId && ouArticle.IsRejected {
+	if organizationUnitID != nil && *organizationUnitID == ouArticle.OrganizationUnitID && ouArticle.IsRejected {
 		res.RejectedDescription = &ouArticle.RejectedDescription
 	}
 }
 
-func BuildStatus(r repository.MicroserviceRepositoryInterface, context context.Context, plan *structs.PublicProcurementPlan) (dto.PlanStatus, error) {
+func BuildStatus(context context.Context, r repository.MicroserviceRepositoryInterface, plan *structs.PublicProcurementPlan) (dto.PlanStatus, error) {
 	loggedInAccount, _ := context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int)
 
@@ -376,7 +376,7 @@ func BuildStatus(r repository.MicroserviceRepositoryInterface, context context.C
 	var isRejected = false
 	var isAccepted = false
 
-	conversionTargetPlans, err := r.GetProcurementPlanList(&dto.GetProcurementPlansInput{TargetBudgetID: &plan.Id})
+	conversionTargetPlans, err := r.GetProcurementPlanList(&dto.GetProcurementPlansInput{TargetBudgetID: &plan.ID})
 	if err != nil {
 		return "", err
 	}
@@ -385,14 +385,14 @@ func BuildStatus(r repository.MicroserviceRepositoryInterface, context context.C
 		isConverted = true
 	}
 
-	isAdmin := loggedInAccount.RoleId == 1 || loggedInAccount.RoleId == 3
+	isAdmin := loggedInAccount.RoleID == 1 || loggedInAccount.RoleID == 3
 
 	if !isAdmin {
 		if organizationUnitID == nil {
 			return "", fmt.Errorf("manager has no organization unit assigned")
 		}
 
-		ouArticleList, err := GetOrganizationUnitArticles(r, plan.Id, *organizationUnitID)
+		ouArticleList, err := GetOrganizationUnitArticles(r, plan.ID, *organizationUnitID)
 		if err != nil {
 			return "", err
 		}
@@ -419,37 +419,35 @@ func BuildStatus(r repository.MicroserviceRepositoryInterface, context context.C
 		}
 		// Draft version of the Plan before it has been published
 		return dto.PlanStatusAdminInProggress, nil
-	} else {
-		if isPublished {
-			if isClosed {
-				if isPreBudget {
-					if isConverted {
-						// Admin converted a closed pre-budget Plan into a new post-budget Plan
-						return dto.PlanStatusPreBudgetConverted, nil
-					}
-					// Admin closed a pre-budget Plan that can't be edited any further
-					return dto.PlanStatusPreBudgetClosed, nil
-				}
-				// Admin closed a post-budget Plan that can't be edited any further
-				return dto.PlanStatusPostBudgetClosed, nil
-			}
-			if isSentOnRevision {
-				if isRejected {
-					return dto.PlanStatusUserRejected, nil
-				}
-				if isAccepted {
-					return dto.PlanStatusUserAccepted, nil
-				}
-
-				return dto.PlanStatusUserRequested, nil
-			}
-			// Users in Organization units can see Plan and request Articles after it has been published
-			return dto.PlanStatusUserPublished, nil
-		} else {
-			// Not accessible for Users in Organization units before Plan has been published
-			return dto.PlanStatusNotAccessible, nil
-		}
 	}
+	if isPublished {
+		if isClosed {
+			if isPreBudget {
+				if isConverted {
+					// Admin converted a closed pre-budget Plan into a new post-budget Plan
+					return dto.PlanStatusPreBudgetConverted, nil
+				}
+				// Admin closed a pre-budget Plan that can't be edited any further
+				return dto.PlanStatusPreBudgetClosed, nil
+			}
+			// Admin closed a post-budget Plan that can't be edited any further
+			return dto.PlanStatusPostBudgetClosed, nil
+		}
+		if isSentOnRevision {
+			if isRejected {
+				return dto.PlanStatusUserRejected, nil
+			}
+			if isAccepted {
+				return dto.PlanStatusUserAccepted, nil
+			}
+
+			return dto.PlanStatusUserRequested, nil
+		}
+		// Users in Organization units can see Plan and request Articles after it has been published
+		return dto.PlanStatusUserPublished, nil
+	}
+	// Not accessible for Users in Organization units before Plan has been published
+	return dto.PlanStatusNotAccessible, nil
 }
 
 func checkArticlesStatusFlags(articles []*structs.PublicProcurementOrganizationUnitArticle) (isSentOnRevision, isRejected, isAccepted bool) {
@@ -473,9 +471,9 @@ func checkArticlesStatusFlags(articles []*structs.PublicProcurementOrganizationU
 }
 
 func (r *Resolver) PublicProcurementPlanDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteProcurementPlan(itemId)
+	err := r.Repo.DeleteProcurementPlan(itemID)
 	if err != nil {
 		fmt.Printf("Deleting procurement plan failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil
@@ -493,7 +491,7 @@ func (r *Resolver) PublicProcurementPlanPDFResolver(params graphql.ResolveParams
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
-	planResItem, _ := buildProcurementPlanResponseItem(r.Repo, params.Context, plan, nil, &dto.GetProcurementItemListInputMS{})
+	planResItem, _ := buildProcurementPlanResponseItem(params.Context, r.Repo, plan, nil, &dto.GetProcurementItemListInputMS{})
 
 	dateCurrentLayout := "2006-01-02T15:04:05Z"
 	dateOutputLayout := "02.01.2006. 15:04"
@@ -509,13 +507,13 @@ func (r *Resolver) PublicProcurementPlanPDFResolver(params graphql.ResolveParams
 	planPDFResponse.TotalVAT = dto.FormatToEuro(planResItem.TotalGross - planResItem.TotalNet)
 	planPDFResponse.PublishedDate = t.Format(dateOutputLayout)
 	planPDFResponse.Year = planResItem.Year
-	planPDFResponse.PlanID = strconv.Itoa(planResItem.Id)
+	planPDFResponse.PlanID = strconv.Itoa(planResItem.ID)
 
 	var tableData []dto.PlanPDFTableDataRow
 
 	for index, procurement := range planResItem.Items {
 		rowData := dto.PlanPDFTableDataRow{
-			Id:              fmt.Sprintf("%d", index+1),
+			ID:              fmt.Sprintf("%d", index+1),
 			ArticleType:     procurement.ArticleType,
 			Title:           procurement.Title,
 			TotalGross:      dto.FormatToEuro(procurement.TotalGross),

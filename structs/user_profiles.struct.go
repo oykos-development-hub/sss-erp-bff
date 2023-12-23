@@ -1,8 +1,8 @@
 package structs
 
 type UserProfiles struct {
-	Id                             int     `json:"id"`
-	UserAccountId                  int     `json:"user_account_id"`
+	ID                             int     `json:"id"`
+	UserAccountID                  int     `json:"user_account_id"`
 	FirstName                      string  `json:"first_name"`
 	MiddleName                     string  `json:"middle_name"`
 	LastName                       string  `json:"last_name"`
@@ -20,7 +20,7 @@ type UserProfiles struct {
 	BankAccount                    string  `json:"bank_account"`
 	BankName                       string  `json:"bank_name"`
 	PersonalID                     *string `json:"personal_id"`
-	OfficialPersonalId             string  `json:"official_personal_id"`
+	OfficialPersonalID             string  `json:"official_personal_id"`
 	OfficialPersonalDocumentNumber string  `json:"official_personal_document_number"`
 	OfficialPersonalDocumentIssuer string  `json:"official_personal_document_issuer"`
 	Gender                         string  `json:"gender"`
@@ -30,7 +30,7 @@ type UserProfiles struct {
 	MaritalStatus                  string  `json:"marital_status"`
 	DateOfTakingOath               *string `json:"date_of_taking_oath"`
 	DateOfBecomingJudge            string  `json:"date_of_becoming_judge"`
-	EngagementTypeId               *int    `json:"engagement_type_id,omitempty"`
+	EngagementTypeID               *int    `json:"engagement_type_id,omitempty"`
 	IsPresident                    bool    `json:"is_president"`
 	IsJudge                        bool    `json:"is_judge"`
 	SecondaryEmail                 string  `json:"secondary_email"`

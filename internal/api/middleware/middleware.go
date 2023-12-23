@@ -39,14 +39,14 @@ func (m *Middleware) RequestContextMiddleware(next http.Handler) http.Handler {
 
 func (m *Middleware) AddResponseWriterToContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), config.HttpResponseWriterKey, w)
+		ctx := context.WithValue(r.Context(), config.HTTPResponseWriterKey, w)
 		// Retrieve the Authorization header value from the request
 		authHeader := r.Header.Get("Authorization")
 		// Add the bearer token as a header in the context
 		headers := map[string]string{
 			"Authorization": authHeader,
 		}
-		ctx = context.WithValue(ctx, config.HttpHeadersKey, headers)
+		ctx = context.WithValue(ctx, config.HTTPHeadersKey, headers)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
@@ -145,8 +145,8 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		userProfile, _ := m.Repo.GetUserProfileByUserAccountID(loggedInAccount.Id)
-		organizationUnitID, _ := m.Repo.GetOrganizationUnitIdByUserProfile(userProfile.Id)
+		userProfile, _ := m.Repo.GetUserProfileByUserAccountID(loggedInAccount.ID)
+		organizationUnitID, _ := m.Repo.GetOrganizationUnitIDByUserProfile(userProfile.ID)
 
 		// Create a new context that carries the necessary values
 		ctx := context.WithValue(r.Context(), config.TokenKey, token)

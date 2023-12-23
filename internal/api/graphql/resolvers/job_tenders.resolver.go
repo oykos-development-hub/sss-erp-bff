@@ -23,7 +23,7 @@ func (r *Resolver) JobTenderResolver(params graphql.ResolveParams) (interface{},
 	active := params.Args["active"]
 	typeID := params.Args["type_id"]
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
+	if id != nil && id != 0 {
 		jobTender, err := r.Repo.GetJobTender(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -37,51 +37,50 @@ func (r *Resolver) JobTenderResolver(params graphql.ResolveParams) (interface{},
 			Total:   1,
 		}, nil
 
-	} else {
-		jobTenders, err := r.Repo.GetJobTenderList()
+	}
+	jobTenders, err := r.Repo.GetJobTenderList()
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	total = len(jobTenders)
+
+	for _, jobTender := range jobTenders {
+
+		resItem, err := buildJobTenderResponse(r.Repo, jobTender)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-		total = len(jobTenders)
 
-		for _, jobTender := range jobTenders {
-
-			resItem, err := buildJobTenderResponse(r.Repo, jobTender)
-			if err != nil {
-				return errors.HandleAPIError(err)
-			}
-
-			if active != nil && active.(bool) != resItem.Active {
-				total--
-				continue
-			}
-
-			if organizationUnitID != nil &&
-				organizationUnitID.(int) > 0 &&
-				resItem.OrganizationUnit.Id != organizationUnitID {
-				total--
-				continue
-			}
-
-			if typeID != nil &&
-				typeID.(int) > 0 &&
-				resItem.Type.Id != typeID {
-				total--
-				continue
-			}
-
-			items = append(items, *resItem)
+		if active != nil && active.(bool) != resItem.Active {
+			total--
+			continue
 		}
 
-		paginatedItems, _ := shared.Paginate(items, page, size)
+		if organizationUnitID != nil &&
+			organizationUnitID.(int) > 0 &&
+			resItem.OrganizationUnit.ID != organizationUnitID {
+			total--
+			continue
+		}
 
-		return dto.Response{
-			Status:  "success",
-			Message: "Here's the list you asked for!",
-			Items:   paginatedItems,
-			Total:   total,
-		}, nil
+		if typeID != nil &&
+			typeID.(int) > 0 &&
+			resItem.Type.ID != typeID {
+			total--
+			continue
+		}
+
+		items = append(items, *resItem)
 	}
+
+	paginatedItems, _ := shared.Paginate(items, page, size)
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   paginatedItems,
+		Total:   total,
+	}, nil
 }
 
 func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *structs.JobTenders) (*dto.JobTenderResponseItem, error) {
@@ -97,7 +96,7 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 	}
 
 	res := dto.JobTenderResponseItem{
-		Id:                  item.Id,
+		ID:                  item.ID,
 		JobPosition:         jobPosition,
 		Type:                *tenderType,
 		Description:         item.Description,
@@ -106,14 +105,14 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 		Active:              JobTenderIsActive(r, item),
 		DateOfStart:         item.DateOfStart,
 		DateOfEnd:           item.DateOfEnd,
-		FileId:              item.FileId,
+		FileID:              item.FileID,
 		NumberOfVacantSeats: item.NumberOfVacantSeats,
 		CreatedAt:           item.CreatedAt,
 		UpdatedAt:           item.UpdatedAt,
 	}
 
 	if item.OrganizationUnitID != 0 {
-		organizationUnit, err = r.GetOrganizationUnitById(item.OrganizationUnitID)
+		organizationUnit, err = r.GetOrganizationUnitByID(item.OrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
@@ -126,7 +125,7 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 func JobTenderIsActive(r repository.MicroserviceRepositoryInterface, item *structs.JobTenders) bool {
 
 	input := dto.GetJobTenderApplicationsInput{
-		JobTenderID: &item.Id,
+		JobTenderID: &item.ID,
 	}
 
 	jobTenderApplications, err := r.GetTenderApplicationList(&input)
@@ -161,7 +160,7 @@ func JobTenderIsActive(r repository.MicroserviceRepositoryInterface, item *struc
 
 func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterface, item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {
 	res := dto.JobTenderApplicationResponseItem{
-		Id:                 item.Id,
+		ID:                 item.ID,
 		Type:               item.Type,
 		FirstName:          item.FirstName,
 		LastName:           item.LastName,
@@ -171,28 +170,28 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 		Evaluation:         item.Evaluation,
 		DateOfAplication:   item.DateOfApplication,
 		Active:             item.Active,
-		FileId:             item.FileId,
+		FileID:             item.FileID,
 		Status:             item.Status,
 		CreatedAt:          item.CreatedAt,
 		UpdatedAt:          item.UpdatedAt,
 	}
 
-	if item.UserProfileId != nil {
-		userProfile, err := r.GetUserProfileById(*item.UserProfileId)
+	if item.UserProfileID != nil {
+		userProfile, err := r.GetUserProfileByID(*item.UserProfileID)
 		if err != nil {
 			return nil, err
 		}
 		userProfileDropdownItem := &dto.DropdownSimple{
-			Id:    userProfile.Id,
+			ID:    userProfile.ID,
 			Title: userProfile.GetFullName(),
 		}
 		res.FirstName = userProfile.FirstName
 		res.LastName = userProfile.LastName
-		res.OfficialPersonalID = userProfile.OfficialPersonalId
+		res.OfficialPersonalID = userProfile.OfficialPersonalID
 		res.DateOfBirth = userProfile.DateOfBirth
 		res.Nationality = userProfile.Citizenship
 
-		evaluation, err := r.GetEmployeeEvaluations(userProfile.Id)
+		evaluation, err := r.GetEmployeeEvaluations(userProfile.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -202,7 +201,7 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 		res.UserProfile = userProfileDropdownItem
 	}
 
-	jobTender, err := r.GetJobTender(item.JobTenderId)
+	jobTender, err := r.GetJobTender(item.JobTenderID)
 	if err != nil {
 		return nil, err
 	}
@@ -211,11 +210,11 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 
 	res.JobTender = jobTenderResponseItem
 	res.OrganizationUnit = &dto.DropdownSimple{
-		Id:    jobTenderResponseItem.OrganizationUnit.Id,
+		ID:    jobTenderResponseItem.OrganizationUnit.ID,
 		Title: jobTenderResponseItem.OrganizationUnit.Title,
 	}
 	res.TenderType = &dto.DropdownSimple{
-		Id:    jobTenderResponseItem.Type.Id,
+		ID:    jobTenderResponseItem.Type.ID,
 		Title: jobTenderResponseItem.Type.Title,
 	}
 
@@ -231,9 +230,9 @@ func (r *Resolver) JobTenderInsertResolver(params graphql.ResolveParams) (interf
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := r.Repo.UpdateJobTender(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		res, err := r.Repo.UpdateJobTender(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -260,9 +259,9 @@ func (r *Resolver) JobTenderInsertResolver(params graphql.ResolveParams) (interf
 }
 
 func (r *Resolver) JobTenderDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteJobTender(itemId)
+	err := r.Repo.DeleteJobTender(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -279,9 +278,9 @@ func (r *Resolver) JobTenderApplicationsResolver(params graphql.ResolveParams) (
 	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
-	user_profile_id := params.Args["user_profile_id"]
+	userProfileID := params.Args["user_profile_id"]
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
+	if id != nil && id != 0 {
 		tenderApplication, err := r.Repo.GetTenderApplication(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -296,51 +295,50 @@ func (r *Resolver) JobTenderApplicationsResolver(params graphql.ResolveParams) (
 			Total:   1,
 		}, nil
 
-	} else {
-		input := dto.GetJobTenderApplicationsInput{}
-		if shared.IsInteger(user_profile_id) && user_profile_id.(int) > 0 {
-			userProfileId := user_profile_id.(int)
-			input.UserProfileId = &userProfileId
-		}
-		if jobTenderID, ok := params.Args["job_tender_id"].(int); ok && jobTenderID != 0 {
-			input.JobTenderID = &jobTenderID
-		}
-		if search, ok := params.Args["search"].(string); ok && search != "" {
-			input.Search = &search
-		}
+	}
+	input := dto.GetJobTenderApplicationsInput{}
+	if userProfileID.(int) > 0 {
+		userProfileID := userProfileID.(int)
+		input.UserProfileID = &userProfileID
+	}
+	if jobTenderID, ok := params.Args["job_tender_id"].(int); ok && jobTenderID != 0 {
+		input.JobTenderID = &jobTenderID
+	}
+	if search, ok := params.Args["search"].(string); ok && search != "" {
+		input.Search = &search
+	}
 
-		tenderApplications, err := r.Repo.GetTenderApplicationList(&input)
+	tenderApplications, err := r.Repo.GetTenderApplicationList(&input)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	total := len(tenderApplications.Data)
+	for _, jobTender := range tenderApplications.Data {
+		resItem, err := buildJobTenderApplicationResponse(r.Repo, jobTender)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 
-		total := len(tenderApplications.Data)
-		for _, jobTender := range tenderApplications.Data {
-			resItem, err := buildJobTenderApplicationResponse(r.Repo, jobTender)
-			if err != nil {
-				return errors.HandleAPIError(err)
-			}
-
-			if filerTenderTypeID, ok := params.Args["type_id"].(int); ok && filerTenderTypeID != 0 && resItem.JobTender.Type.Id != filerTenderTypeID {
-				total--
-				continue
-			}
-			if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 && resItem.JobTender.OrganizationUnit.Id != organizationUnitID {
-				total--
-				continue
-			}
-			items = append(items, *resItem)
+		if filerTenderTypeID, ok := params.Args["type_id"].(int); ok && filerTenderTypeID != 0 && resItem.JobTender.Type.ID != filerTenderTypeID {
+			total--
+			continue
 		}
-
-		paginatedItems, _ := shared.Paginate(items, page.(int), size.(int))
-
-		return dto.Response{
-			Status:  "success",
-			Message: "Here's the list you asked for!",
-			Items:   paginatedItems,
-			Total:   total,
-		}, nil
+		if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 && resItem.JobTender.OrganizationUnit.ID != organizationUnitID {
+			total--
+			continue
+		}
+		items = append(items, *resItem)
 	}
+
+	paginatedItems, _ := shared.Paginate(items, page.(int), size.(int))
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   paginatedItems,
+		Total:   total,
+	}, nil
 }
 
 func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -352,8 +350,8 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	if data.UserProfileId != nil {
-		userProfile, err := r.Repo.GetUserProfileById(*data.UserProfileId)
+	if data.UserProfileID != nil {
+		userProfile, err := r.Repo.GetUserProfileByID(*data.UserProfileID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -361,9 +359,9 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 		data.LastName = userProfile.LastName
 	}
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := r.Repo.UpdateJobTenderApplication(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		res, err := r.Repo.UpdateJobTenderApplication(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -394,9 +392,9 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 }
 
 func (r *Resolver) JobTenderApplicationDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteJobTenderApplication(itemId)
+	err := r.Repo.DeleteJobTenderApplication(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

@@ -27,9 +27,9 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 		return apierrors.HandleAPIError(err)
 	}
 
-	roleID := int(loginRes.Data.RoleId)
+	roleID := int(loginRes.Data.RoleID)
 
-	httpResponseWriter := p.Context.Value((config.HttpResponseWriterKey)).(http.ResponseWriter)
+	httpResponseWriter := p.Context.Value((config.HTTPResponseWriterKey)).(http.ResponseWriter)
 	for _, cookie := range cookies {
 		http.SetCookie(httpResponseWriter, cookie)
 	}
@@ -42,32 +42,32 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 		return apierrors.HandleAPIError(err)
 	}
 
-	userProfile, err := r.Repo.GetUserProfileByUserAccountID(loginRes.Data.Id)
+	userProfile, err := r.Repo.GetUserProfileByUserAccountID(loginRes.Data.ID)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
 
 	isActive := true
-	contracts, _ := r.Repo.GetEmployeeContracts(userProfile.Id, &dto.GetEmployeeContracts{Active: &isActive})
+	contracts, _ := r.Repo.GetEmployeeContracts(userProfile.ID, &dto.GetEmployeeContracts{Active: &isActive})
 
 	if len(contracts) > 0 {
 		contractsResItem, _ = buildContractResponseItem(r.Repo, *contracts[0])
 	}
 
-	if userProfile.EngagementTypeId != nil {
-		engagement, err = r.Repo.GetDropdownSettingById(*userProfile.EngagementTypeId)
+	if userProfile.EngagementTypeID != nil {
+		engagement, err = r.Repo.GetDropdownSettingByID(*userProfile.EngagementTypeID)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	}
 
-	employeesInOrganizationUnit, _ := r.Repo.GetEmployeesInOrganizationUnitsByProfileId(userProfile.Id)
+	employeesInOrganizationUnit, _ := r.Repo.GetEmployeesInOrganizationUnitsByProfileID(userProfile.ID)
 	if employeesInOrganizationUnit != nil {
-		jobPositionInOrganizationUnit, _ := r.Repo.GetJobPositionsInOrganizationUnitsById(employeesInOrganizationUnit.PositionInOrganizationUnitId)
+		jobPositionInOrganizationUnit, _ := r.Repo.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 
-		jobPosition, _ = r.Repo.GetJobPositionById(jobPositionInOrganizationUnit.JobPositionId)
-		systematization, _ := r.Repo.GetSystematizationById(jobPositionInOrganizationUnit.SystematizationId)
-		organizationUnit, _ = r.Repo.GetOrganizationUnitById(systematization.OrganizationUnitId)
+		jobPosition, _ = r.Repo.GetJobPositionByID(jobPositionInOrganizationUnit.JobPositionID)
+		systematization, _ := r.Repo.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
+		organizationUnit, _ = r.Repo.GetOrganizationUnitByID(systematization.OrganizationUnitID)
 	}
 
 	var organizationUnitList []dto.OrganizationUnitsOverviewResponse
@@ -96,9 +96,9 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 	return dto.LoginResponse{
 		Status:               "success",
 		Message:              "Welcome!",
-		Id:                   userProfile.Id,
-		RoleId:               roleID,
-		FolderId:             0,
+		ID:                   userProfile.ID,
+		RoleID:               roleID,
+		FolderID:             0,
 		Email:                loginRes.Data.Email,
 		Phone:                loginRes.Data.Phone,
 		Token:                loginRes.Data.Token.Token,
@@ -189,7 +189,7 @@ func (r *Resolver) RefreshTokenResolver(p graphql.ResolveParams) (interface{}, e
 		return apierrors.HandleAPIError(err)
 	}
 
-	httpResponseWriter := p.Context.Value((config.HttpResponseWriterKey)).(http.ResponseWriter)
+	httpResponseWriter := p.Context.Value((config.HTTPResponseWriterKey)).(http.ResponseWriter)
 	for _, cookie := range cookies {
 		http.SetCookie(httpResponseWriter, cookie)
 	}
@@ -210,7 +210,7 @@ func (r *Resolver) LogoutResolver(p graphql.ResolveParams) (interface{}, error) 
 		return apierrors.HandleAPIError(err)
 	}
 
-	r.NotificationsService.Wsmanager.RemoveClientByUserID(user.Id)
+	r.NotificationsService.Wsmanager.RemoveClientByUserID(user.ID)
 
 	return dto.ResponseSingle{
 		Status:  "success",

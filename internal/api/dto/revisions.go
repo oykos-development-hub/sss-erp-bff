@@ -22,7 +22,7 @@ type RevisionOverviewResponse struct {
 }
 
 type RevisionOverviewItem struct {
-	Id                       int                       `json:"id"`
+	ID                       int                       `json:"id"`
 	Name                     *string                   `json:"name"`
 	RevisionType             *structs.SettingsDropdown `json:"revision_type"`
 	RevisorUserProfile       *structs.SettingsDropdown `json:"revisor_user_profile"`

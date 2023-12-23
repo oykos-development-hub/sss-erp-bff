@@ -3,7 +3,6 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 
@@ -17,7 +16,7 @@ func (r *Resolver) SuppliersOverviewResolver(params graphql.ResolveParams) (inte
 	search := params.Args["search"]
 	entity := params.Args["entity"]
 
-	if shared.IsInteger(id) && id.(int) > 0 {
+	if id.(int) > 0 {
 		supplier, err := r.Repo.GetSupplier(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -30,39 +29,38 @@ func (r *Resolver) SuppliersOverviewResolver(params graphql.ResolveParams) (inte
 			Total:   1,
 		}, nil
 
-	} else {
-		input := dto.GetSupplierInputMS{}
-		if search != nil {
-			searchValue := search.(string)
-			input.Search = &searchValue
-
-		}
-		if entity != nil {
-			entityValue := entity.(string)
-			input.Entity = &entityValue
-
-		}
-		if page != nil && size != nil {
-			pageValue := page.(int)
-			sizeValue := size.(int)
-
-			input.Size = &sizeValue
-			input.Page = &pageValue
-
-		}
-
-		res, err := r.Repo.GetSupplierList(&input)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		return dto.Response{
-			Status:  "success",
-			Message: "Here's the list you asked for!",
-			Items:   res.Data,
-			Total:   res.Total,
-		}, nil
 	}
+	input := dto.GetSupplierInputMS{}
+	if search != nil {
+		searchValue := search.(string)
+		input.Search = &searchValue
+
+	}
+	if entity != nil {
+		entityValue := entity.(string)
+		input.Entity = &entityValue
+
+	}
+	if page != nil && size != nil {
+		pageValue := page.(int)
+		sizeValue := size.(int)
+
+		input.Size = &sizeValue
+		input.Page = &pageValue
+
+	}
+
+	res, err := r.Repo.GetSupplierList(&input)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   res.Data,
+		Total:   res.Total,
+	}, nil
 }
 
 func (r *Resolver) SuppliersInsertResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -78,10 +76,10 @@ func (r *Resolver) SuppliersInsertResolver(params graphql.ResolveParams) (interf
 		return errors.HandleAPIError(err)
 	}
 
-	itemId := data.Id
+	itemID := data.ID
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := r.Repo.UpdateSupplier(itemId, &data)
+	if itemID != 0 {
+		res, err := r.Repo.UpdateSupplier(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -102,9 +100,9 @@ func (r *Resolver) SuppliersInsertResolver(params graphql.ResolveParams) (interf
 }
 
 func (r *Resolver) SuppliersDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteSupplier(itemId)
+	err := r.Repo.DeleteSupplier(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

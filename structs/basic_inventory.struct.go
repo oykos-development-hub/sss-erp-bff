@@ -1,23 +1,23 @@
 package structs
 
 type BasicInventoryDetailsItem struct {
-	Id                           int     `json:"id"`
-	ArticleId                    int     `json:"article_id"`
+	ID                           int     `json:"id"`
+	ArticleID                    int     `json:"article_id"`
 	Type                         string  `json:"type"`
-	ClassTypeId                  int     `json:"class_type_id"`
-	DepreciationTypeId           int     `json:"depreciation_type_id"`
-	SupplierId                   int     `json:"supplier_id"`
-	RealEstateId                 int     `json:"real_estate_id"`
+	ClassTypeID                  int     `json:"class_type_id"`
+	DepreciationTypeID           int     `json:"depreciation_type_id"`
+	SupplierID                   int     `json:"supplier_id"`
+	RealEstateID                 int     `json:"real_estate_id"`
 	SerialNumber                 string  `json:"serial_number"`
 	InventoryNumber              string  `json:"inventory_number"`
 	Title                        string  `json:"title"`
 	Abbreviation                 string  `json:"abbreviation"`
 	InternalOwnership            bool    `json:"internal_ownership"`
-	OfficeId                     int     `json:"office_id"`
+	OfficeID                     int     `json:"office_id"`
 	Location                     string  `json:"location"`
-	OrganizationUnitId           int     `json:"organization_unit_id"`
-	TargetOrganizationUnitId     int     `json:"target_organization_unit_id"`
-	TargetUserProfileId          int     `json:"target_user_profile_id"`
+	OrganizationUnitID           int     `json:"organization_unit_id"`
+	TargetOrganizationUnitID     int     `json:"target_organization_unit_id"`
+	TargetUserProfileID          int     `json:"target_user_profile_id"`
 	Unit                         string  `json:"unit"`
 	Amount                       int     `json:"amount"`
 	NetPrice                     float32 `json:"net_price"`
@@ -36,30 +36,30 @@ type BasicInventoryDetailsItem struct {
 	DeactivationDescription      string  `json:"deactivation_description"`
 	CreatedAt                    string  `json:"created_at"`
 	UpdatedAt                    string  `json:"updated_at"`
-	InvoiceFileId                string  `json:"invoice_file_id"`
-	FileId                       string  `json:"file_id"`
+	InvoiceFileID                string  `json:"invoice_file_id"`
+	FileID                       string  `json:"file_id"`
 }
 
 type BasicInventoryInsertItem struct {
-	Id                           int                            `json:"id"`
-	ArticleId                    int                            `json:"article_id"`
+	ID                           int                            `json:"id"`
+	ArticleID                    int                            `json:"article_id"`
 	Type                         string                         `json:"type"`
-	ClassTypeId                  int                            `json:"class_type_id"`
-	DepreciationTypeId           int                            `json:"depreciation_type_id"`
-	SupplierId                   int                            `json:"supplier_id"`
-	DonorId                      int                            `json:"donor_id"`
+	ClassTypeID                  int                            `json:"class_type_id"`
+	DepreciationTypeID           int                            `json:"depreciation_type_id"`
+	SupplierID                   int                            `json:"supplier_id"`
+	DonorID                      int                            `json:"donor_id"`
 	RealEstate                   *BasicInventoryRealEstatesItem `json:"real_estate"`
-	RealEstateId                 int                            `json:"real_estate_id"`
+	RealEstateID                 int                            `json:"real_estate_id"`
 	SerialNumber                 string                         `json:"serial_number"`
 	InventoryNumber              string                         `json:"inventory_number"`
 	Title                        string                         `json:"title"`
 	Abbreviation                 string                         `json:"abbreviation"`
 	InternalOwnership            bool                           `json:"internal_ownership"`
-	OfficeId                     int                            `json:"office_id"`
+	OfficeID                     int                            `json:"office_id"`
 	Location                     string                         `json:"location"`
-	OrganizationUnitId           int                            `json:"organization_unit_id"`
-	TargetOrganizationUnitId     int                            `json:"target_organization_unit_id"`
-	TargetUserProfileId          int                            `json:"target_user_profile_id"`
+	OrganizationUnitID           int                            `json:"organization_unit_id"`
+	TargetOrganizationUnitID     int                            `json:"target_organization_unit_id"`
+	TargetUserProfileID          int                            `json:"target_user_profile_id"`
 	Unit                         string                         `json:"unit"`
 	Amount                       int                            `json:"amount"`
 	NetPrice                     float32                        `json:"net_price"`
@@ -78,25 +78,25 @@ type BasicInventoryInsertItem struct {
 	Inactive                     *string                        `json:"inactive"`
 	CreatedAt                    string                         `json:"created_at"`
 	UpdatedAt                    string                         `json:"updated_at"`
-	InvoiceFileId                int                            `json:"invoice_file_id"`
+	InvoiceFileID                int                            `json:"invoice_file_id"`
 	DeactivationFileID           int                            `json:"deactivation_file_id"`
-	FileId                       int                            `json:"file_id"`
-	ContractId                   int                            `json:"contract_id"`
-	ContractArticleId            int                            `json:"contract_article_id"`
+	FileID                       int                            `json:"file_id"`
+	ContractID                   int                            `json:"contract_id"`
+	ContractArticleID            int                            `json:"contract_article_id"`
 }
 
 type BasicInventoryItem struct {
-	Id                       int     `json:"id"`
+	ID                       int     `json:"id"`
 	Type                     string  `json:"type"`
-	ClassTypeId              int     `json:"class_type_id"`
-	DepreciationTypeId       int     `json:"depreciation_type_id"`
-	RealEstateId             int     `json:"real_estate_id"`
+	ClassTypeID              int     `json:"class_type_id"`
+	DepreciationTypeID       int     `json:"depreciation_type_id"`
+	RealEstateID             int     `json:"real_estate_id"`
 	InventoryNumber          string  `json:"inventory_number"`
 	Title                    string  `json:"title"`
-	OfficeId                 int     `json:"office_id"`
-	TargetUserProfileId      int     `json:"target_user_profile_id"`
-	OrganizationUnitId       int     `json:"organization_unit_id"`
-	TargetOrganizationUnitId int     `json:"target_organization_unit_id"`
+	OfficeID                 int     `json:"office_id"`
+	TargetUserProfileID      int     `json:"target_user_profile_id"`
+	OrganizationUnitID       int     `json:"organization_unit_id"`
+	TargetOrganizationUnitID int     `json:"target_organization_unit_id"`
 	GrossPrice               float32 `json:"gross_price"`
 	DateOfPurchase           string  `json:"date_of_purchase"`
 	Source                   string  `json:"source"`
@@ -105,12 +105,12 @@ type BasicInventoryItem struct {
 }
 
 type BasicInventoryItemDispatch struct {
-	Id                        int    `json:"id"`
-	ParentId                  int    `json:"parent_id"`
-	BasicInventoryItemId      int    `json:"basic_inventory_item_id"`
-	DispatchedByUserProfileId int    `json:"dispatched_by_user_profile_id"`
-	DispatchedToUserProfileId int    `json:"dispatched_to_user_profile_id"`
-	OrganizationUnitId        int    `json:"organization_unit_id"`
-	OfficeId                  int    `json:"office_id"`
+	ID                        int    `json:"id"`
+	ParentID                  int    `json:"parent_id"`
+	BasicInventoryItemID      int    `json:"basic_inventory_item_id"`
+	DispatchedByUserProfileID int    `json:"dispatched_by_user_profile_id"`
+	DispatchedToUserProfileID int    `json:"dispatched_to_user_profile_id"`
+	OrganizationUnitID        int    `json:"organization_unit_id"`
+	OfficeID                  int    `json:"office_id"`
 	SerialNumber              string `json:"serial_number"`
 }

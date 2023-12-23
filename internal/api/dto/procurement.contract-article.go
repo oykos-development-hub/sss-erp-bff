@@ -19,7 +19,7 @@ type GetProcurementContractArticlesListResponseMS struct {
 }
 
 type ProcurementContractArticlesResponseItem struct {
-	Id           int                                                `json:"id"`
+	ID           int                                                `json:"id"`
 	Article      DropdownProcurementArticle                         `json:"public_procurement_article"`
 	Contract     DropdownSimple                                     `json:"contract"`
 	Amount       int                                                `json:"amount"`

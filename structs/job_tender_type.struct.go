@@ -1,7 +1,7 @@
 package structs
 
 type JobTenderTypes struct {
-	Id               int    `json:"id"`
+	ID               int    `json:"id"`
 	Title            string `json:"title"`
 	Abbreviation     string `json:"abbreviation"`
 	Description      string `json:"description"`

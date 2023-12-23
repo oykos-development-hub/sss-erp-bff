@@ -23,16 +23,16 @@ type GetSystematizationsInput struct {
 }
 
 type SystematizationOverviewResponse struct {
-	Id                 int                                `json:"id"`
-	UserProfileId      int                                `json:"user_profile_id"`
-	OrganizationUnitId int                                `json:"organization_unit_id"`
+	ID                 int                                `json:"id"`
+	UserProfileID      int                                `json:"user_profile_id"`
+	OrganizationUnitID int                                `json:"organization_unit_id"`
 	Description        string                             `json:"description"`
 	SerialNumber       string                             `json:"serial_number"`
 	Active             int                                `json:"active"`
 	DateOfActivation   *string                            `json:"date_of_activation"`
 	CreatedAt          string                             `json:"created_at"`
 	UpdatedAt          string                             `json:"updated_at"`
-	FileId             int                                `json:"file_id"`
+	FileID             int                                `json:"file_id"`
 	OrganizationUnit   *structs.OrganizationUnits         `json:"organization_unit"`
 	Sectors            *[]OrganizationUnitsSectorResponse `json:"sectors"`
 	ActiveEmployees    []structs.ActiveEmployees          `json:"active_employees"`

@@ -26,8 +26,8 @@ type InventoryItemFilter struct {
 	SourceType         *string `json:"source_type"`
 	DeprecationTypeID  *int    `json:"depreciation_type_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
-	ContractId         *int    `json:"contract_id "`
-	ArticleId          *int    `json:"article_id"`
+	ContractID         *int    `json:"contract_id "`
+	ArticleID          *int    `json:"article_id"`
 	SerialNumber       *string `json:"serial_number"`
 	InventoryNumber    *string `json:"inventory_number"`
 	Location           *string `json:"location"`
@@ -40,7 +40,7 @@ type DispatchInventoryItemFilter struct {
 }
 
 type BasicInventoryResponseListItem struct {
-	Id                     int                                                            `json:"id"`
+	ID                     int                                                            `json:"id"`
 	Active                 bool                                                           `json:"active"`
 	Type                   string                                                         `json:"type"`
 	Title                  string                                                         `json:"title"`
@@ -64,8 +64,8 @@ type BasicInventoryResponseListItem struct {
 }
 
 type BasicInventoryResponseItem struct {
-	Id                           int                                                            `json:"id"`
-	ArticleId                    int                                                            `json:"article_id"`
+	ID                           int                                                            `json:"id"`
+	ArticleID                    int                                                            `json:"article_id"`
 	Type                         string                                                         `json:"type"`
 	ClassType                    DropdownSimple                                                 `json:"class_type"`
 	DepreciationType             DropdownSimple                                                 `json:"depreciation_type"`
@@ -109,12 +109,12 @@ type BasicInventoryResponseItem struct {
 	DeactivationDescription      string                                                         `json:"deactivation_description"`
 	CreatedAt                    string                                                         `json:"created_at"`
 	UpdatedAt                    string                                                         `json:"updated_at"`
-	InvoiceFileId                int                                                            `json:"invoice_file_id"`
-	FileId                       int                                                            `json:"file_id"`
+	InvoiceFileID                int                                                            `json:"invoice_file_id"`
+	FileID                       int                                                            `json:"file_id"`
 }
 
 type ReportValueClassInventoryItem struct {
-	Id                 int     `json:"id"`
+	ID                 int     `json:"id"`
 	Title              string  `json:"title"`
 	Class              string  `json:"class"`
 	PurchaseGrossPrice float32 `json:"purchase_gross_price"`

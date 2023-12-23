@@ -3,7 +3,6 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 
@@ -22,8 +21,8 @@ func (r *Resolver) SettingsDropdownResolver(params graphql.ResolveParams) (inter
 		total int
 	)
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		setting, err := r.Repo.GetDropdownSettingById(id.(int))
+	if id != nil && id != 0 {
+		setting, err := r.Repo.GetDropdownSettingByID(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -31,11 +30,11 @@ func (r *Resolver) SettingsDropdownResolver(params graphql.ResolveParams) (inter
 		total = 1
 	} else {
 		input := dto.GetSettingsInput{}
-		if shared.IsInteger(page) && page.(int) > 0 {
+		if page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum
 		}
-		if shared.IsInteger(size) && size.(int) > 0 {
+		if size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}
@@ -70,14 +69,14 @@ func (r *Resolver) SettingsDropdownInsertResolver(params graphql.ResolveParams) 
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
+	itemID := data.ID
 
 	response := dto.ResponseSingle{
 		Status: "success",
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		itemRes, err := r.Repo.UpdateDropdownSettings(itemId, &data)
+	if itemID != 0 {
+		itemRes, err := r.Repo.UpdateDropdownSettings(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -98,9 +97,9 @@ func (r *Resolver) SettingsDropdownInsertResolver(params graphql.ResolveParams) 
 }
 
 func (r *Resolver) SettingsDropdownDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteDropdownSettings(itemId)
+	err := r.Repo.DeleteDropdownSettings(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

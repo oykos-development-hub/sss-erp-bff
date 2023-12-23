@@ -1,7 +1,7 @@
 package structs
 
 type JobPositions struct {
-	Id               int    `json:"id"`
+	ID               int    `json:"id"`
 	Title            string `json:"title"`
 	Abbreviation     string `json:"abbreviation"`
 	Description      string `json:"description"`
@@ -15,32 +15,32 @@ type JobPositions struct {
 }
 
 type JobPositionsInOrganizationUnitsSettings struct {
-	Id    int    `json:"id"`
+	ID    int    `json:"id"`
 	Title string `json:"title"`
 }
 
 type EmployeesInOrganizationUnits struct {
-	Id                           int    `json:"id"`
-	UserAccountId                int    `json:"user_account_id"`
-	UserProfileId                int    `json:"user_profile_id"`
-	PositionInOrganizationUnitId int    `json:"position_in_organization_unit_id"`
+	ID                           int    `json:"id"`
+	UserAccountID                int    `json:"user_account_id"`
+	UserProfileID                int    `json:"user_profile_id"`
+	PositionInOrganizationUnitID int    `json:"position_in_organization_unit_id"`
 	Active                       bool   `json:"active"`
 	CreatedAt                    string `json:"created_at"`
 	UpdatedAt                    string `json:"updated_at"`
 }
 
 type ActiveEmployees struct {
-	Id           int              `json:"id"`
+	ID           int              `json:"id"`
 	FullName     string           `json:"full_name"`
 	JobPositions SettingsDropdown `json:"job_position"`
 	Sector       string           `json:"sector"`
 }
 
 type JobPositionsInOrganizationUnits struct {
-	Id                       int     `json:"id"`
-	SystematizationId        int     `json:"systematization_id"`
-	ParentOrganizationUnitId int     `json:"parent_organization_unit_id"`
-	JobPositionId            int     `json:"job_position_id"`
+	ID                       int     `json:"id"`
+	SystematizationID        int     `json:"systematization_id"`
+	ParentOrganizationUnitID int     `json:"parent_organization_unit_id"`
+	JobPositionID            int     `json:"job_position_id"`
 	AvailableSlots           int     `json:"available_slots"`
 	Requirements             *string `json:"requirements"`
 	Description              *string `json:"description"`

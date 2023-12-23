@@ -1,8 +1,8 @@
 package structs
 
 type Family struct {
-	Id                   int    `json:"id"`
-	UserProfileId        int    `json:"user_profile_id"`
+	ID                   int    `json:"id"`
+	UserProfileID        int    `json:"user_profile_id"`
 	FirstName            string `json:"first_name"`
 	MiddleName           string `json:"middle_name"`
 	LastName             string `json:"last_name"`
@@ -17,7 +17,7 @@ type Family struct {
 	NationalMinority     string `json:"national_minority"`
 	Citizenship          string `json:"citizenship"`
 	Address              string `json:"address"`
-	OfficialPersonalId   string `json:"official_personal_id"`
+	OfficialPersonalID   string `json:"official_personal_id"`
 	Gender               string `json:"gender"`
 	EmployeeRelationship string `json:"employee_relationship"`
 	InsuranceCoverage    string `json:"insurance_coverage"`

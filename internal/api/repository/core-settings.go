@@ -9,7 +9,7 @@ import (
 
 func (repo *MicroserviceRepository) CreateDropdownSettings(data *structs.SettingsDropdown) (*structs.SettingsDropdown, error) {
 	res := &dto.GetDropdownTypeResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.SETTINGS, data, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Settings, data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) CreateDropdownSettings(data *structs.Setting
 }
 
 func (repo *MicroserviceRepository) DeleteDropdownSettings(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.SETTINGS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.Settings+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func (repo *MicroserviceRepository) DeleteDropdownSettings(id int) error {
 
 func (repo *MicroserviceRepository) UpdateDropdownSettings(id int, data *structs.SettingsDropdown) (*structs.SettingsDropdown, error) {
 	res := &dto.GetDropdownTypeResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.SETTINGS+"/"+strconv.Itoa(id), data, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Settings+"/"+strconv.Itoa(id), data, res)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (repo *MicroserviceRepository) UpdateDropdownSettings(id int, data *structs
 
 func (repo *MicroserviceRepository) GetDropdownSettings(input *dto.GetSettingsInput) (*dto.GetDropdownTypesResponseMS, error) {
 	res := &dto.GetDropdownTypesResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.SETTINGS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Settings, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -46,9 +46,9 @@ func (repo *MicroserviceRepository) GetDropdownSettings(input *dto.GetSettingsIn
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) GetDropdownSettingById(id int) (*structs.SettingsDropdown, error) {
+func (repo *MicroserviceRepository) GetDropdownSettingByID(id int) (*structs.SettingsDropdown, error) {
 	res := &dto.GetDropdownTypeResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.SETTINGS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Settings+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (repo *MicroserviceRepository) GetDropdownSettingById(id int) (*structs.Set
 func (repo *MicroserviceRepository) GetOfficeDropdownSettings(input *dto.GetOfficesOfOrganizationInput) (*dto.GetDropdownTypesResponseMS, error) {
 	res := &dto.GetDropdownTypesResponseMS{}
 	input.Entity = config.OfficeTypes
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.SETTINGS, &input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Settings, &input, res)
 	if err != nil {
 		return nil, err
 	}

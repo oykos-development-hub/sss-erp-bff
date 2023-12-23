@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/dto"
 	apierrors "bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"errors"
@@ -16,7 +15,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParams) (interface{}, error) {
+func (r *Resolver) ReportValueClassInventoryResolver(_ graphql.ResolveParams) (interface{}, error) {
 	input := dto.GetSettingsInput{
 		Entity: "inventory_class_type",
 	}
@@ -35,7 +34,7 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 	for _, class := range classTypes.Data {
 		var filter dto.InventoryItemFilter
 
-		filter.ClassTypeID = &class.Id
+		filter.ClassTypeID = &class.ID
 
 		basicInventoryData, err := r.Repo.GetAllInventoryItem(filter)
 
@@ -48,11 +47,11 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 			sumClassPriceOfAssessment  float32
 		)
 		for _, inventory := range basicInventoryData.Data {
-			assessments, _ := r.Repo.GetMyInventoryAssessments(inventory.Id)
+			assessments, _ := r.Repo.GetMyInventoryAssessments(inventory.ID)
 
 			if len(assessments) > 0 {
 				for _, assessment := range assessments {
-					if assessment.Id != 0 {
+					if assessment.ID != 0 {
 						assessmentResponse, _ := buildAssessmentResponse(r.Repo, &assessment)
 						if assessmentResponse != nil {
 
@@ -61,8 +60,8 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 
 							lifetimeOfAssessmentInMonths := 0
 
-							if inventory.DepreciationTypeId != 0 {
-								settings, _ := r.Repo.GetDropdownSettingById(inventory.DepreciationTypeId)
+							if inventory.DepreciationTypeID != 0 {
+								settings, _ := r.Repo.GetDropdownSettingByID(inventory.DepreciationTypeID)
 
 								if settings != nil {
 									num, _ := strconv.Atoi(settings.Value)
@@ -112,7 +111,7 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 		sumClassPurchaseGrossPriceAllItem += sumClassPurchaseGrossPrice
 		sumClassPriceOfAssessmentAllItem += sumClassPriceOfAssessment
 		report = append(report, dto.ReportValueClassInventoryItem{
-			Id:                 class.Id,
+			ID:                 class.ID,
 			Title:              class.Title,
 			Class:              class.Abbreviation,
 			PurchaseGrossPrice: float32(int(sumClassPurchaseGrossPrice*100+0.5)) / 100,
@@ -149,8 +148,8 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		filter.ClassTypeID = &classTypeID
 	}
 
-	if officeID, ok := params.Args["office_id"].(int); ok && officeID != 0 {
-		filter.OfficeID = &officeID
+	if OfficeID, ok := params.Args["office_id"].(int); ok && OfficeID != 0 {
+		filter.OfficeID = &OfficeID
 	}
 
 	if typeFilter, ok := params.Args["type"].(string); ok && typeFilter != "" {
@@ -180,8 +179,8 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		typeOfImmovable = typeImmovement
 	}
 
-	if organizationUnitId, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitId != 0 {
-		filter.OrganizationUnitID = &organizationUnitId
+	if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 {
+		filter.OrganizationUnitID = &organizationUnitID
 	}
 	basicInventoryData, err := r.Repo.GetAllInventoryItem(filter)
 
@@ -219,7 +218,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		}
 
 		if status == "Otpisano" || resItem.Active {
-			if len(typeOfImmovable) == 0 || (typeOfImmovable != "" && resItem.RealEstate.TypeId == typeOfImmovable) {
+			if len(typeOfImmovable) == 0 || (typeOfImmovable != "" && resItem.RealEstate.TypeID == typeOfImmovable) {
 				items = append(items, resItem)
 			}
 		}
@@ -328,21 +327,20 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 		return apierrors.HandleAPIError(err)
 	}
 
-	if !isSuccess && len(data) > 0 && (data[0].Type == "movable" || data[0].Type == "small") && data[0].Id == 0 {
+	if !isSuccess && len(data) > 0 && (data[0].Type == "movable" || data[0].Type == "small") && data[0].ID == 0 {
 		if typeErr == 1 {
 			return apierrors.HandleAPIError(errors.New("Serijski broj artikla " + responseItem.Title + " već postoji!"))
-		} else {
-			return apierrors.HandleAPIError(errors.New("Inventarski broj artikla " + responseItem.Title + " već postoji!"))
 		}
+		return apierrors.HandleAPIError(errors.New("Inventarski broj artikla " + responseItem.Title + " već postoji!"))
 	}
 
 	for _, item := range data {
-		item.ArticleId = item.ContractArticleId
+		item.ArticleID = item.ContractArticleID
 		item.Active = true
-		item.OrganizationUnitId = *organizationUnitID
-		if shared.IsInteger(item.Id) && item.Id != 0 {
+		item.OrganizationUnitID = *organizationUnitID
+		if item.ID != 0 {
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
-			itemRes, err := r.Repo.UpdateInventoryItem(item.Id, &item)
+			itemRes, err := r.Repo.UpdateInventoryItem(item.ID, &item)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
@@ -356,30 +354,30 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 
 			responseItemList = append(responseItemList, items)
 		} else {
-			item.ArticleId = item.ContractArticleId
-			item.OrganizationUnitId = *organizationUnitID
+			item.ArticleID = item.ContractArticleID
+			item.OrganizationUnitID = *organizationUnitID
 			itemRes, err := r.Repo.CreateInventoryItem(&item)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
-			if item.ContractId > 0 && item.ContractArticleId > 0 {
+			if item.ContractID > 0 && item.ContractArticleID > 0 {
 				articles, _ := r.Repo.GetProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
-					ContractID: &item.ContractId,
-					ArticleID:  &item.ContractArticleId,
+					ContractID: &item.ContractID,
+					ArticleID:  &item.ContractArticleID,
 				})
 
 				if len(articles.Data) > 0 {
 					article := articles.Data[0]
 
 					article.UsedArticles++
-					_, err := r.Repo.UpdateProcurementContractArticle(article.Id, article)
+					_, err := r.Repo.UpdateProcurementContractArticle(article.ID, article)
 					if err != nil {
 						return apierrors.HandleAPIError(err)
 					}
 				}
 			}
 
-			depreciationType, err := r.Repo.GetDropdownSettingById(item.DepreciationTypeId)
+			depreciationType, err := r.Repo.GetDropdownSettingByID(item.DepreciationTypeID)
 
 			if err != nil {
 				return apierrors.HandleAPIError(err)
@@ -402,13 +400,13 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
 			assessment := structs.BasicInventoryAssessmentsTypesItem{
 				EstimatedDuration:    estimatedDuration,
-				DepreciationTypeId:   item.DepreciationTypeId,
+				DepreciationTypeID:   item.DepreciationTypeID,
 				GrossPriceNew:        item.GrossPrice,
 				GrossPriceDifference: item.GrossPrice,
 				DateOfAssessment:     &itemRes.CreatedAt,
-				InventoryId:          itemRes.Id,
+				InventoryID:          itemRes.ID,
 				Active:               true,
-				UserProfileId:        loggedInProfile.Id,
+				UserProfileID:        loggedInProfile.ID,
 				Type:                 "financial",
 			}
 
@@ -441,16 +439,16 @@ func (r *Resolver) BasicInventoryDeactivateResolver(params graphql.ResolveParams
 			return apierrors.HandleAPIError(err)
 		}
 		item.Active = false
-		item.OfficeId = 0
-		if deactivation_description, ok := params.Args["deactivation_description"].(string); ok {
-			item.DeactivationDescription = deactivation_description
+		item.OfficeID = 0
+		if deactivationDescription, ok := params.Args["deactivation_description"].(string); ok {
+			item.DeactivationDescription = deactivationDescription
 		}
 		if inactive, ok := params.Args["inactive"].(string); ok && inactive != "" {
 			item.Inactive = &inactive
 		}
 
-		if fileId, ok := params.Args["file_id"].(int); ok && fileId != 0 {
-			item.DeactivationFileID = fileId
+		if fileID, ok := params.Args["file_id"].(int); ok && fileID != 0 {
+			item.DeactivationFileID = fileID
 		}
 
 		_, err = r.Repo.UpdateInventoryItem(id, item)
@@ -465,19 +463,19 @@ func (r *Resolver) BasicInventoryDeactivateResolver(params graphql.ResolveParams
 
 func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *structs.BasicInventoryInsertItem, organizationUnitID int) (*dto.BasicInventoryResponseListItem, error) {
 	settingDropdownClassType := dto.DropdownSimple{}
-	if item.ClassTypeId != 0 {
-		settings, err := r.GetDropdownSettingById(item.ClassTypeId)
+	if item.ClassTypeID != 0 {
+		settings, err := r.GetDropdownSettingByID(item.ClassTypeID)
 		if err != nil {
 			return nil, err
 		}
 
 		if settings != nil {
-			settingDropdownClassType = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+			settingDropdownClassType = dto.DropdownSimple{ID: settings.ID, Title: settings.Title}
 		}
 	}
 
 	if item.Type == "immovable" {
-		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitID == item.OrganizationUnitId {
+		if item.OrganizationUnitID == item.TargetOrganizationUnitID || organizationUnitID == item.OrganizationUnitID {
 			item.SourceType = "NS1"
 		} else {
 			item.SourceType = "NS2"
@@ -486,38 +484,38 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	}
 
 	if item.Type == "movable" {
-		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitID == item.OrganizationUnitId {
+		if item.OrganizationUnitID == item.TargetOrganizationUnitID || organizationUnitID == item.OrganizationUnitID {
 			item.SourceType = "PS1"
 		} else {
 			item.SourceType = "PS2"
 		}
 	}
 
-	settingDropdownOfficeId := dto.DropdownSimple{}
-	if item.OfficeId != 0 {
-		settings, err := r.GetDropdownSettingById(item.OfficeId)
+	settingDropdownOfficeID := dto.DropdownSimple{}
+	if item.OfficeID != 0 {
+		settings, err := r.GetDropdownSettingByID(item.OfficeID)
 		if err != nil {
 			return nil, err
 		}
 
 		if settings != nil {
-			settingDropdownOfficeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+			settingDropdownOfficeID = dto.DropdownSimple{ID: settings.ID, Title: settings.Title}
 		}
 	}
 
-	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
+	settingDropdownDepreciationTypeID := dto.DropdownSimple{}
 
-	if item.DepreciationTypeId != 0 {
-		depreciationTypeDropDown, err := r.GetDropdownSettingById(item.DepreciationTypeId)
+	if item.DepreciationTypeID != 0 {
+		depreciationTypeDropDown, err := r.GetDropdownSettingByID(item.DepreciationTypeID)
 
 		if err != nil {
 			return nil, err
 		}
-		settingDropdownDepreciationTypeId.Id = depreciationTypeDropDown.Id
-		settingDropdownDepreciationTypeId.Title = depreciationTypeDropDown.Title
+		settingDropdownDepreciationTypeID.ID = depreciationTypeDropDown.ID
+		settingDropdownDepreciationTypeID.Title = depreciationTypeDropDown.Title
 	}
 
-	assessments, _ := r.GetMyInventoryAssessments(item.Id)
+	assessments, _ := r.GetMyInventoryAssessments(item.ID)
 	var grossPrice float32
 	var dateOfAssessment string
 	var estimatedDuration int
@@ -526,7 +524,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	if len(assessments) > 0 {
 		hasAssessments = true
 		for i, assessment := range assessments {
-			if assessment.Id != 0 {
+			if assessment.ID != 0 {
 				assessmentResponse, _ := buildAssessmentResponse(r, &assessment)
 				if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
 					grossPrice = assessmentResponse.GrossPriceDifference
@@ -543,15 +541,15 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	status := "Nezaduženo"
 
 	if item.Type == "movable" && item.Active {
-		itemInventoryList, _ := r.GetDispatchItemByInventoryID(item.Id)
+		itemInventoryList, _ := r.GetDispatchItemByInventoryID(item.ID)
 		if len(itemInventoryList) > 0 {
-			dispatchRes, err := r.GetDispatchItemByID(itemInventoryList[0].DispatchId)
+			dispatchRes, err := r.GetDispatchItemByID(itemInventoryList[0].DispatchID)
 			if err != nil {
 				return nil, err
 			}
 			if dispatchRes.Type == "revers" && !dispatchRes.IsAccepted {
 				status = "Poslato"
-			} else if (item.TargetOrganizationUnitId != 0 && item.TargetOrganizationUnitId != organizationUnitID) || (dispatchRes.Type == "revers" && dispatchRes.IsAccepted && item.OrganizationUnitId == organizationUnitID) {
+			} else if (item.TargetOrganizationUnitID != 0 && item.TargetOrganizationUnitID != organizationUnitID) || (dispatchRes.Type == "revers" && dispatchRes.IsAccepted && item.OrganizationUnitID == organizationUnitID) {
 				status = "Prihvaćeno"
 			} else if dispatchRes.Type == "allocation" {
 				status = "Zaduženo"
@@ -568,14 +566,14 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	realEstateStruct := &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{}
 
 	if item.Type == "immovable" {
-		realEstate, err := r.GetMyInventoryRealEstate(item.Id)
+		realEstate, err := r.GetMyInventoryRealEstate(item.ID)
 		if err != nil {
 			return nil, err
 		}
 
 		realEstateStruct = &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{
-			Id:                       realEstate.Id,
-			TypeId:                   realEstate.TypeId,
+			ID:                       realEstate.ID,
+			TypeID:                   realEstate.TypeID,
 			SquareArea:               realEstate.SquareArea,
 			LandSerialNumber:         realEstate.LandSerialNumber,
 			EstateSerialNumber:       realEstate.EstateSerialNumber,
@@ -583,37 +581,37 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 			OwnershipScope:           realEstate.OwnershipScope,
 			OwnershipInvestmentScope: realEstate.OwnershipInvestmentScope,
 			LimitationsDescription:   realEstate.LimitationsDescription,
-			LimitationsId:            realEstate.LimitationId,
+			LimitationsID:            realEstate.LimitationID,
 			PropertyDocument:         realEstate.PropertyDocument,
 			Document:                 realEstate.Document,
-			FileId:                   realEstate.FileId,
+			FileID:                   realEstate.FileID,
 		}
 	}
 
 	organizationUnitDropdown := dto.DropdownSimple{}
-	if item.OrganizationUnitId != 0 {
-		organizationUnit, err := r.GetOrganizationUnitById(item.OrganizationUnitId)
+	if item.OrganizationUnitID != 0 {
+		organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
 		if organizationUnit != nil {
-			organizationUnitDropdown = dto.DropdownSimple{Id: organizationUnit.Id, Title: organizationUnit.Title}
+			organizationUnitDropdown = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
 		}
 	}
 
 	targetOrganizationUnitDropdown := dto.DropdownSimple{}
-	if item.TargetOrganizationUnitId != 0 {
-		targetOrganizationUnit, err := r.GetOrganizationUnitById(item.TargetOrganizationUnitId)
+	if item.TargetOrganizationUnitID != 0 {
+		targetOrganizationUnit, err := r.GetOrganizationUnitByID(item.TargetOrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
 		if targetOrganizationUnit != nil {
-			targetOrganizationUnitDropdown = dto.DropdownSimple{Id: targetOrganizationUnit.Id, Title: targetOrganizationUnit.Title}
+			targetOrganizationUnitDropdown = dto.DropdownSimple{ID: targetOrganizationUnit.ID, Title: targetOrganizationUnit.Title}
 		}
 	}
 
 	res := dto.BasicInventoryResponseListItem{
-		Id:                     item.Id,
+		ID:                     item.ID,
 		Active:                 item.Active,
 		Type:                   item.Type,
 		Title:                  item.Title,
@@ -627,11 +625,11 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		Status:                 status,
 		SourceType:             item.SourceType,
 		RealEstate:             realEstateStruct,
-		DepreciationType:       settingDropdownDepreciationTypeId,
+		DepreciationType:       settingDropdownDepreciationTypeID,
 		OrganizationUnit:       organizationUnitDropdown,
 		TargetOrganizationUnit: targetOrganizationUnitDropdown,
 		ClassType:              settingDropdownClassType,
-		Office:                 settingDropdownOfficeId,
+		Office:                 settingDropdownOfficeID,
 		HasAssessments:         hasAssessments,
 	}
 
@@ -640,89 +638,89 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 
 func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, item *structs.BasicInventoryInsertItem, organizationUnitID int) (*dto.BasicInventoryResponseItem, error) {
 	settingDropdownClassType := dto.DropdownSimple{}
-	if item.ClassTypeId != 0 {
-		settings, err := r.GetDropdownSettingById(item.ClassTypeId)
+	if item.ClassTypeID != 0 {
+		settings, err := r.GetDropdownSettingByID(item.ClassTypeID)
 		if err != nil {
 			return nil, err
 		}
 
 		if settings != nil {
-			settingDropdownClassType = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+			settingDropdownClassType = dto.DropdownSimple{ID: settings.ID, Title: settings.Title}
 		}
 	}
 
 	suppliersDropdown := dto.DropdownSimple{}
-	if item.SupplierId != 0 {
-		suppliers, err := r.GetSupplier(item.SupplierId)
+	if item.SupplierID != 0 {
+		suppliers, err := r.GetSupplier(item.SupplierID)
 		if err != nil {
 			return nil, err
 		}
 
 		if suppliers != nil {
-			suppliersDropdown = dto.DropdownSimple{Id: suppliers.Id, Title: suppliers.Title}
+			suppliersDropdown = dto.DropdownSimple{ID: suppliers.ID, Title: suppliers.Title}
 		}
 	}
 
 	donorDropdown := dto.DropdownSimple{}
-	if item.DonorId != 0 {
-		donor, err := r.GetSupplier(item.DonorId)
+	if item.DonorID != 0 {
+		donor, err := r.GetSupplier(item.DonorID)
 		if err != nil {
 			return nil, err
 		}
 
 		if donor != nil {
-			donorDropdown = dto.DropdownSimple{Id: donor.Id, Title: donor.Title}
+			donorDropdown = dto.DropdownSimple{ID: donor.ID, Title: donor.Title}
 		}
 	}
 
-	settingDropdownOfficeId := dto.DropdownSimple{}
-	if item.OfficeId != 0 {
-		settings, err := r.GetDropdownSettingById(item.OfficeId)
+	settingDropdownOfficeID := dto.DropdownSimple{}
+	if item.OfficeID != 0 {
+		settings, err := r.GetDropdownSettingByID(item.OfficeID)
 		if err != nil {
 			return nil, err
 		}
 
 		if settings != nil {
-			settingDropdownOfficeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+			settingDropdownOfficeID = dto.DropdownSimple{ID: settings.ID, Title: settings.Title}
 		}
 	}
 
 	targetUserDropdown := dto.DropdownSimple{}
-	if item.TargetUserProfileId != 0 {
-		user, err := r.GetUserProfileById(item.TargetUserProfileId)
+	if item.TargetUserProfileID != 0 {
+		user, err := r.GetUserProfileByID(item.TargetUserProfileID)
 		if err != nil {
 			return nil, err
 		}
 		if user != nil {
-			targetUserDropdown = dto.DropdownSimple{Id: user.Id, Title: user.FirstName + " " + user.LastName}
+			targetUserDropdown = dto.DropdownSimple{ID: user.ID, Title: user.FirstName + " " + user.LastName}
 		}
 	}
 	var currentOrganizationUnit *structs.OrganizationUnits
 	organizationUnitDropdown := dto.DropdownSimple{}
-	if item.OrganizationUnitId != 0 {
-		organizationUnit, err := r.GetOrganizationUnitById(item.OrganizationUnitId)
+	if item.OrganizationUnitID != 0 {
+		organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
 		currentOrganizationUnit = organizationUnit
 		if err != nil {
 			return nil, err
 		}
 		if organizationUnit != nil {
-			organizationUnitDropdown = dto.DropdownSimple{Id: organizationUnit.Id, Title: organizationUnit.Title}
+			organizationUnitDropdown = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
 		}
 	}
 
 	targetOrganizationUnitDropdown := dto.DropdownSimple{}
-	if item.TargetOrganizationUnitId != 0 {
-		targetOrganizationUnit, err := r.GetOrganizationUnitById(item.TargetOrganizationUnitId)
+	if item.TargetOrganizationUnitID != 0 {
+		targetOrganizationUnit, err := r.GetOrganizationUnitByID(item.TargetOrganizationUnitID)
 		currentOrganizationUnit = targetOrganizationUnit
 		if err != nil {
 			return nil, err
 		}
 		if targetOrganizationUnit != nil {
-			targetOrganizationUnitDropdown = dto.DropdownSimple{Id: targetOrganizationUnit.Id, Title: targetOrganizationUnit.Title}
+			targetOrganizationUnitDropdown = dto.DropdownSimple{ID: targetOrganizationUnit.ID, Title: targetOrganizationUnit.Title}
 		}
 	}
 
-	realEstate, err := r.GetMyInventoryRealEstate(item.Id)
+	realEstate, err := r.GetMyInventoryRealEstate(item.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -731,8 +729,8 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	if realEstate != nil {
 		realEstateStruct = &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{
-			Id:                       realEstate.Id,
-			TypeId:                   realEstate.TypeId,
+			ID:                       realEstate.ID,
+			TypeID:                   realEstate.TypeID,
 			SquareArea:               realEstate.SquareArea,
 			LandSerialNumber:         realEstate.LandSerialNumber,
 			EstateSerialNumber:       realEstate.EstateSerialNumber,
@@ -740,14 +738,14 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			OwnershipScope:           realEstate.OwnershipScope,
 			OwnershipInvestmentScope: realEstate.OwnershipInvestmentScope,
 			LimitationsDescription:   realEstate.LimitationsDescription,
-			LimitationsId:            realEstate.LimitationId,
+			LimitationsID:            realEstate.LimitationID,
 			PropertyDocument:         realEstate.PropertyDocument,
 			Document:                 realEstate.Document,
-			FileId:                   realEstate.FileId,
+			FileID:                   realEstate.FileID,
 		}
 	}
-	assessments, _ := r.GetMyInventoryAssessments(item.Id)
-	depreciationTypeId := 0
+	assessments, _ := r.GetMyInventoryAssessments(item.ID)
+	depreciationTypeID := 0
 	var grossPrice float32
 	var residualPrice *float32
 	var dateOfAssessment string
@@ -755,10 +753,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	lifetimeOfAssessmentInMonths := 0
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
 	for i, assessment := range assessments {
-		if assessment.Id != 0 {
+		if assessment.ID != 0 {
 			assessmentResponse, _ := buildAssessmentResponse(r, &assessment)
 			if assessmentResponse != nil && i == 0 && assessmentResponse.Type == "financial" {
-				depreciationTypeId = assessmentResponse.DepreciationType.Id
+				depreciationTypeID = assessmentResponse.DepreciationType.ID
 				grossPrice = assessmentResponse.GrossPriceDifference
 				residualPrice = assessmentResponse.ResidualPrice
 				lifetimeOfAssessmentInMonths = assessmentResponse.EstimatedDuration
@@ -768,14 +766,14 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		}
 	}
 
-	settingDropdownDepreciationTypeId := dto.DropdownSimple{}
+	settingDropdownDepreciationTypeID := dto.DropdownSimple{}
 	var amortizationValue float32
 	depreciationRate := 100
-	if depreciationTypeId != 0 {
-		settings, _ := r.GetDropdownSettingById(depreciationTypeId)
+	if depreciationTypeID != 0 {
+		settings, _ := r.GetDropdownSettingByID(depreciationTypeID)
 
 		if settings != nil {
-			settingDropdownDepreciationTypeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+			settingDropdownDepreciationTypeID = dto.DropdownSimple{ID: settings.ID, Title: settings.Title}
 			num, _ := strconv.Atoi(settings.Value)
 			if num > -1 && lifetimeOfAssessmentInMonths == 0 {
 				lifetimeOfAssessmentInMonths = num
@@ -812,20 +810,20 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		}
 	}
 
-	itemInventoryList, _ := r.GetDispatchItemByInventoryID(item.Id)
+	itemInventoryList, _ := r.GetDispatchItemByInventoryID(item.ID)
 
 	status := "Nezaduženo"
 	var movements []*dto.InventoryDispatchResponse
 	if len(itemInventoryList) > 0 {
 		for i, move := range itemInventoryList {
-			dispatchRes, err := r.GetDispatchItemByID(move.DispatchId)
+			dispatchRes, err := r.GetDispatchItemByID(move.DispatchID)
 			if err != nil {
 				return nil, err
 			}
 			if i == 0 {
 				if dispatchRes.Type == "revers" && !dispatchRes.IsAccepted {
 					status = "Poslato"
-				} else if (item.TargetOrganizationUnitId != 0 && item.TargetOrganizationUnitId != organizationUnitID) || (dispatchRes.Type == "revers" && dispatchRes.IsAccepted && item.OrganizationUnitId == organizationUnitID) {
+				} else if (item.TargetOrganizationUnitID != 0 && item.TargetOrganizationUnitID != organizationUnitID) || (dispatchRes.Type == "revers" && dispatchRes.IsAccepted && item.OrganizationUnitID == organizationUnitID) {
 					status = "Prihvaćeno"
 				} else if dispatchRes.Type == "allocation" {
 					status = "Zaduženo"
@@ -845,7 +843,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	}
 
 	if item.Type == "immovable" {
-		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitID == item.OrganizationUnitId {
+		if item.OrganizationUnitID == item.TargetOrganizationUnitID || organizationUnitID == item.OrganizationUnitID {
 			item.SourceType = "NS1"
 		} else {
 			item.SourceType = "NS2"
@@ -854,7 +852,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	}
 
 	if item.Type == "movable" {
-		if item.OrganizationUnitId == item.TargetOrganizationUnitId || organizationUnitID == item.OrganizationUnitId {
+		if item.OrganizationUnitID == item.TargetOrganizationUnitID || organizationUnitID == item.OrganizationUnitID {
 			item.SourceType = "PS1"
 		} else {
 			item.SourceType = "PS2"
@@ -870,7 +868,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		}
 
 		fileDropdown := dto.FileDropdownSimple{
-			Id:   file.ID,
+			ID:   file.ID,
 			Type: *file.Type,
 			Name: file.Name,
 		}
@@ -885,12 +883,12 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	}
 
 	res := dto.BasicInventoryResponseItem{
-		Id:                           item.Id,
-		ArticleId:                    item.ArticleId,
+		ID:                           item.ID,
+		ArticleID:                    item.ArticleID,
 		Type:                         item.Type,
 		SourceType:                   item.SourceType,
 		ClassType:                    settingDropdownClassType,
-		DepreciationType:             settingDropdownDepreciationTypeId,
+		DepreciationType:             settingDropdownDepreciationTypeID,
 		Supplier:                     suppliersDropdown,
 		Donor:                        donorDropdown,
 		RealEstate:                   realEstateStruct,
@@ -901,7 +899,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		Title:                        item.Title,
 		Abbreviation:                 item.Abbreviation,
 		InternalOwnership:            item.InternalOwnership,
-		Office:                       settingDropdownOfficeId,
+		Office:                       settingDropdownOfficeID,
 		Location:                     item.Location,
 		TargetUserProfile:            targetUserDropdown,
 		Unit:                         item.Unit,

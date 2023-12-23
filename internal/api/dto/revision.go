@@ -27,7 +27,7 @@ type RevisionPlanOverviewResponse struct {
 }
 
 type RevisionPlanItem struct {
-	Id        int     `json:"id"`
+	ID        int     `json:"id"`
 	Name      string  `json:"name"`
 	Year      string  `json:"year"`
 	CreatedAt *string `json:"created_at"`
@@ -41,7 +41,7 @@ type GetRevisionFilter struct {
 	Size                    *int `json:"size"`
 	Revisor                 *int `json:"revisor"`
 	RevisionType            *int `json:"revision_type_id"`
-	InternalRevisionSubject *int `json:"internal_revision_subject"`
+	InternalRevisionsubject *int `json:"internal_revision_subject"`
 	PlanID                  *int `json:"plan_id"`
 }
 
@@ -52,8 +52,8 @@ type RevisionsOverviewItem struct {
 	SerialNumber            string            `json:"serial_number"`
 	DateOfRevision          string            `json:"date_of_revision"`
 	RevisionQuartal         string            `json:"revision_quartal"`
-	InternalRevisionSubject *[]DropdownSimple `json:"internal_revision_subject"`
-	ExternalRevisionSubject *DropdownSimple   `json:"external_revision_subject"`
+	InternalRevisionsubject *[]DropdownSimple `json:"internal_revision_subject"`
+	ExternalRevisionsubject *DropdownSimple   `json:"external_revision_subject"`
 	Revisor                 []DropdownSimple  `json:"revisor"`
 	RevisionType            DropdownSimple    `json:"revision_type"`
 	FileID                  *int              `json:"file_id"`

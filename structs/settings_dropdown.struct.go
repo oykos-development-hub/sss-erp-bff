@@ -1,7 +1,7 @@
 package structs
 
 type SettingsDropdown struct {
-	Id           int    `json:"id"`
+	ID           int    `json:"id"`
 	Title        string `json:"title"`
 	Entity       string `json:"entity"`
 	Value        string `json:"value"`

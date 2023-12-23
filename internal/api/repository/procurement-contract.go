@@ -8,7 +8,7 @@ import (
 
 func (repo *MicroserviceRepository) CreateProcurementContract(resolution *structs.PublicProcurementContract) (*structs.PublicProcurementContract, error) {
 	res := &dto.GetProcurementContractResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.CONTRACTS, resolution, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.Contracts, resolution, res)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) CreateProcurementContract(resolution *struct
 
 func (repo *MicroserviceRepository) UpdateProcurementContract(id int, resolution *structs.PublicProcurementContract) (*structs.PublicProcurementContract, error) {
 	res := &dto.GetProcurementContractResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.CONTRACTS+"/"+strconv.Itoa(id), resolution, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.Contracts+"/"+strconv.Itoa(id), resolution, res)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func (repo *MicroserviceRepository) UpdateProcurementContract(id int, resolution
 }
 
 func (repo *MicroserviceRepository) DeleteProcurementContract(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.CONTRACTS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.Contracts+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (repo *MicroserviceRepository) DeleteProcurementContract(id int) error {
 
 func (repo *MicroserviceRepository) GetProcurementContract(id int) (*structs.PublicProcurementContract, error) {
 	res := &dto.GetProcurementContractResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.CONTRACTS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.Contracts+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (repo *MicroserviceRepository) GetProcurementContract(id int) (*structs.Pub
 
 func (repo *MicroserviceRepository) GetProcurementContractsList(input *dto.GetProcurementContractsInput) (*dto.GetProcurementContractListResponseMS, error) {
 	res := &dto.GetProcurementContractListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.CONTRACTS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.Contracts, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (repo *MicroserviceRepository) GetProcurementContractsList(input *dto.GetPr
 
 func (repo *MicroserviceRepository) GetOrganizationUnitArticlesList(input dto.GetProcurementOrganizationUnitArticleListInputDTO) ([]dto.GetPublicProcurementOrganizationUnitArticle, error) {
 	res := &dto.GetOrganizationUnitArticleListResponse{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.ORGANIZATION_UNIT_ARTICLE, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.OrganizationUnitArticle, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (repo *MicroserviceRepository) GetOrganizationUnitArticlesList(input dto.Ge
 
 func (repo *MicroserviceRepository) GetOrganizationUnitArticleByID(id int) (*dto.GetPublicProcurementOrganizationUnitArticle, error) {
 	res := &dto.GetOrganizationUnitArticleResponse{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.ORGANIZATION_UNIT_ARTICLE+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.OrganizationUnitArticle+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (repo *MicroserviceRepository) GetOrganizationUnitArticleByID(id int) (*dto
 
 func (repo *MicroserviceRepository) CreateProcurementContractArticle(article *structs.PublicProcurementContractArticle) (*structs.PublicProcurementContractArticle, error) {
 	res := &dto.GetProcurementContractArticleResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.CONTRACT_ARTICLE, article, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.ContractArticle, article, res)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (repo *MicroserviceRepository) CreateProcurementContractArticle(article *st
 
 func (repo *MicroserviceRepository) UpdateProcurementContractArticle(id int, article *structs.PublicProcurementContractArticle) (*structs.PublicProcurementContractArticle, error) {
 	res := &dto.GetProcurementContractArticleResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.CONTRACT_ARTICLE+"/"+strconv.Itoa(id), article, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.ContractArticle+"/"+strconv.Itoa(id), article, res)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (repo *MicroserviceRepository) UpdateProcurementContractArticle(id int, art
 
 func (repo *MicroserviceRepository) GetProcurementContractArticlesList(input *dto.GetProcurementContractArticlesInput) (*dto.GetProcurementContractArticlesListResponseMS, error) {
 	res := &dto.GetProcurementContractArticlesListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.CONTRACT_ARTICLE, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.ContractArticle, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (repo *MicroserviceRepository) GetProcurementContractArticlesList(input *dt
 
 func (repo *MicroserviceRepository) CreateProcurementContractArticleOverage(articleOverage *structs.PublicProcurementContractArticleOverage) (*structs.PublicProcurementContractArticleOverage, error) {
 	res := &dto.GetProcurementContractArticleOverageResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.CONTRACT_ARTICLE_OVERAGE, articleOverage, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.ContractArticleOverage, articleOverage, res)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (repo *MicroserviceRepository) CreateProcurementContractArticleOverage(arti
 
 func (repo *MicroserviceRepository) UpdateProcurementContractArticleOverage(id int, articleOverage *structs.PublicProcurementContractArticleOverage) (*structs.PublicProcurementContractArticleOverage, error) {
 	res := &dto.GetProcurementContractArticleOverageResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.CONTRACT_ARTICLE_OVERAGE+"/"+strconv.Itoa(id), articleOverage, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.ContractArticleOverage+"/"+strconv.Itoa(id), articleOverage, res)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (repo *MicroserviceRepository) UpdateProcurementContractArticleOverage(id i
 
 func (repo *MicroserviceRepository) GetProcurementContractArticleOverageList(input *dto.GetProcurementContractArticleOverageInput) ([]*structs.PublicProcurementContractArticleOverage, error) {
 	res := &dto.GetProcurementContractArticleOverageListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.CONTRACT_ARTICLE_OVERAGE, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.ContractArticleOverage, input, res)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (repo *MicroserviceRepository) GetProcurementContractArticleOverageList(inp
 }
 
 func (repo *MicroserviceRepository) DeleteProcurementContractArticleOverage(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.CONTRACT_ARTICLE_OVERAGE+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.ContractArticleOverage+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}

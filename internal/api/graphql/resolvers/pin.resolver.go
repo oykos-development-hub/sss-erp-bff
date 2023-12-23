@@ -11,7 +11,7 @@ import (
 func (r *Resolver) PinResolver(p graphql.ResolveParams) (interface{}, error) {
 	pin := p.Args["pin"].(string)
 
-	err := r.Repo.ValidatePin(pin, p.Context.Value(config.HttpHeadersKey).(map[string]string))
+	err := r.Repo.ValidatePin(pin, p.Context.Value(config.HTTPHeadersKey).(map[string]string))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

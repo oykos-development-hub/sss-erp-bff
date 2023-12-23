@@ -23,7 +23,7 @@ func BudgetActivityNotFinanciallyItemProperties(notFinanciallyItems []interface{
 
 		var requestData = shared.FetchByProperty(
 			"request_budget",
-			"Id",
+			"ID",
 			mergedItem["request_id"].(int),
 		)
 
@@ -33,15 +33,15 @@ func BudgetActivityNotFinanciallyItemProperties(notFinanciallyItems []interface{
 
 					var activitiesData = shared.FetchByProperty(
 						"program",
-						"Id",
-						request.ActivityId,
+						"ID",
+						request.ActivityID,
 					)
 					var allProgramsNotFinanciallyData = shared.FetchByProperty(
 						"budget_program_not_financially",
-						"BudgetNotFinanciallyId",
+						"BudgetNotFinanciallyID",
 						mergedItem["id"].(int),
 					)
-					activitiesNotFinanciallyData := shared.FindByProperty(allProgramsNotFinanciallyData, "ProgramId", request.ActivityId)
+					activitiesNotFinanciallyData := shared.FindByProperty(allProgramsNotFinanciallyData, "ProgramID", request.ActivityID)
 					if len(activitiesData) > 0 {
 						for _, activityData := range activitiesData {
 
@@ -49,11 +49,11 @@ func BudgetActivityNotFinanciallyItemProperties(notFinanciallyItems []interface{
 								var activitiesNotFinancially = shared.WriteStructToInterface(activitiesNotFinanciallyData[0])
 								var goalsNotFinanciallyData = shared.FetchByProperty(
 									"budget_goals_not_financially",
-									"BudgetProgramId",
+									"BudgetProgramID",
 									activitiesNotFinancially["id"],
 								)
 								mergedItem["activity"] = map[string]interface{}{
-									"id":          activity.Id,
+									"id":          activity.ID,
 									"title":       activity.Title,
 									"code":        activitiesNotFinancially["code"],
 									"description": activitiesNotFinancially["description"],
@@ -62,11 +62,11 @@ func BudgetActivityNotFinanciallyItemProperties(notFinanciallyItems []interface{
 
 								var subroutinesData = shared.FetchByProperty(
 									"program",
-									"Id",
-									activity.ParentId,
+									"ID",
+									activity.ParentID,
 								)
 
-								subroutineNotFinanciallyData := shared.FindByProperty(allProgramsNotFinanciallyData, "ProgramId", activity.ParentId)
+								subroutineNotFinanciallyData := shared.FindByProperty(allProgramsNotFinanciallyData, "ProgramID", activity.ParentID)
 
 								if len(subroutinesData) > 0 {
 									for _, subroutineData := range subroutinesData {
@@ -75,11 +75,11 @@ func BudgetActivityNotFinanciallyItemProperties(notFinanciallyItems []interface{
 											var subroutineNotFinancially = shared.WriteStructToInterface(subroutineNotFinanciallyData[0])
 											var goalsNotFinanciallyData = shared.FetchByProperty(
 												"budget_goals_not_financially",
-												"BudgetProgramId",
+												"BudgetProgramID",
 												subroutineNotFinancially["id"],
 											)
 											mergedItem["subprogram"] = map[string]interface{}{
-												"id":          subprogram.Id,
+												"id":          subprogram.ID,
 												"title":       subprogram.Title,
 												"code":        subroutineNotFinancially["code"],
 												"description": subroutineNotFinancially["description"],
@@ -88,11 +88,11 @@ func BudgetActivityNotFinanciallyItemProperties(notFinanciallyItems []interface{
 
 											var programsData = shared.FetchByProperty(
 												"program",
-												"Id",
-												subprogram.ParentId,
+												"ID",
+												subprogram.ParentID,
 											)
 
-											programNotFinanciallyData := shared.FindByProperty(allProgramsNotFinanciallyData, "ProgramId", subprogram.ParentId)
+											programNotFinanciallyData := shared.FindByProperty(allProgramsNotFinanciallyData, "ProgramID", subprogram.ParentID)
 
 											if len(programsData) > 0 {
 												for _, programData := range programsData {
@@ -101,11 +101,11 @@ func BudgetActivityNotFinanciallyItemProperties(notFinanciallyItems []interface{
 														var programNotFinancially = shared.WriteStructToInterface(programNotFinanciallyData[0])
 														var goalsNotFinanciallyData = shared.FetchByProperty(
 															"budget_goals_not_financially",
-															"BudgetProgramId",
+															"BudgetProgramID",
 															programNotFinancially["id"],
 														)
 														mergedItem["program"] = map[string]interface{}{
-															"id":          program.Id,
+															"id":          program.ID,
 															"title":       program.Title,
 															"code":        programNotFinancially["code"],
 															"description": programNotFinancially["description"],
@@ -130,7 +130,7 @@ func BudgetActivityNotFinanciallyItemProperties(notFinanciallyItems []interface{
 	return items
 }
 
-func BudgetActivityNotFinanciallyItemInductorProperties(notFinanciallyInductorItems []interface{}, id int) []interface{} {
+func BudgetActivityNotFinanciallyItemInductorProperties(notFinanciallyInductorItems []interface{}) []interface{} {
 	var items []interface{}
 	for _, item := range notFinanciallyInductorItems {
 		var mergedItem = shared.WriteStructToInterface(item)
@@ -142,22 +142,15 @@ func BudgetActivityNotFinanciallyItemInductorProperties(notFinanciallyInductorIt
 
 func (r *Resolver) BudgetActivityNotFinanciallyOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
 	var items []interface{}
-	var id int
-
-	if params.Args["request_id"] == nil {
-		fmt.Printf("Id request is important")
-		return nil, nil
-	} else {
-		id = params.Args["request_id"].(int)
-	}
+	id := params.Args["request_id"].(int)
 
 	BudgetActivityNotFinanciallyType := &structs.BudgetActivityNotFinanciallyItem{}
-	BudgetActivityNotFinanciallyData, err := shared.ReadJson(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
+	BudgetActivityNotFinanciallyData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
 
 	if err != nil {
 		fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
 	}
-	BudgetActivityNotFinanciallyData = shared.FindByProperty(BudgetActivityNotFinanciallyData, "RequestId", id)
+	BudgetActivityNotFinanciallyData = shared.FindByProperty(BudgetActivityNotFinanciallyData, "RequestID", id)
 	// Populate data for each Basic Inventory Real Estates
 	items = BudgetActivityNotFinanciallyItemProperties(BudgetActivityNotFinanciallyData)
 
@@ -176,9 +169,9 @@ func (r *Resolver) BudgetActivityNotFinanciallyInsertResolver(params graphql.Res
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
+	itemID := data.ID
 
-	BudgetActivityNotFinanciallyData, err := shared.ReadJson(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
+	BudgetActivityNotFinanciallyData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
@@ -187,17 +180,17 @@ func (r *Resolver) BudgetActivityNotFinanciallyInsertResolver(params graphql.Res
 	sliceData := []interface{}{data}
 
 	// Populate data for each Basic Inventory
-	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData, itemId)
+	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData)
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		BudgetActivityNotFinanciallyData = shared.FilterByProperty(BudgetActivityNotFinanciallyData, "Id", itemId)
+	if itemID != 0 {
+		BudgetActivityNotFinanciallyData = shared.FilterByProperty(BudgetActivityNotFinanciallyData, "ID", itemID)
 	} else {
-		data.Id = shared.GetRandomNumber()
+		data.ID = shared.GetRandomNumber()
 	}
 
 	var updatedData = append(BudgetActivityNotFinanciallyData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/budget_activity_not_financially.json"), updatedData)
+	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget_activity_not_financially.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -214,9 +207,9 @@ func (r *Resolver) BudgetActivityNotFinanciallyProgramInsertResolver(params grap
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
+	itemID := data.ID
 
-	BudgetActivityNotFinanciallyProgramData, err := shared.ReadJson(shared.GetDataRoot()+"/budget_program_not_financially.json", BudgetActivityNotFinanciallyProgramType)
+	BudgetActivityNotFinanciallyProgramData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_program_not_financially.json", BudgetActivityNotFinanciallyProgramType)
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
@@ -225,17 +218,17 @@ func (r *Resolver) BudgetActivityNotFinanciallyProgramInsertResolver(params grap
 	sliceData := []interface{}{data}
 
 	// Populate data for each Basic Inventory
-	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData, itemId)
+	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData)
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		BudgetActivityNotFinanciallyProgramData = shared.FilterByProperty(BudgetActivityNotFinanciallyProgramData, "Id", itemId)
+	if itemID != 0 {
+		BudgetActivityNotFinanciallyProgramData = shared.FilterByProperty(BudgetActivityNotFinanciallyProgramData, "ID", itemID)
 	} else {
-		data.Id = shared.GetRandomNumber()
+		data.ID = shared.GetRandomNumber()
 	}
 
 	var updatedData = append(BudgetActivityNotFinanciallyProgramData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/budget_program_not_financially.json"), updatedData)
+	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget_program_not_financially.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -252,9 +245,9 @@ func (r *Resolver) BudgetActivityNotFinanciallyGoalsInsertResolver(params graphq
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
+	itemID := data.ID
 
-	BudgetActivityNotFinanciallyGoalsData, err := shared.ReadJson(shared.GetDataRoot()+"/budget_goals_not_financially.json", BudgetActivityNotFinanciallyProgramType)
+	BudgetActivityNotFinanciallyGoalsData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_goals_not_financially.json", BudgetActivityNotFinanciallyProgramType)
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
@@ -263,17 +256,17 @@ func (r *Resolver) BudgetActivityNotFinanciallyGoalsInsertResolver(params graphq
 	sliceData := []interface{}{data}
 
 	// Populate data for each Basic Inventory
-	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData, itemId)
+	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData)
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		BudgetActivityNotFinanciallyGoalsData = shared.FilterByProperty(BudgetActivityNotFinanciallyGoalsData, "Id", itemId)
+	if itemID != 0 {
+		BudgetActivityNotFinanciallyGoalsData = shared.FilterByProperty(BudgetActivityNotFinanciallyGoalsData, "ID", itemID)
 	} else {
-		data.Id = shared.GetRandomNumber()
+		data.ID = shared.GetRandomNumber()
 	}
 
 	var updatedData = append(BudgetActivityNotFinanciallyGoalsData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/budget_goals_not_financially.json"), updatedData)
+	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget_goals_not_financially.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -284,31 +277,17 @@ func (r *Resolver) BudgetActivityNotFinanciallyGoalsInsertResolver(params graphq
 
 func (r *Resolver) BudgetActivityNotFinanciallyInductorResolver(params graphql.ResolveParams) (interface{}, error) {
 	var items []interface{}
-	var goalsId int
-	var id int
-
-	if params.Args["goals_id"] == nil {
-		fmt.Printf("Id goals request is important")
-		return nil, nil
-	} else {
-		goalsId = params.Args["goals_id"].(int)
-	}
-
-	if params.Args["id"] == nil {
-		return nil, nil
-	} else {
-		id = params.Args["id"].(int)
-	}
+	goalsID := params.Args["goals_id"].(int)
 
 	BudgetActivityNotFinanciallyIndicatorType := &structs.BudgetActivityNotFinanciallyIndicatorItem{}
-	BudgetActivityNotFinanciallyIndicatorData, err := shared.ReadJson(shared.GetDataRoot()+"/budget_indicator_not_financially.json", BudgetActivityNotFinanciallyIndicatorType)
+	BudgetActivityNotFinanciallyIndicatorData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_indicator_not_financially.json", BudgetActivityNotFinanciallyIndicatorType)
 
 	if err != nil {
 		fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
 	}
-	BudgetActivityNotFinanciallyIndicatorData = shared.FindByProperty(BudgetActivityNotFinanciallyIndicatorData, "GoalsId", goalsId)
+	BudgetActivityNotFinanciallyIndicatorData = shared.FindByProperty(BudgetActivityNotFinanciallyIndicatorData, "GoalsID", goalsID)
 	// Populate data for each Basic Inventory Real Estates
-	items = BudgetActivityNotFinanciallyItemInductorProperties(BudgetActivityNotFinanciallyIndicatorData, id)
+	items = BudgetActivityNotFinanciallyItemInductorProperties(BudgetActivityNotFinanciallyIndicatorData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -325,9 +304,9 @@ func (r *Resolver) BudgetActivityNotFinanciallyInductorInsertResolver(params gra
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
+	itemID := data.ID
 
-	BudgetActivityNotFinanciallyIndicatorData, err := shared.ReadJson(shared.GetDataRoot()+"/budget_indicator_not_financially.json", BudgetActivityNotFinanciallyIndicatorType)
+	BudgetActivityNotFinanciallyIndicatorData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_indicator_not_financially.json", BudgetActivityNotFinanciallyIndicatorType)
 
 	if err != nil {
 		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
@@ -336,17 +315,17 @@ func (r *Resolver) BudgetActivityNotFinanciallyInductorInsertResolver(params gra
 	sliceData := []interface{}{data}
 
 	// Populate data for each Basic Inventory
-	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData, itemId)
+	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData)
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		BudgetActivityNotFinanciallyIndicatorData = shared.FilterByProperty(BudgetActivityNotFinanciallyIndicatorData, "Id", itemId)
+	if itemID != 0 {
+		BudgetActivityNotFinanciallyIndicatorData = shared.FilterByProperty(BudgetActivityNotFinanciallyIndicatorData, "ID", itemID)
 	} else {
-		data.Id = shared.GetRandomNumber()
+		data.ID = shared.GetRandomNumber()
 	}
 
 	var updatedData = append(BudgetActivityNotFinanciallyIndicatorData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/budget_indicator_not_financially.json"), updatedData)
+	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget_indicator_not_financially.json"), updatedData)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -357,22 +336,15 @@ func (r *Resolver) BudgetActivityNotFinanciallyInductorInsertResolver(params gra
 
 func (r *Resolver) CheckBudgetActivityNotFinanciallyIsDoneResolver(params graphql.ResolveParams) (interface{}, error) {
 	check := true
-	var id int
-
-	if params.Args["id"] == nil {
-		fmt.Printf("Id request is important")
-		return nil, nil
-	} else {
-		id = params.Args["id"].(int)
-	}
+	id := params.Args["id"].(int)
 
 	BudgetActivityNotFinanciallyType := &structs.BudgetActivityNotFinanciallyItem{}
-	BudgetActivityNotFinanciallyData, err := shared.ReadJson(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
+	BudgetActivityNotFinanciallyData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
 
 	if err != nil {
 		fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
 	}
-	BudgetActivityNotFinanciallyData = shared.FindByProperty(BudgetActivityNotFinanciallyData, "Id", id)
+	BudgetActivityNotFinanciallyData = shared.FindByProperty(BudgetActivityNotFinanciallyData, "ID", id)
 	// Populate data for each Basic Inventory Real Estates
 	if len(BudgetActivityNotFinanciallyData) > 0 {
 		for _, item := range BudgetActivityNotFinanciallyData {
@@ -380,7 +352,7 @@ func (r *Resolver) CheckBudgetActivityNotFinanciallyIsDoneResolver(params graphq
 
 			var allProgramsNotFinanciallyData = shared.FetchByProperty(
 				"budget_program_not_financially",
-				"BudgetNotFinanciallyId",
+				"BudgetNotFinanciallyID",
 				mergedItem["id"].(int),
 			)
 			if len(allProgramsNotFinanciallyData) == 3 {
@@ -388,8 +360,8 @@ func (r *Resolver) CheckBudgetActivityNotFinanciallyIsDoneResolver(params graphq
 					if program, ok := programData.(*structs.BudgetActivityNotFinanciallyProgramItem); ok {
 						var goalsNotFinanciallyData = shared.FetchByProperty(
 							"budget_goals_not_financially",
-							"BudgetProgramId",
-							program.Id,
+							"BudgetProgramID",
+							program.ID,
 						)
 						if len(goalsNotFinanciallyData) > 0 {
 							for _, goalData := range goalsNotFinanciallyData {
@@ -397,8 +369,8 @@ func (r *Resolver) CheckBudgetActivityNotFinanciallyIsDoneResolver(params graphq
 									//budget_indicator_not_financially
 									var indicatorNotFinanciallyData = shared.FetchByProperty(
 										"budget_indicator_not_financially",
-										"BudgetProgramId",
-										goal.Id,
+										"BudgetProgramID",
+										goal.ID,
 									)
 
 									if len(indicatorNotFinanciallyData) == 0 {

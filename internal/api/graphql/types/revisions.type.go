@@ -161,7 +161,6 @@ var RevisionDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-//----------------------------------------------------------------------
 var RevisionPlanType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RevisionPlan",
 	Fields: graphql.Fields{

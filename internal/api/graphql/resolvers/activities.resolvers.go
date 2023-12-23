@@ -9,7 +9,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func ActivitiesItemProperties(basicInventoryItems []interface{}, id int, organizationUnitId int) []interface{} {
+func ActivitiesItemProperties(basicInventoryItems []interface{}, id int, organizationUnitID int) []interface{} {
 	var items []interface{}
 
 	for _, item := range basicInventoryItems {
@@ -17,19 +17,19 @@ func ActivitiesItemProperties(basicInventoryItems []interface{}, id int, organiz
 		var mergedItem = shared.WriteStructToInterface(item)
 
 		// Filtering by ID
-		if shared.IsInteger(id) && id != 0 && id != mergedItem["id"] {
+		if id != 0 && id != mergedItem["id"] {
 			continue
 		}
 
 		// Filtering by ID
-		if shared.IsInteger(organizationUnitId) && organizationUnitId != 0 && organizationUnitId != mergedItem["organization_unit_id"] {
+		if organizationUnitID != 0 && organizationUnitID != mergedItem["organization_unit_id"] {
 			continue
 		}
 
 		if shared.IsInteger(mergedItem["subroutine_id"]) && mergedItem["subroutine_id"].(int) > 0 {
 			var relatedActivity = shared.FetchByProperty(
 				"program",
-				"Id",
+				"ID",
 				mergedItem["subroutine_id"],
 			)
 			if len(relatedActivity) > 0 {
@@ -45,7 +45,7 @@ func ActivitiesItemProperties(basicInventoryItems []interface{}, id int, organiz
 		if shared.IsInteger(mergedItem["organization_unit_id"]) && mergedItem["organization_unit_id"].(int) > 0 {
 			var relatedOfficesOrganizationUnit = shared.FetchByProperty(
 				"organization_unit",
-				"Id",
+				"ID",
 				mergedItem["organization_unit_id"],
 			)
 			if len(relatedOfficesOrganizationUnit) > 0 {
@@ -68,22 +68,22 @@ func (r *Resolver) ActivitiesOverviewResolver(params graphql.ResolveParams) (int
 	var items []interface{}
 	var total int
 	var id int
-	var organizationUnitId int
+	var organizationUnitID int
 	if params.Args["id"].(int) > 0 {
 		id = params.Args["id"].(int)
 	}
 
 	if params.Args["organization_unit_id"] == nil {
-		organizationUnitId = 0
+		organizationUnitID = 0
 	} else {
-		organizationUnitId = params.Args["organization_unit_id"].(int)
+		organizationUnitID = params.Args["organization_unit_id"].(int)
 	}
 
 	page := params.Args["page"]
 	size := params.Args["size"]
 
 	ActivityType := &structs.ActivitiesItem{}
-	ActivitiesData, err := shared.ReadJson(shared.GetDataRoot()+"/activities.json", ActivityType)
+	ActivitiesData, err := shared.ReadJSON(shared.GetDataRoot()+"/activities.json", ActivityType)
 
 	if err != nil {
 		fmt.Printf("Fetching Activities failed because of this error - %s.\n", err)
@@ -93,12 +93,12 @@ func (r *Resolver) ActivitiesOverviewResolver(params graphql.ResolveParams) (int
 		ActivitiesData = shared.FindByProperty(ActivitiesData, "Title", params.Args["search"].(string), true)
 	}
 	// Populate data for each Basic Inventory Real Estates
-	items = ActivitiesItemProperties(ActivitiesData, id, organizationUnitId)
+	items = ActivitiesItemProperties(ActivitiesData, id, organizationUnitID)
 
 	total = len(items)
 
 	// Filtering by Pagination params
-	if shared.IsInteger(page) && page != 0 && shared.IsInteger(size) && size != 0 {
+	if page != 0 && size != 0 {
 		items = shared.Pagination(items, page.(int), size.(int))
 	}
 
@@ -118,28 +118,28 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
+	itemID := data.ID
 
-	ActivityData, err := shared.ReadJson(shared.GetDataRoot()+"/activities.json", ActivityItemType)
+	ActivityData, err := shared.ReadJSON(shared.GetDataRoot()+"/activities.json", ActivityItemType)
 
 	if err != nil {
 		fmt.Printf("Fetching Activities failed because of this error - %s.\n", err)
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		ActivityData = shared.FilterByProperty(ActivityData, "Id", itemId)
+	if itemID != 0 {
+		ActivityData = shared.FilterByProperty(ActivityData, "ID", itemID)
 	} else {
-		data.Id = shared.GetRandomNumber()
+		data.ID = shared.GetRandomNumber()
 	}
 
 	var updatedData = append(ActivityData, data)
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/activities.json"), updatedData)
+	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/activities.json"), updatedData)
 
 	sliceData := []interface{}{data}
 
 	// Populate data for each Basic Inventory
-	var populatedData = ActivitiesItemProperties(sliceData, itemId, 0)
+	var populatedData = ActivitiesItemProperties(sliceData, itemID, 0)
 
 	return map[string]interface{}{
 		"status":  "success",
@@ -150,19 +150,19 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 
 func (r *Resolver) ActivityDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 	ActivityItemType := &structs.ActivitiesItem{}
-	ActivitiesData, err := shared.ReadJson(shared.GetDataRoot()+"/activities.json", ActivityItemType)
+	ActivitiesData, err := shared.ReadJSON(shared.GetDataRoot()+"/activities.json", ActivityItemType)
 
 	if err != nil {
 		fmt.Printf("Fetching Activities failed because of this error - %s.\n", err)
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
-		ActivitiesData = shared.FilterByProperty(ActivitiesData, "Id", itemId)
+	if itemID != 0 {
+		ActivitiesData = shared.FilterByProperty(ActivitiesData, "ID", itemID)
 	}
 
-	_ = shared.WriteJson(shared.FormatPath(projectRoot+"/mocked-data/activities.json"), ActivitiesData)
+	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/activities.json"), ActivitiesData)
 
 	return map[string]interface{}{
 		"status":  "success",

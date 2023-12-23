@@ -8,7 +8,7 @@ import (
 
 func (repo *MicroserviceRepository) CreateProcurementItem(item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error) {
 	res := &dto.GetProcurementItemResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.ITEMS, item, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.Items, item, res)
 	if err != nil {
 		return nil, err
 	}
@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) CreateProcurementItem(item *structs.PublicPr
 
 func (repo *MicroserviceRepository) UpdateProcurementItem(id int, item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error) {
 	res := &dto.GetProcurementItemResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.ITEMS+"/"+strconv.Itoa(id), item, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.Items+"/"+strconv.Itoa(id), item, res)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func (repo *MicroserviceRepository) UpdateProcurementItem(id int, item *structs.
 }
 
 func (repo *MicroserviceRepository) DeleteProcurementItem(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.ITEMS+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.Items+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (repo *MicroserviceRepository) DeleteProcurementItem(id int) error {
 
 func (repo *MicroserviceRepository) GetProcurementItem(id int) (*structs.PublicProcurementItem, error) {
 	res := &dto.GetProcurementItemResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.ITEMS+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.Items+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (repo *MicroserviceRepository) GetProcurementItem(id int) (*structs.PublicP
 
 func (repo *MicroserviceRepository) GetProcurementItemList(input *dto.GetProcurementItemListInputMS) ([]*structs.PublicProcurementItem, error) {
 	res := &dto.GetProcurementItemListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.ITEMS, input, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.Items, input, res)
 	if err != nil {
 		return nil, err
 	}

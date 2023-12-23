@@ -1,7 +1,7 @@
 package dto
 
 type OfficesOfOrganizationResponse struct {
-	Id               int            `json:"id"`
+	ID               int            `json:"id"`
 	OrganizationUnit DropdownSimple `json:"organization_unit"`
 	Title            string         `json:"title"`
 	Abbreviation     string         `json:"abbreviation"`

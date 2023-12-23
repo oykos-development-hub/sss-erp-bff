@@ -7,7 +7,7 @@ import (
 )
 
 func (repo *MicroserviceRepository) DeleteAccount(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.ACCOUNT+"/"+strconv.Itoa(id), nil, nil)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.Account+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err
 	}
@@ -17,16 +17,16 @@ func (repo *MicroserviceRepository) DeleteAccount(id int) error {
 
 func (repo *MicroserviceRepository) GetAccountItems(filters *dto.GetAccountsFilter) (*dto.GetAccountItemListResponseMS, error) {
 	res := &dto.GetAccountItemListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.ACCOUNT, filters, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Account, filters, res)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) GetAccountItemById(id int) (*structs.AccountItem, error) {
+func (repo *MicroserviceRepository) GetAccountItemByID(id int) (*structs.AccountItem, error) {
 	res := &dto.GetAccountItemResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.ACCOUNT+"/"+strconv.Itoa(id), nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Account+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (repo *MicroserviceRepository) GetAccountItemById(id int) (*structs.Account
 
 func (repo *MicroserviceRepository) CreateAccountItem(accountItem *structs.AccountItem) (*structs.AccountItem, error) {
 	res := &dto.GetAccountItemResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.ACCOUNT, accountItem, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Account, accountItem, res)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (repo *MicroserviceRepository) CreateAccountItem(accountItem *structs.Accou
 
 func (repo *MicroserviceRepository) UpdateAccountItem(id int, accountItem *structs.AccountItem) (*structs.AccountItem, error) {
 	res := &dto.GetAccountItemResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.ACCOUNT+"/"+strconv.Itoa(id), accountItem, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Account+"/"+strconv.Itoa(id), accountItem, res)
 	if err != nil {
 		return nil, err
 	}

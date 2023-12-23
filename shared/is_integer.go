@@ -2,6 +2,7 @@ package shared
 
 import "reflect"
 
+// IsInteger is a deprecated function. Please avoid using it.
 func IsInteger(v interface{}) bool {
 	if v == nil {
 		return false

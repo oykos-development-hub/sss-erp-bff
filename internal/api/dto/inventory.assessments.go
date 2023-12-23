@@ -15,9 +15,9 @@ type GetAssessmentResponseMS struct {
 }
 
 type BasicInventoryResponseAssessment struct {
-	Id                   int            `json:"id"`
+	ID                   int            `json:"id"`
 	Type                 string         `json:"type"`
-	InventoryId          int            `json:"inventory_id"`
+	InventoryID          int            `json:"inventory_id"`
 	EstimatedDuration    int            `json:"estimated_duration"`
 	Active               bool           `json:"active"`
 	ResidualPrice        *float32       `json:"residual_price"`
@@ -29,5 +29,5 @@ type BasicInventoryResponseAssessment struct {
 	DateOfAssessment     *string        `json:"date_of_assessment"`
 	CreatedAt            string         `json:"created_at"`
 	UpdatedAt            string         `json:"updated_at"`
-	FileId               *int           `json:"file_id"`
+	FileID               *int           `json:"file_id"`
 }

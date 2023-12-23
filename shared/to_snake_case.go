@@ -5,7 +5,7 @@ import (
 	"unicode"
 )
 
-func ToSnakeCase(s string, lowercase bool) string {
+func ToSnakeCase(s string) string {
 	var result string
 
 	if !IsString(s) {

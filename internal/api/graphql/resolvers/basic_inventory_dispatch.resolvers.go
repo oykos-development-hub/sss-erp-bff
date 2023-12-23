@@ -6,7 +6,6 @@ import (
 	apierrors "bff/internal/api/errors"
 	"bff/internal/api/repository"
 	"bff/internal/api/websockets/notifications"
-	"bff/shared"
 	"bff/structs"
 	"context"
 	"encoding/json"
@@ -49,8 +48,8 @@ func (r *Resolver) BasicInventoryDispatchOverviewResolver(params graphql.Resolve
 		filter.Size = &size
 	}
 
-	if inventory_type, ok := params.Args["inventory_type"].(string); ok && inventory_type != "" {
-		filter.InventoryType = &inventory_type
+	if intentoryType, ok := params.Args["inventory_type"].(string); ok && intentoryType != "" {
+		filter.InventoryType = &intentoryType
 	}
 
 	data, err := r.Repo.GetAllInventoryDispatches(filter)
@@ -100,8 +99,8 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 		return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
-	if shared.IsInteger(data.Id) && data.Id != 0 {
-		itemRes, err := r.Repo.UpdateDispatchItem(data.Id, &data)
+	if data.ID != 0 {
+		itemRes, err := r.Repo.UpdateDispatchItem(data.ID, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -118,7 +117,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 			return apierrors.HandleAPIError(err)
 		}
 
-		err = sendInventoryDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitId, itemRes.TargetOrganizationUnitId)
+		err = sendInventoryDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitID, itemRes.TargetOrganizationUnitID)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -144,17 +143,17 @@ func sendInventoryDispatchNotification(
 	targetOrganziationUnitID int,
 ) error {
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	sourceOrganizationUnit, _ := r.GetOrganizationUnitById(sourceOrganizationUnitID)
+	sourceOrganizationUnit, _ := r.GetOrganizationUnitByID(sourceOrganizationUnitID)
 	employees, _ := GetEmployeesOfOrganizationUnit(r, targetOrganziationUnitID)
 
 	for _, employee := range employees {
-		userAccount, _ := r.GetUserAccountById(employee.UserAccountId)
-		if userAccount.RoleId == structs.UserRoleManagerOJ {
+		userAccount, _ := r.GetUserAccountByID(employee.UserAccountID)
+		if userAccount.RoleID == structs.UserRoleManagerOJ {
 			_, err := notificationService.CreateNotification(&structs.Notifications{
 				Content:     "Kreiran je revers. Potrebno je da ga odobrite ili odbijete.",
 				Module:      "Osnovna sredstva",
-				FromUserID:  loggedInUser.Id,
-				ToUserID:    userAccount.Id,
+				FromUserID:  loggedInUser.ID,
+				ToUserID:    userAccount.ID,
 				FromContent: "Menadžer organizacione jedinice - " + sourceOrganizationUnit.Title,
 				Path:        "/inventory/movable-inventory/receive-inventory",
 				Data:        nil,
@@ -178,7 +177,7 @@ func createInventoryDispatchApprovalnotification(
 	isAccepted bool,
 ) error {
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetOrganizationUnit, _ := r.GetOrganizationUnitById(targetOrganziationUnitID)
+	targetOrganizationUnit, _ := r.GetOrganizationUnitByID(targetOrganziationUnitID)
 	employees, _ := GetEmployeesOfOrganizationUnit(r, sourceOrganizationUnitID)
 
 	var content string
@@ -190,13 +189,13 @@ func createInventoryDispatchApprovalnotification(
 	}
 
 	for _, employee := range employees {
-		userAccount, _ := r.GetUserAccountById(employee.UserAccountId)
-		if userAccount.RoleId == structs.UserRoleManagerOJ {
+		userAccount, _ := r.GetUserAccountByID(employee.UserAccountID)
+		if userAccount.RoleID == structs.UserRoleManagerOJ {
 			_, err := notificationService.CreateNotification(&structs.Notifications{
 				Content:     content,
 				Module:      "Osnovna sredstva",
-				FromUserID:  loggedInUser.Id,
-				ToUserID:    userAccount.Id,
+				FromUserID:  loggedInUser.ID,
+				ToUserID:    userAccount.ID,
 				FromContent: "Menadžer organizacione jedinice - " + targetOrganizationUnit.Title,
 				Path:        "/inventory/movable-inventory",
 				Data:        nil,
@@ -212,28 +211,28 @@ func createInventoryDispatchApprovalnotification(
 }
 
 func (r *Resolver) BasicInventoryDispatchDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	dispatch, err := r.Repo.GetDispatchItemByID(itemId)
+	dispatch, err := r.Repo.GetDispatchItemByID(itemID)
 
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
 
-	if dispatch.FileId != 0 {
-		err := r.Repo.DeleteFile(dispatch.FileId)
+	if dispatch.FileID != 0 {
+		err := r.Repo.DeleteFile(dispatch.FileID)
 
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	}
 
-	err = r.Repo.DeleteInventoryDispatch(itemId)
+	err = r.Repo.DeleteInventoryDispatch(itemID)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
 
-	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitId, dispatch.TargetOrganizationUnitId, false)
+	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitID, dispatch.TargetOrganizationUnitID, false)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -255,10 +254,10 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 	}
 
 	dispatch.IsAccepted = true
-	dispatch.TargetUserProfileId = loggedInProfile.Id
+	dispatch.TargetUserProfileID = loggedInProfile.ID
 
 	filter := dto.DispatchInventoryItemFilter{
-		DispatchID: &dispatch.Id,
+		DispatchID: &dispatch.ID,
 	}
 
 	itemDispatchList, _ := r.Repo.GetMyInventoryDispatchesItems(&filter)
@@ -267,17 +266,17 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 	}
 
 	for _, itemDispatch := range itemDispatchList {
-		dispatch.InventoryId = append(dispatch.InventoryId, itemDispatch.InventoryId)
+		dispatch.InventoryID = append(dispatch.InventoryID, itemDispatch.InventoryID)
 
-		item, err := r.Repo.GetInventoryItem(itemDispatch.InventoryId)
+		item, err := r.Repo.GetInventoryItem(itemDispatch.InventoryID)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 
-		item.TargetOrganizationUnitId = dispatch.TargetOrganizationUnitId
+		item.TargetOrganizationUnitID = dispatch.TargetOrganizationUnitID
 
-		if item.TargetOrganizationUnitId != 0 {
-			_, err = r.Repo.UpdateInventoryItem(item.Id, item)
+		if item.TargetOrganizationUnitID != 0 {
+			_, err = r.Repo.UpdateInventoryItem(item.ID, item)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
@@ -285,12 +284,12 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 	}
 	currentDate := time.Now()
 	dispatch.Date = currentDate.Format("2006-01-02T15:04:05.999999Z07:00")
-	_, err = r.Repo.UpdateDispatchItem(dispatch.Id, dispatch)
+	_, err = r.Repo.UpdateDispatchItem(dispatch.ID, dispatch)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
 
-	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitId, dispatch.TargetOrganizationUnitId, true)
+	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitID, dispatch.TargetOrganizationUnitID, true)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -303,57 +302,57 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 }
 
 func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterface, item *structs.BasicInventoryDispatchItem, organizationUnitID int) (*dto.InventoryDispatchResponse, error) {
-	settings, err := repo.GetDropdownSettingById(item.OfficeId)
+	settings, err := repo.GetDropdownSettingByID(item.OfficeID)
 	if err != nil {
 		if apiErr, ok := err.(*apierrors.APIError); ok && apiErr.StatusCode != 404 {
 			return nil, err
 		}
 	}
 
-	settingDropdownOfficeId := dto.DropdownSimple{}
+	settingDropdownOfficeID := dto.DropdownSimple{}
 	if settings != nil {
-		settingDropdownOfficeId = dto.DropdownSimple{Id: settings.Id, Title: settings.Title}
+		settingDropdownOfficeID = dto.DropdownSimple{ID: settings.ID, Title: settings.Title}
 	}
 
 	sourceUserDropdown := dto.DropdownSimple{}
-	if item.SourceUserProfileId != 0 {
-		user, _ := repo.GetUserProfileById(item.SourceUserProfileId)
+	if item.SourceUserProfileID != 0 {
+		user, _ := repo.GetUserProfileByID(item.SourceUserProfileID)
 
 		if user != nil {
-			sourceUserDropdown = dto.DropdownSimple{Id: user.Id, Title: user.FirstName + " " + user.LastName}
+			sourceUserDropdown = dto.DropdownSimple{ID: user.ID, Title: user.FirstName + " " + user.LastName}
 		}
 	}
 
 	targetUserDropdown := dto.DropdownSimple{}
-	if item.Type != "revers" && item.TargetUserProfileId != 0 && item.SourceOrganizationUnitId == organizationUnitID {
-		user, _ := repo.GetUserProfileById(item.TargetUserProfileId)
+	if item.Type != "revers" && item.TargetUserProfileID != 0 && item.SourceOrganizationUnitID == organizationUnitID {
+		user, _ := repo.GetUserProfileByID(item.TargetUserProfileID)
 
 		if user != nil {
-			targetUserDropdown = dto.DropdownSimple{Id: user.Id, Title: user.FirstName + " " + user.LastName}
+			targetUserDropdown = dto.DropdownSimple{ID: user.ID, Title: user.FirstName + " " + user.LastName}
 		}
 	}
 
 	sourceOrganizationUnitDropdown := dto.DropdownSimple{}
-	if item.SourceOrganizationUnitId != 0 {
-		sourceOrganizationUnit, _ := repo.GetOrganizationUnitById(item.SourceOrganizationUnitId)
+	if item.SourceOrganizationUnitID != 0 {
+		sourceOrganizationUnit, _ := repo.GetOrganizationUnitByID(item.SourceOrganizationUnitID)
 
 		if sourceOrganizationUnit != nil {
-			sourceOrganizationUnitDropdown = dto.DropdownSimple{Id: sourceOrganizationUnit.Id, Title: sourceOrganizationUnit.Title}
+			sourceOrganizationUnitDropdown = dto.DropdownSimple{ID: sourceOrganizationUnit.ID, Title: sourceOrganizationUnit.Title}
 		}
 	}
 	city := ""
 	targetOrganizationUnitDropdown := dto.DropdownSimple{}
-	if item.TargetOrganizationUnitId != 0 {
-		targetOrganizationUnit, _ := repo.GetOrganizationUnitById(item.TargetOrganizationUnitId)
+	if item.TargetOrganizationUnitID != 0 {
+		targetOrganizationUnit, _ := repo.GetOrganizationUnitByID(item.TargetOrganizationUnitID)
 
 		if targetOrganizationUnit != nil {
 			city = targetOrganizationUnit.City
-			targetOrganizationUnitDropdown = dto.DropdownSimple{Id: targetOrganizationUnit.Id, Title: targetOrganizationUnit.Title}
+			targetOrganizationUnitDropdown = dto.DropdownSimple{ID: targetOrganizationUnit.ID, Title: targetOrganizationUnit.Title}
 		}
 	}
 
 	filter := dto.DispatchInventoryItemFilter{
-		DispatchID: &item.Id,
+		DispatchID: &item.ID,
 	}
 
 	dispatchItems, _ := repo.GetMyInventoryDispatchesItems(&filter)
@@ -365,13 +364,13 @@ func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterf
 
 	if dispatchItems != nil {
 		for i := 0; i < len(dispatchItems); i++ {
-			itemInventory, err := repo.GetInventoryItem(dispatchItems[i].InventoryId)
+			itemInventory, err := repo.GetInventoryItem(dispatchItems[i].InventoryID)
 			if err != nil {
 				return nil, err
 			}
 
 			itemArr := dto.BasicInventoryResponseItem{
-				Id:              itemInventory.Id,
+				ID:              itemInventory.ID,
 				Type:            itemInventory.Type,
 				InventoryNumber: itemInventory.InventoryNumber,
 				Title:           itemInventory.Title,
@@ -385,24 +384,24 @@ func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterf
 
 	var fileDropdown dto.FileDropdownSimple
 
-	if item.FileId != 0 {
-		file, err := repo.GetFileByID(item.FileId)
+	if item.FileID != 0 {
+		file, err := repo.GetFileByID(item.FileID)
 
 		if err != nil {
 			return nil, err
 		}
 
-		fileDropdown.Id = file.ID
+		fileDropdown.ID = file.ID
 		fileDropdown.Name = file.Name
 		fileDropdown.Type = *file.Type
 	}
 
 	res := dto.InventoryDispatchResponse{
-		ID:                     item.Id,
+		ID:                     item.ID,
 		DispatchID:             item.DispatchID,
 		Type:                   item.Type,
 		SerialNumber:           item.SerialNumber,
-		Office:                 settingDropdownOfficeId,
+		Office:                 settingDropdownOfficeID,
 		SourceUserProfile:      sourceUserDropdown,
 		IsAccepted:             item.IsAccepted,
 		TargetUserProfile:      targetUserDropdown,

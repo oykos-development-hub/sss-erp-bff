@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -29,11 +28,11 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 	sortByYear, sortByYearOk := params.Args["sort_by_year"].(string)
 	sortByAmount, sortByAmountOK := params.Args["sort_by_amount"].(string)
 
-	if shared.IsInteger(page) && page.(int) > 0 {
+	if page.(int) > 0 {
 		pageNum := page.(int)
 		input.Page = &pageNum
 	}
-	if shared.IsInteger(size) && size.(int) > 0 {
+	if size.(int) > 0 {
 		sizeNum := size.(int)
 		input.Size = &sizeNum
 	}
@@ -60,7 +59,7 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 		orders, err := r.Repo.GetOrderLists(&dto.GetOrderListInput{
 			DateSystem:         &date,
 			Status:             &statusReceive,
-			OrganizationUnitId: organizationUnitID,
+			OrganizationUnitID: organizationUnitID,
 		})
 
 		if err != nil {
@@ -68,15 +67,15 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 		}
 
 		for _, order := range orders.Data {
-			orderArticles, err := r.Repo.GetOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{OrderID: &order.Id})
+			orderArticles, err := r.Repo.GetOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{OrderID: &order.ID})
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
 			for _, article := range orderArticles.Data {
 				flag := false
 
-				if article.ArticleId != 0 {
-					currentArticle, err := r.Repo.GetProcurementArticle(article.ArticleId)
+				if article.ArticleID != 0 {
+					currentArticle, err := r.Repo.GetProcurementArticle(article.ArticleID)
 
 					if err != nil {
 						return errors.HandleAPIError(err)
@@ -108,7 +107,7 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 						Description:   article.Description,
 						Year:          article.Year,
 						Amount:        article.Amount,
-						ID:            article.Id,
+						ID:            article.ID,
 						NetPrice:      article.NetPrice,
 						VatPercentage: article.VatPercentage,
 					}
@@ -165,7 +164,7 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 
 	size := params.Args["size"]
 	page := params.Args["page"]
-	officeID, officeOk := params.Args["office_id"].(int)
+	OfficeID, officeOk := params.Args["office_id"].(int)
 	userID, userOk := params.Args["recipient_user_id"].(int)
 	sortByDateOrder, sortByDateOrderOK := params.Args["sort_by_date_order"].(string)
 
@@ -176,17 +175,17 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 
 	input.OrganizationUnitID = organizationUnitID
 
-	if shared.IsInteger(page) && page.(int) > 0 {
+	if page.(int) > 0 {
 		pageNum := page.(int)
 		input.Page = &pageNum
 	}
-	if shared.IsInteger(size) && size.(int) > 0 {
+	if size.(int) > 0 {
 		sizeNum := size.(int)
 		input.Size = &sizeNum
 	}
 
-	if officeOk && officeID != 0 {
-		input.OfficeID = &officeID
+	if officeOk && OfficeID != 0 {
+		input.OfficeID = &OfficeID
 	}
 
 	if userOk && userID != 0 {
@@ -210,23 +209,23 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 		item.DateOrder = movement.DateOrder
 		item.Description = movement.Description
 
-		officeItem, _ := r.Repo.GetDropdownSettingById(movement.OfficeID)
+		officeItem, _ := r.Repo.GetDropdownSettingByID(movement.OfficeID)
 
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 
 		item.Office.Title = officeItem.Title
-		item.Office.Id = officeItem.Id
+		item.Office.ID = officeItem.ID
 
-		userItem, _ := r.Repo.GetUserProfileById(movement.RecipientUserID)
+		userItem, _ := r.Repo.GetUserProfileByID(movement.RecipientUserID)
 
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 
 		item.RecipientUser.Title = userItem.FirstName + " " + userItem.LastName
-		item.RecipientUser.Id = userItem.Id
+		item.RecipientUser.ID = userItem.ID
 
 		articles, err := r.Repo.GetMovementArticles(item.ID)
 		if err != nil {
@@ -398,23 +397,23 @@ func buildMovementDetailsResponse(r repository.MicroserviceRepositoryInterface, 
 	item.DateOrder = movement.DateOrder
 	item.Description = movement.Description
 
-	officeItem, _ := r.GetDropdownSettingById(movement.OfficeID)
+	officeItem, _ := r.GetDropdownSettingByID(movement.OfficeID)
 
 	if err != nil {
 		return nil, err
 	}
 
 	item.Office.Title = officeItem.Title
-	item.Office.Id = officeItem.Id
+	item.Office.ID = officeItem.ID
 
-	userItem, _ := r.GetUserProfileById(movement.RecipientUserID)
+	userItem, _ := r.GetUserProfileByID(movement.RecipientUserID)
 
 	if err != nil {
 		return nil, err
 	}
 
 	item.RecipientUser.Title = userItem.FirstName + " " + userItem.LastName
-	item.RecipientUser.Id = userItem.Id
+	item.RecipientUser.ID = userItem.ID
 
 	articles, err := r.GetMovementArticles(item.ID)
 	if err != nil {
@@ -427,7 +426,7 @@ func buildMovementDetailsResponse(r repository.MicroserviceRepositoryInterface, 
 		if err != nil {
 			return nil, err
 		}
-		item.File.Id = file.ID
+		item.File.ID = file.ID
 		item.File.Name = file.Name
 		item.File.Type = *file.Type
 	}
@@ -527,7 +526,7 @@ func officeInOrgUnit(r repository.MicroserviceRepositoryInterface, OfficeID int,
 	}
 
 	for _, office := range res.Data {
-		if office.Id == OfficeID {
+		if office.ID == OfficeID {
 			return true
 		}
 	}

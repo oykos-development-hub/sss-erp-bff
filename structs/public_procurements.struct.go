@@ -1,7 +1,7 @@
 package structs
 
 type PublicProcurementPlan struct {
-	Id               int     `json:"id"`
+	ID               int     `json:"id"`
 	Year             string  `json:"year"`
 	Title            string  `json:"title"`
 	Active           bool    `json:"active"`
@@ -9,10 +9,10 @@ type PublicProcurementPlan struct {
 	IsPreBudget      bool    `json:"is_pre_budget"`
 	DateOfPublishing *string `json:"date_of_publishing"`
 	DateOfClosing    *string `json:"date_of_closing"`
-	PreBudgetId      *int    `json:"pre_budget_id"`
+	PreBudgetID      *int    `json:"pre_budget_id"`
 	CreatedAt        string  `json:"created_at"`
 	UpdatedAt        string  `json:"updated_at"`
-	FileId           *int    `json:"file_id"`
+	FileID           *int    `json:"file_id"`
 }
 
 type ProcurementStatus string
@@ -26,9 +26,9 @@ const (
 )
 
 type PublicProcurementItem struct {
-	Id                int                `json:"id"`
-	BudgetIndentId    int                `json:"budget_indent_id" validate:"required"`
-	PlanId            int                `json:"plan_id" validate:"required"`
+	ID                int                `json:"id"`
+	BudgetIndentID    int                `json:"budget_indent_id" validate:"required"`
+	PlanID            int                `json:"plan_id" validate:"required"`
 	IsOpenProcurement bool               `json:"is_open_procurement" validate:"required"`
 	Title             string             `json:"title" validate:"required"`
 	ArticleType       string             `json:"article_type" validate:"required"`
@@ -38,7 +38,7 @@ type PublicProcurementItem struct {
 	DateOfAwarding    *string            `json:"date_of_awarding"`
 	CreatedAt         string             `json:"created_at"`
 	UpdatedAt         string             `json:"updated_at"`
-	FileId            *int               `json:"file_id"`
+	FileID            *int               `json:"file_id"`
 }
 
 type VisibilityType int
@@ -48,8 +48,8 @@ const VisibilityTypeAccounting VisibilityType = 2
 const VisibilityTypeInventory VisibilityType = 3
 
 type PublicProcurementArticle struct {
-	Id                  int            `json:"id"`
-	PublicProcurementId int            `json:"public_procurement_id"`
+	ID                  int            `json:"id"`
+	PublicProcurementID int            `json:"public_procurement_id"`
 	Title               string         `json:"title"`
 	Description         string         `json:"description"`
 	NetPrice            float32        `json:"net_price"`
@@ -72,9 +72,9 @@ type ReadArticlesDonation struct {
 }
 
 type PublicProcurementLimit struct {
-	Id                  int `json:"id"`
-	PublicProcurementId int `json:"public_procurement_id"`
-	OrganizationUnitId  int `json:"organization_unit_id"`
+	ID                  int `json:"id"`
+	PublicProcurementID int `json:"public_procurement_id"`
+	OrganizationUnitID  int `json:"organization_unit_id"`
 	Limit               int `json:"limit"`
 }
 
@@ -88,9 +88,9 @@ const (
 )
 
 type PublicProcurementOrganizationUnitArticle struct {
-	Id                         int           `json:"id"`
-	PublicProcurementArticleId int           `json:"public_procurement_article_id"`
-	OrganizationUnitId         int           `json:"organization_unit_id"`
+	ID                         int           `json:"id"`
+	PublicProcurementArticleID int           `json:"public_procurement_article_id"`
+	OrganizationUnitID         int           `json:"organization_unit_id"`
 	Amount                     int           `json:"amount"`
 	Status                     ArticleStatus `json:"status"`
 	IsRejected                 bool          `json:"is_rejected"`
@@ -100,9 +100,9 @@ type PublicProcurementOrganizationUnitArticle struct {
 }
 
 type PublicProcurementContract struct {
-	Id                  int      `json:"id"`
-	PublicProcurementId int      `json:"public_procurement_id"`
-	SupplierId          int      `json:"supplier_id"`
+	ID                  int      `json:"id"`
+	PublicProcurementID int      `json:"public_procurement_id"`
+	SupplierID          int      `json:"supplier_id"`
 	SerialNumber        string   `json:"serial_number"`
 	DateOfSigning       string   `json:"date_of_signing"`
 	DateOfExpiry        *string  `json:"date_of_expiry"`
@@ -115,9 +115,9 @@ type PublicProcurementContract struct {
 }
 
 type PublicProcurementContractArticle struct {
-	Id                          int     `json:"id"`
-	PublicProcurementArticleId  int     `json:"public_procurement_article_id"`
-	PublicProcurementContractId int     `json:"public_procurement_contract_id"`
+	ID                          int     `json:"id"`
+	PublicProcurementArticleID  int     `json:"public_procurement_article_id"`
+	PublicProcurementContractID int     `json:"public_procurement_contract_id"`
 	NetValue                    float32 `json:"net_value"`
 	GrossValue                  float32 `json:"gross_value"`
 	VatPercentage               string  `json:"vat_percentage"`
@@ -127,7 +127,7 @@ type PublicProcurementContractArticle struct {
 }
 
 type PublicProcurementContractArticleOverage struct {
-	Id                 int    `json:"id"`
+	ID                 int    `json:"id"`
 	ArticleID          int    `json:"article_id"`
 	Amount             int    `json:"amount"`
 	OrganizationUnitID int    `json:"organization_unit_id"`

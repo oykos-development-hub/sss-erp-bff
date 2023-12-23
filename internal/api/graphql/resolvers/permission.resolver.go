@@ -60,7 +60,7 @@ func buildTree(permissions []structs.Permissions) *dto.PermissionNode {
 			ID:       p.ID,
 			Title:    p.Title,
 			Route:    p.Route,
-			ParentID: p.ParentId,
+			ParentID: p.ParentID,
 			Create:   p.Create,
 			Read:     p.Read,
 			Update:   p.Update,

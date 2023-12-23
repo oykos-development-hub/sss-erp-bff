@@ -15,7 +15,7 @@ type GetProcurementOULimitResponseMS struct {
 }
 
 type ProcurementOULimitResponseItem struct {
-	Id                int            `json:"id"`
+	ID                int            `json:"id"`
 	PublicProcurement DropdownSimple `json:"public_procurement"`
 	OrganizationUnit  DropdownSimple `json:"organization_unit"`
 	Limit             int            `json:"limit"`

@@ -1,9 +1,9 @@
 package structs
 
 type Resolution struct {
-	Id                int               `json:"id"`
-	UserProfileId     int               `json:"user_profile_id"`
-	ResolutionTypeId  int               `json:"resolution_type_id"`
+	ID                int               `json:"id"`
+	UserProfileID     int               `json:"user_profile_id"`
+	ResolutionTypeID  int               `json:"resolution_type_id"`
 	ResolutionType    *SettingsDropdown `json:"resolution_type"`
 	IsAffect          bool              `json:"is_affect"`
 	ResolutionPurpose string            `json:"resolution_purpose"`
@@ -12,11 +12,11 @@ type Resolution struct {
 	Value             string            `json:"value"`
 	CreatedAt         string            `json:"created_at"`
 	UpdatedAt         string            `json:"updated_at"`
-	FileId            int               `json:"file_id"`
+	FileID            int               `json:"file_id"`
 }
 
 type ResolutionType struct {
-	Id           int    `json:"id"`
+	ID           int    `json:"id"`
 	Title        string `json:"title"`
 	Abbreviation string `json:"abbreviation"`
 	Description  string `json:"description"`

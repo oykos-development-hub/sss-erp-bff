@@ -2,7 +2,7 @@ package structs
 
 type Permissions struct {
 	ID       int    `json:"id"`
-	ParentId *int   `json:"parent_id"`
+	ParentID *int   `json:"parent_id"`
 	Title    string `json:"title"`
 	Route    string `json:"route"`
 	Create   bool   `json:"create"`

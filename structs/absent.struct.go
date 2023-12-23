@@ -1,8 +1,8 @@
 package structs
 
 type AbsentType struct {
-	Id                int    `json:"id"`
-	ParentId          int    `json:"parent_id"`
+	ID                int    `json:"id"`
+	ParentID          int    `json:"parent_id"`
 	Title             string `json:"title"`
 	Abbreviation      string `json:"abbreviation"`
 	AccountingDaysOff bool   `json:"accounting_days_off"`
@@ -13,10 +13,10 @@ type AbsentType struct {
 }
 
 type Absent struct {
-	Id                       int                `json:"id"`
-	AbsentTypeId             int                `json:"absent_type_id"`
+	ID                       int                `json:"id"`
+	AbsentTypeID             int                `json:"absent_type_id"`
 	AbsentType               AbsentType         `json:"absent_type"`
-	UserProfileId            int                `json:"user_profile_id"`
+	UserProfileID            int                `json:"user_profile_id"`
 	Location                 string             `json:"location"`
 	TargetOrganizationUnitID *int               `json:"target_organization_unit_id"`
 	TargetOrganizationUnit   *OrganizationUnits `json:"target_organization_unit"`
@@ -25,18 +25,18 @@ type Absent struct {
 	DateOfEnd                string             `json:"date_of_end"`
 	CreatedAt                string             `json:"created_at"`
 	UpdatedAt                string             `json:"updated_at"`
-	FileId                   int                `json:"file_id"`
+	FileID                   int                `json:"file_id"`
 }
 
 type Vacation struct {
-	Id                int    `json:"id"`
-	UserProfileId     int    `json:"user_profile_id"`
-	ResolutionTypeId  int    `json:"resolution_type_id"`
+	ID                int    `json:"id"`
+	UserProfileID     int    `json:"user_profile_id"`
+	ResolutionTypeID  int    `json:"resolution_type_id"`
 	ResolutionPurpose string `json:"resolution_purpose"`
 	Year              int    `json:"year"`
 	Value             string `json:"value"`
 	NumberOfDays      int    `json:"number_of_days"`
 	CreatedAt         string `json:"created_at"`
 	UpdatedAt         string `json:"updated_at"`
-	FileId            int    `json:"file_id"`
+	FileID            int    `json:"file_id"`
 }

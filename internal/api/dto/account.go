@@ -13,7 +13,7 @@ type AccountItemResponseItem struct {
 	ID           int                        `json:"id"`
 	SerialNumber string                     `json:"serial_number"`
 	Title        string                     `json:"title"`
-	ParentId     *int                       `json:"parent_id"`
+	ParentID     *int                       `json:"parent_id"`
 	Children     []*AccountItemResponseItem `json:"children"`
 }
 

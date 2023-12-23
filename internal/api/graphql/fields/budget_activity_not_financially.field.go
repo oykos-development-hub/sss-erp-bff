@@ -13,7 +13,7 @@ func (f *Field) BudgetActivityNotFinanciallyOverviewField() *graphql.Field {
 		Description: "Returns a data of Not Financially Budget Activity item",
 		Args: graphql.FieldConfigArgument{
 			"request_id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
 		Resolve: f.Resolvers.BudgetActivityNotFinanciallyOverviewResolver,
@@ -61,10 +61,10 @@ func (f *Field) InductorNotFinanciallyOverviewField() *graphql.Field {
 		Description: "Returns a data of Inductor items",
 		Args: graphql.FieldConfigArgument{
 			"goals_id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 			"id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
 		Resolve: f.Resolvers.BudgetActivityNotFinanciallyInductorResolver,
@@ -88,7 +88,7 @@ func (f *Field) CheckBudgetActivityNotFinanciallyIsDoneField() *graphql.Field {
 		Description: "Returns a data of Inductor items",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
 		Resolve: f.Resolvers.CheckBudgetActivityNotFinanciallyIsDoneResolver,

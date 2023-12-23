@@ -3,7 +3,6 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -12,9 +11,9 @@ import (
 )
 
 func (r *Resolver) UserProfileForeignerResolver(params graphql.ResolveParams) (interface{}, error) {
-	profileId := params.Args["user_profile_id"].(int)
+	profileID := params.Args["user_profile_id"].(int)
 
-	UserProfilesData, err := r.Repo.GetEmployeeForeigners(profileId)
+	UserProfilesData, err := r.Repo.GetEmployeeForeigners(profileID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -42,9 +41,9 @@ func (r *Resolver) UserProfileForeignerInsertResolver(params graphql.ResolvePara
 		return errors.ErrorResponse("Error updating settings data"), nil
 	}
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		item, err := r.Repo.UpdateEmployeeForeigner(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		item, err := r.Repo.UpdateEmployeeForeigner(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -63,9 +62,9 @@ func (r *Resolver) UserProfileForeignerInsertResolver(params graphql.ResolvePara
 }
 
 func (r *Resolver) UserProfileForeignerDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"]
+	itemID := params.Args["id"]
 
-	err := r.Repo.DeleteForeigner(itemId.(int))
+	err := r.Repo.DeleteForeigner(itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/dto"
 	apierrors "bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"context"
 	"encoding/json"
@@ -18,17 +17,17 @@ import (
 )
 
 // processContractArticle refactored to only take context and contractArticle, and return an OrderArticleItem.
-func processContractArticle(r repository.MicroserviceRepositoryInterface, ctx context.Context, contractArticle *structs.PublicProcurementContractArticle) (structs.OrderArticleItem, error) {
+func processContractArticle(ctx context.Context, r repository.MicroserviceRepositoryInterface, contractArticle *structs.PublicProcurementContractArticle) (structs.OrderArticleItem, error) {
 	organizationUnitID, _ := ctx.Value(config.OrganizationUnitIDKey).(*int)
 
 	// Get the related public procurement article details.
-	relatedPublicProcurementArticle, err := r.GetProcurementArticle(contractArticle.PublicProcurementArticleId)
+	relatedPublicProcurementArticle, err := r.GetProcurementArticle(contractArticle.PublicProcurementArticleID)
 	if err != nil {
 		return structs.OrderArticleItem{}, err
 	}
 
 	// Build response item based on the related article and possibly organization unit.
-	resProcurementArticle, err := buildProcurementArticleResponseItem(r, ctx, relatedPublicProcurementArticle, organizationUnitID)
+	resProcurementArticle, err := buildProcurementArticleResponseItem(ctx, r, relatedPublicProcurementArticle, organizationUnitID)
 	if err != nil {
 		return structs.OrderArticleItem{}, err
 	}
@@ -41,7 +40,7 @@ func processContractArticle(r repository.MicroserviceRepositoryInterface, ctx co
 
 	// Get overages for the contract article.
 	overageList, err := r.GetProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
-		ContractArticleID:  &contractArticle.Id,
+		ContractArticleID:  &contractArticle.ID,
 		OrganizationUnitID: organizationUnitID,
 	})
 	if err != nil {
@@ -56,7 +55,7 @@ func processContractArticle(r repository.MicroserviceRepositoryInterface, ctx co
 
 	// Build the new item with the calculated amounts.
 	newItem := structs.OrderArticleItem{
-		Id:             relatedPublicProcurementArticle.Id,
+		ID:             relatedPublicProcurementArticle.ID,
 		Description:    relatedPublicProcurementArticle.Description,
 		Title:          relatedPublicProcurementArticle.Title,
 		NetPrice:       relatedPublicProcurementArticle.NetPrice,
@@ -73,13 +72,13 @@ func processContractArticle(r repository.MicroserviceRepositoryInterface, ctx co
 }
 
 // GetProcurementArticles simplified to utilize the refactored processContractArticle function.
-func GetProcurementArticles(r repository.MicroserviceRepositoryInterface, ctx context.Context, publicProcurementId int) ([]structs.OrderArticleItem, error) {
+func GetProcurementArticles(ctx context.Context, r repository.MicroserviceRepositoryInterface, publicProcurementID int) ([]structs.OrderArticleItem, error) {
 	var items []structs.OrderArticleItem
 	itemsMap := make(map[int]structs.OrderArticleItem)
 
 	// Get related contracts.
 	relatedContractsResponse, err := r.GetProcurementContractsList(&dto.GetProcurementContractsInput{
-		ProcurementID: &publicProcurementId,
+		ProcurementID: &publicProcurementID,
 	})
 	if err != nil {
 		return nil, err
@@ -88,7 +87,7 @@ func GetProcurementArticles(r repository.MicroserviceRepositoryInterface, ctx co
 	// Process each contract.
 	for _, contract := range relatedContractsResponse.Data {
 		relatedContractArticlesResponse, err := r.GetProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
-			ContractID: &contract.Id,
+			ContractID: &contract.ID,
 		})
 		if err != nil {
 			return nil, err
@@ -96,20 +95,20 @@ func GetProcurementArticles(r repository.MicroserviceRepositoryInterface, ctx co
 
 		// Process each contract article.
 		for _, contractArticle := range relatedContractArticlesResponse.Data {
-			newItem, err := processContractArticle(r, ctx, contractArticle)
+			newItem, err := processContractArticle(ctx, r, contractArticle)
 			if err != nil {
 				return nil, err
 			}
 
-			if existingItem, exists := itemsMap[newItem.Id]; exists {
+			if existingItem, exists := itemsMap[newItem.ID]; exists {
 				// Update the existing item in the map if it exists.
 				existingItem.Amount += newItem.Amount
 				existingItem.Available += newItem.Available
 				existingItem.TotalPrice += newItem.TotalPrice
-				itemsMap[newItem.Id] = existingItem
+				itemsMap[newItem.ID] = existingItem
 			} else {
 				// Add new item to the map and slice.
-				itemsMap[newItem.Id] = newItem
+				itemsMap[newItem.ID] = newItem
 			}
 		}
 	}
@@ -133,7 +132,7 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 	id := params.Args["id"]
 	page := params.Args["page"]
 	size := params.Args["size"]
-	supplierId := params.Args["supplier_id"]
+	supplierID := params.Args["supplier_id"]
 	publicProcurementID := params.Args["public_procurement_id"]
 	status, statusOK := params.Args["status"].(string)
 	search, searchOk := params.Args["search"].(string)
@@ -142,13 +141,13 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 	sortByTotalPrice, sortByTotalPriceOK := params.Args["sort_by_total_price"].(string)
 	sortByDateOrder, sortByDateOrderOK := params.Args["sort_by_date_order"].(string)
 
-	if id != nil && shared.IsInteger(id) && id != 0 {
-		orderList, err := r.Repo.GetOrderListById(id.(int))
+	if id != nil && id != 0 {
+		orderList, err := r.Repo.GetOrderListByID(id.(int))
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 
-		orderListItem, err := buildOrderListResponseItem(r.Repo, params.Context, orderList)
+		orderListItem, err := buildOrderListResponseItem(params.Context, r.Repo, orderList)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -165,12 +164,12 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 		for _, plan := range plans {
 
 			if plan.Year <= strconv.Itoa(currentYear) {
-				item, _ := buildProcurementPlanResponseItem(r.Repo, params.Context, plan, nil, &dto.GetProcurementItemListInputMS{})
+				item, _ := buildProcurementPlanResponseItem(params.Context, r.Repo, plan, nil, &dto.GetProcurementItemListInputMS{})
 
 				if item.Status == dto.PlanStatusPostBudgetClosed {
 					if len(item.Items) > 0 {
 						for _, procurement := range item.Items {
-							inputOrderList.PublicProcurementID = &procurement.Id
+							inputOrderList.PublicProcurementID = &procurement.ID
 							orderLists, err := r.Repo.GetOrderLists(&inputOrderList)
 							if err != nil {
 								return apierrors.HandleAPIError(err)
@@ -179,7 +178,7 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 								if orderList.IsUsed {
 									continue
 								}
-								orderListItem, err := buildOrderListResponseItem(r.Repo, params.Context, &orderList)
+								orderListItem, err := buildOrderListResponseItem(params.Context, r.Repo, &orderList)
 								if err != nil {
 									return apierrors.HandleAPIError(err)
 								}
@@ -199,21 +198,21 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 		organizationUnitID, unitOK := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 
 		if unitOK && organizationUnitID != nil {
-			input.OrganizationUnitId = organizationUnitID
+			input.OrganizationUnitID = organizationUnitID
 		}
-		if shared.IsInteger(page) && page.(int) > 0 {
+		if page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum
 		}
-		if shared.IsInteger(size) && size.(int) > 0 {
+		if size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}
-		if shared.IsInteger(supplierId) && supplierId.(int) > 0 {
-			supplierId := supplierId.(int)
-			input.SupplierID = &supplierId
+		if supplierID.(int) > 0 {
+			supplierID := supplierID.(int)
+			input.SupplierID = &supplierID
 		}
-		if shared.IsInteger(publicProcurementID) && publicProcurementID.(int) > 0 {
+		if publicProcurementID.(int) > 0 {
 			publicProcurementID := publicProcurementID.(int)
 			input.PublicProcurementID = &publicProcurementID
 		}
@@ -241,7 +240,7 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 			return apierrors.HandleAPIError(err)
 		}
 		for _, orderList := range orderLists.Data {
-			orderListItem, err := buildOrderListResponseItem(r.Repo, params.Context, &orderList)
+			orderListItem, err := buildOrderListResponseItem(params.Context, r.Repo, &orderList)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
@@ -273,32 +272,32 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 		return apierrors.HandleAPIError(err)
 	}
 
-	itemId := data.Id
+	itemID := data.ID
 
-	listInsertItem, err := buildOrderListInsertItem(r.Repo, params.Context, &data)
+	listInsertItem, err := buildOrderListInsertItem(params.Context, r.Repo, &data)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
 
-	if shared.IsInteger(itemId) && itemId != 0 {
+	if itemID != 0 {
 		listInsertItem.Status = "Updated"
-		res, err := r.Repo.UpdateOrderListItem(itemId, listInsertItem)
+		res, err := r.Repo.UpdateOrderListItem(itemID, listInsertItem)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 
 		if len(data.Articles) > 0 {
-			err := deleteOrderArticles(r.Repo, itemId)
+			err := deleteOrderArticles(r.Repo, itemID)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
-			err = r.Repo.CreateOrderListProcurementArticles(res.Id, data)
+			err = r.Repo.CreateOrderListProcurementArticles(res.ID, data)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
 		}
 
-		item, err := buildOrderListResponseItem(r.Repo, params.Context, res)
+		item, err := buildOrderListResponseItem(params.Context, r.Repo, res)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -313,12 +312,12 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 			return apierrors.HandleAPIError(err)
 		}
 
-		err = r.Repo.CreateOrderListProcurementArticles(res.Id, data)
+		err = r.Repo.CreateOrderListProcurementArticles(res.ID, data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 
-		item, err := buildOrderListResponseItem(r.Repo, params.Context, res)
+		item, err := buildOrderListResponseItem(params.Context, r.Repo, res)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -349,16 +348,16 @@ func (r *Resolver) OrderProcurementAvailableResolver(params graphql.ResolveParam
 		organizationUnitID = params.Args["organization_unit_id"].(int)
 		ctx = context.WithValue(ctx, config.OrganizationUnitIDKey, &organizationUnitID)
 	} else {
-		/*organizationUnitId, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-		if !ok || organizationUnitId == nil {
+		/*organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitID == nil {
 			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
-		organizationUnitID = *organizationUnitId*/
+		organizationUnitID = *organizationUnitID*/
 		organizationUnitID = 0
 	}
 
-	articles, err := GetProcurementArticles(r.Repo, ctx, publicProcurementID)
+	articles, err := GetProcurementArticles(ctx, r.Repo, publicProcurementID)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -367,7 +366,7 @@ func (r *Resolver) OrderProcurementAvailableResolver(params graphql.ResolveParam
 		if visibilityType != nil && visibilityType.(int) > 0 && visibilityType.(int) != int(item.VisibilityType) {
 			continue
 		}
-		processedArticle, err := ProcessOrderArticleItem(r.Repo, ctx, item, organizationUnitID)
+		processedArticle, err := ProcessOrderArticleItem(r.Repo, item, organizationUnitID)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -387,7 +386,7 @@ func (r *Resolver) OrderProcurementAvailableResolver(params graphql.ResolveParam
 }
 
 // ProcessOrderArticleItem processes a single order article item to calculate its available amount and total price
-func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, ctx context.Context, article structs.OrderArticleItem, organizationUnitID int) (structs.OrderArticleItem, error) {
+func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, article structs.OrderArticleItem, organizationUnitID int) (structs.OrderArticleItem, error) {
 	var err error
 	currentArticle := article // work with a copy to avoid modifying the original
 
@@ -396,7 +395,7 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, ctx c
 	currentArticle.Price = article.NetPrice + article.NetPrice*(articleVat32/100)
 
 	getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
-		ArticleID: &currentArticle.Id,
+		ArticleID: &currentArticle.ID,
 	}
 
 	relatedOrderProcurementArticleResponse, err := r.GetOrderProcurementArticles(&getOrderProcurementArticleInput)
@@ -406,13 +405,13 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, ctx c
 
 	if relatedOrderProcurementArticleResponse.Total > 0 {
 		for _, orderArticle := range relatedOrderProcurementArticleResponse.Data {
-			order, err := r.GetOrderListById(orderArticle.OrderId)
+			order, err := r.GetOrderListByID(orderArticle.OrderID)
 
 			if err != nil {
 				return currentArticle, err
 			}
 
-			if organizationUnitID > 0 && order.OrganizationUnitId == organizationUnitID {
+			if organizationUnitID > 0 && order.OrganizationUnitID == organizationUnitID {
 				// if article is used in another order, deduct the amount to get Available articles
 				currentArticle.TotalPrice *= float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
 				currentArticle.Available -= orderArticle.Amount
@@ -422,7 +421,7 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, ctx c
 
 	if organizationUnitID == 0 {
 		articles, err := r.GetOrganizationUnitArticlesList(dto.GetProcurementOrganizationUnitArticleListInputDTO{
-			ArticleID: &currentArticle.Id,
+			ArticleID: &currentArticle.ID,
 		})
 		if err != nil {
 			return currentArticle, nil
@@ -439,7 +438,7 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, ctx c
 	}
 
 	articleInventory, err := r.GetAllInventoryItem(dto.InventoryItemFilter{
-		ArticleId:          &article.Id,
+		ArticleID:          &article.ID,
 		OrganizationUnitID: &organizationUnitID,
 	})
 
@@ -450,7 +449,7 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, ctx c
 	currentArticle.Available -= len(articleInventory.Data)
 
 	overages, err := r.GetProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
-		ContractArticleID:  &article.Id,
+		ContractArticleID:  &article.ID,
 		OrganizationUnitID: &organizationUnitID})
 
 	if err != nil {
@@ -484,7 +483,7 @@ func (r *Resolver) RecipientUsersResolver(params graphql.ResolveParams) (interfa
 	}
 	for _, employee := range employees {
 		userProfileDropdownList = append(userProfileDropdownList, &dto.DropdownSimple{
-			Id:    employee.Id,
+			ID:    employee.ID,
 			Title: employee.GetFullName(),
 		})
 	}
@@ -508,19 +507,19 @@ func GetEmployeesOfOrganizationUnit(r repository.MicroserviceRepositoryInterface
 		return nil, errors.New("no systematization")
 	}
 	systematization := systematizationsRes.Data[0]
-	jobPositionsInOrganizationUnit, err := r.GetJobPositionsInOrganizationUnits(&dto.GetJobPositionInOrganizationUnitsInput{SystematizationID: &systematization.Id})
+	jobPositionsInOrganizationUnit, err := r.GetJobPositionsInOrganizationUnits(&dto.GetJobPositionInOrganizationUnitsInput{SystematizationID: &systematization.ID})
 	if err != nil {
 		return nil, err
 	}
 
 	for _, jobPosition := range jobPositionsInOrganizationUnit.Data {
-		employeesByJobPosition, err := r.GetEmployeesInOrganizationUnitList(&dto.GetEmployeesInOrganizationUnitInput{PositionInOrganizationUnit: &jobPosition.Id})
+		employeesByJobPosition, err := r.GetEmployeesInOrganizationUnitList(&dto.GetEmployeesInOrganizationUnitInput{PositionInOrganizationUnit: &jobPosition.ID})
 		if err != nil {
 			return nil, err
 		}
 
 		for _, employee := range employeesByJobPosition {
-			userProfile, err := r.GetUserProfileById(employee.UserProfileId)
+			userProfile, err := r.GetUserProfileByID(employee.UserProfileID)
 			if err != nil {
 				return nil, err
 			}
@@ -531,16 +530,16 @@ func GetEmployeesOfOrganizationUnit(r repository.MicroserviceRepositoryInterface
 	return userProfileList, nil
 }
 
-func deleteOrderArticles(r repository.MicroserviceRepositoryInterface, itemId int) error {
+func deleteOrderArticles(r repository.MicroserviceRepositoryInterface, itemID int) error {
 	orderProcurementArticlesResponse, err := r.GetOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{
-		OrderID: &itemId,
+		OrderID: &itemID,
 	})
 	if err != nil {
 		return err
 	}
 
 	for _, orderProcurementArticle := range orderProcurementArticlesResponse.Data {
-		err = r.DeleteOrderProcurementArticle(orderProcurementArticle.Id)
+		err = r.DeleteOrderProcurementArticle(orderProcurementArticle.ID)
 		if err != nil {
 			return err
 		}
@@ -549,9 +548,9 @@ func deleteOrderArticles(r repository.MicroserviceRepositoryInterface, itemId in
 }
 
 func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	orderList, err := r.Repo.GetOrderListById(itemId)
+	orderList, err := r.Repo.GetOrderListByID(itemID)
 
 	if err != nil {
 		return apierrors.HandleAPIError(err)
@@ -580,12 +579,12 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 		}
 	}
 
-	err = deleteOrderArticles(r.Repo, itemId)
+	err = deleteOrderArticles(r.Repo, itemID)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
 
-	err = r.Repo.DeleteOrderList(itemId)
+	err = r.Repo.DeleteOrderList(itemID)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -601,7 +600,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	_ = json.Unmarshal(dataBytes, &data)
 
-	orderList, err := r.Repo.GetOrderListById(data.OrderId)
+	orderList, err := r.Repo.GetOrderListByID(data.OrderID)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -624,7 +623,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 	if status != "Receive" {
 		if orderList.GroupOfArticlesID != nil && *orderList.GroupOfArticlesID != 0 {
 			for _, article := range data.Articles {
-				orderArticle, err := r.Repo.GetOrderProcurementArticleByID(article.Id)
+				orderArticle, err := r.Repo.GetOrderProcurementArticleByID(article.ID)
 
 				if err != nil {
 					return apierrors.HandleAPIError(err)
@@ -655,7 +654,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 			}
 		} else {
 			orderArticles, err := r.Repo.GetOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{
-				OrderID: &orderList.Id,
+				OrderID: &orderList.ID,
 			})
 
 			if err != nil {
@@ -663,7 +662,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 			}
 
 			for _, orderArticle := range orderArticles.Data {
-				currentArticle, err := r.Repo.GetProcurementArticle(orderArticle.ArticleId)
+				currentArticle, err := r.Repo.GetProcurementArticle(orderArticle.ArticleID)
 
 				if err != nil {
 					return apierrors.HandleAPIError(err)
@@ -699,7 +698,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 		}
 	}
 
-	_, err = r.Repo.UpdateOrderListItem(data.OrderId, orderList)
+	_, err = r.Repo.UpdateOrderListItem(data.OrderID, orderList)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -713,7 +712,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 func (r *Resolver) OrderListReceiveDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"].(int)
 
-	orderList, err := r.Repo.GetOrderListById(id)
+	orderList, err := r.Repo.GetOrderListByID(id)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -737,8 +736,8 @@ func (r *Resolver) OrderListReceiveDeleteResolver(params graphql.ResolveParams) 
 	orderList.DateSystem = nil
 	orderList.InvoiceDate = nil
 	orderList.InvoiceNumber = nil
-	orderList.OfficeId = nil
-	orderList.RecipientUserId = nil
+	orderList.OfficeID = nil
+	orderList.RecipientUserID = nil
 	orderList.Description = nil
 	orderList.MovementFile = nil
 	orderList.ReceiveFile = nil
@@ -754,73 +753,73 @@ func (r *Resolver) OrderListReceiveDeleteResolver(params graphql.ResolveParams) 
 	}, nil
 }
 
-func buildOrderListInsertItem(r repository.MicroserviceRepositoryInterface, context context.Context, item *structs.OrderListInsertItem) (*structs.OrderListItem, error) {
+func buildOrderListInsertItem(context context.Context, r repository.MicroserviceRepositoryInterface, item *structs.OrderListInsertItem) (*structs.OrderListItem, error) {
 	currentTime := time.Now().UTC()
 	timeString := currentTime.Format("2006-01-02T15:04:05Z07:00")
 
 	var newItem *structs.OrderListItem
 
 	totalPrice := float32(0.0)
-	var supplierId *int
+	var supplierID *int
 
 	if len(item.Articles) > 0 {
 		articleMap := make(map[int]structs.OrderArticleInsertItem)
 		for _, article := range item.Articles {
-			articleMap[article.Id] = article
+			articleMap[article.ID] = article
 		}
 
 		relatedContractsResponse, err := r.GetProcurementContractsList(&dto.GetProcurementContractsInput{
-			ProcurementID: &item.PublicProcurementId,
+			ProcurementID: &item.PublicProcurementID,
 		})
 		if err != nil {
 			return nil, err
 		}
 
 		for _, contract := range relatedContractsResponse.Data {
-			supplierId = &contract.SupplierId
+			supplierID = &contract.SupplierID
 			relatedContractArticlesResponse, err := r.GetProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
-				ContractID: &contract.Id,
+				ContractID: &contract.ID,
 			})
 			if err != nil {
 				return nil, err
 			}
 
 			for _, contractArticle := range relatedContractArticlesResponse.Data {
-				if article, exists := articleMap[contractArticle.PublicProcurementArticleId]; exists {
+				if article, exists := articleMap[contractArticle.PublicProcurementArticleID]; exists {
 					totalPrice += (contractArticle.GrossValue) * float32(article.Amount)
 				}
 			}
 		}
 	}
 
-	if item.PublicProcurementId == 0 {
-		supplierId = &item.SupplierId
+	if item.PublicProcurementID == 0 {
+		supplierID = &item.SupplierID
 	}
 
 	newItem = &structs.OrderListItem{
-		Id:                  item.Id,
+		ID:                  item.ID,
 		DateOrder:           timeString,
 		TotalPrice:          totalPrice,
-		PublicProcurementId: &item.PublicProcurementId,
+		PublicProcurementID: &item.PublicProcurementID,
 		GroupOfArticlesID:   &item.GroupOfArticlesID,
-		SupplierId:          supplierId,
+		SupplierID:          supplierID,
 		OrderFile:           &item.OrderFile,
 	}
 
-	// Getting organizationUnitId from job position
+	// Getting organizationUnitID from job position
 	loggedInProfile, _ := context.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
 	organizationUnitID, unitOK := context.Value(config.OrganizationUnitIDKey).(*int)
 
-	newItem.RecipientUserId = &loggedInProfile.Id
+	newItem.RecipientUserID = &loggedInProfile.ID
 
 	if unitOK && organizationUnitID != nil {
-		newItem.OrganizationUnitId = *organizationUnitID
+		newItem.OrganizationUnitID = *organizationUnitID
 	}
 
 	return newItem, nil
 }
 
-func buildOrderListResponseItem(r repository.MicroserviceRepositoryInterface, context context.Context, item *structs.OrderListItem) (*dto.OrderListOverviewResponse, error) {
+func buildOrderListResponseItem(context context.Context, r repository.MicroserviceRepositoryInterface, item *structs.OrderListItem) (*dto.OrderListOverviewResponse, error) {
 
 	var res dto.OrderListOverviewResponse
 	var procurementDropdown dto.DropdownSimple
@@ -830,52 +829,52 @@ func buildOrderListResponseItem(r repository.MicroserviceRepositoryInterface, co
 	totalNeto := float32(0.0)
 	zero := 0
 
-	if item.PublicProcurementId != nil && *item.PublicProcurementId != zero {
-		procurementItem, err := r.GetProcurementItem(*item.PublicProcurementId)
+	if item.PublicProcurementID != nil && *item.PublicProcurementID != zero {
+		procurementItem, err := r.GetProcurementItem(*item.PublicProcurementID)
 		if err != nil {
 			return nil, err
 		}
 
-		procurementDropdown.Id = procurementItem.Id
+		procurementDropdown.ID = procurementItem.ID
 		procurementDropdown.Title = procurementItem.Title
 
-		contract, err := r.GetProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &procurementItem.Id})
+		contract, err := r.GetProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &procurementItem.ID})
 		if err != nil {
 			return nil, err
 		}
 
-		supplier, err := r.GetSupplier(contract.Data[0].SupplierId)
+		supplier, err := r.GetSupplier(contract.Data[0].SupplierID)
 
 		if err != nil {
 			return nil, err
 		}
 
 		supplierDropdown = dto.DropdownSimple{
-			Id:    supplier.Id,
+			ID:    supplier.ID,
 			Title: supplier.Title,
 		}
 
 		// getting articles and total price
 		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
-			OrderID: &item.Id,
+			OrderID: &item.ID,
 		}
 		relatedOrderProcurementArticle, err := r.GetOrderProcurementArticles(&getOrderProcurementArticleInput)
 		if err != nil {
 			return nil, err
 		}
 
-		publicProcurementArticles, err := GetProcurementArticles(r, context, *item.PublicProcurementId)
+		publicProcurementArticles, err := GetProcurementArticles(context, r, *item.PublicProcurementID)
 		if err != nil {
 			return nil, err
 		}
 
 		publicProcurementArticlesMap := make(map[int]structs.OrderArticleItem)
 		for _, article := range publicProcurementArticles {
-			publicProcurementArticlesMap[article.Id] = article
+			publicProcurementArticlesMap[article.ID] = article
 		}
 
 		for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
-			if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleId]; exists {
+			if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleID]; exists {
 				articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
 				articleVat32 := float32(articleVat)
 				articleUnitPrice := article.NetPrice + article.NetPrice*articleVat32/100
@@ -885,7 +884,7 @@ func buildOrderListResponseItem(r repository.MicroserviceRepositoryInterface, co
 				totalNeto += vat
 
 				articles = append(articles, dto.DropdownProcurementAvailableArticle{
-					Id:            itemOrderArticle.Id,
+					ID:            itemOrderArticle.ID,
 					Title:         article.Title,
 					Manufacturer:  article.Manufacturer,
 					Description:   article.Description,
@@ -901,7 +900,7 @@ func buildOrderListResponseItem(r repository.MicroserviceRepositoryInterface, co
 		}
 	} else {
 		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
-			OrderID: &item.Id,
+			OrderID: &item.ID,
 		}
 		relatedOrderProcurementArticle, err := r.GetOrderProcurementArticles(&getOrderProcurementArticleInput)
 		if err != nil {
@@ -910,7 +909,7 @@ func buildOrderListResponseItem(r repository.MicroserviceRepositoryInterface, co
 
 		for _, article := range relatedOrderProcurementArticle.Data {
 			articles = append(articles, dto.DropdownProcurementAvailableArticle{
-				Id:            article.Id,
+				ID:            article.ID,
 				Title:         article.Title,
 				Description:   article.Description,
 				Amount:        article.Amount,
@@ -921,14 +920,14 @@ func buildOrderListResponseItem(r repository.MicroserviceRepositoryInterface, co
 	}
 
 	office := &dto.DropdownSimple{}
-	if item.OfficeId != nil && *item.OfficeId > zero {
-		officeItem, _ := r.GetDropdownSettingById(*item.OfficeId)
+	if item.OfficeID != nil && *item.OfficeID > zero {
+		officeItem, _ := r.GetDropdownSettingByID(*item.OfficeID)
 		office.Title = officeItem.Title
-		office.Id = officeItem.Id
+		office.ID = officeItem.ID
 	}
 
 	defaultFile := dto.FileDropdownSimple{
-		Id:   0,
+		ID:   0,
 		Name: "",
 		Type: "",
 	}
@@ -942,7 +941,7 @@ func buildOrderListResponseItem(r repository.MicroserviceRepositoryInterface, co
 		if err != nil {
 			return nil, err
 		}
-		orderFile.Id = *item.OrderFile
+		orderFile.ID = *item.OrderFile
 		orderFile.Name = file.Name
 		orderFile.Type = *file.Type
 	}
@@ -954,7 +953,7 @@ func buildOrderListResponseItem(r repository.MicroserviceRepositoryInterface, co
 		}
 
 		receiveFile = append(receiveFile, dto.FileDropdownSimple{
-			Id:   file.ID,
+			ID:   file.ID,
 			Name: file.Name,
 			Type: *file.Type,
 		})
@@ -965,33 +964,33 @@ func buildOrderListResponseItem(r repository.MicroserviceRepositoryInterface, co
 		if err != nil {
 			return nil, err
 		}
-		movementFile.Id = file.ID
+		movementFile.ID = file.ID
 		movementFile.Name = file.Name
 		movementFile.Type = *file.Type
 	}
 
 	var groupOfArticles dto.DropdownSimple
 	if item.GroupOfArticlesID != nil && *item.GroupOfArticlesID != zero {
-		getGroupOfArticles, err := r.GetDropdownSettingById(*item.GroupOfArticlesID)
+		getGroupOfArticles, err := r.GetDropdownSettingByID(*item.GroupOfArticlesID)
 
 		if err != nil {
 			return nil, err
 		}
-		groupOfArticles.Id = getGroupOfArticles.Id
+		groupOfArticles.ID = getGroupOfArticles.ID
 		groupOfArticles.Title = getGroupOfArticles.Title
 	}
 
 	res = dto.OrderListOverviewResponse{
-		Id:                  item.Id,
+		ID:                  item.ID,
 		DateOrder:           (string)(item.DateOrder),
 		TotalNeto:           totalNeto,
 		TotalBruto:          totalBruto,
-		PublicProcurementID: procurementDropdown.Id,
+		PublicProcurementID: procurementDropdown.ID,
 		PublicProcurement:   &procurementDropdown,
 		DateSystem:          item.DateSystem,
 		InvoiceDate:         item.InvoiceDate,
-		OrganizationUnitID:  item.OrganizationUnitId,
-		OfficeID:            office.Id,
+		OrganizationUnitID:  item.OrganizationUnitID,
+		OfficeID:            office.ID,
 		Office:              office,
 		Description:         item.Description,
 		Status:              item.Status,
@@ -1003,26 +1002,26 @@ func buildOrderListResponseItem(r repository.MicroserviceRepositoryInterface, co
 		MovementFile:        movementFile,
 	}
 
-	if item.RecipientUserId != nil && *item.RecipientUserId > 0 {
-		userProfile, err := r.GetUserProfileById(*item.RecipientUserId)
+	if item.RecipientUserID != nil && *item.RecipientUserID > 0 {
+		userProfile, err := r.GetUserProfileByID(*item.RecipientUserID)
 		if err != nil {
 			return nil, err
 		}
 		res.RecipientUser = &dto.DropdownSimple{
-			Id:    userProfile.Id,
+			ID:    userProfile.ID,
 			Title: userProfile.GetFullName(),
 		}
-		res.RecipientUserID = item.RecipientUserId
+		res.RecipientUserID = item.RecipientUserID
 	}
 
-	if item.SupplierId != nil && *item.SupplierId != 0 {
-		supplier, err := r.GetSupplier(*item.SupplierId)
+	if item.SupplierID != nil && *item.SupplierID != 0 {
+		supplier, err := r.GetSupplier(*item.SupplierID)
 		if err != nil {
 			return nil, err
 		}
-		res.SupplierID = supplier.Id
+		res.SupplierID = supplier.ID
 		res.Supplier = &dto.DropdownSimple{
-			Id:    supplier.Id,
+			ID:    supplier.ID,
 			Title: supplier.Title,
 		}
 	}

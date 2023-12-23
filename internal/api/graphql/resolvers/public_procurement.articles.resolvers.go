@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"context"
 	"encoding/json"
@@ -29,14 +28,14 @@ func (r *Resolver) PublicProcurementPlanItemArticleInsertResolver(params graphql
 
 	var items []*dto.ProcurementArticleResponseItem
 	for _, item := range data {
-		itemId := item.Id
+		itemID := item.ID
 
-		if shared.IsInteger(itemId) && itemId != 0 {
-			res, err := r.Repo.UpdateProcurementArticle(itemId, &item)
+		if itemID != 0 {
+			res, err := r.Repo.UpdateProcurementArticle(itemID, &item)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
-			item, err := buildProcurementArticleResponseItem(r.Repo, params.Context, res, nil)
+			item, err := buildProcurementArticleResponseItem(params.Context, r.Repo, res, nil)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -47,7 +46,7 @@ func (r *Resolver) PublicProcurementPlanItemArticleInsertResolver(params graphql
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
-			item, err := buildProcurementArticleResponseItem(r.Repo, params.Context, res, nil)
+			item, err := buildProcurementArticleResponseItem(params.Context, r.Repo, res, nil)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -60,9 +59,9 @@ func (r *Resolver) PublicProcurementPlanItemArticleInsertResolver(params graphql
 }
 
 func (r *Resolver) PublicProcurementPlanItemArticleDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteProcurementArticle(itemId)
+	err := r.Repo.DeleteProcurementArticle(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -73,18 +72,18 @@ func (r *Resolver) PublicProcurementPlanItemArticleDeleteResolver(params graphql
 	}, nil
 }
 
-func buildProcurementArticleResponseItem(r repository.MicroserviceRepositoryInterface, context context.Context, item *structs.PublicProcurementArticle, organizationUnitID *int) (*dto.ProcurementArticleResponseItem, error) {
+func buildProcurementArticleResponseItem(context context.Context, r repository.MicroserviceRepositoryInterface, item *structs.PublicProcurementArticle, organizationUnitID *int) (*dto.ProcurementArticleResponseItem, error) {
 	if organizationUnitID == nil {
 		organizationUnitID, _ = context.Value(config.OrganizationUnitIDKey).(*int)
 	}
-	procurement, err := r.GetProcurementItem(item.PublicProcurementId)
+	procurement, err := r.GetProcurementItem(item.PublicProcurementID)
 	if err != nil {
 		return nil, err
 	}
-	procurementDropdown := dto.DropdownSimple{Id: procurement.Id, Title: procurement.Title}
+	procurementDropdown := dto.DropdownSimple{ID: procurement.ID, Title: procurement.Title}
 
 	res := dto.ProcurementArticleResponseItem{
-		Id:                item.Id,
+		ID:                item.ID,
 		PublicProcurement: procurementDropdown,
 		Title:             item.Title,
 		Description:       item.Description,
@@ -96,7 +95,7 @@ func buildProcurementArticleResponseItem(r repository.MicroserviceRepositoryInte
 		UpdatedAt:         item.UpdatedAt,
 	}
 
-	ouArticles, _ := r.GetProcurementOUArticleList(&dto.GetProcurementOrganizationUnitArticleListInputDTO{ArticleID: &item.Id})
+	ouArticles, _ := r.GetProcurementOUArticleList(&dto.GetProcurementOrganizationUnitArticleListInputDTO{ArticleID: &item.ID})
 
 	totalAmount := 0
 
@@ -105,7 +104,7 @@ func buildProcurementArticleResponseItem(r repository.MicroserviceRepositoryInte
 			continue
 		}
 		totalAmount += ouArticle.Amount
-		if organizationUnitID != nil && ouArticle.OrganizationUnitId == *organizationUnitID {
+		if organizationUnitID != nil && ouArticle.OrganizationUnitID == *organizationUnitID {
 			res.Amount = ouArticle.Amount
 		}
 	}

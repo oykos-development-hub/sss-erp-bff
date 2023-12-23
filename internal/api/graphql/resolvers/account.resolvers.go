@@ -3,7 +3,6 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/shared"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -14,10 +13,10 @@ import (
 
 func buildAccountItemResponseItem(item *structs.AccountItem) (*dto.AccountItemResponseItem, error) {
 	return &dto.AccountItemResponseItem{
-		ID:           item.Id,
+		ID:           item.ID,
 		SerialNumber: item.SerialNumber,
 		Title:        item.Title,
-		ParentId:     item.ParentId,
+		ParentID:     item.ParentID,
 	}, nil
 }
 
@@ -115,9 +114,9 @@ func (r *Resolver) AccountInsertResolver(params graphql.ResolveParams) (interfac
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemId := data.Id
-	if shared.IsInteger(itemId) && itemId != 0 {
-		res, err := r.Repo.UpdateAccountItem(itemId, &data)
+	itemID := data.ID
+	if itemID != 0 {
+		res, err := r.Repo.UpdateAccountItem(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -144,9 +143,9 @@ func (r *Resolver) AccountInsertResolver(params graphql.ResolveParams) (interfac
 }
 
 func (r *Resolver) AccountDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemId := params.Args["id"].(int)
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteAccount(itemId)
+	err := r.Repo.DeleteAccount(itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

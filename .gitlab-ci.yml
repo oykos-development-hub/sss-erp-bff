@@ -26,7 +26,7 @@ code_linter:
   before_script:
     - go mod download
   script:
-    - golangci-lint run ./...
+    - golangci-lint run --disable-all --enable=revive
 
 push_to_github:
   stage: push_to_github

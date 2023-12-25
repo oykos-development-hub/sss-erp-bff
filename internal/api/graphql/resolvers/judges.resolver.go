@@ -285,7 +285,7 @@ func (r *Resolver) CheckJudgeAndPresidentIsAvailable(params graphql.ResolveParam
 	}
 
 	organizationUnitID := params.Args["organization_unit_id"]
-	if organizationUnitID.(int) > 0 {
+	if organizationUnitID != nil && organizationUnitID.(int) > 0 {
 
 		resolution, _ := r.Repo.GetJudgeResolutionList(&input)
 

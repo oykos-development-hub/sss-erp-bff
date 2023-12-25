@@ -208,11 +208,11 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}
-		if supplierID.(int) > 0 {
+		if supplierID != nil && supplierID.(int) > 0 {
 			supplierID := supplierID.(int)
 			input.SupplierID = &supplierID
 		}
-		if publicProcurementID.(int) > 0 {
+		if publicProcurementID != nil && publicProcurementID.(int) > 0 {
 			publicProcurementID := publicProcurementID.(int)
 			input.PublicProcurementID = &publicProcurementID
 		}

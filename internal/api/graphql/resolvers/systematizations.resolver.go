@@ -45,7 +45,7 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}
-		if organizationUnitID.(int) > 0 {
+		if organizationUnitID != nil && organizationUnitID.(int) > 0 {
 			organizationUnitID := organizationUnitID.(int)
 			input.OrganizationUnitID = &organizationUnitID
 		}
@@ -57,7 +57,7 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 			searchInput := search.(string)
 			input.Search = &searchInput
 		}
-		if active.(int) > 0 {
+		if active != nil && active.(int) > 0 {
 			activeValue := active.(int)
 			input.Active = &activeValue
 		}
@@ -211,10 +211,6 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 
 func (r *Resolver) SystematizationDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"]
-
-	if !(itemID.(int) <= 0) {
-		return errors.ErrorResponse("You must pass the item id"), nil
-	}
 
 	err := r.Repo.DeleteSystematization(itemID.(int))
 	if err != nil {

@@ -98,7 +98,7 @@ func (r *Resolver) ActivitiesOverviewResolver(params graphql.ResolveParams) (int
 	total = len(items)
 
 	// Filtering by Pagination params
-	if page != 0 && size != 0 {
+	if page != nil && page != 0 && size != nil && size != 0 {
 		items = shared.Pagination(items, page.(int), size.(int))
 	}
 

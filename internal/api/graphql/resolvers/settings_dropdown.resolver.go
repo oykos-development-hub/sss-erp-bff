@@ -12,8 +12,8 @@ import (
 func (r *Resolver) SettingsDropdownResolver(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"]
 	entity := params.Args["entity"].(string)
-	page, pageOk := params.Args["page"].(int)
-	size, sizeOk := params.Args["size"].(int)
+	page := params.Args["page"]
+	size := params.Args["size"]
 	search, searchOk := params.Args["search"].(string)
 
 	var (
@@ -30,11 +30,13 @@ func (r *Resolver) SettingsDropdownResolver(params graphql.ResolveParams) (inter
 		total = 1
 	} else {
 		input := dto.GetSettingsInput{}
-		if pageOk && page > 0 {
-			input.Page = &page
+		if page != nil && page.(int) > 0 {
+			pageNum := page.(int)
+			input.Page = &pageNum
 		}
-		if sizeOk && size > 0 {
-			input.Size = &size
+		if size != nil && size.(int) > 0 {
+			sizeNum := size.(int)
+			input.Size = &sizeNum
 		}
 		if searchOk && search != "" {
 			input.Search = &search

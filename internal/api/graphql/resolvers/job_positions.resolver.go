@@ -5,7 +5,6 @@ import (
 	apierrors "bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
-	"errors"
 
 	"github.com/graphql-go/graphql"
 )
@@ -132,10 +131,6 @@ func (r *Resolver) JobPositionInsertResolver(params graphql.ResolveParams) (inte
 func (r *Resolver) JobPositionDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"]
 
-	if !(itemID.(int) <= 0) {
-		return apierrors.HandleAPIError(errors.New("you must pass the item id"))
-	}
-
 	err := r.Repo.DeleteJobPositions(itemID.(int))
 	if err != nil {
 		return apierrors.HandleAPIError(err)
@@ -257,10 +252,6 @@ func (r *Resolver) JobPositionInOrganizationUnitResolver(params graphql.ResolveP
 }
 func (r *Resolver) JobPositionInOrganizationUnitDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"]
-
-	if !(itemID.(int) <= 0) {
-		return apierrors.HandleAPIError(errors.New("you must pass the item id"))
-	}
 
 	err := r.Repo.DeleteJobPositionsInOrganizationUnits(itemID.(int))
 	if err != nil {

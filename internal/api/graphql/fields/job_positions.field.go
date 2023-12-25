@@ -58,7 +58,7 @@ func (f *Field) JobPositionDeleteField() *graphql.Field {
 		Description: "Deletes existing Job Position",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
 		Resolve: f.Resolvers.JobPositionDeleteResolver,
@@ -97,7 +97,7 @@ func (f *Field) JobPositionInOrganizationUnitDeleteField() *graphql.Field {
 		Description: "Deletes existing Job Position in Organization Unit",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
 		Resolve: f.Resolvers.JobPositionInOrganizationUnitDeleteResolver,

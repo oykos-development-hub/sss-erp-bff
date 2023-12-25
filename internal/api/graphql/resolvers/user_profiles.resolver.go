@@ -61,12 +61,12 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 				total--
 				continue
 			}
-			if organizationUnitID.(int) > 0 &&
+			if organizationUnitID != nil && organizationUnitID.(int) > 0 &&
 				resItem.OrganizationUnit.ID != organizationUnitID {
 				total--
 				continue
 			}
-			if jobPositionID.(int) > 0 &&
+			if jobPositionID != nil && jobPositionID.(int) > 0 &&
 				resItem.JobPosition.ID != jobPositionID {
 				total--
 				continue

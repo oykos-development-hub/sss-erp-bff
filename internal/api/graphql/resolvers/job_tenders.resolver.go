@@ -297,7 +297,7 @@ func (r *Resolver) JobTenderApplicationsResolver(params graphql.ResolveParams) (
 
 	}
 	input := dto.GetJobTenderApplicationsInput{}
-	if userProfileID.(int) > 0 {
+	if userProfileID != nil && userProfileID.(int) > 0 {
 		userProfileID := userProfileID.(int)
 		input.UserProfileID = &userProfileID
 	}

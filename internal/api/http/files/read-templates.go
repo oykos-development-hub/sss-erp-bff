@@ -358,7 +358,8 @@ func (h *Handler) ReadArticlesInventoryHandler(w http.ResponseWriter, r *http.Re
 						vatPercentageFloat, err := strconv.ParseFloat(articleData.VatPercentage, 32)
 
 						if err != nil {
-							break
+							handleError(w, err, http.StatusInternalServerError)
+							return
 						}
 
 						article.GrossPrice = articleData.NetPrice + articleData.NetPrice*float32(vatPercentageFloat)/100

@@ -52,7 +52,7 @@ func (f *Field) UserAccountDeleteField() *graphql.Field {
 		Description: "Deletes existing User Account's data",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
 		Resolve: f.Resolvers.UserAccountDeleteResolver,

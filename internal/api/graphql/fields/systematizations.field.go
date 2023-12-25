@@ -70,7 +70,7 @@ func (f *Field) SystematizationDeleteField() *graphql.Field {
 		Description: "Deletes existing Systematization item",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
 		Resolve: f.Resolvers.SystematizationDeleteResolver,

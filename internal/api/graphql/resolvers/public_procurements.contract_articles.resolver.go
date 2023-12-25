@@ -119,7 +119,7 @@ func (r *Resolver) PublicProcurementContractArticlesOverviewResolver(params grap
 
 	input := dto.GetProcurementContractArticlesInput{}
 
-	if contractID.(int) > 0 {
+	if contractID != nil && contractID.(int) > 0 {
 		contractID := contractID.(int)
 		input.ContractID = &contractID
 	}

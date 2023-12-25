@@ -266,7 +266,7 @@ func (r *Resolver) RevisionResolver(params graphql.ResolveParams) (interface{}, 
 		input.Size = &sizeNum
 	}
 
-	if id != nil {
+	if id != nil && id.(int) > 0 {
 		revision, err := r.Repo.GetRevisionByID(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -606,12 +606,12 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 		input.Size = &sizeNum
 	}
 
-	if revisionType.(int) > 0 {
+	if revisionType != nil && revisionType.(int) > 0 {
 		temp := revisionType.(int)
 		input.RevisionType = &temp
 	}
 
-	if plan.(int) > 0 {
+	if plan != nil && plan.(int) > 0 {
 		temp := plan.(int)
 		input.PlanID = &temp
 	}
@@ -624,7 +624,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 	var revisionsOrgUnit []*dto.RevisionOrgUnit
 	revisionOrgUnit := false
 
-	if internal.(int) > 0 {
+	if internal != nil && internal.(int) > 0 {
 		temp := internal.(int)
 		filter := dto.RevisionOrgUnitFilter{
 			OrganizationUnitID: &temp,
@@ -640,7 +640,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 	var revisionsRevisor []*dto.RevisionRevisor
 	revisionRevisor := false
 
-	if revisor.(int) > 0 {
+	if revisor != nil && revisor.(int) > 0 {
 		temp := revisor.(int)
 		filter := dto.RevisionRevisorFilter{
 			RevisorID: &temp,
@@ -942,7 +942,7 @@ func (r *Resolver) RevisionTipsOverviewResolver(params graphql.ResolveParams) (i
 		input.Size = &sizeNum
 	}
 
-	if revision.(int) > 0 {
+	if revision != nil && revision.(int) > 0 {
 		temp := revision.(int)
 		input.RevisionID = &temp
 	}

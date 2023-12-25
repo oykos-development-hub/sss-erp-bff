@@ -32,7 +32,7 @@ func PopulateOfficesOfOrganizationUnitItemProperties(basicInventoryItems []inter
 		}
 
 		// Filtering by status
-		if shared.IsString(search) && len(search) > 0 && !shared.StringContains(mergedItem["title"].(string), search) {
+		if len(search) > 0 && !shared.StringContains(mergedItem["title"].(string), search) {
 			continue
 		}
 

@@ -107,7 +107,7 @@ func (r *Resolver) ProgramOverviewResolver(params graphql.ResolveParams) (interf
 		fmt.Printf("Fetching Program failed because of this error - %s.\n", err)
 	}
 	// Filtering by search
-	if search != "" && shared.IsString(search) {
+	if search != "" {
 		ProgramData = shared.FindByProperty(ProgramData, "Title", search, true)
 	}
 	// Populate data for each Basic Inventory Real Estates
@@ -116,7 +116,7 @@ func (r *Resolver) ProgramOverviewResolver(params graphql.ResolveParams) (interf
 	total = len(items)
 
 	// Filtering by Pagination params
-	if page != 0 && size != 0 {
+	if page != nil && page != 0 && size != nil && size != 0 {
 		items = shared.Pagination(items, page.(int), size.(int))
 	}
 

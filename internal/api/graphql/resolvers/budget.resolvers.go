@@ -23,15 +23,15 @@ func BudgetItemProperties(basicInventoryItems []interface{}, id int, typeBudget 
 			continue
 		}
 		// Filtering by type
-		if shared.IsString(typeBudget) && len(typeBudget) > 0 && typeBudget != mergedItem["type"] {
+		if len(typeBudget) > 0 && typeBudget != mergedItem["type"] {
 			continue
 		}
 		// Filtering by year
-		if shared.IsString(year) && len(year) > 0 && year != mergedItem["year"] {
+		if len(year) > 0 && year != mergedItem["year"] {
 			continue
 		}
 		// Filtering by status
-		if shared.IsString(status) && len(status) > 0 && status != mergedItem["status"] {
+		if len(status) > 0 && status != mergedItem["status"] {
 			continue
 		}
 
@@ -87,7 +87,7 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 	total = len(items)
 
 	// Filtering by Pagination params
-	if page != 0 && size != 0 {
+	if page != nil && page != 0 && size != nil && size != 0 {
 		items = shared.Pagination(items, page.(int), size.(int))
 	}
 

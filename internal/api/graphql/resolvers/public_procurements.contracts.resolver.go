@@ -66,7 +66,7 @@ func (r *Resolver) PublicProcurementContractsOverviewResolver(params graphql.Res
 		input.Year = &value
 	}
 
-	if id.(int) > 0 {
+	if id != nil {
 		contract, err := r.Repo.GetProcurementContract(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)

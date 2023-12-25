@@ -266,7 +266,7 @@ func (r *Resolver) RevisionResolver(params graphql.ResolveParams) (interface{}, 
 		input.Size = &sizeNum
 	}
 
-	if id.(int) > 0 {
+	if id != nil {
 		revision, err := r.Repo.GetRevisionByID(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)

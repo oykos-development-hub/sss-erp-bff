@@ -494,6 +494,10 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		} else {
 			item.SourceType = "PS2"
 		}
+
+		if item.IsExternalDonation {
+			item.SourceType = "PS2"
+		}
 	}
 
 	settingDropdownOfficeID := dto.DropdownSimple{}
@@ -857,13 +861,16 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		} else {
 			item.SourceType = "NS2"
 		}
-
 	}
 
 	if item.Type == "movable" {
 		if item.OrganizationUnitID == item.TargetOrganizationUnitID || organizationUnitID == item.OrganizationUnitID {
 			item.SourceType = "PS1"
 		} else {
+			item.SourceType = "PS2"
+		}
+
+		if item.IsExternalDonation {
 			item.SourceType = "PS2"
 		}
 	}

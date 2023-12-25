@@ -360,7 +360,7 @@ func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterf
 	}
 
 	targetUserDropdown := dto.DropdownSimple{}
-	if item.Type != "revers" && item.TargetUserProfileID != 0 && item.SourceOrganizationUnitID == organizationUnitID {
+	if item.TargetUserProfileID != 0 {
 		user, _ := repo.GetUserProfileByID(item.TargetUserProfileID)
 
 		if user != nil {

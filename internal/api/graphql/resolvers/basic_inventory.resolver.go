@@ -875,6 +875,17 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		}
 	}
 
+	if item.SourceType == "PS2" {
+		var iterator int
+		for i, movement := range movements {
+			iterator = i
+			if movement.Type == "revers" {
+				break
+			}
+		}
+		movements = movements[:iterator]
+	}
+
 	if !item.Active && item.DeactivationFileID != 0 {
 
 		file, err := r.GetFileByID(item.DeactivationFileID)

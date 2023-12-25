@@ -39,15 +39,15 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 		total = 1
 	} else {
 		input := dto.GetOrganizationUnitsInput{}
-		if page.(int) > 0 {
+		if page != nil && page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum
 		}
-		if size.(int) > 0 {
+		if size != nil && size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}
-		if parentID.(int) > 0 {
+		if parentID != nil && parentID.(int) > 0 {
 			parentID := parentID.(int)
 			input.ParentID = &parentID
 		}

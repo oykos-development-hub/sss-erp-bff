@@ -37,11 +37,11 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 		total = 1
 	} else {
 		input := dto.GetSystematizationsInput{}
-		if page.(int) > 0 {
+		if page != nil && page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum
 		}
-		if size.(int) > 0 {
+		if size != nil && size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}

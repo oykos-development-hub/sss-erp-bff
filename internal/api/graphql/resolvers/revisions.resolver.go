@@ -201,11 +201,11 @@ func (r *Resolver) RevisionsOverviewResolver(params graphql.ResolveParams) (inte
 		response.Total = 1
 	} else {
 		input := dto.GetRevisionsInput{}
-		if page.(int) > 0 {
+		if page != nil && page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum
 		}
-		if size.(int) > 0 {
+		if size != nil && size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}
@@ -257,11 +257,11 @@ func (r *Resolver) RevisionResolver(params graphql.ResolveParams) (interface{}, 
 	id := params.Args["id"]
 
 	input := dto.GetRevisionsInput{}
-	if page.(int) > 0 {
+	if page != nil && page.(int) > 0 {
 		pageNum := page.(int)
 		input.Page = &pageNum
 	}
-	if size.(int) > 0 {
+	if size != nil && size.(int) > 0 {
 		sizeNum := size.(int)
 		input.Size = &sizeNum
 	}
@@ -402,11 +402,11 @@ func (r *Resolver) RevisionPlansOverviewResolver(params graphql.ResolveParams) (
 	year := params.Args["year"]
 
 	input := dto.GetPlansInput{}
-	if page.(int) > 0 {
+	if page != nil && page.(int) > 0 {
 		pageNum := page.(int)
 		input.Page = &pageNum
 	}
-	if size.(int) > 0 {
+	if size != nil && size.(int) > 0 {
 		sizeNum := size.(int)
 		input.Size = &sizeNum
 	}
@@ -596,12 +596,12 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 	plan := params.Args["plan_id"]
 
 	input := dto.GetRevisionFilter{}
-	if page.(int) > 0 {
+	if page != nil && page.(int) > 0 {
 		pageNum := page.(int)
 		input.Page = &pageNum
 	}
 
-	if size.(int) > 0 {
+	if size != nil && size.(int) > 0 {
 		sizeNum := size.(int)
 		input.Size = &sizeNum
 	}
@@ -932,12 +932,12 @@ func (r *Resolver) RevisionTipsOverviewResolver(params graphql.ResolveParams) (i
 	revision := params.Args["revision_id"]
 
 	input := dto.GetRevisionTipFilter{}
-	if page.(int) > 0 {
+	if page != nil && page.(int) > 0 {
 		pageNum := page.(int)
 		input.Page = &pageNum
 	}
 
-	if size.(int) > 0 {
+	if size != nil && size.(int) > 0 {
 		sizeNum := size.(int)
 		input.Size = &sizeNum
 	}

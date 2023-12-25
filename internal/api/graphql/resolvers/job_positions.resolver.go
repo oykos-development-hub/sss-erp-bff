@@ -30,11 +30,11 @@ func (r *Resolver) JobPositionsResolver(params graphql.ResolveParams) (interface
 		total = 1
 	} else {
 		input := dto.GetJobPositionsInput{}
-		if page.(int) > 0 {
+		if page != nil && page.(int) > 0 {
 			pageNum := page.(int)
 			input.Page = &pageNum
 		}
-		if size.(int) > 0 {
+		if size != nil && size.(int) > 0 {
 			sizeNum := size.(int)
 			input.Size = &sizeNum
 		}

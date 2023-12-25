@@ -29,11 +29,11 @@ func (r *Resolver) PublicProcurementContractsOverviewResolver(params graphql.Res
 	year := params.Args["year"]
 
 	input := dto.GetProcurementContractsInput{}
-	if page.(int) > 0 {
+	if page != nil && page.(int) > 0 {
 		pageNum := page.(int)
 		input.Page = &pageNum
 	}
-	if size.(int) > 0 {
+	if size != nil && size.(int) > 0 {
 		sizeNum := size.(int)
 		input.Size = &sizeNum
 	}

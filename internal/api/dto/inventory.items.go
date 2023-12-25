@@ -61,6 +61,7 @@ type BasicInventoryResponseListItem struct {
 	TargetOrganizationUnit DropdownSimple                                                 `json:"target_organization_unit"`
 	ClassType              DropdownSimple                                                 `json:"class_type"`
 	Office                 DropdownSimple                                                 `json:"office"`
+	Invoice                DropdownSimple                                                 `json:"invoice"`
 }
 
 type BasicInventoryResponseItem struct {
@@ -71,6 +72,7 @@ type BasicInventoryResponseItem struct {
 	DepreciationType             DropdownSimple                                                 `json:"depreciation_type"`
 	Supplier                     DropdownSimple                                                 `json:"supplier"`
 	Donor                        DropdownSimple                                                 `json:"donor"`
+	Invoice                      DropdownSimple                                                 `json:"invoice"`
 	RealEstate                   *structs.BasicInventoryRealEstatesItemResponseForInventoryItem `json:"real_estate"`
 	Assessments                  []*BasicInventoryResponseAssessment                            `json:"assessments"`
 	Movements                    []*InventoryDispatchResponse                                   `json:"movements"`

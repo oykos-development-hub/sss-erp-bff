@@ -26,6 +26,9 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"supplier": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"invoice": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"donor": &graphql.Field{
 			Type: DropdownItemType,
 		},
@@ -177,6 +180,9 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"office": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"invoice": &graphql.Field{
 			Type: DropdownItemType,
 		},
 		"target_user_profile": &graphql.Field{

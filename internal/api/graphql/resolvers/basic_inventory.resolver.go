@@ -609,6 +609,8 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		}
 	}
 
+	//get invoice
+
 	res := dto.BasicInventoryResponseListItem{
 		ID:                     item.ID,
 		Active:                 item.Active,
@@ -629,6 +631,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		TargetOrganizationUnit: targetOrganizationUnitDropdown,
 		ClassType:              settingDropdownClassType,
 		Office:                 settingDropdownOfficeID,
+		Invoice:                dto.DropdownSimple{}, // add invoice dropdown
 		HasAssessments:         hasAssessments,
 	}
 
@@ -881,6 +884,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		movements = append([]*dto.InventoryDispatchResponse{movement}, movements...)
 	}
 
+	/*
+		get invoice
+	*/
+
 	res := dto.BasicInventoryResponseItem{
 		ID:                           item.ID,
 		ArticleID:                    item.ArticleID,
@@ -888,6 +895,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		SourceType:                   item.SourceType,
 		ClassType:                    settingDropdownClassType,
 		DepreciationType:             settingDropdownDepreciationTypeID,
+		Invoice:                      dto.DropdownSimple{}, //add invoice dropdown
 		Supplier:                     suppliersDropdown,
 		Donor:                        donorDropdown,
 		RealEstate:                   realEstateStruct,

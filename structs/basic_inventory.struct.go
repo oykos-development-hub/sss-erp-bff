@@ -14,6 +14,7 @@ type BasicInventoryDetailsItem struct {
 	Abbreviation                 string  `json:"abbreviation"`
 	InternalOwnership            bool    `json:"internal_ownership"`
 	OfficeID                     int     `json:"office_id"`
+	InvoiceID                    int     `json:"invoice_id"`
 	Location                     string  `json:"location"`
 	OrganizationUnitID           int     `json:"organization_unit_id"`
 	TargetOrganizationUnitID     int     `json:"target_organization_unit_id"`
@@ -55,6 +56,7 @@ type BasicInventoryInsertItem struct {
 	Title                        string                         `json:"title"`
 	Abbreviation                 string                         `json:"abbreviation"`
 	InternalOwnership            bool                           `json:"internal_ownership"`
+	InvoiceID                    int                            `json:"invoice_id"`
 	OfficeID                     int                            `json:"office_id"`
 	Location                     string                         `json:"location"`
 	OrganizationUnitID           int                            `json:"organization_unit_id"`
@@ -93,6 +95,7 @@ type BasicInventoryItem struct {
 	RealEstateID             int     `json:"real_estate_id"`
 	InventoryNumber          string  `json:"inventory_number"`
 	Title                    string  `json:"title"`
+	InvoiceID                int     `json:"invoice_id"`
 	OfficeID                 int     `json:"office_id"`
 	TargetUserProfileID      int     `json:"target_user_profile_id"`
 	OrganizationUnitID       int     `json:"organization_unit_id"`

@@ -909,14 +909,22 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	}
 
 	if item.SourceType == "PS2" {
-		var iterator int
-		for i, movement := range movements {
-			iterator = i
-			if movement.Type == "revers" {
-				break
+		var movementResponse []*dto.InventoryDispatchResponse
+		var addMovement bool
+		for _, movement := range movements {
+			if movement.Type == "revers" && movement.TargetOrganizationUnit.ID == organizationUnitID {
+				addMovement = true
+			}
+
+			if addMovement {
+				movementResponse = append(movementResponse, movement)
+			}
+
+			if movement.Type == "return-revers" {
+				addMovement = false
 			}
 		}
-		movements = movements[:iterator]
+		movements = movementResponse
 	}
 
 	if !item.Active && item.DeactivationFileID != 0 {

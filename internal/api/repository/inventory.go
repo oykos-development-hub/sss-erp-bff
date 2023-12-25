@@ -294,16 +294,23 @@ func (repo *MicroserviceRepository) GetInventoryRealEstate(id int) (*structs.Bas
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, bool, int, error) {
+func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.BasicInventoryInsertItem) ([]structs.BasicInventoryInsertValidator, error) {
 	inventoryMap := make(map[string]bool)
 	serialMap := make(map[string]bool)
+	var items []structs.BasicInventoryInsertValidator
 
 	for _, item := range input {
 		if serialMap[item.SerialNumber] {
-			return &item, false, 1, nil
+			items = append(items, structs.BasicInventoryInsertValidator{
+				Entity: "serial_number",
+				Value:  item.SerialNumber,
+			})
 		}
 		if inventoryMap[item.InventoryNumber] {
-			return &item, false, 2, nil
+			items = append(items, structs.BasicInventoryInsertValidator{
+				Entity: "inventory_number",
+				Value:  item.InventoryNumber,
+			})
 		}
 
 		inventoryMap[item.InventoryNumber] = true
@@ -316,11 +323,14 @@ func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.Bas
 		})
 
 		if err != nil {
-			return nil, false, 0, err
+			return nil, err
 		}
 
 		if len(inventoryItem.Data) != 0 {
-			return &item, false, 1, nil
+			items = append(items, structs.BasicInventoryInsertValidator{
+				Entity: "serial_number",
+				Value:  inventoryItem.Data[0].SerialNumber,
+			})
 		}
 
 		inventoryItem, err = repo.GetAllInventoryItem(dto.InventoryItemFilter{
@@ -328,12 +338,15 @@ func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.Bas
 		})
 
 		if err != nil {
-			return nil, false, 0, err
+			return nil, err
 		}
 
 		if len(inventoryItem.Data) != 0 {
-			return &item, false, 2, nil
+			items = append(items, structs.BasicInventoryInsertValidator{
+				Entity: "inventory_number",
+				Value:  inventoryItem.Data[0].InventoryNumber,
+			})
 		}
 	}
-	return nil, true, 0, nil
+	return items, nil
 }

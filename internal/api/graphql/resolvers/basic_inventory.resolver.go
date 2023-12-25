@@ -7,7 +7,6 @@ import (
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -321,17 +320,17 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 		return apierrors.HandleAPIError(err)
 	}
 
-	responseItem, isSuccess, typeErr, err := r.Repo.CheckInsertInventoryData(data)
+	responseItem, err := r.Repo.CheckInsertInventoryData(data)
 
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
 
-	if !isSuccess && len(data) > 0 && (data[0].Type == "movable" || data[0].Type == "small") && data[0].ID == 0 {
-		if typeErr == 1 {
-			return apierrors.HandleAPIError(errors.New("Serijski broj artikla " + responseItem.Title + " već postoji!"))
-		}
-		return apierrors.HandleAPIError(errors.New("Inventarski broj artikla " + responseItem.Title + " već postoji!"))
+	if len(responseItem) > 0 {
+		return dto.Response{
+			Status:    "failed",
+			Validator: responseItem,
+		}, nil
 	}
 
 	for _, item := range data {

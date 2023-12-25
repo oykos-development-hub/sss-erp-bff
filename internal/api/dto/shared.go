@@ -6,13 +6,14 @@ import (
 )
 
 type Response struct {
-	Status  string      `json:"status"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
-	Total   int         `json:"total"`
-	Price   float32     `json:"price"`
-	Items   interface{} `json:"items"`
-	Summary interface{} `json:"summary"`
+	Status    string      `json:"status"`
+	Message   string      `json:"message"`
+	Data      interface{} `json:"data"`
+	Total     int         `json:"total"`
+	Price     float32     `json:"price"`
+	Items     interface{} `json:"items"`
+	Summary   interface{} `json:"summary"`
+	Validator interface{} `json:"validator"`
 }
 
 func ErrorResponse(err error) Response {

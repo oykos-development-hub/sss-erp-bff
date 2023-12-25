@@ -9,7 +9,7 @@ import (
 type MicroserviceRepositoryInterface interface {
 	AddOnStock(stock []structs.StockArticle, article structs.OrderProcurementArticleItem, organizationUnitID int) error
 	AuthenticateUser(r *http.Request) (*structs.UserAccounts, error)
-	CheckInsertInventoryData(input []structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, bool, int, error)
+	CheckInsertInventoryData(input []structs.BasicInventoryInsertItem) ([]structs.BasicInventoryInsertValidator, error)
 	CreateAbsent(absent *structs.Absent) (*structs.Absent, error)
 	CreateAbsentType(absent *structs.AbsentType) (*structs.AbsentType, error)
 	CreateAccountItem(accountItem *structs.AccountItem) (*structs.AccountItem, error)

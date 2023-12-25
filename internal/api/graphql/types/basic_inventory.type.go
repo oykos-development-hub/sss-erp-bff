@@ -350,6 +350,21 @@ var BasicInventoryInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"items": &graphql.Field{
 			Type: graphql.NewList(BasicInventoryDetailsItemType),
 		},
+		"validator": &graphql.Field{
+			Type: graphql.NewList(BasicInventoryValidatorItemType),
+		},
+	},
+})
+
+var BasicInventoryValidatorItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BasicInventoryValidatorItemType",
+	Fields: graphql.Fields{
+		"entity": &graphql.Field{
+			Type: graphql.String,
+		},
+		"value": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })
 

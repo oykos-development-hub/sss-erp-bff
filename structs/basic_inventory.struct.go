@@ -114,3 +114,8 @@ type BasicInventoryItemDispatch struct {
 	OfficeID                  int    `json:"office_id"`
 	SerialNumber              string `json:"serial_number"`
 }
+
+type BasicInventoryInsertValidator struct {
+	Value  string `json:"value"`
+	Entity string `json:"entity"`
+}

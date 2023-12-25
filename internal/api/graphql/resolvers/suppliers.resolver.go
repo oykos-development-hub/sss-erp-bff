@@ -16,7 +16,7 @@ func (r *Resolver) SuppliersOverviewResolver(params graphql.ResolveParams) (inte
 	search := params.Args["search"]
 	entity := params.Args["entity"]
 
-	if id.(int) > 0 {
+	if id != nil {
 		supplier, err := r.Repo.GetSupplier(id.(int))
 		if err != nil {
 			return errors.HandleAPIError(err)

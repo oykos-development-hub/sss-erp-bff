@@ -117,6 +117,7 @@ type MicroserviceRepositoryInterface interface {
 	GetAccountItems(filters *dto.GetAccountsFilter) (*dto.GetAccountItemListResponseMS, error)
 	GetAllInventoryDispatches(filter dto.InventoryDispatchFilter) (*dto.GetAllBasicInventoryDispatches, error)
 	GetAllInventoryItem(filter dto.InventoryItemFilter) (*dto.GetAllBasicInventoryItem, error)
+	GetAllInventoryItemInOrgUnits(id int) ([]dto.GetAllItemsInOrgUnits, error)
 	GetDispatchItemByID(id int) (*structs.BasicInventoryDispatchItem, error)
 	GetDispatchItemByInventoryID(id int) ([]*structs.BasicInventoryDispatchItemsItem, error)
 	GetDropdownSettingByID(id int) (*structs.SettingsDropdown, error)

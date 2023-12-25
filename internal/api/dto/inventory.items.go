@@ -36,6 +36,17 @@ type InventoryItemFilter struct {
 	Size               *int    `json:"size"`
 }
 
+type GetAllItemsInOrgUnits struct {
+	ItemID     int   `json:"item_id"`
+	ReversID   int   `json:"revers_id"`
+	ReturnID   int   `json:"return_id"`
+	MovementID []int `json:"movement_id"`
+}
+
+type GetAllItemsInOrgUnitsMS struct {
+	Data []GetAllItemsInOrgUnits `json:"data"`
+}
+
 type DispatchInventoryItemFilter struct {
 	DispatchID *int `json:"dispatch_id"`
 }

@@ -131,6 +131,17 @@ func (repo *MicroserviceRepository) DeleteInventoryDispatch(id int) error {
 	return nil
 }
 
+func (repo *MicroserviceRepository) GetAllInventoryItemInOrgUnits(id int) ([]dto.GetAllItemsInOrgUnits, error) {
+	res := dto.GetAllItemsInOrgUnitsMS{}
+
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.ItemsInOrgUnit+"/"+strconv.Itoa(id), nil, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
 func (repo *MicroserviceRepository) GetDispatchItemByID(id int) (*structs.BasicInventoryDispatchItem, error) {
 	res := dto.GetBasicInventoryDispatch{}
 
@@ -226,7 +237,6 @@ func (repo *MicroserviceRepository) GetInventoryItem(id int) (*structs.BasicInve
 
 	return res.Data, nil
 }
-
 func (repo *MicroserviceRepository) GetAllInventoryItem(filter dto.InventoryItemFilter) (*dto.GetAllBasicInventoryItem, error) {
 	res := &dto.GetAllBasicInventoryItem{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Item, filter, &res)
@@ -236,7 +246,6 @@ func (repo *MicroserviceRepository) GetAllInventoryItem(filter dto.InventoryItem
 
 	return res, nil
 }
-
 func (repo *MicroserviceRepository) GetMyInventoryRealEstate(id int) (*structs.BasicInventoryRealEstatesItem, error) {
 	res := &dto.GetMyInventoryRealEstateResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Base+"/item/"+strconv.Itoa(id)+"/real-estates", nil, res)

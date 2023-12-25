@@ -182,7 +182,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		typeOfImmovable = typeImmovement
 	}
 
-	if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 {
+	if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 && status != "Arhiva" {
 		filter.OrganizationUnitID = &organizationUnitID
 	}
 	basicInventoryData, err := r.Repo.GetAllInventoryItem(filter)
@@ -201,7 +201,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		if len(sourceTypeStr) > 0 && sourceTypeStr != item.SourceType {
 			continue
 		}
-		if status != "" && resItem.Status != status {
+		if status != "" && status != "Arhiva" && resItem.Status != status {
 			continue
 		}
 		if expireFilter {
@@ -239,6 +239,39 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 
 	if size, ok := params.Args["size"].(int); ok && size != 0 {
 		filter.Size = &size
+	}
+
+	if status == "Arhiva" {
+		var response []*dto.BasicInventoryResponseListItem
+		var responseItem *dto.BasicInventoryResponseListItem
+		basicItems, err := r.Repo.GetAllInventoryItemInOrgUnits(*organizationUnitID)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		for _, item := range basicItems {
+			var exists bool
+			for _, inventoryItem := range items {
+				if inventoryItem.ID == item.ItemID {
+					exists = true
+					responseItem = inventoryItem
+				}
+			}
+			if exists {
+				var existsInResponse bool
+				for _, responseItem := range response {
+					if responseItem.ID == item.ItemID {
+						existsInResponse = true
+					}
+				}
+				if !existsInResponse {
+					responseItem.SourceType = "Arhiva"
+					response = append(response, responseItem)
+				}
+			}
+		}
+		items = response
 	}
 
 	total := len(items)

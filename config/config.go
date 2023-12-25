@@ -136,12 +136,13 @@ type AccountingMS struct {
 }
 
 type InventoryMS struct {
-	Base          string
-	Item          string
-	RealEstates   string
-	Assessments   string
-	Dispatch      string
-	DispatchItems string
+	Base           string
+	Item           string
+	RealEstates    string
+	Assessments    string
+	Dispatch       string
+	DispatchItems  string
+	ItemsInOrgUnit string
 }
 
 type FilesMS struct {
@@ -271,12 +272,13 @@ func LoadDefaultConfig() (*Config, error) {
 				ContractArticleOverage:  procurementsBase + "/contract-article-overages",
 			},
 			Inventory: InventoryMS{
-				Base:          inventoryBase,
-				Item:          inventoryBase + "/items",
-				RealEstates:   inventoryBase + "/real-estates",
-				Assessments:   inventoryBase + "/assessments",
-				Dispatch:      inventoryBase + "/dispatches",
-				DispatchItems: inventoryBase + "/dispatch-items",
+				Base:           inventoryBase,
+				Item:           inventoryBase + "/items",
+				RealEstates:    inventoryBase + "/real-estates",
+				Assessments:    inventoryBase + "/assessments",
+				Dispatch:       inventoryBase + "/dispatches",
+				DispatchItems:  inventoryBase + "/dispatch-items",
+				ItemsInOrgUnit: inventoryBase + "/items-in-organization-unit",
 			},
 			Files: FilesMS{
 				Base:                filesBase,

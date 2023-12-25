@@ -44,5 +44,11 @@ var BasicInventoryDispatchMutation = graphql.NewInputObject(graphql.InputObjectC
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"is_external_donation": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
+		"donation_files": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
 	},
 })

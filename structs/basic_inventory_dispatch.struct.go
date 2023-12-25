@@ -18,6 +18,8 @@ type BasicInventoryDispatchItem struct {
 	CreatedAt                string `json:"created_at"`
 	UpdatedAt                string `json:"updated_at"`
 	FileID                   int    `json:"file_id"`
+	IsExternalDonation       bool   `json:"is_external_donation"`
+	DonationFiles            []int  `json:"donation_files"`
 }
 
 type BasicInventoryDispatchItemsItem struct {

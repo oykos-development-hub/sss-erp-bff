@@ -112,23 +112,59 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		itemRes, err := r.Repo.CreateDispatchItem(&data)
-		if err != nil {
-			return apierrors.HandleAPIError(err)
+		if data.Type != "convert" {
+			itemRes, err := r.Repo.CreateDispatchItem(&data)
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			err = sendInventoryDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitID, itemRes.TargetOrganizationUnitID)
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			response.Message = "You created this item!"
+			items, err = buildInventoryDispatchResponse(r.Repo, itemRes, *organizationUnitID)
+
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+		} else {
+			organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+			if !ok || organizationUnitID == nil {
+				return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			}
+
+			input := structs.BasicInventoryDispatchItem{
+				Type:                     data.Type,
+				SourceUserProfileID:      data.SourceUserProfileID,
+				SourceOrganizationUnitID: *organizationUnitID,
+				Date:                     data.Date,
+				InventoryID:              data.InventoryID,
+			}
+
+			_, err := r.Repo.CreateDispatchItem(&input)
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			for _, itemID := range data.InventoryID {
+				item, err := r.Repo.GetInventoryItem(itemID)
+
+				if err != nil {
+					return apierrors.HandleAPIError(err)
+				}
+
+				item.IsExternalDonation = false
+				item.DonationFiles = append(item.DonationFiles, data.DonationFiles...)
+
+				_, err = r.Repo.UpdateInventoryItem(itemID, item)
+
+				if err != nil {
+					return apierrors.HandleAPIError(err)
+				}
+			}
 		}
-
-		err = sendInventoryDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitID, itemRes.TargetOrganizationUnitID)
-		if err != nil {
-			return apierrors.HandleAPIError(err)
-		}
-
-		response.Message = "You created this item!"
-		items, err = buildInventoryDispatchResponse(r.Repo, itemRes, *organizationUnitID)
-
-		if err != nil {
-			return apierrors.HandleAPIError(err)
-		}
-
 	}
 
 	response.Item = items

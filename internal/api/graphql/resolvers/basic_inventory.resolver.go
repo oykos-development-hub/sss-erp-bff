@@ -911,19 +911,22 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	if item.SourceType == "PS2" {
 		var movementResponse []*dto.InventoryDispatchResponse
 		var addMovement bool
-		for _, movement := range movements {
+		for i := len(movements) - 1; i >= 0; i-- {
+			movement := movements[i]
+
 			if movement.Type == "revers" && movement.TargetOrganizationUnit.ID == organizationUnitID {
 				addMovement = true
 			}
 
 			if addMovement {
-				movementResponse = append(movementResponse, movement)
+				movementResponse = append([]*dto.InventoryDispatchResponse{movement}, movementResponse...)
 			}
 
 			if movement.Type == "return-revers" {
 				addMovement = false
 			}
 		}
+
 		movements = movementResponse
 	}
 

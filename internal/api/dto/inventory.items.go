@@ -31,6 +31,7 @@ type InventoryItemFilter struct {
 	SerialNumber       *string `json:"serial_number"`
 	InventoryNumber    *string `json:"inventory_number"`
 	Location           *string `json:"location"`
+	IsExternalDonation *bool   `json:"is_external_donation"`
 	Page               *int    `json:"page"`
 	Size               *int    `json:"size"`
 }
@@ -55,6 +56,7 @@ type BasicInventoryResponseListItem struct {
 	Status                 string                                                         `json:"status"`
 	SourceType             string                                                         `json:"source_type"`
 	HasAssessments         bool                                                           `json:"has_assessments"`
+	IsExternalDonation     bool                                                           `json:"is_external_donation"`
 	RealEstate             *structs.BasicInventoryRealEstatesItemResponseForInventoryItem `json:"real_estate"`
 	DepreciationType       DropdownSimple                                                 `json:"depreciation_type"`
 	OrganizationUnit       DropdownSimple                                                 `json:"organization_unit"`
@@ -115,6 +117,7 @@ type BasicInventoryResponseItem struct {
 	FileID                       int                                                            `json:"file_id"`
 	DonationDescription          string                                                         `json:"donation_description"`
 	DonationFiles                []FileDropdownSimple                                           `json:"donation_files"`
+	IsExternalDonation           bool                                                           `json:"is_external_donation"`
 }
 
 type ReportValueClassInventoryItem struct {

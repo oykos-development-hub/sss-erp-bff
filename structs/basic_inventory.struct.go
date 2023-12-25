@@ -87,6 +87,7 @@ type BasicInventoryInsertItem struct {
 	ContractArticleID            int                            `json:"contract_article_id"`
 	DonationDescription          string                         `json:"donation_description"`
 	DonationFiles                []int                          `json:"donation_files"`
+	IsExternalDonation           bool                           `json:"is_external_donation"`
 }
 
 type BasicInventoryItem struct {

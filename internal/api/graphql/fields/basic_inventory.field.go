@@ -51,6 +51,9 @@ func (f *Field) BasicInventoryOverviewField() *graphql.Field {
 			"expire": &graphql.ArgumentConfig{
 				Type: graphql.Boolean,
 			},
+			"is_external_donation": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
+			},
 		},
 		Resolve: f.Resolvers.BasicInventoryOverviewResolver,
 	}

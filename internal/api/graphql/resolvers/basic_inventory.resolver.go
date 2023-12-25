@@ -138,6 +138,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	var typeOfImmovable string
 	sourceTypeStr := ""
 	var expireFilter bool
+	var isDonation bool
 
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		filter.ID = &id
@@ -168,6 +169,9 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	}
 	if expire, ok := params.Args["expire"].(bool); ok && expire {
 		expireFilter = expire
+	}
+	if isExternalDonation, ok := params.Args["is_external_donation"].(bool); ok && isExternalDonation {
+		isDonation = isExternalDonation
 	}
 
 	if st, ok := params.Args["status"].(string); ok && st != "" {
@@ -218,7 +222,9 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 
 		if status == "Otpisano" || resItem.Active {
 			if len(typeOfImmovable) == 0 || (typeOfImmovable != "" && resItem.RealEstate.TypeID == typeOfImmovable) {
-				items = append(items, resItem)
+				if !isDonation || (isDonation && item.IsExternalDonation) {
+					items = append(items, resItem)
+				}
 			}
 		}
 
@@ -633,6 +639,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		Office:                 settingDropdownOfficeID,
 		Invoice:                dto.DropdownSimple{}, // add invoice dropdown
 		HasAssessments:         hasAssessments,
+		IsExternalDonation:     item.IsExternalDonation,
 	}
 
 	return &res, nil
@@ -953,6 +960,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		DonationFiles:                donationFiles,
 		CreatedAt:                    item.CreatedAt,
 		UpdatedAt:                    item.UpdatedAt,
+		IsExternalDonation:           item.IsExternalDonation,
 	}
 
 	return &res, nil

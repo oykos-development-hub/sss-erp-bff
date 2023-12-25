@@ -149,6 +149,12 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"file_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"donation_description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"donation_files": &graphql.Field{
+			Type: graphql.NewList(graphql.Int),
+		},
 	},
 })
 

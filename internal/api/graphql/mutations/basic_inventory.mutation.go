@@ -173,5 +173,11 @@ var RealEstateInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"donation_description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"donation_files": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
 	},
 })

@@ -113,6 +113,8 @@ type BasicInventoryResponseItem struct {
 	UpdatedAt                    string                                                         `json:"updated_at"`
 	InvoiceFileID                int                                                            `json:"invoice_file_id"`
 	FileID                       int                                                            `json:"file_id"`
+	DonationDescription          string                                                         `json:"donation_description"`
+	DonationFiles                []FileDropdownSimple                                           `json:"donation_files"`
 }
 
 type ReportValueClassInventoryItem struct {

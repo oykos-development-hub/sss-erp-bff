@@ -884,6 +884,22 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		movements = append([]*dto.InventoryDispatchResponse{movement}, movements...)
 	}
 
+	var donationFiles []dto.FileDropdownSimple
+
+	for _, fileID := range item.DonationFiles {
+		file, err := r.GetFileByID(fileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		donationFiles = append(donationFiles, dto.FileDropdownSimple{
+			ID:   file.ID,
+			Name: file.Name,
+			Type: *file.Type,
+		})
+	}
+
 	/*
 		get invoice
 	*/
@@ -933,6 +949,8 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		City:                         currentOrganizationUnit.City,
 		Address:                      currentOrganizationUnit.Address,
 		Status:                       status,
+		DonationDescription:          item.DonationDescription,
+		DonationFiles:                donationFiles,
 		CreatedAt:                    item.CreatedAt,
 		UpdatedAt:                    item.UpdatedAt,
 	}

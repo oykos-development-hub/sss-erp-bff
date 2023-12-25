@@ -189,15 +189,15 @@ func LoadDefaultConfig() (*Config, error) {
 		log.Fatal("Error loading .env file")
 	}
 
-	baseAppDir, exists := os.LookupEnv("Base_APP_DIR")
+	baseAppDir, exists := os.LookupEnv("BASE_APP_DIR")
 	if !exists {
-		return nil, errors.New("Base_APP_DIR environment variable is required but not set")
+		return nil, errors.New("BASE_APP_DIR environment variable is required but not set")
 	}
 
 	hrBase := getEnvString("HR_MS_BASE_URL", defaultHRAPI)
 	coreBase := getEnvString("CORE_MS_BASE_URL", defaultCoreAPI)
 	procurementsBase := getEnvString("PROCUREMENT_MS_BASE_URL", defaultProcurementsAPI)
-	accountingBase := getEnvString("AccountING_MS_BASE_URL", defaultAccountingAPI)
+	accountingBase := getEnvString("ACCOUNTING_MS_BASE_URL", defaultAccountingAPI)
 	inventoryBase := getEnvString("BASIC_INVENTORY_MS_BASE_URL", defaultInventoryAPI)
 	filesBase := getEnvString("FILE_MS_BASE_URL", defaultFileAPI)
 
@@ -300,7 +300,7 @@ func LoadDefaultConfig() (*Config, error) {
 			HR:           getEnvString("HR_FRONTEND_URL", defaultHRFE),
 			Procurements: getEnvString("PROCUREMENTS_FRONTEND_URL", defaultProcurementsFE),
 			Inventory:    getEnvString("INVENTORY_FRONTEND_URL", defaultInventoryFE),
-			Accounting:   getEnvString("AccountING_FRONTEND_URL", defaultAccountingFE),
+			Accounting:   getEnvString("ACCOUNTING_FRONTEND_URL", defaultAccountingFE),
 			Finance:      getEnvString("FINANCE_FRONTEND_URL", defaultFinanceFE),
 		},
 		Debug: getEnvBool("DEBUG", defaultIsDebug),

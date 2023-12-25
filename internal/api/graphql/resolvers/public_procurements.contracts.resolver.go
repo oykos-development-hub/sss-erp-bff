@@ -37,11 +37,11 @@ func (r *Resolver) PublicProcurementContractsOverviewResolver(params graphql.Res
 		sizeNum := size.(int)
 		input.Size = &sizeNum
 	}
-	if procurementID.(int) > 0 {
+	if procurementID != nil && procurementID.(int) > 0 {
 		procurementID := procurementID.(int)
 		input.ProcurementID = &procurementID
 	}
-	if supplierID.(int) > 0 {
+	if supplierID != nil && supplierID.(int) > 0 {
 		supplierID := supplierID.(int)
 		input.SupplierID = &supplierID
 	}

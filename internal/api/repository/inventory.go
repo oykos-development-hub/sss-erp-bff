@@ -337,7 +337,7 @@ func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.Bas
 			return nil, err
 		}
 
-		if len(inventoryItem.Data) != 0 {
+		if len(inventoryItem.Data) != 0 && inventoryItem.Data[0].ID != item.ID {
 			items = append(items, structs.BasicInventoryInsertValidator{
 				Entity: "serial_number",
 				Value:  inventoryItem.Data[0].SerialNumber,
@@ -352,7 +352,7 @@ func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.Bas
 			return nil, err
 		}
 
-		if len(inventoryItem.Data) != 0 {
+		if len(inventoryItem.Data) != 0 && inventoryItem.Data[0].ID != item.ID {
 			items = append(items, structs.BasicInventoryInsertValidator{
 				Entity: "inventory_number",
 				Value:  inventoryItem.Data[0].InventoryNumber,

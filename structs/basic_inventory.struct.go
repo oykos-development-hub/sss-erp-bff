@@ -126,3 +126,13 @@ type BasicInventoryInsertValidator struct {
 	Value  string `json:"value"`
 	Entity string `json:"entity"`
 }
+
+type InventoryReportStruct struct {
+	ID               int     `json:"id"`
+	Title            string  `json:"title"`
+	InventoryNumber  string  `json:"inventory_number"`
+	Office           string  `json:"office"`
+	ProcurementPrice float32 `json:"procurement_price"`
+	LostValue        float32 `json:"lost_value"`
+	Price            float32 `json:"price"`
+}

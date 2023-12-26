@@ -26,6 +26,9 @@ func (f *Field) ReportInventoryList() *graphql.Field {
 			"soruce_type": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
 		},
 		Resolve: f.Resolvers.ReportInventoryListResolver,
 	}

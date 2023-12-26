@@ -481,6 +481,8 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 				status = "Prihvaćeno"
 			} else if dispatchRes.Type == "allocation" {
 				status = "Zaduženo"
+			} else if dispatchRes.Type == "return-revers" && dispatchRes.SourceOrganizationUnitID == organizationUnitID {
+				status = "Povraćaj"
 			} else {
 				status = "Nezaduženo"
 			}

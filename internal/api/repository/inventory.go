@@ -60,8 +60,10 @@ func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInvent
 					targetUserProfileID = item.TargetUserProfileID
 					OfficeID = item.OfficeID
 				}
-				if item.Type == "return" {
+				if item.Type == "return" || item.Type == "return-revers" {
 					inventory.TargetOrganizationUnitID = targetOrganizationUnitID
+					inventory.TargetUserProfileID = targetUserProfileID
+					inventory.OfficeID = OfficeID
 				}
 
 				inventory.TargetUserProfileID = targetUserProfileID

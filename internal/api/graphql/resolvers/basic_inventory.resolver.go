@@ -77,10 +77,11 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	if filter.OrganizationUnitID != nil {
 		organizationUnitID = filter.OrganizationUnitID
 	} else {
-		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-		if !ok || organizationUnitID == nil {
+		organizationUnitIDFromParams, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitIDFromParams == nil {
 			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 		}
+		organizationUnitID = organizationUnitIDFromParams
 	}
 	for _, item := range basicInventoryData.Data {
 		resItem, err := buildInventoryResponse(r.Repo, item, *organizationUnitID)

@@ -23,7 +23,7 @@ func (f *Field) ReportInventoryList() *graphql.Field {
 			"date": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
-			"soruce_type": &graphql.ArgumentConfig{
+			"source_type": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
 			"organization_unit_id": &graphql.ArgumentConfig{

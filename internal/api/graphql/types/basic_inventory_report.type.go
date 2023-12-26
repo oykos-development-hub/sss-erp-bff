@@ -33,7 +33,7 @@ var ReportInventoryListType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"item": &graphql.Field{
-			Type: ReportInventoryList,
+			Type: graphql.NewList(ReportInventoryList),
 		},
 	},
 })

@@ -817,11 +817,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			}
 		}
 
-		if len(movements) > 0 && movements[0].Type == "return-revers" {
-			item.SourceType = "Arhiva"
-		}
-
 		movements = movementResponse
+		if len(movements) > 0 && movements[0].Type == "return-revers" {
+			status = "Arhiva"
+		}
 	}
 
 	if !item.Active && item.DeactivationFileID != 0 {

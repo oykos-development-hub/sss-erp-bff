@@ -243,7 +243,7 @@ func buildItemForInventoryListReport(r *Resolver, item structs.BasicInventoryIns
 
 	if sourceType == "PS1" || sourceType == "NS1" {
 		response.Date = item.DateOfPurchase
-	} else if !item.IsExternalDonation {
+	} else if !item.IsExternalDonation || sourceType == "NS2" {
 		response.Date = item.DateOfPurchase
 	} else {
 		movements, err := r.Repo.GetDispatchItemByInventoryID(item.ID)

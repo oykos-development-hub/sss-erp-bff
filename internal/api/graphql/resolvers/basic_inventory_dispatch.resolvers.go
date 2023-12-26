@@ -139,8 +139,13 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 				Type:                     data.Type,
 				SourceUserProfileID:      data.SourceUserProfileID,
 				SourceOrganizationUnitID: *organizationUnitID,
+				TargetOrganizationUnitID: data.TargetOrganizationUnitID,
 				Date:                     data.Date,
 				InventoryID:              data.InventoryID,
+			}
+
+			if data.Type == "revers" || data.Type == "return-revers" {
+				input.TargetOrganizationUnitID = data.TargetOrganizationUnitID
 			}
 
 			_, err := r.Repo.CreateDispatchItem(&input)
@@ -308,15 +313,26 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
+		if dispatch.Type == "revers" {
+			item.TargetOrganizationUnitID = dispatch.TargetOrganizationUnitID
 
-		item.TargetOrganizationUnitID = dispatch.TargetOrganizationUnitID
+			if item.TargetOrganizationUnitID != 0 {
+				_, err = r.Repo.UpdateInventoryItem(item.ID, item)
+				if err != nil {
+					return apierrors.HandleAPIError(err)
+				}
+			}
+		}
 
-		if item.TargetOrganizationUnitID != 0 {
+		if dispatch.Type == "return-revers" {
+			item.TargetOrganizationUnitID = 0
+
 			_, err = r.Repo.UpdateInventoryItem(item.ID, item)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
 		}
+
 	}
 	currentDate := time.Now()
 	dispatch.Date = currentDate.Format("2006-01-02T15:04:05.999999Z07:00")

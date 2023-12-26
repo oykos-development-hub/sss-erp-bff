@@ -135,4 +135,5 @@ type InventoryReportStruct struct {
 	ProcurementPrice float32 `json:"procurement_price"`
 	LostValue        float32 `json:"lost_value"`
 	Price            float32 `json:"price"`
+	Date             string  `json:"date"`
 }

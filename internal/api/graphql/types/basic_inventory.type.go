@@ -48,7 +48,7 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"is_external_donation": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Boolean,
 		},
 		"internal_ownership": &graphql.Field{
 			Type: graphql.Boolean,

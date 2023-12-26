@@ -4,6 +4,7 @@ import (
 	"bff/internal/api/dto"
 	apierrors "bff/internal/api/errors"
 	"bff/structs"
+	"errors"
 	"strconv"
 	"time"
 
@@ -164,8 +165,14 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 			}
 		}
 
-		if date != "" {
+		reportItem, err := buildItemForInventoryListReport(r, *item, organizationUnitID)
 
+		if err != nil {
+			continue
+		}
+
+		if date != "" {
+			date = reportItem.Date
 		}
 	}
 
@@ -202,4 +209,44 @@ func getItemSourceType(item structs.BasicInventoryInsertItem, organizationUnitID
 	}
 
 	return item.SourceType
+}
+
+func buildItemForInventoryListReport(r *Resolver, item structs.BasicInventoryInsertItem, organizationUnitID int) (*structs.InventoryReportStruct, error) {
+	response := structs.InventoryReportStruct{
+		ID:               item.ID,
+		Title:            item.Title,
+		InventoryNumber:  item.InventoryNumber,
+		ProcurementPrice: item.GrossPrice,
+	}
+
+	sourceType := getItemSourceType(item, organizationUnitID)
+
+	if sourceType == "PS1" || sourceType == "NS1" {
+		response.Date = item.DateOfPurchase
+	} else if !item.IsExternalDonation {
+		response.Date = item.DateOfPurchase
+	} else {
+		movements, err := r.Repo.GetDispatchItemByInventoryID(item.ID)
+		if err != nil {
+			return nil, err
+		}
+		if len(movements) == 0 {
+			return nil, errors.New("source type is ns2/ps2 but there is not movements")
+		}
+
+		for _, movement := range movements {
+			dispatch, err := r.Repo.GetDispatchItemByID(movement.DispatchID)
+
+			if err != nil {
+				return nil, err
+			}
+
+			if dispatch.Type == "revers" {
+				response.Date = dispatch.Date
+				break
+			}
+		}
+	}
+
+	return &response, nil
 }

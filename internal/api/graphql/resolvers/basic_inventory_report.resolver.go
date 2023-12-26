@@ -251,7 +251,7 @@ func buildItemForInventoryListReport(r *Resolver, item structs.BasicInventoryIns
 			return nil, err
 		}
 		if len(movements) == 0 {
-			return nil, errors.New("source type is ns2/ps2 but there is not movements")
+			return nil, errors.New("source type is ps2 but there are not movements")
 		}
 
 		for _, movement := range movements {
@@ -295,7 +295,7 @@ func buildItemForInventoryListReport(r *Resolver, item structs.BasicInventoryIns
 
 		if date1.Before(endDate) {
 			response.Price = assessmentItem.GrossPriceDifference
-			response.LostValue = response.ProcurementPrice - response.Price
+			response.LostValue = assessmentItem.GrossPriceNew
 			break
 		}
 	}

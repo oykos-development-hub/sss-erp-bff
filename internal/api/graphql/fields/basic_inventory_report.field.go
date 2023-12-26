@@ -21,7 +21,7 @@ func (f *Field) ReportInventoryList() *graphql.Field {
 		Description: "Returns a Report of inventory list",
 		Args: graphql.FieldConfigArgument{
 			"date": &graphql.ArgumentConfig{
-				Type: graphql.String,
+				Type: graphql.NewNonNull(graphql.String),
 			},
 			"source_type": &graphql.ArgumentConfig{
 				Type: graphql.String,

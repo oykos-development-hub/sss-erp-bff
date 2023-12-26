@@ -166,8 +166,7 @@ func getEnvBool(key string, defaultValue bool) bool {
 	if !exists {
 		return defaultValue
 	}
-	valueBool, err := strconv.ParseBool(value)
-	if err != nil {
+	if valueBool, err := strconv.ParseBool(value); err == nil {
 		return valueBool
 	}
 	return defaultValue

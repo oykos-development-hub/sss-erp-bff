@@ -519,6 +519,9 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 			item.SourceType = "NS2"
 		}
 
+		if item.IsExternalDonation {
+			item.SourceType = "NS2"
+		}
 	}
 
 	if item.Type == "movable" {
@@ -892,6 +895,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		if item.OrganizationUnitID == item.TargetOrganizationUnitID || organizationUnitID == item.OrganizationUnitID {
 			item.SourceType = "NS1"
 		} else {
+			item.SourceType = "NS2"
+		}
+
+		if item.IsExternalDonation {
 			item.SourceType = "NS2"
 		}
 	}

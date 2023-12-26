@@ -155,8 +155,12 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 
 	var response []structs.InventoryReportStruct
 
-	for _, item := range items.Data {
+	dateEnd, err := time.Parse(time.RFC3339Nano, date)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
 
+	for _, item := range items.Data {
 		if sourceType != "" {
 			itemSourceType := getItemSourceType(*item, organizationUnitID)
 
@@ -171,18 +175,12 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 			continue
 		}
 
-		if date != "" {
-			dateEnd, err := time.Parse(time.RFC3339Nano, date)
-			if err != nil {
-				continue
-			}
-			dateStart, err := time.Parse(time.RFC3339Nano, reportItem.Date)
-			if err != nil {
-				continue
-			}
-			if dateStart.Before(dateEnd) {
-				response = append(response, *reportItem)
-			}
+		dateStart, err := time.Parse(time.RFC3339Nano, reportItem.Date)
+		if err != nil {
+			continue
+		}
+		if dateStart.Before(dateEnd) {
+			response = append(response, *reportItem)
 		}
 	}
 

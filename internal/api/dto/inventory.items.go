@@ -128,6 +128,7 @@ type BasicInventoryResponseItem struct {
 	FileID                       int                                                            `json:"file_id"`
 	DonationDescription          string                                                         `json:"donation_description"`
 	DonationFiles                []FileDropdownSimple                                           `json:"donation_files"`
+	Owner                        string                                                         `json:"owner"`
 	IsExternalDonation           bool                                                           `json:"is_external_donation"`
 }
 

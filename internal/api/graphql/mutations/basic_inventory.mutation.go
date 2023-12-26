@@ -41,6 +41,9 @@ var BasicInventoryInsertMutation = graphql.NewInputObject(graphql.InputObjectCon
 		"title": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"owner": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"abbreviation": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

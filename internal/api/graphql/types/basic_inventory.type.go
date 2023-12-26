@@ -155,6 +155,9 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"donation_description": &graphql.Field{
 			Type: graphql.String,
 		},
+		"owner": &graphql.Field{
+			Type: graphql.String,
+		},
 		"donation_files": &graphql.Field{
 			Type: graphql.NewList(FileDropdownItemType),
 		},

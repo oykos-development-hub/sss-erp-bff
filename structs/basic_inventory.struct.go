@@ -54,6 +54,7 @@ type BasicInventoryInsertItem struct {
 	SerialNumber                 string                         `json:"serial_number"`
 	InventoryNumber              string                         `json:"inventory_number"`
 	Title                        string                         `json:"title"`
+	Owner                        string                         `json:"owner"`
 	Abbreviation                 string                         `json:"abbreviation"`
 	InternalOwnership            bool                           `json:"internal_ownership"`
 	InvoiceID                    int                            `json:"invoice_id"`

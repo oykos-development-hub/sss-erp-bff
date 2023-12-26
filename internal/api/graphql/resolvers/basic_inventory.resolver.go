@@ -1023,6 +1023,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		CreatedAt:                    item.CreatedAt,
 		UpdatedAt:                    item.UpdatedAt,
 		IsExternalDonation:           item.IsExternalDonation,
+		Owner:                        item.Owner,
 	}
 
 	return &res, nil

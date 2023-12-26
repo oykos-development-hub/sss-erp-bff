@@ -1,0 +1,32 @@
+package fields
+
+import (
+	"bff/internal/api/graphql/types"
+
+	"github.com/graphql-go/graphql"
+)
+
+func (f *Field) ReportValueClassInventoryField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.ReportValueClassInventoryType,
+		Description: "Returns a Report of Value class Basic Inventory items",
+
+		Resolve: f.Resolvers.ReportValueClassInventoryResolver,
+	}
+}
+
+func (f *Field) ReportInventoryList() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.ReportValueClassInventoryType,
+		Description: "Returns a Report of inventory list",
+		Args: graphql.FieldConfigArgument{
+			"date": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"soruce_type": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+		},
+		Resolve: f.Resolvers.ReportInventoryListResolver,
+	}
+}

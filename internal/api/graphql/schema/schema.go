@@ -183,6 +183,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"suppliers_Overview":                                         fields.SuppliersOverviewField(),
 			"basicInventory_Overview":                                    fields.BasicInventoryOverviewField(),
 			"ReportValueClassInventory_PDF":                              fields.ReportValueClassInventoryField(),
+			"reportInventoryList_PDF":                                    fields.ReportInventoryList(),
 			"basicInventory_Details":                                     fields.BasicInventoryDetailsField(),
 			"basicInventoryRealEstates_Overview":                         fields.BasicInventoryRealEstatesOverviewField(),
 			"officesOfOrganizationUnits_Overview":                        fields.OfficesOfOrganizationUnitOverviewField(),

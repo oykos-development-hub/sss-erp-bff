@@ -242,48 +242,6 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var ReportValueClassInventoryResponseType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "ReportValueClassInventoryResponseType",
-	Fields: graphql.Fields{
-		"values": &graphql.Field{
-			Type: graphql.NewList(ReportValueClassInventoryItemType),
-		},
-		"purchase_gross_price": &graphql.Field{
-			Type: graphql.Float,
-		},
-		"gross_price": &graphql.Field{
-			Type: graphql.Float,
-		},
-		"price_of_assessment": &graphql.Field{
-			Type: graphql.Float,
-		},
-	},
-})
-
-var ReportValueClassInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "ReportValueClassInventoryItemType",
-	Fields: graphql.Fields{
-		"id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"title": &graphql.Field{
-			Type: graphql.String,
-		},
-		"class": &graphql.Field{
-			Type: graphql.String,
-		},
-		"purchase_gross_price": &graphql.Field{
-			Type: graphql.Float,
-		},
-		"gross_price": &graphql.Field{
-			Type: graphql.Float,
-		},
-		"price_of_assessment": &graphql.Field{
-			Type: graphql.Float,
-		},
-	},
-})
-
 var BasicInventoryOverviewType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "BasicInventoryOverview",
 	Fields: graphql.Fields{
@@ -334,24 +292,6 @@ var BasicInventoryMessageType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
-		},
-	},
-})
-
-var ReportValueClassInventoryType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "ReportValueClassInventoryType",
-	Fields: graphql.Fields{
-		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"data": &graphql.Field{
-			Type: JSON,
-		},
-		"message": &graphql.Field{
-			Type: graphql.String,
-		},
-		"item": &graphql.Field{
-			Type: ReportValueClassInventoryResponseType,
 		},
 	},
 })

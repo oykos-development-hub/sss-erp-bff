@@ -128,6 +128,15 @@ var BasicInventoryInsertMutation = graphql.NewInputObject(graphql.InputObjectCon
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"donation_description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"donation_files": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
+		"is_external_donation": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
 	},
 })
 
@@ -175,15 +184,6 @@ var RealEstateInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
-		},
-		"donation_description": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"donation_files": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(graphql.Int),
-		},
-		"is_external_donation": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
 		},
 	},
 })

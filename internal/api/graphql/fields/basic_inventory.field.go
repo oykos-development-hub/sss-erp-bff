@@ -79,14 +79,7 @@ func (f *Field) BasicInventoryDeactivateField() *graphql.Field {
 		Resolve: f.Resolvers.BasicInventoryDeactivateResolver,
 	}
 }
-func (f *Field) ReportValueClassInventoryField() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.ReportValueClassInventoryType,
-		Description: "Returns a Report of Value class Basic Inventory items",
 
-		Resolve: f.Resolvers.ReportValueClassInventoryResolver,
-	}
-}
 func (f *Field) BasicInventoryDetailsField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.BasicInventoryDetailsType,

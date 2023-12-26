@@ -10,6 +10,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -105,7 +106,6 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 			return apierrors.HandleAPIError(err)
 		}
 		response.Message = "You updated this item!"
-
 		items, err = buildInventoryDispatchResponse(r.Repo, itemRes, *organizationUnitID)
 
 		if err != nil {
@@ -118,9 +118,22 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 				return apierrors.HandleAPIError(err)
 			}
 
-			err = sendInventoryDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitID, itemRes.TargetOrganizationUnitID)
-			if err != nil {
-				return apierrors.HandleAPIError(err)
+			if itemRes.Type == "return-revers" {
+				// return revers is always one by one item.
+				item, err := r.Repo.GetInventoryItem(data.InventoryID[0])
+				if err != nil {
+					return apierrors.HandleAPIError(err)
+				}
+				err = sendInventoryReturnReversDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitID, item.OrganizationUnitID, item.ID)
+				if err != nil {
+					return apierrors.HandleAPIError(err)
+				}
+
+			} else if itemRes.Type == "revers" {
+				err = sendInventoryDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitID, itemRes.TargetOrganizationUnitID)
+				if err != nil {
+					return apierrors.HandleAPIError(err)
+				}
 			}
 
 			response.Message = "You created this item!"
@@ -174,6 +187,40 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 
 	response.Item = items
 	return response, nil
+}
+
+func sendInventoryReturnReversDispatchNotification(
+	ctx context.Context,
+	r repository.MicroserviceRepositoryInterface,
+	notificationService *notifications.Websockets,
+	sourceOrganizationUnitID int,
+	targetOrganziationUnitID int,
+	itemID int,
+) error {
+	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	sourceOrganizationUnit, _ := r.GetOrganizationUnitByID(sourceOrganizationUnitID)
+	employees, _ := GetEmployeesOfOrganizationUnit(r, targetOrganziationUnitID)
+
+	for _, employee := range employees {
+		userAccount, _ := r.GetUserAccountByID(employee.UserAccountID)
+		if userAccount.RoleID == structs.UserRoleManagerOJ {
+			_, err := notificationService.CreateNotification(&structs.Notifications{
+				Content:     "Izvršen je povrat sredstva.",
+				Module:      "Osnovna sredstva",
+				FromUserID:  loggedInUser.ID,
+				ToUserID:    userAccount.ID,
+				FromContent: "Menadžer organizacione jedinice - " + sourceOrganizationUnit.Title,
+				Path:        "/inventory/movable-inventory/" + strconv.Itoa(itemID),
+				Data:        nil,
+				IsRead:      false,
+			})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func sendInventoryDispatchNotification(

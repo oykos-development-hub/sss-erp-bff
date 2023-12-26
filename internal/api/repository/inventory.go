@@ -290,6 +290,17 @@ func (repo *MicroserviceRepository) GetDispatchItemByInventoryID(id int) ([]*str
 	return res1.Data, nil
 }
 
+func (repo *MicroserviceRepository) GetInventoryItemsByDispatch(dispatchID int) ([]*structs.BasicInventoryInsertItem, error) {
+	res := dto.GetAllBasicInventoryItem{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(dispatchID)+"/items", nil, &res)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
 func (repo *MicroserviceRepository) GetInventoryRealEstatesList(input *dto.GetInventoryRealEstateListInputMS) (*dto.GetInventoryRealEstateListResponseMS, error) {
 	res := &dto.GetInventoryRealEstateListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.RealEstates, input, res)

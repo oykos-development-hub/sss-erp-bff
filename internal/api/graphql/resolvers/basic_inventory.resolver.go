@@ -73,12 +73,15 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
-
-	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-	if !ok || organizationUnitID == nil {
-		return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+	var organizationUnitID *int
+	if filter.OrganizationUnitID != nil {
+		organizationUnitID = filter.OrganizationUnitID
+	} else {
+		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitID == nil {
+			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		}
 	}
-
 	for _, item := range basicInventoryData.Data {
 		resItem, err := buildInventoryResponse(r.Repo, item, *organizationUnitID)
 		if len(sourceTypeStr) > 0 && sourceTypeStr != item.SourceType {
@@ -87,7 +90,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		if status != "" && status != "Arhiva" && resItem.Status != status {
 			continue
 		}
-		if expireFilter && (item.SourceType == "PS1" || item.SourceType == "NS1") {
+		if expireFilter {
 			date, err := time.Parse("2006-01-02T00:00:00Z", resItem.DateOfAssessments)
 			if err != nil {
 				continue
@@ -98,7 +101,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 			newDateStr := dateOfExpiry.Format("2006-01-02T00:00:00Z")
 
 			check, _ := isCurrentOrExpiredDate(newDateStr)
-			if !check {
+			if !check || (item.SourceType != "PS1" && item.SourceType != "NS1") {
 				continue
 			}
 		}

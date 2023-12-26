@@ -152,13 +152,8 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 				Type:                     data.Type,
 				SourceUserProfileID:      data.SourceUserProfileID,
 				SourceOrganizationUnitID: *organizationUnitID,
-				TargetOrganizationUnitID: data.TargetOrganizationUnitID,
 				Date:                     data.Date,
 				InventoryID:              data.InventoryID,
-			}
-
-			if data.Type == "revers" || data.Type == "return-revers" {
-				input.TargetOrganizationUnitID = data.TargetOrganizationUnitID
 			}
 
 			_, err := r.Repo.CreateDispatchItem(&input)

@@ -17,7 +17,7 @@ func (f *Field) ReportValueClassInventoryField() *graphql.Field {
 
 func (f *Field) ReportInventoryList() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.ReportValueClassInventoryType,
+		Type:        types.ReportInventoryListType,
 		Description: "Returns a Report of inventory list",
 		Args: graphql.FieldConfigArgument{
 			"date": &graphql.ArgumentConfig{

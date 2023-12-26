@@ -87,7 +87,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		if status != "" && status != "Arhiva" && resItem.Status != status {
 			continue
 		}
-		if expireFilter && (status == "PS1" || status == "NS1") {
+		if expireFilter && (item.SourceType == "PS1" || item.SourceType == "NS1") {
 			date, err := time.Parse("2006-01-02T00:00:00Z", resItem.DateOfAssessments)
 			if err != nil {
 				continue

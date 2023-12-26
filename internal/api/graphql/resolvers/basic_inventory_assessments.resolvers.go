@@ -33,7 +33,7 @@ func (r *Resolver) BasicInventoryAssessmentsInsertResolver(params graphql.Resolv
 		}
 	}
 
-	items, err := buildAssessmentResponse(r.Repo, assessmentResponse)
+	items, err := BuildAssessmentResponse(r.Repo, assessmentResponse)
 
 	if err != nil {
 		return errors.HandleAPIError(err)
@@ -61,7 +61,7 @@ func (r *Resolver) BasicEXCLInventoryAssessmentsInsertResolver(params graphql.Re
 				return errors.HandleAPIError(err)
 			}
 
-			item, err := buildAssessmentResponse(r.Repo, assessmentResponse)
+			item, err := BuildAssessmentResponse(r.Repo, assessmentResponse)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -95,7 +95,7 @@ func (r *Resolver) BasicInventoryAssessmentDeleteResolver(params graphql.Resolve
 	}, nil
 }
 
-func buildAssessmentResponse(
+func BuildAssessmentResponse(
 	r repository.MicroserviceRepositoryInterface,
 	item *structs.BasicInventoryAssessmentsTypesItem,
 ) (*dto.BasicInventoryResponseAssessment, error) {

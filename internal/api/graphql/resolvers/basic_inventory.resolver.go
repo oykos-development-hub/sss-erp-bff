@@ -453,7 +453,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		hasAssessments = true
 		for i, assessment := range assessments {
 			if assessment.ID != 0 {
-				assessmentResponse, _ := buildAssessmentResponse(r, &assessment)
+				assessmentResponse, _ := BuildAssessmentResponse(r, &assessment)
 				if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
 					grossPrice = assessmentResponse.GrossPriceDifference
 					if len(assessments) > 1 {
@@ -686,7 +686,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
 	for i, assessment := range assessments {
 		if assessment.ID != 0 {
-			assessmentResponse, _ := buildAssessmentResponse(r, &assessment)
+			assessmentResponse, _ := BuildAssessmentResponse(r, &assessment)
 			if assessmentResponse != nil && i == 0 && assessmentResponse.Type == "financial" {
 				depreciationTypeID = assessmentResponse.DepreciationType.ID
 				grossPrice = assessmentResponse.GrossPriceDifference
@@ -815,6 +815,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			if movement.Type == "return-revers" {
 				addMovement = false
 			}
+		}
+
+		if len(movements) > 0 && movements[0].Type == "return-revers" {
+			item.SourceType = "Arhiva"
 		}
 
 		movements = movementResponse

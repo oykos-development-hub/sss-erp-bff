@@ -48,7 +48,7 @@ func (r *Resolver) ReportValueClassInventoryResolver(_ graphql.ResolveParams) (i
 			if len(assessments) > 0 {
 				for _, assessment := range assessments {
 					if assessment.ID != 0 {
-						assessmentResponse, _ := buildAssessmentResponse(r.Repo, &assessment)
+						assessmentResponse, _ := BuildAssessmentResponse(r.Repo, &assessment)
 						if assessmentResponse != nil {
 
 							sumClassPurchaseGrossPrice += inventory.GrossPrice
@@ -153,7 +153,7 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 		return apierrors.HandleAPIError(err)
 	}
 
-	var response structs.InventoryReportStruct
+	var response []structs.InventoryReportStruct
 
 	for _, item := range items.Data {
 
@@ -165,14 +165,24 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 			}
 		}
 
-		reportItem, err := buildItemForInventoryListReport(r, *item, organizationUnitID)
+		reportItem, err := buildItemForInventoryListReport(r, *item, organizationUnitID, date)
 
 		if err != nil {
 			continue
 		}
 
 		if date != "" {
-			date = reportItem.Date
+			dateEnd, err := time.Parse(time.RFC3339Nano, date)
+			if err != nil {
+				continue
+			}
+			dateStart, err := time.Parse(time.RFC3339Nano, reportItem.Date)
+			if err != nil {
+				continue
+			}
+			if dateStart.Before(dateEnd) {
+				response = append(response, *reportItem)
+			}
 		}
 	}
 
@@ -211,7 +221,7 @@ func getItemSourceType(item structs.BasicInventoryInsertItem, organizationUnitID
 	return item.SourceType
 }
 
-func buildItemForInventoryListReport(r *Resolver, item structs.BasicInventoryInsertItem, organizationUnitID int) (*structs.InventoryReportStruct, error) {
+func buildItemForInventoryListReport(r *Resolver, item structs.BasicInventoryInsertItem, organizationUnitID int, date string) (*structs.InventoryReportStruct, error) {
 	response := structs.InventoryReportStruct{
 		ID:               item.ID,
 		Title:            item.Title,
@@ -220,6 +230,16 @@ func buildItemForInventoryListReport(r *Resolver, item structs.BasicInventoryIns
 	}
 
 	sourceType := getItemSourceType(item, organizationUnitID)
+
+	if item.OfficeID != 0 {
+		office, err := r.Repo.GetDropdownSettingByID(item.OfficeID)
+		if err != nil {
+			return nil, err
+		}
+		response.Office = office.Title
+	} else {
+		response.Office = "Lager"
+	}
 
 	if sourceType == "PS1" || sourceType == "NS1" {
 		response.Date = item.DateOfPurchase
@@ -245,6 +265,38 @@ func buildItemForInventoryListReport(r *Resolver, item structs.BasicInventoryIns
 				response.Date = dispatch.Date
 				break
 			}
+		}
+	}
+
+	assessments, err := r.Repo.GetMyInventoryAssessments(item.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	endDate, err := time.Parse(time.RFC3339Nano, date)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, assessment := range assessments {
+		assessmentItem, err := BuildAssessmentResponse(r.Repo, &assessment)
+
+		if err != nil {
+			return nil, err
+		}
+
+		date1, err := time.Parse(time.RFC3339Nano, *assessmentItem.DateOfAssessment)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if date1.Before(endDate) {
+			response.Price = assessmentItem.GrossPriceDifference
+			response.LostValue = response.ProcurementPrice - response.Price
+			break
 		}
 	}
 

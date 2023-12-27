@@ -451,6 +451,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	var grossPrice float32
 	var dateOfAssessment string
 	var estimatedDuration int
+	var dateOfEndOfAssessment string
 	hasAssessments := false
 	indexAssessments := 0
 	if len(assessments) > 0 {
@@ -464,6 +465,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 						dateOfAssessment = *assessmentResponse.DateOfAssessment
 					}
 					estimatedDuration = assessmentResponse.EstimatedDuration
+					dateOfEndOfAssessment = *assessmentResponse.DateOfEndOfAssessment
 					break
 				}
 			}
@@ -558,6 +560,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		PurchaseGrossPrice:     item.GrossPrice,
 		DateOfPurchase:         item.DateOfPurchase,
 		DateOfAssessments:      dateOfAssessment,
+		DateOfEndOfAssessment:  dateOfEndOfAssessment,
 		Status:                 status,
 		SourceType:             item.SourceType,
 		RealEstate:             realEstateStruct,

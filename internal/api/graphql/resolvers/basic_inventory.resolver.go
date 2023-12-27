@@ -85,23 +85,28 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	}
 	for _, item := range basicInventoryData.Data {
 		resItem, err := buildInventoryResponse(r.Repo, item, *organizationUnitID)
+
+		if err != nil {
+			continue
+		}
+
 		if len(sourceTypeStr) > 0 && sourceTypeStr != item.SourceType {
 			continue
 		}
 		if status != "" && status != "Arhiva" && resItem.Status != status {
 			continue
 		}
+
+		date, err := time.Parse("2006-01-02T00:00:00Z", resItem.DateOfAssessments)
+		if err != nil {
+			continue
+		}
+		dateOfExpiry := date.AddDate(resItem.EstimatedDuration, 0, 0)
+
+		newDateStr := dateOfExpiry.Format("2006-01-02T00:00:00Z")
+		resItem.DateOfEndOfAssessment = newDateStr
+
 		if expireFilter {
-			date, err := time.Parse("2006-01-02T00:00:00Z", resItem.DateOfAssessments)
-			if err != nil {
-				continue
-			}
-
-			dateOfExpiry := date.AddDate(resItem.EstimatedDuration, 0, 0)
-
-			newDateStr := dateOfExpiry.Format("2006-01-02T00:00:00Z")
-			resItem.DateOfEndOfAssessment = newDateStr
-
 			check, _ := isCurrentOrExpiredDate(newDateStr)
 			if !check || (item.SourceType != "PS1" && item.SourceType != "NS1") {
 				continue
@@ -452,7 +457,6 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	var grossPrice float32
 	var dateOfAssessment string
 	var estimatedDuration int
-	var dateOfEndOfAssessment string
 	hasAssessments := false
 	indexAssessments := 0
 	if len(assessments) > 0 {
@@ -560,7 +564,6 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		PurchaseGrossPrice:     item.GrossPrice,
 		DateOfPurchase:         item.DateOfPurchase,
 		DateOfAssessments:      dateOfAssessment,
-		DateOfEndOfAssessment:  dateOfEndOfAssessment,
 		Status:                 status,
 		SourceType:             item.SourceType,
 		RealEstate:             realEstateStruct,

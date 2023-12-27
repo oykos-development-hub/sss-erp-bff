@@ -394,6 +394,7 @@ func (r *Resolver) BasicInventoryDeactivateResolver(params graphql.ResolveParams
 
 func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *structs.BasicInventoryInsertItem, organizationUnitID int) (*dto.BasicInventoryResponseListItem, error) {
 	settingDropdownClassType := dto.DropdownSimple{}
+	var estimatedDuration int
 	if item.ClassTypeID != 0 {
 		settings, err := r.GetDropdownSettingByID(item.ClassTypeID)
 		if err != nil {
@@ -451,12 +452,22 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		}
 		settingDropdownDepreciationTypeID.ID = depreciationTypeDropDown.ID
 		settingDropdownDepreciationTypeID.Title = depreciationTypeDropDown.Title
+		value, err := strconv.Atoi(depreciationTypeDropDown.Value)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if value != 0 {
+			estimatedDuration = 100 / value
+		} else {
+			estimatedDuration = 10000
+		}
 	}
 
 	assessments, _ := r.GetMyInventoryAssessments(item.ID)
 	var grossPrice float32
 	var dateOfAssessment string
-	var estimatedDuration int
 	hasAssessments := false
 	indexAssessments := 0
 	if len(assessments) > 0 {
@@ -466,14 +477,14 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 				assessmentResponse, _ := BuildAssessmentResponse(r, &assessment)
 				if assessmentResponse != nil && i == indexAssessments && assessmentResponse.Type == "financial" {
 					grossPrice = assessmentResponse.GrossPriceDifference
-					if len(assessments) > 1 {
-						dateOfAssessment = *assessmentResponse.DateOfAssessment
-					}
+					dateOfAssessment = *assessmentResponse.DateOfAssessment
 					estimatedDuration = assessmentResponse.EstimatedDuration
 					break
 				}
 			}
 		}
+	} else {
+		dateOfAssessment = item.DateOfPurchase
 	}
 
 	status := "Nezaduženo"

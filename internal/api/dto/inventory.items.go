@@ -18,22 +18,23 @@ type GetAllBasicInventoryItem struct {
 }
 
 type InventoryItemFilter struct {
-	ID                 *int    `json:"id"`
-	Type               *string `json:"type"`
-	ClassTypeID        *int    `json:"class_type_id"`
-	OfficeID           *int    `json:"office_id"`
-	Search             *string `json:"search"`
-	SourceType         *string `json:"source_type"`
-	DeprecationTypeID  *int    `json:"depreciation_type_id"`
-	OrganizationUnitID *int    `json:"organization_unit_id"`
-	ContractID         *int    `json:"contract_id "`
-	ArticleID          *int    `json:"article_id"`
-	SerialNumber       *string `json:"serial_number"`
-	InventoryNumber    *string `json:"inventory_number"`
-	Location           *string `json:"location"`
-	IsExternalDonation *bool   `json:"is_external_donation"`
-	Page               *int    `json:"page"`
-	Size               *int    `json:"size"`
+	ID                       *int    `json:"id"`
+	Type                     *string `json:"type"`
+	ClassTypeID              *int    `json:"class_type_id"`
+	OfficeID                 *int    `json:"office_id"`
+	Search                   *string `json:"search"`
+	SourceType               *string `json:"source_type"`
+	DeprecationTypeID        *int    `json:"depreciation_type_id"`
+	OrganizationUnitID       *int    `json:"organization_unit_id"`
+	SourceOrganizationUnitID *int    `json:"source_organization_unit_id"`
+	ContractID               *int    `json:"contract_id "`
+	ArticleID                *int    `json:"article_id"`
+	SerialNumber             *string `json:"serial_number"`
+	InventoryNumber          *string `json:"inventory_number"`
+	Location                 *string `json:"location"`
+	IsExternalDonation       *bool   `json:"is_external_donation"`
+	Page                     *int    `json:"page"`
+	Size                     *int    `json:"size"`
 }
 
 type GetAllItemsInOrgUnits struct {
@@ -137,13 +138,13 @@ type ReportValueClassInventoryItem struct {
 	Title              string  `json:"title"`
 	Class              string  `json:"class"`
 	PurchaseGrossPrice float32 `json:"purchase_gross_price"`
-	GrossPrice         float32 `json:"gross_price"`
-	PriceOfAssessment  float32 `json:"price_of_assessment"`
+	LostValue          float32 `json:"lost_value"`
+	Price              float32 `json:"price"`
 }
 
 type ReportValueClassInventory struct {
 	Values             []ReportValueClassInventoryItem `json:"items"`
 	PurchaseGrossPrice float32                         `json:"purchase_gross_price"`
-	GrossPrice         float32                         `json:"gross_price"`
-	PriceOfAssessment  float32                         `json:"price_of_assessment"`
+	LostValue          float32                         `json:"lost_value"`
+	Price              float32                         `json:"price"`
 }

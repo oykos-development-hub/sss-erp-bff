@@ -47,10 +47,10 @@ var ReportValueClassInventoryResponseType = graphql.NewObject(graphql.ObjectConf
 		"purchase_gross_price": &graphql.Field{
 			Type: graphql.Float,
 		},
-		"gross_price": &graphql.Field{
+		"lost_value": &graphql.Field{
 			Type: graphql.Float,
 		},
-		"price_of_assessment": &graphql.Field{
+		"price": &graphql.Field{
 			Type: graphql.Float,
 		},
 	},
@@ -71,10 +71,10 @@ var ReportValueClassInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"purchase_gross_price": &graphql.Field{
 			Type: graphql.Float,
 		},
-		"gross_price": &graphql.Field{
+		"lost_value": &graphql.Field{
 			Type: graphql.Float,
 		},
-		"price_of_assessment": &graphql.Field{
+		"price": &graphql.Field{
 			Type: graphql.Float,
 		},
 	},

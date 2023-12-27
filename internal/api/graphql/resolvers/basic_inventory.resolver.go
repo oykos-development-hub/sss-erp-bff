@@ -824,7 +824,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		}
 
 		movements = movementResponse
-		if len(movements) > 0 && movements[0].Type == "return-revers" {
+		if len(movements) > 0 && movements[0].Type == "return-revers" && item.OrganizationUnitID != organizationUnitID {
 			status = "Arhiva"
 		}
 	}

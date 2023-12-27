@@ -100,6 +100,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 			dateOfExpiry := date.AddDate(resItem.EstimatedDuration, 0, 0)
 
 			newDateStr := dateOfExpiry.Format("2006-01-02T00:00:00Z")
+			resItem.DateOfEndOfAssessment = newDateStr
 
 			check, _ := isCurrentOrExpiredDate(newDateStr)
 			if !check || (item.SourceType != "PS1" && item.SourceType != "NS1") {
@@ -465,7 +466,6 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 						dateOfAssessment = *assessmentResponse.DateOfAssessment
 					}
 					estimatedDuration = assessmentResponse.EstimatedDuration
-					dateOfEndOfAssessment = *assessmentResponse.DateOfEndOfAssessment
 					break
 				}
 			}

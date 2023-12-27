@@ -123,38 +123,37 @@ func BuildAssessmentResponse(
 	depreciationRateInt := 100 / item.EstimatedDuration
 	depreciationRateString := strconv.Itoa(depreciationRateInt) + "%"
 
-	grossPriceNew, dateOfEndOfAssessment := calculateMonthlyConsumption(*item.DateOfAssessment, depreciationRateInt, item.GrossPriceDifference, item.EstimatedDuration)
+	grossPriceNew := calculateMonthlyConsumption(*item.DateOfAssessment, depreciationRateInt, item.GrossPriceDifference, item.EstimatedDuration)
 
 	res := dto.BasicInventoryResponseAssessment{
-		ID:                    item.ID,
-		Type:                  item.Type,
-		InventoryID:           item.InventoryID,
-		DepreciationType:      settingDropdownDepreciationTypeID,
-		DepreciationRate:      depreciationRateString,
-		UserProfile:           userDropdown,
-		ResidualPrice:         item.ResidualPrice,
-		GrossPriceNew:         grossPriceNew,
-		GrossPriceDifference:  item.GrossPriceDifference,
-		Active:                item.Active,
-		EstimatedDuration:     item.EstimatedDuration,
-		DateOfAssessment:      item.DateOfAssessment,
-		DateOfEndOfAssessment: &dateOfEndOfAssessment,
-		CreatedAt:             item.CreatedAt,
-		UpdatedAt:             item.UpdatedAt,
-		FileID:                item.FileID,
+		ID:                   item.ID,
+		Type:                 item.Type,
+		InventoryID:          item.InventoryID,
+		DepreciationType:     settingDropdownDepreciationTypeID,
+		DepreciationRate:     depreciationRateString,
+		UserProfile:          userDropdown,
+		ResidualPrice:        item.ResidualPrice,
+		GrossPriceNew:        grossPriceNew,
+		GrossPriceDifference: item.GrossPriceDifference,
+		Active:               item.Active,
+		EstimatedDuration:    item.EstimatedDuration,
+		DateOfAssessment:     item.DateOfAssessment,
+		CreatedAt:            item.CreatedAt,
+		UpdatedAt:            item.UpdatedAt,
+		FileID:               item.FileID,
 	}
 
 	return &res, nil
 }
 
-func calculateMonthlyConsumption(startDateStr string, annualPercentage int, initialPrice float32, estimatedDuration int) (float32, string) {
+func calculateMonthlyConsumption(startDateStr string, annualPercentage int, initialPrice float32, estimatedDuration int) float32 {
 	startDate, _ := time.Parse("2006-01-02T00:00:00Z", startDateStr)
 	today := time.Now()
 
 	endDate := startDate.AddDate(estimatedDuration, 0, 0)
 
 	if endDate.Before(today) {
-		return initialPrice, endDate.String()
+		return initialPrice
 	}
 
 	monthFloat := today.Sub(startDate).Abs().Hours() / 24 / 30.44
@@ -166,5 +165,5 @@ func calculateMonthlyConsumption(startDateStr string, annualPercentage int, init
 		totalConsumption += monthlyConsumption
 	}
 
-	return totalConsumption, endDate.String()
+	return totalConsumption
 }

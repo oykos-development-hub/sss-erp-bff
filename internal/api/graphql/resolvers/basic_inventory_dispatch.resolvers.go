@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -376,8 +375,8 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 		}
 
 	}
-	currentDate := time.Now()
-	dispatch.Date = currentDate.Format("2006-01-02T15:04:05.999999Z07:00")
+	//currentDate := time.Now()
+	//dispatch.Date = currentDate.Format("2006-01-02T15:04:05.999999Z07:00")
 	_, err = r.Repo.UpdateDispatchItem(dispatch.ID, dispatch)
 	if err != nil {
 		return apierrors.HandleAPIError(err)

@@ -37,6 +37,14 @@ type InventoryItemFilter struct {
 	Size                     *int    `json:"size"`
 }
 
+type ItemReportFilterDTO struct {
+	Type               *string `json:"type"`
+	SourceType         *string `json:"source_type"`
+	OrganizationUnitID *int    `json:"organization_unit_id"`
+	OfficeID           *int    `json:"office_id"`
+	Date               *string `json:"date"`
+}
+
 type GetAllItemsInOrgUnits struct {
 	ItemID     int   `json:"item_id"`
 	ReversID   int   `json:"revers_id"`
@@ -46,6 +54,25 @@ type GetAllItemsInOrgUnits struct {
 
 type GetAllItemsInOrgUnitsMS struct {
 	Data []GetAllItemsInOrgUnits `json:"data"`
+}
+
+type ItemReportResponse struct {
+	ID               int     `json:"id"`
+	Title            string  `json:"title"`
+	SourceType       string  `json:"source_type"`
+	Type             string  `json:"type"`
+	InventoryNumber  string  `json:"inventory_number"`
+	OfficeID         int     `json:"office_id"`
+	Office           string  `json:"office"`
+	ProcurementPrice float32 `json:"procurement_price"`
+	LostValue        float32 `json:"lost_value"`
+	Price            float32 `json:"price"`
+	Date             string  `json:"date"`
+	DateOfPurchase   string  `json:"date_of_purchase"`
+}
+
+type GetAllItemsReportMS struct {
+	Data []ItemReportResponse `json:"data"`
 }
 
 type DispatchInventoryItemFilter struct {

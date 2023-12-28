@@ -4,8 +4,6 @@ import (
 	"bff/internal/api/dto"
 	apierrors "bff/internal/api/errors"
 	"bff/structs"
-	"errors"
-	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -103,22 +101,18 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 }
 
 func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (interface{}, error) {
-	var filter dto.InventoryItemFilter
-	var date string
-	var sourceType string
-	var organizationUnitID int
+	var filter dto.ItemReportFilterDTO
 
 	if dateParam, ok := params.Args["date"].(string); ok && dateParam != "" {
-		date = dateParam
+		filter.Date = &dateParam
 	}
 
 	if sourceTypeParam, ok := params.Args["source_type"].(string); ok && sourceTypeParam != "" {
-		sourceType = sourceTypeParam
+		filter.SourceType = &sourceTypeParam
 	}
 
 	if organizationUnitIDParam, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitIDParam != 0 {
 		filter.OrganizationUnitID = &organizationUnitIDParam
-		organizationUnitID = organizationUnitIDParam
 	}
 
 	if typeParam, ok := params.Args["type"].(string); ok && typeParam != "" {
@@ -129,156 +123,38 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 		filter.OfficeID = &officeParam
 	}
 
-	items, err := r.Repo.GetAllInventoryItem(filter)
+	items, err := r.Repo.GetAllInventoryItemForReport(filter)
 
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
 
-	var response []structs.InventoryReportStruct
+	for i := 0; i < len(items); i++ {
+		items[i].Type = items[i].SourceType
+		if items[i].SourceType == "NS1" || items[i].SourceType == "NS2" {
+			realEstate, err := r.Repo.GetMyInventoryRealEstate(items[i].ID)
 
-	dateEnd, err := time.Parse(time.RFC3339Nano, date)
-	if err != nil {
-		return apierrors.HandleAPIError(err)
-	}
-
-	for _, item := range items.Data {
-		if sourceType != "" {
-			itemSourceType := getItemSourceType(*item, organizationUnitID)
-
-			if itemSourceType != sourceType {
-				continue
+			if err != nil {
+				return apierrors.HandleAPIError(err)
 			}
+
+			items[i].Title = realEstate.TypeID
 		}
 
-		reportItem, err := buildItemForInventoryListReport(r, *item, organizationUnitID, date)
-
-		if err != nil {
-			continue
-		}
-
-		dateStart, err := time.Parse(time.RFC3339Nano, reportItem.Date)
-		if err != nil {
-			continue
-		}
-		if dateStart.Before(dateEnd) {
-			response = append(response, *reportItem)
+		if items[i].OfficeID != 0 {
+			office, err := r.Repo.GetDropdownSettingByID(items[i].OfficeID)
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+			items[i].Office = office.Title
+		} else {
+			items[i].Office = "Lager"
 		}
 	}
 
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Item:    response,
+		Item:    items,
 	}, nil
-}
-
-func getItemSourceType(item structs.BasicInventoryInsertItem, organizationUnitID int) string {
-	if item.Type == "immovable" {
-		if item.OrganizationUnitID == item.TargetOrganizationUnitID || organizationUnitID == item.OrganizationUnitID {
-			item.SourceType = "NS1"
-		} else {
-			item.SourceType = "NS2"
-		}
-
-		if item.IsExternalDonation {
-			item.SourceType = "NS2"
-		}
-	}
-
-	if item.Type == "movable" {
-		if item.OrganizationUnitID == item.TargetOrganizationUnitID || organizationUnitID == item.OrganizationUnitID {
-			item.SourceType = "PS1"
-		} else {
-			item.SourceType = "PS2"
-		}
-
-		if item.IsExternalDonation {
-			item.SourceType = "PS2"
-		}
-	}
-
-	return item.SourceType
-}
-
-func buildItemForInventoryListReport(r *Resolver, item structs.BasicInventoryInsertItem, organizationUnitID int, date string) (*structs.InventoryReportStruct, error) {
-	response := structs.InventoryReportStruct{
-		ID:               item.ID,
-		Title:            item.Title,
-		InventoryNumber:  item.InventoryNumber,
-		ProcurementPrice: item.GrossPrice,
-	}
-
-	sourceType := getItemSourceType(item, organizationUnitID)
-
-	if item.OfficeID != 0 {
-		office, err := r.Repo.GetDropdownSettingByID(item.OfficeID)
-		if err != nil {
-			return nil, err
-		}
-		response.Office = office.Title
-	} else {
-		response.Office = "Lager"
-	}
-
-	if sourceType == "PS1" || sourceType == "NS1" {
-		response.Date = item.DateOfPurchase
-	} else if !item.IsExternalDonation || sourceType == "NS2" {
-		response.Date = item.DateOfPurchase
-	} else {
-		movements, err := r.Repo.GetDispatchItemByInventoryID(item.ID)
-		if err != nil {
-			return nil, err
-		}
-		if len(movements) == 0 {
-			return nil, errors.New("source type is ps2 but there are not movements")
-		}
-
-		for _, movement := range movements {
-			dispatch, err := r.Repo.GetDispatchItemByID(movement.DispatchID)
-
-			if err != nil {
-				return nil, err
-			}
-
-			if dispatch.Type == "revers" {
-				response.Date = dispatch.Date
-				break
-			}
-		}
-	}
-
-	assessments, err := r.Repo.GetMyInventoryAssessments(item.ID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	endDate, err := time.Parse(time.RFC3339Nano, date)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for _, assessment := range assessments {
-		assessmentItem, err := BuildAssessmentResponse(r.Repo, &assessment)
-
-		if err != nil {
-			return nil, err
-		}
-
-		date1, err := time.Parse(time.RFC3339Nano, *assessmentItem.DateOfAssessment)
-
-		if err != nil {
-			return nil, err
-		}
-
-		if date1.Before(endDate) {
-			response.Price = assessmentItem.GrossPriceDifference
-			response.LostValue = assessmentItem.GrossPriceNew
-			break
-		}
-	}
-
-	return &response, nil
 }

@@ -143,6 +143,7 @@ type InventoryMS struct {
 	Dispatch       string
 	DispatchItems  string
 	ItemsInOrgUnit string
+	ItemsReport    string
 }
 
 type FilesMS struct {
@@ -278,6 +279,7 @@ func LoadDefaultConfig() (*Config, error) {
 				Dispatch:       inventoryBase + "/dispatches",
 				DispatchItems:  inventoryBase + "/dispatch-items",
 				ItemsInOrgUnit: inventoryBase + "/items-in-organization-unit",
+				ItemsReport:    inventoryBase + "/items-for-item-list-report",
 			},
 			Files: FilesMS{
 				Base:                filesBase,

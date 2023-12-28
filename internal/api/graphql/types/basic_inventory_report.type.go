@@ -95,6 +95,12 @@ var ReportInventoryList = graphql.NewObject(graphql.ObjectConfig{
 		"office": &graphql.Field{
 			Type: graphql.String,
 		},
+		"type": &graphql.Field{
+			Type: graphql.String,
+		},
+		"date_of_purchase": &graphql.Field{
+			Type: graphql.String,
+		},
 		"procurement_price": &graphql.Field{
 			Type: graphql.Float,
 		},

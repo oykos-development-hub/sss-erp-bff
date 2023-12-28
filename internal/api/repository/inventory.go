@@ -316,6 +316,16 @@ func (repo *MicroserviceRepository) GetInventoryRealEstate(id int) (*structs.Bas
 	return &res.Data, nil
 }
 
+func (repo *MicroserviceRepository) GetAllInventoryItemForReport(filter dto.ItemReportFilterDTO) ([]dto.ItemReportResponse, error) {
+	res := &dto.GetAllItemsReportMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.ItemsReport, filter, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
 func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.BasicInventoryInsertItem) ([]structs.BasicInventoryInsertValidator, error) {
 	inventoryMap := make(map[string]bool)
 	serialMap := make(map[string]bool)

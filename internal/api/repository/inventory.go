@@ -60,8 +60,25 @@ func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInvent
 					OfficeID = item.OfficeID
 				}
 				if item.Type == "return" {
+					page := 1
+					size := 1000
+					search := "Lager"
+					organizationUnitID := ""
+					if item.TargetOrganizationUnitID != 0 {
+						organizationUnitID = strconv.Itoa(item.TargetOrganizationUnitID)
+					} else {
+						organizationUnitID = strconv.Itoa(item.SourceOrganizationUnitID)
+					}
+
+					input := dto.GetOfficesOfOrganizationInput{Page: &page, Size: &size, Search: &search, Value: &organizationUnitID}
+
+					office, err := repo.GetOfficeDropdownSettings(&input)
+					if err != nil {
+						return nil, err
+					}
+					OfficeID = office.Data[0].ID
 					inventory.TargetUserProfileID = targetUserProfileID
-					inventory.OfficeID = OfficeID
+					inventory.OfficeID = office.Data[0].ID
 				}
 
 				inventory.TargetUserProfileID = targetUserProfileID

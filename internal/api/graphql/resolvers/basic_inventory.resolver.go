@@ -821,7 +821,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		}
 	}
 
-	if item.SourceType == "PS2" {
+	if item.SourceType == "PS2" && !item.IsExternalDonation {
 		var movementResponse []*dto.InventoryDispatchResponse
 		var addMovement bool
 		for i := len(movements) - 1; i >= 0; i-- {

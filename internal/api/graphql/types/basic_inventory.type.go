@@ -201,10 +201,10 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"target_organization_unit": &graphql.Field{
-			Type: DropdownItemType,
+			Type: DropdownOUItemType,
 		},
 		"organization_unit": &graphql.Field{
-			Type: DropdownItemType,
+			Type: DropdownOUItemType,
 		},
 		"gross_price": &graphql.Field{
 			Type: graphql.Float,

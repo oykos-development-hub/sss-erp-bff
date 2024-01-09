@@ -58,3 +58,21 @@ var DropdownItemWithValueType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var DropdownOUItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DropdownItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"city": &graphql.Field{
+			Type: graphql.String,
+		},
+		"address": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})

@@ -539,25 +539,34 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		}
 	}
 
-	organizationUnitDropdown := dto.DropdownSimple{}
+	organizationUnitDropdown := dto.DropdownOUSimple{}
 	if item.OrganizationUnitID != 0 {
 		organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
 		if organizationUnit != nil {
-			organizationUnitDropdown = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
+			organizationUnitDropdown = dto.DropdownOUSimple{
+				ID:      organizationUnit.ID,
+				Title:   organizationUnit.Title,
+				City:    organizationUnit.City,
+				Address: organizationUnit.Address,
+			}
 		}
 	}
 
-	targetOrganizationUnitDropdown := dto.DropdownSimple{}
+	targetOrganizationUnitDropdown := dto.DropdownOUSimple{}
 	if item.TargetOrganizationUnitID != 0 {
 		targetOrganizationUnit, err := r.GetOrganizationUnitByID(item.TargetOrganizationUnitID)
 		if err != nil {
 			return nil, err
 		}
 		if targetOrganizationUnit != nil {
-			targetOrganizationUnitDropdown = dto.DropdownSimple{ID: targetOrganizationUnit.ID, Title: targetOrganizationUnit.Title}
+			targetOrganizationUnitDropdown = dto.DropdownOUSimple{
+				ID:      targetOrganizationUnit.ID,
+				Title:   targetOrganizationUnit.Title,
+				City:    targetOrganizationUnit.City,
+				Address: targetOrganizationUnit.Address}
 		}
 	}
 

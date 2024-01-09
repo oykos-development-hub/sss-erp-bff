@@ -38,3 +38,10 @@ type DropdownProcurementAvailableArticle struct {
 	NetPrice       float32 `json:"net_price"`
 	VatPercentage  string  `json:"vat_percentage"`
 }
+
+type DropdownOUSimple struct {
+	ID      int    `json:"id"`
+	Title   string `json:"title"`
+	City    string `json:"city"`
+	Address string `json:"address"`
+}

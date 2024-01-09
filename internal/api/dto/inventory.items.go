@@ -99,8 +99,8 @@ type BasicInventoryResponseListItem struct {
 	IsExternalDonation     bool                                                           `json:"is_external_donation"`
 	RealEstate             *structs.BasicInventoryRealEstatesItemResponseForInventoryItem `json:"real_estate"`
 	DepreciationType       DropdownSimple                                                 `json:"depreciation_type"`
-	OrganizationUnit       DropdownSimple                                                 `json:"organization_unit"`
-	TargetOrganizationUnit DropdownSimple                                                 `json:"target_organization_unit"`
+	OrganizationUnit       DropdownOUSimple                                               `json:"organization_unit"`
+	TargetOrganizationUnit DropdownOUSimple                                               `json:"target_organization_unit"`
 	ClassType              DropdownSimple                                                 `json:"class_type"`
 	Office                 DropdownSimple                                                 `json:"office"`
 	Invoice                DropdownSimple                                                 `json:"invoice"`

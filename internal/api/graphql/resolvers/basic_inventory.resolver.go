@@ -469,6 +469,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	var grossPrice float32
 	var dateOfAssessment string
 	hasAssessments := false
+	var amortizationValue float32
 	indexAssessments := 0
 	if len(assessments) > 0 {
 		hasAssessments = true
@@ -479,6 +480,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 					grossPrice = assessmentResponse.GrossPriceDifference
 					dateOfAssessment = *assessmentResponse.DateOfAssessment
 					estimatedDuration = assessmentResponse.EstimatedDuration
+					amortizationValue = calculateMonthlyConsumption(*item.DateOfAssessment, 100/estimatedDuration, grossPrice, estimatedDuration)
 					break
 				}
 			}
@@ -586,7 +588,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		DateOfPurchase:               item.DateOfPurchase,
 		DateOfAssessments:            dateOfAssessment,
 		LifetimeOfAssessmentInMonths: estimatedDuration,
-		AmortizationValue:            grossPrice,
+		AmortizationValue:            amortizationValue,
 		City:                         &organizationUnitDropdown.City,
 		Address:                      &organizationUnitDropdown.Address,
 		Status:                       status,
@@ -600,6 +602,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		Invoice:                      dto.DropdownSimple{}, // add invoice dropdown
 		HasAssessments:               hasAssessments,
 		IsExternalDonation:           item.IsExternalDonation,
+		Source:                       item.Source,
 	}
 
 	return &res, nil
@@ -747,35 +750,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			if num > -1 && lifetimeOfAssessmentInMonths == 0 {
 				lifetimeOfAssessmentInMonths = num
 			}
-			if lifetimeOfAssessmentInMonths > 0 {
-				depreciationRate = 100 / lifetimeOfAssessmentInMonths
-				layout := time.RFC3339Nano
-
-				t, _ := time.Parse(layout, item.CreatedAt)
-
-				currentTime := time.Now()
-				years := currentTime.Year() - t.Year()
-				months := int(currentTime.Month() - t.Month())
-
-				if currentTime.Day() < t.Day() {
-					months--
-				}
-
-				if currentTime.YearDay() < t.YearDay() {
-					years--
-				}
-
-				if months < 0 {
-					years--
-					months += 12
-				}
-
-				totalMonths := years*12 + months
-
-				if totalMonths > 0 {
-					amortizationValue = grossPrice / float32(lifetimeOfAssessmentInMonths) / 12 * float32(totalMonths)
-				}
-			}
+			amortizationValue = calculateMonthlyConsumption(*item.DateOfAssessment, 100/lifetimeOfAssessmentInMonths, grossPrice, lifetimeOfAssessmentInMonths)
 		}
 	}
 

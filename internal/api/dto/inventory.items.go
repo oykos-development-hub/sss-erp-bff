@@ -96,6 +96,7 @@ type BasicInventoryResponseListItem struct {
 	EstimatedDuration            int                                                            `json:"estimated_duration"`
 	Status                       string                                                         `json:"status"`
 	SourceType                   string                                                         `json:"source_type"`
+	Source                       string                                                         `json:"source"`
 	City                         *string                                                        `json:"city"`
 	Address                      *string                                                        `json:"address"`
 	LifetimeOfAssessmentInMonths int                                                            `json:"lifetime_of_assessment_in_months"`

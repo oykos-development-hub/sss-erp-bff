@@ -958,3 +958,46 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	return &res, nil
 }
+
+func calculateAmortizationPrice(r repository.MicroserviceRepositoryInterface, depreciationTypeID *int, CreatedAt *string, grossPrice *float32) float32 {
+
+	if depreciationTypeID != nil && *depreciationTypeID != 0 {
+		settings, _ := r.GetDropdownSettingByID(*depreciationTypeID)
+		lifetimeOfAssessmentInMonths := 0
+		if settings != nil {
+			num, _ := strconv.Atoi(settings.Value)
+			if num > -1 {
+				lifetimeOfAssessmentInMonths = num
+			}
+			if lifetimeOfAssessmentInMonths > 0 {
+				layout := time.RFC3339Nano
+
+				t, _ := time.Parse(layout, *CreatedAt)
+
+				currentTime := time.Now()
+				years := currentTime.Year() - t.Year()
+				months := int(currentTime.Month() - t.Month())
+
+				if currentTime.Day() < t.Day() {
+					months--
+				}
+
+				if currentTime.YearDay() < t.YearDay() {
+					years--
+				}
+
+				if months < 0 {
+					years--
+					months += 12
+				}
+
+				totalMonths := years*12 + months
+
+				if totalMonths > 0 {
+					return *grossPrice / float32(lifetimeOfAssessmentInMonths) / 12 * float32(totalMonths)
+				}
+			}
+		}
+	}
+	return 0
+}

@@ -480,7 +480,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 					grossPrice = assessmentResponse.GrossPriceDifference
 					dateOfAssessment = *assessmentResponse.DateOfAssessment
 					estimatedDuration = assessmentResponse.EstimatedDuration
-					amortizationValue = calculateMonthlyConsumption(*item.DateOfAssessment, 100/estimatedDuration, grossPrice, estimatedDuration)
+					amortizationValue = calculateMonthlyConsumption(dateOfAssessment, 100/estimatedDuration, grossPrice, estimatedDuration)
 					break
 				}
 			}
@@ -721,6 +721,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	var grossPrice float32
 	var residualPrice *float32
 	var dateOfAssessment string
+	var amortizationValue float32
 	indexAssessments := 0
 	lifetimeOfAssessmentInMonths := 0
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
@@ -733,13 +734,14 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 				residualPrice = assessmentResponse.ResidualPrice
 				lifetimeOfAssessmentInMonths = assessmentResponse.EstimatedDuration
 				dateOfAssessment = *assessmentResponse.DateOfAssessment
+				amortizationValue = calculateMonthlyConsumption(dateOfAssessment, 100/lifetimeOfAssessmentInMonths, grossPrice, lifetimeOfAssessmentInMonths)
+
 			}
 			assessmentsResponse = append(assessmentsResponse, assessmentResponse)
 		}
 	}
 
 	settingDropdownDepreciationTypeID := dto.DropdownSimple{}
-	var amortizationValue float32
 	depreciationRate := 100
 	if depreciationTypeID != 0 {
 		settings, _ := r.GetDropdownSettingByID(depreciationTypeID)
@@ -750,7 +752,6 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			if num > -1 && lifetimeOfAssessmentInMonths == 0 {
 				lifetimeOfAssessmentInMonths = num
 			}
-			amortizationValue = calculateMonthlyConsumption(*item.DateOfAssessment, 100/lifetimeOfAssessmentInMonths, grossPrice, lifetimeOfAssessmentInMonths)
 		}
 	}
 

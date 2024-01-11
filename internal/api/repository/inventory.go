@@ -77,8 +77,6 @@ func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInvent
 						return nil, err
 					}
 					OfficeID = office.Data[0].ID
-					inventory.TargetUserProfileID = targetUserProfileID
-					inventory.OfficeID = office.Data[0].ID
 				}
 
 				inventory.TargetUserProfileID = targetUserProfileID
@@ -90,6 +88,34 @@ func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInvent
 				}
 
 			}
+
+			if item.Type == "return-revers" {
+				inventory, err := repo.GetInventoryItem(item.InventoryID[i])
+				if err != nil {
+					return nil, err
+				}
+
+				page := 1
+				size := 1000
+				search := "Lager"
+				organizationUnitID := strconv.Itoa(item.SourceOrganizationUnitID)
+
+				input := dto.GetOfficesOfOrganizationInput{Page: &page, Size: &size, Search: &search, Value: &organizationUnitID}
+
+				office, err := repo.GetOfficeDropdownSettings(&input)
+				if err != nil {
+					return nil, err
+				}
+
+				inventory.TargetUserProfileID = 0
+				inventory.OfficeID = office.Data[0].ID
+
+				_, err = repo.UpdateInventoryItem(inventory.ID, inventory)
+				if err != nil {
+					return nil, err
+				}
+			}
+
 			_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.DispatchItems, itemDispatch, nil)
 			if err != nil {
 				return nil, err

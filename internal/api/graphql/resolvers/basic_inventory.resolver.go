@@ -352,6 +352,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 				SourceOrganizationUnitID: *organizationUnitID,
 				Date:                     itemRes.CreatedAt,
 				InventoryID:              []int{itemRes.ID},
+				OfficeID:                 item.OfficeID,
 			}
 
 			_, err = r.Repo.CreateDispatchItem(&dispatch)
@@ -791,6 +792,9 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			} else {
 				indexAssessments++
 			}
+			if dispatchRes.Type == "created" {
+				continue
+			}
 			dispatch, _ := buildInventoryDispatchResponse(r, dispatchRes, organizationUnitID)
 			movements = append(movements, dispatch)
 		}
@@ -834,7 +838,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 				addMovement = true
 			}
 
-			if addMovement && movement.Type != "created" {
+			if addMovement {
 				movementResponse = append([]*dto.InventoryDispatchResponse{movement}, movementResponse...)
 			}
 

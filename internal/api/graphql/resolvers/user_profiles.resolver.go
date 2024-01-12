@@ -582,6 +582,7 @@ func buildEducationResItem(r repository.MicroserviceRepositoryInterface, educati
 	if err != nil {
 		return nil, err
 	}
+
 	educationResItem := &dto.Education{
 		ID:                  education.ID,
 		Title:               education.Title,
@@ -595,12 +596,22 @@ func buildEducationResItem(r repository.MicroserviceRepositoryInterface, educati
 		Score:               education.Score,
 		CreatedAt:           education.CreatedAt,
 		UpdatedAt:           education.UpdatedAt,
-		FileID:              education.FileID,
 		UserProfileID:       education.UserProfileID,
 		ExpertiseLevel:      education.ExpertiseLevel,
 	}
 
 	educationResItem.Type = dto.DropdownSimple{ID: educationType.ID, Title: educationType.Title}
+	if education.FileID != 0 {
+		file, err := r.GetFileByID(education.FileID)
+		if err != nil {
+			return nil, err
+		}
+		educationResItem.File = dto.FileDropdownSimple{
+			ID:   file.ID,
+			Name: file.Name,
+			Type: *file.Type,
+		}
+	}
 
 	return educationResItem, nil
 }

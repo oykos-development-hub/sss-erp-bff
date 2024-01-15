@@ -153,6 +153,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 				SourceOrganizationUnitID: *organizationUnitID,
 				Date:                     data.Date,
 				InventoryID:              data.InventoryID,
+				FileID:                   data.FileID,
 			}
 
 			_, err := r.Repo.CreateDispatchItem(&input)

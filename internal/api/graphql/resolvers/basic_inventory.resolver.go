@@ -779,6 +779,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			if err != nil {
 				return nil, err
 			}
+
 			if i == 0 {
 				if dispatchRes.Type == "revers" && !dispatchRes.IsAccepted {
 					status = "Poslato"
@@ -934,7 +935,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		DateOfAssessment:             &dateOfAssessment,
 		PriceOfAssessment:            item.PriceOfAssessment,
 		LifetimeOfAssessmentInMonths: lifetimeOfAssessmentInMonths,
-		DepreciationRate:             fmt.Sprintf("%d%%", depreciationRate),
+		DepreciationRate:             fmt.Sprintf("%d%%", depreciationRate/lifetimeOfAssessmentInMonths),
 		AmortizationValue:            amortizationValue,
 		OrganizationUnit:             organizationUnitDropdown,
 		TargetOrganizationUnit:       targetOrganizationUnitDropdown,

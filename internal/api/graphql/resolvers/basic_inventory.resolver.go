@@ -935,7 +935,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		DateOfAssessment:             &dateOfAssessment,
 		PriceOfAssessment:            item.PriceOfAssessment,
 		LifetimeOfAssessmentInMonths: lifetimeOfAssessmentInMonths,
-		DepreciationRate:             fmt.Sprintf("%d%%", depreciationRate/lifetimeOfAssessmentInMonths),
+		DepreciationRate:             fmt.Sprintf("%d", depreciationRate/lifetimeOfAssessmentInMonths),
 		AmortizationValue:            amortizationValue,
 		OrganizationUnit:             organizationUnitDropdown,
 		TargetOrganizationUnit:       targetOrganizationUnitDropdown,

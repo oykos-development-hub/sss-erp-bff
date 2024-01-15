@@ -46,7 +46,7 @@ func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInvent
 				DispatchID:  res.Data.ID,
 			}
 
-			if item.Type != "revers" && item.Type != "return-revers" {
+			if item.Type != "revers" && item.Type != "return-revers" && item.Type != "create" {
 				inventory, err := repo.GetInventoryItem(item.InventoryID[i])
 				if err != nil {
 					return nil, err

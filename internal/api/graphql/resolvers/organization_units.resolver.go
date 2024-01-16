@@ -68,10 +68,26 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
-			if !loggedInAccount.HasPermission(structs.PermissionManageOrganizationUnits) &&
-				*profileOrganizationUnit != organizationUnitItem.ID && !settings {
+
+			hasGeneralPermission := loggedInAccount.HasPermission(structs.PermissionManageOrganizationUnits)
+
+			// Initialize isOwnOrChildUnit as false
+			isOwnOrChildUnit := false
+
+			// Check if the current unit is the user's own unit
+			if *profileOrganizationUnit == organizationUnitItem.ID {
+				isOwnOrChildUnit = true
+			}
+
+			// Check if the current unit is a child of the user's unit
+			if organizationUnitItem.ParentID != nil && *profileOrganizationUnit == *organizationUnitItem.ParentID {
+				isOwnOrChildUnit = true
+			}
+
+			if !hasGeneralPermission && !isOwnOrChildUnit && !settings {
 				continue
 			}
+
 			items = append(items, *organizationUnitItem)
 		}
 		total = organizationUnits.Total

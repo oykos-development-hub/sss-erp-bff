@@ -35,6 +35,9 @@ var UserProfileEvaluationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"file_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
 	},
 })
 

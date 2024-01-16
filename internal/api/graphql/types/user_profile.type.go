@@ -542,6 +542,9 @@ var UserProfileExperienceItemType = graphql.NewObject(graphql.ObjectConfig{
 		"reference_file_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
 	},
 })
 

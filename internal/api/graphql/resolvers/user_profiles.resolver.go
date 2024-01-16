@@ -719,11 +719,15 @@ func (r *Resolver) UserProfileExperienceResolver(params graphql.ResolveParams) (
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
+	experienceResponseItemList, err := buildExprienceResponseItemList(r.Repo, experiences)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   experiences,
+		Items:   experienceResponseItemList,
 	}, nil
 }
 
@@ -749,18 +753,74 @@ func (r *Resolver) UserProfileExperienceInsertResolver(params graphql.ResolvePar
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
+		resItem, err := buildExprienceResponseItem(r.Repo, item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 		response.Message = "You updated this item!"
-		response.Item = item
+		response.Item = resItem
 	} else {
 		item, err := r.Repo.CreateExperience(&data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
+		resItem, err := buildExprienceResponseItem(r.Repo, item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 		response.Message = "You created this item!"
-		response.Item = item
+		response.Item = resItem
 	}
 
 	return response, nil
+}
+
+func buildExprienceResponseItemList(repo repository.MicroserviceRepositoryInterface, items []*structs.Experience) (resItemList []*dto.ExperienceResponseItem, err error) {
+	for _, item := range items {
+		resItem, err := buildExprienceResponseItem(repo, item)
+		if err != nil {
+			return nil, err
+		}
+		resItemList = append(resItemList, resItem)
+	}
+	return
+}
+
+func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface, item *structs.Experience) (*dto.ExperienceResponseItem, error) {
+	var fileDropdown dto.FileDropdownSimple
+
+	if item.ReferenceFileID != 0 {
+		file, err := repo.GetFileByID(item.ReferenceFileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		fileDropdown.ID = file.ID
+		fileDropdown.Name = file.Name
+
+		if file.Type != nil {
+			fileDropdown.Type = *file.Type
+		}
+	}
+
+	res := dto.ExperienceResponseItem{
+		ID:                        item.ID,
+		UserProfileID:             item.UserProfileID,
+		OrganizationUnitID:        item.OrganizationUnitID,
+		Relevant:                  item.Relevant,
+		OrganizationUnit:          item.OrganizationUnit,
+		AmountOfExperience:        item.AmountOfExperience,
+		AmountOfInsuredExperience: item.AmountOfInsuredExperience,
+		DateOfStart:               item.DateOfStart,
+		DateOfEnd:                 item.DateOfEnd,
+		ReferenceFileID:           item.ReferenceFileID,
+		CreatedAt:                 item.CreatedAt,
+		UpdatedAt:                 item.UpdatedAt,
+		File:                      fileDropdown,
+	}
+
+	return &res, nil
 }
 
 func (r *Resolver) UserProfileExperienceDeleteResolver(params graphql.ResolveParams) (interface{}, error) {

@@ -188,3 +188,18 @@ type ExperienceResponseItem struct {
 	ReferenceFileID           int                `json:"reference_file_id"`
 	File                      FileDropdownSimple `json:"file"`
 }
+
+type EvaluationResponseItem struct {
+	ID               int                `json:"id"`
+	UserProfileID    int                `json:"user_profile_id"`
+	EvaluationTypeID int                `json:"evaluation_type_id"`
+	EvaluationType   DropdownSimple     `json:"evaluation_type"`
+	Score            string             `json:"score"`
+	DateOfEvaluation *string            `json:"date_of_evaluation"`
+	Evaluator        string             `json:"evaluator"`
+	IsRelevant       bool               `json:"is_relevant"`
+	CreatedAt        string             `json:"created_at"`
+	UpdatedAt        string             `json:"updated_at"`
+	FileID           int                `json:"file_id"`
+	File             FileDropdownSimple `json:"file"`
+}

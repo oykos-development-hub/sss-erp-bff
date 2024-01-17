@@ -26,6 +26,11 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
+		role, err := r.Repo.GetRole(user.RoleID)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		user.Role = *role
 		items = []structs.UserAccounts{*user}
 		total = 1
 	} else {
@@ -48,6 +53,13 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 		res, err := r.Repo.GetUserAccounts(&input)
 		if err != nil {
 			return errors.HandleAPIError(err)
+		}
+		for _, user := range res.Data {
+			role, err := r.Repo.GetRole(user.RoleID)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+			user.Role = *role
 		}
 		items = res.Data
 		total = res.Total

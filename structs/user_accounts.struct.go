@@ -42,6 +42,7 @@ func (user UserAccounts) HasPermission(requiredPermission UserPermission) bool {
 type UserAccounts struct {
 	ID             int      `json:"id"`
 	RoleID         UserRole `json:"role_id"`
+	Role           Roles    `json:"role"`
 	Email          string   `json:"email"`
 	FirstName      string   `json:"first_name"`
 	LastName       string   `json:"last_name"`

@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
@@ -45,7 +46,9 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 			return errors.HandleAPIError(err)
 		}
 
-		total = len(profiles)
+		loggedInAccount := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+		userOrganizationUnitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+
 		for _, userProfile := range profiles {
 			resItem, err := buildUserProfileOverviewResponse(r.Repo, userProfile)
 			if err != nil {
@@ -54,27 +57,28 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 
 			if isActiveOk &&
 				resItem.Active != isActive {
-				total--
 				continue
 			}
 			if nameOk && name != "" && !strings.Contains(strings.ToLower(resItem.FirstName), strings.ToLower(name)) && !strings.Contains(strings.ToLower(resItem.LastName), strings.ToLower(name)) {
-				total--
 				continue
 			}
+
+			if loggedInAccount.RoleID != structs.UserRoleAdmin && resItem.OrganizationUnit.ID != *userOrganizationUnitID {
+				continue
+			}
+
 			if organizationUnitID != nil && organizationUnitID.(int) > 0 &&
 				resItem.OrganizationUnit.ID != organizationUnitID {
-				total--
 				continue
 			}
 			if jobPositionID != nil && jobPositionID.(int) > 0 &&
 				resItem.JobPosition.ID != jobPositionID {
-				total--
 				continue
 			}
 
 			items = append(items, *resItem)
-
 		}
+		total = len(profiles)
 	}
 
 	paginatedItems, _ := shared.Paginate(items, page, size)

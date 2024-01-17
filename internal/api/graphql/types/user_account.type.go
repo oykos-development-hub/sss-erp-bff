@@ -11,6 +11,9 @@ var UserAccountsOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 		"role": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"role_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"email": &graphql.Field{
 			Type: graphql.String,
 		},

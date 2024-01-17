@@ -267,3 +267,42 @@ var AbsentTypeItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var UserProfileVacationReport = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserProfileVacationReportType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(VacationReportTypeItem),
+		},
+	},
+})
+
+var VacationReportTypeItem = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ReportTypeItem",
+	Fields: graphql.Fields{
+		"organization_unit": &graphql.Field{
+			Type: graphql.String,
+		},
+		"full_name": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total_days": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"used_days": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"left_days": &graphql.Field{
+			Type: graphql.Int,
+		},
+	},
+})

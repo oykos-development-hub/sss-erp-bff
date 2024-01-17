@@ -45,3 +45,17 @@ type Vacation struct {
 	UpdatedAt         string         `json:"updated_at"`
 	FileID            int            `json:"file_id"`
 }
+
+type VacationReportInput struct {
+	Type               string `json:"type"`
+	OrganizationUnitID int    `json:"organization_unit_id"`
+	EmployeeID         *int   `json:"employee_id"`
+}
+
+type VacationReportResItem struct {
+	FullName         string `json:"full_name"`
+	OrganizationUnit string `json:"organization_unit"`
+	TotalDays        int    `json:"total_days"`
+	UsedDays         int    `json:"used_days"`
+	LeftDays         int    `json:"left_days"`
+}

@@ -269,7 +269,7 @@ func GetNumberOfCurrentAndPreviousYearAvailableDays(r repository.MicroserviceRep
 		if start.Year() == time.Now().Year() {
 			totalDays, _ := strconv.Atoi(resolution.Value)
 			vacationDays += totalDays
-		} else {
+		} else if start.Year() == time.Now().Year()-1 {
 			totalDays, _ := strconv.Atoi(resolution.Value)
 			pastVacationDays += totalDays
 		}
@@ -280,7 +280,7 @@ func GetNumberOfCurrentAndPreviousYearAvailableDays(r repository.MicroserviceRep
 		return 0, 0, 0, err
 	}
 
-	//pastVacationDays -= usedDaysPreviousYear
+	// pastVacationDays -= usedDaysPreviousYear
 	pastVacationDays -= usedDays
 	currentYearVacationDays := vacationDays
 
@@ -294,7 +294,15 @@ func GetNumberOfCurrentAndPreviousYearAvailableDays(r repository.MicroserviceRep
 
 func calculateUsedDays(r repository.MicroserviceRepositoryInterface, profileID int) (int, error) {
 	usedDays := 0
-	absents, err := r.GetEmployeeAbsents(profileID, nil)
+
+	currentYear := time.Now().Year()
+	startOfYear := time.Date(currentYear, time.January, 1, 0, 0, 0, 0, time.UTC)
+	endOfYear := time.Date(currentYear, time.December, 31, 23, 59, 59, 0, time.UTC)
+
+	absents, err := r.GetEmployeeAbsents(profileID, &dto.EmployeeAbsentsInput{
+		From: &startOfYear,
+		To:   &endOfYear,
+	})
 	if err != nil {
 		return 0, err
 	}
@@ -612,4 +620,73 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 		Status:  "success",
 		Message: "You deactivated this user!",
 	}, nil
+}
+
+type ReportType int
+
+const (
+	AnnualLeaveReport ReportType = 1
+)
+
+func (r *Resolver) GetVacationReportData(params graphql.ResolveParams) (interface{}, error) {
+	organizationUnitID := params.Args["organization_unit_id"].(int)
+	reportType := ReportType(params.Args["type"].(int))
+	employeeID, _ := params.Args["employee_id"].(int)
+
+	if reportType == AnnualLeaveReport {
+		data, err := getDataForUsedAnnualLeaveDaysForEmployees(r.Repo, organizationUnitID, employeeID)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Items:   data,
+		}, nil
+	}
+	return errors.HandleAPIError(fmt.Errorf("unsupported type %d", reportType))
+}
+
+func getDataForUsedAnnualLeaveDaysForEmployees(repo repository.MicroserviceRepositoryInterface, organizationUnitID int, employeeID int) ([]dto.VacationReportResItem, error) {
+	var employees []*structs.UserProfiles
+	var err error
+
+	organizationUnit, err := repo.GetOrganizationUnitByID(organizationUnitID)
+	if err != nil {
+		return nil, err
+	}
+
+	if employeeID > 0 {
+		employee, err := repo.GetUserProfileByID(employeeID)
+		if err != nil {
+			return nil, err
+		}
+		employees = append(employees, employee)
+	} else {
+		employees, err = GetEmployeesOfOrganizationUnit(repo, organizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var data []dto.VacationReportResItem
+	for _, employee := range employees {
+		sumDaysOfCurrentYear, availableDaysOfCurrentYear, _, err := GetNumberOfCurrentAndPreviousYearAvailableDays(repo, employee.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		resItem := dto.VacationReportResItem{
+			FullName:         employee.GetFullName(),
+			OrganizationUnit: organizationUnit.Title,
+			TotalDays:        sumDaysOfCurrentYear,
+			UsedDays:         sumDaysOfCurrentYear - availableDaysOfCurrentYear,
+			LeftDays:         availableDaysOfCurrentYear,
+		}
+
+		data = append(data, resItem)
+	}
+
+	return data, nil
 }

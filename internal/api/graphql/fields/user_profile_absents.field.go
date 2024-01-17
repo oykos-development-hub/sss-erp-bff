@@ -84,3 +84,22 @@ func (f *Field) TerminateEmployment() *graphql.Field {
 		Resolve: f.Resolvers.TerminateEmployment,
 	}
 }
+
+func (f *Field) ReportVacations() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.UserProfileVacationReport,
+		Description: "Return data for vacation report",
+		Args: graphql.FieldConfigArgument{
+			"type": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"employee_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+		},
+		Resolve: f.Resolvers.GetVacationReportData,
+	}
+}

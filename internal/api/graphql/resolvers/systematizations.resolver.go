@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
@@ -61,6 +62,8 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 			activeValue := active.(int)
 			input.Active = &activeValue
 		}
+		loggedInOrganizationUnitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		loggedInUserAccount, _ := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
 		systematizationsResponse, err := r.Repo.GetSystematizations(&input)
 		if err != nil {
@@ -70,6 +73,11 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 			systematizationResItem, err := buildSystematizationOverviewResponse(r.Repo, &systematization)
 			if err != nil {
 				return errors.HandleAPIError(err)
+			}
+			if loggedInUserAccount.RoleID != structs.UserRoleAdmin &&
+				loggedInOrganizationUnitID != nil &&
+				*loggedInOrganizationUnitID != systematizationResItem.OrganizationUnitID {
+				continue
 			}
 			items = append(items, systematizationResItem)
 		}

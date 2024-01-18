@@ -91,6 +91,17 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 			return errors.HandleAPIError(err)
 		}
 
+		if userResponse.RoleID != 0 {
+			role, err := r.Repo.GetRole(userResponse.RoleID)
+
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			userResponse.Role.ID = role.ID
+			userResponse.Role.Title = role.Title
+		}
+
 		return dto.ResponseSingle{
 			Status:  "success",
 			Message: "You updated this item!",

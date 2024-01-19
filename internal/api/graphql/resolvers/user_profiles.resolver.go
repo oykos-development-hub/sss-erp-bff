@@ -78,7 +78,7 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 
 			items = append(items, *resItem)
 		}
-		total = len(profiles)
+		total = len(items)
 	}
 
 	paginatedItems, _ := shared.Paginate(items, page, size)

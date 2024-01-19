@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
 )
@@ -91,4 +92,20 @@ func makeBackendRequest(method, url string, body io.Reader, contentType string) 
 	}
 
 	return resp, 0, nil
+}
+
+func ExcelDateToTimeString(excelDate float64) string {
+	t := time.Date(1899, 12, 30, 0, 0, 0, 0, time.UTC).Add(time.Duration(excelDate*86400) * time.Second)
+	return t.Format("2006-01-02T15:04:05Z")
+}
+
+func ConvertDateFormat(dateString string) (string, error) {
+	// Parsiranje originalnog datuma
+	t, err := time.Parse("01-02-06", dateString)
+	if err != nil {
+		return "", err
+	}
+
+	// Formatiranje u ISO 8601 format
+	return t.Format("2006-01-02T15:04:05Z"), nil
 }

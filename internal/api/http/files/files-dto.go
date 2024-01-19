@@ -80,3 +80,10 @@ type errorResponse struct {
 	Message string `json:"message"`
 	Status  string `json:"status"`
 }
+
+type ImportInventoriesResponse struct {
+	Status  string                       `json:"status"`
+	Message string                       `json:"message"`
+	Error   string                       `json:"error"`
+	Data    []structs.BasicInventoryItem `json:"data"`
+}

@@ -19,15 +19,16 @@ type EmployeeResolutionListInput struct {
 }
 
 type Resolution struct {
-	ID                int            `json:"id"`
-	UserProfile       DropdownSimple `json:"user_profile"`
-	ResolutionType    DropdownSimple `json:"resolution_type"`
-	ResolutionPurpose string         `json:"resolution_purpose"`
-	DateOfStart       string         `json:"date_of_start"`
-	IsAffect          bool           `json:"is_affect"`
-	DateOfEnd         string         `json:"date_of_end"`
-	Value             string         `json:"value"`
-	CreatedAt         string         `json:"created_at"`
-	UpdatedAt         string         `json:"updated_at"`
-	FileID            int            `json:"file_id"`
+	ID                int                `json:"id"`
+	UserProfile       DropdownSimple     `json:"user_profile"`
+	ResolutionType    DropdownSimple     `json:"resolution_type"`
+	ResolutionPurpose string             `json:"resolution_purpose"`
+	DateOfStart       string             `json:"date_of_start"`
+	IsAffect          bool               `json:"is_affect"`
+	DateOfEnd         string             `json:"date_of_end"`
+	Value             string             `json:"value"`
+	CreatedAt         string             `json:"created_at"`
+	UpdatedAt         string             `json:"updated_at"`
+	FileID            int                `json:"file_id"`
+	File              FileDropdownSimple `json:"file"`
 }

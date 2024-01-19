@@ -124,7 +124,8 @@ func (h *Handler) ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Reques
 			}
 
 			if len(contractArticle.Data) > 0 {
-				article.ID = contractArticle.Data[0].ID
+				itemID := *contractArticle.Data[0]
+				article.ID = itemID.ID
 			}
 
 			vatPercentage, _ := strconv.ParseFloat(res[0].VatPercentage, 32)
@@ -832,6 +833,168 @@ func (h *Handler) ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r 
 	}
 
 	response.Data = articles
+	response.Status = "success"
+	response.Message = "File was read successfuly"
+	_ = MarshalAndWriteJSON(w, response)
+}
+
+func (h *Handler) ImportExcelOrgUnitInventoriesHandler(w http.ResponseWriter, r *http.Request) {
+	var response ImportInventoriesResponse
+
+	orgUnitIDstring := r.FormValue("organization_unit_id")
+
+	orgUnitID, err := strconv.Atoi(orgUnitIDstring)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	xlsFile, err := openExcelFile(r)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	var inventories []structs.BasicInventoryItem
+
+	sheetMap := xlsFile.GetSheetMap()
+
+	for _, sheetName := range sheetMap {
+		if sheetName != "PS -1" {
+			continue
+		}
+
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := 0
+
+		for rows.Next() {
+			if rowindex < 9 {
+				rowindex++
+				continue
+			}
+
+			cols := rows.Columns()
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			var inventory structs.BasicInventoryItem
+			var assessment structs.BasicInventoryAssessmentsTypesItem
+			// var dispatch structs.BasicInventoryDispatchItem
+
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				inventory.OrganizationUnitID = orgUnitID
+
+				switch cellIndex {
+				case 1:
+					inventory.InventoryNumber = value
+				case 2:
+					input := dto.GetOfficesOfOrganizationInput{}
+
+					input.Search = &value
+					input.Value = &orgUnitIDstring
+
+					office, err := h.Repo.GetOfficeDropdownSettings(&input)
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+					if len(office.Data) > 0 {
+						inventory.OfficeID = office.Data[0].ID
+					}
+				case 3:
+					inventory.Title = value
+				case 5:
+					floatValue, err := strconv.ParseFloat(value, 32)
+
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+					inventory.GrossPrice = float32(floatValue)
+				case 14:
+					if value != "" {
+						formattedDate, err := ConvertDateFormat(value)
+						if err != nil {
+							handleError(w, err, http.StatusInternalServerError)
+							return
+						}
+						assessment.DateOfAssessment = &formattedDate
+					}
+				case 15:
+					floatValue, err := strconv.ParseFloat(value, 32)
+
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+					assessment.GrossPriceDifference = float32(floatValue)
+				case 16:
+					floatValue, err := strconv.ParseFloat(value, 32)
+
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+					val := float32(floatValue)
+					assessment.ResidualPrice = &val
+				case 26:
+					input := dto.GetSettingsInput{}
+
+					input.Entity = "inventory_class_type"
+					input.Search = &value
+
+					class, err := h.Repo.GetDropdownSettings(&input)
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+					if len(class.Data) > 0 {
+						inventory.ClassTypeID = class.Data[0].ID
+					}
+				case 29:
+					if value != "" {
+						floatValue, err := strconv.ParseFloat(value, 64)
+						if err != nil {
+							handleError(w, err, http.StatusInternalServerError)
+							return
+						}
+						inventory.DateOfPurchase = ExcelDateToTimeString(floatValue)
+					}
+				case 30:
+					input := dto.GetSettingsInput{}
+
+					input.Entity = "deprecation_types"
+					input.Search = &value
+
+					deprecation, err := h.Repo.GetDropdownSettings(&input)
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+					if len(deprecation.Data) > 0 {
+						assessment.DepreciationTypeID = deprecation.Data[0].ID
+						inventory.DepreciationTypeID = deprecation.Data[0].ID
+					}
+				}
+
+			}
+
+			inventories = append(inventories, inventory)
+		}
+
+	}
+
+	response.Data = inventories
 	response.Status = "success"
 	response.Message = "File was read successfuly"
 	_ = MarshalAndWriteJSON(w, response)

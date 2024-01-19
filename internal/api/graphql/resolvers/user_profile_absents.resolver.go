@@ -112,6 +112,19 @@ func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *st
 	dataOfStart, _ := time.Parse("2006-01-02T15:04:05Z", item.DateOfStart)
 	numberOfDays, _ := strconv.Atoi(item.Value)
 
+	var file dto.FileDropdownSimple
+
+	if item.FileID > 0 {
+		res, err := r.GetFileByID(item.FileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		file.ID = res.ID
+		file.Name = res.Name
+		file.Type = *res.Type
+	}
 	return &dto.Vacation{
 		ID:                item.ID,
 		ResolutionPurpose: item.ResolutionPurpose,
@@ -126,6 +139,7 @@ func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *st
 		Year:         dataOfStart.Year(),
 		NumberOfDays: numberOfDays,
 		FileID:       item.FileID,
+		File:         file,
 		CreatedAt:    item.CreatedAt,
 		UpdatedAt:    item.UpdatedAt,
 	}, nil

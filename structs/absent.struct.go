@@ -26,6 +26,7 @@ type Absent struct {
 	CreatedAt                string             `json:"created_at"`
 	UpdatedAt                string             `json:"updated_at"`
 	FileID                   int                `json:"file_id"`
+	File                     FileDropdownSimple `json:"file"`
 }
 
 type Vacation struct {
@@ -39,4 +40,10 @@ type Vacation struct {
 	CreatedAt         string `json:"created_at"`
 	UpdatedAt         string `json:"updated_at"`
 	FileID            int    `json:"file_id"`
+}
+
+type FileDropdownSimple struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"`
 }

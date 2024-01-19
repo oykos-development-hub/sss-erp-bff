@@ -472,6 +472,18 @@ func buildAbsentResponseItem(r repository.MicroserviceRepositoryInterface, absen
 		absent.TargetOrganizationUnit = organizationUnit
 	}
 
+	if absent.FileID > 0 {
+		res, err := r.GetFileByID(absent.FileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		absent.File.ID = res.ID
+		absent.File.Name = res.Name
+		absent.File.Type = *res.Type
+	}
+
 	return &absent, nil
 }
 

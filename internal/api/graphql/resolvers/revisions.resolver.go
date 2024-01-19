@@ -564,6 +564,20 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 		externalUnitDropdown.Title = organizationUnit.Title
 	}
 
+	var file dto.FileDropdownSimple
+
+	if *revision.FileID > 0 {
+		res, err := r.GetFileByID(*revision.FileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		file.ID = res.ID
+		file.Name = res.Name
+		file.Type = *res.Type
+	}
+
 	revisionItem := &dto.RevisionsOverviewItem{
 		ID:                      revision.ID,
 		Title:                   revision.Title,
@@ -575,7 +589,7 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 		ExternalRevisionsubject: externalUnitDropdown,
 		Revisor:                 revisorDropdown,
 		RevisionType:            revisionType,
-		FileID:                  revision.FileID,
+		File:                    file,
 		CreatedAt:               revision.CreatedAt,
 		UpdatedAt:               revision.UpdatedAt,
 	}

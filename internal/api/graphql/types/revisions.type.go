@@ -283,8 +283,8 @@ var RevisionType = graphql.NewObject(graphql.ObjectConfig{
 		"revision_quartal": &graphql.Field{
 			Type: graphql.String,
 		},
-		"file_id": &graphql.Field{
-			Type: graphql.Int,
+		"file": &graphql.Field{
+			Type: FileDropdownItemType,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
@@ -414,8 +414,8 @@ var RevisionTipsType = graphql.NewObject(graphql.ObjectConfig{
 		"reasons_for_non_executing": &graphql.Field{
 			Type: graphql.String,
 		},
-		"file_id": &graphql.Field{
-			Type: graphql.Int,
+		"file": &graphql.Field{
+			Type: FileDropdownItemType,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

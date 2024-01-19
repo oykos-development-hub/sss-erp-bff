@@ -211,6 +211,18 @@ func (r *Resolver) UserProfileAbsentResolver(params graphql.ResolveParams) (inte
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
+
+		if absent.FileID > 0 {
+			res, err := r.Repo.GetFileByID(absent.FileID)
+
+			if err != nil {
+				return nil, err
+			}
+
+			absent.File.ID = res.ID
+			absent.File.Name = res.Name
+			absent.File.Type = *res.Type
+		}
 		absent.AbsentType = *absentType
 	}
 

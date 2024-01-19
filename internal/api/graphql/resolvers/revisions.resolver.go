@@ -566,7 +566,7 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 
 	var file dto.FileDropdownSimple
 
-	if *revision.FileID > 0 {
+	if revision.FileID != nil && *revision.FileID > 0 {
 		res, err := r.GetFileByID(*revision.FileID)
 
 		if err != nil {

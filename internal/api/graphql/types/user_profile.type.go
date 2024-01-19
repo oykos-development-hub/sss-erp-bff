@@ -41,6 +41,9 @@ var UserProfilesOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 		"job_position": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

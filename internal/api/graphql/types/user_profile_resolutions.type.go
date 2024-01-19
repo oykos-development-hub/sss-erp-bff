@@ -35,8 +35,8 @@ var UserProfileResolutionItemType = graphql.NewObject(graphql.ObjectConfig{
 		"updated_at": &graphql.Field{
 			Type: graphql.String,
 		},
-		"file_id": &graphql.Field{
-			Type: graphql.Int,
+		"file": &graphql.Field{
+			Type: FileDropdownItemType,
 		},
 	},
 })

@@ -1046,6 +1046,20 @@ func buildUserProfileBasicResponse(
 		}
 	}
 
+	// var file dto.FileDropdownSimple
+
+	// if profile.FileID > 0 {
+	// 	res, err := r.GetFileByID(profile.FileID)
+
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+
+	// 	file.ID = res.ID
+	// 	file.Name = res.Name
+	// 	file.Type = *res.Type
+	// }
+
 	userProfileResItem := &dto.UserProfileBasicResponse{
 		ID:                            profile.ID,
 		FirstName:                     profile.FirstName,

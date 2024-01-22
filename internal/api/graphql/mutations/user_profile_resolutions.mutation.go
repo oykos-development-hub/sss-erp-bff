@@ -30,7 +30,7 @@ var UserProfileResolutionInsertMutation = graphql.NewInputObject(graphql.InputOb
 			Type: graphql.Boolean,
 		},
 		"year": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
+			Type: graphql.Int,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,

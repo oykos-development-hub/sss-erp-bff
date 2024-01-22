@@ -63,9 +63,10 @@ func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.Re
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
+	dateOfEnd := time.Date(data.Year, time.December, 31, 23, 59, 59, 999999999, time.UTC).Format("2006-01-02T15:04:05Z")
 	inputData.ResolutionTypeID = vacationType.Data[0].ID
 	inputData.DateOfStart = time.Date(data.Year, time.January, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02T15:04:05Z")
-	inputData.DateOfEnd = time.Date(data.Year, time.December, 31, 23, 59, 59, 999999999, time.UTC).Format("2006-01-02T15:04:05Z")
+	inputData.DateOfEnd = &dateOfEnd
 	inputData.ID = data.ID
 	inputData.FileID = data.FileID
 	inputData.UserProfileID = data.UserProfileID

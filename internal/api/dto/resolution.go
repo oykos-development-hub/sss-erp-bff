@@ -26,7 +26,7 @@ type Resolution struct {
 	DateOfStart       string             `json:"date_of_start"`
 	Year              int                `json:"year"`
 	IsAffect          bool               `json:"is_affect"`
-	DateOfEnd         string             `json:"date_of_end"`
+	DateOfEnd         *string            `json:"date_of_end"`
 	Value             string             `json:"value"`
 	CreatedAt         string             `json:"created_at"`
 	UpdatedAt         string             `json:"updated_at"`

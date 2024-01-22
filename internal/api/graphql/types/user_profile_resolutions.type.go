@@ -30,7 +30,7 @@ var UserProfileResolutionItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"year": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

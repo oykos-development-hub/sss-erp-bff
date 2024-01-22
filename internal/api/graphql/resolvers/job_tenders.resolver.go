@@ -92,7 +92,7 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 
 	var file dto.FileDropdownSimple
 
-	if item.FileID == 0 {
+	if item.FileID != 0 {
 		res, err := r.GetFileByID(item.FileID)
 
 		if err != nil {

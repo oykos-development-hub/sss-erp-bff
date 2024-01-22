@@ -913,7 +913,7 @@ func buildContractResponseItemList(r repository.MicroserviceRepositoryInterface,
 func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, contract structs.Contracts) (*dto.Contract, error) {
 	var file dto.FileDropdownSimple
 
-	if contract.FileID != nil && *contract.FileID == 0 {
+	if contract.FileID != nil && *contract.FileID != 0 {
 		res, err := r.GetFileByID(*contract.FileID)
 
 		if err != nil {
@@ -1060,20 +1060,6 @@ func buildUserProfileBasicResponse(
 		}
 	}
 
-	var file dto.FileDropdownSimple
-
-	if profile.FileID > 0 {
-		res, err := r.GetFileByID(profile.FileID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		file.ID = res.ID
-		file.Name = res.Name
-		file.Type = *res.Type
-	}
-
 	userProfileResItem := &dto.UserProfileBasicResponse{
 		ID:                            profile.ID,
 		FirstName:                     profile.FirstName,
@@ -1109,7 +1095,6 @@ func buildUserProfileBasicResponse(
 		JobPosition:                   jobPosition,
 		JobPositionInOrganizationUnit: jobPositionInOrganizationUnitID,
 		NationalMinority:              profile.NationalMinority,
-		File:                          file,
 	}
 	active := true
 	contracts, err := r.GetEmployeeContracts(profile.ID, nil)

@@ -24,6 +24,7 @@ type Resolution struct {
 	ResolutionType    DropdownSimple     `json:"resolution_type"`
 	ResolutionPurpose string             `json:"resolution_purpose"`
 	DateOfStart       string             `json:"date_of_start"`
+	Year              int                `json:"year"`
 	IsAffect          bool               `json:"is_affect"`
 	DateOfEnd         string             `json:"date_of_end"`
 	Value             string             `json:"value"`

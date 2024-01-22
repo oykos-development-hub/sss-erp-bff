@@ -131,6 +131,7 @@ func buildResolutionResItem(r repository.MicroserviceRepositoryInterface, item *
 		DateOfEnd:   item.DateOfEnd,
 		Value:       item.Value,
 		File:        file,
+		Year:        item.Year,
 		CreatedAt:   item.CreatedAt,
 		UpdatedAt:   item.UpdatedAt,
 	}, nil

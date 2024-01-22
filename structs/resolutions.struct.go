@@ -9,6 +9,7 @@ type Resolution struct {
 	ResolutionPurpose string            `json:"resolution_purpose"`
 	DateOfStart       string            `json:"date_of_start"`
 	DateOfEnd         string            `json:"date_of_end"`
+	Year              int               `json:"year"`
 	Value             string            `json:"value"`
 	CreatedAt         string            `json:"created_at"`
 	UpdatedAt         string            `json:"updated_at"`

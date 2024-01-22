@@ -29,6 +29,9 @@ var UserProfileResolutionInsertMutation = graphql.NewInputObject(graphql.InputOb
 		"is_affect": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
+		"year": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

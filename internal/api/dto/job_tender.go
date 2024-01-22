@@ -25,6 +25,7 @@ type JobTenderResponseItem struct {
 	DateOfEnd           *string                   `json:"date_of_end"`
 	NumberOfVacantSeats int                       `json:"number_of_vacant_seats"`
 	FileID              int                       `json:"file_id"`
+	File                FileDropdownSimple        `json:"file"`
 	CreatedAt           string                    `json:"created_at"`
 	UpdatedAt           string                    `json:"updated_at"`
 }

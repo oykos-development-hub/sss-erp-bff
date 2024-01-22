@@ -90,6 +90,20 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 		err              error
 	)
 
+	var file dto.FileDropdownSimple
+
+	if item.FileID == 0 {
+		res, err := r.GetFileByID(item.FileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		file.ID = res.ID
+		file.Name = res.Name
+		file.Type = *res.Type
+	}
+
 	tenderType, err := r.GetTenderType(item.TypeID)
 	if err != nil {
 		return nil, err
@@ -107,6 +121,7 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 		DateOfEnd:           item.DateOfEnd,
 		FileID:              item.FileID,
 		NumberOfVacantSeats: item.NumberOfVacantSeats,
+		File:                file,
 		CreatedAt:           item.CreatedAt,
 		UpdatedAt:           item.UpdatedAt,
 	}

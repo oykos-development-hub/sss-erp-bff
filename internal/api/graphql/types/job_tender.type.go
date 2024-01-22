@@ -32,6 +32,9 @@ var JobTenderItemType = graphql.NewObject(graphql.ObjectConfig{
 		"number_of_vacant_seats": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

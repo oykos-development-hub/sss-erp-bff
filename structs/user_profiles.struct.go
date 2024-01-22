@@ -35,6 +35,7 @@ type UserProfiles struct {
 	IsJudge                        bool    `json:"is_judge"`
 	SecondaryEmail                 string  `json:"secondary_email"`
 	ActiveContract                 *bool   `json:"active_contract"`
+	FileID                         int     `json:"file_id"`
 	CreatedAt                      string  `json:"created_at"`
 	UpdatedAt                      string  `json:"updated_at"`
 }

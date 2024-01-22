@@ -1046,19 +1046,19 @@ func buildUserProfileBasicResponse(
 		}
 	}
 
-	// var file dto.FileDropdownSimple
+	var file dto.FileDropdownSimple
 
-	// if profile.FileID > 0 {
-	// 	res, err := r.GetFileByID(profile.FileID)
+	if profile.FileID > 0 {
+		res, err := r.GetFileByID(profile.FileID)
 
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
+		if err != nil {
+			return nil, err
+		}
 
-	// 	file.ID = res.ID
-	// 	file.Name = res.Name
-	// 	file.Type = *res.Type
-	// }
+		file.ID = res.ID
+		file.Name = res.Name
+		file.Type = *res.Type
+	}
 
 	userProfileResItem := &dto.UserProfileBasicResponse{
 		ID:                            profile.ID,
@@ -1095,6 +1095,7 @@ func buildUserProfileBasicResponse(
 		JobPosition:                   jobPosition,
 		JobPositionInOrganizationUnit: jobPositionInOrganizationUnitID,
 		NationalMinority:              profile.NationalMinority,
+		File:                          file,
 	}
 	active := true
 	contracts, err := r.GetEmployeeContracts(profile.ID, nil)

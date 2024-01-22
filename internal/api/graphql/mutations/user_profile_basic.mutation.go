@@ -115,6 +115,9 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"pin": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"file_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 	},
 })
 
@@ -219,6 +222,9 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		},
 		"contract": &graphql.InputObjectFieldConfig{
 			Type: UserProfileContractInsertMutation,
+		},
+		"file_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
 		},
 	},
 })

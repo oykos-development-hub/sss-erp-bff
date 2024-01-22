@@ -170,6 +170,9 @@ var UserProfileBasicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"is_judge": &graphql.Field{
 			Type: graphql.Boolean,
 		},
+		"file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

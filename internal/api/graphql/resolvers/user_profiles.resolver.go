@@ -911,6 +911,19 @@ func buildContractResponseItemList(r repository.MicroserviceRepositoryInterface,
 }
 
 func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, contract structs.Contracts) (*dto.Contract, error) {
+	var file dto.FileDropdownSimple
+
+	if contract.FileID != nil && *contract.FileID == 0 {
+		res, err := r.GetFileByID(*contract.FileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		file.ID = res.ID
+		file.Name = res.Name
+		file.Type = *res.Type
+	}
 	responseContract := &dto.Contract{
 		ID:                 contract.ID,
 		Title:              contract.Title,
@@ -930,6 +943,7 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 		CreatedAt:          contract.CreatedAt,
 		UpdatedAt:          contract.UpdatedAt,
 		FileID:             contract.FileID,
+		File:               file,
 	}
 
 	contractType, err := r.GetDropdownSettingByID(contract.ContractTypeID)

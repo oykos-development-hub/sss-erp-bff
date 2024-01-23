@@ -43,7 +43,9 @@ func buildVacationResponseItemList(r repository.MicroserviceRepositoryInterface,
 		if err != nil {
 			return nil, err
 		}
-		resItemList = append(resItemList, resItem)
+		if resItem != nil {
+			resItemList = append(resItemList, resItem)
+		}
 	}
 	return
 }

@@ -110,6 +110,10 @@ func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *st
 		return nil, err
 	}
 
+	if resolutionType.Value != VacationTypeValue {
+		return nil, nil
+	}
+
 	dataOfStart, _ := time.Parse("2006-01-02T15:04:05Z", item.DateOfStart)
 	numberOfDays, _ := strconv.Atoi(item.Value)
 

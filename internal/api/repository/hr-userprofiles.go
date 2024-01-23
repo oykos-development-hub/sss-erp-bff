@@ -521,3 +521,13 @@ func (repo *MicroserviceRepository) UpdateEmployeeSalaryParams(id int, salaries 
 
 	return res.Data, nil
 }
+
+func (repo *MicroserviceRepository) GetEvaluationList(input *dto.GetEvaluationListInputMS) ([]*structs.Evaluation, error) {
+	res := &dto.GetEvaluationListResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.Evaluations, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}

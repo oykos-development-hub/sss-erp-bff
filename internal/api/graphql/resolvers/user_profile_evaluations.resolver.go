@@ -31,6 +31,44 @@ func (r *Resolver) UserProfileEvaluationResolver(params graphql.ResolveParams) (
 	}, nil
 }
 
+func (r *Resolver) JudgeEvaluationReportResolver(params graphql.ResolveParams) (interface{}, error) {
+	isJudge := true
+
+	var filter dto.GetEvaluationListInputMS
+	filter.IsJudge = &isJudge
+
+	if score, ok := params.Args["score"].(string); ok && score != "" {
+		filter.Score = &score
+	}
+	if reasonForEvaluation, ok := params.Args["reason_for_evaluation"].(string); ok && reasonForEvaluation != "" {
+		filter.ReasonForEvaluation = &reasonForEvaluation
+	}
+
+	var evaluationResItemList []*dto.JudgeEvaluationReportResponseItem
+	evaluationList, err := r.Repo.GetEvaluationList(&filter)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	for _, item := range evaluationList {
+		evaluationResItem, err := buildJudgeEvaluationReportResponseItem(r.Repo, item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		if organizationUnitIDinput, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitIDinput != 0 {
+			if evaluationResItem.UnitID != organizationUnitIDinput {
+				continue
+			}
+		}
+		evaluationResItemList = append(evaluationResItemList, evaluationResItem)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the item you asked for!",
+		Items:   evaluationResItemList,
+	}, nil
+}
+
 func (r *Resolver) UserProfileEvaluationInsertResolver(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.Evaluation
 	response := dto.ResponseSingle{
@@ -96,6 +134,36 @@ func buildEvaluationResponseItemList(repo repository.MicroserviceRepositoryInter
 		resItemList = append(resItemList, resItem)
 	}
 	return
+}
+
+func buildJudgeEvaluationReportResponseItem(repo repository.MicroserviceRepositoryInterface, item *structs.Evaluation) (*dto.JudgeEvaluationReportResponseItem, error) {
+	userProfile, err := repo.GetUserProfileByID(item.UserProfileID)
+	if err != nil {
+		return nil, err
+	}
+
+	organizationUnitID, err := repo.GetOrganizationUnitIDByUserProfile(userProfile.ID)
+	if err != nil {
+		return nil, err
+	}
+	unit, err := repo.GetOrganizationUnitByID(*organizationUnitID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := dto.JudgeEvaluationReportResponseItem{
+		ID:                  item.ID,
+		FullName:            userProfile.GetFullName(),
+		Judgment:            unit.Title,
+		UnitID:              unit.ID,
+		DateOfEvaluation:    *item.DateOfEvaluation,
+		Score:               item.Score,
+		ReasonForEvaluation: *item.ReasonForEvaluation,
+		DecisionNumber:      *item.DecisionNumber,
+		EvaluationPeriod:    *item.EvaluationPeriod,
+	}
+
+	return &res, nil
 }
 
 func buildEvaluationResponseItem(repo repository.MicroserviceRepositoryInterface, item *structs.Evaluation) (*dto.EvaluationResponseItem, error) {

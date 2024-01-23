@@ -137,6 +137,7 @@ type MicroserviceRepositoryInterface interface {
 	GetEmployeesInOrganizationUnitList(input *dto.GetEmployeesInOrganizationUnitInput) ([]*structs.EmployeesInOrganizationUnits, error)
 	GetEmployeesInOrganizationUnitsByProfileID(profileID int) (*structs.EmployeesInOrganizationUnits, error)
 	GetEvaluation(evaulationID int) (*structs.Evaluation, error)
+	GetEvaluationList(input *dto.GetEvaluationListInputMS) ([]*structs.Evaluation, error)
 	GetFileByID(id int) (*structs.File, error)
 	GetInventoryItem(id int) (*structs.BasicInventoryInsertItem, error)
 	GetInventoryRealEstate(id int) (*structs.BasicInventoryRealEstatesItem, error)

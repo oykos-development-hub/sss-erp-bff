@@ -45,3 +45,22 @@ func (f *Field) UserProfileEvaluationDeleteField() *graphql.Field {
 		Resolve: f.Resolvers.UserProfileEvaluationDeleteResolver,
 	}
 }
+
+func (f *Field) ReportJudgeEvaluation() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.ReportJudgeEvaluationType,
+		Description: "Returns a data of Judge Evaluation for displaying report pdf.",
+		Args: graphql.FieldConfigArgument{
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"reason_for_evaluation": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"score": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+		},
+		Resolve: f.Resolvers.JudgeEvaluationReportResolver,
+	}
+}

@@ -100,3 +100,51 @@ var UserProfileEvaluationDeleteType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var ReportJudgeEvaluationType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ReportJudgeEvaluation",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(ReportJudgeEvaluationItemType),
+		},
+	},
+})
+
+var ReportJudgeEvaluationItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ReportJudgeEvaluationItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"full_name": &graphql.Field{
+			Type: graphql.String,
+		},
+		"judgment": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"reason_for_evaluation": &graphql.Field{
+			Type: graphql.String,
+		},
+		"date_of_evaluation": &graphql.Field{
+			Type: graphql.String,
+		},
+		"score": &graphql.Field{
+			Type: graphql.String,
+		},
+		"evaluation_period": &graphql.Field{
+			Type: graphql.Boolean,
+		},
+		"decision_number": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})

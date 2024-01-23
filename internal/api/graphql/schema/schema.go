@@ -152,6 +152,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"userProfile_Foreigner":                                      fields.UserProfileForeignerField(),
 			"userProfile_SalaryParams":                                   fields.UserProfileSalaryParamsField(),
 			"userProfile_Evaluation":                                     fields.UserProfileEvaluationField(),
+			"judgeEvaluation_Report":                                     fields.ReportJudgeEvaluation(),
 			"userProfile_Absent":                                         fields.UserProfileAbsentField(),
 			"userProfile_Vacation":                                       fields.UserProfileVacationField(),
 			"terminateEmployment":                                        fields.TerminateEmployment(),

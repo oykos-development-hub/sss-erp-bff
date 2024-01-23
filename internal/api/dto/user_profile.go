@@ -209,7 +209,7 @@ type EvaluationResponseItem struct {
 }
 
 type GetEvaluationListInputMS struct {
-	IsJudge             *bool   `json:"active"`
+	IsJudge             *bool   `json:"is_judge"`
 	Score               *string `json:"score"`
 	ReasonForEvaluation *string `json:"reason_for_evaluation"`
 }
@@ -219,13 +219,13 @@ type GetEvaluationListResponseMS struct {
 }
 
 type JudgeEvaluationReportResponseItem struct {
-	ID                  int    `json:"id"`
-	FullName            string `json:"full_name"`
-	Judgment            string `json:"judgment"`
-	UnitID              int    `json:"unit_id"`
-	ReasonForEvaluation string `json:"reason_for_evaluation"`
-	DateOfEvaluation    string `json:"date_of_evaluation"`
-	Score               string `json:"score"`
-	EvaluationPeriod    string `json:"evaluation_period"`
-	DecisionNumber      string `json:"decision_number"`
+	ID                  int     `json:"id"`
+	FullName            string  `json:"full_name"`
+	Judgment            string  `json:"judgment"`
+	UnitID              int     `json:"unit_id"`
+	ReasonForEvaluation *string `json:"reason_for_evaluation"`
+	DateOfEvaluation    string  `json:"date_of_evaluation"`
+	Score               string  `json:"score"`
+	EvaluationPeriod    *string `json:"evaluation_period"`
+	DecisionNumber      string  `json:"decision_number"`
 }

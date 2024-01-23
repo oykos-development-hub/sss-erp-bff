@@ -142,11 +142,17 @@ func buildJudgeEvaluationReportResponseItem(repo repository.MicroserviceReposito
 		return nil, err
 	}
 
-	organizationUnitID, err := repo.GetOrganizationUnitIDByUserProfile(userProfile.ID)
+	filter := dto.JudgeResolutionsOrganizationUnitInput{
+		UserProfileID: &userProfile.ID,
+	}
+	judge, _, err := repo.GetJudgeResolutionOrganizationUnit(&filter)
+
 	if err != nil {
 		return nil, err
 	}
-	unit, err := repo.GetOrganizationUnitByID(*organizationUnitID)
+
+	orgUnit, err := repo.GetOrganizationUnitByID(judge[0].OrganizationUnitID)
+
 	if err != nil {
 		return nil, err
 	}
@@ -154,13 +160,13 @@ func buildJudgeEvaluationReportResponseItem(repo repository.MicroserviceReposito
 	res := dto.JudgeEvaluationReportResponseItem{
 		ID:                  item.ID,
 		FullName:            userProfile.GetFullName(),
-		Judgment:            unit.Title,
-		UnitID:              unit.ID,
+		Judgment:            orgUnit.Title,
+		UnitID:              orgUnit.ID,
 		DateOfEvaluation:    *item.DateOfEvaluation,
 		Score:               item.Score,
-		ReasonForEvaluation: *item.ReasonForEvaluation,
+		ReasonForEvaluation: item.ReasonForEvaluation,
 		DecisionNumber:      *item.DecisionNumber,
-		EvaluationPeriod:    *item.EvaluationPeriod,
+		EvaluationPeriod:    item.EvaluationPeriod,
 	}
 
 	return &res, nil

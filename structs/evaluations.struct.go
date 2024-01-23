@@ -12,9 +12,9 @@ type Evaluation struct {
 	CreatedAt           string           `json:"created_at"`
 	UpdatedAt           string           `json:"updated_at"`
 	FileID              int              `json:"file_id"`
-	ReasonForEvaluation string           `json:"reason_for_evaluation"`
-	EvaluationPeriod    string           `json:"evaluation_period"`
-	DecisionNumber      string           `json:"decision_number"`
+	ReasonForEvaluation *string          `json:"reason_for_evaluation"`
+	EvaluationPeriod    *string          `json:"evaluation_period"`
+	DecisionNumber      *string          `json:"decision_number"`
 }
 
 type EvaluationType struct {

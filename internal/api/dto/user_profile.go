@@ -203,7 +203,7 @@ type EvaluationResponseItem struct {
 	UpdatedAt           string             `json:"updated_at"`
 	FileID              int                `json:"file_id"`
 	File                FileDropdownSimple `json:"file"`
-	ReasonForEvaluation string             `json:"reason_for_evaluation"`
-	EvaluationPeriod    string             `json:"evaluation_period"`
-	DecisionNumber      string             `json:"decision_number"`
+	ReasonForEvaluation *string            `json:"reason_for_evaluation"`
+	EvaluationPeriod    *string            `json:"evaluation_period"`
+	DecisionNumber      *string            `json:"decision_number"`
 }

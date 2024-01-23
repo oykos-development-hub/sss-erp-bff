@@ -129,7 +129,7 @@ var ReportJudgeEvaluationItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"judgment": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"reason_for_evaluation": &graphql.Field{
 			Type: graphql.String,
@@ -141,7 +141,7 @@ var ReportJudgeEvaluationItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"evaluation_period": &graphql.Field{
-			Type: graphql.Boolean,
+			Type: graphql.String,
 		},
 		"decision_number": &graphql.Field{
 			Type: graphql.String,

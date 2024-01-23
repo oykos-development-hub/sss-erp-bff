@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
@@ -25,6 +26,8 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 	}
 
 	filter := dto.JudgeResolutionsOrganizationUnitInput{}
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	profileOrganizationUnit := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 
 	if page != nil {
 		Page := page.(int)
@@ -41,6 +44,9 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 	if id != nil {
 		user := id.(int)
 		filter.UserProfileID = &user
+	}
+	if !loggedInUser.HasPermission(structs.PermissionManageOrganizationUnits) {
+		filter.OrganizationUnitID = profileOrganizationUnit
 	}
 
 	active := true

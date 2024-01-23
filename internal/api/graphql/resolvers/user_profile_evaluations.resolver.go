@@ -127,18 +127,21 @@ func buildEvaluationResponseItem(repo repository.MicroserviceRepositoryInterface
 	}
 
 	res := dto.EvaluationResponseItem{
-		ID:               item.ID,
-		UserProfileID:    item.UserProfileID,
-		EvaluationTypeID: item.EvaluationTypeID,
-		EvaluationType:   evaluationTypeDropdown,
-		Score:            item.Score,
-		DateOfEvaluation: item.DateOfEvaluation,
-		Evaluator:        item.Evaluator,
-		IsRelevant:       item.IsRelevant,
-		FileID:           item.FileID,
-		CreatedAt:        item.CreatedAt,
-		UpdatedAt:        item.UpdatedAt,
-		File:             fileDropdown,
+		ID:                  item.ID,
+		UserProfileID:       item.UserProfileID,
+		EvaluationTypeID:    item.EvaluationTypeID,
+		EvaluationType:      evaluationTypeDropdown,
+		Score:               item.Score,
+		DateOfEvaluation:    item.DateOfEvaluation,
+		Evaluator:           item.Evaluator,
+		IsRelevant:          item.IsRelevant,
+		FileID:              item.FileID,
+		CreatedAt:           item.CreatedAt,
+		UpdatedAt:           item.UpdatedAt,
+		File:                fileDropdown,
+		ReasonForEvaluation: item.ReasonForEvaluation,
+		DecisionNumber:      item.DecisionNumber,
+		EvaluationPeriod:    item.EvaluationPeriod,
 	}
 
 	return &res, nil

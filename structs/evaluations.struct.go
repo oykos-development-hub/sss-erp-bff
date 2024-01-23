@@ -1,17 +1,20 @@
 package structs
 
 type Evaluation struct {
-	ID               int              `json:"id"`
-	UserProfileID    int              `json:"user_profile_id"`
-	EvaluationTypeID int              `json:"evaluation_type_id"`
-	EvaluationType   SettingsDropdown `json:"evaluation_type"`
-	Score            string           `json:"score"`
-	DateOfEvaluation *string          `json:"date_of_evaluation"`
-	Evaluator        string           `json:"evaluator"`
-	IsRelevant       bool             `json:"is_relevant"`
-	CreatedAt        string           `json:"created_at"`
-	UpdatedAt        string           `json:"updated_at"`
-	FileID           int              `json:"file_id"`
+	ID                  int              `json:"id"`
+	UserProfileID       int              `json:"user_profile_id"`
+	EvaluationTypeID    int              `json:"evaluation_type_id"`
+	EvaluationType      SettingsDropdown `json:"evaluation_type"`
+	Score               string           `json:"score"`
+	DateOfEvaluation    *string          `json:"date_of_evaluation"`
+	Evaluator           string           `json:"evaluator"`
+	IsRelevant          bool             `json:"is_relevant"`
+	CreatedAt           string           `json:"created_at"`
+	UpdatedAt           string           `json:"updated_at"`
+	FileID              int              `json:"file_id"`
+	ReasonForEvaluation string           `json:"reason_for_evaluation"`
+	EvaluationPeriod    string           `json:"evaluation_period"`
+	DecisionNumber      string           `json:"decision_number"`
 }
 
 type EvaluationType struct {

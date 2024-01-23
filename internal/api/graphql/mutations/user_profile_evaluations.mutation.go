@@ -26,6 +26,15 @@ var UserProfileEvaluationInsertMutation = graphql.NewInputObject(graphql.InputOb
 		"is_relevant": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
+		"reason_for_evaluation": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"evaluation_period": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"decision_number": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

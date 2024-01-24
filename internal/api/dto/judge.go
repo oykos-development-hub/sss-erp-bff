@@ -36,8 +36,9 @@ type GetJudgeResolutionListInputMS struct {
 }
 
 type GetJudgeResolutionItemListInputMS struct {
-	Active       *bool `json:"active"`
-	ResolutionID *int  `json:"resolution_id"`
+	Active             *bool `json:"active"`
+	ResolutionID       *int  `json:"resolution_id"`
+	OrganizationUnitID *int  `json:"organization_unit_id"`
 }
 
 type GetJudgeResolutionsOrganizationUnitResponseMS struct {
@@ -89,8 +90,13 @@ type JudgeResolutionItemResponseItem struct {
 	OrganizationUnit         structs.SettingsDropdown `json:"organization_unit"`
 	NumberOfJudges           int                      `json:"number_of_judges"`
 	NumberOfPresidents       int                      `json:"number_of_presidents"`
+	VacantSlotsJudges        int                      `json:"vacant_slots_judges"`
+	VacantSlotsPresidents    int                      `json:"vacant_slots_presidents"`
+	VacantSlots              int                      `json:"vacant_slots"`
+	TotalNumber              int                      `json:"total_number"`
 	AvailableSlotsPredisents int                      `json:"available_slots_presidents"`
 	AvailableSlotsJudges     int                      `json:"available_slots_judges"`
+	AvailableSlotsTotal      int                      `json:"available_slots_total"`
 	NumberOfEmployees        int                      `json:"number_of_employees"`
 	NumberOfRelocatedJudges  int                      `json:"number_of_relocated_judges"`
 	NumberOfSuspendedJudges  int                      `json:"number_of_suspended_judges"`

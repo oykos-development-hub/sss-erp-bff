@@ -83,7 +83,8 @@ func (f *Field) OrganizationUintCalculateEmployeeStatsField() *graphql.Field {
 				Type: graphql.Int,
 			},
 			"active": &graphql.ArgumentConfig{
-				Type: graphql.Boolean,
+				Type:         graphql.Boolean,
+				DefaultValue: true,
 			},
 		},
 		Resolve: f.Resolvers.OrganizationUintCalculateEmployeeStats,

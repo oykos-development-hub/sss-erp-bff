@@ -152,10 +152,16 @@ var JudgeResolutionItemType = graphql.NewObject(graphql.ObjectConfig{
 		"available_slots_judges": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"available_slots_total": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"number_of_presidents": &graphql.Field{
 			Type: graphql.Int,
 		},
 		"number_of_judges": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"total_number": &graphql.Field{
 			Type: graphql.Int,
 		},
 		"number_of_employees": &graphql.Field{
@@ -165,6 +171,15 @@ var JudgeResolutionItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"number_of_suspended_judges": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"vacant_slots_judges": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"vacant_slots_presidents": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"vacant_slots": &graphql.Field{
 			Type: graphql.Int,
 		},
 	},

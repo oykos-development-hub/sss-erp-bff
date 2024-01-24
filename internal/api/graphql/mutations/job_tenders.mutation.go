@@ -71,7 +71,7 @@ var JobTenderApplicationInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"date_of_application": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"official_personal_id": &graphql.InputObjectFieldConfig{
+		"official_personal_document_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"evaluation": &graphql.InputObjectFieldConfig{

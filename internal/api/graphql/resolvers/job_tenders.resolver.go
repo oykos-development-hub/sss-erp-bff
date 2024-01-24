@@ -175,20 +175,20 @@ func JobTenderIsActive(r repository.MicroserviceRepositoryInterface, item *struc
 
 func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterface, item *structs.JobTenderApplications) (*dto.JobTenderApplicationResponseItem, error) {
 	res := dto.JobTenderApplicationResponseItem{
-		ID:                 item.ID,
-		Type:               item.Type,
-		FirstName:          item.FirstName,
-		LastName:           item.LastName,
-		OfficialPersonalID: item.OfficialPersonalID,
-		DateOfBirth:        item.DateOfBirth,
-		Nationality:        item.Nationality,
-		Evaluation:         item.Evaluation,
-		DateOfAplication:   item.DateOfApplication,
-		Active:             item.Active,
-		FileID:             item.FileID,
-		Status:             item.Status,
-		CreatedAt:          item.CreatedAt,
-		UpdatedAt:          item.UpdatedAt,
+		ID:                             item.ID,
+		Type:                           item.Type,
+		FirstName:                      item.FirstName,
+		LastName:                       item.LastName,
+		OfficialPersonalDocumentNumber: item.OfficialPersonalDocumentNumber,
+		DateOfBirth:                    item.DateOfBirth,
+		Nationality:                    item.Nationality,
+		Evaluation:                     item.Evaluation,
+		DateOfAplication:               item.DateOfApplication,
+		Active:                         item.Active,
+		FileID:                         item.FileID,
+		Status:                         item.Status,
+		CreatedAt:                      item.CreatedAt,
+		UpdatedAt:                      item.UpdatedAt,
 	}
 
 	if item.UserProfileID != nil {
@@ -202,7 +202,7 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 		}
 		res.FirstName = userProfile.FirstName
 		res.LastName = userProfile.LastName
-		res.OfficialPersonalID = userProfile.OfficialPersonalID
+		res.OfficialPersonalDocumentNumber = userProfile.OfficialPersonalDocumentNumber
 		res.DateOfBirth = userProfile.DateOfBirth
 		res.Nationality = userProfile.Citizenship
 

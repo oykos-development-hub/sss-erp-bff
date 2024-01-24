@@ -16,20 +16,20 @@ type JobTenders struct {
 }
 
 type JobTenderApplications struct {
-	ID                 int     `json:"id"`
-	JobTenderID        int     `json:"job_tender_id"`
-	UserProfileID      *int    `json:"user_profile_id"`
-	Active             bool    `json:"active"`
-	Type               string  `json:"type"`
-	FirstName          string  `json:"first_name"`
-	LastName           string  `json:"last_name"`
-	Nationality        string  `json:"citizenship"`
-	DateOfBirth        *string `json:"date_of_birth"`
-	DateOfApplication  *string `json:"date_of_application"`
-	OfficialPersonalID string  `json:"official_personal_id"`
-	Evaluation         string  `json:"evaluation"`
-	Status             string  `json:"status"`
-	FileID             int     `json:"file_id"`
-	CreatedAt          string  `json:"created_at"`
-	UpdatedAt          string  `json:"updated_at"`
+	ID                             int     `json:"id"`
+	JobTenderID                    int     `json:"job_tender_id"`
+	UserProfileID                  *int    `json:"user_profile_id"`
+	Active                         bool    `json:"active"`
+	Type                           string  `json:"type"`
+	FirstName                      string  `json:"first_name"`
+	LastName                       string  `json:"last_name"`
+	Nationality                    string  `json:"citizenship"`
+	DateOfBirth                    *string `json:"date_of_birth"`
+	DateOfApplication              *string `json:"date_of_application"`
+	OfficialPersonalDocumentNumber string  `json:"official_personal_document_number"`
+	Evaluation                     string  `json:"evaluation"`
+	Status                         string  `json:"status"`
+	FileID                         int     `json:"file_id"`
+	CreatedAt                      string  `json:"created_at"`
+	UpdatedAt                      string  `json:"updated_at"`
 }

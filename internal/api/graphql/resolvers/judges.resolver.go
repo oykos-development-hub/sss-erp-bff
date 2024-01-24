@@ -515,13 +515,14 @@ func (r *Resolver) OrganizationUintCalculateEmployeeStats(params graphql.Resolve
 		judgeResolutionItem, err := r.Repo.GetJudgeResolutionItemsList(&filter)
 		if err != nil {
 			fmt.Printf("Calculating number of slots failed beacuse of error: %v\n", err)
-		} else if len(judgeResolutionItem) == 0 {
-			fmt.Printf("There isn`t resolution for organization unit")
 		}
 
-		numberOfJudgesSlots := judgeResolutionItem[0].NumberOfJudges
-		numberOfPresidentsSlots := judgeResolutionItem[0].NumberOfPresidents
-
+		var numberOfJudgesSlots int
+		var numberOfPresidentsSlots int
+		if len(judgeResolutionItem) > 0 {
+			numberOfJudgesSlots = judgeResolutionItem[0].NumberOfJudges
+			numberOfPresidentsSlots = judgeResolutionItem[0].NumberOfPresidents
+		}
 		response = append(response, dto.JudgeResolutionItemResponseItem{
 			OrganizationUnit:         organizationUnitDropdown,
 			NumberOfJudges:           numberOfJudgesInOU,

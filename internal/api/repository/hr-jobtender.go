@@ -118,12 +118,23 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 	currentTenderApplication, _ := repo.GetTenderApplication(id)
 	if currentTenderApplication.Status != "Izabran" && jobTender.Status == "Izabran" {
 		applications, _ := repo.GetTenderApplicationList(&dto.GetJobTenderApplicationsInput{JobTenderID: &currentTenderApplication.JobTenderID})
-		for _, application := range applications.Data {
-			if currentTenderApplication.ID != application.ID {
-				application.Status = "Nije izabran"
-				_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobTenderApplications+"/"+strconv.Itoa(application.ID), application, nil)
-				if err != nil {
-					return nil, err
+		jobTender, _ := repo.GetJobTender(currentTenderApplication.JobTenderID)
+
+		count := 0
+		for _, tenderApp := range applications.Data {
+			if tenderApp.Status == "Izabran" {
+				count++
+			}
+		}
+
+		if count == jobTender.NumberOfVacantSeats {
+			for _, application := range applications.Data {
+				if currentTenderApplication.ID != application.ID && application.Status != "Izabran" {
+					application.Status = "Nije izabran"
+					_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobTenderApplications+"/"+strconv.Itoa(application.ID), application, nil)
+					if err != nil {
+						return nil, err
+					}
 				}
 			}
 		}

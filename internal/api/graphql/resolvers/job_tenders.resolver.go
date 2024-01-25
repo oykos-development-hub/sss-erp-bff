@@ -376,6 +376,7 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 
 	itemID := data.ID
 	if itemID != 0 {
+
 		res, err := r.Repo.UpdateJobTenderApplication(itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)

@@ -182,13 +182,23 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 		OfficialPersonalDocumentNumber: item.OfficialPersonalDocumentNumber,
 		DateOfBirth:                    item.DateOfBirth,
 		Nationality:                    item.Nationality,
-		Evaluation:                     item.Evaluation,
 		DateOfAplication:               item.DateOfApplication,
 		Active:                         item.Active,
 		FileID:                         item.FileID,
 		Status:                         item.Status,
 		CreatedAt:                      item.CreatedAt,
 		UpdatedAt:                      item.UpdatedAt,
+	}
+
+	if item.Evaluation != 0 {
+		evaluation, err := r.GetDropdownSettingByID(item.Evaluation)
+
+		if err != nil {
+			return nil, err
+		}
+
+		res.Evaluation.ID = evaluation.ID
+		res.Evaluation.Title = evaluation.Title
 	}
 
 	if item.UserProfileID != nil {
@@ -205,14 +215,6 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 		res.OfficialPersonalDocumentNumber = userProfile.OfficialPersonalDocumentNumber
 		res.DateOfBirth = userProfile.DateOfBirth
 		res.Nationality = userProfile.Citizenship
-
-		evaluation, err := r.GetEmployeeEvaluations(userProfile.ID)
-		if err != nil {
-			return nil, err
-		}
-		if len(evaluation) > 0 {
-			res.Evaluation = evaluation[len(evaluation)-1].Score
-		}
 		res.UserProfile = userProfileDropdownItem
 	}
 

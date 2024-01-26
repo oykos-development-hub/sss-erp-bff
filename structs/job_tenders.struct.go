@@ -27,7 +27,7 @@ type JobTenderApplications struct {
 	DateOfBirth                    *string `json:"date_of_birth"`
 	DateOfApplication              *string `json:"date_of_application"`
 	OfficialPersonalDocumentNumber string  `json:"official_personal_document_number"`
-	Evaluation                     string  `json:"evaluation"`
+	Evaluation                     int     `json:"evaluation"`
 	Status                         string  `json:"status"`
 	FileID                         int     `json:"file_id"`
 	CreatedAt                      string  `json:"created_at"`

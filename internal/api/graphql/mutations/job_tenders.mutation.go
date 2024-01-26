@@ -75,7 +75,7 @@ var JobTenderApplicationInsertMutation = graphql.NewInputObject(graphql.InputObj
 			Type: graphql.String,
 		},
 		"evaluation": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"status": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.String),

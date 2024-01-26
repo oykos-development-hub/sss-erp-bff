@@ -66,6 +66,7 @@ type JobTenderApplicationResponseItem struct {
 	JobTender                      *JobTenderResponseItem `json:"job_tender"`
 	OrganizationUnit               *DropdownSimple        `json:"organization_unit"`
 	TenderType                     *DropdownSimple        `json:"tender_type"`
+	Evaluation                     *DropdownSimple        `json:"evaluation"`
 	Active                         bool                   `json:"active"`
 	Type                           string                 `json:"type"`
 	FirstName                      string                 `json:"first_name"`
@@ -73,7 +74,6 @@ type JobTenderApplicationResponseItem struct {
 	OfficialPersonalDocumentNumber string                 `json:"official_personal_document_number"`
 	DateOfBirth                    *string                `json:"date_of_birth"`
 	Nationality                    string                 `json:"citizenship"`
-	Evaluation                     string                 `json:"evaluation"`
 	DateOfAplication               *string                `json:"date_of_application"`
 	Status                         string                 `json:"status"`
 	FileID                         int                    `json:"file_id"`

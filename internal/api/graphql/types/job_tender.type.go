@@ -141,7 +141,7 @@ var JobTenderApplicationItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"evaluation": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"date_of_application": &graphql.Field{
 			Type: graphql.String,

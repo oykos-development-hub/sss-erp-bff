@@ -197,8 +197,10 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 			return nil, err
 		}
 
-		res.Evaluation.ID = evaluation.ID
-		res.Evaluation.Title = evaluation.Title
+		res.Evaluation = &dto.DropdownSimple{
+			ID:    evaluation.ID,
+			Title: evaluation.Title,
+		}
 	}
 
 	if item.UserProfileID != nil {

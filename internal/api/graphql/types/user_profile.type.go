@@ -173,6 +173,9 @@ var UserProfileBasicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"file": &graphql.Field{
 			Type: FileDropdownItemType,
 		},
+		"evaluation": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

@@ -127,6 +127,7 @@ type UserProfileBasicResponse struct {
 	PrivateEmail                  string                     `json:"private_email"`
 	Pin                           string                     `json:"pin"`
 	File                          FileDropdownSimple         `json:"file"`
+	Evaluation                    DropdownSimple             `json:"evaluation"`
 }
 
 type UserProfileOverviewResponse struct {

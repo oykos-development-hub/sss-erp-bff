@@ -1140,5 +1140,16 @@ func buildUserProfileBasicResponse(
 
 	}
 
+	evaluations, err := r.GetEmployeeEvaluations(userProfileResItem.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(evaluations) > 0 {
+		userProfileResItem.Evaluation.ID = evaluations[0].ID
+		userProfileResItem.Evaluation.Title = evaluations[0].EvaluationType.Title
+	}
+
 	return userProfileResItem, nil
 }

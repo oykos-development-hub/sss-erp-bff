@@ -1147,8 +1147,12 @@ func buildUserProfileBasicResponse(
 	}
 
 	if len(evaluations) > 0 {
-		userProfileResItem.Evaluation.ID = evaluations[0].ID
-		userProfileResItem.Evaluation.Title = evaluations[0].EvaluationType.Title
+		evaluation, err := r.GetDropdownSettingByID(evaluations[0].EvaluationTypeID)
+		if err != nil {
+			return nil, err
+		}
+		userProfileResItem.Evaluation.ID = evaluation.ID
+		userProfileResItem.Evaluation.Title = evaluation.Title
 	}
 
 	return userProfileResItem, nil

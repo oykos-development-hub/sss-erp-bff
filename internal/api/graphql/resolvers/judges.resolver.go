@@ -274,6 +274,37 @@ func (r *Resolver) JudgeResolutionsResolver(params graphql.ResolveParams) (inter
 	return response, nil
 }
 
+func (r *Resolver) JudgeResolutionsActiveResolver(params graphql.ResolveParams) (interface{}, error) {
+
+	response := dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+	}
+	var item dto.JudgeResolutionsResponseItem
+	page := 0
+	size := 1000
+	input := dto.GetJudgeResolutionListInputMS{}
+	input.Page = &page
+	input.Size = &size
+	resolutions, err := r.Repo.GetJudgeResolutionList(&input)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	for _, res := range resolutions.Data {
+		if res.Active == true {
+			resolutionResponseItem, err := processJudgeResolution(r.Repo, res)
+			if err != nil {
+				fmt.Printf("Error processing JudgeResolution: %v\n", err)
+				return nil, err
+			}
+			item = *resolutionResponseItem
+			break
+		}
+	}
+	response.Item = item
+	return response, nil
+}
+
 func (r *Resolver) CheckJudgeAndPresidentIsAvailable(params graphql.ResolveParams) (interface{}, error) {
 	active := true
 	input := dto.GetJudgeResolutionListInputMS{

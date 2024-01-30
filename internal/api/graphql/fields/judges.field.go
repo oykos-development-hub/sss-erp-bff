@@ -74,6 +74,15 @@ func (f *Field) JudgeResolutionsOverviewField() *graphql.Field {
 		Resolve: f.Resolvers.JudgeResolutionsResolver,
 	}
 }
+
+func (f *Field) JudgeResolutionsActiveField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.JudgeResolutionsActiveType,
+		Description: "Returns a data of Judge resolution active item",
+		Resolve:     f.Resolvers.JudgeResolutionsActiveResolver,
+	}
+}
+
 func (f *Field) OrganizationUintCalculateEmployeeStatsField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.OrganizationUintCalculateEmployeeStatsType,

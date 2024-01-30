@@ -168,6 +168,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"revision_tips_Details":                                      fields.RevisionTipsDetails(),
 			"judges_Overview":                                            fields.JudgesOverviewField(),
 			"judgeResolutions_Overview":                                  fields.JudgeResolutionsOverviewField(),
+			"judgeResolutions_Active":                                    fields.JudgeResolutionsActiveField(),
 			"checkJudgeAndPresidentIsAvailable":                          fields.CheckJudgeAndPresidentIsAvailableField(),
 			"organizationUintCalculateEmployeeStats":                     fields.OrganizationUintCalculateEmployeeStatsField(),
 			"vacation_Report":                                            fields.ReportVacations(),

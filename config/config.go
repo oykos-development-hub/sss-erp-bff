@@ -1,8 +1,8 @@
 package config
 
 import (
+	"bff/log"
 	"errors"
-	"log"
 	"os"
 	"strconv"
 
@@ -193,7 +193,7 @@ func getEnvInt(key string, defaultValue int) int {
 func LoadDefaultConfig() (*Config, error) {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Logger.Fatal("Error loading .env file")
 	}
 
 	baseAppDir, exists := os.LookupEnv("BASE_APP_DIR")

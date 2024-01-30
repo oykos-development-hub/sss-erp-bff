@@ -1,11 +1,11 @@
 package files
 
 import (
+	"bff/log"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"time"
 
@@ -53,7 +53,7 @@ func openExcelFile(r *http.Request) (*excelize.File, error) {
 }
 
 func handleError(w http.ResponseWriter, err error, statusCode int) {
-	log.Printf("Error: %s - %v", err.Error(), err)
+	log.Logger.Printf("Error: %s - %v", err.Error(), err)
 	w.WriteHeader(statusCode)
 	_ = MarshalAndWriteJSON(w, errorResponse{
 		Message: err.Error(),

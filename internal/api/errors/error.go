@@ -2,9 +2,9 @@ package errors
 
 import (
 	"bff/internal/api/dto"
+	"bff/log"
 	"encoding/json"
 	"fmt"
-	"log"
 	"runtime"
 )
 
@@ -31,7 +31,7 @@ func (e APIError) Error() string {
 
 func HandleAPIError(err error) (dto.Response, error) {
 	_, file, line, _ := runtime.Caller(1) // 1 is the number of stack frames to ascend
-	log.Printf("Error occurred in file %s at line %d: %v", file, line, err)
+	log.Logger.Printf("Error occurred in file %s at line %d: %v", file, line, err)
 
 	if apiError, ok := err.(APIError); ok {
 		return ErrorResponse(apiError.Message, apiError.Data), nil

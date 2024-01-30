@@ -13,6 +13,7 @@ type Response struct {
 	Price     float32     `json:"price"`
 	Items     interface{} `json:"items"`
 	Summary   interface{} `json:"summary"`
+	Version   int         `json:"version"`
 	Validator interface{} `json:"validator"`
 }
 

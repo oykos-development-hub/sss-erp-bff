@@ -72,6 +72,9 @@ func initAccountOverviewType() {
 			"total": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"version": &graphql.Field{
+				Type: graphql.Int,
+			},
 			"items": &graphql.Field{
 				Type: graphql.NewList(GetAccountType()),
 			},

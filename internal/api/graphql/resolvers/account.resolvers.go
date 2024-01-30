@@ -47,6 +47,9 @@ func (r *Resolver) AccountOverviewResolver(params graphql.ResolveParams) (interf
 	if size, ok := params.Args["size"].(int); ok && size != 0 {
 		accountFilters.Size = &size
 	}
+	if version, ok := params.Args["version"].(int); ok && version != 0 {
+		accountFilters.Version = &version
+	}
 
 	accounts, err := r.Repo.GetAccountItems(&accountFilters)
 	if err != nil {
@@ -85,11 +88,17 @@ func (r *Resolver) AccountOverviewResolver(params graphql.ResolveParams) (interf
 		accountResItemlist = filteredAccounts
 	}
 
+	version := 0
+	if len(accounts.Data) > 0 {
+		version = accounts.Data[0].Version
+	}
+
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 		Total:   accounts.Total,
 		Items:   accountResItemlist,
+		Version: version,
 	}, nil
 }
 

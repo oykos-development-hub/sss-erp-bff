@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/internal/api/dto"
 	"bff/structs"
+	"errors"
 	"strconv"
 )
 
@@ -22,6 +23,19 @@ func (repo *MicroserviceRepository) GetAccountItems(filters *dto.GetAccountsFilt
 		return nil, err
 	}
 	return res, nil
+}
+
+func (repo *MicroserviceRepository) GetLatestVersionOfAccounts() (int, error) {
+	accountItems, err := repo.GetAccountItems(nil)
+	if err != nil {
+		return -1, err
+	}
+
+	if accountItems.Total == 0 {
+		return -1, errors.New("there is no accounts in the system")
+	}
+
+	return accountItems.Data[0].Version, nil
 }
 
 func (repo *MicroserviceRepository) GetAccountItemByID(id int) (*structs.AccountItem, error) {

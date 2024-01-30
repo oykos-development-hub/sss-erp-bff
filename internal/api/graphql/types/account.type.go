@@ -2,19 +2,34 @@ package types
 
 import (
 	"bff/internal/api/dto"
+	"sync"
 
 	"github.com/graphql-go/graphql"
 )
 
-var AccountType *graphql.Object
+var (
+	accountType                  *graphql.Object
+	accountOverviewType          *graphql.Object
+	onceInitalizeAccount         sync.Once
+	onceInitalizeAccountOverview sync.Once
+)
 
-func init() {
-	initAccountType()
-	initAccountOverviewType()
+func GetAccountType() *graphql.Object {
+	onceInitalizeAccount.Do(func() {
+		initAccountType()
+	})
+	return accountType
+}
+
+func GetAccountOverviewType() *graphql.Object {
+	onceInitalizeAccountOverview.Do(func() {
+		initAccountOverviewType()
+	})
+	return accountOverviewType
 }
 
 func initAccountType() {
-	AccountType = graphql.NewObject(graphql.ObjectConfig{
+	accountType = graphql.NewObject(graphql.ObjectConfig{
 		Name: "AccountType",
 		Fields: (graphql.FieldsThunk)(func() graphql.Fields {
 			return graphql.Fields{
@@ -31,7 +46,7 @@ func initAccountType() {
 					Type: graphql.String,
 				},
 				"children": &graphql.Field{
-					Type: graphql.NewList(AccountType),
+					Type: graphql.NewList(accountType),
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 						if accountItem, ok := p.Source.(*dto.AccountItemResponseItem); ok {
 							return accountItem.Children, nil
@@ -44,10 +59,8 @@ func initAccountType() {
 	})
 }
 
-var AccountOverviewType *graphql.Object
-
 func initAccountOverviewType() {
-	AccountOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	accountOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		Name: "AccountOverviewType",
 		Fields: graphql.Fields{
 			"status": &graphql.Field{
@@ -60,7 +73,7 @@ func initAccountOverviewType() {
 				Type: graphql.Int,
 			},
 			"items": &graphql.Field{
-				Type: graphql.NewList(AccountType),
+				Type: graphql.NewList(GetAccountType()),
 			},
 		},
 	})

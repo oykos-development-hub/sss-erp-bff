@@ -43,17 +43,12 @@ func (f *Field) BudgetSendField() *graphql.Field {
 		Resolve: f.Resolvers.BudgetSendResolver,
 	}
 }
+
 func (f *Field) BudgetOverviewField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.BudgetOverviewType,
 		Description: "Returns a data of Budget items",
 		Args: graphql.FieldConfigArgument{
-			"page": &graphql.ArgumentConfig{
-				Type: graphql.Int,
-			},
-			"size": &graphql.ArgumentConfig{
-				Type: graphql.Int,
-			},
 			"id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
@@ -61,12 +56,25 @@ func (f *Field) BudgetOverviewField() *graphql.Field {
 				Type: graphql.String,
 			},
 			"year": &graphql.ArgumentConfig{
-				Type: graphql.String,
+				Type: graphql.Int,
 			},
-			"type_budget": &graphql.ArgumentConfig{
-				Type: graphql.String,
+			"budget_type": &graphql.ArgumentConfig{
+				Type: graphql.Int,
 			},
 		},
 		Resolve: f.Resolvers.BudgetOverviewResolver,
+	}
+}
+
+func (f *Field) FinancialBudgetOverview() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FinancialBudgetOverviewType,
+		Description: "Returns a data of Financial Budget",
+		Args: graphql.FieldConfigArgument{
+			"budget_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.FinancialBudgetOverview,
 	}
 }

@@ -12,13 +12,13 @@ import (
 const (
 	defaultAppPort = 8080
 
-	defaultCoreAPI         = "http://localhost:4000"
-	defaultHRAPI           = "http://localhost:4100"
-	defaultProcurementsAPI = "http://localhost:4200"
-	defaultInventoryAPI    = "http://localhost:4300"
-	defaultAccountingAPI   = "http://localhost:4400"
-	defaultFileAPI         = "http://localhost:4500"
-	defaultFinanceAPI      = "http://localhost:4600"
+	defaultCoreAPI         = "http://localhost:4000/api"
+	defaultHRAPI           = "http://localhost:4100/api"
+	defaultProcurementsAPI = "http://localhost:4200/api"
+	defaultInventoryAPI    = "http://localhost:4300/api"
+	defaultAccountingAPI   = "http://localhost:4400/api"
+	defaultFileAPI         = "http://localhost:4500/api"
+	defaultFinanceAPI      = "http://localhost:4600/api"
 
 	defaultCoreFE         = "http://localhost:3000"
 	defaultHRFE           = "http://localhost:3001"
@@ -54,7 +54,13 @@ type MicroservicesConfig struct {
 	Accounting   AccountingMS
 	Inventory    InventoryMS
 	Files        FilesMS
-	Finance      string
+	Finance      FinanceMS
+}
+
+type FinanceMS struct {
+	Base            string
+	Budget          string
+	FinancialBudget string
 }
 
 type ProcurementMS struct {
@@ -201,6 +207,7 @@ func LoadDefaultConfig() (*Config, error) {
 	accountingBase := getEnvString("ACCOUNTING_MS_BASE_URL", defaultAccountingAPI)
 	inventoryBase := getEnvString("BASIC_INVENTORY_MS_BASE_URL", defaultInventoryAPI)
 	filesBase := getEnvString("FILE_MS_BASE_URL", defaultFileAPI)
+	financeBase := getEnvString("FINANCE_MS_BASE_URL", defaultFinanceAPI)
 
 	return &Config{
 		BaseAppDir: baseAppDir,
@@ -296,6 +303,11 @@ func LoadDefaultConfig() (*Config, error) {
 				MovementReport:           accountingBase + "/movements-report",
 				MovementArticles:         accountingBase + "/movement-articles",
 				Stock:                    accountingBase + "/stocks",
+			},
+			Finance: FinanceMS{
+				Base:            financeBase,
+				Budget:          financeBase + "/budgets",
+				FinancialBudget: financeBase + "/financial-budgets",
 			},
 		},
 		Frontend: FrontendConfig{

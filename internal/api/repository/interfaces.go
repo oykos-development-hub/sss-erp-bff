@@ -268,4 +268,14 @@ type MicroserviceRepositoryInterface interface {
 	UpdateUserProfile(userID int, user structs.UserProfiles) (*structs.UserProfiles, error)
 	ValidateMail(input *dto.ResetPasswordVerify) (*dto.ResetPasswordVerifyResponseMS, error)
 	ValidatePin(pin string, headers map[string]string) error
+
+	GetLatestVersionOfAccounts() (int, error)
+
+	CreateBudget(budget *structs.Budget) (*structs.Budget, error)
+	UpdateBudget(id int, budget *structs.Budget) (*structs.Budget, error)
+	GetBudget(id int) (*structs.Budget, error)
+	GetBudgetList(input *dto.GetBudgetListInputMS) ([]structs.Budget, error)
+	DeleteBudget(id int) error
+	CreateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
+	GetFinancialBudgetByBudgetID(budgetID int) (*structs.FinancialBudget, error)
 }

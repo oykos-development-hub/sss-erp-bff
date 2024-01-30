@@ -5,6 +5,7 @@ type AccountItem struct {
 	Title        string `json:"title"`
 	ParentID     *int   `json:"parent_id"`
 	SerialNumber string `json:"serial_number"`
+	Version      int    `json:"version"`
 }
 
 type AccountItemNode struct {

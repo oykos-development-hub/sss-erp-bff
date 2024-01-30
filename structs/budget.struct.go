@@ -7,10 +7,14 @@ type BudgetIndent struct {
 	Abbreviation string `json:"abbreviation"`
 }
 
-type BudgetItem struct {
-	ID     int    `json:"id"`
-	Year   string `json:"year"`
-	Source string `json:"source"`
-	Type   string `json:"type"`
-	Status string `json:"status"`
+type Budget struct {
+	ID         int `json:"id"`
+	Year       int `json:"year"`
+	BudgetType int `json:"budget_type"`
+}
+
+type FinancialBudget struct {
+	ID             int `json:"id"`
+	AccountVersion int `json:"account_version"`
+	BudgetID       int `json:"budget_id"`
 }

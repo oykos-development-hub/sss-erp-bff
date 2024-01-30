@@ -33,7 +33,7 @@ func (f *Field) AccountDeleteField() *graphql.Field {
 }
 func (f *Field) AccountOverviewField() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.AccountOverviewType,
+		Type:        types.GetAccountOverviewType(),
 		Description: "Returns a data of Account items",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{

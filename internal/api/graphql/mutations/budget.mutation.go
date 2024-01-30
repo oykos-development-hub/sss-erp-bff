@@ -9,19 +9,10 @@ var BudgetMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.Int,
 		},
 		"year": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"activity_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"source": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"type": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"status": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+		"budget_type": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
 		},
 	},
 })

@@ -2,8 +2,10 @@ package resolvers
 
 import (
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/shared"
 	"bff/structs"
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -42,107 +44,171 @@ func BudgetItemProperties(basicInventoryItems []interface{}, id int, typeBudget 
 }
 
 func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
-	var items []interface{}
-	var total int
-	var id int
-	var status string
-	var year string
-	var typeBudget string
+	if id, ok := params.Args["id"].(int); ok && id != 0 {
+		budget, err := r.Repo.GetBudget(id)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		budgetResItem, err := buildBudgetResponseItem(params.Context, *budget)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 
-	if params.Args["id"] != nil && params.Args["id"].(int) > 0 {
-		id = params.Args["id"].(int)
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Items:   []*dto.BudgetResponseItem{budgetResItem},
+			Total:   1,
+		}, nil
 	}
 
-	if params.Args["status"] == nil {
-		status = ""
-	} else {
-		status = params.Args["status"].(string)
+	input := dto.GetBudgetListInputMS{}
+	if budgetType, ok := params.Args["budget_type"].(int); ok && budgetType != 0 {
+		input.BudgetType = &budgetType
+	}
+	if year, ok := params.Args["year"].(int); ok && year != 0 {
+		input.Year = &year
+	}
+	if status, ok := params.Args["status"].(string); ok && status != "" {
+		input.Status = &status
 	}
 
-	if params.Args["year"] == nil {
-		year = ""
-	} else {
-		year = params.Args["year"].(string)
-	}
-
-	if params.Args["type_budget"] == nil {
-		typeBudget = ""
-	} else {
-		typeBudget = params.Args["type_budget"].(string)
-	}
-
-	page := params.Args["page"]
-	size := params.Args["size"]
-
-	BudgetType := &structs.BudgetItem{}
-	BudgetData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget.json", BudgetType)
-
+	budgets, err := r.Repo.GetBudgetList(&input)
 	if err != nil {
-		fmt.Printf("Fetching Budget failed because of this error - %s.\n", err)
+		return errors.HandleAPIError(err)
 	}
-
-	// Populate data for each Basic Inventory Real Estates
-	items = BudgetItemProperties(BudgetData, id, typeBudget, year, status)
-
-	total = len(items)
-
-	// Filtering by Pagination params
-	if page != nil && page != 0 && size != nil && size != 0 {
-		items = shared.Pagination(items, page.(int), size.(int))
+	budgetResItem, err := buildBudgetResponseItemList(params.Context, budgets)
+	if err != nil {
+		return errors.HandleAPIError(err)
 	}
 
 	return dto.Response{
 		Status:  "success",
-		Message: "You fetched items!",
-		Items:   items,
-		Total:   total,
+		Message: "Here's the list you asked for!",
+		Items:   budgetResItem,
+		Total:   len(budgets),
 	}, nil
 }
 
-func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	var data structs.BudgetItem
-	dataBytes, _ := json.Marshal(params.Args["data"])
-	BudgetItemType := &structs.BudgetItem{}
+func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interface{}, error) {
+	budgetID := params.Args["budget_id"].(int)
+	financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{Version: &financialBudget.AccountVersion})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	accountResItemlist, err := buildAccountItemResponseItemList(accounts.Data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	accountResItemlist, err = CreateTree(accountResItemlist)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	financialBudgetOveriew := &dto.FinancialBudgetOverviewResponse{
+		AccountVersion: financialBudget.AccountVersion,
+		Accounts:       accountResItemlist,
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item:    financialBudgetOveriew,
+	}, nil
+}
+
+// TODO: add logic  to determine budget status based on states and logged in user
+func buildBudgetStatus(ctx context.Context, budget structs.Budget) string {
+	return "Kreiran"
+}
+
+func buildBudgetResponseItemList(ctx context.Context, budgetList []structs.Budget) (budgetResItemList []*dto.BudgetResponseItem, err error) {
+	for _, budget := range budgetList {
+		status := buildBudgetStatus(ctx, budget)
+		budgetResItemList = append(budgetResItemList, &dto.BudgetResponseItem{
+			ID:         budget.ID,
+			Year:       budget.Year,
+			BudgetType: budget.BudgetType,
+			Status:     status,
+		})
+	}
+
+	return
+}
+
+func buildBudgetResponseItem(ctx context.Context, budget structs.Budget) (*dto.BudgetResponseItem, error) {
+	status := buildBudgetStatus(ctx, budget)
+	item := &dto.BudgetResponseItem{
+		ID:         budget.ID,
+		Year:       budget.Year,
+		BudgetType: budget.BudgetType,
+		Status:     status,
+	}
+
+	return item, nil
+}
+
+func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.Budget
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	dataBytes, err := json.Marshal(params.Args["data"])
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	err = json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
 	itemID := data.ID
 
-	BudgetData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget.json", BudgetItemType)
-
-	if err != nil {
-		fmt.Printf("Fetching Budget failed because of this error - %s.\n", err)
-	}
-
 	if itemID != 0 {
-		BudgetData = shared.FilterByProperty(BudgetData, "ID", itemID)
+		item, err := r.Repo.UpdateBudget(itemID, &data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Message = "You updated this item!"
+		response.Item = item
 	} else {
-		data.ID = shared.GetRandomNumber()
-		data.Status = "kreiran"
+		item, err := r.Repo.CreateBudget(&data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		accountLatestVersion, err := r.Repo.GetLatestVersionOfAccounts()
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		_, err = r.Repo.CreateFinancialBudget(&structs.FinancialBudget{
+			AccountVersion: accountLatestVersion,
+			BudgetID:       item.ID,
+		})
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Message = "You created this item!"
+		response.Item = item
 	}
 
-	var updatedData = append(BudgetData, data)
-
-	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget.json"), updatedData)
-
-	sliceData := []interface{}{data}
-
-	// Populate data for each Basic Inventory
-	var populatedData = BudgetItemProperties(sliceData, itemID, "", "", "")
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"items":   populatedData[0],
-	}, nil
+	return response, nil
 }
 
 func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}, error) {
 	var projectRoot, _ = shared.GetProjectRoot()
 	itemID := params.Args["id"]
 
-	BudgetItemType := &structs.BudgetItem{}
+	BudgetItemType := &structs.Budget{}
 	BudgetData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget.json", BudgetItemType)
 
 	if err != nil {
@@ -155,15 +221,14 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		return nil, err
 	}
 	BudgetData = shared.FilterByProperty(BudgetData, "ID", itemID)
-	newItem := structs.BudgetItem{}
+	newItem := structs.Budget{}
 
 	for _, item := range budget {
-		if updateBudget, ok := item.(*structs.BudgetItem); ok {
+		if updateBudget, ok := item.(*structs.Budget); ok {
 			newItem.ID = updateBudget.ID
 			newItem.Year = updateBudget.Year
-			newItem.Source = updateBudget.Source
-			newItem.Type = updateBudget.Type
-			newItem.Status = "poslat"
+			newItem.BudgetType = updateBudget.BudgetType
+			// newItem.Status = "poslat"
 		}
 	}
 
@@ -302,23 +367,16 @@ var CreateProgramsForRequestResolver = func(activityID int, notFinanciallyID int
 }
 
 func (r *Resolver) BudgetDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	itemID := params.Args["id"]
-	BudgetItemType := &structs.BudgetItem{}
-	BudgetData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget.json", BudgetItemType)
+	itemID := params.Args["id"].(int)
 
+	err := r.Repo.DeleteBudget(itemID)
 	if err != nil {
-		fmt.Printf("Fetching Budget failed because of this error - %s.\n", err)
+		fmt.Printf("Deleting budget item failed because of this error - %s.\n", err)
+		return fmt.Errorf("error deleting the id"), nil
 	}
 
-	if itemID != 0 {
-		BudgetData = shared.FilterByProperty(BudgetData, "ID", itemID)
-	}
-
-	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget.json"), BudgetData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You deleted this item!",
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
 	}, nil
 }

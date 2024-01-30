@@ -9,19 +9,28 @@ var BudgetType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"year": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
-		"source": &graphql.Field{
-			Type: graphql.String,
-		},
-		"type": &graphql.Field{
-			Type: graphql.String,
+		"budget_type": &graphql.Field{
+			Type: graphql.Int,
 		},
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
 		"data": &graphql.Field{
 			Type: JSON,
+		},
+	},
+})
+
+var FinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "FinancialBudgetType",
+	Fields: graphql.Fields{
+		"account_version": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"accounts": &graphql.Field{
+			Type: graphql.NewList(GetAccountType()),
 		},
 	},
 })
@@ -43,6 +52,27 @@ var BudgetOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"items": &graphql.Field{
 			Type: graphql.NewList(BudgetType),
+		},
+	},
+})
+
+var FinancialBudgetOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "FinancialBudgetOverview",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"item": &graphql.Field{
+			Type: FinancialBudgetType,
 		},
 	},
 })
@@ -89,7 +119,7 @@ var BudgetInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
+		"item": &graphql.Field{
 			Type: BudgetType,
 		},
 	},

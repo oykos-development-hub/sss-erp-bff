@@ -3,10 +3,11 @@ package dto
 import "bff/structs"
 
 type GetAccountsFilter struct {
-	ID     *int    `json:"id"`
-	Search *string `json:"search"`
-	Page   *int    `json:"page"`
-	Size   *int    `json:"size"`
+	ID      *int    `json:"id"`
+	Search  *string `json:"search"`
+	Page    *int    `json:"page"`
+	Size    *int    `json:"size"`
+	Version *int    `json:"version"`
 }
 
 type AccountItemResponseItem struct {

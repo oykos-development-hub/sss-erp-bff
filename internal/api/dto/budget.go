@@ -31,7 +31,25 @@ type GetFinancialBudgetResponseMS struct {
 	Data structs.FinancialBudget `json:"data"`
 }
 
+type GetFinancialBudgetLimitResponseMS struct {
+	Data structs.FinancialBudgetLimit `json:"data"`
+}
+
 type FinancialBudgetOverviewResponse struct {
 	AccountVersion int                        `json:"account_version"`
 	Accounts       []*AccountItemResponseItem `json:"accounts"`
+}
+
+type CreateBudget struct {
+	ID         int                    `json:"id"`
+	Year       int                    `json:"year"`
+	BudgetType int                    `json:"budget_type"`
+	Limits     []FinancialBudgetLimit `json:"limits"`
+}
+
+type FinancialBudgetLimit struct {
+	ID                 int `json:"id"`
+	Limit              int `json:"limit"`
+	OrganizationUnitID int `json:"organization_unit_id"`
+	FinancialBudgetID  int `json:"financial_budget_id"`
 }

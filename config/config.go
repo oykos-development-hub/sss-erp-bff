@@ -58,9 +58,10 @@ type MicroservicesConfig struct {
 }
 
 type FinanceMS struct {
-	Base            string
-	Budget          string
-	FinancialBudget string
+	Base                 string
+	Budget               string
+	FinancialBudget      string
+	FinancialBudgetLimit string
 }
 
 type ProcurementMS struct {
@@ -305,9 +306,10 @@ func LoadDefaultConfig() (*Config, error) {
 				Stock:                    accountingBase + "/stocks",
 			},
 			Finance: FinanceMS{
-				Base:            financeBase,
-				Budget:          financeBase + "/budgets",
-				FinancialBudget: financeBase + "/financial-budgets",
+				Base:                 financeBase,
+				Budget:               financeBase + "/budgets",
+				FinancialBudget:      financeBase + "/financial-budgets",
+				FinancialBudgetLimit: financeBase + "/financial-budget-limits",
 			},
 		},
 		Frontend: FrontendConfig{

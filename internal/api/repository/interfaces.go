@@ -278,4 +278,5 @@ type MicroserviceRepositoryInterface interface {
 	DeleteBudget(id int) error
 	CreateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
 	GetFinancialBudgetByBudgetID(budgetID int) (*structs.FinancialBudget, error)
+	CreateLimitsForFinancialBudget(financialBudgetLimit *structs.FinancialBudgetLimit) (*structs.FinancialBudgetLimit, error)
 }

@@ -61,6 +61,8 @@ type Judges struct {
 	UpdatedAt        string                   `json:"updated_at"`
 	FolderID         *int                     `json:"folder_id"`
 	Norms            []*NormResItem           `json:"norms"`
+	Age              int                      `json:"age"`
+	Gender           string                   `json:"gender"`
 }
 
 type NormResItem struct {

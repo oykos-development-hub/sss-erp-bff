@@ -68,6 +68,12 @@ var JudgesOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 		"last_name": &graphql.Field{
 			Type: graphql.String,
 		},
+		"gender": &graphql.Field{
+			Type: graphql.String,
+		},
+		"age": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

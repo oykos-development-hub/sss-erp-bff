@@ -154,9 +154,10 @@ func buildBudgetResponseItem(ctx context.Context, budget structs.Budget) (*dto.B
 }
 
 func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.Budget
+	var data dto.CreateBudget
 	response := dto.ResponseSingle{
-		Status: "success",
+		Status:  "success",
+		Message: "You created this item!",
 	}
 
 	dataBytes, err := json.Marshal(params.Args["data"])
@@ -168,38 +169,40 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 		return errors.HandleAPIError(err)
 	}
 
-	itemID := data.ID
+	budgetToCreate := structs.Budget{
+		Year:       data.Year,
+		BudgetType: data.BudgetType,
+	}
+	item, err := r.Repo.CreateBudget(&budgetToCreate)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
-	if itemID != 0 {
-		item, err := r.Repo.UpdateBudget(itemID, &data)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
+	accountLatestVersion, err := r.Repo.GetLatestVersionOfAccounts()
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
-		response.Message = "You updated this item!"
-		response.Item = item
-	} else {
-		item, err := r.Repo.CreateBudget(&data)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
+	financialBudget, err := r.Repo.CreateFinancialBudget(&structs.FinancialBudget{
+		AccountVersion: accountLatestVersion,
+		BudgetID:       item.ID,
+	})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
-		accountLatestVersion, err := r.Repo.GetLatestVersionOfAccounts()
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		_, err = r.Repo.CreateFinancialBudget(&structs.FinancialBudget{
-			AccountVersion: accountLatestVersion,
-			BudgetID:       item.ID,
+	for _, limitData := range data.Limits {
+		_, err = r.Repo.CreateLimitsForFinancialBudget(&structs.FinancialBudgetLimit{
+			OrganizationUnitID: limitData.OrganizationUnitID,
+			FinancialBudgetID:  financialBudget.ID,
+			Limit:              limitData.Limit,
 		})
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-
-		response.Message = "You created this item!"
-		response.Item = item
 	}
+
+	response.Item = item
 
 	return response, nil
 }

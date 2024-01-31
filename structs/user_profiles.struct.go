@@ -1,5 +1,10 @@
 package structs
 
+import (
+	"fmt"
+	"time"
+)
+
 type UserProfiles struct {
 	ID                             int     `json:"id"`
 	UserAccountID                  int     `json:"user_account_id"`
@@ -48,4 +53,24 @@ type Revisor struct {
 
 func (u *UserProfiles) GetFullName() string {
 	return u.FirstName + " " + u.LastName
+}
+
+func (u *UserProfiles) GetAge() int {
+	dateOfBirth, err := time.Parse(time.RFC3339, *u.DateOfBirth)
+	if err != nil {
+		fmt.Println("Error parsing date of birth:", err)
+		return 0
+	}
+
+	currentDate := time.Now()
+
+	age := currentDate.Sub(dateOfBirth)
+
+	// Extract years, months, and days from the difference.
+	years := age / (365 * 24 * time.Hour)
+	age -= years * 365 * 24 * time.Hour
+	months := age / (30 * 24 * time.Hour)
+	age -= months * 30 * 24 * time.Hour
+
+	return int(years)
 }

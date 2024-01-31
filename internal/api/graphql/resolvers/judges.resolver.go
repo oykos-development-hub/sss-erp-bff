@@ -123,6 +123,8 @@ func buildJudgeResponseItem(r repository.MicroserviceRepositoryInterface, userPr
 		IsJudgePresident: isPresident,
 		OrganizationUnit: organizationUnitDropdown,
 		Norms:            normResItemList,
+		Gender:           userProfile.Gender,
+		Age:              userProfile.GetAge(),
 		FolderID:         userAccount.FolderID,
 		CreatedAt:        userProfile.CreatedAt,
 		UpdatedAt:        userProfile.UpdatedAt,

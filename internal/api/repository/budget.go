@@ -71,3 +71,12 @@ func (repo *MicroserviceRepository) GetFinancialBudgetByBudgetID(id int) (*struc
 
 	return &res.Data, nil
 }
+
+func (repo *MicroserviceRepository) CreateLimitsForFinancialBudget(financialBudgetLimit *structs.FinancialBudgetLimit) (*structs.FinancialBudgetLimit, error) {
+	res := &dto.GetFinancialBudgetLimitResponseMS{}
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FinancialBudgetLimit, financialBudgetLimit, res)
+	if err != nil {
+		return nil, err
+	}
+	return &res.Data, nil
+}

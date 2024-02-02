@@ -2,59 +2,47 @@ package types
 
 import "github.com/graphql-go/graphql"
 
-var BudgetActivityNotFinanciallyType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "BudgetActivityNotFinanciallyType",
+var NonFinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "NonFinancialBudgetType",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"name_of_organization_unit": &graphql.Field{
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"impl_contact_fullname": &graphql.Field{
 			Type: graphql.String,
 		},
-		"organization_code": &graphql.Field{
+		"impl_contact_working_place": &graphql.Field{
 			Type: graphql.String,
 		},
-		"mission_statement": &graphql.Field{
+		"impl_contact_phone": &graphql.Field{
 			Type: graphql.String,
 		},
-		"person_responsible_name_surname": &graphql.Field{
+		"impl_contact_email": &graphql.Field{
 			Type: graphql.String,
 		},
-		"person_responsible_working_place": &graphql.Field{
+		"contact_fullname": &graphql.Field{
 			Type: graphql.String,
 		},
-		"person_responsible_telephone_number": &graphql.Field{
+		"contact_working_place": &graphql.Field{
 			Type: graphql.String,
 		},
-		"person_responsible_email": &graphql.Field{
+		"contact_phone": &graphql.Field{
 			Type: graphql.String,
 		},
-		"contact_person_name_surname": &graphql.Field{
+		"contact_email": &graphql.Field{
 			Type: graphql.String,
-		},
-		"contact_person_working_place": &graphql.Field{
-			Type: graphql.String,
-		},
-		"contact_person_telephone_number": &graphql.Field{
-			Type: graphql.String,
-		},
-		"contact_person_email": &graphql.Field{
-			Type: graphql.String,
-		},
-		"program": &graphql.Field{
-			Type: ProgramNotFinanciallyType,
-		},
-		"subprogram": &graphql.Field{
-			Type: ProgramNotFinanciallyType,
 		},
 		"activity": &graphql.Field{
-			Type: ProgramNotFinanciallyType,
+			Type: ActivityType,
 		},
 	},
 })
 
-var ProgramNotFinanciallyType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "ProgramNotFinanciallyType",
+var ActivityType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ActivityType",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.Int,
@@ -68,14 +56,20 @@ var ProgramNotFinanciallyType = graphql.NewObject(graphql.ObjectConfig{
 		"code": &graphql.Field{
 			Type: graphql.String,
 		},
+		"sub_program": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"goals": &graphql.Field{
-			Type: graphql.NewList(GoalsNotFinanciallyType),
+			Type: graphql.NewList(ActivityGoalType),
 		},
 	},
 })
 
-var GoalsNotFinanciallyType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "GoalsNotFinanciallyType",
+var ActivityGoalType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ActivityGoalType",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.Int,
@@ -85,6 +79,9 @@ var GoalsNotFinanciallyType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"description": &graphql.Field{
 			Type: graphql.String,
+		},
+		"indicators": &graphql.Field{
+			Type: graphql.NewList(IndicatorNotFinanciallyType),
 		},
 	},
 })
@@ -95,10 +92,10 @@ var IndicatorNotFinanciallyType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"code": &graphql.Field{
+		"performance_indicator_code": &graphql.Field{
 			Type: graphql.String,
 		},
-		"source": &graphql.Field{
+		"indicator_source": &graphql.Field{
 			Type: graphql.String,
 		},
 		"base_year": &graphql.Field{
@@ -110,47 +107,119 @@ var IndicatorNotFinanciallyType = graphql.NewObject(graphql.ObjectConfig{
 		"base_value": &graphql.Field{
 			Type: graphql.String,
 		},
-		"source_information": &graphql.Field{
+		"source_of_information": &graphql.Field{
 			Type: graphql.String,
 		},
-		"unit": &graphql.Field{
+		"unit_of_measure": &graphql.Field{
 			Type: graphql.String,
 		},
-		"description": &graphql.Field{
+		"indicator_description": &graphql.Field{
 			Type: graphql.String,
 		},
-		"planned_current_year": &graphql.Field{
+		"planned_value_1": &graphql.Field{
 			Type: graphql.String,
 		},
-		"revised_current_year": &graphql.Field{
+		"revised_value_1": &graphql.Field{
 			Type: graphql.String,
 		},
-		"value_current_year": &graphql.Field{
+		"achieved_value_1": &graphql.Field{
 			Type: graphql.String,
 		},
-		"planned_next_year": &graphql.Field{
+		"planned_value_2": &graphql.Field{
 			Type: graphql.String,
 		},
-		"revised_next_year": &graphql.Field{
+		"revised_value_2": &graphql.Field{
 			Type: graphql.String,
 		},
-		"value_next_year": &graphql.Field{
+		"achieved_value_2": &graphql.Field{
 			Type: graphql.String,
 		},
-		"planned_after_next_year": &graphql.Field{
+		"planned_value_3": &graphql.Field{
 			Type: graphql.String,
 		},
-		"revised_after_next_year": &graphql.Field{
+		"revised_value_3": &graphql.Field{
 			Type: graphql.String,
 		},
-		"value_after_next_year": &graphql.Field{
+		"achieved_value_3": &graphql.Field{
 			Type: graphql.String,
 		},
 	},
 })
 
-var BudgetActivityNotFinanciallyOverviewType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "BudgetActivityNotFinanciallyOverviewType",
+var NonFinancialBudgetInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "NonFinancialBudgetInsertType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: NonFinancialBudgetType,
+		},
+	},
+})
+
+var NonFinancialBudgetOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "NonFinancialBudgetOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(NonFinancialBudgetType),
+		},
+	},
+})
+
+var NonFinancialBudgetGoalInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "NonFinancialBudgetGoalInsertType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"item": &graphql.Field{
+			Type: ActivityGoalType,
+		},
+	},
+})
+
+var NonFinancialGoalIndicatorInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "NonFinancialGoalIndicatorInsertType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"item": &graphql.Field{
+			Type: IndicatorNotFinanciallyType,
+		},
+	},
+})
+
+var ActivityInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ActivityInsertType",
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
@@ -159,37 +228,7 @@ var BudgetActivityNotFinanciallyOverviewType = graphql.NewObject(graphql.ObjectC
 			Type: graphql.String,
 		},
 		"item": &graphql.Field{
-			Type: BudgetActivityNotFinanciallyType,
-		},
-	},
-})
-
-var ProgramNotFinanciallyOverviewType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "ProgramNotFinanciallyOverviewType",
-	Fields: graphql.Fields{
-		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"message": &graphql.Field{
-			Type: graphql.String,
-		},
-		"item": &graphql.Field{
-			Type: ProgramNotFinanciallyType,
-		},
-	},
-})
-
-var GoalsNotFinanciallyOverviewType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "GoalsNotFinanciallyOverviewType",
-	Fields: graphql.Fields{
-		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"message": &graphql.Field{
-			Type: graphql.String,
-		},
-		"item": &graphql.Field{
-			Type: GoalsNotFinanciallyType,
+			Type: ActivityType,
 		},
 	},
 })

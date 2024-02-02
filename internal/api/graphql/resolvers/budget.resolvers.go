@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -208,93 +207,96 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 }
 
 func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	itemID := params.Args["id"]
+	// var projectRoot, _ = shared.GetProjectRoot()
+	// itemID := params.Args["id"]
 
-	BudgetItemType := &structs.Budget{}
-	BudgetData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget.json", BudgetItemType)
+	// BudgetItemType := &structs.Budget{}
+	// BudgetData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget.json", BudgetItemType)
 
-	if err != nil {
-		fmt.Printf("Fetching Budget failed because of this error - %s.\n", err)
-		return nil, err
-	}
-	budget := shared.FindByProperty(BudgetData, "ID", itemID)
-	if len(budget) == 0 {
-		fmt.Printf("Fetching Budget failed because of this error - %s.\n", err)
-		return nil, err
-	}
-	BudgetData = shared.FilterByProperty(BudgetData, "ID", itemID)
-	newItem := structs.Budget{}
+	// if err != nil {
+	// 	fmt.Printf("Fetching Budget failed because of this error - %s.\n", err)
+	// 	return nil, err
+	// }
+	// budget := shared.FindByProperty(BudgetData, "ID", itemID)
+	// if len(budget) == 0 {
+	// 	fmt.Printf("Fetching Budget failed because of this error - %s.\n", err)
+	// 	return nil, err
+	// }
+	// BudgetData = shared.FilterByProperty(BudgetData, "ID", itemID)
+	// newItem := structs.Budget{}
 
-	for _, item := range budget {
-		if updateBudget, ok := item.(*structs.Budget); ok {
-			newItem.ID = updateBudget.ID
-			newItem.Year = updateBudget.Year
-			newItem.BudgetType = updateBudget.BudgetType
-			// newItem.Status = "poslat"
-		}
-	}
+	// for _, item := range budget {
+	// 	if updateBudget, ok := item.(*structs.Budget); ok {
+	// 		newItem.ID = updateBudget.ID
+	// 		newItem.Year = updateBudget.Year
+	// 		newItem.BudgetType = updateBudget.BudgetType
+	// 		// newItem.Status = "poslat"
+	// 	}
+	// }
 
-	var updatedData = append(BudgetData, newItem)
-	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget.json"), updatedData)
+	// var updatedData = append(BudgetData, newItem)
+	// _ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget.json"), updatedData)
 
-	ActivatesItemType := &structs.ProgramItem{}
-	ActivatesData, err := shared.ReadJSON(shared.GetDataRoot()+"/program.json", ActivatesItemType)
-	ActivatesData = shared.FilterByProperty(ActivatesData, "OrganizationUnitID", 0)
+	// ActivatesItemType := &structs.ProgramItem{}
+	// ActivatesData, err := shared.ReadJSON(shared.GetDataRoot()+"/program.json", ActivatesItemType)
+	// ActivatesData = shared.FilterByProperty(ActivatesData, "OrganizationUnitID", 0)
 
-	if err != nil {
-		fmt.Printf("Fetching Activates failed because of this error - %s.\n", err)
-		return nil, err
-	}
+	// if err != nil {
+	// 	fmt.Printf("Fetching Activates failed because of this error - %s.\n", err)
+	// 	return nil, err
+	// }
 
-	RequestItemType := &structs.RequestBudgetType{}
-	RequestsData, err := shared.ReadJSON(shared.GetDataRoot()+"/request_budget.json", RequestItemType)
+	// RequestItemType := &structs.RequestBudgetType{}
+	// RequestsData, err := shared.ReadJSON(shared.GetDataRoot()+"/request_budget.json", RequestItemType)
 
-	if err != nil {
-		fmt.Printf("Fetching Requests failed because of this error - %s.\n", err)
-		return nil, err
-	}
+	// if err != nil {
+	// 	fmt.Printf("Fetching Requests failed because of this error - %s.\n", err)
+	// 	return nil, err
+	// }
 
-	for _, activityData := range ActivatesData {
-		if activity, ok := activityData.(*structs.ProgramItem); ok {
-			currentTime := time.Now().UTC()
-			timeString := currentTime.Format("2006-01-02 15:04:05")
-			var newRequest = structs.RequestBudgetType{
-				ID:                   shared.GetRandomNumber(),
-				OrganizationUnitID:   activity.OrganizationUnitID,
-				ActivityID:           activity.ID,
-				BudgetID:             newItem.ID,
-				DateCreate:           timeString,
-				StatusNotFinancially: "U toku",
-				StatusFinancially:    "U toku",
-			}
-			RequestsData = append(RequestsData, newRequest)
+	// for _, activityData := range ActivatesData {
+	// 	if activity, ok := activityData.(*structs.ProgramItem); ok {
+	// 		//activitivy should be separated from program
+	// 		currentTime := time.Now().UTC()
+	// 		timeString := currentTime.Format("2006-01-02 15:04:05")
+	// 		var newRequest = structs.RequestBudgetType{
+	// 			ID: shared.GetRandomNumber(),
+	// 			// OrganizationUnitID:   activity.OrganizationUnitID,
+	// 			ActivityID:           activity.ID,
+	// 			BudgetID:             newItem.ID,
+	// 			DateCreate:           timeString,
+	// 			StatusNotFinancially: "U toku",
+	// 			StatusFinancially:    "U toku",
+	// 		}
+	// 		RequestsData = append(RequestsData, newRequest)
 
-			BudgetActivityNotFinanciallyType := &structs.BudgetActivityNotFinanciallyItem{}
-			BudgetActivityNotFinanciallyData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
+	// 		BudgetActivityNotFinanciallyType := &structs.BudgetActivityNotFinanciallyItem{}
+	// 		BudgetActivityNotFinanciallyData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
 
-			if err != nil {
-				fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
-			}
+	// 		if err != nil {
+	// 			fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
+	// 		}
 
-			var newNotFinancially = structs.BudgetActivityNotFinanciallyItem{
-				ID:        shared.GetRandomNumber(),
-				RequestID: newRequest.ID,
-			}
-			var NotFinanciallyData = append(BudgetActivityNotFinanciallyData, newNotFinancially)
+	// 		var newNotFinancially = structs.BudgetActivityNotFinanciallyItem{
+	// 			ID:        shared.GetRandomNumber(),
+	// 			RequestID: newRequest.ID,
+	// 		}
+	// 		var NotFinanciallyData = append(BudgetActivityNotFinanciallyData, newNotFinancially)
 
-			_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget_activity_not_financially.json"), NotFinanciallyData)
+	// 		_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget_activity_not_financially.json"), NotFinanciallyData)
 
-			_ = CreateProgramsForRequestResolver(activity.ID, newNotFinancially.ID)
-		}
-	}
+	// 		_ = CreateProgramsForRequestResolver(activity.ID, newNotFinancially.ID)
+	// 	}
+	// }
 
-	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/request_budget.json"), RequestsData)
+	// _ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/request_budget.json"), RequestsData)
 
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You send budget to OJ!",
-	}, nil
+	// return map[string]interface{}{
+	// 	"status":  "success",
+	// 	"message": "You send budget to OJ!",
+	// }, nil
+	return nil, nil
+
 }
 
 var CreateProgramsForRequestResolver = func(activityID int, notFinanciallyID int) error {

@@ -1,16 +1,19 @@
 package structs
 
-type BudgetActivityNotFinanciallyItem struct {
-	ID                               int    `json:"id"`
-	RequestID                        int    `json:"request_id"`
-	PersonResponsibleNameSurname     string `json:"person_responsible_name_surname"`
-	PersonResponsibleWorkingPlace    string `json:"person_responsible_working_place"`
-	PersonResponsibleTelephoneNumber string `json:"person_responsible_telephone_number"`
-	PersonResponsibleEmail           string `json:"person_responsible_email"`
-	ContactPersonNameSurname         string `json:"contact_person_name_surname"`
-	ContactPersonWorkingPlace        string `json:"contact_person_working_place"`
-	ContactPersonTelephoneNumber     string `json:"contact_person_telephone_number"`
-	ContactPersonEmail               string `json:"contact_person_email"`
+type NonFinancialBudgetItem struct {
+	ID                 int `json:"id"`
+	BudetID            int `json:"budget_id"`
+	OrganizationUnitID int `json:"organization_unit_id"`
+
+	ImplContactFullName     string `json:"impl_contact_fullname"`
+	ImplContactWorkingPlace string `json:"impl_contact_working_place"`
+	ImplContactPhone        string `json:"impl_contact_phone"`
+	ImplContactEmail        string `json:"impl_contact_email"`
+
+	ContactFullName     string `json:"contact_fullname"`
+	ContactWorkingPlace string `json:"contact_working_place"`
+	ContactPhone        string `json:"contact_phone"`
+	ContactEmail        string `json:"contact_email"`
 }
 
 type BudgetActivityNotFinanciallyProgramItem struct {
@@ -20,31 +23,31 @@ type BudgetActivityNotFinanciallyProgramItem struct {
 	Description            string `json:"description"`
 }
 
-type BudgetActivityNotFinanciallyGoalsItem struct {
-	ID              int    `json:"id"`
-	BudgetProgramID int    `json:"budget_program_id"` // foreign key BudgetActivityNotFinanciallyProgramItem
-	Title           string `json:"title"`
-	Description     string `json:"description"`
+type NonFinancialGoalItem struct {
+	ID                   int    `json:"id"`
+	NonFinancialBudgetID int    `json:"non_financial_budget_id"`
+	Title                string `json:"title"`
+	Description          string `json:"description"`
 }
 
-type BudgetActivityNotFinanciallyIndicatorItem struct {
-	ID                   int    `json:"id"`
-	GoalsID              int    `json:"goals_id"` // foreign key BudgetActivityNotFinanciallyProgramItem
-	Code                 string `json:"code"`
-	Source               string `json:"source"`
-	BaseYear             string `json:"base_year"`
-	GenderEquality       string `json:"gender_equality"`
-	BaseValue            string `json:"base_value"`
-	SourceInformation    string `json:"source_information"`
-	Unit                 string `json:"unit"`
-	Description          string `json:"description"`
-	PlannedCurrentYear   string `json:"planned_current_year"`
-	RevisedCurrentYear   string `json:"revised_current_year"`
-	ValueCurrentYear     string `json:"value_current_year"`
-	PlannedNextYear      string `json:"planned_next_year"`
-	RevisedNextYear      string `json:"revised_next_year"`
-	ValueNextYear        string `json:"value_next_year"`
-	PlannedAfterNextYear string `json:"planned_after_next_year"`
-	RevisedAfterNextYear string `json:"revised_after_next_year"`
-	ValueAfterNextYear   string `json:"value_after_next_year"`
+type NonFinancialGoalIndicatorItem struct {
+	ID                       int    `json:"id"`
+	GoalID                   int    `json:"goal_id"`
+	PerformanceIndicatorCode string `json:"performance_indicator_code"`
+	IndicatorSource          string `json:"indicator_source"`
+	BaseYear                 string `json:"base_year"`
+	GenderEquality           string `json:"gender_equality"`
+	BaseValue                string `json:"base_value"`
+	SourceOfInformation      string `json:"source_of_information"`
+	UnitOfMeasure            string `json:"unit_of_measure"`
+	IndicatorDescription     string `json:"indicator_description"`
+	PlannedValue1            string `json:"planned_value_1"`
+	RevisedValue1            string `json:"revised_value_1"`
+	AchievedValue1           string `json:"achieved_value_1"`
+	PlannedValue2            string `json:"planned_value_2"`
+	RevisedValue2            string `json:"revised_value_2"`
+	AchievedValue2           string `json:"achieved_value_2"`
+	PlannedValue3            string `json:"planned_value_3"`
+	RevisedValue3            string `json:"revised_value_3"`
+	AchievedValue3           string `json:"achieved_value_3"`
 }

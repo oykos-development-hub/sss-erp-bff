@@ -15,15 +15,6 @@ func (repo *MicroserviceRepository) CreateBudget(budgetItem *structs.Budget) (*s
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateBudget(id int, budgetItem *structs.Budget) (*structs.Budget, error) {
-	res := &dto.GetBudgetResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(id), budgetItem, res)
-	if err != nil {
-		return nil, err
-	}
-	return &res.Data, nil
-}
-
 func (repo *MicroserviceRepository) GetBudgetList(input *dto.GetBudgetListInputMS) ([]structs.Budget, error) {
 	res := &dto.GetBudgetListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Budget, input, res)

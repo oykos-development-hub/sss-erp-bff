@@ -1,400 +1,409 @@
 package resolvers
 
 import (
-	"bff/shared"
+	"bff/internal/api/dto"
+	"bff/internal/api/errors"
+	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
 
-func BudgetActivityNotFinanciallyItemProperties(notFinanciallyItems []interface{}) []interface{} {
-	var items []interface{}
-
-	for _, item := range notFinanciallyItems {
-
-		var mergedItem = shared.WriteStructToInterface(item)
-
-		// Filtering by budget ID
-		if mergedItem["id"].(int) == 0 {
-			continue
+func (r *Resolver) NonFinancialBudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	if id, ok := params.Args["id"].(int); ok && id != 0 {
+		activity, err := r.Repo.GetActivity(id)
+		if err != nil {
+			return errors.HandleAPIError(err)
 		}
 
-		var requestData = shared.FetchByProperty(
-			"request_budget",
-			"ID",
-			mergedItem["request_id"].(int),
-		)
-
-		if len(requestData) > 0 {
-			for _, requestItem := range requestData {
-				if request, ok := requestItem.(*structs.RequestBudgetType); ok {
-
-					var activitiesData = shared.FetchByProperty(
-						"program",
-						"ID",
-						request.ActivityID,
-					)
-					var allProgramsNotFinanciallyData = shared.FetchByProperty(
-						"budget_program_not_financially",
-						"BudgetNotFinanciallyID",
-						mergedItem["id"].(int),
-					)
-					activitiesNotFinanciallyData := shared.FindByProperty(allProgramsNotFinanciallyData, "ProgramID", request.ActivityID)
-					if len(activitiesData) > 0 {
-						for _, activityData := range activitiesData {
-
-							if activity, ok := activityData.(*structs.ProgramItem); ok {
-								var activitiesNotFinancially = shared.WriteStructToInterface(activitiesNotFinanciallyData[0])
-								var goalsNotFinanciallyData = shared.FetchByProperty(
-									"budget_goals_not_financially",
-									"BudgetProgramID",
-									activitiesNotFinancially["id"],
-								)
-								mergedItem["activity"] = map[string]interface{}{
-									"id":          activity.ID,
-									"title":       activity.Title,
-									"code":        activitiesNotFinancially["code"],
-									"description": activitiesNotFinancially["description"],
-									"goals":       goalsNotFinanciallyData,
-								}
-
-								var subroutinesData = shared.FetchByProperty(
-									"program",
-									"ID",
-									activity.ParentID,
-								)
-
-								subroutineNotFinanciallyData := shared.FindByProperty(allProgramsNotFinanciallyData, "ProgramID", activity.ParentID)
-
-								if len(subroutinesData) > 0 {
-									for _, subroutineData := range subroutinesData {
-
-										if subprogram, ok := subroutineData.(*structs.ProgramItem); ok {
-											var subroutineNotFinancially = shared.WriteStructToInterface(subroutineNotFinanciallyData[0])
-											var goalsNotFinanciallyData = shared.FetchByProperty(
-												"budget_goals_not_financially",
-												"BudgetProgramID",
-												subroutineNotFinancially["id"],
-											)
-											mergedItem["subprogram"] = map[string]interface{}{
-												"id":          subprogram.ID,
-												"title":       subprogram.Title,
-												"code":        subroutineNotFinancially["code"],
-												"description": subroutineNotFinancially["description"],
-												"goals":       goalsNotFinanciallyData,
-											}
-
-											var programsData = shared.FetchByProperty(
-												"program",
-												"ID",
-												subprogram.ParentID,
-											)
-
-											programNotFinanciallyData := shared.FindByProperty(allProgramsNotFinanciallyData, "ProgramID", subprogram.ParentID)
-
-											if len(programsData) > 0 {
-												for _, programData := range programsData {
-
-													if program, ok := programData.(*structs.ProgramItem); ok {
-														var programNotFinancially = shared.WriteStructToInterface(programNotFinanciallyData[0])
-														var goalsNotFinanciallyData = shared.FetchByProperty(
-															"budget_goals_not_financially",
-															"BudgetProgramID",
-															programNotFinancially["id"],
-														)
-														mergedItem["program"] = map[string]interface{}{
-															"id":          program.ID,
-															"title":       program.Title,
-															"code":        programNotFinancially["code"],
-															"description": programNotFinancially["description"],
-															"goals":       goalsNotFinanciallyData,
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		items = append(items, mergedItem)
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Items:   []*structs.ActivitiesItem{activity},
+			Total:   1,
+		}, nil
 	}
 
-	return items
-}
-
-func BudgetActivityNotFinanciallyItemInductorProperties(notFinanciallyInductorItems []interface{}) []interface{} {
-	var items []interface{}
-	for _, item := range notFinanciallyInductorItems {
-		var mergedItem = shared.WriteStructToInterface(item)
-
-		items = append(items, mergedItem)
+	input := dto.GetNonFinancialBudgetListInputMS{}
+	if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 {
+		input.OrganizationUnitID = &organizationUnitID
 	}
-	return items
-}
+	if budgetID, ok := params.Args["budget_id"].(int); ok && budgetID != 0 {
+		input.BudgetID = &budgetID
+	}
+	if search, ok := params.Args["search"].(string); ok {
+		input.Search = &search
+	}
 
-func (r *Resolver) BudgetActivityNotFinanciallyOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
-	var items []interface{}
-	id := params.Args["request_id"].(int)
-
-	BudgetActivityNotFinanciallyType := &structs.BudgetActivityNotFinanciallyItem{}
-	BudgetActivityNotFinanciallyData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
-
+	nonFinancialBudgets, err := r.Repo.GetNonFinancialBudgetList(&input)
 	if err != nil {
-		fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
+		return errors.HandleAPIError(err)
 	}
-	BudgetActivityNotFinanciallyData = shared.FindByProperty(BudgetActivityNotFinanciallyData, "RequestID", id)
-	// Populate data for each Basic Inventory Real Estates
-	items = BudgetActivityNotFinanciallyItemProperties(BudgetActivityNotFinanciallyData)
 
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "Here's the list you asked for!",
-		"item":    items[0],
+	nonFinancialBudgetResItemList, err := buildNonFinancialBudgetResItemList(r.Repo, nonFinancialBudgets)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   nonFinancialBudgetResItemList,
+		Total:   len(nonFinancialBudgetResItemList),
 	}, nil
+}
+
+func buildNonFinancialBudgetResItemList(r repository.MicroserviceRepositoryInterface, nonFinancialBudgetList []structs.NonFinancialBudgetItem) (nonFinancialBudgetResItemList []*dto.NonFinancialBudgetResItem, err error) {
+	for _, nonFinancialBudget := range nonFinancialBudgetList {
+		nonFinancialBudgetResItem, err := buildNonFinancialBudgetResItem(r, nonFinancialBudget)
+		if err != nil {
+			return nil, err
+		}
+		nonFinancialBudgetResItemList = append(nonFinancialBudgetResItemList, nonFinancialBudgetResItem)
+	}
+
+	return
+}
+
+func buildNonFinancialBudgetResItem(r repository.MicroserviceRepositoryInterface, nonFinancialBudget structs.NonFinancialBudgetItem) (*dto.NonFinancialBudgetResItem, error) {
+	resItem := &dto.NonFinancialBudgetResItem{
+		ID:                      nonFinancialBudget.ID,
+		ImplContactFullName:     nonFinancialBudget.ImplContactFullName,
+		ImplContactWorkingPlace: nonFinancialBudget.ImplContactWorkingPlace,
+		ImplContactPhone:        nonFinancialBudget.ImplContactPhone,
+		ImplContactEmail:        nonFinancialBudget.ImplContactEmail,
+		ContactFullName:         nonFinancialBudget.ContactFullName,
+		ContactWorkingPlace:     nonFinancialBudget.ContactWorkingPlace,
+		ContactPhone:            nonFinancialBudget.ContactPhone,
+		ContactEmail:            nonFinancialBudget.ContactEmail,
+	}
+
+	organizationUnit, err := r.GetOrganizationUnitByID(nonFinancialBudget.OrganizationUnitID)
+	if err != nil {
+		return nil, err
+	}
+	resItem.OrganizationUnit = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
+
+	activityRequest, err := buildActivityRequestResItem(r, resItem)
+	if err != nil {
+		return nil, err
+	}
+
+	resItem.ActivityRequest = *activityRequest
+
+	return resItem, nil
+}
+
+func buildActivityRequestResItem(r repository.MicroserviceRepositoryInterface, nonFinancialBudget *dto.NonFinancialBudgetResItem) (*dto.ActivityRequestResItem, error) {
+	activities, err := r.GetActivityList(&dto.GetFinanceActivityListInputMS{OrganizationUnitID: &nonFinancialBudget.OrganizationUnit.ID})
+	if err != nil {
+		return nil, err
+	}
+	activity := activities[0]
+
+	activityResItem, err := buildActivityResItem(r, activity)
+	if err != nil {
+		return nil, err
+	}
+
+	goalList, err := r.GetNonFinancialGoalList(&dto.GetNonFinancialGoalListInputMS{
+		ActivityID:           &activity.ID,
+		NonFinancialBudgetID: &nonFinancialBudget.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	goalResItemList, err := buildActivityGoalRequestResItemList(r, goalList)
+	if err != nil {
+		return nil, err
+	}
+
+	activityRequest := &dto.ActivityRequestResItem{
+		ID:               activityResItem.ID,
+		SubProgram:       activityResItem.SubProgram,
+		OrganizationUnit: activityResItem.OrganizationUnit,
+		Title:            activityResItem.Title,
+		Description:      activityResItem.Description,
+		Code:             activityResItem.Code,
+		Goals:            goalResItemList,
+	}
+
+	return activityRequest, nil
+}
+
+func buildActivityGoalRequestResItemList(r repository.MicroserviceRepositoryInterface, goals []structs.NonFinancialGoalItem) (goalsRequestResItemList []*dto.ActivityGoalRequestResItem, err error) {
+	for _, goal := range goals {
+		goalRequestResItem, err := buildGoalRequestResItem(r, goal)
+		if err != nil {
+			return nil, err
+		}
+		goalsRequestResItemList = append(goalsRequestResItemList, goalRequestResItem)
+	}
+
+	return
+}
+
+func buildGoalRequestResItem(r repository.MicroserviceRepositoryInterface, goal structs.NonFinancialGoalItem) (*dto.ActivityGoalRequestResItem, error) {
+	resItem := &dto.ActivityGoalRequestResItem{
+		ID:          goal.ID,
+		Title:       goal.Title,
+		Description: goal.Description,
+	}
+
+	indicators, err := r.GetNonFinancialGoalIndicatorList(&dto.GetNonFinancialGoalIndicatorListInputMS{
+		GoalID: &goal.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	indicatorResItemList, err := buildActivityGoalIndicatorRequestResItemList(r, indicators)
+	if err != nil {
+		return nil, err
+	}
+
+	resItem.Indicators = indicatorResItemList
+
+	return resItem, nil
+}
+
+func buildActivityGoalIndicatorRequestResItemList(r repository.MicroserviceRepositoryInterface, indicators []structs.NonFinancialGoalIndicatorItem) (goalsRequestResItemList []*dto.BudgetActivityGoalIndicatorResItem, err error) {
+	for _, indicator := range indicators {
+		goalIndicatorRequestResItem, err := buildGoalIndicatorRequestResItem(r, indicator)
+		if err != nil {
+			return nil, err
+		}
+		goalsRequestResItemList = append(goalsRequestResItemList, goalIndicatorRequestResItem)
+	}
+
+	return
+}
+
+func buildGoalIndicatorRequestResItem(r repository.MicroserviceRepositoryInterface, indicator structs.NonFinancialGoalIndicatorItem) (*dto.BudgetActivityGoalIndicatorResItem, error) {
+	resItem := &dto.BudgetActivityGoalIndicatorResItem{
+		ID:                       indicator.ID,
+		PerformanceIndicatorCode: indicator.PerformanceIndicatorCode,
+		IndicatorSource:          indicator.IndicatorSource,
+		BaseYear:                 indicator.BaseYear,
+		GenderEquality:           indicator.GenderEquality,
+		BaseValue:                indicator.BaseValue,
+		SourceOfInformation:      indicator.SourceOfInformation,
+		UnitOfMeasure:            indicator.UnitOfMeasure,
+		IndicatorDescription:     indicator.IndicatorDescription,
+		PlannedValue1:            indicator.PlannedValue1,
+		RevisedValue1:            indicator.RevisedValue1,
+		AchievedValue1:           indicator.AchievedValue1,
+		PlannedValue2:            indicator.PlannedValue2,
+		RevisedValue2:            indicator.RevisedValue2,
+		AchievedValue2:           indicator.AchievedValue2,
+		PlannedValue3:            indicator.PlannedValue3,
+		RevisedValue3:            indicator.RevisedValue3,
+		AchievedValue3:           indicator.AchievedValue3,
+	}
+
+	return resItem, nil
 }
 
 func (r *Resolver) BudgetActivityNotFinanciallyInsertResolver(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	var data structs.BudgetActivityNotFinanciallyItem
-	dataBytes, _ := json.Marshal(params.Args["data"])
-	BudgetActivityNotFinanciallyType := &structs.BudgetActivityNotFinanciallyItem{}
+	var data structs.NonFinancialBudgetItem
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	err := json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
 	itemID := data.ID
 
-	BudgetActivityNotFinanciallyData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
-
-	if err != nil {
-		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
-	}
-
-	sliceData := []interface{}{data}
-
-	// Populate data for each Basic Inventory
-	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData)
-
 	if itemID != 0 {
-		BudgetActivityNotFinanciallyData = shared.FilterByProperty(BudgetActivityNotFinanciallyData, "ID", itemID)
+		item, err := r.Repo.UpdateNonFinancialBudget(itemID, &data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		resItem, err := buildNonFinancialBudgetResItem(r.Repo, *item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Message = "You updated this item!"
+		response.Item = resItem
 	} else {
-		data.ID = shared.GetRandomNumber()
+		item, err := r.Repo.CreateNonFinancialBudget(&data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		resItem, err := buildNonFinancialBudgetResItem(r.Repo, *item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Message = "You created this item!"
+		response.Item = resItem
 	}
 
-	var updatedData = append(BudgetActivityNotFinanciallyData, data)
-
-	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget_activity_not_financially.json"), updatedData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"item":    populatedData[0],
-	}, nil
+	return response, nil
 }
 
-func (r *Resolver) BudgetActivityNotFinanciallyProgramInsertResolver(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	var data structs.BudgetActivityNotFinanciallyProgramItem
-	dataBytes, _ := json.Marshal(params.Args["data"])
-	BudgetActivityNotFinanciallyProgramType := &structs.BudgetActivityNotFinanciallyProgramItem{}
+func (r *Resolver) NonFinancialGoalInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.NonFinancialGoalItem
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	err := json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
 	itemID := data.ID
 
-	BudgetActivityNotFinanciallyProgramData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_program_not_financially.json", BudgetActivityNotFinanciallyProgramType)
-
-	if err != nil {
-		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
-	}
-
-	sliceData := []interface{}{data}
-
-	// Populate data for each Basic Inventory
-	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData)
-
 	if itemID != 0 {
-		BudgetActivityNotFinanciallyProgramData = shared.FilterByProperty(BudgetActivityNotFinanciallyProgramData, "ID", itemID)
+		item, err := r.Repo.UpdateNonFinancialGoal(itemID, &data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		resItem, err := buildGoalRequestResItem(r.Repo, *item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Message = "You updated this item!"
+		response.Item = resItem
 	} else {
-		data.ID = shared.GetRandomNumber()
+		item, err := r.Repo.CreateNonFinancialGoal(&data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		resItem, err := buildGoalRequestResItem(r.Repo, *item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Message = "You created this item!"
+		response.Item = resItem
 	}
 
-	var updatedData = append(BudgetActivityNotFinanciallyProgramData, data)
-
-	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget_program_not_financially.json"), updatedData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"item":    populatedData[0],
-	}, nil
+	return response, nil
 }
 
-func (r *Resolver) BudgetActivityNotFinanciallyGoalsInsertResolver(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	var data structs.BudgetActivityNotFinanciallyGoalsItem
-	dataBytes, _ := json.Marshal(params.Args["data"])
-	BudgetActivityNotFinanciallyProgramType := &structs.BudgetActivityNotFinanciallyGoalsItem{}
+func (r *Resolver) NonFinancialGoalIndicatorInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.NonFinancialGoalIndicatorItem
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
 
-	_ = json.Unmarshal(dataBytes, &data)
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	err := json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
 	itemID := data.ID
 
-	BudgetActivityNotFinanciallyGoalsData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_goals_not_financially.json", BudgetActivityNotFinanciallyProgramType)
-
-	if err != nil {
-		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
-	}
-
-	sliceData := []interface{}{data}
-
-	// Populate data for each Basic Inventory
-	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData)
-
 	if itemID != 0 {
-		BudgetActivityNotFinanciallyGoalsData = shared.FilterByProperty(BudgetActivityNotFinanciallyGoalsData, "ID", itemID)
+		item, err := r.Repo.UpdateNonFinancialGoalIndicator(itemID, &data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		resItem, err := buildGoalIndicatorRequestResItem(r.Repo, *item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Message = "You updated this item!"
+		response.Item = resItem
 	} else {
-		data.ID = shared.GetRandomNumber()
+		item, err := r.Repo.CreateNonFinancialGoalIndicator(&data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		resItem, err := buildGoalIndicatorRequestResItem(r.Repo, *item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Message = "You created this item!"
+		response.Item = resItem
 	}
 
-	var updatedData = append(BudgetActivityNotFinanciallyGoalsData, data)
-
-	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget_goals_not_financially.json"), updatedData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"item":    populatedData[0],
-	}, nil
-}
-
-func (r *Resolver) BudgetActivityNotFinanciallyInductorResolver(params graphql.ResolveParams) (interface{}, error) {
-	var items []interface{}
-	goalsID := params.Args["goals_id"].(int)
-
-	BudgetActivityNotFinanciallyIndicatorType := &structs.BudgetActivityNotFinanciallyIndicatorItem{}
-	BudgetActivityNotFinanciallyIndicatorData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_indicator_not_financially.json", BudgetActivityNotFinanciallyIndicatorType)
-
-	if err != nil {
-		fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
-	}
-	BudgetActivityNotFinanciallyIndicatorData = shared.FindByProperty(BudgetActivityNotFinanciallyIndicatorData, "GoalsID", goalsID)
-	// Populate data for each Basic Inventory Real Estates
-	items = BudgetActivityNotFinanciallyItemInductorProperties(BudgetActivityNotFinanciallyIndicatorData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "Here's the list you asked for!",
-		"items":   items,
-	}, nil
-}
-
-func (r *Resolver) BudgetActivityNotFinanciallyInductorInsertResolver(params graphql.ResolveParams) (interface{}, error) {
-	var projectRoot, _ = shared.GetProjectRoot()
-	var data structs.BudgetActivityNotFinanciallyIndicatorItem
-	dataBytes, _ := json.Marshal(params.Args["data"])
-	BudgetActivityNotFinanciallyIndicatorType := &structs.BudgetActivityNotFinanciallyIndicatorItem{}
-
-	_ = json.Unmarshal(dataBytes, &data)
-
-	itemID := data.ID
-
-	BudgetActivityNotFinanciallyIndicatorData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_indicator_not_financially.json", BudgetActivityNotFinanciallyIndicatorType)
-
-	if err != nil {
-		fmt.Printf("Fetching Basic Inventory Depreciation Types failed because of this error - %s.\n", err)
-	}
-
-	sliceData := []interface{}{data}
-
-	// Populate data for each Basic Inventory
-	var populatedData = BudgetActivityNotFinanciallyItemInductorProperties(sliceData)
-
-	if itemID != 0 {
-		BudgetActivityNotFinanciallyIndicatorData = shared.FilterByProperty(BudgetActivityNotFinanciallyIndicatorData, "ID", itemID)
-	} else {
-		data.ID = shared.GetRandomNumber()
-	}
-
-	var updatedData = append(BudgetActivityNotFinanciallyIndicatorData, data)
-
-	_ = shared.WriteJSON(shared.FormatPath(projectRoot+"/mocked-data/budget_indicator_not_financially.json"), updatedData)
-
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You updated this item!",
-		"item":    populatedData[0],
-	}, nil
+	return response, nil
 }
 
 func (r *Resolver) CheckBudgetActivityNotFinanciallyIsDoneResolver(params graphql.ResolveParams) (interface{}, error) {
-	check := true
-	id := params.Args["id"].(int)
+	// check := true
+	// id := params.Args["id"].(int)
 
-	BudgetActivityNotFinanciallyType := &structs.BudgetActivityNotFinanciallyItem{}
-	BudgetActivityNotFinanciallyData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
+	// BudgetActivityNotFinanciallyType := &structs.BudgetActivityNotFinanciallyItem{}
+	// BudgetActivityNotFinanciallyData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
 
-	if err != nil {
-		fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
-	}
-	BudgetActivityNotFinanciallyData = shared.FindByProperty(BudgetActivityNotFinanciallyData, "ID", id)
-	// Populate data for each Basic Inventory Real Estates
-	if len(BudgetActivityNotFinanciallyData) > 0 {
-		for _, item := range BudgetActivityNotFinanciallyData {
-			var mergedItem = shared.WriteStructToInterface(item)
+	// if err != nil {
+	// 	fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
+	// }
+	// BudgetActivityNotFinanciallyData = shared.FindByProperty(BudgetActivityNotFinanciallyData, "ID", id)
+	// // Populate data for each Basic Inventory Real Estates
+	// if len(BudgetActivityNotFinanciallyData) > 0 {
+	// 	for _, item := range BudgetActivityNotFinanciallyData {
+	// 		var mergedItem = shared.WriteStructToInterface(item)
 
-			var allProgramsNotFinanciallyData = shared.FetchByProperty(
-				"budget_program_not_financially",
-				"BudgetNotFinanciallyID",
-				mergedItem["id"].(int),
-			)
-			if len(allProgramsNotFinanciallyData) == 3 {
-				for _, programData := range allProgramsNotFinanciallyData {
-					if program, ok := programData.(*structs.BudgetActivityNotFinanciallyProgramItem); ok {
-						var goalsNotFinanciallyData = shared.FetchByProperty(
-							"budget_goals_not_financially",
-							"BudgetProgramID",
-							program.ID,
-						)
-						if len(goalsNotFinanciallyData) > 0 {
-							for _, goalData := range goalsNotFinanciallyData {
-								if goal, ok := goalData.(*structs.BudgetActivityNotFinanciallyGoalsItem); ok {
-									//budget_indicator_not_financially
-									var indicatorNotFinanciallyData = shared.FetchByProperty(
-										"budget_indicator_not_financially",
-										"BudgetProgramID",
-										goal.ID,
-									)
+	// 		var allProgramsNotFinanciallyData = shared.FetchByProperty(
+	// 			"budget_program_not_financially",
+	// 			"BudgetNotFinanciallyID",
+	// 			mergedItem["id"].(int),
+	// 		)
+	// 		if len(allProgramsNotFinanciallyData) == 3 {
+	// 			for _, programData := range allProgramsNotFinanciallyData {
+	// 				if program, ok := programData.(*structs.BudgetActivityNotFinanciallyProgramItem); ok {
+	// 					var goalsNotFinanciallyData = shared.FetchByProperty(
+	// 						"budget_goals_not_financially",
+	// 						"BudgetProgramID",
+	// 						program.ID,
+	// 					)
+	// 					if len(goalsNotFinanciallyData) > 0 {
+	// 						for _, goalData := range goalsNotFinanciallyData {
+	// 							if goal, ok := goalData.(*structs.BudgetActivityNotFinanciallyGoalsItem); ok {
+	// 								//budget_indicator_not_financially
+	// 								var indicatorNotFinanciallyData = shared.FetchByProperty(
+	// 									"budget_indicator_not_financially",
+	// 									"BudgetProgramID",
+	// 									goal.ID,
+	// 								)
 
-									if len(indicatorNotFinanciallyData) == 0 {
-										check = false
-										break
-									}
-								}
-							}
-						} else {
-							check = false
-							break
-						}
-					}
-				}
-			} else {
-				check = false
-			}
+	// 								if len(indicatorNotFinanciallyData) == 0 {
+	// 									check = false
+	// 									break
+	// 								}
+	// 							}
+	// 						}
+	// 					} else {
+	// 						check = false
+	// 						break
+	// 					}
+	// 				}
+	// 			}
+	// 		} else {
+	// 			check = false
+	// 		}
 
-		}
-	}
+	// 	}
+	// }
 
-	return map[string]interface{}{
-		"status":  "success",
-		"message": "You check this item!",
-		"item":    check,
-	}, nil
+	// return map[string]interface{}{
+	// 	"status":  "success",
+	// 	"message": "You check this item!",
+	// 	"item":    check,
+	// }, nil
+	return nil, nil
+
 }

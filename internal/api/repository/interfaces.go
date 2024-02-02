@@ -272,11 +272,40 @@ type MicroserviceRepositoryInterface interface {
 	GetLatestVersionOfAccounts() (int, error)
 
 	CreateBudget(budget *structs.Budget) (*structs.Budget, error)
-	UpdateBudget(id int, budget *structs.Budget) (*structs.Budget, error)
 	GetBudget(id int) (*structs.Budget, error)
 	GetBudgetList(input *dto.GetBudgetListInputMS) ([]structs.Budget, error)
 	DeleteBudget(id int) error
 	CreateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
 	GetFinancialBudgetByBudgetID(budgetID int) (*structs.FinancialBudget, error)
 	CreateLimitsForFinancialBudget(financialBudgetLimit *structs.FinancialBudgetLimit) (*structs.FinancialBudgetLimit, error)
+
+	UpdateProgram(id int, program *structs.ProgramItem) (*structs.ProgramItem, error)
+	CreateProgram(program *structs.ProgramItem) (*structs.ProgramItem, error)
+	DeleteProgram(id int) error
+	GetProgram(id int) (*structs.ProgramItem, error)
+	GetProgramList(input *dto.GetFinanceProgramListInputMS) ([]structs.ProgramItem, error)
+
+	UpdateActivity(id int, activity *structs.ActivitiesItem) (*structs.ActivitiesItem, error)
+	CreateActivity(activity *structs.ActivitiesItem) (*structs.ActivitiesItem, error)
+	DeleteActivity(id int) error
+	GetActivity(id int) (*structs.ActivitiesItem, error)
+	GetActivityList(input *dto.GetFinanceActivityListInputMS) ([]structs.ActivitiesItem, error)
+
+	UpdateNonFinancialBudget(id int, program *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
+	CreateNonFinancialBudget(budget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
+	DeleteNonFinancialBudget(id int) error
+	GetNonFinancialBudget(id int) (*structs.NonFinancialBudgetItem, error)
+	GetNonFinancialBudgetList(input *dto.GetNonFinancialBudgetListInputMS) ([]structs.NonFinancialBudgetItem, error)
+
+	UpdateNonFinancialGoal(id int, activity *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error)
+	CreateNonFinancialGoal(goal *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error)
+	DeleteNonFinancialGoal(id int) error
+	GetNonFinancialGoal(id int) (*structs.NonFinancialGoalItem, error)
+	GetNonFinancialGoalList(input *dto.GetNonFinancialGoalListInputMS) ([]structs.NonFinancialGoalItem, error)
+
+	UpdateNonFinancialGoalIndicator(id int, goalIndicator *structs.NonFinancialGoalIndicatorItem) (*structs.NonFinancialGoalIndicatorItem, error)
+	CreateNonFinancialGoalIndicator(goal *structs.NonFinancialGoalIndicatorItem) (*structs.NonFinancialGoalIndicatorItem, error)
+	DeleteNonFinancialGoalIndicator(id int) error
+	GetNonFinancialGoalIndicator(id int) (*structs.NonFinancialGoalIndicatorItem, error)
+	GetNonFinancialGoalIndicatorList(input *dto.GetNonFinancialGoalIndicatorListInputMS) ([]structs.NonFinancialGoalIndicatorItem, error)
 }

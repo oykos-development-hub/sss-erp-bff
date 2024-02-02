@@ -293,7 +293,7 @@ func (r *Resolver) JudgeResolutionsActiveResolver(params graphql.ResolveParams) 
 		return errors.HandleAPIError(err)
 	}
 	for _, res := range resolutions.Data {
-		if res.Active == true {
+		if res.Active {
 			resolutionResponseItem, err := processJudgeResolution(r.Repo, res)
 			if err != nil {
 				fmt.Printf("Error processing JudgeResolution: %v\n", err)

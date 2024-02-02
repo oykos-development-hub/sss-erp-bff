@@ -38,6 +38,9 @@ var UserProfilesOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"department": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"job_position": &graphql.Field{
 			Type: DropdownItemType,
 		},

@@ -12,6 +12,12 @@ var ProgramMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.Int,
 		},
 		"title": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"code": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 	},

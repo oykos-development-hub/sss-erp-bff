@@ -142,6 +142,7 @@ type UserProfileOverviewResponse struct {
 	IsPresident      bool                     `json:"is_president"`
 	Role             structs.SettingsDropdown `json:"role"`
 	OrganizationUnit structs.SettingsDropdown `json:"organization_unit"`
+	Department       DropdownSimple           `json:"department"`
 	JobPosition      structs.SettingsDropdown `json:"job_position"`
 	CreatedAt        string                   `json:"created_at"`
 	UpdatedAt        string                   `json:"updated_at"`

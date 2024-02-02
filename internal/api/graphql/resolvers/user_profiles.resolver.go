@@ -116,6 +116,7 @@ func buildUserProfileOverviewResponse(
 ) (*dto.UserProfileOverviewResponse, error) {
 	var (
 		organizationUnitDropdown structs.SettingsDropdown
+		departmentDropdown       dto.DropdownSimple
 		jobPositionDropdown      structs.SettingsDropdown
 		isJudge, isPresident     bool
 	)
@@ -167,6 +168,13 @@ func buildUserProfileOverviewResponse(
 		}
 		organizationUnitDropdown.ID = orgUnit.ID
 		organizationUnitDropdown.Title = orgUnit.Title
+
+		department, err := r.GetOrganizationUnitByID(*contract[0].OrganizationUnitDepartmentID)
+		if err != nil {
+			return nil, err
+		}
+		departmentDropdown.ID = department.ID
+		departmentDropdown.Title = department.Title
 
 	}
 
@@ -228,6 +236,7 @@ func buildUserProfileOverviewResponse(
 			Title: role.Title,
 		},
 		OrganizationUnit: organizationUnitDropdown,
+		Department:       departmentDropdown,
 		JobPosition:      jobPositionDropdown,
 		CreatedAt:        profile.CreatedAt,
 		UpdatedAt:        profile.UpdatedAt,

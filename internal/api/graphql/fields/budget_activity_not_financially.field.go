@@ -7,22 +7,28 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func (f *Field) BudgetActivityNotFinanciallyOverviewField() *graphql.Field {
+func (f *Field) NonFinancialBudgetOverviewType() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.BudgetActivityNotFinanciallyOverviewType,
+		Type:        types.NonFinancialBudgetOverviewType,
 		Description: "Returns a data of Not Financially Budget Activity item",
 		Args: graphql.FieldConfigArgument{
-			"request_id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"budget_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
 			},
 		},
-		Resolve: f.Resolvers.BudgetActivityNotFinanciallyOverviewResolver,
+		Resolve: f.Resolvers.NonFinancialBudgetOverviewResolver,
 	}
 }
-func (f *Field) BudgetActivityNotFinanciallyInsertField() *graphql.Field {
+func (f *Field) NonFinancialBudgetInsertField() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.BudgetActivityNotFinanciallyOverviewType,
-		Description: "Insert Not Financially Budget Activity item",
+		Type:        types.NonFinancialBudgetInsertType,
+		Description: "Insert Non Financially Budget item",
 		Args: graphql.FieldConfigArgument{
 			"data": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(mutations.BudgetActivityNotFinanciallyInsertMutation),
@@ -31,57 +37,33 @@ func (f *Field) BudgetActivityNotFinanciallyInsertField() *graphql.Field {
 		Resolve: f.Resolvers.BudgetActivityNotFinanciallyInsertResolver,
 	}
 }
-func (f *Field) ProgramNotFinanciallyInsertField() *graphql.Field {
+
+func (f *Field) NonFinacialBudgetGoalInsertField() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.ProgramNotFinanciallyOverviewType,
-		Description: "Returns a data of Not Financially Program item",
-		Args: graphql.FieldConfigArgument{
-			"data": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(mutations.ProgramNotFinanciallyInsertMutation),
-			},
-		},
-		Resolve: f.Resolvers.BudgetActivityNotFinanciallyProgramInsertResolver,
-	}
-}
-func (f *Field) GoalsNotFinanciallyInsertField() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.GoalsNotFinanciallyOverviewType,
+		Type:        types.NonFinancialBudgetGoalInsertType,
 		Description: "Insert Not Financially Goals item",
 		Args: graphql.FieldConfigArgument{
 			"data": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(mutations.GoalsNotFinanciallyInsertMutation),
+				Type: graphql.NewNonNull(mutations.NonFinancialGoalInsertMutation),
 			},
 		},
-		Resolve: f.Resolvers.BudgetActivityNotFinanciallyGoalsInsertResolver,
+		Resolve: f.Resolvers.NonFinancialGoalInsertResolver,
 	}
 }
-func (f *Field) InductorNotFinanciallyOverviewField() *graphql.Field {
+
+func (f *Field) NonFinacialGoalIndicatorInsertField() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.IndicatorNotFinanciallyOverviewType,
-		Description: "Returns a data of Inductor items",
-		Args: graphql.FieldConfigArgument{
-			"goals_id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
-			},
-			"id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
-			},
-		},
-		Resolve: f.Resolvers.BudgetActivityNotFinanciallyInductorResolver,
-	}
-}
-func (f *Field) InductorNotFinanciallyInsertField() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.IndicatorNotFinanciallyInsertType,
-		Description: "Insert Inductor item",
+		Type:        types.NonFinancialGoalIndicatorInsertType,
+		Description: "Insert Not Financially Goal Indicator item",
 		Args: graphql.FieldConfigArgument{
 			"data": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(mutations.IndicatorNotFinanciallyInsertMutation),
+				Type: graphql.NewNonNull(mutations.NonFinancialGoalIndicatorInsertMutation),
 			},
 		},
-		Resolve: f.Resolvers.BudgetActivityNotFinanciallyInductorInsertResolver,
+		Resolve: f.Resolvers.NonFinancialGoalIndicatorInsertResolver,
 	}
 }
+
 func (f *Field) CheckBudgetActivityNotFinanciallyIsDoneField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.CheckBudgetActivityNotFinanciallyIsDoneType,

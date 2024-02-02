@@ -41,7 +41,7 @@ func (f *Field) ProgramOverviewField() *graphql.Field {
 			"id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
-			"program": &graphql.ArgumentConfig{
+			"is_program": &graphql.ArgumentConfig{
 				Type: graphql.Boolean,
 			},
 			"search": &graphql.ArgumentConfig{

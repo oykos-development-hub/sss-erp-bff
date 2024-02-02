@@ -45,6 +45,9 @@ func (f *Field) ActivitiesOverviewField() *graphql.Field {
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"sub_program_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 		},
 		Resolve: f.Resolvers.ActivitiesOverviewResolver,
 	}

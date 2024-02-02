@@ -120,7 +120,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 		applications, _ := repo.GetTenderApplicationList(&dto.GetJobTenderApplicationsInput{JobTenderID: &currentTenderApplication.JobTenderID})
 		jobTender, _ := repo.GetJobTender(currentTenderApplication.JobTenderID)
 
-		count := 0
+		count := 1
 		for _, tenderApp := range applications.Data {
 			if tenderApp.Status == "Izabran" {
 				count++

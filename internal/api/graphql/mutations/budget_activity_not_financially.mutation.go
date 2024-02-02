@@ -8,31 +8,34 @@ var BudgetActivityNotFinanciallyInsertMutation = graphql.NewInputObject(graphql.
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"request_id": &graphql.InputObjectFieldConfig{
+		"budget_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"person_responsible_name_surname": &graphql.InputObjectFieldConfig{
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"impl_contact_fullname": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"person_responsible_working_place": &graphql.InputObjectFieldConfig{
+		"impl_contact_working_place": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"person_responsible_telephone_number": &graphql.InputObjectFieldConfig{
+		"impl_contact_phone": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"person_responsible_email": &graphql.InputObjectFieldConfig{
+		"impl_contact_email": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"contact_person_name_surname": &graphql.InputObjectFieldConfig{
+		"contact_fullname": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"contact_person_working_place": &graphql.InputObjectFieldConfig{
+		"contact_working_place": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"contact_person_telephone_number": &graphql.InputObjectFieldConfig{
+		"contact_phone": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"contact_person_email": &graphql.InputObjectFieldConfig{
+		"contact_email": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 	},
@@ -56,19 +59,82 @@ var ProgramNotFinanciallyInsertMutation = graphql.NewInputObject(graphql.InputOb
 	},
 })
 
-var GoalsNotFinanciallyInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
-	Name: "GoalsNotFinanciallyInsertMutation",
+var NonFinancialGoalInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "NonFinancialGoalInsertMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"budget_program_id": &graphql.InputObjectFieldConfig{
+		"non_financial_budget_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"title": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+	},
+})
+
+var NonFinancialGoalIndicatorInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "NonFinancialGoalIndicatorInsertMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"goal_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"performance_indicator_code": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"indicator_source": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"base_year": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"gender_equality": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"base_value": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"source_of_information": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"unit_of_measure": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"indicator_description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"planned_value_1": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"revised_value_1": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"achieved_value_1": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"planned_value_2": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"revised_value_2": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"achieved_value_2": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"planned_value_3": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"revised_value_3": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"achieved_value_3": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 	},

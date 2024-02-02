@@ -8,14 +8,20 @@ var ActivitiesType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"subroutine": &graphql.Field{
+		"sub_program": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},
-		"organization_unit": &graphql.Field{
-			Type: DropdownItemType,
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"code": &graphql.Field{
+			Type: graphql.String,
 		},
 	},
 })
@@ -68,7 +74,7 @@ var ActivitiesInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
+		"item": &graphql.Field{
 			Type: ActivitiesType,
 		},
 	},

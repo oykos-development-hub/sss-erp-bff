@@ -14,6 +14,12 @@ var ProgramType = graphql.NewObject(graphql.ObjectConfig{
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+		"code": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })
 
@@ -65,7 +71,7 @@ var ProgramInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
+		"item": &graphql.Field{
 			Type: ProgramType,
 		},
 	},

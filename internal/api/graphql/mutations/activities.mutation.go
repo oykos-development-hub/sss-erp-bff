@@ -11,7 +11,13 @@ var ActivitiesMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"title": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"subroutine_id": &graphql.InputObjectFieldConfig{
+		"code": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"sub_program_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"organization_unit_id": &graphql.InputObjectFieldConfig{

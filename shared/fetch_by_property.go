@@ -150,12 +150,6 @@ var FetchByProperty = func(entity string, property string, value interface{}, co
 	case "budget_program_not_financially":
 		endpoint = "budget_program_not_financially.json"
 		entityStruct = &structs.BudgetActivityNotFinanciallyProgramItem{}
-	case "budget_goals_not_financially":
-		endpoint = "budget_goals_not_financially.json"
-		entityStruct = &structs.BudgetActivityNotFinanciallyGoalsItem{}
-	case "budget_indicator_not_financially":
-		endpoint = "budget_indicator_not_financially.json"
-		entityStruct = &structs.BudgetActivityNotFinanciallyIndicatorItem{}
 	}
 
 	entityData, entityDataErr := ReadJSON(GetDataRoot()+"/"+endpoint, entityStruct)

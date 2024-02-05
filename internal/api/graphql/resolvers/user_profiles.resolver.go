@@ -81,7 +81,10 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 		total = len(items)
 	}
 
-	paginatedItems, _ := shared.Paginate(items, page, size)
+	paginatedItems, err := shared.Paginate(items, page, size)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
 	return dto.Response{
 		Status:  "success",

@@ -172,13 +172,14 @@ func buildUserProfileOverviewResponse(
 		organizationUnitDropdown.ID = orgUnit.ID
 		organizationUnitDropdown.Title = orgUnit.Title
 
-		department, err := r.GetOrganizationUnitByID(*contract[0].OrganizationUnitDepartmentID)
-		if err != nil {
-			return nil, err
+		if contract[0].OrganizationUnitDepartmentID != nil {
+			department, err := r.GetOrganizationUnitByID(*contract[0].OrganizationUnitDepartmentID)
+			if err != nil {
+				return nil, err
+			}
+			departmentDropdown.ID = department.ID
+			departmentDropdown.Title = department.Title
 		}
-		departmentDropdown.ID = department.ID
-		departmentDropdown.Title = department.Title
-
 	}
 
 	active := true

@@ -19,6 +19,7 @@ type GetFinanceActivityListInputMS struct {
 type ActivityResItem struct {
 	ID               int            `json:"id"`
 	SubProgram       DropdownSimple `json:"sub_program"`
+	Program          DropdownSimple `json:"program"`
 	OrganizationUnit DropdownSimple `json:"organization_unit"`
 	Title            string         `json:"title"`
 	Description      string         `json:"description"`

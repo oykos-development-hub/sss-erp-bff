@@ -80,6 +80,12 @@ func buildActivityResItem(r repository.MicroserviceRepositoryInterface, activity
 	}
 	resItem.SubProgram = dto.DropdownSimple{ID: subProgram.ID, Title: subProgram.Title}
 
+	program, err := r.GetProgram(*subProgram.ParentID)
+	if err != nil {
+		return nil, err
+	}
+	resItem.Program = dto.DropdownSimple{ID: program.ID, Title: program.Title}
+
 	organizationUnit, err := r.GetOrganizationUnitByID(activity.OrganizationUnitID)
 	if err != nil {
 		return nil, err

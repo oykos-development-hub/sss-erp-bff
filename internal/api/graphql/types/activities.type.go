@@ -11,6 +11,9 @@ var ActivitiesType = graphql.NewObject(graphql.ObjectConfig{
 		"sub_program": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"program": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},

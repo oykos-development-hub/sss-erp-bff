@@ -50,5 +50,5 @@ jobs:
                 npm install pm2@latest -g
               fi
               cd ../../
-              pm2 start ./bff --name "sss-erp-bff" --watch
+              pm2 start ./bff --name "sss-erp-bff" --watch --max-restarts=3
               pm2 save

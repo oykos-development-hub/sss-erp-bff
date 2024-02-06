@@ -13,7 +13,10 @@ const (
 	OrganizationUnitIDKey ContextKey = "unit_id"
 	ConfigKey             ContextKey = "config"
 
-	ResolutionTypes string = "resolution_types"
-	OfficeTypes     string = "office_types"
-	EducationTypes  string = "education_types"
+	ResolutionTypes                     string = "resolution_types"
+	VacationTypeValueResolutionType     string = "vacation"
+	EmploymentTerminationResolutionType string = "employment_termination"
+
+	OfficeTypes    string = "office_types"
+	EducationTypes string = "education_types"
 )

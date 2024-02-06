@@ -14,10 +14,6 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-const (
-	VacationTypeValue string = "vacation"
-)
-
 func (r *Resolver) UserProfileVacationResolver(params graphql.ResolveParams) (interface{}, error) {
 	userProfileID := params.Args["user_profile_id"].(int)
 
@@ -53,7 +49,7 @@ func buildVacationResponseItemList(r repository.MicroserviceRepositoryInterface,
 func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.Vacation
 	var inputData structs.Resolution
-	vacationTypeValue := VacationTypeValue
+	vacationTypeValue := config.VacationTypeValueResolutionType
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	response := dto.ResponseSingle{
 		Status: "success",
@@ -112,7 +108,7 @@ func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *st
 		return nil, err
 	}
 
-	if resolutionType.Value != VacationTypeValue {
+	if resolutionType.Value != config.VacationTypeValueResolutionType {
 		return nil, nil
 	}
 
@@ -293,7 +289,7 @@ func GetNumberOfCurrentAndPreviousYearAvailableDays(r repository.MicroserviceRep
 	}
 
 	for _, resolution := range resolutions {
-		if resolution.ResolutionType.Value != VacationTypeValue {
+		if resolution.ResolutionType.Value != config.VacationTypeValueResolutionType {
 			continue
 		}
 
@@ -645,6 +641,27 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 				return errors.HandleAPIError(err)
 			}
 		}
+	}
+
+	terminateResolutionTypeValue := config.EmploymentTerminationResolutionType
+
+	terminateResolutionType, err := r.Repo.GetDropdownSettings(&dto.GetSettingsInput{Value: &terminateResolutionTypeValue, Entity: config.ResolutionTypes})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	now := time.Now()
+	fileID := params.Args["file_id"].(int)
+
+	_, err = r.Repo.CreateResolution(&structs.Resolution{
+		UserProfileID:    userID,
+		ResolutionTypeID: terminateResolutionType.Data[0].ID,
+		IsAffect:         true,
+		DateOfStart:      now.Format("2006-01-02T00:00:00Z"),
+		FileID:           fileID,
+	})
+	if err != nil {
+		return errors.HandleAPIError(err)
 	}
 
 	active = false

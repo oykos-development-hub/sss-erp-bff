@@ -80,6 +80,9 @@ func (f *Field) TerminateEmployment() *graphql.Field {
 			"user_profile_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"file_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
 		},
 		Resolve: f.Resolvers.TerminateEmployment,
 	}

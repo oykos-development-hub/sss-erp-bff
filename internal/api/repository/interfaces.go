@@ -12,7 +12,7 @@ type MicroserviceRepositoryInterface interface {
 	CheckInsertInventoryData(input []structs.BasicInventoryInsertItem) ([]structs.BasicInventoryInsertValidator, error)
 	CreateAbsent(absent *structs.Absent) (*structs.Absent, error)
 	CreateAbsentType(absent *structs.AbsentType) (*structs.AbsentType, error)
-	CreateAccountItem(accountItem *structs.AccountItem) (*structs.AccountItem, error)
+	CreateAccountItemList(accountItemList []structs.AccountItem) ([]*structs.AccountItem, error)
 	CreateAssessments(data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error)
 	CreateDispatchItem(item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error)
 	CreateDropdownSettings(data *structs.SettingsDropdown) (*structs.SettingsDropdown, error)

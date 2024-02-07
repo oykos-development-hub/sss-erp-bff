@@ -13,7 +13,7 @@ func (f *Field) AccountInsertField() *graphql.Field {
 		Description: "Creates new or alter existing Account",
 		Args: graphql.FieldConfigArgument{
 			"data": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(mutations.AccountMutation),
+				Type: graphql.NewList(mutations.AccountMutation),
 			},
 		},
 		Resolve: f.Resolvers.AccountInsertResolver,

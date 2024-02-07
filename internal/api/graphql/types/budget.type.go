@@ -14,11 +14,23 @@ var BudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"budget_type": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"status": &graphql.Field{
-			Type: graphql.String,
+		"limits": &graphql.Field{
+			Type: graphql.NewList(BudgetLimitType),
 		},
-		"data": &graphql.Field{
-			Type: JSON,
+	},
+})
+
+var BudgetLimitType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BudgetLimitType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"organization_unit_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"limit": &graphql.Field{
+			Type: graphql.Int,
 		},
 	},
 })

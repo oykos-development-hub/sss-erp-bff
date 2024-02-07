@@ -47,13 +47,13 @@ func (repo *MicroserviceRepository) GetAccountItemByID(id int) (*structs.Account
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateAccountItem(accountItem *structs.AccountItem) (*structs.AccountItem, error) {
-	res := &dto.GetAccountItemResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Account, accountItem, res)
+func (repo *MicroserviceRepository) CreateAccountItemList(accountItemList []structs.AccountItem) ([]*structs.AccountItem, error) {
+	res := &dto.InsertAccountItemListResponseMS{}
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Account, accountItemList, res)
 	if err != nil {
 		return nil, err
 	}
-	return &res.Data, nil
+	return res.Data, nil
 }
 
 func (repo *MicroserviceRepository) UpdateAccountItem(id int, accountItem *structs.AccountItem) (*structs.AccountItem, error) {

@@ -22,6 +22,10 @@ type GetAccountItemResponseMS struct {
 	Data structs.AccountItem `json:"data"`
 }
 
+type InsertAccountItemListResponseMS struct {
+	Data []*structs.AccountItem `json:"data"`
+}
+
 type GetAccountItemListResponseMS struct {
 	Data  []*structs.AccountItem `json:"data"`
 	Total int                    `json:"total"`

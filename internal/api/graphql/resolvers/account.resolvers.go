@@ -115,38 +115,24 @@ func determineLevel(serialNumber string) int {
 }
 
 func (r *Resolver) AccountInsertResolver(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.AccountItem
+	var data []structs.AccountItem
 	dataBytes, _ := json.Marshal(params.Args["data"])
-	response := dto.ResponseSingle{
+	response := dto.Response{
 		Status: "success",
 	}
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	itemID := data.ID
-	if itemID != 0 {
-		res, err := r.Repo.UpdateAccountItem(itemID, &data)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-		item, err := buildAccountItemResponseItem(res)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-		response.Item = item
-		response.Message = "You updated this item!"
-	} else {
-		res, err := r.Repo.CreateAccountItem(&data)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-		item, err := buildAccountItemResponseItem(res)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-		response.Item = item
-		response.Message = "You created this item!"
+	res, err := r.Repo.CreateAccountItemList(data)
+	if err != nil {
+		return errors.HandleAPIError(err)
 	}
+	items, err := buildAccountItemResponseItemList(res)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	response.Items = items
+	response.Message = "You created a new version of account items!"
 
 	return response, nil
 }

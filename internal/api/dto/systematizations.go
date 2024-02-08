@@ -36,4 +36,5 @@ type SystematizationOverviewResponse struct {
 	OrganizationUnit   *structs.OrganizationUnits         `json:"organization_unit"`
 	Sectors            *[]OrganizationUnitsSectorResponse `json:"sectors"`
 	ActiveEmployees    []structs.ActiveEmployees          `json:"active_employees"`
+	File               FileDropdownSimple                 `json:"file"`
 }

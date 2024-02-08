@@ -308,4 +308,14 @@ type MicroserviceRepositoryInterface interface {
 	DeleteNonFinancialGoalIndicator(id int) error
 	GetNonFinancialGoalIndicator(id int) (*structs.NonFinancialGoalIndicatorItem, error)
 	GetNonFinancialGoalIndicatorList(input *dto.GetNonFinancialGoalIndicatorListInputMS) ([]structs.NonFinancialGoalIndicatorItem, error)
+
+	CreateInvoice(item *structs.Invoice) (*structs.Invoice, error)
+	UpdateInvoice(item *structs.Invoice) (*structs.Invoice, error)
+	GetInvoice(id int) (*structs.Invoice, error)
+	GetInvoiceList(input *dto.GetInvoiceListInputMS) ([]structs.Invoice, int, error)
+	GetInvoiceArticleList(id int) ([]structs.InvoiceArticles, error)
+	DeleteInvoice(id int) error
+	DeleteInvoiceArticle(id int) error
+	CreateInvoiceArticle(article *structs.InvoiceArticles) (*structs.InvoiceArticles, error)
+	UpdateInvoiceArticle(item *structs.InvoiceArticles) (*structs.InvoiceArticles, error)
 }

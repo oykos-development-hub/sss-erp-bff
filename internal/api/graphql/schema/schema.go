@@ -117,6 +117,8 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"nonFinancialBudget_Insert":                       fields.NonFinancialBudgetInsertField(),
 			"NonFinancialGoalIndicator_Insert":                fields.NonFinacialGoalIndicatorInsertField(),
 			"NonFinacialBudgetGoal_Insert":                    fields.NonFinacialBudgetGoalInsertField(),
+			"invoice_Insert":                                  fields.InvoiceInsertField(),
+			"invoice_Delete":                                  fields.InvoiceDeleteField(),
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -207,6 +209,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"nonFinancialBudget_Overview":                                fields.NonFinancialBudgetOverviewType(),
 			"checkBudgetActivityNotFinanciallyIsDone":                    fields.CheckBudgetActivityNotFinanciallyIsDoneField(),
 			"activities_Overview":                                        fields.ActivitiesOverviewField(),
+			"invoice_Overview":                                           fields.InvoiceOverviewField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

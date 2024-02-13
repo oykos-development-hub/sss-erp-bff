@@ -26,8 +26,8 @@ type Budget struct {
 type BudgetRequestStatus int
 
 const (
-	BudgetRequestSentStatus     BudgetRequestStatus = 2
-	BudgetRequestFinishedStatus BudgetRequestStatus = 3
+	BudgetRequestSentStatus     BudgetRequestStatus = 1
+	BudgetRequestFinishedStatus BudgetRequestStatus = 2
 )
 
 type RequestType int

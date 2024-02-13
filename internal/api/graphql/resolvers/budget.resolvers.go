@@ -185,6 +185,13 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		return errors.HandleAPIError(err)
 	}
 
+	if budget.Status == structs.BudgetSentStatus {
+		return dto.ResponseSingle{
+			Message: "Budget is already sent",
+			Status:  "success",
+		}, nil
+	}
+
 	budget.Status = structs.BudgetSentStatus
 	updatedBudget, err := r.Repo.UpdateBudget(budget)
 	if err != nil {
@@ -203,7 +210,10 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.CurrentFinancialRequestType,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		r.Repo.CreateBudgetRequest(currentFinancialRequestToCreate)
+		_, err := r.Repo.CreateBudgetRequest(currentFinancialRequestToCreate)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 
 		donationFinancialRequestToCreate := &structs.BudgetRequest{
 			OrganizationUnitID: organizationUnit.ID,
@@ -211,7 +221,10 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.DonationFinancialRequestType,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		r.Repo.CreateBudgetRequest(donationFinancialRequestToCreate)
+		_, err = r.Repo.CreateBudgetRequest(donationFinancialRequestToCreate)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 
 		nonFinancialRequestToCreate := &structs.BudgetRequest{
 			OrganizationUnitID: organizationUnit.ID,
@@ -219,7 +232,10 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.NonFinancialRequestType,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		r.Repo.CreateBudgetRequest(nonFinancialRequestToCreate)
+		_, err = r.Repo.CreateBudgetRequest(nonFinancialRequestToCreate)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 	}
 
 	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *updatedBudget, nil)

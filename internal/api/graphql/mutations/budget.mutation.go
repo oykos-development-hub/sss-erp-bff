@@ -38,7 +38,7 @@ var FinancialBudgetFillMutation = graphql.NewInputObject(graphql.InputObjectConf
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"finance_budget_id": &graphql.InputObjectFieldConfig{
+		"budget_request_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"organization_unit_id": &graphql.InputObjectFieldConfig{

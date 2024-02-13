@@ -160,7 +160,12 @@ func buildFilledFinancialBudgetResItem(r repository.MicroserviceRepositoryInterf
 		RequestID:     filledFinancialBudget.BudgetRequestID,
 	}
 
-	organizationUnit, err := r.GetOrganizationUnitByID(filledFinancialBudget.OrganizationUnitID)
+	budgetRequest, err := r.GetBudgetRequest(filledFinancialBudget.BudgetRequestID)
+	if err != nil {
+		return nil, err
+	}
+
+	organizationUnit, err := r.GetOrganizationUnitByID(budgetRequest.OrganizationUnitID)
 	if err != nil {
 		return nil, err
 	}

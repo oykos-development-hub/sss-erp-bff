@@ -275,7 +275,7 @@ var FinancialBudgetFillItemType = graphql.NewObject(graphql.ObjectConfig{
 		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},
-		"financial_budget_id": &graphql.Field{
+		"request_id": &graphql.Field{
 			Type: graphql.Int,
 		},
 		"account": &graphql.Field{

@@ -60,12 +60,11 @@ type FinancialBudgetLimit struct {
 }
 
 type FilledFinanceBudget struct {
-	ID                 int    `json:"id"`
-	OrganizationUnitID int    `json:"organization_unit_id"`
-	BudgetRequestID    int    `json:"budget_request_id"`
-	AccountID          int    `json:"account_id"`
-	CurrentYear        int    `json:"current_year"`
-	NextYear           int    `json:"next_year"`
-	YearAfterNext      int    `json:"year_after_next"`
-	Description        string `json:"description"`
+	ID              int    `json:"id"`
+	BudgetRequestID int    `json:"budget_request_id"`
+	AccountID       int    `json:"account_id"`
+	CurrentYear     int    `json:"current_year"`
+	NextYear        int    `json:"next_year"`
+	YearAfterNext   int    `json:"year_after_next"`
+	Description     string `json:"description"`
 }

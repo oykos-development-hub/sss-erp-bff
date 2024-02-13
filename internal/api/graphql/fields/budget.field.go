@@ -37,7 +37,7 @@ func (f *Field) BudgetSendField() *graphql.Field {
 		Description: "Send Budget",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
 		Resolve: f.Resolvers.BudgetSendResolver,
@@ -68,13 +68,30 @@ func (f *Field) BudgetOverviewField() *graphql.Field {
 
 func (f *Field) FinancialBudgetOverview() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.FinancialBudgetOverviewType,
+		Type:        types.AccountWithFilledDataOverviewType,
 		Description: "Returns a data of Financial Budget",
 		Args: graphql.FieldConfigArgument{
 			"budget_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
 			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
 		},
 		Resolve: f.Resolvers.FinancialBudgetOverview,
+	}
+}
+
+// TODO: Send list of accounts instead one by one
+func (f *Field) FinancialBudgetFillField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FinancialBudgetFillType,
+		Description: "Fill Financially Budget item",
+		Args: graphql.FieldConfigArgument{
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewList(mutations.FinancialBudgetFillMutation),
+			},
+		},
+		Resolve: f.Resolvers.FinancialBudgetFillResolver,
 	}
 }

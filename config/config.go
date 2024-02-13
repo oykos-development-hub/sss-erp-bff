@@ -60,9 +60,11 @@ type MicroservicesConfig struct {
 type FinanceMS struct {
 	Base                      string
 	Budget                    string
+	BudgetRequest             string
 	Program                   string
 	Activity                  string
 	FinancialBudget           string
+	FilledFinancialBudget     string
 	FinancialBudgetLimit      string
 	NonFinancialBudget        string
 	NonFinancialGoal          string
@@ -315,7 +317,9 @@ func LoadDefaultConfig() (*Config, error) {
 			Finance: FinanceMS{
 				Base:                      financeBase,
 				Budget:                    financeBase + "/budgets",
+				BudgetRequest:             financeBase + "/budget-requests",
 				FinancialBudget:           financeBase + "/financial-budgets",
+				FilledFinancialBudget:     financeBase + "/filled-financial-budgets",
 				FinancialBudgetLimit:      financeBase + "/financial-budget-limits",
 				Program:                   financeBase + "/programs",
 				Activity:                  financeBase + "/activities",

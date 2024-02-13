@@ -70,3 +70,15 @@ type BudgetActivityGoalIndicatorResItem struct {
 	RevisedValue3            string `json:"revised_value_3"`
 	AchievedValue3           string `json:"achieved_value_3"`
 }
+
+type FilledFinancialBudgetResItem struct {
+	ID                int            `json:"id"`
+	FinancialBudgetID int            `json:"financial_budget_id"`
+	OrganizationUnit  DropdownSimple `json:"organization_unit"`
+	Account           DropdownSimple `json:"account"`
+
+	CurrentYear   int    `json:"current_year"`
+	NextYear      int    `json:"next_year"`
+	YearAfterNext int    `json:"year_after_next"`
+	Description   string `json:"description"`
+}

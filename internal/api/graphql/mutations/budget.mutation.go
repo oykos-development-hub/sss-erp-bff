@@ -31,3 +31,33 @@ var FinancialBudgetLimitMutation = graphql.NewInputObject(graphql.InputObjectCon
 		},
 	},
 })
+
+var FinancialBudgetFillMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "FinancialBudgetFillMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"finance_budget_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"account_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"current_year": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"next_year": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"year_after_next": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+	},
+})

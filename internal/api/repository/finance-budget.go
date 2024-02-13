@@ -15,6 +15,15 @@ func (repo *MicroserviceRepository) CreateBudget(budgetItem *structs.Budget) (*s
 	return &res.Data, nil
 }
 
+func (repo *MicroserviceRepository) UpdateBudget(item *structs.Budget) (*structs.Budget, error) {
+	res := &dto.GetBudgetResponseMS{}
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(item.ID), item, res)
+	if err != nil {
+		return nil, err
+	}
+	return &res.Data, nil
+}
+
 func (repo *MicroserviceRepository) GetBudgetList(input *dto.GetBudgetListInputMS) ([]structs.Budget, error) {
 	res := &dto.GetBudgetListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Budget, input, res)
@@ -66,6 +75,48 @@ func (repo *MicroserviceRepository) GetFinancialBudgetByBudgetID(id int) (*struc
 func (repo *MicroserviceRepository) CreateLimitsForFinancialBudget(financialBudgetLimit *structs.FinancialBudgetLimit) (*structs.FinancialBudgetLimit, error) {
 	res := &dto.GetFinancialBudgetLimitResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FinancialBudgetLimit, financialBudgetLimit, res)
+	if err != nil {
+		return nil, err
+	}
+	return &res.Data, nil
+}
+
+func (repo *MicroserviceRepository) GetFilledFinancialBudgetList(organizationUnitID, financialBudgetID int) ([]structs.FilledFinanceBudget, error) {
+	input := &dto.FilledFinancialBudgetInputMS{
+		OrganizationUnitID: organizationUnitID,
+		FinancialBudgetID:  financialBudgetID,
+	}
+	res := &dto.GetFilledFinancialBudgetResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FilledFinancialBudget, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
+func (repo *MicroserviceRepository) GetFinancialBudgetByID(id int) (*structs.FinancialBudget, error) {
+	res := &dto.GetFinancialBudgetResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FinancialBudget+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func (repo *MicroserviceRepository) FillFinancialBudget(data *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error) {
+	res := &dto.GetFilledFinancialBudgetResponseItemMS{}
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FilledFinancialBudget, data, res)
+	if err != nil {
+		return nil, err
+	}
+	return &res.Data, nil
+}
+
+func (repo *MicroserviceRepository) UpdateFilledFinancialBudget(id int, data *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error) {
+	res := &dto.GetFilledFinancialBudgetResponseItemMS{}
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id), data, res)
 	if err != nil {
 		return nil, err
 	}

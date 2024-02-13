@@ -25,6 +25,7 @@ func (f *Field) NonFinancialBudgetOverviewType() *graphql.Field {
 		Resolve: f.Resolvers.NonFinancialBudgetOverviewResolver,
 	}
 }
+
 func (f *Field) NonFinancialBudgetInsertField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.NonFinancialBudgetInsertType,

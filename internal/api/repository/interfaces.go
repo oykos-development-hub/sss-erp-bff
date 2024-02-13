@@ -272,27 +272,25 @@ type MicroserviceRepositoryInterface interface {
 	GetLatestVersionOfAccounts() (int, error)
 
 	CreateBudget(budget *structs.Budget) (*structs.Budget, error)
+	UpdateBudget(budget *structs.Budget) (*structs.Budget, error)
 	GetBudget(id int) (*structs.Budget, error)
 	GetBudgetList(input *dto.GetBudgetListInputMS) ([]structs.Budget, error)
 	DeleteBudget(id int) error
+
+	CreateBudgetRequest(budget *structs.BudgetRequest) (*structs.BudgetRequest, error)
+	UpdateBudgetRequest(budget *structs.BudgetRequest) (*structs.BudgetRequest, error)
+	GetBudgetRequest(id int) (*structs.BudgetRequest, error)
+	GetBudgetRequestList(input *dto.GetBudgetRequestListInputMS) ([]structs.BudgetRequest, error)
+
 	CreateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
 	GetFinancialBudgetByBudgetID(budgetID int) (*structs.FinancialBudget, error)
+	GetFinancialBudgetByID(id int) (*structs.FinancialBudget, error)
+	GetFilledFinancialBudgetList(organizationUnitID, financialBudgetID int) ([]structs.FilledFinanceBudget, error)
 	CreateLimitsForFinancialBudget(financialBudgetLimit *structs.FinancialBudgetLimit) (*structs.FinancialBudgetLimit, error)
-
-	UpdateProgram(id int, program *structs.ProgramItem) (*structs.ProgramItem, error)
-	CreateProgram(program *structs.ProgramItem) (*structs.ProgramItem, error)
-	DeleteProgram(id int) error
-	GetProgram(id int) (*structs.ProgramItem, error)
-	GetProgramList(input *dto.GetFinanceProgramListInputMS) ([]structs.ProgramItem, error)
-
-	UpdateActivity(id int, activity *structs.ActivitiesItem) (*structs.ActivitiesItem, error)
-	CreateActivity(activity *structs.ActivitiesItem) (*structs.ActivitiesItem, error)
-	DeleteActivity(id int) error
-	GetActivity(id int) (*structs.ActivitiesItem, error)
-	GetActivityList(input *dto.GetFinanceActivityListInputMS) ([]structs.ActivitiesItem, error)
-
 	UpdateNonFinancialBudget(id int, program *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
 	CreateNonFinancialBudget(budget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
+	FillFinancialBudget(budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
+	UpdateFilledFinancialBudget(id int, budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
 	DeleteNonFinancialBudget(id int) error
 	GetNonFinancialBudget(id int) (*structs.NonFinancialBudgetItem, error)
 	GetNonFinancialBudgetList(input *dto.GetNonFinancialBudgetListInputMS) ([]structs.NonFinancialBudgetItem, error)
@@ -308,6 +306,18 @@ type MicroserviceRepositoryInterface interface {
 	DeleteNonFinancialGoalIndicator(id int) error
 	GetNonFinancialGoalIndicator(id int) (*structs.NonFinancialGoalIndicatorItem, error)
 	GetNonFinancialGoalIndicatorList(input *dto.GetNonFinancialGoalIndicatorListInputMS) ([]structs.NonFinancialGoalIndicatorItem, error)
+
+	UpdateProgram(id int, program *structs.ProgramItem) (*structs.ProgramItem, error)
+	CreateProgram(program *structs.ProgramItem) (*structs.ProgramItem, error)
+	DeleteProgram(id int) error
+	GetProgram(id int) (*structs.ProgramItem, error)
+	GetProgramList(input *dto.GetFinanceProgramListInputMS) ([]structs.ProgramItem, error)
+
+	UpdateActivity(id int, activity *structs.ActivitiesItem) (*structs.ActivitiesItem, error)
+	CreateActivity(activity *structs.ActivitiesItem) (*structs.ActivitiesItem, error)
+	DeleteActivity(id int) error
+	GetActivity(id int) (*structs.ActivitiesItem, error)
+	GetActivityList(input *dto.GetFinanceActivityListInputMS) ([]structs.ActivitiesItem, error)
 
 	CreateInvoice(item *structs.Invoice) (*structs.Invoice, error)
 	UpdateInvoice(item *structs.Invoice) (*structs.Invoice, error)

@@ -1,6 +1,11 @@
 package types
 
-import "github.com/graphql-go/graphql"
+import (
+	"bff/internal/api/dto"
+	"sync"
+
+	"github.com/graphql-go/graphql"
+)
 
 var BudgetType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "BudgetType",
@@ -38,14 +43,114 @@ var BudgetLimitType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var (
+	accountWithFilledDataType          *graphql.Object
+	onceInitalizeAccountWithFilledData sync.Once
+)
+
+func GetAccountWithFilledDataType() *graphql.Object {
+	onceInitalizeAccountWithFilledData.Do(func() {
+		initAccountWithFilledDataType()
+	})
+	return accountWithFilledDataType
+}
+
+var FilledAccountData = graphql.NewObject(graphql.ObjectConfig{
+	Name: "FilledAccountDataType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"organization_unit_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"finance_budget_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"account_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"current_year": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"next_year": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"year_after_next": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+func initAccountWithFilledDataType() {
+	accountWithFilledDataType = graphql.NewObject(graphql.ObjectConfig{
+		Name: "AccountWithFilledDataType",
+		Fields: (graphql.FieldsThunk)(func() graphql.Fields {
+			return graphql.Fields{
+				"id": &graphql.Field{
+					Type: graphql.Int,
+				},
+				"parent_id": &graphql.Field{
+					Type: graphql.Int,
+				},
+				"serial_number": &graphql.Field{
+					Type: graphql.String,
+				},
+				"title": &graphql.Field{
+					Type: graphql.String,
+				},
+				"filled_data": &graphql.Field{
+					Type: FilledAccountData,
+				},
+				"children": &graphql.Field{
+					Type: graphql.NewList(accountWithFilledDataType),
+					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+						if accountItem, ok := p.Source.(*dto.AccountWithFilledFinanceBudget); ok {
+							return accountItem.Children, nil
+						}
+						return nil, nil
+					},
+				},
+			}
+		}),
+	})
+}
+
+var AccountWithFilledDataOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AccountWithFilledDataOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"version": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"item": &graphql.Field{
+			Type: FinancialBudgetType,
+		},
+	},
+})
+
 var FinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "FinancialBudgetType",
 	Fields: graphql.Fields{
 		"account_version": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
 		"accounts": &graphql.Field{
-			Type: graphql.NewList(GetAccountType()),
+			Type: graphql.NewList(GetAccountWithFilledDataType()),
 		},
 	},
 })
@@ -119,6 +224,9 @@ var BudgetSendType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
+		"item": &graphql.Field{
+			Type: BudgetType,
+		},
 	},
 })
 
@@ -136,6 +244,54 @@ var BudgetInsertType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"item": &graphql.Field{
 			Type: BudgetType,
+		},
+	},
+})
+
+var FinancialBudgetFillType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "FinancialBudgetFillType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(FinancialBudgetFillItemType),
+		},
+	},
+})
+
+var FinancialBudgetFillItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "FinancialBudgetFillItemType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"financial_budget_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"account": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"current_year": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"next_year": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"year_after_next": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
 		},
 	},
 })

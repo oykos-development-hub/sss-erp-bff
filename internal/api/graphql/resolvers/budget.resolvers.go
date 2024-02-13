@@ -201,7 +201,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			OrganizationUnitID: organizationUnit.ID,
 			BudgetID:           budgetID,
 			RequestType:        structs.CurrentFinancialRequestType,
-			Status:             structs.BudgetRequestCreatedStatus,
+			Status:             structs.BudgetRequestSentStatus,
 		}
 		r.Repo.CreateBudgetRequest(currentFinancialRequestToCreate)
 
@@ -209,7 +209,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			OrganizationUnitID: organizationUnit.ID,
 			BudgetID:           budgetID,
 			RequestType:        structs.DonationFinancialRequestType,
-			Status:             structs.BudgetRequestCreatedStatus,
+			Status:             structs.BudgetRequestSentStatus,
 		}
 		r.Repo.CreateBudgetRequest(donationFinancialRequestToCreate)
 
@@ -217,7 +217,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			OrganizationUnitID: organizationUnit.ID,
 			BudgetID:           budgetID,
 			RequestType:        structs.NonFinancialRequestType,
-			Status:             structs.BudgetRequestCreatedStatus,
+			Status:             structs.BudgetRequestSentStatus,
 		}
 		r.Repo.CreateBudgetRequest(nonFinancialRequestToCreate)
 	}

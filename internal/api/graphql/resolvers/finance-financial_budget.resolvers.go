@@ -6,6 +6,7 @@ import (
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -29,14 +30,23 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 
 	unitID := params.Args["organization_unit_id"].(int)
 
-	filledAccounts, err := r.Repo.GetFilledFinancialBudgetList(unitID, financialBudget.ID)
+	// TODO: Add donation too.
+	currentFinancialType := structs.CurrentFinancialRequestType
+	currentFinancialBudgetRequest, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &unitID,
+		BudgetID:           budgetID,
+		RequestType:        &currentFinancialType,
+	})
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
-	if len(filledAccounts) > 0 {
-		status = dto.FinancialBudgetFinishedStatus
-	} else {
-		status = dto.FinancialBudgetTakeActionStatus
+	if len(currentFinancialBudgetRequest) == 0 {
+		return errors.HandleAPIError(fmt.Errorf("current financial budget not found. budget id: %d, unit id: %d", budgetID, unitID))
+	}
+
+	filledAccounts, err := r.Repo.GetFilledFinancialBudgetList(currentFinancialBudgetRequest[0].ID)
+	if err != nil {
+		return errors.HandleAPIError(err)
 	}
 
 	var filledAccountResItemList dto.AccountWithFilledFinanceBudgetResponseList
@@ -51,6 +61,14 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 	resItem := filledAccountResItemList.CreateTree()
 	if err != nil {
 		return errors.HandleAPIError(err)
+	}
+
+	// TODO: move it into separate function
+	switch currentFinancialBudgetRequest[0].Status {
+	case structs.BudgetRequestSentStatus:
+		status = dto.FinancialBudgetTakeActionStatus
+	case structs.BudgetRequestFinishedStatus:
+		status = dto.FinancialBudgetFinishedStatus
 	}
 
 	financialBudgetOveriew := &dto.FinancialBudgetOverviewResponse{
@@ -134,12 +152,12 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 
 func buildFilledFinancialBudgetResItem(r repository.MicroserviceRepositoryInterface, filledFinancialBudget structs.FilledFinanceBudget) (*dto.FilledFinancialBudgetResItem, error) {
 	resItem := &dto.FilledFinancialBudgetResItem{
-		ID:                filledFinancialBudget.ID,
-		CurrentYear:       filledFinancialBudget.CurrentYear,
-		NextYear:          filledFinancialBudget.NextYear,
-		YearAfterNext:     filledFinancialBudget.YearAfterNext,
-		Description:       filledFinancialBudget.Description,
-		FinancialBudgetID: filledFinancialBudget.FinanceBudgetID,
+		ID:            filledFinancialBudget.ID,
+		CurrentYear:   filledFinancialBudget.CurrentYear,
+		NextYear:      filledFinancialBudget.NextYear,
+		YearAfterNext: filledFinancialBudget.YearAfterNext,
+		Description:   filledFinancialBudget.Description,
+		RequestID:     filledFinancialBudget.BudgetRequestID,
 	}
 
 	organizationUnit, err := r.GetOrganizationUnitByID(filledFinancialBudget.OrganizationUnitID)

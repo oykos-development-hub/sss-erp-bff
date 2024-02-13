@@ -82,7 +82,6 @@ func (f *Field) FinancialBudgetOverview() *graphql.Field {
 	}
 }
 
-// TODO: Send list of accounts instead one by one
 func (f *Field) FinancialBudgetFillField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.FinancialBudgetFillType,

@@ -26,9 +26,8 @@ type Budget struct {
 type BudgetRequestStatus int
 
 const (
-	BudgetRequestCreatedStatus BudgetRequestStatus = 1
-	BudgetRequestSentStatus    BudgetRequestStatus = 2
-	BudgetRequestClosedStatus  BudgetRequestStatus = 3
+	BudgetRequestSentStatus     BudgetRequestStatus = 2
+	BudgetRequestFinishedStatus BudgetRequestStatus = 3
 )
 
 type RequestType int
@@ -63,7 +62,7 @@ type FinancialBudgetLimit struct {
 type FilledFinanceBudget struct {
 	ID                 int    `json:"id"`
 	OrganizationUnitID int    `json:"organization_unit_id"`
-	FinanceBudgetID    int    `json:"finance_budget_id"`
+	BudgetRequestID    int    `json:"budget_request_id"`
 	AccountID          int    `json:"account_id"`
 	CurrentYear        int    `json:"current_year"`
 	NextYear           int    `json:"next_year"`

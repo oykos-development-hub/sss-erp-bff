@@ -1,10 +1,10 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/shared"
 	"bff/structs"
 	"context"
 	"encoding/json"
@@ -12,36 +12,6 @@ import (
 
 	"github.com/graphql-go/graphql"
 )
-
-func BudgetItemProperties(basicInventoryItems []interface{}, id int, typeBudget string, year string, status string) []interface{} {
-	var items []interface{}
-
-	for _, item := range basicInventoryItems {
-
-		var mergedItem = shared.WriteStructToInterface(item)
-
-		// Filtering by ID
-		if id != 0 && id != mergedItem["id"] {
-			continue
-		}
-		// Filtering by type
-		if len(typeBudget) > 0 && typeBudget != mergedItem["type"] {
-			continue
-		}
-		// Filtering by year
-		if len(year) > 0 && year != mergedItem["year"] {
-			continue
-		}
-		// Filtering by status
-		if len(status) > 0 && status != mergedItem["status"] {
-			continue
-		}
-
-		items = append(items, mergedItem)
-	}
-
-	return items
-}
 
 func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
@@ -90,18 +60,33 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 	}, nil
 }
 
-// TODO: add logic  to determine budget status based on logged in user
 func buildBudgetStatus(ctx context.Context, budget structs.Budget) (dto.BudgetStatus, error) {
+	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+
 	switch budget.Status {
 	case structs.BudgetCreatedStatus:
 		return dto.BudgetCreatedStatus, nil
-	case structs.BudgetSentStatus:
-		return dto.BudgetSentStatus, nil
 	case structs.BudgetClosedStatus:
 		return dto.BudgetClosedStatus, nil
-	default:
-		return "", fmt.Errorf("budget with id: %d has incorrect status: %d", budget.ID, budget.Status)
 	}
+
+	if loggedInUser.RoleID == structs.UserRoleManagerOJ {
+		switch budget.Status {
+		case structs.BudgetSentStatus:
+			return dto.ManagerBudgetSentStatus, nil
+		case structs.BudgetOnReviewStatus:
+			return dto.ManagerBudgetOnReviewStatus, nil
+		}
+	} else {
+		switch budget.Status {
+		case structs.BudgetSentStatus:
+			return dto.OfficialBudgetSentStatus, nil
+		case structs.BudgetOnReviewStatus:
+			return dto.OfficialBudgetOnReviewStatus, nil
+		}
+	}
+
+	return "", fmt.Errorf("budget with id: %d has incorrect status: %d", budget.ID, budget.Status)
 }
 
 func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceRepositoryInterface, budgetList []structs.Budget) (budgetResItemList []*dto.BudgetResponseItem, err error) {
@@ -121,16 +106,6 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 	if err != nil {
 		return nil, err
 	}
-
-	// financialBudget, err := r.GetFinancialBudgetByBudgetID(budget.ID)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// financialBudgetResItem, err := buildFinancialBudgetResponseItem(ctx, r, *financialBudget, organizationUnitID)
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	item := &dto.BudgetResponseItem{
 		ID:         budget.ID,

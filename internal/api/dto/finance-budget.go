@@ -16,8 +16,14 @@ type BudgetStatus string
 
 const (
 	BudgetCreatedStatus BudgetStatus = "Kreiran"
-	BudgetSentStatus    BudgetStatus = "Poslat"
-	BudgetClosedStatus  BudgetStatus = "Zatvoren"
+	BudgetClosedStatus  BudgetStatus = "Završen"
+
+	ManagerBudgetSentStatus     BudgetStatus = "Obradi"
+	ManagerBudgetOnReviewStatus BudgetStatus = "Na čekanju"
+	ManagerBudgetClosedStatus   BudgetStatus = "Završen"
+
+	OfficialBudgetSentStatus     BudgetStatus = "Poslat"
+	OfficialBudgetOnReviewStatus BudgetStatus = "Obradi"
 )
 
 type BudgetResponseItem struct {

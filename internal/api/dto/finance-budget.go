@@ -18,7 +18,7 @@ const (
 	BudgetCreatedStatus BudgetStatus = "Kreiran"
 	BudgetClosedStatus  BudgetStatus = "Završen"
 
-	ManagerBudgetSentStatus     BudgetStatus = "Obradi"
+	ManagerBudgetProcessStatus  BudgetStatus = "Obradi"
 	ManagerBudgetOnReviewStatus BudgetStatus = "Na čekanju"
 	ManagerBudgetClosedStatus   BudgetStatus = "Završen"
 

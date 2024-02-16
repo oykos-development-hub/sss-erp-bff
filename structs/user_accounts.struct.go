@@ -6,6 +6,7 @@ const (
 	UserRoleAdmin                         UserRole = 1
 	UserRoleManagerOJ                     UserRole = 2
 	UserRoleOfficialForPublicProcurements UserRole = 3
+	UserRoleOfficialForFinanceBudget      UserRole = 6
 )
 
 type UserPermission string

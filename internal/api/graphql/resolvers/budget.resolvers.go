@@ -14,6 +14,7 @@ import (
 )
 
 func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	var items []*dto.BudgetResponseItem
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		budget, err := r.Repo.GetBudget(id)
 		if err != nil {
@@ -23,12 +24,15 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
+		if budgetResItem != nil {
+			items = append(items, budgetResItem)
+		}
 
 		return dto.Response{
 			Status:  "success",
 			Message: "Here's the list you asked for!",
-			Items:   []*dto.BudgetResponseItem{budgetResItem},
-			Total:   1,
+			Items:   items,
+			Total:   len(items),
 		}, nil
 	}
 
@@ -47,7 +51,7 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
-	budgetResItem, err := buildBudgetResponseItemList(params.Context, r.Repo, budgets)
+	items, err = buildBudgetResponseItemList(params.Context, r.Repo, budgets)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -55,7 +59,7 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   budgetResItem,
+		Items:   items,
 		Total:   len(budgets),
 	}, nil
 }
@@ -73,7 +77,7 @@ func buildBudgetStatus(ctx context.Context, budget structs.Budget) (dto.BudgetSt
 	if loggedInUser.RoleID == structs.UserRoleManagerOJ {
 		switch budget.Status {
 		case structs.BudgetSentStatus:
-			return dto.ManagerBudgetSentStatus, nil
+			return dto.ManagerBudgetProcessStatus, nil
 		case structs.BudgetOnReviewStatus:
 			return dto.ManagerBudgetOnReviewStatus, nil
 		}
@@ -95,13 +99,20 @@ func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceR
 		if err != nil {
 			return nil, err
 		}
-		budgetResItemList = append(budgetResItemList, budgetResponseItem)
+		if budgetResponseItem != nil {
+			budgetResItemList = append(budgetResItemList, budgetResponseItem)
+		}
 	}
 
 	return
 }
 
 func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget, organizationUnitID *int) (*dto.BudgetResponseItem, error) {
+	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	if loggedInUser.RoleID == structs.UserRoleManagerOJ && (budget.Status == structs.BudgetCreatedStatus || budget.Status == structs.BudgetClosedStatus) {
+		return nil, nil
+	}
+
 	status, err := buildBudgetStatus(ctx, budget)
 	if err != nil {
 		return nil, err
@@ -234,6 +245,11 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 }
 
 func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}, error) {
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	if loggedInUser.RoleID != structs.UserRoleOfficialForFinanceBudget && loggedInUser.RoleID != structs.UserRoleAdmin {
+		return errors.HandleAPIError(fmt.Errorf("forbidden"))
+	}
+
 	budgetID := params.Args["id"].(int)
 
 	budget, err := r.Repo.GetBudget(budgetID)

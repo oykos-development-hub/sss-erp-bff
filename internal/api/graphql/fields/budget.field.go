@@ -88,7 +88,7 @@ func (f *Field) FinancialBudgetFillField() *graphql.Field {
 		Description: "Fill Financially Budget item",
 		Args: graphql.FieldConfigArgument{
 			"request_id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 			"data": &graphql.ArgumentConfig{
 				Type: graphql.NewList(mutations.FinancialBudgetFillMutation),

@@ -66,19 +66,6 @@ func (f *Field) BudgetOverviewField() *graphql.Field {
 	}
 }
 
-func (f *Field) BudgetDetailsField() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.BudgetOverviewType,
-		Description: "Returns a data of Budget item",
-		Args: graphql.FieldConfigArgument{
-			"id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
-			},
-		},
-		Resolve: f.Resolvers.BudgetOverviewResolver,
-	}
-}
-
 func (f *Field) FinancialBudgetOverview() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.AccountWithFilledDataOverviewType,

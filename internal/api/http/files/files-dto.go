@@ -87,3 +87,15 @@ type ImportInventoriesResponse struct {
 	Error   string                       `json:"error"`
 	Data    []structs.BasicInventoryItem `json:"data"`
 }
+
+type ImportUserProfileVacation struct {
+	UserProfileID int `json:"user_profile_id"`
+	NumberOfDays  int `json:"number_of_days"`
+}
+
+type ImportUserProfileVacationsResponse struct {
+	Status  string                      `json:"status"`
+	Message string                      `json:"message"`
+	Error   string                      `json:"error"`
+	Data    []ImportUserProfileVacation `json:"data"`
+}

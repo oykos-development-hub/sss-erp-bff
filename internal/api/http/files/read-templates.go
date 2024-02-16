@@ -999,3 +999,79 @@ func (h *Handler) ImportExcelOrgUnitInventoriesHandler(w http.ResponseWriter, r 
 	response.Message = "File was read successfuly"
 	_ = MarshalAndWriteJSON(w, response)
 }
+
+func (h *Handler) ImportUserProfileVacationsHandler(w http.ResponseWriter, r *http.Request) {
+	var response ImportUserProfileVacationsResponse
+
+	xlsFile, err := openExcelFile(r)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	var userProfileVacations []ImportUserProfileVacation
+
+	sheetMap := xlsFile.GetSheetMap()
+
+	for _, sheetName := range sheetMap {
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := 0
+		if rowindex == 0 {
+			rowindex++
+			continue
+		}
+
+		cols := rows.Columns()
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+		if len(cols) == 0 {
+			break
+		}
+		var item ImportUserProfileVacation
+		for cellIndex, cellValue := range cols {
+			value := cellValue
+			switch cellIndex {
+			case 0:
+				if value == "" {
+					break
+				}
+
+				id, err := strconv.ParseFloat(value, 64)
+
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+
+				item.UserProfileID = int(id)
+			case 3:
+				if value == "" {
+					break
+				}
+
+				NumberOfDays, err := strconv.ParseFloat(value, 64)
+
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+
+				item.NumberOfDays = int(NumberOfDays)
+			}
+		}
+		userProfileVacations = append(userProfileVacations, item)
+	}
+
+	response.Data = userProfileVacations
+	response.Status = "success"
+	response.Message = "File was read successfuly"
+	_ = MarshalAndWriteJSON(w, response)
+}

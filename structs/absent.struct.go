@@ -42,6 +42,16 @@ type Vacation struct {
 	FileID            int    `json:"file_id"`
 }
 
+type VacationArray struct {
+	Year int                 `json:"year"`
+	Data []VacationArrayItem `json:"data"`
+}
+
+type VacationArrayItem struct {
+	UserProfileID int `json:"user_profile_id"`
+	NumberOfDays  int `json:"number_of_days"`
+}
+
 type FileDropdownSimple struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`

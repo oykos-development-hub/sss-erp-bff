@@ -1010,11 +1010,12 @@ func (h *Handler) ImportUserProfileVacationsHandler(w http.ResponseWriter, r *ht
 		return
 	}
 
-	var userProfileVacations []ImportUserProfileVacation
-
 	sheetMap := xlsFile.GetSheetMap()
 
+	var userProfileVacations []ImportUserProfileVacation
+
 	for _, sheetName := range sheetMap {
+
 		rows, err := xlsFile.Rows(sheetName)
 		if err != nil {
 			handleError(w, err, http.StatusInternalServerError)
@@ -1022,52 +1023,54 @@ func (h *Handler) ImportUserProfileVacationsHandler(w http.ResponseWriter, r *ht
 		}
 
 		rowindex := 0
-		if rowindex == 0 {
-			rowindex++
-			continue
-		}
 
-		cols := rows.Columns()
-		if err != nil {
-			handleError(w, err, http.StatusInternalServerError)
-			return
-		}
-		if len(cols) == 0 {
-			break
-		}
-		var item ImportUserProfileVacation
-		for cellIndex, cellValue := range cols {
-			value := cellValue
-			switch cellIndex {
-			case 0:
-				if value == "" {
-					break
-				}
-
-				id, err := strconv.ParseFloat(value, 64)
-
-				if err != nil {
-					handleError(w, err, http.StatusInternalServerError)
-					return
-				}
-
-				item.UserProfileID = int(id)
-			case 3:
-				if value == "" {
-					break
-				}
-
-				NumberOfDays, err := strconv.ParseFloat(value, 64)
-
-				if err != nil {
-					handleError(w, err, http.StatusInternalServerError)
-					return
-				}
-
-				item.NumberOfDays = int(NumberOfDays)
+		for rows.Next() {
+			if rowindex == 0 {
+				rowindex++
+				continue
 			}
+
+			cols := rows.Columns()
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			var item ImportUserProfileVacation
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				switch cellIndex {
+				case 0:
+					if value == "" {
+						break
+					}
+
+					id, err := strconv.ParseFloat(value, 64)
+
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+
+					item.UserProfileID = int(id)
+				case 3:
+					if value == "" {
+						break
+					}
+
+					NumberOfDays, err := strconv.ParseFloat(value, 64)
+
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+
+					item.NumberOfDays = int(NumberOfDays)
+				}
+			}
+			userProfileVacations = append(userProfileVacations, item)
 		}
-		userProfileVacations = append(userProfileVacations, item)
+
 	}
 
 	response.Data = userProfileVacations

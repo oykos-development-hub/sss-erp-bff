@@ -53,6 +53,24 @@ var UserProfileVacationInsertType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var UserProfileVacationsInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserProfileVacationsInsert",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: graphql.NewList(UserProfileVacationItemType),
+		},
+	},
+})
+
 var UserProfileVacationType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "UserProfileVacation",
 	Fields: graphql.Fields{

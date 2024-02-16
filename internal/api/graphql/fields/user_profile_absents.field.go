@@ -46,6 +46,19 @@ func (f *Field) UserProfileVacationInsertField() *graphql.Field {
 	}
 }
 
+func (f *Field) UserProfileVacationsInsertField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.UserProfileVacationsInsertType,
+		Description: "Creates new or alter existing User Profile's Absent item",
+		Args: graphql.FieldConfigArgument{
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(mutations.UserProfileVacationsInsertMutation),
+			},
+		},
+		Resolve: f.Resolvers.UserProfileVacationResolutionsInsertResolver,
+	}
+}
+
 func (f *Field) UserProfileAbsentInsertField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.UserProfileAbsentInsertType,

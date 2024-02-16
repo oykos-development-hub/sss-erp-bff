@@ -98,6 +98,49 @@ func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.Re
 	return response, nil
 }
 
+func (r *Resolver) UserProfileVacationResolutionsInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.VacationArray
+
+	vacationTypeValue := config.VacationTypeValueResolutionType
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	response := dto.Response{
+		Status: "success",
+	}
+
+	_ = json.Unmarshal(dataBytes, &data)
+
+	vacationType, err := r.Repo.GetDropdownSettings(&dto.GetSettingsInput{Value: &vacationTypeValue, Entity: config.ResolutionTypes})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	var vacations []dto.Vacation
+	if len(data.Data) > 0 {
+
+		for _, vacation := range data.Data {
+			var inputData structs.Resolution
+			dateOfEnd := time.Date(data.Year, time.December, 31, 23, 59, 59, 999999999, time.UTC).Format("2006-01-02T15:04:05Z")
+			inputData.ResolutionTypeID = vacationType.Data[0].ID
+			inputData.DateOfStart = time.Date(data.Year, time.January, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02T15:04:05Z")
+			inputData.DateOfEnd = &dateOfEnd
+			inputData.UserProfileID = vacation.UserProfileID
+			inputData.Value = strconv.Itoa(vacation.NumberOfDays)
+
+			resolution, err := r.Repo.CreateResolution(&inputData)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+			resolutionResItem, err := buildVacationResItem(r.Repo, resolution)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+			response.Data = append(vacations, *resolutionResItem)
+		}
+
+	}
+
+	return response, nil
+}
+
 func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *structs.Resolution) (*dto.Vacation, error) {
 	userProfile, err := r.GetUserProfileByID(item.UserProfileID)
 	if err != nil {

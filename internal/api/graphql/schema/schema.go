@@ -57,6 +57,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"absentType_Delete":                               fields.AbsentTypeDeleteField(),
 			"userProfile_Absent_Insert":                       fields.UserProfileAbsentInsertField(),
 			"userProfile_Vacation_Insert":                     fields.UserProfileVacationInsertField(),
+			"userProfile_Vacations_Insert":                    fields.UserProfileVacationsInsertField(),
 			"userProfile_Absent_Delete":                       fields.UserProfileAbsentDeleteField(),
 			"userProfile_Resolution_Insert":                   fields.UserProfileResolutionInsertField(),
 			"userProfile_Resolution_Delete":                   fields.UserProfileResolutionDeleteField(),

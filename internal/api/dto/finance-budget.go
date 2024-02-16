@@ -8,6 +8,7 @@ import (
 type FinancialBudgetStatus string
 
 const (
+	FinancialBudgetNotSentStatus    FinancialBudgetStatus = "Nije poslat"
 	FinancialBudgetTakeActionStatus FinancialBudgetStatus = "Obradi"
 	FinancialBudgetFinishedStatus   FinancialBudgetStatus = "Obrađen"
 )
@@ -80,6 +81,7 @@ type GetFinancialBudgetLimitResponseMS struct {
 
 type FinancialBudgetOverviewResponse struct {
 	AccountVersion         int                               `json:"account_version"`
+	RequestID              int                               `json:"request_id"`
 	Status                 FinancialBudgetStatus             `json:"status"`
 	AccountsWithFilledData []*AccountWithFilledFinanceBudget `json:"accounts"`
 }

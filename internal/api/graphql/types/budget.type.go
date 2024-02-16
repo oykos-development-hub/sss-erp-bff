@@ -61,12 +61,6 @@ var FilledAccountData = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"organization_unit_id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"finance_budget_id": &graphql.Field{
-			Type: graphql.Int,
-		},
 		"account_id": &graphql.Field{
 			Type: graphql.Int,
 		},
@@ -148,6 +142,9 @@ var FinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"status": &graphql.Field{
 			Type: graphql.String,
+		},
+		"request_id": &graphql.Field{
+			Type: graphql.Int,
 		},
 		"accounts": &graphql.Field{
 			Type: graphql.NewList(GetAccountWithFilledDataType()),

@@ -6,7 +6,6 @@ import (
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -40,13 +39,13 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
-	if len(currentFinancialBudgetRequest) == 0 {
-		return errors.HandleAPIError(fmt.Errorf("current financial budget not found. budget id: %d, unit id: %d", budgetID, unitID))
-	}
+	var filledAccounts []structs.FilledFinanceBudget
 
-	filledAccounts, err := r.Repo.GetFilledFinancialBudgetList(currentFinancialBudgetRequest[0].ID)
-	if err != nil {
-		return errors.HandleAPIError(err)
+	if len(currentFinancialBudgetRequest) > 0 {
+		filledAccounts, err = r.Repo.GetFilledFinancialBudgetList(currentFinancialBudgetRequest[0].ID)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 	}
 
 	var filledAccountResItemList dto.AccountWithFilledFinanceBudgetResponseList
@@ -64,17 +63,25 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 	}
 
 	// TODO: move it into separate function
-	switch currentFinancialBudgetRequest[0].Status {
-	case structs.BudgetRequestSentStatus:
-		status = dto.FinancialBudgetTakeActionStatus
-	case structs.BudgetRequestFinishedStatus:
-		status = dto.FinancialBudgetFinishedStatus
+	if len(currentFinancialBudgetRequest) == 0 {
+		status = dto.FinancialBudgetNotSentStatus
+	} else {
+		switch currentFinancialBudgetRequest[0].Status {
+		case structs.BudgetRequestSentStatus:
+			status = dto.FinancialBudgetTakeActionStatus
+		case structs.BudgetRequestFinishedStatus:
+			status = dto.FinancialBudgetFinishedStatus
+		}
 	}
 
 	financialBudgetOveriew := &dto.FinancialBudgetOverviewResponse{
 		AccountVersion:         financialBudget.AccountVersion,
 		AccountsWithFilledData: resItem,
 		Status:                 status,
+	}
+
+	if len(currentFinancialBudgetRequest) > 0 {
+		financialBudgetOveriew.RequestID = currentFinancialBudgetRequest[0].ID
 	}
 
 	return dto.ResponseSingle{

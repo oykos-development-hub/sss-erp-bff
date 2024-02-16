@@ -8,7 +8,6 @@ import (
 type FinancialBudgetStatus string
 
 const (
-	FinancialBudgetNotSentStatus    FinancialBudgetStatus = "Nije poslat"
 	FinancialBudgetTakeActionStatus FinancialBudgetStatus = "Obradi"
 	FinancialBudgetFinishedStatus   FinancialBudgetStatus = "Obrađen"
 )
@@ -80,10 +79,13 @@ type GetFinancialBudgetLimitResponseMS struct {
 }
 
 type FinancialBudgetOverviewResponse struct {
-	AccountVersion         int                               `json:"account_version"`
-	RequestID              int                               `json:"request_id"`
-	Status                 FinancialBudgetStatus             `json:"status"`
-	AccountsWithFilledData []*AccountWithFilledFinanceBudget `json:"accounts"`
+	AccountVersion                 int                               `json:"account_version"`
+	RequestID                      int                               `json:"request_id"`
+	Status                         FinancialBudgetStatus             `json:"status"`
+	CurrentAccountsWithFilledData  []*AccountWithFilledFinanceBudget `json:"current_accounts"`
+	CurrentRequestID               int                               `json:"current_request_id"`
+	DonationAccountsWithFilledData []*AccountWithFilledFinanceBudget `json:"donation_accounts"`
+	DonationRequestID              int                               `json:"donation_request_id"`
 }
 
 type CreateBudget struct {

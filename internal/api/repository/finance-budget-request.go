@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/internal/api/dto"
 	"bff/structs"
+	"fmt"
 	"strconv"
 )
 
@@ -32,6 +33,20 @@ func (repo *MicroserviceRepository) GetBudgetRequestList(input *dto.GetBudgetReq
 	}
 
 	return res.Data, nil
+}
+
+func (repo *MicroserviceRepository) GetOneBudgetRequest(input *dto.GetBudgetRequestListInputMS) (budgetReq structs.BudgetRequest, err error) {
+	res := &dto.GetBudgetRequestListResponseMS{}
+	_, err = makeAPIRequest("GET", repo.Config.Microservices.Finance.BudgetRequest, input, res)
+	if err != nil {
+		return budgetReq, err
+	}
+
+	if len(res.Data) == 0 {
+		return budgetReq, fmt.Errorf("budget not sent")
+	}
+
+	return res.Data[0], nil
 }
 
 func (repo *MicroserviceRepository) GetBudgetRequest(id int) (*structs.BudgetRequest, error) {

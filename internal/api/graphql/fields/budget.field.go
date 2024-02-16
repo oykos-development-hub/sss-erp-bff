@@ -75,7 +75,7 @@ func (f *Field) FinancialBudgetOverview() *graphql.Field {
 				Type: graphql.NewNonNull(graphql.Int),
 			},
 			"organization_unit_id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
+				Type: graphql.Int,
 			},
 		},
 		Resolve: f.Resolvers.FinancialBudgetOverview,
@@ -87,6 +87,9 @@ func (f *Field) FinancialBudgetFillField() *graphql.Field {
 		Type:        types.FinancialBudgetFillType,
 		Description: "Fill Financially Budget item",
 		Args: graphql.FieldConfigArgument{
+			"request_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 			"data": &graphql.ArgumentConfig{
 				Type: graphql.NewList(mutations.FinancialBudgetFillMutation),
 			},

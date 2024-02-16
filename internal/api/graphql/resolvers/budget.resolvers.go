@@ -107,11 +107,17 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 		return nil, err
 	}
 
+	limits, err := r.GetBudgetLimits(budget.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	item := &dto.BudgetResponseItem{
 		ID:         budget.ID,
 		Year:       budget.Year,
 		BudgetType: budget.BudgetType,
 		Status:     status,
+		Limits:     limits,
 	}
 
 	return item, nil
@@ -133,41 +139,91 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 		return errors.HandleAPIError(err)
 	}
 
-	budgetToCreate := structs.Budget{
-		Year:       data.Year,
-		BudgetType: data.BudgetType,
-		Status:     structs.BudgetCreatedStatus,
-	}
-	item, err := r.Repo.CreateBudget(&budgetToCreate)
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
+	if data.ID == 0 {
+		budgetToCreate := structs.Budget{
+			Year:       data.Year,
+			BudgetType: data.BudgetType,
+			Status:     structs.BudgetCreatedStatus,
+		}
+		budget, err := r.Repo.CreateBudget(&budgetToCreate)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 
-	accountLatestVersion, err := r.Repo.GetLatestVersionOfAccounts()
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
+		accountLatestVersion, err := r.Repo.GetLatestVersionOfAccounts()
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 
-	financialBudget, err := r.Repo.CreateFinancialBudget(&structs.FinancialBudget{
-		AccountVersion: accountLatestVersion,
-		BudgetID:       item.ID,
-	})
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
-
-	for _, limitData := range data.Limits {
-		_, err = r.Repo.CreateLimitsForFinancialBudget(&structs.FinancialBudgetLimit{
-			OrganizationUnitID: limitData.OrganizationUnitID,
-			FinancialBudgetID:  financialBudget.ID,
-			Limit:              limitData.Limit,
+		_, err = r.Repo.CreateFinancialBudget(&structs.FinancialBudget{
+			AccountVersion: accountLatestVersion,
+			BudgetID:       budget.ID,
 		})
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
+
+		for _, limit := range data.Limits {
+			limit.BudgetID = budget.ID
+			_, err := r.Repo.CreateBudgetLimit(&limit)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+		}
+
+		resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget, nil)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		response.Item = resItem
+
+		return response, nil
 	}
 
-	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *item, nil)
+	budget, err := r.Repo.GetBudget(data.ID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	limits, err := r.Repo.GetBudgetLimits(budget.ID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	limitsForDelete := make(map[int]bool)
+	for _, limit := range limits {
+		limitsForDelete[limit.ID] = true
+	}
+
+	for _, limit := range data.Limits {
+		limit.BudgetID = budget.ID
+		if limit.ID != 0 {
+			_, err := r.Repo.UpdateBudgetLimit(&limit)
+
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+			limitsForDelete[limit.ID] = false
+		} else {
+			_, err := r.Repo.CreateBudgetLimit(&limit)
+
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+		}
+	}
+
+	for id, delete := range limitsForDelete {
+		if delete {
+			err := r.Repo.DeleteBudgetLimit(id)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+		}
+	}
+
+	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget, nil)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -263,4 +319,25 @@ func (r *Resolver) BudgetDeleteResolver(params graphql.ResolveParams) (interface
 		Status:  "success",
 		Message: "You deleted this item!",
 	}, nil
+}
+
+func (r *Resolver) BudgetDetailsResolver(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(int)
+
+	budget, err := r.Repo.GetBudget(id)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	budgetResItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget, nil)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   []*dto.BudgetResponseItem{budgetResItem},
+		Total:   1,
+	}, nil
+
 }

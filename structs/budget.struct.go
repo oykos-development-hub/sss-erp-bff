@@ -56,7 +56,7 @@ type FinancialBudgetLimit struct {
 	ID                 int `json:"id"`
 	Limit              int `json:"limit"`
 	OrganizationUnitID int `json:"organization_unit_id"`
-	FinancialBudgetID  int `json:"financial_budget_id"`
+	BudgetID           int `json:"budget_id"`
 }
 
 type FilledFinanceBudget struct {

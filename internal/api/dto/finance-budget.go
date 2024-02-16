@@ -27,11 +27,12 @@ const (
 )
 
 type BudgetResponseItem struct {
-	ID         int          `json:"id"`
-	Year       int          `json:"year"`
-	Source     int          `json:"source"`
-	BudgetType int          `json:"budget_type"`
-	Status     BudgetStatus `json:"status"`
+	ID         int                            `json:"id"`
+	Year       int                            `json:"year"`
+	Source     int                            `json:"source"`
+	BudgetType int                            `json:"budget_type"`
+	Status     BudgetStatus                   `json:"status"`
+	Limits     []structs.FinancialBudgetLimit `json:"limits"`
 }
 
 type GetBudgetResponseMS struct {
@@ -78,6 +79,14 @@ type GetFinancialBudgetLimitResponseMS struct {
 	Data structs.FinancialBudgetLimit `json:"data"`
 }
 
+type GetFinancialBudgetLimitListResponseMS struct {
+	Data []structs.FinancialBudgetLimit `json:"data"`
+}
+
+type GetFinancialBudgetListInputMS struct {
+	BudgetID int `json:"budget_id"`
+}
+
 type FinancialBudgetOverviewResponse struct {
 	AccountVersion                 int                               `json:"account_version"`
 	RequestID                      int                               `json:"request_id"`
@@ -89,17 +98,10 @@ type FinancialBudgetOverviewResponse struct {
 }
 
 type CreateBudget struct {
-	ID         int                    `json:"id"`
-	Year       int                    `json:"year"`
-	BudgetType int                    `json:"budget_type"`
-	Limits     []FinancialBudgetLimit `json:"limits"`
-}
-
-type FinancialBudgetLimit struct {
-	ID                 int `json:"id"`
-	Limit              int `json:"limit"`
-	OrganizationUnitID int `json:"organization_unit_id"`
-	FinancialBudgetID  int `json:"financial_budget_id"`
+	ID         int                            `json:"id"`
+	Year       int                            `json:"year"`
+	BudgetType int                            `json:"budget_type"`
+	Limits     []structs.FinancialBudgetLimit `json:"limits"`
 }
 
 type GetFilledFinancialBudgetResponseItemMS struct {

@@ -72,13 +72,44 @@ func (repo *MicroserviceRepository) GetFinancialBudgetByBudgetID(id int) (*struc
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateLimitsForFinancialBudget(financialBudgetLimit *structs.FinancialBudgetLimit) (*structs.FinancialBudgetLimit, error) {
+func (repo *MicroserviceRepository) CreateBudgetLimit(budgetLimit *structs.FinancialBudgetLimit) (*structs.FinancialBudgetLimit, error) {
 	res := &dto.GetFinancialBudgetLimitResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FinancialBudgetLimit, financialBudgetLimit, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FinancialBudgetLimit, budgetLimit, res)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
+}
+
+func (repo *MicroserviceRepository) UpdateBudgetLimit(budgetLimit *structs.FinancialBudgetLimit) (*structs.FinancialBudgetLimit, error) {
+	res := &dto.GetFinancialBudgetLimitResponseMS{}
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FinancialBudgetLimit+"/"+strconv.Itoa(budgetLimit.ID), budgetLimit, res)
+	if err != nil {
+		return nil, err
+	}
+	return &res.Data, nil
+}
+
+func (repo *MicroserviceRepository) DeleteBudgetLimit(id int) error {
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FinancialBudgetLimit+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *MicroserviceRepository) GetBudgetLimits(budgetID int) ([]structs.FinancialBudgetLimit, error) {
+	input := dto.GetFinancialBudgetListInputMS{
+		BudgetID: budgetID,
+	}
+	res := &dto.GetFinancialBudgetLimitListResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FinancialBudgetLimit, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
 }
 
 func (repo *MicroserviceRepository) GetFilledFinancialBudgetList(requestID int) ([]structs.FilledFinanceBudget, error) {

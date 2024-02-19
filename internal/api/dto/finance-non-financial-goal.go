@@ -34,10 +34,10 @@ type NonFinancialGoalResItem struct {
 
 type CreateNonFinancialBudget struct {
 	structs.NonFinancialBudgetItem
-	Goals []createNonGinancialGoal `json:"goals"`
+	Goals []CreateNonGinancialGoal `json:"goals"`
 }
 
-type createNonGinancialGoal struct {
+type CreateNonGinancialGoal struct {
 	structs.NonFinancialGoalItem
 	Indicators []structs.NonFinancialGoalIndicatorItem `json:"indicators"`
 }

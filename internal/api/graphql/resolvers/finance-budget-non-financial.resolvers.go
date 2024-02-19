@@ -240,42 +240,9 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 		return errors.HandleAPIError(err)
 	}
 
-	var item *structs.NonFinancialBudgetItem
-
-	itemID := data.ID
-
-	if itemID != 0 {
-		item, err = r.Repo.UpdateNonFinancialBudget(itemID, &data.NonFinancialBudgetItem)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		response.Message = "You updated this item!"
-	} else {
-		item, err = r.Repo.CreateNonFinancialBudget(&data.NonFinancialBudgetItem)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		response.Message = "You created this item!"
-	}
-
-	for _, goal := range data.Goals {
-		insertGoalItem := goal.NonFinancialGoalItem
-		insertGoalItem.NonFinancialBudgetID = item.ID
-
-		createdGoal, err := UpsertNonFinancialGoal(r.Repo, insertGoalItem)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		for _, indicator := range goal.Indicators {
-			indicator.GoalID = createdGoal.ID
-			_, err := UpsertNonFinancialGoalIndicator(r.Repo, indicator)
-			if err != nil {
-				return errors.HandleAPIError(err)
-			}
-		}
+	item, err := r.upsertNonFinancialBudget(data)
+	if err != nil {
+		return nil, err
 	}
 
 	request, err := r.Repo.GetBudgetRequest(data.NonFinancialBudgetItem.RequestID)
@@ -297,17 +264,26 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 	return response, nil
 }
 
-func UpsertNonFinancialGoal(r repository.MicroserviceRepositoryInterface, data structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error) {
-	if data.ID == 0 {
-		item, err := r.CreateNonFinancialGoal(&data)
+// upsertNonFinancialBudget processes the creation or update of a non-financial budget.
+func (r *Resolver) upsertNonFinancialBudget(data dto.CreateNonFinancialBudget) (*structs.NonFinancialBudgetItem, error) {
+	var item *structs.NonFinancialBudgetItem
+	var err error
+
+	if data.ID != 0 {
+		item, err = r.Repo.UpdateNonFinancialBudget(data.ID, &data.NonFinancialBudgetItem)
 		if err != nil {
 			return nil, err
 		}
-
-		return item, nil
+	} else {
+		item, err = r.Repo.CreateNonFinancialBudget(&data.NonFinancialBudgetItem)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	item, err := r.UpdateNonFinancialGoal(data.ID, &data)
+	if err := r.upsertNonFinancialGoals(data.Goals, item.ID); err != nil {
+		return nil, err
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -315,22 +291,113 @@ func UpsertNonFinancialGoal(r repository.MicroserviceRepositoryInterface, data s
 	return item, nil
 }
 
-func UpsertNonFinancialGoalIndicator(r repository.MicroserviceRepositoryInterface, data structs.NonFinancialGoalIndicatorItem) (*structs.NonFinancialGoalIndicatorItem, error) {
-	if data.ID == 0 {
-		item, err := r.CreateNonFinancialGoalIndicator(&data)
+// upsertNonFinancialGoals processes the goals and indicators for a budget.
+func (r *Resolver) upsertNonFinancialGoals(goalsData []dto.CreateNonGinancialGoal, budgetID int) error {
+	goalsToDelete := make(map[int]bool)
+
+	goals, err := r.Repo.GetNonFinancialGoalList(&dto.GetNonFinancialGoalListInputMS{NonFinancialBudgetID: &budgetID})
+	if err != nil {
+		return err
+	}
+	for _, goal := range goals {
+		goalsToDelete[goal.ID] = true
+	}
+
+	for _, goal := range goalsData {
+		insertGoalItem := goal.NonFinancialGoalItem
+		insertGoalItem.NonFinancialBudgetID = budgetID
+
+		if insertGoalItem.ID != 0 {
+			updatedGoal, err := r.Repo.UpdateNonFinancialGoal(insertGoalItem.ID, &insertGoalItem)
+			if err != nil {
+				return err
+			}
+
+			err = r.updateIndicators(updatedGoal.ID, goal.Indicators)
+			if err != nil {
+				return err
+			}
+
+			goalsToDelete[goal.ID] = false
+		} else {
+			createdGoal, err := r.Repo.CreateNonFinancialGoal(&insertGoalItem)
+			if err != nil {
+				return err
+			}
+
+			err = r.createIndicators(createdGoal.ID, goal.Indicators)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	for id, delete := range goalsToDelete {
+		if delete {
+			err := r.Repo.DeleteNonFinancialGoal(id)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (r *Resolver) updateIndicators(goalID int, indicators []structs.NonFinancialGoalIndicatorItem) error {
+	indicatorsToDelete := make(map[int]bool)
+
+	existingIndicators, err := r.Repo.GetNonFinancialGoalIndicatorList(&dto.GetNonFinancialGoalIndicatorListInputMS{GoalID: &goalID})
+	if err != nil {
+		return err
+	}
+
+	for _, indicator := range existingIndicators {
+		indicatorsToDelete[indicator.ID] = true
+	}
+
+	for _, indicator := range indicators {
+		indicator.GoalID = goalID
+
+		if indicator.ID != 0 {
+			_, err := r.Repo.UpdateNonFinancialGoalIndicator(indicator.ID, &indicator)
+			if err != nil {
+				return err
+			}
+
+			indicatorsToDelete[indicator.ID] = false
+		} else {
+			_, err := r.Repo.CreateNonFinancialGoalIndicator(&indicator)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	for id, delete := range indicatorsToDelete {
+		if delete {
+			err := r.Repo.DeleteNonFinancialGoalIndicator(id)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (r *Resolver) createIndicators(goalID int, indicators []structs.NonFinancialGoalIndicatorItem) error {
+	for _, indicator := range indicators {
+		indicator.GoalID = goalID
+
+		_, err := r.Repo.CreateNonFinancialGoalIndicator(&indicator)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		return item, nil
 	}
 
-	item, err := r.UpdateNonFinancialGoalIndicator(data.ID, &data)
-	if err != nil {
-		return nil, err
-	}
-
-	return item, nil
+	return nil
 }
 
 func (r *Resolver) NonFinancialGoalInsertResolver(params graphql.ResolveParams) (interface{}, error) {

@@ -64,16 +64,3 @@ func (f *Field) NonFinacialGoalIndicatorInsertField() *graphql.Field {
 		Resolve: f.Resolvers.NonFinancialGoalIndicatorInsertResolver,
 	}
 }
-
-func (f *Field) CheckBudgetActivityNotFinanciallyIsDoneField() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.CheckBudgetActivityNotFinanciallyIsDoneType,
-		Description: "Returns a data of Inductor items",
-		Args: graphql.FieldConfigArgument{
-			"id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
-			},
-		},
-		Resolve: f.Resolvers.CheckBudgetActivityNotFinanciallyIsDoneResolver,
-	}
-}

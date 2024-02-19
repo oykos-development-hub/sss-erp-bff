@@ -12,7 +12,12 @@ import (
 
 func (r *Resolver) NonFinancialBudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
-		activity, err := r.Repo.GetActivity(id)
+		nonFinancialBudget, err := r.Repo.GetNonFinancialBudget(id)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		nonFinancialBudgetResItem, err := buildNonFinancialBudgetResItem(r.Repo, *nonFinancialBudget)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -20,7 +25,7 @@ func (r *Resolver) NonFinancialBudgetOverviewResolver(params graphql.ResolvePara
 		return dto.Response{
 			Status:  "success",
 			Message: "Here's the list you asked for!",
-			Items:   []*structs.ActivitiesItem{activity},
+			Items:   []*dto.NonFinancialBudgetResItem{nonFinancialBudgetResItem},
 			Total:   1,
 		}, nil
 	}
@@ -339,71 +344,4 @@ func (r *Resolver) NonFinancialGoalIndicatorInsertResolver(params graphql.Resolv
 	}
 
 	return response, nil
-}
-
-func (r *Resolver) CheckBudgetActivityNotFinanciallyIsDoneResolver(params graphql.ResolveParams) (interface{}, error) {
-	// check := true
-	// id := params.Args["id"].(int)
-
-	// BudgetActivityNotFinanciallyType := &structs.BudgetActivityNotFinanciallyItem{}
-	// BudgetActivityNotFinanciallyData, err := shared.ReadJSON(shared.GetDataRoot()+"/budget_activity_not_financially.json", BudgetActivityNotFinanciallyType)
-
-	// if err != nil {
-	// 	fmt.Printf("Fetching account_budget_activity failed because of this error - %s.\n", err)
-	// }
-	// BudgetActivityNotFinanciallyData = shared.FindByProperty(BudgetActivityNotFinanciallyData, "ID", id)
-	// // Populate data for each Basic Inventory Real Estates
-	// if len(BudgetActivityNotFinanciallyData) > 0 {
-	// 	for _, item := range BudgetActivityNotFinanciallyData {
-	// 		var mergedItem = shared.WriteStructToInterface(item)
-
-	// 		var allProgramsNotFinanciallyData = shared.FetchByProperty(
-	// 			"budget_program_not_financially",
-	// 			"BudgetNotFinanciallyID",
-	// 			mergedItem["id"].(int),
-	// 		)
-	// 		if len(allProgramsNotFinanciallyData) == 3 {
-	// 			for _, programData := range allProgramsNotFinanciallyData {
-	// 				if program, ok := programData.(*structs.BudgetActivityNotFinanciallyProgramItem); ok {
-	// 					var goalsNotFinanciallyData = shared.FetchByProperty(
-	// 						"budget_goals_not_financially",
-	// 						"BudgetProgramID",
-	// 						program.ID,
-	// 					)
-	// 					if len(goalsNotFinanciallyData) > 0 {
-	// 						for _, goalData := range goalsNotFinanciallyData {
-	// 							if goal, ok := goalData.(*structs.BudgetActivityNotFinanciallyGoalsItem); ok {
-	// 								//budget_indicator_not_financially
-	// 								var indicatorNotFinanciallyData = shared.FetchByProperty(
-	// 									"budget_indicator_not_financially",
-	// 									"BudgetProgramID",
-	// 									goal.ID,
-	// 								)
-
-	// 								if len(indicatorNotFinanciallyData) == 0 {
-	// 									check = false
-	// 									break
-	// 								}
-	// 							}
-	// 						}
-	// 					} else {
-	// 						check = false
-	// 						break
-	// 					}
-	// 				}
-	// 			}
-	// 		} else {
-	// 			check = false
-	// 		}
-
-	// 	}
-	// }
-
-	// return map[string]interface{}{
-	// 	"status":  "success",
-	// 	"message": "You check this item!",
-	// 	"item":    check,
-	// }, nil
-	return nil, nil
-
 }

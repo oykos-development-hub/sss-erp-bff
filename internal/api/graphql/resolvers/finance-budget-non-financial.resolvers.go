@@ -11,8 +11,13 @@ import (
 )
 
 func (r *Resolver) NonFinancialBudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
-	if id, ok := params.Args["id"].(int); ok && id != 0 {
-		nonFinancialBudget, err := r.Repo.GetNonFinancialBudget(id)
+	if requestID, ok := params.Args["request_id"].(int); ok && requestID != 0 {
+		request, err := r.Repo.GetBudgetRequest(requestID)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		nonFinancialBudget, err := r.Repo.GetNonFinancialBudget(request.BudgetID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -32,13 +37,23 @@ func (r *Resolver) NonFinancialBudgetOverviewResolver(params graphql.ResolvePara
 
 	input := dto.GetNonFinancialBudgetListInputMS{}
 	if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 {
-		input.OrganizationUnitID = &organizationUnitID
+		request, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{OrganizationUnitID: &organizationUnitID})
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		requestIDList := []int{request.ID}
+		input.RequestIDList = &requestIDList
 	}
 	if budgetID, ok := params.Args["budget_id"].(int); ok && budgetID != 0 {
-		input.BudgetID = &budgetID
-	}
-	if search, ok := params.Args["search"].(string); ok {
-		input.Search = &search
+		requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{BudgetID: budgetID})
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		var requestIDs []int
+		for _, request := range requests {
+			requestIDs = append(requestIDs, request.ID)
+		}
+		input.RequestIDList = &requestIDs
 	}
 
 	nonFinancialBudgets, err := r.Repo.GetNonFinancialBudgetList(&input)
@@ -84,11 +99,16 @@ func buildNonFinancialBudgetResItem(r repository.MicroserviceRepositoryInterface
 		ContactEmail:            nonFinancialBudget.ContactEmail,
 	}
 
-	organizationUnit, err := r.GetOrganizationUnitByID(nonFinancialBudget.OrganizationUnitID)
+	request, err := r.GetBudgetRequest(nonFinancialBudget.RequestID)
 	if err != nil {
 		return nil, err
 	}
-	resItem.OrganizationUnit = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
+	requestResItem, err := buildBudgetRequestResponseItem(r, request)
+	if err != nil {
+		return nil, err
+	}
+	resItem.Request = *requestResItem
+	resItem.Status = string(requestResItem.Status)
 
 	activityRequest, err := buildActivityRequestResItem(r, resItem)
 	if err != nil {
@@ -101,13 +121,11 @@ func buildNonFinancialBudgetResItem(r repository.MicroserviceRepositoryInterface
 }
 
 func buildActivityRequestResItem(r repository.MicroserviceRepositoryInterface, nonFinancialBudget *dto.NonFinancialBudgetResItem) (*dto.ActivityRequestResItem, error) {
-	activities, err := r.GetActivityList(&dto.GetFinanceActivityListInputMS{OrganizationUnitID: &nonFinancialBudget.OrganizationUnit.ID})
+	activity, err := r.GetActivityByUnit(nonFinancialBudget.Request.OrganizationUnit.ID)
 	if err != nil {
 		return nil, err
 	}
-	activity := activities[0]
-
-	activityResItem, err := buildActivityResItem(r, activity)
+	activityResItem, err := buildActivityResItem(r, *activity)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +137,6 @@ func buildActivityRequestResItem(r repository.MicroserviceRepositoryInterface, n
 	if err != nil {
 		return nil, err
 	}
-
 	goalResItemList, err := buildActivityGoalRequestResItemList(r, goalList)
 	if err != nil {
 		return nil, err
@@ -211,8 +228,8 @@ func buildGoalIndicatorRequestResItem(r repository.MicroserviceRepositoryInterfa
 	return resItem, nil
 }
 
-func (r *Resolver) BudgetActivityNotFinanciallyInsertResolver(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.NonFinancialBudgetItem
+func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data dto.CreateNonFinancialBudget
 	response := dto.ResponseSingle{
 		Status: "success",
 	}
@@ -223,37 +240,97 @@ func (r *Resolver) BudgetActivityNotFinanciallyInsertResolver(params graphql.Res
 		return errors.HandleAPIError(err)
 	}
 
+	var item *structs.NonFinancialBudgetItem
+
 	itemID := data.ID
 
 	if itemID != 0 {
-		item, err := r.Repo.UpdateNonFinancialBudget(itemID, &data)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		resItem, err := buildNonFinancialBudgetResItem(r.Repo, *item)
+		item, err = r.Repo.UpdateNonFinancialBudget(itemID, &data.NonFinancialBudgetItem)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 
 		response.Message = "You updated this item!"
-		response.Item = resItem
 	} else {
-		item, err := r.Repo.CreateNonFinancialBudget(&data)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		resItem, err := buildNonFinancialBudgetResItem(r.Repo, *item)
+		item, err = r.Repo.CreateNonFinancialBudget(&data.NonFinancialBudgetItem)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 
 		response.Message = "You created this item!"
-		response.Item = resItem
 	}
 
+	for _, goal := range data.Goals {
+		insertGoalItem := goal.NonFinancialGoalItem
+		insertGoalItem.NonFinancialBudgetID = item.ID
+
+		createdGoal, err := UpsertNonFinancialGoal(r.Repo, insertGoalItem)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		for _, indicator := range goal.Indicators {
+			indicator.GoalID = createdGoal.ID
+			_, err := UpsertNonFinancialGoalIndicator(r.Repo, indicator)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+		}
+	}
+
+	request, err := r.Repo.GetBudgetRequest(data.NonFinancialBudgetItem.RequestID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	request.Status = structs.BudgetRequestFinishedStatus
+	_, err = r.Repo.UpdateBudgetRequest(request)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	resItem, err := buildNonFinancialBudgetResItem(r.Repo, *item)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	response.Item = resItem
+
 	return response, nil
+}
+
+func UpsertNonFinancialGoal(r repository.MicroserviceRepositoryInterface, data structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error) {
+	if data.ID == 0 {
+		item, err := r.CreateNonFinancialGoal(&data)
+		if err != nil {
+			return nil, err
+		}
+
+		return item, nil
+	}
+
+	item, err := r.UpdateNonFinancialGoal(data.ID, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return item, nil
+}
+
+func UpsertNonFinancialGoalIndicator(r repository.MicroserviceRepositoryInterface, data structs.NonFinancialGoalIndicatorItem) (*structs.NonFinancialGoalIndicatorItem, error) {
+	if data.ID == 0 {
+		item, err := r.CreateNonFinancialGoalIndicator(&data)
+		if err != nil {
+			return nil, err
+		}
+
+		return item, nil
+	}
+
+	item, err := r.UpdateNonFinancialGoalIndicator(data.ID, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return item, nil
 }
 
 func (r *Resolver) NonFinancialGoalInsertResolver(params graphql.ResolveParams) (interface{}, error) {

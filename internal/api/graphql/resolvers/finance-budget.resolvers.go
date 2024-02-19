@@ -357,3 +357,35 @@ func (r *Resolver) BudgetDetailsResolver(params graphql.ResolveParams) (interfac
 	}, nil
 
 }
+
+func buildBudgetRequestStatus(budgetRequests *structs.BudgetRequest) (dto.BudgetRequestStatus, error) {
+	if budgetRequests.Status == structs.BudgetRequestSentStatus {
+		return dto.FinancialBudgetTakeActionStatus, nil
+	} else if budgetRequests.Status == structs.BudgetRequestFinishedStatus {
+		return dto.FinancialBudgetFinishedStatus, nil
+	}
+
+	return "", fmt.Errorf("could not determine status of request budget")
+}
+
+func buildBudgetRequestResponseItem(r repository.MicroserviceRepositoryInterface, request *structs.BudgetRequest) (*dto.BudgetRequestResponseItem, error) {
+	organizationUnit, err := r.GetOrganizationUnitByID(request.OrganizationUnitID)
+	if err != nil {
+		return nil, err
+	}
+
+	status, err := buildBudgetRequestStatus(request)
+	if err != nil {
+		return nil, err
+	}
+
+	item := &dto.BudgetRequestResponseItem{
+		ID:               request.ID,
+		OrganizationUnit: dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title},
+		BudgetID:         request.BudgetID,
+		Status:           status,
+		RequestType:      request.RequestType,
+	}
+
+	return item, nil
+}

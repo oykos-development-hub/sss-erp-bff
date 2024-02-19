@@ -31,3 +31,13 @@ type NonFinancialGoalResItem struct {
 	ContactPhone        string `json:"contact_phone"`
 	ContactEmail        string `json:"contact_email"`
 }
+
+type CreateNonFinancialBudget struct {
+	structs.NonFinancialBudgetItem
+	Goals []createNonGinancialGoal `json:"goals"`
+}
+
+type createNonGinancialGoal struct {
+	structs.NonFinancialGoalItem
+	Indicators []structs.NonFinancialGoalIndicatorItem `json:"indicators"`
+}

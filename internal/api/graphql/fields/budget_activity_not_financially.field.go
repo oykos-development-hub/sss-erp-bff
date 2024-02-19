@@ -12,7 +12,7 @@ func (f *Field) NonFinancialBudgetOverviewType() *graphql.Field {
 		Type:        types.NonFinancialBudgetOverviewType,
 		Description: "Returns a data of Not Financially Budget Activity item",
 		Args: graphql.FieldConfigArgument{
-			"id": &graphql.ArgumentConfig{
+			"request_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
 			"organization_unit_id": &graphql.ArgumentConfig{
@@ -32,10 +32,10 @@ func (f *Field) NonFinancialBudgetInsertField() *graphql.Field {
 		Description: "Insert Non Financially Budget item",
 		Args: graphql.FieldConfigArgument{
 			"data": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(mutations.BudgetActivityNotFinanciallyInsertMutation),
+				Type: graphql.NewNonNull(mutations.NonFinancialBudgetInsertMutation),
 			},
 		},
-		Resolve: f.Resolvers.BudgetActivityNotFinanciallyInsertResolver,
+		Resolve: f.Resolvers.NonFinancialBudgetInsertResolver,
 	}
 }
 

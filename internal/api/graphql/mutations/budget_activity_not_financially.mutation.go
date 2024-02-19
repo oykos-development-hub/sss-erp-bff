@@ -2,16 +2,13 @@ package mutations
 
 import "github.com/graphql-go/graphql"
 
-var BudgetActivityNotFinanciallyInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
-	Name: "BudgetActivityNotFinanciallyInsertMutation",
+var NonFinancialBudgetInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "NonFinancialBudgetInsertMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"budget_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
-		},
-		"organization_unit_id": &graphql.InputObjectFieldConfig{
+		"request_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"impl_contact_fullname": &graphql.InputObjectFieldConfig{
@@ -37,6 +34,9 @@ var BudgetActivityNotFinanciallyInsertMutation = graphql.NewInputObject(graphql.
 		},
 		"contact_email": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
+		},
+		"goals": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(NonFinancialGoalInsertMutation),
 		},
 	},
 })
@@ -73,6 +73,9 @@ var NonFinancialGoalInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		},
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
+		},
+		"indicators": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(NonFinancialGoalIndicatorInsertMutation),
 		},
 	},
 })
@@ -135,69 +138,6 @@ var NonFinancialGoalIndicatorInsertMutation = graphql.NewInputObject(graphql.Inp
 			Type: graphql.String,
 		},
 		"achieved_value_3": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-	},
-})
-
-var IndicatorNotFinanciallyInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
-	Name: "IndicatorNotFinanciallyInsertMutation",
-	Fields: graphql.InputObjectConfigFieldMap{
-		"id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
-		},
-		"goals_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
-		},
-		"code": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"source": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"base_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"gender_equality": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"base_value": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"source_information": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"unit": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"description": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"planned_current_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"revised_current_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"value_current_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"planned_next_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"revised_next_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"value_next_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"planned_after_next_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"revised_after_next_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"value_after_next_year": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 	},

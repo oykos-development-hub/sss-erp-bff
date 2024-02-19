@@ -6,7 +6,6 @@ import (
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -123,12 +122,12 @@ func buildAccountWithFilledFinanceResponseItem(item *dto.AccountItemResponseItem
 	return resItem, nil
 }
 
-func buildFinancialBudgetStatus(currentFinancialRequests structs.BudgetRequest, donationFinancialRequests structs.BudgetRequest) (dto.FinancialBudgetStatus, error) {
-	currentFinancialStatus, err := buildBudgetRequestStatus(currentFinancialRequests)
+func buildFinancialBudgetStatus(currentFinancialRequest structs.BudgetRequest, donationFinancialRequest structs.BudgetRequest) (dto.BudgetRequestStatus, error) {
+	currentFinancialStatus, err := buildBudgetRequestStatus(&currentFinancialRequest)
 	if err != nil {
 		return "", err
 	}
-	donationFinancialStatus, err := buildBudgetRequestStatus(donationFinancialRequests)
+	donationFinancialStatus, err := buildBudgetRequestStatus(&donationFinancialRequest)
 	if err != nil {
 		return "", err
 	}
@@ -138,16 +137,6 @@ func buildFinancialBudgetStatus(currentFinancialRequests structs.BudgetRequest, 
 	}
 
 	return dto.FinancialBudgetTakeActionStatus, err
-}
-
-func buildBudgetRequestStatus(financialBudgetRequests structs.BudgetRequest) (dto.FinancialBudgetStatus, error) {
-	if financialBudgetRequests.Status == structs.BudgetRequestSentStatus {
-		return dto.FinancialBudgetTakeActionStatus, nil
-	} else if financialBudgetRequests.Status == structs.BudgetRequestFinishedStatus {
-		return dto.FinancialBudgetFinishedStatus, nil
-	}
-
-	return "", fmt.Errorf("could not determine status of request budget")
 }
 
 func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (interface{}, error) {

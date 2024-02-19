@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/internal/api/dto"
 	"bff/structs"
+	"fmt"
 	"strconv"
 )
 
@@ -41,6 +42,21 @@ func (repo *MicroserviceRepository) GetActivityList(input *dto.GetFinanceActivit
 	}
 
 	return res.Data, nil
+}
+
+func (repo *MicroserviceRepository) GetActivityByUnit(unitID int) (*structs.ActivitiesItem, error) {
+	res := &dto.GetFinanceActivityListResponseMS{}
+	input := dto.GetFinanceActivityListInputMS{OrganizationUnitID: &unitID}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Activity, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(res.Data) == 0 {
+		return nil, fmt.Errorf("cannot find activity for unit id: %d", unitID)
+	}
+
+	return &res.Data[0], nil
 }
 
 func (repo *MicroserviceRepository) GetActivity(id int) (*structs.ActivitiesItem, error) {

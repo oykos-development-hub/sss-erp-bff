@@ -324,6 +324,7 @@ type MicroserviceRepositoryInterface interface {
 	DeleteActivity(id int) error
 	GetActivity(id int) (*structs.ActivitiesItem, error)
 	GetActivityList(input *dto.GetFinanceActivityListInputMS) ([]structs.ActivitiesItem, error)
+	GetActivityByUnit(organizationUnitID int) (*structs.ActivitiesItem, error)
 
 	CreateInvoice(item *structs.Invoice) (*structs.Invoice, error)
 	UpdateInvoice(item *structs.Invoice) (*structs.Invoice, error)

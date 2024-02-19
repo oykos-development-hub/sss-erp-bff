@@ -38,6 +38,9 @@ var NonFinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"activity": &graphql.Field{
 			Type: ActivityType,
 		},
+		"goals": &graphql.Field{
+			Type: graphql.NewList(ActivityGoalType),
+		},
 	},
 })
 

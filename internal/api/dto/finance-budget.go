@@ -5,11 +5,11 @@ import (
 	"sort"
 )
 
-type FinancialBudgetStatus string
+type BudgetRequestStatus string
 
 const (
-	FinancialBudgetTakeActionStatus FinancialBudgetStatus = "Obradi"
-	FinancialBudgetFinishedStatus   FinancialBudgetStatus = "Obrađen"
+	FinancialBudgetTakeActionStatus BudgetRequestStatus = "Obradi"
+	FinancialBudgetFinishedStatus   BudgetRequestStatus = "Obrađen"
 )
 
 type BudgetStatus string
@@ -64,6 +64,14 @@ type GetBudgetRequestListInputMS struct {
 	RequestType        *structs.RequestType `json:"request_type"`
 }
 
+type BudgetRequestResponseItem struct {
+	ID               int                 `json:"id"`
+	OrganizationUnit DropdownSimple      `json:"organization_unit_id"`
+	BudgetID         int                 `json:"budget_id"`
+	RequestType      structs.RequestType `json:"request_type"`
+	Status           BudgetRequestStatus `json:"status"`
+}
+
 type FinancialBudgetResponseItem struct {
 	ID             int    `json:"id"`
 	AccountVersion int    `json:"account_version"`
@@ -90,7 +98,7 @@ type GetFinancialBudgetListInputMS struct {
 type FinancialBudgetOverviewResponse struct {
 	AccountVersion                 int                               `json:"account_version"`
 	RequestID                      int                               `json:"request_id"`
-	Status                         FinancialBudgetStatus             `json:"status"`
+	Status                         BudgetRequestStatus               `json:"status"`
 	CurrentAccountsWithFilledData  []*AccountWithFilledFinanceBudget `json:"current_accounts"`
 	CurrentRequestID               int                               `json:"current_request_id"`
 	DonationAccountsWithFilledData []*AccountWithFilledFinanceBudget `json:"donation_accounts"`

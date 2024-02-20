@@ -115,7 +115,7 @@ type UserProfileBasicResponse struct {
 	MaritalStatus                  string                     `json:"marital_status"`
 	DateOfTakingOath               *string                    `json:"date_of_taking_oath"`
 	DateOfBecomingJudge            string                     `json:"date_of_becoming_judge"`
-	JudgeApplicationSubmissionDate string                     `json:"judge_application_submission_date"`
+	JudgeApplicationSubmissionDate *string                    `json:"judge_application_submission_date"`
 	Email                          string                     `json:"email"`
 	Phone                          string                     `json:"phone"`
 	OrganizationUnit               *structs.OrganizationUnits `json:"organization_unit"`

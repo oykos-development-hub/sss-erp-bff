@@ -35,7 +35,7 @@ type UserProfiles struct {
 	MaritalStatus                  string  `json:"marital_status"`
 	DateOfTakingOath               *string `json:"date_of_taking_oath"`
 	DateOfBecomingJudge            string  `json:"date_of_becoming_judge"`
-	JudgeApplicationSubmissionDate string  `json:"judge_application_submission_date"`
+	JudgeApplicationSubmissionDate *string `json:"judge_application_submission_date"`
 	EngagementTypeID               *int    `json:"engagement_type_id,omitempty"`
 	IsPresident                    bool    `json:"is_president"`
 	IsJudge                        bool    `json:"is_judge"`

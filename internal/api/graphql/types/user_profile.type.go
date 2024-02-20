@@ -146,6 +146,9 @@ var UserProfileBasicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_becoming_judge": &graphql.Field{
 			Type: graphql.String,
 		},
+		"judge_application_submission_date": &graphql.Field{
+			Type: graphql.String,
+		},
 		"email": &graphql.Field{
 			Type: graphql.String,
 		},

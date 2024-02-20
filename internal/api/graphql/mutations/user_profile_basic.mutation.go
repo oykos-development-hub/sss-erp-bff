@@ -94,6 +94,9 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"date_of_becoming_judge": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"judge_application_submission_date": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"email": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
@@ -209,6 +212,9 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 			Type: graphql.String,
 		},
 		"date_of_becoming_judge": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"judge_application_submission_date": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"is_president": &graphql.InputObjectFieldConfig{

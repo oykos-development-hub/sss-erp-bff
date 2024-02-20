@@ -66,7 +66,7 @@ var UserProfileVacationsInsertMutation = graphql.NewInputObject(graphql.InputObj
 			Type: graphql.Int,
 		},
 		"data": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(graphql.NewNonNull(UserProfileVacationsItemMutation)),
+			Type: graphql.NewList(UserProfileVacationsItemMutation),
 		},
 	},
 })

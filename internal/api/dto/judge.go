@@ -75,7 +75,9 @@ type NormResItem struct {
 	NumberOfItems            int                 `json:"number_of_items"`
 	NumberOfItemsSolved      int                 `json:"number_of_items_solved"`
 	Evaluation               *structs.Evaluation `json:"evaluation"`
-	DateOfEvaluationValidity string              `json:"date_of_evaluation_validity"`
+	DateOfEvaluationValidity *string             `json:"date_of_evaluation_validity"`
+	NormStartDate            string              `json:"norm_start_date"`
+	NormEndDate              string              `json:"norm_end_date"`
 	FileID                   int                 `json:"file_id"`
 	Relocation               *structs.Absent     `json:"relocation,omitempty"`
 	CreatedAt                string              `json:"created_at"`
@@ -136,4 +138,8 @@ type JudgeResolutionsOrganizationUnitInput struct {
 type CheckJudgeAndPresidentIsAvailableMS struct {
 	Judge     bool `json:"judge"`
 	President bool `json:"president"`
+}
+
+type GetUserNormFulfilmentListInput struct {
+	NormYear *int `json:"norm_year"`
 }

@@ -38,6 +38,12 @@ var JudgeNormItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_evaluation_validity": &graphql.Field{
 			Type: graphql.String,
 		},
+		"norm_start_date": &graphql.Field{
+			Type: graphql.String,
+		},
+		"norm_end_date": &graphql.Field{
+			Type: graphql.String,
+		},
 		"relocation": &graphql.Field{
 			Type: UserProfileAbsentItemType,
 		},

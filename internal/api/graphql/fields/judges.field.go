@@ -26,6 +26,9 @@ func (f *Field) JudgesOverviewField() *graphql.Field {
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"norm_year": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 		},
 		Resolve: f.Resolvers.JudgesOverviewResolver,
 	}

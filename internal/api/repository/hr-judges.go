@@ -114,9 +114,9 @@ func (repo *MicroserviceRepository) GetJudgeResolution(id int) (*structs.JudgeRe
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) GetJudgeNormListByEmployee(userProfileID int) ([]structs.JudgeNorms, error) {
+func (repo *MicroserviceRepository) GetJudgeNormListByEmployee(userProfileID int, input dto.GetUserNormFulfilmentListInput) ([]structs.JudgeNorms, error) {
 	res := &dto.GetEmployeeNormListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(userProfileID)+"/norms", nil, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(userProfileID)+"/norms", input, res)
 	if err != nil {
 		return nil, err
 	}

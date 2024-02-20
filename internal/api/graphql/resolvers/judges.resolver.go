@@ -74,8 +74,14 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 
 	var responseItems []*dto.Judges
 
+	var normYear *int
+	if params.Args["norm_year"] != nil {
+		normYearRaw := params.Args["norm_year"].(int)
+		normYear = &normYearRaw
+	}
+
 	for _, judge := range judges {
-		judgeUser, err := buildJudgeResponseItem(r.Repo, judge.UserProfileID, judge.OrganizationUnitID, judge.IsPresident)
+		judgeUser, err := buildJudgeResponseItem(r.Repo, judge.UserProfileID, judge.OrganizationUnitID, judge.IsPresident, normYear)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -87,7 +93,7 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 	return response, nil
 }
 
-func buildJudgeResponseItem(r repository.MicroserviceRepositoryInterface, userProfileID, organizationUnitID int, isPresident bool) (*dto.Judges, error) {
+func buildJudgeResponseItem(r repository.MicroserviceRepositoryInterface, userProfileID, organizationUnitID int, isPresident bool, normYear *int) (*dto.Judges, error) {
 	userProfile, err := r.GetUserProfileByID(userProfileID)
 	if err != nil {
 		return nil, err
@@ -106,7 +112,7 @@ func buildJudgeResponseItem(r repository.MicroserviceRepositoryInterface, userPr
 		Title: organizationUnit.Title,
 	}
 
-	norms, err := r.GetJudgeNormListByEmployee(userProfile.ID)
+	norms, err := r.GetJudgeNormListByEmployee(userProfile.ID, dto.GetUserNormFulfilmentListInput{NormYear: normYear})
 	if err != nil {
 		return nil, err
 	}
@@ -157,6 +163,8 @@ func buildNormResItem(r repository.MicroserviceRepositoryInterface, norm structs
 		NumberOfItems:            norm.NumberOfItems,
 		NumberOfItemsSolved:      norm.NumberOfItemsSolved,
 		DateOfEvaluationValidity: norm.DateOfEvaluationValidity,
+		NormStartDate:            norm.NormStartDate,
+		NormEndDate:              norm.NormEndDate,
 		FileID:                   norm.FileID,
 		CreatedAt:                norm.CreatedAt,
 		UpdatedAt:                norm.UpdatedAt,

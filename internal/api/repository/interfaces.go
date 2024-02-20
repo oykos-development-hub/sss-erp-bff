@@ -148,7 +148,7 @@ type MicroserviceRepositoryInterface interface {
 	GetJobPositionsInOrganizationUnitsByID(id int) (*structs.JobPositionsInOrganizationUnits, error)
 	GetJobTender(id int) (*structs.JobTenders, error)
 	GetJobTenderList() ([]*structs.JobTenders, error)
-	GetJudgeNormListByEmployee(userProfileID int) ([]structs.JudgeNorms, error)
+	GetJudgeNormListByEmployee(userProfileID int, input dto.GetUserNormFulfilmentListInput) ([]structs.JudgeNorms, error)
 	GetJudgeResolution(id int) (*structs.JudgeResolutions, error)
 	GetJudgeResolutionItemsList(input *dto.GetJudgeResolutionItemListInputMS) ([]*structs.JudgeResolutionItems, error)
 	GetJudgeResolutionList(input *dto.GetJudgeResolutionListInputMS) (*dto.GetJudgeResolutionListResponseMS, error)

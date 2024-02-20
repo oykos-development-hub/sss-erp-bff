@@ -821,6 +821,11 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		}
 	}
 
+	insuredExperience := item.AmountOfInsuredExperience
+	if insuredExperience == 0 {
+		insuredExperience = item.AmountOfExperience
+	}
+
 	res := dto.ExperienceResponseItem{
 		ID:                        item.ID,
 		UserProfileID:             item.UserProfileID,
@@ -828,7 +833,7 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		Relevant:                  item.Relevant,
 		OrganizationUnit:          item.OrganizationUnit,
 		AmountOfExperience:        item.AmountOfExperience,
-		AmountOfInsuredExperience: item.AmountOfInsuredExperience,
+		AmountOfInsuredExperience: insuredExperience,
 		DateOfStart:               item.DateOfStart,
 		DateOfEnd:                 item.DateOfEnd,
 		ReferenceFileID:           item.ReferenceFileID,

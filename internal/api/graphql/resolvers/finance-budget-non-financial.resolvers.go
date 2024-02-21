@@ -6,6 +6,7 @@ import (
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -35,16 +36,20 @@ func (r *Resolver) NonFinancialBudgetOverviewResolver(params graphql.ResolvePara
 		}, nil
 	}
 
+	budgetID, ok := params.Args["budget_id"].(int)
+	if !ok || budgetID == 0 {
+		return errors.HandleAPIError(fmt.Errorf("budget_id is required"))
+	}
+
 	input := dto.GetNonFinancialBudgetListInputMS{}
 	if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 {
-		request, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{OrganizationUnitID: &organizationUnitID})
+		request, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{OrganizationUnitID: &organizationUnitID, BudgetID: budgetID})
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 		requestIDList := []int{request.ID}
 		input.RequestIDList = &requestIDList
-	}
-	if budgetID, ok := params.Args["budget_id"].(int); ok && budgetID != 0 {
+	} else {
 		requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{BudgetID: budgetID})
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -240,17 +245,24 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 		return errors.HandleAPIError(err)
 	}
 
+	requestType := structs.NonFinancialRequestType
+	request, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &data.OrganizationUnitID,
+		BudgetID:           data.BudgetID,
+		RequestType:        &requestType,
+	})
+	if err != nil {
+		return nil, err
+	}
+	data.RequestID = request.ID
+
 	item, err := r.upsertNonFinancialBudget(data)
 	if err != nil {
 		return nil, err
 	}
 
-	request, err := r.Repo.GetBudgetRequest(data.NonFinancialBudgetItem.RequestID)
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
 	request.Status = structs.BudgetRequestFinishedStatus
-	_, err = r.Repo.UpdateBudgetRequest(request)
+	_, err = r.Repo.UpdateBudgetRequest(&request)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

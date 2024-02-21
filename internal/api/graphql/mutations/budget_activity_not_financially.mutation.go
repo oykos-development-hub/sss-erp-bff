@@ -8,7 +8,10 @@ var NonFinancialBudgetInsertMutation = graphql.NewInputObject(graphql.InputObjec
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"request_id": &graphql.InputObjectFieldConfig{
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"budget_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"impl_contact_fullname": &graphql.InputObjectFieldConfig{

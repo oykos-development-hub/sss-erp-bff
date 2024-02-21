@@ -11,8 +11,7 @@ type GetNonFinancialBudgetListResponseMS struct {
 }
 
 type GetNonFinancialBudgetListInputMS struct {
-	OrganizationUnitID *int   `json:"organization_unit_id"`
-	RequestIDList      *[]int `json:"request_id_list"`
+	RequestIDList *[]int `json:"request_id_list"`
 }
 
 type NonFinancialBudgetResItem struct {

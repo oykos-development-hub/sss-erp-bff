@@ -64,11 +64,32 @@ type GetBudgetRequestListInputMS struct {
 	RequestType        *structs.RequestType `json:"request_type"`
 }
 
+type RequestType string
+
+const (
+	CurrentFinancialRequestType  RequestType = "Tekući"
+	DonationFinancialRequestType RequestType = "Donacija"
+	NonFinancialRequestType      RequestType = "Nefinansijski"
+)
+
+func GetRequestType(r structs.RequestType) RequestType {
+	switch r {
+	case structs.CurrentFinancialRequestType:
+		return CurrentFinancialRequestType
+	case structs.DonationFinancialRequestType:
+		return DonationFinancialRequestType
+	case structs.NonFinancialRequestType:
+		return NonFinancialRequestType
+	}
+
+	return ""
+}
+
 type BudgetRequestResponseItem struct {
 	ID               int                 `json:"id"`
-	OrganizationUnit DropdownSimple      `json:"organization_unit_id"`
+	OrganizationUnit DropdownSimple      `json:"organization_unit"`
 	BudgetID         int                 `json:"budget_id"`
-	RequestType      structs.RequestType `json:"request_type"`
+	RequestType      RequestType         `json:"request_type"`
 	Status           BudgetRequestStatus `json:"status"`
 }
 

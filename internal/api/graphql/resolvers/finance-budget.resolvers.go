@@ -384,7 +384,7 @@ func buildBudgetRequestResponseItem(r repository.MicroserviceRepositoryInterface
 		OrganizationUnit: dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title},
 		BudgetID:         request.BudgetID,
 		Status:           status,
-		RequestType:      request.RequestType,
+		RequestType:      dto.GetRequestType(request.RequestType),
 	}
 
 	return item, nil

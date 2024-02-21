@@ -8,8 +8,8 @@ var NonFinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"organization_unit": &graphql.Field{
-			Type: DropdownItemType,
+		"request": &graphql.Field{
+			Type: BudgetRequest,
 		},
 		"impl_contact_fullname": &graphql.Field{
 			Type: graphql.String,
@@ -37,6 +37,27 @@ var NonFinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"activity": &graphql.Field{
 			Type: ActivityType,
+		},
+	},
+})
+
+var BudgetRequest = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BudgetRequestType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"budget_id": &graphql.Field{
+			Type: graphql.String,
+		},
+		"request_type": &graphql.Field{
+			Type: graphql.String,
+		},
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
 		},
 	},
 })

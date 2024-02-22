@@ -66,7 +66,7 @@ func (f *Field) BudgetOverviewField() *graphql.Field {
 	}
 }
 
-func (f *Field) FinancialBudgetOverview() *graphql.Field {
+func (f *Field) FilledFinancialBudgetOverview() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.AccountWithFilledDataOverviewType,
 		Description: "Returns a data of Financial Budget",
@@ -79,6 +79,19 @@ func (f *Field) FinancialBudgetOverview() *graphql.Field {
 			},
 		},
 		Resolve: f.Resolvers.FinancialBudgetOverview,
+	}
+}
+
+func (f *Field) FinancialBudgetDetails() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FinancialBudgetDetailsType,
+		Description: "Returns a data of Financial Budget",
+		Args: graphql.FieldConfigArgument{
+			"budget_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.FinancialBudgetDetails,
 	}
 }
 
@@ -95,5 +108,18 @@ func (f *Field) FinancialBudgetFillField() *graphql.Field {
 			},
 		},
 		Resolve: f.Resolvers.FinancialBudgetFillResolver,
+	}
+}
+
+func (f *Field) FinancialBudgetVersionUpdateField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FinancialBudgetDetailsType,
+		Description: "Updates version of financial budget",
+		Args: graphql.FieldConfigArgument{
+			"budget_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.FinancialBudgetVersionUpdate,
 	}
 }

@@ -158,6 +158,36 @@ var FinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var FinancialBudgetDetailsType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "FinancialBudgetDetailsType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: FinancialBudgetDetailsItemType,
+		},
+	},
+})
+
+var FinancialBudgetDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "FinancialBudgetDetailsItemType",
+	Fields: graphql.Fields{
+		"version": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"latest_version": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"accounts": &graphql.Field{
+			Type: graphql.NewList(GetAccountType()),
+		},
+	},
+})
+
 var BudgetOverviewType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "BudgetOverview",
 	Fields: graphql.Fields{

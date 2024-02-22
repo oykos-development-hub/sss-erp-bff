@@ -283,6 +283,7 @@ type MicroserviceRepositoryInterface interface {
 	GetBudgetRequestList(input *dto.GetBudgetRequestListInputMS) ([]structs.BudgetRequest, error)
 	GetOneBudgetRequest(input *dto.GetBudgetRequestListInputMS) (structs.BudgetRequest, error)
 
+	UpdateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
 	CreateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
 	GetFinancialBudgetByBudgetID(budgetID int) (*structs.FinancialBudget, error)
 	GetFinancialBudgetByID(id int) (*structs.FinancialBudget, error)
@@ -297,6 +298,7 @@ type MicroserviceRepositoryInterface interface {
 	CreateNonFinancialBudget(budget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
 	FillFinancialBudget(budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
 	UpdateFilledFinancialBudget(id int, budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
+	DeleteFilledFinancialBudgetData(id int) error
 	DeleteNonFinancialBudget(id int) error
 	GetNonFinancialBudget(id int) (*structs.NonFinancialBudgetItem, error)
 	GetNonFinancialBudgetList(input *dto.GetNonFinancialBudgetListInputMS) ([]structs.NonFinancialBudgetItem, error)

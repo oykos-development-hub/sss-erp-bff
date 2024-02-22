@@ -10,6 +10,39 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+func (r *Resolver) FinancialBudgetDetails(params graphql.ResolveParams) (interface{}, error) {
+	budgetID := params.Args["budget_id"].(int)
+
+	financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	latestVersion, err := r.Repo.GetLatestVersionOfAccounts()
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{Version: &financialBudget.AccountVersion})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	accountResItemlist, err := buildAccountItemResponseItemList(accounts.Data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item: dto.FinancialBudgetDetails{
+			Version:       financialBudget.AccountVersion,
+			LatestVersion: latestVersion,
+			Accounts:      accountResItemlist,
+		},
+	}, nil
+}
+
 func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interface{}, error) {
 	budgetID := params.Args["budget_id"].(int)
 	var response dto.FinancialBudgetOverviewResponse
@@ -137,6 +170,105 @@ func buildFinancialBudgetStatus(currentFinancialRequest structs.BudgetRequest, d
 	}
 
 	return dto.FinancialBudgetTakeActionStatus, err
+}
+
+func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (interface{}, error) {
+	budgetID := params.Args["budget_id"].(int)
+
+	latestVersion, err := r.Repo.GetLatestVersionOfAccounts()
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	financialBudget.AccountVersion = latestVersion
+
+	_, err = r.Repo.UpdateFinancialBudget(financialBudget)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	financialBudgetRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		BudgetID:     budgetID,
+		RequestTypes: &[]structs.RequestType{structs.CurrentFinancialRequestType, structs.DonationFinancialRequestType},
+	})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	for _, request := range financialBudgetRequests {
+		filledRequestData, err := r.Repo.GetFilledFinancialBudgetList(request.ID)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		filledDataForDelete := make(map[int]bool)
+		for _, filledData := range filledRequestData {
+			filledDataForDelete[filledData.ID] = true
+		}
+
+		for _, filledData := range filledRequestData {
+			oldAccount, err := r.Repo.GetAccountItemByID(filledData.AccountID)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			newAccount, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+				Version:      &latestVersion,
+				SerialNumber: &oldAccount.SerialNumber,
+				Title:        &oldAccount.Title,
+			})
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			if len(newAccount.Data) > 0 {
+				_, err := r.Repo.UpdateFilledFinancialBudget(filledData.ID, &structs.FilledFinanceBudget{
+					BudgetRequestID: filledData.BudgetRequestID,
+					AccountID:       newAccount.Data[0].ID,
+					CurrentYear:     filledData.CurrentYear,
+					NextYear:        filledData.NextYear,
+					YearAfterNext:   filledData.YearAfterNext,
+					Description:     filledData.Description,
+				})
+				if err != nil {
+					return errors.HandleAPIError(err)
+				}
+				filledDataForDelete[filledData.ID] = false
+			}
+		}
+		for id, delete := range filledDataForDelete {
+			if delete {
+				err := r.Repo.DeleteFilledFinancialBudgetData(id)
+				if err != nil {
+					return errors.HandleAPIError(err)
+				}
+			}
+		}
+	}
+
+	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{Version: &financialBudget.AccountVersion})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	accountResItemlist, err := buildAccountItemResponseItemList(accounts.Data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item: dto.FinancialBudgetDetails{
+			Version:       financialBudget.AccountVersion,
+			LatestVersion: latestVersion,
+			Accounts:      accountResItemlist,
+		},
+	}, nil
 }
 
 func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (interface{}, error) {

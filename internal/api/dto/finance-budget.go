@@ -59,9 +59,10 @@ type GetBudgetRequestListResponseMS struct {
 }
 
 type GetBudgetRequestListInputMS struct {
-	OrganizationUnitID *int                 `json:"organization_unit_id"`
-	BudgetID           int                  `json:"budget_id"`
-	RequestType        *structs.RequestType `json:"request_type"`
+	OrganizationUnitID *int                   `json:"organization_unit_id"`
+	BudgetID           int                    `json:"budget_id"`
+	RequestType        *structs.RequestType   `json:"request_type"`
+	RequestTypes       *[]structs.RequestType `json:"request_types"`
 }
 
 type RequestType string
@@ -183,4 +184,10 @@ func (a *AccountWithFilledFinanceBudgetResponseList) CreateTree() []*AccountWith
 	})
 
 	return rootNodes
+}
+
+type FinancialBudgetDetails struct {
+	Version       int                        `json:"version"`
+	LatestVersion int                        `json:"latest_version"`
+	Accounts      []*AccountItemResponseItem `json:"accounts"`
 }

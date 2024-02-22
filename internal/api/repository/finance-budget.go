@@ -62,6 +62,15 @@ func (repo *MicroserviceRepository) CreateFinancialBudget(financialBudget *struc
 	return &res.Data, nil
 }
 
+func (repo *MicroserviceRepository) UpdateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error) {
+	res := &dto.GetFinancialBudgetResponseMS{}
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FinancialBudget+"/"+strconv.Itoa(financialBudget.ID), financialBudget, res)
+	if err != nil {
+		return nil, err
+	}
+	return &res.Data, nil
+}
+
 func (repo *MicroserviceRepository) GetFinancialBudgetByBudgetID(id int) (*structs.FinancialBudget, error) {
 	res := &dto.GetFinancialBudgetResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(id)+"/financial", nil, res)
@@ -151,4 +160,13 @@ func (repo *MicroserviceRepository) UpdateFilledFinancialBudget(id int, data *st
 		return nil, err
 	}
 	return &res.Data, nil
+}
+
+func (repo *MicroserviceRepository) DeleteFilledFinancialBudgetData(id int) error {
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

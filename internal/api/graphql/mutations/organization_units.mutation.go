@@ -14,6 +14,9 @@ var OrganizationUnitInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"number_of_judges": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"order_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"title": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

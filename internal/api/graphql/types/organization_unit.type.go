@@ -19,6 +19,9 @@ var OrganizationUnitItemType = graphql.NewObject(graphql.ObjectConfig{
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},
+		"order_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"abbreviation": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -76,6 +79,9 @@ var OrganizationUnitParentType = graphql.NewObject(graphql.ObjectConfig{
 		"color": &graphql.Field{
 			Type: graphql.String,
 		},
+		"order_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"icon": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -126,6 +132,24 @@ var OrganizationUnitInsertType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"item": &graphql.Field{
 			Type: OrganizationUnitItemType,
+		},
+	},
+})
+
+var OrganizationUnitOrderType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "OrganizationUnitOrder",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(OrganizationUnitParentType),
 		},
 	},
 })

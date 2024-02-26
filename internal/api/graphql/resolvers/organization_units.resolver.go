@@ -125,6 +125,33 @@ func (r *Resolver) OrganizationUnitInsertResolver(params graphql.ResolveParams) 
 		Message: "You updated this item!",
 		Item:    organizationUnitResponse.Data,
 	}, nil
+}
+
+func (r *Resolver) OrganizationUnitOrderResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data []structs.OrganizationUnits
+	var organizationUnitResponse []dto.GetOrganizationUnitResponseMS
+	var err error
+	dataBytes, _ := json.Marshal(params.Args["data"])
+
+	_ = json.Unmarshal(dataBytes, &data)
+
+	for _, item := range data {
+		organizationUnit, err := r.Repo.UpdateOrganizationUnits(item.ID, &item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		organizationUnitResponse = append(organizationUnitResponse, *organizationUnit)
+	}
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "You updated this items!",
+		Items:   organizationUnitResponse,
+	}, nil
 
 }
 

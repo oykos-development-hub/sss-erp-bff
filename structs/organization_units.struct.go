@@ -3,6 +3,7 @@ package structs
 type OrganizationUnits struct {
 	ID             int    `json:"id"`
 	ParentID       *int   `json:"parent_id,omitempty"`
+	OrderID        int    `json:"order_id"`
 	NumberOfJudges int    `json:"number_of_judges"`
 	Title          string `json:"title"`
 	City           string `json:"city"`
@@ -15,4 +16,8 @@ type OrganizationUnits struct {
 	FolderID       int    `json:"folder_id"`
 	CreatedAt      string `json:"created_at"`
 	UpdatedAt      string `json:"updated_at"`
+}
+
+type OrganizationUnitsOrder struct {
+	Data []OrganizationUnits `json:"data"`
 }

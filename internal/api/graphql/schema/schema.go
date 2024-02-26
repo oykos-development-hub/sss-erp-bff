@@ -24,6 +24,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"settingsDropdown_Insert":                         fields.SettingsDropdownInsertField(),
 			"settingsDropdown_Delete":                         fields.SettingsDropdownDeleteField(),
 			"organizationUnits_Insert":                        fields.OrganizationUnitInsertField(),
+			"organizationUnits_Order":                         fields.OrganizationUnitOrderField(),
 			"organizationUnits_Delete":                        fields.OrganizationUnitDeleteField(),
 			"jobPositions_Insert":                             fields.JobPositionInsertField(),
 			"jobPositions_Delete":                             fields.JobPositionDeleteField(),

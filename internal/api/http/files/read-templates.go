@@ -1463,34 +1463,78 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 					} else {
 						item.DateOfEnd = dateOfEnd.Format("2006-01-02T00:00:00Z")
 
-						yearsDiff := dateOfEnd.Year() - dateOfStart.Year()
-						monthsDiff := int(dateOfEnd.Month()) - int(dateOfStart.Month())
-
-						if monthsDiff < 0 {
-							monthsDiff += 12
-							yearsDiff--
-						}
-
-						daysDiff := int(dateOfEnd.Day()) - int(dateOfStart.Day())
-
-						if daysDiff < 0 {
-							monthsDiff--
-							daysDiff += 30
-							if monthsDiff < 0 {
-								yearsDiff--
-								monthsDiff += 12
-							}
-						}
-
-						item.YearsOfExperience = yearsDiff
-						item.YearsOfInsuredExperience = yearsDiff
-						item.MonthsOfExperience = monthsDiff
-						item.MonthsOfInsuredExperience = monthsDiff
-						item.DaysOfExperience = daysDiff
-						item.DaysOfInsuredExperience = daysDiff
 					}
+				case 6:
+					years, err := strconv.Atoi(value)
+
+					if err != nil && value != "" {
+						responseMessage := ValidationResponse{
+							Column:  6,
+							Row:     rowindex,
+							Message: "Godine prijavljenog staza nijesu validno unijete!",
+						}
+						response.Data = append(response.Data, responseMessage)
+					} else {
+						item.YearsOfInsuredExperience = years
+					}
+				case 7:
+					months, err := strconv.Atoi(value)
+
+					if err != nil && value != "" {
+						responseMessage := ValidationResponse{
+							Column:  6,
+							Row:     rowindex,
+							Message: "Mjeseci prijavljenog staza nijesu validno unijete!",
+						}
+						response.Data = append(response.Data, responseMessage)
+					} else {
+						item.MonthsOfInsuredExperience = months
+					}
+				case 8:
+					days, err := strconv.Atoi(value)
+
+					if err != nil && value != "" {
+						responseMessage := ValidationResponse{
+							Column:  6,
+							Row:     rowindex,
+							Message: "Dani prijavljenog staza nijesu validno unijeti!",
+						}
+						response.Data = append(response.Data, responseMessage)
+					} else {
+						item.DaysOfInsuredExperience = days
+					}
+
 				}
 			}
+
+			yearsDiff := dateOfEnd.Year() - dateOfStart.Year()
+			monthsDiff := int(dateOfEnd.Month()) - int(dateOfStart.Month())
+
+			if monthsDiff < 0 {
+				monthsDiff += 12
+				yearsDiff--
+			}
+
+			daysDiff := int(dateOfEnd.Day()) - int(dateOfStart.Day())
+			if daysDiff < 0 {
+				monthsDiff--
+				daysDiff += 30
+				if monthsDiff < 0 {
+					yearsDiff--
+					monthsDiff += 12
+				}
+			}
+
+			if item.YearsOfInsuredExperience == 0 || item.MonthsOfInsuredExperience == 0 || item.DaysOfInsuredExperience == 0 {
+				item.YearsOfInsuredExperience = yearsDiff
+				item.MonthsOfInsuredExperience = monthsDiff
+				item.DaysOfInsuredExperience = daysDiff
+			}
+
+			item.YearsOfExperience = yearsDiff
+			item.MonthsOfExperience = monthsDiff
+			item.DaysOfExperience = daysDiff
+
 			userProfileExpiriences = append(userProfileExpiriences, item)
 		}
 	}

@@ -88,6 +88,19 @@ type ImportInventoriesResponse struct {
 	Data    []structs.BasicInventoryItem `json:"data"`
 }
 
+type ValidationResponse struct {
+	Column  int    `json:"column"`
+	Row     int    `json:"row"`
+	Message string `json:"message"`
+}
+
+type ImportPS1Inventories struct {
+	Status  string               `json:"status"`
+	Message string               `json:"message"`
+	Error   string               `json:"error"`
+	Data    []ValidationResponse `json:"data"`
+}
+
 type ImportUserProfileVacation struct {
 	UserProfileID int `json:"user_profile_id"`
 	NumberOfDays  int `json:"number_of_days"`
@@ -98,4 +111,9 @@ type ImportUserProfileVacationsResponse struct {
 	Message string                      `json:"message"`
 	Error   string                      `json:"error"`
 	Data    []ImportUserProfileVacation `json:"data"`
+}
+
+type ImportInventoryArticles struct {
+	Article      structs.BasicInventoryInsertItem           `json:"article"`
+	Amortization structs.BasicInventoryAssessmentsTypesItem `json:"amortization"`
 }

@@ -317,7 +317,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
-	request.Status = structs.BudgetRequestFinishedStatus
+	request.Status = structs.BudgetRequestFilledStatus
 	_, err = r.Repo.UpdateBudgetRequest(request)
 	if err != nil {
 		return errors.HandleAPIError(err)

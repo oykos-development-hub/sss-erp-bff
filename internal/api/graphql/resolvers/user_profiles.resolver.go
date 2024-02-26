@@ -821,9 +821,13 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		}
 	}
 
-	insuredExperience := item.AmountOfInsuredExperience
-	if insuredExperience == 0 {
-		insuredExperience = item.AmountOfExperience
+	insuredExperienceYears := item.YearsOfInsuredExperience
+	insuredExperienceMonths := item.MonthsOfInsuredExperience
+	insuredExperienceDays := item.DaysOfInsuredExperience
+	if insuredExperienceYears == 0 && insuredExperienceDays == 0 && insuredExperienceMonths == 0 {
+		insuredExperienceYears = item.YearsOfExperience
+		insuredExperienceMonths = item.MonthsOfExperience
+		insuredExperienceDays = item.DaysOfExperience
 	}
 
 	res := dto.ExperienceResponseItem{
@@ -832,8 +836,12 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		OrganizationUnitID:        item.OrganizationUnitID,
 		Relevant:                  item.Relevant,
 		OrganizationUnit:          item.OrganizationUnit,
-		AmountOfExperience:        item.AmountOfExperience,
-		AmountOfInsuredExperience: insuredExperience,
+		YearsOfExperience:         item.YearsOfExperience,
+		YearsOfInsuredExperience:  insuredExperienceYears,
+		MonthsOfExperience:        item.MonthsOfExperience,
+		MonthsOfInsuredExperience: insuredExperienceMonths,
+		DaysOfExperience:          item.DaysOfExperience,
+		DaysOfInsuredExperience:   insuredExperienceDays,
 		DateOfStart:               item.DateOfStart,
 		DateOfEnd:                 item.DateOfEnd,
 		ReferenceFileID:           item.ReferenceFileID,

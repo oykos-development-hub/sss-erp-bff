@@ -22,8 +22,7 @@ const (
 	ManagerBudgetOnReviewStatus BudgetStatus = "Na čekanju"
 	ManagerBudgetClosedStatus   BudgetStatus = "Završen"
 
-	OfficialBudgetSentStatus     BudgetStatus = "Poslat"
-	OfficialBudgetOnReviewStatus BudgetStatus = "Obradi"
+	OfficialBudgetSentStatus BudgetStatus = "Poslat"
 )
 
 type BudgetResponseItem struct {

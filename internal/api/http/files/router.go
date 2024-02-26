@@ -21,7 +21,9 @@ func GetFileRouter(h *Handler) *chi.Mux {
 	filesRouter.Post("/read-expire-inventories", h.ReadExpireInventoriesHandler)
 	filesRouter.Post("/read-expire-imovable-inventories", h.ReadExpireImovableInventoriesHandler)
 	filesRouter.Post("/import-inventories-excel", h.ImportExcelOrgUnitInventoriesHandler)
+	filesRouter.Post("/import-ps1-excel", h.ImportExcelPS1)
 	filesRouter.Post("/import-vacations-excel", h.ImportUserProfileVacationsHandler)
+	filesRouter.Post("/import-expirience-excel", h.ImportUserExpirienceHandler)
 
 	return filesRouter
 }

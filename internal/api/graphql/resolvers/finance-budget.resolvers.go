@@ -64,7 +64,7 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 	}, nil
 }
 
-func buildBudgetStatus(ctx context.Context, budget structs.Budget) (dto.BudgetStatus, error) {
+func buildBudgetStatus(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget) (dto.BudgetStatus, error) {
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
 	switch budget.Status {
@@ -75,22 +75,49 @@ func buildBudgetStatus(ctx context.Context, budget structs.Budget) (dto.BudgetSt
 	}
 
 	if loggedInUser.RoleID == structs.UserRoleManagerOJ {
-		switch budget.Status {
-		case structs.BudgetSentStatus:
-			return dto.ManagerBudgetProcessStatus, nil
-		case structs.BudgetOnReviewStatus:
-			return dto.ManagerBudgetOnReviewStatus, nil
+		status, err := buildBudgetStatusForManager(ctx, r, budget)
+		if err != nil {
+			return "", err
 		}
-	} else {
-		switch budget.Status {
-		case structs.BudgetSentStatus:
-			return dto.OfficialBudgetSentStatus, nil
-		case structs.BudgetOnReviewStatus:
-			return dto.OfficialBudgetOnReviewStatus, nil
-		}
+		return status, nil
+	} else if budget.Status == structs.BudgetSentStatus {
+		return dto.OfficialBudgetSentStatus, nil
+
 	}
 
 	return "", fmt.Errorf("budget with id: %d has incorrect status: %d", budget.ID, budget.Status)
+}
+
+func buildBudgetStatusForManager(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget) (dto.BudgetStatus, error) {
+	var status dto.BudgetStatus
+	managerUnitID, ok := ctx.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || managerUnitID == nil {
+		return status, fmt.Errorf("user does not have organization unit assigned")
+	}
+
+	requests, err := r.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: managerUnitID,
+		BudgetID:           budget.ID,
+	})
+	if err != nil {
+		return status, nil
+	}
+
+	allRequestsOnReview := true
+	for _, request := range requests {
+		if request.Status != structs.BudgetRequestSentOnReviewStatus {
+			allRequestsOnReview = false
+			break
+		}
+	}
+
+	if allRequestsOnReview {
+		status = dto.ManagerBudgetOnReviewStatus
+	} else {
+		status = dto.ManagerBudgetProcessStatus
+	}
+
+	return status, nil
 }
 
 func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceRepositoryInterface, budgetList []structs.Budget) (budgetResItemList []*dto.BudgetResponseItem, err error) {
@@ -113,7 +140,7 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 		return nil, nil
 	}
 
-	status, err := buildBudgetStatus(ctx, budget)
+	status, err := buildBudgetStatus(ctx, r, budget)
 	if err != nil {
 		return nil, err
 	}
@@ -322,6 +349,43 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 	}, nil
 }
 
+func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	budgetID := params.Args["budget_id"].(int)
+	unitID := params.Args["unit_id"].(int)
+
+	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &unitID,
+		BudgetID:           budgetID,
+	})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	for _, request := range requests {
+		request.Status = structs.BudgetRequestSentOnReviewStatus
+		_, err := r.Repo.UpdateBudgetRequest(&request)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+	}
+
+	budget, err := r.Repo.GetBudget(budgetID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget, nil)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Message: "Budget sent successfuly",
+		Status:  "success",
+		Item:    resItem,
+	}, nil
+}
+
 func (r *Resolver) BudgetDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
@@ -361,7 +425,7 @@ func (r *Resolver) BudgetDetailsResolver(params graphql.ResolveParams) (interfac
 func buildBudgetRequestStatus(budgetRequests *structs.BudgetRequest) (dto.BudgetRequestStatus, error) {
 	if budgetRequests.Status == structs.BudgetRequestSentStatus {
 		return dto.FinancialBudgetTakeActionStatus, nil
-	} else if budgetRequests.Status == structs.BudgetRequestFinishedStatus {
+	} else if budgetRequests.Status == structs.BudgetRequestFilledStatus || budgetRequests.Status == structs.BudgetRequestSentOnReviewStatus {
 		return dto.FinancialBudgetFinishedStatus, nil
 	}
 

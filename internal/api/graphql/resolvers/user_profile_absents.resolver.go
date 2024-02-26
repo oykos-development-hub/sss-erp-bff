@@ -608,15 +608,25 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 		format := "2006-01-02T00:00:00Z"
 		dateOfEnd := now.Format(format)
 		dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
-		yearsDiff := now.Year() - dateOfStart.Year()
-		monthsDiff := int(now.Month()) - int(dateOfStart.Month())
+
+		yearsDiff := time.Now().Year() - dateOfStart.Year()
+		monthsDiff := int(time.Now().Month()) - int(dateOfStart.Month())
 
 		if monthsDiff < 0 {
 			monthsDiff += 12
 			yearsDiff--
 		}
 
-		totalMonths := (yearsDiff * 12) + monthsDiff
+		daysDiff := int(time.Now().Day()) - int(dateOfStart.Day())
+
+		if daysDiff < 0 {
+			monthsDiff--
+			daysDiff += 30
+			if monthsDiff < 0 {
+				yearsDiff--
+				monthsDiff += 12
+			}
+		}
 
 		experience := structs.Experience{
 			UserProfileID:             userID,
@@ -624,8 +634,12 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 			Relevant:                  true,
 			DateOfStart:               *contract[0].DateOfStart,
 			DateOfEnd:                 dateOfEnd,
-			AmountOfExperience:        totalMonths,
-			AmountOfInsuredExperience: totalMonths,
+			YearsOfExperience:         yearsDiff,
+			YearsOfInsuredExperience:  yearsDiff,
+			MonthsOfExperience:        monthsDiff,
+			MonthsOfInsuredExperience: monthsDiff,
+			DaysOfExperience:          daysDiff,
+			DaysOfInsuredExperience:   daysDiff,
 		}
 		_, err = r.Repo.CreateExperience(&experience)
 		if err != nil {
@@ -653,23 +667,42 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 			format := "2006-01-02T00:00:00Z"
 			dateOfEnd := now.Format(format)
 			dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
-			yearsDiff := now.Year() - dateOfStart.Year()
-			monthsDiff := int(now.Month()) - int(dateOfStart.Month())
+			yearsDiff := time.Now().Year() - dateOfStart.Year()
+			monthsDiff := int(time.Now().Month()) - int(dateOfStart.Month())
 
 			if monthsDiff < 0 {
 				monthsDiff += 12
 				yearsDiff--
 			}
 
-			totalMonths := (yearsDiff * 12) + monthsDiff
+			daysDiff := int(time.Now().Day()) - int(dateOfStart.Day())
+
+			if daysDiff < 0 {
+				monthsDiff--
+				daysDiff += 30
+				if monthsDiff < 0 {
+					yearsDiff--
+					monthsDiff += 12
+				}
+			}
+
+			if monthsDiff < 0 {
+				monthsDiff += 12
+				yearsDiff--
+			}
+
 			experience := structs.Experience{
 				UserProfileID:             userID,
 				OrganizationUnitID:        contract[0].OrganizationUnitID,
 				Relevant:                  true,
 				DateOfStart:               *contract[0].DateOfStart,
 				DateOfEnd:                 dateOfEnd,
-				AmountOfExperience:        totalMonths,
-				AmountOfInsuredExperience: totalMonths,
+				YearsOfExperience:         yearsDiff,
+				YearsOfInsuredExperience:  yearsDiff,
+				MonthsOfExperience:        monthsDiff,
+				MonthsOfInsuredExperience: monthsDiff,
+				DaysOfExperience:          daysDiff,
+				DaysOfInsuredExperience:   daysDiff,
 			}
 			_, err = r.Repo.CreateExperience(&experience)
 			if err != nil {

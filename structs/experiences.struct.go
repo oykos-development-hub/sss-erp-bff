@@ -6,8 +6,12 @@ type Experience struct {
 	OrganizationUnitID        int    `json:"organization_unit_id,omitempty"`
 	Relevant                  bool   `json:"relevant"`
 	OrganizationUnit          string `json:"organization_unit"`
-	AmountOfExperience        int    `json:"amount_of_experience"`
-	AmountOfInsuredExperience int    `json:"amount_of_insured_experience"`
+	YearsOfExperience         int    `json:"years_of_experience"`
+	YearsOfInsuredExperience  int    `json:"years_of_insured_experience"`
+	MonthsOfExperience        int    `json:"months_of_experience"`
+	MonthsOfInsuredExperience int    `json:"months_of_insured_experience"`
+	DaysOfExperience          int    `json:"days_of_experience"`
+	DaysOfInsuredExperience   int    `json:"days_of_insured_experience"`
 	DateOfStart               string `json:"date_of_start"`
 	DateOfEnd                 string `json:"date_of_end"`
 	CreatedAt                 string `json:"created_at"`

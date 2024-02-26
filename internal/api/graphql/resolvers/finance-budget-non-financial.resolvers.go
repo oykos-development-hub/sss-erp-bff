@@ -261,7 +261,7 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 		return nil, err
 	}
 
-	request.Status = structs.BudgetRequestFinishedStatus
+	request.Status = structs.BudgetRequestFilledStatus
 	_, err = r.Repo.UpdateBudgetRequest(&request)
 	if err != nil {
 		return errors.HandleAPIError(err)

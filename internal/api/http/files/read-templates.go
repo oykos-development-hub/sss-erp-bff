@@ -1369,6 +1369,9 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 			}
 
 			var item structs.Experience
+			item.YearsOfInsuredExperience = -1
+			item.MonthsOfInsuredExperience = -1
+			item.DaysOfInsuredExperience = -1
 			var dateOfStart time.Time
 			var dateOfEnd time.Time
 			var err error
@@ -1474,7 +1477,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 							Message: "Godine prijavljenog staza nijesu validno unijete!",
 						}
 						response.Data = append(response.Data, responseMessage)
-					} else {
+					} else if value != "" {
 						item.YearsOfInsuredExperience = years
 					}
 				case 7:
@@ -1482,12 +1485,12 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 
 					if err != nil && value != "" {
 						responseMessage := ValidationResponse{
-							Column:  6,
+							Column:  7,
 							Row:     rowindex,
 							Message: "Mjeseci prijavljenog staza nijesu validno unijete!",
 						}
 						response.Data = append(response.Data, responseMessage)
-					} else {
+					} else if value != "" {
 						item.MonthsOfInsuredExperience = months
 					}
 				case 8:
@@ -1495,12 +1498,12 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 
 					if err != nil && value != "" {
 						responseMessage := ValidationResponse{
-							Column:  6,
+							Column:  8,
 							Row:     rowindex,
 							Message: "Dani prijavljenog staza nijesu validno unijeti!",
 						}
 						response.Data = append(response.Data, responseMessage)
-					} else {
+					} else if value != "" {
 						item.DaysOfInsuredExperience = days
 					}
 
@@ -1525,7 +1528,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 				}
 			}
 
-			if item.YearsOfInsuredExperience == 0 || item.MonthsOfInsuredExperience == 0 || item.DaysOfInsuredExperience == 0 {
+			if item.YearsOfInsuredExperience == -1 || item.MonthsOfInsuredExperience == -1 || item.DaysOfInsuredExperience == -1 {
 				item.YearsOfInsuredExperience = yearsDiff
 				item.MonthsOfInsuredExperience = monthsDiff
 				item.DaysOfInsuredExperience = daysDiff

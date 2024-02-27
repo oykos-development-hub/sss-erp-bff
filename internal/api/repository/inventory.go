@@ -174,6 +174,14 @@ func (repo *MicroserviceRepository) DeleteInventoryDispatch(id int) error {
 	return nil
 }
 
+func (repo *MicroserviceRepository) CreateDispatchItemItem(item *structs.BasicInventoryDispatchItemsItem) (*structs.BasicInventoryDispatchItemsItem, error) {
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.DispatchItems, item, nil)
+	if err != nil {
+		return nil, err
+	}
+	return item, err
+}
+
 func (repo *MicroserviceRepository) GetAllInventoryItemInOrgUnits(id int) ([]dto.GetAllItemsInOrgUnits, error) {
 	res := dto.GetAllItemsInOrgUnitsMS{}
 

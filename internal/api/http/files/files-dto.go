@@ -116,4 +116,6 @@ type ImportUserProfileVacationsResponse struct {
 type ImportInventoryArticles struct {
 	Article      structs.BasicInventoryInsertItem           `json:"article"`
 	Amortization structs.BasicInventoryAssessmentsTypesItem `json:"amortization"`
+	Dispatch     structs.BasicInventoryDispatchItem         `json:"dispatch"`
+	DispatchItem structs.BasicInventoryDispatchItemsItem    `json:"dispatch_item"`
 }

@@ -744,12 +744,12 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			assessmentResponse, _ := BuildAssessmentResponse(r, &assessment)
 			if assessmentResponse != nil && i == 0 && assessmentResponse.Type == "financial" {
 				depreciationTypeID = assessmentResponse.DepreciationType.ID
-				grossPrice = assessmentResponse.GrossPriceDifference
+				//grossPrice = assessmentResponse.GrossPriceDifference
 				residualPrice = assessmentResponse.ResidualPrice
 				lifetimeOfAssessmentInMonths = assessmentResponse.EstimatedDuration
 				dateOfAssessment = *assessmentResponse.DateOfAssessment
 				amortizationValue = calculateMonthlyConsumption(dateOfAssessment, 100/lifetimeOfAssessmentInMonths, grossPrice, lifetimeOfAssessmentInMonths)
-
+				grossPrice = assessmentResponse.GrossPriceDifference - amortizationValue
 			}
 			assessmentsResponse = append(assessmentsResponse, assessmentResponse)
 		}

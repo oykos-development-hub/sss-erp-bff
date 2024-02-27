@@ -1126,6 +1126,19 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 		mapOfDeprecationTypes[obj.Title] = obj.ID
 	}
 
+	offices, err := h.Repo.GetOfficeDropdownSettings(&dto.GetOfficesOfOrganizationInput{})
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	mapOfOffices := make(map[string]int)
+
+	for _, obj := range offices.Data {
+		mapOfOffices[obj.Title] = obj.ID
+	}
+
 	for _, sheetName := range sheetMap {
 
 		if sheetName != "PS -1" {
@@ -1162,6 +1175,17 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 				switch cellIndex {
 				case 1:
 					article.Article.InventoryNumber = value
+				case 2:
+					id, exists := mapOfOffices[value]
+					if !exists {
+						responseMessage := ValidationResponse{
+							Column:  2,
+							Row:     rowindex,
+							Message: "Lokacija ne postoji!",
+						}
+						response.Data = append(response.Data, responseMessage)
+					}
+					article.Dispatch.OfficeID = id
 				case 3:
 					article.Article.Title = value
 				case 5:
@@ -1187,7 +1211,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 							Message: "Datum amortizacije nije validno unijet!",
 						}
 						response.Data = append(response.Data, responseMessage)
-					} else {
+					} else if value != "" {
 						dateOfAssessment := DateOfAssessment.Format("2006-01-02T15:04:05Z")
 						article.Article.DateOfAssessment = &dateOfAssessment
 						article.Amortization.DateOfAssessment = &dateOfAssessment
@@ -1202,8 +1226,9 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 							Message: "Nova cijena nije validno unijeta!",
 						}
 						response.Data = append(response.Data, responseMessage)
-					} else {
-						article.Amortization.GrossPriceNew = float32(grossPriceNew)
+					} else if grossPriceNew > 0 {
+						article.Amortization.GrossPriceDifference = float32(grossPriceNew)
+						article.Article.GrossPrice = float32(grossPriceNew)
 					}
 				case 16:
 					residualPrice, err := strconv.ParseFloat(value, 32)
@@ -1214,7 +1239,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 							Message: "Rezidualna cijena nije validno unijeta!",
 						}
 						response.Data = append(response.Data, responseMessage)
-					} else {
+					} else if value != "" {
 						residualPriceFloat32 := float32(residualPrice)
 						article.Amortization.ResidualPrice = &residualPriceFloat32
 					}
@@ -1281,6 +1306,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 			article.Article.OrganizationUnitID = organizationUnitID
 			article.Article.Type = "movable"
 			article.Article.Active = true
+			article.Article.OfficeID = article.Dispatch.OfficeID
 
 			if *article.Article.DateOfAssessment == defaultTime {
 				article.Article.DateOfAssessment = &article.Article.DateOfPurchase
@@ -1301,6 +1327,23 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 					handleError(w, err, http.StatusInternalServerError)
 					return
 				}
+			}
+			article.Dispatch.Date = article.Article.DateOfPurchase
+			article.Dispatch.IsAccepted = true
+			article.Dispatch.Type = "allocation"
+			dispatch, err := h.Repo.CreateDispatchItem(&article.Dispatch)
+
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			article.DispatchItem.InventoryID = newArticle.ID
+			article.DispatchItem.DispatchID = dispatch.ID
+
+			_, err = h.Repo.CreateDispatchItemItem(&article.DispatchItem)
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
 			}
 		}
 	}

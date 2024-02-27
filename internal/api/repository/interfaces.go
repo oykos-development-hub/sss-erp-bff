@@ -15,6 +15,7 @@ type MicroserviceRepositoryInterface interface {
 	CreateAccountItemList(accountItemList []structs.AccountItem) ([]*structs.AccountItem, error)
 	CreateAssessments(data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error)
 	CreateDispatchItem(item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error)
+	CreateDispatchItemItem(item *structs.BasicInventoryDispatchItemsItem) (*structs.BasicInventoryDispatchItemsItem, error)
 	CreateDropdownSettings(data *structs.SettingsDropdown) (*structs.SettingsDropdown, error)
 	CreateEmployeeContract(contract *structs.Contracts) (*structs.Contracts, error)
 	CreateEmployeeEducation(education *structs.Education) (*structs.Education, error)

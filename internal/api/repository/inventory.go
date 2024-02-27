@@ -392,7 +392,8 @@ func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.Bas
 
 	for _, item := range input {
 		inventoryItem, err := repo.GetAllInventoryItem(dto.InventoryItemFilter{
-			SerialNumber: &item.SerialNumber,
+			SerialNumber:       &item.SerialNumber,
+			OrganizationUnitID: &item.OrganizationUnitID,
 		})
 
 		if err != nil {
@@ -407,7 +408,8 @@ func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.Bas
 		}
 
 		inventoryItem, err = repo.GetAllInventoryItem(dto.InventoryItemFilter{
-			InventoryNumber: &item.InventoryNumber,
+			InventoryNumber:    &item.InventoryNumber,
+			OrganizationUnitID: &item.OrganizationUnitID,
 		})
 
 		if err != nil {

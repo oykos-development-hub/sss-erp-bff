@@ -1308,7 +1308,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 			article.Article.Active = true
 			article.Article.OfficeID = article.Dispatch.OfficeID
 
-			if *article.Article.DateOfAssessment == defaultTime {
+			if article.Article.DateOfAssessment == nil || *article.Article.DateOfAssessment == defaultTime {
 				article.Article.DateOfAssessment = &article.Article.DateOfPurchase
 				article.Amortization.DateOfAssessment = &article.Article.DateOfPurchase
 			}

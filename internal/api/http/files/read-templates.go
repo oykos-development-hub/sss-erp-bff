@@ -1182,13 +1182,14 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 
 					if value != "" && err != nil {
 						responseMessage := ValidationResponse{
-							Column:  29,
+							Column:  14,
 							Row:     rowindex,
 							Message: "Datum amortizacije nije validno unijet!",
 						}
 						response.Data = append(response.Data, responseMessage)
 					} else {
 						dateOfAssessment := DateOfAssessment.Format("2006-01-02T15:04:05Z")
+						article.Article.DateOfAssessment = &dateOfAssessment
 						article.Amortization.DateOfAssessment = &dateOfAssessment
 					}
 				case 15:
@@ -1226,7 +1227,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 							Message: "Vijek trajanja nije validno unijet!",
 						}
 						response.Data = append(response.Data, responseMessage)
-					} else {
+					} else if estimatedDuration > 0 {
 						article.Amortization.EstimatedDuration = estimatedDuration
 					}
 				case 25:
@@ -1275,10 +1276,16 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(response.Data) == 0 {
+		defaultTime := "0001-01-01T00:00:00Z"
 		for _, article := range articles {
 			article.Article.OrganizationUnitID = organizationUnitID
 			article.Article.Type = "movable"
 			article.Article.Active = true
+
+			if *article.Article.DateOfAssessment == defaultTime {
+				article.Article.DateOfAssessment = &article.Article.DateOfPurchase
+				article.Amortization.DateOfAssessment = &article.Article.DateOfPurchase
+			}
 			newArticle, err := h.Repo.CreateInventoryItem(&article.Article)
 			if err != nil {
 				handleError(w, err, http.StatusInternalServerError)

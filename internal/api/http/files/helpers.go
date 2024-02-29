@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
@@ -149,6 +150,14 @@ func parseDate(dateString string) (time.Time, error) {
 		if err == nil {
 			return date, nil
 		}
+	}
+
+	numberOfDays, err := strconv.Atoi(dateString)
+
+	if err == nil {
+		startDate := time.Date(1899, time.December, 30, 0, 0, 0, 0, time.UTC)
+		daysDuration := time.Duration(numberOfDays) * 24 * time.Hour
+		return startDate.Add(daysDuration), nil
 	}
 
 	return date, fmt.Errorf("date format is not valid: %s", dateString)

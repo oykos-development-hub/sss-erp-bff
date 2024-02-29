@@ -1200,6 +1200,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						response.Data = append(response.Data, responseMessage)
 					} else {
 						article.Article.GrossPrice = float32(price)
+						article.Amortization.GrossPriceDifference = float32(price)
 					}
 				case 14:
 					DateOfAssessment, err := parseDate(value)

@@ -165,8 +165,14 @@ func calculateMonthlyConsumption(startDateStr string, annualPercentage int, init
 	months = years*12 + months
 
 	totalConsumption := float32(0)
+	var percentage float32
+	if annualPercentage == 33 {
+		percentage = 33.3333333333
+	} else {
+		percentage = float32(annualPercentage)
+	}
+	monthlyConsumption := initialPrice * percentage / 100 / 12
 	for i := 0; i < months; i++ {
-		monthlyConsumption := initialPrice * float32(annualPercentage) / 100 / 12
 		totalConsumption += monthlyConsumption
 	}
 

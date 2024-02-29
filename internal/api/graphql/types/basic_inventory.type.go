@@ -81,7 +81,7 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"net_price": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"gross_price": &graphql.Field{
 			Type: graphql.Float,
@@ -111,7 +111,7 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"price_of_assessment": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"date_of_assessment": &graphql.Field{
 			Type: graphql.String,
@@ -123,7 +123,7 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"amortization_value": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"active": &graphql.Field{
 			Type: graphql.Boolean,

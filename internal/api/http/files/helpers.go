@@ -155,7 +155,7 @@ func parseDate(dateString string) (time.Time, error) {
 	numberOfDays, err := strconv.Atoi(dateString)
 
 	if err == nil {
-		startDate := time.Date(1899, time.December, 30, 0, 0, 0, 0, time.UTC)
+		startDate := time.Date(1899, time.December, 31, 0, 0, 0, 0, time.UTC)
 		daysDuration := time.Duration(numberOfDays) * 24 * time.Hour
 		return startDate.Add(daysDuration), nil
 	}

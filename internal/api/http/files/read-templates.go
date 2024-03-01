@@ -1138,6 +1138,21 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 	for _, obj := range offices.Data {
 		mapOfOffices[obj.Title] = obj.ID
 	}
+	var fals bool
+	organizationUnits, err := h.Repo.GetOrganizationUnits(
+		&dto.GetOrganizationUnitsInput{IsParent: &fals},
+	)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	mapOfOrganizationUnits := make(map[string]int)
+
+	for _, obj := range organizationUnits.Data {
+		mapOfOrganizationUnits[obj.Title] = obj.ID
+	}
 
 	for _, sheetName := range sheetMap {
 
@@ -1177,15 +1192,26 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 					article.Article.InventoryNumber = value
 				case 2:
 					id, exists := mapOfOffices[value]
-					if !exists {
-						responseMessage := ValidationResponse{
-							Column:  2,
-							Row:     rowindex,
-							Message: "Lokacija ne postoji!",
+					if exists {
+						article.Dispatch.OfficeID = id
+						article.Article.OfficeID = article.Dispatch.OfficeID
+						article.Dispatch.Type = "allocation"
+					} else {
+						id, exists = mapOfOrganizationUnits[value]
+						if !exists {
+							responseMessage := ValidationResponse{
+								Column:  2,
+								Row:     rowindex,
+								Message: "Lokacija ne postoji!",
+							}
+							response.Data = append(response.Data, responseMessage)
 						}
-						response.Data = append(response.Data, responseMessage)
+
+						article.Dispatch.IsAccepted = true
+						article.Dispatch.SourceOrganizationUnitID = organizationUnitID
+						article.Dispatch.TargetOrganizationUnitID = id
+						article.Dispatch.Type = "revers"
 					}
-					article.Dispatch.OfficeID = id
 				case 3:
 					article.Article.Title = value
 				case 5:
@@ -1200,7 +1226,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						response.Data = append(response.Data, responseMessage)
 					} else {
 						article.Article.GrossPrice = float32(price)
-						article.Amortization.GrossPriceDifference = float32(price)
+						article.FirstAmortization.GrossPriceDifference = float32(price)
 					}
 				case 14:
 					DateOfAssessment, err := parseDate(value)
@@ -1215,7 +1241,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 					} else if value != "" {
 						dateOfAssessment := DateOfAssessment.Format("2006-01-02T15:04:05Z")
 						article.Article.DateOfAssessment = &dateOfAssessment
-						article.Amortization.DateOfAssessment = &dateOfAssessment
+						article.SecondAmortization.DateOfAssessment = &dateOfAssessment
 					}
 				case 15:
 					grossPriceNew, err := strconv.ParseFloat(value, 32)
@@ -1228,7 +1254,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						}
 						response.Data = append(response.Data, responseMessage)
 					} else if grossPriceNew > 0 {
-						article.Amortization.GrossPriceDifference = float32(grossPriceNew)
+						article.SecondAmortization.GrossPriceDifference = float32(grossPriceNew)
 						article.Article.GrossPrice = float32(grossPriceNew)
 					}
 				case 16:
@@ -1242,7 +1268,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						response.Data = append(response.Data, responseMessage)
 					} else if value != "" {
 						residualPriceFloat32 := float32(residualPrice)
-						article.Amortization.ResidualPrice = &residualPriceFloat32
+						article.SecondAmortization.ResidualPrice = &residualPriceFloat32
 					}
 				case 24:
 					estimatedDuration, err := strconv.Atoi(value)
@@ -1254,7 +1280,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						}
 						response.Data = append(response.Data, responseMessage)
 					} else if estimatedDuration > 0 {
-						article.Amortization.EstimatedDuration = estimatedDuration
+						article.SecondAmortization.EstimatedDuration = estimatedDuration
 					}
 				case 25:
 					article.Article.Description = value
@@ -1280,10 +1306,12 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						}
 						response.Data = append(response.Data, responseMessage)
 					} else {
-						article.Article.DateOfPurchase = dateOfPurchase.Format("2006-01-02T15:04:05Z")
+						dateOfPurchaseString := dateOfPurchase.Format("2006-01-02T15:04:05Z")
+						article.Article.DateOfPurchase = dateOfPurchaseString
+						article.FirstAmortization.DateOfAssessment = &dateOfPurchaseString
 					}
 				case 30:
-					if _, exists := mapOfDeprecationTypes[value]; !exists && value != "" {
+					if id, exists := mapOfDeprecationTypes[value]; !exists && value != "" {
 						responseMessage := ValidationResponse{
 							Column:  30,
 							Row:     rowindex,
@@ -1291,11 +1319,23 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						}
 						response.Data = append(response.Data, responseMessage)
 					} else {
-						article.Article.DepreciationTypeID = mapOfDeprecationTypes[value]
-						article.Amortization.DepreciationTypeID = mapOfDeprecationTypes[value]
+						article.Article.DepreciationTypeID = id
+						article.FirstAmortization.DepreciationTypeID = id
+						article.SecondAmortization.DepreciationTypeID = id
+					}
+				case 32:
+					estimatedDuration, err := strconv.Atoi(value)
+					if value != "" && err != nil {
+						responseMessage := ValidationResponse{
+							Column:  35,
+							Row:     rowindex,
+							Message: "Vijek trajanja nije validno unijet!",
+						}
+						response.Data = append(response.Data, responseMessage)
+					} else if estimatedDuration > 0 {
+						article.FirstAmortization.EstimatedDuration = estimatedDuration
 					}
 				}
-
 			}
 			articles = append(articles, article)
 		}
@@ -1307,31 +1347,47 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 			article.Article.OrganizationUnitID = organizationUnitID
 			article.Article.Type = "movable"
 			article.Article.Active = true
-			article.Article.OfficeID = article.Dispatch.OfficeID
 
-			if article.Article.DateOfAssessment == nil || *article.Article.DateOfAssessment == defaultTime {
-				article.Article.DateOfAssessment = &article.Article.DateOfPurchase
-				article.Amortization.DateOfAssessment = &article.Article.DateOfPurchase
+			if article.SecondAmortization.DateOfAssessment != &defaultTime {
+				article.Article.DateOfAssessment = article.SecondAmortization.DateOfAssessment
 			}
+
+			if article.Dispatch.TargetOrganizationUnitID != 0 {
+				article.Article.TargetOrganizationUnitID = article.Dispatch.TargetOrganizationUnitID
+			}
+
 			newArticle, err := h.Repo.CreateInventoryItem(&article.Article)
 			if err != nil {
 				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
 
-			if article.Amortization.EstimatedDuration > 0 {
-				article.Amortization.InventoryID = newArticle.ID
-				article.Amortization.Type = "financial"
-				article.Amortization.Active = true
-				_, err = h.Repo.CreateAssessments(&article.Amortization)
+			if article.FirstAmortization.EstimatedDuration == 0 {
+				article.FirstAmortization.EstimatedDuration = 10000
+			}
+			article.FirstAmortization.InventoryID = newArticle.ID
+			article.FirstAmortization.Type = "financial"
+			article.FirstAmortization.Active = true
+			_, err = h.Repo.CreateAssessments(&article.FirstAmortization)
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			if article.SecondAmortization.EstimatedDuration > 0 {
+				article.SecondAmortization.InventoryID = newArticle.ID
+				article.SecondAmortization.Type = "financial"
+				article.SecondAmortization.Active = true
+				_, err = h.Repo.CreateAssessments(&article.SecondAmortization)
 				if err != nil {
 					handleError(w, err, http.StatusInternalServerError)
 					return
 				}
 			}
+
 			article.Dispatch.Date = article.Article.DateOfPurchase
 			article.Dispatch.IsAccepted = true
-			article.Dispatch.Type = "allocation"
+
 			dispatch, err := h.Repo.CreateDispatchItem(&article.Dispatch)
 
 			if err != nil {
@@ -1467,7 +1523,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 						responseMessage := ValidationResponse{
 							Column:  2,
 							Row:     rowindex,
-							Message: "Nevalidna vrijednost!",
+							Message: "Nevalidna vrijednost! Dozvoljene vrijednosti su \"Da\" i \"Ne\"!",
 						}
 						response.Data = append(response.Data, responseMessage)
 					}

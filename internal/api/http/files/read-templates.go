@@ -1308,6 +1308,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 					} else {
 						dateOfPurchaseString := dateOfPurchase.Format("2006-01-02T15:04:05Z")
 						article.Article.DateOfPurchase = dateOfPurchaseString
+						article.Article.DateOfAssessment = &dateOfPurchaseString
 						article.FirstAmortization.DateOfAssessment = &dateOfPurchaseString
 					}
 				case 30:
@@ -1348,7 +1349,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 			article.Article.Type = "movable"
 			article.Article.Active = true
 
-			if article.SecondAmortization.DateOfAssessment != &defaultTime {
+			if article.SecondAmortization.DateOfAssessment != nil && *article.SecondAmortization.DateOfAssessment != defaultTime {
 				article.Article.DateOfAssessment = article.SecondAmortization.DateOfAssessment
 			}
 
@@ -1374,7 +1375,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if article.SecondAmortization.EstimatedDuration > 0 {
+			if article.SecondAmortization.DateOfAssessment != nil {
 				article.SecondAmortization.InventoryID = newArticle.ID
 				article.SecondAmortization.Type = "financial"
 				article.SecondAmortization.Active = true

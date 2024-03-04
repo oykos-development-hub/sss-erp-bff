@@ -120,6 +120,10 @@ func BuildAssessmentResponse(
 		userDropdown.Title = user.FirstName + " " + user.LastName
 	}
 
+	if item.EstimatedDuration == 0 {
+		item.EstimatedDuration = 10000
+	}
+
 	depreciationRateInt := 100 / item.EstimatedDuration
 	depreciationRateString := strconv.Itoa(depreciationRateInt) + "%"
 

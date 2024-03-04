@@ -122,6 +122,8 @@ func parseDate(dateString string) (time.Time, error) {
 		"02.01.06",                           // dd.mm.yy
 		"02.01.06.",                          // dd.mm.yy.
 		"02/01/06",                           // dd/mm/yy
+		"01/02/06",                           // mm/dd/yy
+		"01-02-06",                           // mm-dd-yy
 		"02-01-06",                           // dd-mm-yy
 		"06-01-02",                           // yy-mm-dd
 		"01/02/06",                           // mm/dd/yy

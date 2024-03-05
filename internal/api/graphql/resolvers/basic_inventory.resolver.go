@@ -53,7 +53,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		filter.IsExternalDonation = &isExternalDonation
 	}
 
-	if st, ok := params.Args["status"].(string); ok && st != "" {
+	if status, ok := params.Args["status"].(string); ok && status != "" {
 		filter.Status = &status
 	}
 

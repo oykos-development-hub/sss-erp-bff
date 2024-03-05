@@ -18,10 +18,6 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	var items []*dto.BasicInventoryResponseListItem
 	var filter dto.InventoryItemFilter
 	var status string
-	var typeOfImmovable string
-	sourceTypeStr := ""
-	var expireFilter bool
-	var isDonation bool
 
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		filter.ID = &id
@@ -69,6 +65,14 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		filter.OrganizationUnitID = &organizationUnitID
 	}
 
+	if page, ok := params.Args["page"].(int); ok && page != 0 {
+		filter.Page = &page
+	}
+
+	if size, ok := params.Args["size"].(int); ok && size != 0 {
+		filter.Size = &size
+	}
+
 	var organizationUnitID *int
 	if filter.OrganizationUnitID != nil {
 		organizationUnitID = filter.OrganizationUnitID
@@ -90,109 +94,66 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	for _, item := range basicInventoryData.Data {
 		resItem, err := buildInventoryResponse(r.Repo, item, *organizationUnitID)
 
-		if err != nil {
-			continue
-		}
-
-		if len(sourceTypeStr) > 0 && sourceTypeStr != item.SourceType {
-			continue
-		}
-
-		if status != "" && status != "Arhiva" && resItem.Status != status {
-			continue
-		}
-
-		date, err := time.Parse("2006-01-02T00:00:00Z", resItem.DateOfAssessments)
-		if err != nil {
-			continue
-		}
-		dateOfExpiry := date.AddDate(resItem.EstimatedDuration, 0, 0)
-
-		newDateStr := dateOfExpiry.Format("2006-01-02T00:00:00Z")
-		resItem.DateOfEndOfAssessment = newDateStr
-
-		if expireFilter {
-			check, _ := isCurrentOrExpiredDate(newDateStr)
-			if !check || (item.SourceType != "PS1" && item.SourceType != "NS1") {
-				continue
-			}
-		}
-
-		if status == "Otpisano" || resItem.Active {
-			if len(typeOfImmovable) == 0 || (typeOfImmovable != "" && resItem.RealEstate.TypeID == typeOfImmovable) {
-				if !isDonation || (isDonation && item.IsExternalDonation) {
-					items = append(items, resItem)
-				}
-			}
-		}
-
+		items = append(items, resItem)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	}
+	/*
+		if status == "Arhiva" {
+			var response []*dto.BasicInventoryResponseListItem
+			var responseItem *dto.BasicInventoryResponseListItem
+			basicItems, err := r.Repo.GetAllInventoryItemInOrgUnits(*organizationUnitID)
 
-	if page, ok := params.Args["page"].(int); ok && page != 0 {
-		filter.Page = &page
-	}
-
-	if size, ok := params.Args["size"].(int); ok && size != 0 {
-		filter.Size = &size
-	}
-
-	if status == "Arhiva" {
-		var response []*dto.BasicInventoryResponseListItem
-		var responseItem *dto.BasicInventoryResponseListItem
-		basicItems, err := r.Repo.GetAllInventoryItemInOrgUnits(*organizationUnitID)
-
-		if err != nil {
-			return apierrors.HandleAPIError(err)
-		}
-
-		for _, item := range basicItems {
-			var exists bool
-			for _, inventoryItem := range items {
-				if inventoryItem.ID == item.ItemID {
-					exists = true
-					responseItem = inventoryItem
-				}
+			if err != nil {
+				return apierrors.HandleAPIError(err)
 			}
-			if exists {
-				var existsInResponse bool
-				for _, responseItem := range response {
-					if responseItem.ID == item.ItemID {
-						existsInResponse = true
+
+			for _, item := range basicItems {
+				var exists bool
+				for _, inventoryItem := range items {
+					if inventoryItem.ID == item.ItemID {
+						exists = true
+						responseItem = inventoryItem
 					}
 				}
-				if !existsInResponse {
-					responseItem.SourceType = "Arhiva"
-					response = append(response, responseItem)
+				if exists {
+					var existsInResponse bool
+					for _, responseItem := range response {
+						if responseItem.ID == item.ItemID {
+							existsInResponse = true
+						}
+					}
+					if !existsInResponse {
+						responseItem.SourceType = "Arhiva"
+						response = append(response, responseItem)
+					}
 				}
 			}
+			items = response
 		}
-		items = response
-	}
 
-	total := len(items)
-	if filter.Page != nil && filter.Size != nil {
-		start := (*filter.Page - 1) * *filter.Size
-		end := start + *filter.Size
+		total := len(items)
+		if filter.Page != nil && filter.Size != nil {
+			start := (*filter.Page - 1) * *filter.Size
+			end := start + *filter.Size
 
-		if start >= len(items) {
-			items = []*dto.BasicInventoryResponseListItem{}
-		} else {
+			if start >= len(items) {
+				items = []*dto.BasicInventoryResponseListItem{}
+			} else {
 
-			if end > len(items) {
-				end = len(items)
+				if end > len(items) {
+					end = len(items)
+				}
+
+				items = items[start:end]
 			}
-
-			items = items[start:end]
 		}
-	}
-
+	*/
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Total:   total,
+		Total:   basicInventoryData.Total,
 		Items:   items,
 	}, nil
 }

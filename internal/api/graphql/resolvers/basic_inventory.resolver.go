@@ -448,6 +448,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	assessments, _ := r.GetMyInventoryAssessments(item.ID)
 	var grossPrice float32
 	var dateOfAssessment string
+	var dateOfEndOfAssessment string
 	hasAssessments := false
 	var amortizationValue float32
 	indexAssessments := 0
@@ -460,6 +461,12 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 					grossPrice = assessmentResponse.GrossPriceDifference
 					dateOfAssessment = *assessmentResponse.DateOfAssessment
 					estimatedDuration = assessmentResponse.EstimatedDuration
+					date, err := time.Parse(time.RFC3339, dateOfAssessment)
+					if err != nil {
+						return nil, err
+					}
+					newDate := date.AddDate(estimatedDuration, 0, 0)
+					dateOfEndOfAssessment = newDate.Format("2006-01-02T00:00:00Z")
 					amortizationValue = calculateMonthlyConsumption(dateOfAssessment, 100/estimatedDuration, grossPrice, estimatedDuration)
 					break
 				}
@@ -567,6 +574,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		PurchaseGrossPrice:           item.GrossPrice,
 		DateOfPurchase:               item.DateOfPurchase,
 		DateOfAssessments:            dateOfAssessment,
+		DateOfEndOfAssessment:        dateOfEndOfAssessment,
 		LifetimeOfAssessmentInMonths: estimatedDuration,
 		AmortizationValue:            amortizationValue,
 		City:                         &organizationUnitDropdown.City,

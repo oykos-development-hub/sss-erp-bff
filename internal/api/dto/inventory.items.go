@@ -33,6 +33,10 @@ type InventoryItemFilter struct {
 	InventoryNumber          *string `json:"inventory_number"`
 	Location                 *string `json:"location"`
 	IsExternalDonation       *bool   `json:"is_external_donation"`
+	Expire                   *bool   `json:"expire"`
+	Status                   *string `json:"status"`
+	TypeOfImmovableProperty  *string `json:"type_of_immovable_property"`
+	CurrentOrganizationUnit  int     `json:"current_organization_unit_id"`
 	Page                     *int    `json:"page"`
 	Size                     *int    `json:"size"`
 }

@@ -44,35 +44,31 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	}
 
 	if sourceType, ok := params.Args["source_type"].(string); ok && sourceType != "" {
-		sourceTypeStr = sourceType
+		filter.SourceType = &sourceType
 	}
 
 	if depreciationTypeID, ok := params.Args["depreciation_type_id"].(int); ok && depreciationTypeID != 0 {
 		filter.DeprecationTypeID = &depreciationTypeID
 	}
 	if expire, ok := params.Args["expire"].(bool); ok && expire {
-		expireFilter = expire
+		filter.Expire = &expire
 	}
 	if isExternalDonation, ok := params.Args["is_external_donation"].(bool); ok && isExternalDonation {
-		isDonation = isExternalDonation
+		filter.IsExternalDonation = &isExternalDonation
 	}
 
 	if st, ok := params.Args["status"].(string); ok && st != "" {
-		status = st
+		filter.Status = &status
 	}
 
 	if typeImmovement, ok := params.Args["type_of_immovable_property"].(string); ok && typeImmovement != "" {
-		typeOfImmovable = typeImmovement
+		filter.TypeOfImmovableProperty = &typeImmovement
 	}
 
 	if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 && status != "Arhiva" {
 		filter.OrganizationUnitID = &organizationUnitID
 	}
-	basicInventoryData, err := r.Repo.GetAllInventoryItem(filter)
 
-	if err != nil {
-		return apierrors.HandleAPIError(err)
-	}
 	var organizationUnitID *int
 	if filter.OrganizationUnitID != nil {
 		organizationUnitID = filter.OrganizationUnitID
@@ -83,6 +79,14 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		}
 		organizationUnitID = organizationUnitIDFromParams
 	}
+
+	filter.CurrentOrganizationUnit = *organizationUnitID
+	basicInventoryData, err := r.Repo.GetAllInventoryItem(filter)
+
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
 	for _, item := range basicInventoryData.Data {
 		resItem, err := buildInventoryResponse(r.Repo, item, *organizationUnitID)
 
@@ -93,6 +97,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		if len(sourceTypeStr) > 0 && sourceTypeStr != item.SourceType {
 			continue
 		}
+
 		if status != "" && status != "Arhiva" && resItem.Status != status {
 			continue
 		}

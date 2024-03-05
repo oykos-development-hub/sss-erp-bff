@@ -1170,11 +1170,11 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 
 		for rows.Next() {
 			rowindex++
-			if rowindex <= 9 {
+			if rowindex <= 1900 {
 				continue
 			}
 
-			if rowindex > 100 {
+			if rowindex > 1958 {
 				break
 			}
 
@@ -1345,6 +1345,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 	if len(response.Data) == 0 {
 		defaultTime := "0001-01-01T00:00:00Z"
 		for _, article := range articles {
+
 			article.Article.OrganizationUnitID = organizationUnitID
 			article.Article.Type = "movable"
 			article.Article.Active = true

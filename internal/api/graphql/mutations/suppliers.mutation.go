@@ -29,5 +29,8 @@ var SuppliersInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"folder_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"bank_accounts": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.String),
+		},
 	},
 })

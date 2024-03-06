@@ -71,6 +71,8 @@ type FinanceMS struct {
 	NonFinancialGoalIndicator string
 	Invoice                   string
 	InvoiceArticle            string
+	Fine                      string
+	FinePayment               string
 }
 
 type ProcurementMS struct {
@@ -328,6 +330,8 @@ func LoadDefaultConfig() (*Config, error) {
 				NonFinancialGoalIndicator: financeBase + "/goal-indicators",
 				Invoice:                   financeBase + "/invoices",
 				InvoiceArticle:            financeBase + "/articles",
+				Fine:                      financeBase + "/fines",
+				FinePayment:               financeBase + "/fine-payments",
 			},
 		},
 		Frontend: FrontendConfig{

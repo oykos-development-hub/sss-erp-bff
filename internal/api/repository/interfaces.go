@@ -338,4 +338,16 @@ type MicroserviceRepositoryInterface interface {
 	DeleteInvoiceArticle(id int) error
 	CreateInvoiceArticle(article *structs.InvoiceArticles) (*structs.InvoiceArticles, error)
 	UpdateInvoiceArticle(item *structs.InvoiceArticles) (*structs.InvoiceArticles, error)
+
+	CreateFine(item *structs.Fine) (*structs.Fine, error)
+	GetFine(id int) (*structs.Fine, error)
+	GetFineList(input *dto.GetFineListInputMS) ([]structs.Fine, int, error)
+	DeleteFine(id int) error
+	UpdateFine(item *structs.Fine) (*structs.Fine, error)
+
+	CreateFinePayment(item *structs.FinePayment) (*structs.FinePayment, error)
+	GetFinePayment(id int) (*structs.FinePayment, error)
+	GetFinePaymentList(input *dto.GetFinePaymentListInputMS) ([]structs.FinePayment, int, error)
+	DeleteFinePayment(id int) error
+	UpdateFinePayment(item *structs.FinePayment) (*structs.FinePayment, error)
 }

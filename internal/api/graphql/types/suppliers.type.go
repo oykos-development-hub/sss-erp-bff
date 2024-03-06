@@ -29,6 +29,9 @@ var SuppliersItemType = graphql.NewObject(graphql.ObjectConfig{
 		"folder_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"bank_accounts": &graphql.Field{
+			Type: graphql.NewList(graphql.String),
+		},
 	},
 })
 

@@ -132,23 +132,6 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 			}
 			items = response
 		}
-
-		total := len(items)
-		if filter.Page != nil && filter.Size != nil {
-			start := (*filter.Page - 1) * *filter.Size
-			end := start + *filter.Size
-
-			if start >= len(items) {
-				items = []*dto.BasicInventoryResponseListItem{}
-			} else {
-
-				if end > len(items) {
-					end = len(items)
-				}
-
-				items = items[start:end]
-			}
-		}
 	*/
 	return dto.Response{
 		Status:  "success",
@@ -156,18 +139,6 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 		Total:   basicInventoryData.Total,
 		Items:   items,
 	}, nil
-}
-
-func isCurrentOrExpiredDate(dateStr string) (bool, error) {
-
-	parsedDate, err := time.Parse("2006-01-02T00:00:00Z", dateStr)
-	if err != nil {
-		return false, err
-	}
-
-	currentDate := time.Now()
-
-	return parsedDate.Year() == currentDate.Year() || parsedDate.Before(currentDate), nil
 }
 
 func (r *Resolver) BasicInventoryDetailsResolver(params graphql.ResolveParams) (interface{}, error) {

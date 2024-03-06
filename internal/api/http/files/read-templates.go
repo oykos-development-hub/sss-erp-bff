@@ -1,6 +1,7 @@
 package files
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
 	"errors"
@@ -1168,13 +1169,17 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 
 		rowindex := 0
 
+		res, _ := h.Repo.GetAllInventoryItem(dto.InventoryItemFilter{OrganizationUnitID: &organizationUnitID})
+
+		total := res.Total
+
 		for rows.Next() {
 			rowindex++
-			if rowindex <= 1900 {
+			if rowindex <= total+9 {
 				continue
 			}
 
-			if rowindex > 1958 {
+			if rowindex > total+9+90 {
 				break
 			}
 
@@ -1196,17 +1201,38 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						article.Dispatch.OfficeID = id
 						article.Article.OfficeID = article.Dispatch.OfficeID
 						article.Dispatch.Type = "allocation"
-					} else {
+					} else if value != "" {
 						id, exists = mapOfOrganizationUnits[value]
-						if !exists {
-							responseMessage := ValidationResponse{
-								Column:  2,
-								Row:     rowindex,
-								Message: "Lokacija ne postoji!",
+						if !exists && value != "" {
+							newOffice := structs.SettingsDropdown{
+								Value:  strconv.Itoa(organizationUnitID),
+								Title:  value,
+								Entity: config.OfficeTypes,
 							}
-							response.Data = append(response.Data, responseMessage)
-						}
 
+							itemRes, err := h.Repo.CreateDropdownSettings(&newOffice)
+
+							if err != nil {
+								responseMessage := ValidationResponse{
+									Column:  2,
+									Row:     rowindex,
+									Message: "Greska prilikom dodavanja kancelarije!",
+								}
+								response.Data = append(response.Data, responseMessage)
+							}
+							article.Dispatch.OfficeID = itemRes.ID
+							article.Article.OfficeID = itemRes.ID
+							article.Dispatch.Type = "allocation"
+						} else {
+							if err != nil {
+								responseMessage := ValidationResponse{
+									Column:  2,
+									Row:     rowindex,
+									Message: "Lokacija nije validna!",
+								}
+								response.Data = append(response.Data, responseMessage)
+							}
+						}
 						article.Dispatch.IsAccepted = true
 						article.Dispatch.SourceOrganizationUnitID = organizationUnitID
 						article.Dispatch.TargetOrganizationUnitID = id
@@ -1270,7 +1296,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						residualPriceFloat32 := float32(residualPrice)
 						article.SecondAmortization.ResidualPrice = &residualPriceFloat32
 					}
-				case 24:
+				case 23:
 					estimatedDuration, err := strconv.Atoi(value)
 					if value != "" && err != nil {
 						responseMessage := ValidationResponse{
@@ -1282,10 +1308,10 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 					} else if estimatedDuration > 0 {
 						article.SecondAmortization.EstimatedDuration = estimatedDuration
 					}
-				case 25:
+				case 24:
 					article.Article.Description = value
-				case 26:
-					if _, exists := mapOfClassTypes[value]; !exists && value != "" {
+				case 25:
+					if _, exists := mapOfClassTypes[value]; !exists && value != "" && value != "0" {
 						responseMessage := ValidationResponse{
 							Column:  26,
 							Row:     rowindex,
@@ -1295,7 +1321,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 					} else {
 						article.Article.ClassTypeID = mapOfClassTypes[value]
 					}
-				case 29:
+				case 28:
 					dateOfPurchase, err := parseDate(value)
 
 					if value != "" && err != nil {
@@ -1311,7 +1337,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						article.Article.DateOfAssessment = &dateOfPurchaseString
 						article.FirstAmortization.DateOfAssessment = &dateOfPurchaseString
 					}
-				case 30:
+				case 29:
 					if id, exists := mapOfDeprecationTypes[value]; !exists && value != "" {
 						responseMessage := ValidationResponse{
 							Column:  30,
@@ -1324,7 +1350,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						article.FirstAmortization.DepreciationTypeID = id
 						article.SecondAmortization.DepreciationTypeID = id
 					}
-				case 32:
+				case 31:
 					estimatedDuration, err := strconv.Atoi(value)
 					if value != "" && err != nil {
 						responseMessage := ValidationResponse{

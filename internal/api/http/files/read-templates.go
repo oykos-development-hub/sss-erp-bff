@@ -1223,6 +1223,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 							article.Dispatch.OfficeID = itemRes.ID
 							article.Article.OfficeID = itemRes.ID
 							article.Dispatch.Type = "allocation"
+							mapOfOffices[itemRes.Title] = itemRes.ID
 						} else {
 							if err != nil {
 								responseMessage := ValidationResponse{
@@ -1296,7 +1297,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						residualPriceFloat32 := float32(residualPrice)
 						article.SecondAmortization.ResidualPrice = &residualPriceFloat32
 					}
-				case 23:
+				case 24:
 					estimatedDuration, err := strconv.Atoi(value)
 					if value != "" && err != nil {
 						responseMessage := ValidationResponse{
@@ -1308,9 +1309,9 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 					} else if estimatedDuration > 0 {
 						article.SecondAmortization.EstimatedDuration = estimatedDuration
 					}
-				case 24:
-					article.Article.Description = value
 				case 25:
+					article.Article.Description = value
+				case 26:
 					if _, exists := mapOfClassTypes[value]; !exists && value != "" && value != "0" {
 						responseMessage := ValidationResponse{
 							Column:  26,
@@ -1321,7 +1322,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 					} else {
 						article.Article.ClassTypeID = mapOfClassTypes[value]
 					}
-				case 28:
+				case 29:
 					dateOfPurchase, err := parseDate(value)
 
 					if value != "" && err != nil {
@@ -1337,7 +1338,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						article.Article.DateOfAssessment = &dateOfPurchaseString
 						article.FirstAmortization.DateOfAssessment = &dateOfPurchaseString
 					}
-				case 29:
+				case 30:
 					if id, exists := mapOfDeprecationTypes[value]; !exists && value != "" {
 						responseMessage := ValidationResponse{
 							Column:  30,
@@ -1350,7 +1351,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						article.FirstAmortization.DepreciationTypeID = id
 						article.SecondAmortization.DepreciationTypeID = id
 					}
-				case 31:
+				case 32:
 					estimatedDuration, err := strconv.Atoi(value)
 					if value != "" && err != nil {
 						responseMessage := ValidationResponse{
@@ -1371,7 +1372,9 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 	if len(response.Data) == 0 {
 		defaultTime := "0001-01-01T00:00:00Z"
 		for _, article := range articles {
-
+			if article.Article.Title == "" {
+				continue
+			}
 			article.Article.OrganizationUnitID = organizationUnitID
 			article.Article.Type = "movable"
 			article.Article.Active = true

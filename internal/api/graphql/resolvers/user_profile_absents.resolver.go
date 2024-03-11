@@ -116,10 +116,29 @@ func (r *Resolver) UserProfileVacationResolutionsInsertResolver(params graphql.R
 	var vacations []dto.Vacation
 
 	for _, vacation := range data.Data {
+
+		// delete all resolutions for the year and user
+		dateYearStart := time.Date(data.Year, time.January, 1, 0, 0, 0, 0, time.UTC)
+		dateYearEnd := time.Date(data.Year, time.December, 31, 23, 59, 59, 999999999, time.UTC)
+		resolutions, err := r.Repo.GetEmployeeResolutions(vacation.UserProfileID, &dto.EmployeeResolutionListInput{
+			From: &dateYearStart,
+			To:   &dateYearEnd,
+		})
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		for _, resolution := range resolutions {
+			err = r.Repo.DeleteResolution(resolution.ID)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+		}
+
 		var inputData structs.Resolution
-		dateOfEnd := time.Date(data.Year, time.December, 31, 23, 59, 59, 999999999, time.UTC).Format("2006-01-02T15:04:05Z")
+		dateOfEnd := dateYearEnd.Format("2006-01-02T15:04:05Z")
 		inputData.ResolutionTypeID = vacationType.Data[0].ID
-		inputData.DateOfStart = time.Date(data.Year, time.January, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02T15:04:05Z")
+		inputData.DateOfStart = dateYearStart.Format("2006-01-02T15:04:05Z")
 		inputData.DateOfEnd = &dateOfEnd
 		inputData.UserProfileID = vacation.UserProfileID
 		inputData.Value = strconv.Itoa(vacation.NumberOfDays)

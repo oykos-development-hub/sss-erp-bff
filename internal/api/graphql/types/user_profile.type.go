@@ -623,7 +623,7 @@ var UserProfileExperiencesInsertType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"item": &graphql.Field{
+		"items": &graphql.Field{
 			Type: graphql.NewList(UserProfileExperienceItemType),
 		},
 	},

@@ -187,7 +187,7 @@ func (f *Field) UserProfileExperienceInsertField() *graphql.Field {
 
 func (f *Field) UserProfileExperiencesInsertField() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.UserProfileExperienceInsertType,
+		Type:        types.UserProfileExperiencesInsertType,
 		Description: "Creates new or alter existing User Profile's Experiences item",
 		Args: graphql.FieldConfigArgument{
 			"data": &graphql.ArgumentConfig{

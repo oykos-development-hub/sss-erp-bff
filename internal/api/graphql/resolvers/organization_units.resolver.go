@@ -23,7 +23,7 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 	parentID := params.Args["parent_id"]
 	search, searchOk := params.Args["search"].(string)
 	settings := params.Args["settings"].(bool)
-	enableFilters := params.Args["enable_filters"].(bool)
+	disableFilters := params.Args["disable_filters"].(bool)
 
 	if id != nil && id != 0 {
 		organizationUnit, err := r.Repo.GetOrganizationUnitByID(id.(int))
@@ -70,7 +70,7 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 				return errors.HandleAPIError(err)
 			}
 
-			if !enableFilters {
+			if !disableFilters {
 				hasGeneralPermission := loggedInAccount.HasPermission(structs.PermissionManageOrganizationUnits)
 
 				// Initialize isOwnOrChildUnit as false

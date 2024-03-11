@@ -612,7 +612,7 @@ var UserProfileExperienceInsertType = graphql.NewObject(graphql.ObjectConfig{
 })
 
 var UserProfileExperiencesInsertType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileExperienceInsert",
+	Name: "UserProfileExperiencesInsert",
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,

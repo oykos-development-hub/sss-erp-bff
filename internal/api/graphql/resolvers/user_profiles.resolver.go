@@ -792,6 +792,41 @@ func (r *Resolver) UserProfileExperienceInsertResolver(params graphql.ResolvePar
 	return response, nil
 }
 
+func (r *Resolver) UserProfileExperiencesInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var err error
+	var data []structs.Experience
+
+	response := dto.Response{
+		Status: "success",
+	}
+
+	dataBytes, _ := json.Marshal(params.Args["data"])
+
+	err = json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
+		return errors.ErrorResponse("Error updating experience data"), nil
+	}
+
+	var responseItems []*dto.ExperienceResponseItem
+	for _, item := range data {
+		item, err := r.Repo.CreateExperience(&item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		resItem, err := buildExprienceResponseItem(r.Repo, item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		response.Message = "You created this item!"
+		responseItems = append(responseItems, resItem)
+	}
+
+	response.Items = responseItems
+
+	return response, nil
+}
+
 func buildExprienceResponseItemList(repo repository.MicroserviceRepositoryInterface, items []*structs.Experience) (resItemList []*dto.ExperienceResponseItem, err error) {
 	for _, item := range items {
 		resItem, err := buildExprienceResponseItem(repo, item)

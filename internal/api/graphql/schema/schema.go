@@ -45,6 +45,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"userProfile_Education_Insert":                    fields.UserProfileEducationInsertField(),
 			"userProfile_Education_Delete":                    fields.UserProfileEducationDeleteField(),
 			"userProfile_Experience_Insert":                   fields.UserProfileExperienceInsertField(),
+			"userProfile_Experiences_Insert":                  fields.UserProfileExperiencesInsertField(),
 			"userProfile_Experience_Delete":                   fields.UserProfileExperienceDeleteField(),
 			"userProfile_Family_Insert":                       fields.UserProfileFamilyInsertField(),
 			"userProfile_Family_Delete":                       fields.UserProfileFamilyDeleteField(),

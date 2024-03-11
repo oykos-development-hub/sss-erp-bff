@@ -611,6 +611,24 @@ var UserProfileExperienceInsertType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var UserProfileExperiencesInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserProfileExperienceInsert",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: graphql.NewList(UserProfileExperienceItemType),
+		},
+	},
+})
+
 var UserProfileExperienceDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "ExperienceDelete",
 	Fields: graphql.Fields{

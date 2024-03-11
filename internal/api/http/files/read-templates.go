@@ -1,7 +1,6 @@
 package files
 
 import (
-	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
 	"errors"
@@ -1080,368 +1079,431 @@ func (h *Handler) ImportUserProfileVacationsHandler(w http.ResponseWriter, r *ht
 	_ = MarshalAndWriteJSON(w, response)
 }
 
-func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
-	var response ImportPS1Inventories
-	organizationUnitIDStr := r.FormValue("organization_unit_id")
+/*
+	func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
+		var response ImportPS1Inventories
+		organizationUnitIDStr := r.FormValue("organization_unit_id")
 
-	organizationUnitID, err := strconv.Atoi(organizationUnitIDStr)
+		organizationUnitID, err := strconv.Atoi(organizationUnitIDStr)
 
-	if err != nil {
-		handleError(w, err, http.StatusBadRequest)
-		return
-	}
-
-	xlsFile, err := openExcelFile(r)
-
-	if err != nil {
-		handleError(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	var articles []ImportInventoryArticles
-
-	sheetMap := xlsFile.GetSheetMap()
-	classTypes, err := h.Repo.GetDropdownSettings(&dto.GetSettingsInput{Entity: "inventory_class_type"})
-
-	if err != nil {
-		handleError(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	mapOfClassTypes := make(map[string]int)
-
-	for _, obj := range classTypes.Data {
-		mapOfClassTypes[obj.Abbreviation] = obj.ID
-	}
-
-	deprecationTypes, err := h.Repo.GetDropdownSettings(&dto.GetSettingsInput{Entity: "deprecation_types"})
-
-	if err != nil {
-		handleError(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	mapOfDeprecationTypes := make(map[string]int)
-
-	for _, obj := range deprecationTypes.Data {
-		mapOfDeprecationTypes[obj.Title] = obj.ID
-	}
-
-	offices, err := h.Repo.GetOfficeDropdownSettings(&dto.GetOfficesOfOrganizationInput{})
-
-	if err != nil {
-		handleError(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	mapOfOffices := make(map[string]int)
-
-	for _, obj := range offices.Data {
-		mapOfOffices[obj.Title] = obj.ID
-	}
-	var fals bool
-	organizationUnits, err := h.Repo.GetOrganizationUnits(
-		&dto.GetOrganizationUnitsInput{IsParent: &fals},
-	)
-
-	if err != nil {
-		handleError(w, err, http.StatusInternalServerError)
-		return
-	}
-
-	mapOfOrganizationUnits := make(map[string]int)
-
-	for _, obj := range organizationUnits.Data {
-		mapOfOrganizationUnits[obj.Title] = obj.ID
-	}
-
-	for _, sheetName := range sheetMap {
-
-		if sheetName != "PS -1" {
-			continue
+		if err != nil {
+			handleError(w, err, http.StatusBadRequest)
+			return
 		}
 
-		rows, err := xlsFile.Rows(sheetName)
+		xlsFile, err := openExcelFile(r)
+
 		if err != nil {
 			handleError(w, err, http.StatusInternalServerError)
 			return
 		}
 
-		rowindex := 0
+		var articles []ImportInventoryArticles
 
-		res, _ := h.Repo.GetAllInventoryItem(dto.InventoryItemFilter{OrganizationUnitID: &organizationUnitID})
+		sheetMap := xlsFile.GetSheetMap()
+		classTypes, err := h.Repo.GetDropdownSettings(&dto.GetSettingsInput{Entity: "inventory_class_type"})
 
-		total := res.Total
-
-		for rows.Next() {
-			rowindex++
-			if rowindex <= total+9 {
-				continue
-			}
-
-			if rowindex > total+9+90 {
-				break
-			}
-
-			cols := rows.Columns()
-			if err != nil {
-				handleError(w, err, http.StatusInternalServerError)
-				return
-			}
-
-			var article ImportInventoryArticles
-			for cellIndex, cellValue := range cols {
-				value := cellValue
-				switch cellIndex {
-				case 1:
-					article.Article.InventoryNumber = value
-				case 2:
-					id, exists := mapOfOffices[value]
-					if exists {
-						article.Dispatch.OfficeID = id
-						article.Article.OfficeID = article.Dispatch.OfficeID
-						article.Dispatch.Type = "allocation"
-					} else if value != "" {
-						id, exists = mapOfOrganizationUnits[value]
-						if !exists && value != "" {
-							newOffice := structs.SettingsDropdown{
-								Value:  strconv.Itoa(organizationUnitID),
-								Title:  value,
-								Entity: config.OfficeTypes,
-							}
-
-							itemRes, err := h.Repo.CreateDropdownSettings(&newOffice)
-
-							if err != nil {
-								responseMessage := ValidationResponse{
-									Column:  2,
-									Row:     rowindex,
-									Message: "Greska prilikom dodavanja kancelarije!",
-								}
-								response.Data = append(response.Data, responseMessage)
-							}
-							article.Dispatch.OfficeID = itemRes.ID
-							article.Article.OfficeID = itemRes.ID
-							article.Dispatch.Type = "allocation"
-							mapOfOffices[itemRes.Title] = itemRes.ID
-						} else {
-							if err != nil {
-								responseMessage := ValidationResponse{
-									Column:  2,
-									Row:     rowindex,
-									Message: "Lokacija nije validna!",
-								}
-								response.Data = append(response.Data, responseMessage)
-							}
-						}
-						article.Dispatch.IsAccepted = true
-						article.Dispatch.SourceOrganizationUnitID = organizationUnitID
-						article.Dispatch.TargetOrganizationUnitID = id
-						article.Dispatch.Type = "revers"
-					}
-				case 3:
-					article.Article.Title = value
-				case 5:
-					price, err := strconv.ParseFloat(value, 32)
-
-					if value != "" && err != nil {
-						responseMessage := ValidationResponse{
-							Column:  5,
-							Row:     rowindex,
-							Message: "Cijena nije validno unijeta!",
-						}
-						response.Data = append(response.Data, responseMessage)
-					} else {
-						article.Article.GrossPrice = float32(price)
-						article.FirstAmortization.GrossPriceDifference = float32(price)
-					}
-				case 14:
-					DateOfAssessment, err := parseDate(value)
-
-					if value != "" && err != nil {
-						responseMessage := ValidationResponse{
-							Column:  14,
-							Row:     rowindex,
-							Message: "Datum amortizacije nije validno unijet!",
-						}
-						response.Data = append(response.Data, responseMessage)
-					} else if value != "" {
-						dateOfAssessment := DateOfAssessment.Format("2006-01-02T15:04:05Z")
-						article.Article.DateOfAssessment = &dateOfAssessment
-						article.SecondAmortization.DateOfAssessment = &dateOfAssessment
-					}
-				case 15:
-					grossPriceNew, err := strconv.ParseFloat(value, 32)
-
-					if value != "" && err != nil {
-						responseMessage := ValidationResponse{
-							Column:  15,
-							Row:     rowindex,
-							Message: "Nova cijena nije validno unijeta!",
-						}
-						response.Data = append(response.Data, responseMessage)
-					} else if grossPriceNew > 0 {
-						article.SecondAmortization.GrossPriceDifference = float32(grossPriceNew)
-						article.Article.GrossPrice = float32(grossPriceNew)
-					}
-				case 16:
-					residualPrice, err := strconv.ParseFloat(value, 32)
-					if value != "" && err != nil {
-						responseMessage := ValidationResponse{
-							Column:  16,
-							Row:     rowindex,
-							Message: "Rezidualna cijena nije validno unijeta!",
-						}
-						response.Data = append(response.Data, responseMessage)
-					} else if value != "" {
-						residualPriceFloat32 := float32(residualPrice)
-						article.SecondAmortization.ResidualPrice = &residualPriceFloat32
-					}
-				case 24:
-					estimatedDuration, err := strconv.Atoi(value)
-					if value != "" && err != nil {
-						responseMessage := ValidationResponse{
-							Column:  24,
-							Row:     rowindex,
-							Message: "Vijek trajanja nije validno unijet!",
-						}
-						response.Data = append(response.Data, responseMessage)
-					} else if estimatedDuration > 0 {
-						article.SecondAmortization.EstimatedDuration = estimatedDuration
-					}
-				case 25:
-					article.Article.Description = value
-				case 26:
-					if _, exists := mapOfClassTypes[value]; !exists && value != "" && value != "0" {
-						responseMessage := ValidationResponse{
-							Column:  26,
-							Row:     rowindex,
-							Message: "Klasa sredstva " + value + " nije validna.",
-						}
-						response.Data = append(response.Data, responseMessage)
-					} else {
-						article.Article.ClassTypeID = mapOfClassTypes[value]
-					}
-				case 29:
-					dateOfPurchase, err := parseDate(value)
-
-					if value != "" && err != nil {
-						responseMessage := ValidationResponse{
-							Column:  29,
-							Row:     rowindex,
-							Message: "Datum nabavke nije validno unijet!",
-						}
-						response.Data = append(response.Data, responseMessage)
-					} else {
-						dateOfPurchaseString := dateOfPurchase.Format("2006-01-02T15:04:05Z")
-						article.Article.DateOfPurchase = dateOfPurchaseString
-						article.Article.DateOfAssessment = &dateOfPurchaseString
-						article.FirstAmortization.DateOfAssessment = &dateOfPurchaseString
-					}
-				case 30:
-					if id, exists := mapOfDeprecationTypes[value]; !exists && value != "" {
-						responseMessage := ValidationResponse{
-							Column:  30,
-							Row:     rowindex,
-							Message: "Amortizaciona grupa " + value + " nije validna.",
-						}
-						response.Data = append(response.Data, responseMessage)
-					} else {
-						article.Article.DepreciationTypeID = id
-						article.FirstAmortization.DepreciationTypeID = id
-						article.SecondAmortization.DepreciationTypeID = id
-					}
-				case 32:
-					estimatedDuration, err := strconv.Atoi(value)
-					if value != "" && err != nil {
-						responseMessage := ValidationResponse{
-							Column:  35,
-							Row:     rowindex,
-							Message: "Vijek trajanja nije validno unijet!",
-						}
-						response.Data = append(response.Data, responseMessage)
-					} else if estimatedDuration > 0 {
-						article.FirstAmortization.EstimatedDuration = estimatedDuration
-					}
-				}
-			}
-			articles = append(articles, article)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
 		}
-	}
 
-	if len(response.Data) == 0 {
-		defaultTime := "0001-01-01T00:00:00Z"
-		for _, article := range articles {
-			if article.Article.Title == "" {
+		mapOfClassTypes := make(map[string]int)
+
+		for _, obj := range classTypes.Data {
+			mapOfClassTypes[obj.Abbreviation] = obj.ID
+		}
+
+		deprecationTypes, err := h.Repo.GetDropdownSettings(&dto.GetSettingsInput{Entity: "deprecation_types"})
+
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		mapOfDeprecationTypes := make(map[string]int)
+
+		for _, obj := range deprecationTypes.Data {
+			mapOfDeprecationTypes[obj.Title] = obj.ID
+		}
+
+		offices, err := h.Repo.GetOfficeDropdownSettings(&dto.GetOfficesOfOrganizationInput{})
+
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		mapOfOffices := make(map[string]int)
+
+		for _, obj := range offices.Data {
+			mapOfOffices[obj.Title] = obj.ID
+		}
+		var fals bool
+		organizationUnits, err := h.Repo.GetOrganizationUnits(
+			&dto.GetOrganizationUnitsInput{IsParent: &fals},
+		)
+
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		mapOfOrganizationUnits := make(map[string]int)
+
+		for _, obj := range organizationUnits.Data {
+			mapOfOrganizationUnits[obj.Title] = obj.ID
+		}
+
+		for _, sheetName := range sheetMap {
+
+			if sheetName != "PS -1" {
 				continue
 			}
-			article.Article.OrganizationUnitID = organizationUnitID
-			article.Article.Type = "movable"
-			article.Article.Active = true
 
-			if article.SecondAmortization.DateOfAssessment != nil && *article.SecondAmortization.DateOfAssessment != defaultTime {
-				article.Article.DateOfAssessment = article.SecondAmortization.DateOfAssessment
-			}
-
-			if article.Dispatch.TargetOrganizationUnitID != 0 {
-				article.Article.TargetOrganizationUnitID = article.Dispatch.TargetOrganizationUnitID
-			}
-
-			newArticle, err := h.Repo.CreateInventoryItem(&article.Article)
+			rows, err := xlsFile.Rows(sheetName)
 			if err != nil {
 				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
 
-			if article.FirstAmortization.EstimatedDuration == 0 {
-				article.FirstAmortization.EstimatedDuration = 10000
-			}
-			article.FirstAmortization.InventoryID = newArticle.ID
-			article.FirstAmortization.Type = "financial"
-			article.FirstAmortization.Active = true
-			_, err = h.Repo.CreateAssessments(&article.FirstAmortization)
-			if err != nil {
-				handleError(w, err, http.StatusInternalServerError)
-				return
-			}
+			rowindex := 0
 
-			if article.SecondAmortization.DateOfAssessment != nil {
-				article.SecondAmortization.InventoryID = newArticle.ID
-				article.SecondAmortization.Type = "financial"
-				article.SecondAmortization.Active = true
-				_, err = h.Repo.CreateAssessments(&article.SecondAmortization)
+			res, _ := h.Repo.GetAllInventoryItem(dto.InventoryItemFilter{OrganizationUnitID: &organizationUnitID})
+
+			total := res.Total
+
+			for rows.Next() {
+				rowindex++
+				if rowindex <= total+9 {
+					continue
+				}
+
+				if rowindex > total+9+90 {
+					break
+				}
+
+				cols := rows.Columns()
 				if err != nil {
 					handleError(w, err, http.StatusInternalServerError)
 					return
 				}
-			}
 
-			article.Dispatch.Date = article.Article.DateOfPurchase
-			article.Dispatch.IsAccepted = true
+				var article ImportInventoryArticles
+				for cellIndex, cellValue := range cols {
+					value := cellValue
+					switch cellIndex {
+					case 1:
+						article.Article.InventoryNumber = value
+					case 2:
+						id, exists := mapOfOffices[value]
+						if exists {
+							article.Dispatch.OfficeID = id
+							article.Article.OfficeID = article.Dispatch.OfficeID
+							article.Dispatch.Type = "allocation"
+						} else if value != "" {
+							index := strings.Index(value, "-")
+							if index == -1 {
+								id, exists = mapOfOrganizationUnits[value]
+								if !exists && value != "" {
+									newOffice := structs.SettingsDropdown{
+										Value:  strconv.Itoa(organizationUnitID),
+										Title:  value,
+										Entity: config.OfficeTypes,
+									}
 
-			dispatch, err := h.Repo.CreateDispatchItem(&article.Dispatch)
+									itemRes, err := h.Repo.CreateDropdownSettings(&newOffice)
 
-			if err != nil {
-				handleError(w, err, http.StatusInternalServerError)
-				return
-			}
+									if err != nil {
+										responseMessage := ValidationResponse{
+											Column:  2,
+											Row:     rowindex,
+											Message: "Greska prilikom dodavanja kancelarije!",
+										}
+										response.Data = append(response.Data, responseMessage)
+									}
+									article.Dispatch.OfficeID = itemRes.ID
+									article.Article.OfficeID = itemRes.ID
+									article.Dispatch.Type = "allocation"
+									mapOfOffices[itemRes.Title] = itemRes.ID
+								} else {
+									if err != nil {
+										responseMessage := ValidationResponse{
+											Column:  2,
+											Row:     rowindex,
+											Message: "Lokacija nije validna!",
+										}
+										response.Data = append(response.Data, responseMessage)
+									}
+								}
+								article.Dispatch.IsAccepted = true
+								article.Dispatch.SourceOrganizationUnitID = organizationUnitID
+								article.Dispatch.TargetOrganizationUnitID = id
+								article.Dispatch.Type = "revers"
+							} else {
+								organizationUnit := value[:index-1]
+								office := value[index+2:]
 
-			article.DispatchItem.InventoryID = newArticle.ID
-			article.DispatchItem.DispatchID = dispatch.ID
+								id, exists = mapOfOrganizationUnits[organizationUnit]
+								if !exists && value != "" {
+									responseMessage := ValidationResponse{
+										Column:  2,
+										Row:     rowindex,
+										Message: "Lokacija nije validna!",
+									}
+									response.Data = append(response.Data, responseMessage)
+								}
 
-			_, err = h.Repo.CreateDispatchItemItem(&article.DispatchItem)
-			if err != nil {
-				handleError(w, err, http.StatusInternalServerError)
+								article.ReversDispatch.IsAccepted = true
+								article.ReversDispatch.SourceOrganizationUnitID = organizationUnitID
+								article.ReversDispatch.TargetOrganizationUnitID = id
+								article.ReversDispatch.Type = "revers"
+								article.Article.TargetOrganizationUnitID = id
+
+								newOffice := structs.SettingsDropdown{
+									Value:  strconv.Itoa(id),
+									Title:  office,
+									Entity: config.OfficeTypes,
+								}
+
+								itemRes, err := h.Repo.CreateDropdownSettings(&newOffice)
+
+								if err != nil {
+									responseMessage := ValidationResponse{
+										Column:  2,
+										Row:     rowindex,
+										Message: "Greska prilikom dodavanja kancelarije!",
+									}
+									response.Data = append(response.Data, responseMessage)
+								}
+								article.Dispatch.OfficeID = itemRes.ID
+								article.Article.OfficeID = itemRes.ID
+								article.Dispatch.Type = "allocation"
+								mapOfOffices[itemRes.Title] = itemRes.ID
+							}
+						}
+					case 3:
+						article.Article.Title = value
+					case 5:
+						price, err := strconv.ParseFloat(value, 32)
+
+						if value != "" && err != nil {
+							responseMessage := ValidationResponse{
+								Column:  5,
+								Row:     rowindex,
+								Message: "Cijena nije validno unijeta!",
+							}
+							response.Data = append(response.Data, responseMessage)
+						} else {
+							article.Article.GrossPrice = float32(price)
+							article.FirstAmortization.GrossPriceDifference = float32(price)
+						}
+					case 14:
+						DateOfAssessment, err := parseDate(value)
+
+						if value != "" && err != nil {
+							responseMessage := ValidationResponse{
+								Column:  14,
+								Row:     rowindex,
+								Message: "Datum amortizacije nije validno unijet!",
+							}
+							response.Data = append(response.Data, responseMessage)
+						} else if value != "" {
+							dateOfAssessment := DateOfAssessment.Format("2006-01-02T15:04:05Z")
+							article.Article.DateOfAssessment = &dateOfAssessment
+							article.SecondAmortization.DateOfAssessment = &dateOfAssessment
+						}
+					case 15:
+						grossPriceNew, err := strconv.ParseFloat(value, 32)
+
+						if value != "" && err != nil {
+							responseMessage := ValidationResponse{
+								Column:  15,
+								Row:     rowindex,
+								Message: "Nova cijena nije validno unijeta!",
+							}
+							response.Data = append(response.Data, responseMessage)
+						} else if grossPriceNew > 0 {
+							article.SecondAmortization.GrossPriceDifference = float32(grossPriceNew)
+							article.Article.GrossPrice = float32(grossPriceNew)
+						}
+					case 16:
+						residualPrice, err := strconv.ParseFloat(value, 32)
+						if value != "" && err != nil {
+							responseMessage := ValidationResponse{
+								Column:  16,
+								Row:     rowindex,
+								Message: "Rezidualna cijena nije validno unijeta!",
+							}
+							response.Data = append(response.Data, responseMessage)
+						} else if value != "" {
+							residualPriceFloat32 := float32(residualPrice)
+							article.SecondAmortization.ResidualPrice = &residualPriceFloat32
+						}
+					case 23:
+						estimatedDuration, err := strconv.Atoi(value)
+						if value != "" && err != nil {
+							responseMessage := ValidationResponse{
+								Column:  24,
+								Row:     rowindex,
+								Message: "Vijek trajanja nije validno unijet!",
+							}
+							response.Data = append(response.Data, responseMessage)
+						} else if estimatedDuration > 0 {
+							article.SecondAmortization.EstimatedDuration = estimatedDuration
+						}
+					case 25:
+						article.Article.Description = value
+					case 26:
+						if _, exists := mapOfClassTypes[value]; !exists && value != "" && value != "0" {
+							responseMessage := ValidationResponse{
+								Column:  26,
+								Row:     rowindex,
+								Message: "Klasa sredstva " + value + " nije validna.",
+							}
+							response.Data = append(response.Data, responseMessage)
+						} else {
+							article.Article.ClassTypeID = mapOfClassTypes[value]
+						}
+					case 29:
+						dateOfPurchase, err := parseDate(value)
+
+						if value != "" && err != nil {
+							responseMessage := ValidationResponse{
+								Column:  29,
+								Row:     rowindex,
+								Message: "Datum nabavke nije validno unijet!",
+							}
+							response.Data = append(response.Data, responseMessage)
+						} else {
+							dateOfPurchaseString := dateOfPurchase.Format("2006-01-02T15:04:05Z")
+							article.Article.DateOfPurchase = dateOfPurchaseString
+							article.Article.DateOfAssessment = &dateOfPurchaseString
+							article.FirstAmortization.DateOfAssessment = &dateOfPurchaseString
+						}
+					case 30:
+						if id, exists := mapOfDeprecationTypes[value]; !exists && value != "" {
+							responseMessage := ValidationResponse{
+								Column:  30,
+								Row:     rowindex,
+								Message: "Amortizaciona grupa " + value + " nije validna.",
+							}
+							response.Data = append(response.Data, responseMessage)
+						} else {
+							article.Article.DepreciationTypeID = id
+							article.FirstAmortization.DepreciationTypeID = id
+							article.SecondAmortization.DepreciationTypeID = id
+						}
+					case 32:
+						estimatedDuration, err := strconv.Atoi(value)
+						if value != "" && err != nil {
+							responseMessage := ValidationResponse{
+								Column:  35,
+								Row:     rowindex,
+								Message: "Vijek trajanja nije validno unijet!",
+							}
+							response.Data = append(response.Data, responseMessage)
+						} else if estimatedDuration > 0 {
+							article.FirstAmortization.EstimatedDuration = estimatedDuration
+						}
+					}
+				}
+				articles = append(articles, article)
 			}
 		}
+
+		if len(response.Data) == 0 {
+			defaultTime := "0001-01-01T00:00:00Z"
+			for _, article := range articles {
+				if article.Article.Title == "" {
+					continue
+				}
+				article.Article.OrganizationUnitID = organizationUnitID
+				article.Article.Type = "movable"
+				article.Article.Active = true
+
+				if article.SecondAmortization.DateOfAssessment != nil && *article.SecondAmortization.DateOfAssessment != defaultTime {
+					article.Article.DateOfAssessment = article.SecondAmortization.DateOfAssessment
+				}
+
+				if article.Dispatch.TargetOrganizationUnitID != 0 {
+					article.Article.TargetOrganizationUnitID = article.Dispatch.TargetOrganizationUnitID
+				}
+
+				newArticle, err := h.Repo.CreateInventoryItem(&article.Article)
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+
+				if article.FirstAmortization.EstimatedDuration == 0 {
+					article.FirstAmortization.EstimatedDuration = 10000
+				}
+				article.FirstAmortization.InventoryID = newArticle.ID
+				article.FirstAmortization.Type = "financial"
+				article.FirstAmortization.Active = true
+				_, err = h.Repo.CreateAssessments(&article.FirstAmortization)
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+
+				if article.SecondAmortization.DateOfAssessment != nil {
+					article.SecondAmortization.InventoryID = newArticle.ID
+					article.SecondAmortization.Type = "financial"
+					article.SecondAmortization.Active = true
+					_, err = h.Repo.CreateAssessments(&article.SecondAmortization)
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+				}
+				if article.ReversDispatch.TargetOrganizationUnitID != 0 {
+					article.ReversDispatch.Date = article.Article.DateOfPurchase
+					article.ReversDispatch.IsAccepted = true
+
+					reversDispatch, err := h.Repo.CreateDispatchItem(&article.ReversDispatch)
+
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+
+					article.ReversDispatchItem.InventoryID = newArticle.ID
+					article.ReversDispatchItem.DispatchID = reversDispatch.ID
+
+					_, err = h.Repo.CreateDispatchItemItem(&article.ReversDispatchItem)
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+					}
+				}
+
+				article.Dispatch.Date = article.Article.DateOfPurchase
+				article.Dispatch.IsAccepted = true
+
+				dispatch, err := h.Repo.CreateDispatchItem(&article.Dispatch)
+
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+
+				article.DispatchItem.InventoryID = newArticle.ID
+				article.DispatchItem.DispatchID = dispatch.ID
+
+				_, err = h.Repo.CreateDispatchItemItem(&article.DispatchItem)
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+				}
+			}
+		}
+
+		response.Status = "success"
+		response.Message = "The file was read successfully"
+
+		_ = MarshalAndWriteJSON(w, response)
 	}
-
-	response.Status = "success"
-	response.Message = "The file was read successfully"
-
-	_ = MarshalAndWriteJSON(w, response)
-}
-
+*/
 func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Request) {
 	var response ImportPS1Inventories
 
@@ -1525,7 +1587,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 							Row:     rowindex,
 							Message: "ID korisnika nije validno unijet!",
 						}
-						response.Data = append(response.Data, responseMessage)
+						response.Validation = append(response.Validation, responseMessage)
 					} else {
 						_, exists := usersMap[userID]
 						if !exists {
@@ -1534,7 +1596,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 								Row:     rowindex,
 								Message: "ID korisnika ne postoji!",
 							}
-							response.Data = append(response.Data, responseMessage)
+							response.Validation = append(response.Validation, responseMessage)
 						} else {
 							item.UserProfileID = userID
 						}
@@ -1547,7 +1609,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 							Row:     rowindex,
 							Message: "Korisnik i ID se ne podudaraju!",
 						}
-						response.Data = append(response.Data, responseMessage)
+						response.Validation = append(response.Validation, responseMessage)
 					}
 				case 2:
 					if value != "Da" && value != "Ne" {
@@ -1556,7 +1618,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 							Row:     rowindex,
 							Message: "Nevalidna vrijednost! Dozvoljene vrijednosti su \"Da\" i \"Ne\"!",
 						}
-						response.Data = append(response.Data, responseMessage)
+						response.Validation = append(response.Validation, responseMessage)
 					}
 
 					if value == "Da" {
@@ -1575,7 +1637,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 								Row:     rowindex,
 								Message: "Organizaciona jednica nije validna!",
 							}
-							response.Data = append(response.Data, responseMessage)
+							response.Validation = append(response.Validation, responseMessage)
 						} else {
 							item.OrganizationUnitID = id
 						}
@@ -1588,7 +1650,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 							Row:     rowindex,
 							Message: "Pocetak radnog odnosa nije validan!",
 						}
-						response.Data = append(response.Data, responseMessage)
+						response.Validation = append(response.Validation, responseMessage)
 					} else {
 						item.DateOfStart = dateOfStart.Format("2006-01-02T00:00:00Z")
 					}
@@ -1600,7 +1662,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 							Row:     rowindex,
 							Message: "Kraj radnog odnosa nije validan!",
 						}
-						response.Data = append(response.Data, responseMessage)
+						response.Validation = append(response.Validation, responseMessage)
 					} else {
 						item.DateOfEnd = dateOfEnd.Format("2006-01-02T00:00:00Z")
 
@@ -1614,7 +1676,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 							Row:     rowindex,
 							Message: "Godine prijavljenog staza nijesu validno unijete!",
 						}
-						response.Data = append(response.Data, responseMessage)
+						response.Validation = append(response.Validation, responseMessage)
 					} else if value != "" {
 						item.YearsOfInsuredExperience = years
 					}
@@ -1627,7 +1689,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 							Row:     rowindex,
 							Message: "Mjeseci prijavljenog staza nijesu validno unijete!",
 						}
-						response.Data = append(response.Data, responseMessage)
+						response.Validation = append(response.Validation, responseMessage)
 					} else if value != "" {
 						item.MonthsOfInsuredExperience = months
 					}
@@ -1640,7 +1702,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 							Row:     rowindex,
 							Message: "Dani prijavljenog staza nijesu validno unijeti!",
 						}
-						response.Data = append(response.Data, responseMessage)
+						response.Validation = append(response.Validation, responseMessage)
 					} else if value != "" {
 						item.DaysOfInsuredExperience = days
 					}
@@ -1680,15 +1742,8 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	if len(response.Data) == 0 {
-		for _, item := range userProfileExpiriences {
-			_, err := h.Repo.CreateExperience(&item)
-
-			if err != nil {
-				handleError(w, err, http.StatusInternalServerError)
-				return
-			}
-		}
+	if len(response.Validation) == 0 {
+		response.Data = userProfileExpiriences
 	}
 
 	response.Status = "success"

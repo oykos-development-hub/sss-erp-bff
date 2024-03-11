@@ -185,6 +185,19 @@ func (f *Field) UserProfileExperienceInsertField() *graphql.Field {
 	}
 }
 
+func (f *Field) UserProfileExperiencesInsertField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.UserProfileExperienceInsertType,
+		Description: "Creates new or alter existing User Profile's Experiences item",
+		Args: graphql.FieldConfigArgument{
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewList(mutations.UserProfileExperienceInsertMutation),
+			},
+		},
+		Resolve: f.Resolvers.UserProfileExperiencesInsertResolver,
+	}
+}
+
 func (f *Field) UserProfileExperienceDeleteField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.UserProfileExperienceDeleteType,

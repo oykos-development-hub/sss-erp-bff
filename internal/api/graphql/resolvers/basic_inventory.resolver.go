@@ -867,7 +867,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		Amount:            item.Amount,
 		NetPrice:          item.NetPrice,
 		//GrossPrice:                   grossPrice,
-		GrossPrice:                   item.NetPrice - item.AssessmentPrice,
+		GrossPrice:                   item.GrossPrice - item.AssessmentPrice,
 		ResidualPrice:                residualPrice,
 		PurchaseGrossPrice:           item.GrossPrice,
 		Description:                  item.Description,

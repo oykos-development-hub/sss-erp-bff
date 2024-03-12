@@ -677,10 +677,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	}
 	assessments, _ := r.GetMyInventoryAssessments(item.ID)
 	depreciationTypeID := 0
-	var grossPrice float32
+	//var grossPrice float32
 	var residualPrice *float32
 	var dateOfAssessment string
-	var amortizationValue float32
+	//var amortizationValue float32
 	indexAssessments := 0
 	lifetimeOfAssessmentInMonths := 0
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
@@ -689,12 +689,12 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			assessmentResponse, _ := BuildAssessmentResponse(r, &assessment)
 			if assessmentResponse != nil && i == 0 && assessmentResponse.Type == "financial" {
 				depreciationTypeID = assessmentResponse.DepreciationType.ID
-				grossPrice = assessmentResponse.GrossPriceDifference
+				//grossPrice = assessmentResponse.GrossPriceDifference
 				residualPrice = assessmentResponse.ResidualPrice
 				lifetimeOfAssessmentInMonths = assessmentResponse.EstimatedDuration
 				dateOfAssessment = *assessmentResponse.DateOfAssessment
-				amortizationValue = calculateMonthlyConsumption(dateOfAssessment, 100/lifetimeOfAssessmentInMonths, grossPrice, lifetimeOfAssessmentInMonths)
-				grossPrice = assessmentResponse.GrossPriceDifference - amortizationValue
+				//amortizationValue = calculateMonthlyConsumption(dateOfAssessment, 100/lifetimeOfAssessmentInMonths, grossPrice, lifetimeOfAssessmentInMonths)
+				//grossPrice = assessmentResponse.GrossPriceDifference - amortizationValue
 			}
 			assessmentsResponse = append(assessmentsResponse, assessmentResponse)
 		}
@@ -843,30 +843,31 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	*/
 
 	res := dto.BasicInventoryResponseItem{
-		ID:                           item.ID,
-		ArticleID:                    item.ArticleID,
-		Type:                         item.Type,
-		SourceType:                   item.SourceType,
-		ClassType:                    settingDropdownClassType,
-		DepreciationType:             settingDropdownDepreciationTypeID,
-		Invoice:                      dto.DropdownSimple{}, //add invoice dropdown
-		Supplier:                     suppliersDropdown,
-		Donor:                        donorDropdown,
-		RealEstate:                   realEstateStruct,
-		Assessments:                  assessmentsResponse,
-		Movements:                    movements,
-		SerialNumber:                 item.SerialNumber,
-		InventoryNumber:              item.InventoryNumber,
-		Title:                        item.Title,
-		Abbreviation:                 item.Abbreviation,
-		InternalOwnership:            item.InternalOwnership,
-		Office:                       settingDropdownOfficeID,
-		Location:                     item.Location,
-		TargetUserProfile:            targetUserDropdown,
-		Unit:                         item.Unit,
-		Amount:                       item.Amount,
-		NetPrice:                     item.NetPrice,
-		GrossPrice:                   grossPrice,
+		ID:                item.ID,
+		ArticleID:         item.ArticleID,
+		Type:              item.Type,
+		SourceType:        item.SourceType,
+		ClassType:         settingDropdownClassType,
+		DepreciationType:  settingDropdownDepreciationTypeID,
+		Invoice:           dto.DropdownSimple{}, //add invoice dropdown
+		Supplier:          suppliersDropdown,
+		Donor:             donorDropdown,
+		RealEstate:        realEstateStruct,
+		Assessments:       assessmentsResponse,
+		Movements:         movements,
+		SerialNumber:      item.SerialNumber,
+		InventoryNumber:   item.InventoryNumber,
+		Title:             item.Title,
+		Abbreviation:      item.Abbreviation,
+		InternalOwnership: item.InternalOwnership,
+		Office:            settingDropdownOfficeID,
+		Location:          item.Location,
+		TargetUserProfile: targetUserDropdown,
+		Unit:              item.Unit,
+		Amount:            item.Amount,
+		NetPrice:          item.NetPrice,
+		//GrossPrice:                   grossPrice,
+		GrossPrice:                   item.NetPrice - item.AssessmentPrice,
 		ResidualPrice:                residualPrice,
 		PurchaseGrossPrice:           item.GrossPrice,
 		Description:                  item.Description,
@@ -881,18 +882,19 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		PriceOfAssessment:            item.PriceOfAssessment,
 		LifetimeOfAssessmentInMonths: lifetimeOfAssessmentInMonths,
 		DepreciationRate:             fmt.Sprintf("%d", depreciationRate/lifetimeOfAssessmentInMonths),
-		AmortizationValue:            amortizationValue,
-		OrganizationUnit:             organizationUnitDropdown,
-		TargetOrganizationUnit:       targetOrganizationUnitDropdown,
-		City:                         currentOrganizationUnit.City,
-		Address:                      currentOrganizationUnit.Address,
-		Status:                       status,
-		DonationDescription:          item.DonationDescription,
-		DonationFiles:                donationFiles,
-		CreatedAt:                    item.CreatedAt,
-		UpdatedAt:                    item.UpdatedAt,
-		IsExternalDonation:           item.IsExternalDonation,
-		Owner:                        item.Owner,
+		//AmortizationValue:            amortizationValue,
+		AmortizationValue:      item.AssessmentPrice,
+		OrganizationUnit:       organizationUnitDropdown,
+		TargetOrganizationUnit: targetOrganizationUnitDropdown,
+		City:                   currentOrganizationUnit.City,
+		Address:                currentOrganizationUnit.Address,
+		Status:                 status,
+		DonationDescription:    item.DonationDescription,
+		DonationFiles:          donationFiles,
+		CreatedAt:              item.CreatedAt,
+		UpdatedAt:              item.UpdatedAt,
+		IsExternalDonation:     item.IsExternalDonation,
+		Owner:                  item.Owner,
 	}
 
 	return &res, nil

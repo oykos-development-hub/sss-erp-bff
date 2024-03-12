@@ -41,7 +41,12 @@ func (r *Resolver) FineInsertResolver(params graphql.ResolveParams) (interface{}
 
 	}
 
-	response.Item = *item
+	singleItem, err := buildFineResponseItem(*item, r)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	response.Item = *singleItem
 
 	return response, nil
 }

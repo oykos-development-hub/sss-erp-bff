@@ -1368,7 +1368,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 					}
 				case 28:
 					price, err := strconv.ParseFloat(value, 32)
-					if value != "" && err != nil {
+					if (value != "0" && value != "" && value != "#DIV/0!") && err != nil {
 						responseMessage := ValidationResponse{
 							Column:  28,
 							Row:     rowindex,

@@ -70,8 +70,9 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 					continue
 				}
 				sumClassPurchaseGrossPrice += inventory.GrossPrice
-				amortization := calculateAmortizationPrice(r.Repo, &assessment.DepreciationType.ID, assessment.DateOfAssessment, &assessment.GrossPriceDifference) // nabavna vrijednost
-				sumClassGrossPrice += (assessment.GrossPriceDifference - amortization)                                                                             //ispravak vrijednosti
+				//amortization := calculateAmortizationPrice(r.Repo, &assessment.DepreciationType.ID, assessment.DateOfAssessment, &assessment.GrossPriceDifference) // nabavna vrijednost
+				amortization := inventory.AssessmentPrice
+				sumClassGrossPrice += (assessment.GrossPriceDifference - amortization) //ispravak vrijednosti
 				//
 
 			}

@@ -1199,8 +1199,8 @@ func buildUserProfileBasicResponse(
 					if err != nil {
 						return nil, err
 					}
-					userProfileResItem.OrganizationUnit.ID = organizationUnitID.ID
-					userProfileResItem.OrganizationUnit.Title = organizationUnitID.Title
+
+					userProfileResItem.OrganizationUnit = organizationUnitID
 				}
 			}
 		}

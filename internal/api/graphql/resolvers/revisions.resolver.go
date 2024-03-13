@@ -110,6 +110,16 @@ func buildRevisionDetailsItemResponse(r repository.MicroserviceRepositoryInterfa
 		UpdatedAt:                       revision.UpdatedAt,
 	}
 
+	if revision.TipsFileID != nil && *revision.TipsFileID != 0 {
+		file, err := r.GetFileByID(*revision.TipsFileID)
+		if err != nil {
+			return nil, err
+		}
+		revisionItem.TipsFileID.ID = file.ID
+		revisionItem.TipsFileID.Name = file.Name
+		revisionItem.TipsFileID.Type = *file.Type
+	}
+
 	return revisionItem, nil
 }
 

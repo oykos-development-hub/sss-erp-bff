@@ -1,7 +1,6 @@
 package resolvers
 
 import (
-	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
@@ -93,9 +92,9 @@ func buildResolutionResponseItemList(r repository.MicroserviceRepositoryInterfac
 }
 
 func buildResolutionResItem(r repository.MicroserviceRepositoryInterface, item *structs.Resolution) (*dto.Resolution, error) {
-	if item.Value != config.VacationTypeValueResolutionType {
+	/*if item.Value != config.VacationTypeValueResolutionType {
 		return nil, nil
-	}
+	}*/
 
 	userProfile, err := r.GetUserProfileByID(item.UserProfileID)
 	if err != nil {

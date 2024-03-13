@@ -392,19 +392,37 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 		}
 
 		if item.Status == "Izabran" && data.UserProfileID != nil && *data.UserProfileID != 0 {
-
-			userProfile, err := r.Repo.GetUserProfileByID(*data.UserProfileID)
-			if err != nil {
-				return errors.HandleAPIError(err)
+			active := true
+			input := dto.GetJudgeResolutionListInputMS{
+				Active: &active,
 			}
-			if item.JobTender.JobPosition.IsJudgePresident {
-				userProfile.IsPresident = true
-			}
-			userProfile.IsJudge = true
+			resolution, _ := r.Repo.GetJudgeResolutionList(&input)
 
-			_, err = r.Repo.UpdateUserProfile(userProfile.ID, *userProfile)
-			if err != nil {
-				return errors.HandleAPIError(err)
+			if len(resolution.Data) > 0 {
+
+				userProfile, err := r.Repo.GetUserProfileByID(*data.UserProfileID)
+				if err != nil {
+					return errors.HandleAPIError(err)
+				}
+
+				inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
+					UserProfileID:      userProfile.ID,
+					OrganizationUnitID: item.OrganizationUnit.ID,
+					IsPresident:        item.JobTender.Type.IsJudgePresident,
+					ResolutionID:       resolution.Data[0].ID,
+				}
+				_, err = r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
+				if err != nil {
+					return errors.HandleAPIError(err)
+				}
+
+				userProfile.IsPresident = item.JobTender.Type.IsJudgePresident
+				userProfile.IsJudge = true
+
+				_, err = r.Repo.UpdateUserProfile(userProfile.ID, *userProfile)
+				if err != nil {
+					return errors.HandleAPIError(err)
+				}
 			}
 
 		}

@@ -1183,9 +1183,8 @@ func buildUserProfileBasicResponse(
 			if len(resolution.Data) > 0 {
 				resolutionID := resolution.Data[0].ID
 				judgeResolutionOrganizationUnit, _, err := r.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-					OrganizationUnitID: &contractResponseItem.OrganizationUnit.ID,
-					ResolutionID:       &resolutionID,
-					UserProfileID:      &profile.ID,
+					ResolutionID:  &resolutionID,
+					UserProfileID: &profile.ID,
 				})
 				if err != nil {
 					return nil, err
@@ -1196,6 +1195,12 @@ func buildUserProfileBasicResponse(
 						userProfileResItem.IsPresident = judge.IsPresident
 						userProfileResItem.IsJudge = true
 					}
+					organizationUnitID, err := r.GetOrganizationUnitByID(judgeResolutionOrganizationUnit[0].OrganizationUnitID)
+					if err != nil {
+						return nil, err
+					}
+					userProfileResItem.OrganizationUnit.ID = organizationUnitID.ID
+					userProfileResItem.OrganizationUnit.Title = organizationUnitID.Title
 				}
 			}
 		}

@@ -391,6 +391,24 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 			return errors.HandleAPIError(err)
 		}
 
+		if item.Status == "Izabran" && data.UserProfileID != nil && *data.UserProfileID != 0 {
+
+			userProfile, err := r.Repo.GetUserProfileByID(*data.UserProfileID)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+			if item.JobTender.JobPosition.IsJudgePresident {
+				userProfile.IsPresident = true
+			}
+			userProfile.IsJudge = true
+
+			_, err = r.Repo.UpdateUserProfile(userProfile.ID, *userProfile)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+		}
+
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {

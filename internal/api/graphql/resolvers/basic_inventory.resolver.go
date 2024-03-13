@@ -438,7 +438,8 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 					}
 					newDate := date.AddDate(estimatedDuration, 0, 0)
 					dateOfEndOfAssessment = newDate.Format("2006-01-02T00:00:00Z")
-					amortizationValue = calculateMonthlyConsumption(dateOfAssessment, 100/estimatedDuration, grossPrice, estimatedDuration)
+					//amortizationValue = calculateMonthlyConsumption(dateOfAssessment, 100/estimatedDuration, grossPrice, estimatedDuration)
+					amortizationValue = item.AssessmentPrice
 					break
 				}
 			}
@@ -900,6 +901,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	return &res, nil
 }
 
+/*
 func calculateAmortizationPrice(r repository.MicroserviceRepositoryInterface, depreciationTypeID *int, CreatedAt *string, grossPrice *float32) float32 {
 
 	if depreciationTypeID != nil && *depreciationTypeID != 0 {
@@ -942,3 +944,4 @@ func calculateAmortizationPrice(r repository.MicroserviceRepositoryInterface, de
 	}
 	return 0
 }
+*/

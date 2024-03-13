@@ -8,7 +8,6 @@ import (
 	"math"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -1170,7 +1169,7 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 
 		rowindex := 0
 
-		res, _ := h.Repo.GetAllInventoryItem(dto.InventoryItemFilter{OrganizationUnitID: &organizationUnitID})
+		res, _ := h.Repo.GetAllInventoryItem(dto.InventoryItemFilter{SourceOrganizationUnitID: &organizationUnitID})
 
 		total := res.Total
 
@@ -1203,7 +1202,8 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 						article.Article.OfficeID = article.Dispatch.OfficeID
 						article.Dispatch.Type = "allocation"
 					} else if value != "" {
-						index := strings.Index(value, "-")
+						//index := strings.Index(value, "-")
+						index := -1
 						if index == -1 {
 							id, exists = mapOfOrganizationUnits[value]
 							if !exists && value != "" {

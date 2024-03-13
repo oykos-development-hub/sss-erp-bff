@@ -1201,6 +1201,10 @@ func buildUserProfileBasicResponse(
 					}
 
 					userProfileResItem.OrganizationUnit = organizationUnitID
+					userProfileResItem.Contract.OrganizationUnit = dto.DropdownSimple{
+						ID:    organizationUnitID.ID,
+						Title: organizationUnitID.Title,
+					}
 				}
 			}
 		}

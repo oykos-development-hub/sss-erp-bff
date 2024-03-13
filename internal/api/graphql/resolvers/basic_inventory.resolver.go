@@ -541,7 +541,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		Location:                     item.Location,
 		InventoryNumber:              item.InventoryNumber,
 		EstimatedDuration:            estimatedDuration,
-		GrossPrice:                   grossPrice,
+		GrossPrice:                   grossPrice - amortizationValue,
 		Inactive:                     item.Inactive,
 		PurchaseGrossPrice:           item.GrossPrice,
 		DateOfPurchase:               item.DateOfPurchase,

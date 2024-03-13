@@ -1595,14 +1595,14 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 				case 0:
 					userID, err := strconv.Atoi(value)
 
-					if err != nil {
+					if err != nil && value != "" {
 						responseMessage := ValidationResponse{
 							Column:  0,
 							Row:     rowindex,
 							Message: "ID korisnika nije validno unijet!",
 						}
 						response.Validation = append(response.Validation, responseMessage)
-					} else {
+					} else if value != "" {
 						_, exists := usersMap[userID]
 						if !exists {
 							responseMessage := ValidationResponse{
@@ -1752,7 +1752,9 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 			item.MonthsOfExperience = monthsDiff
 			item.DaysOfExperience = daysDiff
 
-			userProfileExpiriences = append(userProfileExpiriences, item)
+			if (item.OrganizationUnit != "" || item.OrganizationUnitID != 0) && item.DateOfStart != "" && item.DateOfEnd != "" {
+				userProfileExpiriences = append(userProfileExpiriences, item)
+			}
 		}
 	}
 

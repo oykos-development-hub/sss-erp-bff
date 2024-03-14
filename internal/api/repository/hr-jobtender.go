@@ -116,7 +116,7 @@ func (repo *MicroserviceRepository) CreateJobTenderApplication(jobTender *struct
 
 func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTenderApplications *structs.JobTenderApplications) (*structs.JobTenderApplications, error) {
 	currentTenderApplication, _ := repo.GetTenderApplication(id)
-	if currentTenderApplication.Status != "Izabran" && jobTenderApplications.Status == "Izabran" {
+	if /*currentTenderApplication.Status != "Izabran" &&*/ jobTenderApplications.Status == "Izabran" {
 		applications, _ := repo.GetTenderApplicationList(&dto.GetJobTenderApplicationsInput{JobTenderID: &currentTenderApplication.JobTenderID})
 		jobTender, _ := repo.GetJobTender(currentTenderApplication.JobTenderID)
 
@@ -125,69 +125,65 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 			return nil, err
 		}
 
-		if tenderType.Title == "Javni oglas za predsjednika suda" {
-			userProfile, err := repo.GetUserProfileByID(*jobTenderApplications.UserProfileID)
-			if err != nil {
-				return nil, err
+		userProfile, err := repo.GetUserProfileByID(*jobTenderApplications.UserProfileID)
+		if err != nil {
+			return nil, err
+		}
+
+		active := true
+		input := dto.GetJudgeResolutionListInputMS{
+			Active: &active,
+		}
+
+		userProfile.IsJudge = true
+		userProfile.IsPresident = tenderType.IsJudgePresident
+
+		_, err = repo.UpdateUserProfile(userProfile.ID, *userProfile)
+		if err != nil {
+			return nil, err
+		}
+
+		resolution, _ := repo.GetJudgeResolutionList(&input)
+
+		if len(resolution.Data) > 0 {
+			judgeResolutionOrganizationUnit, _, _ := repo.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+				UserProfileID: &userProfile.ID,
+				ResolutionID:  &resolution.Data[0].ID,
+			})
+
+			if len(judgeResolutionOrganizationUnit) > 0 {
+				if userProfile.IsJudge {
+					inputUpdate := dto.JudgeResolutionsOrganizationUnitItem{
+						ID:                 judgeResolutionOrganizationUnit[0].ID,
+						UserProfileID:      userProfile.ID,
+						OrganizationUnitID: jobTender.OrganizationUnitID,
+						ResolutionID:       resolution.Data[0].ID,
+						IsPresident:        tenderType.IsJudgePresident,
+					}
+					_, err := repo.UpdateJudgeResolutionOrganizationUnit(&inputUpdate)
+					if err != nil {
+						return nil, err
+					}
+				} else {
+					err := repo.DeleteJJudgeResolutionOrganizationUnit(judgeResolutionOrganizationUnit[0].ID)
+					if err != nil {
+						return nil, err
+					}
+				}
 			}
-
-			active := true
-			input := dto.GetJudgeResolutionListInputMS{
-				Active: &active,
-			}
-
-			if !userProfile.IsJudge {
-				userProfile.IsJudge = true
-
-				_, err := repo.UpdateUserProfile(userProfile.ID, *userProfile)
+			if len(judgeResolutionOrganizationUnit) == 0 && userProfile.IsJudge {
+				inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
+					UserProfileID:      userProfile.ID,
+					OrganizationUnitID: jobTender.OrganizationUnitID,
+					ResolutionID:       resolution.Data[0].ID,
+					IsPresident:        true,
+				}
+				_, err := repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
 				if err != nil {
 					return nil, err
 				}
 			}
 
-			resolution, _ := repo.GetJudgeResolutionList(&input)
-
-			if len(resolution.Data) > 0 {
-				judgeResolutionOrganizationUnit, _, _ := repo.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-					OrganizationUnitID: &jobTender.OrganizationUnitID,
-					UserProfileID:      &userProfile.ID,
-					ResolutionID:       &resolution.Data[0].ID,
-				})
-
-				if len(judgeResolutionOrganizationUnit) > 0 {
-					if userProfile.IsJudge {
-						inputUpdate := dto.JudgeResolutionsOrganizationUnitItem{
-							ID:                 judgeResolutionOrganizationUnit[0].ID,
-							UserProfileID:      userProfile.ID,
-							OrganizationUnitID: jobTender.OrganizationUnitID,
-							ResolutionID:       resolution.Data[0].ID,
-							IsPresident:        true,
-						}
-						_, err := repo.UpdateJudgeResolutionOrganizationUnit(&inputUpdate)
-						if err != nil {
-							return nil, err
-						}
-					} else {
-						err := repo.DeleteJJudgeResolutionOrganizationUnit(judgeResolutionOrganizationUnit[0].ID)
-						if err != nil {
-							return nil, err
-						}
-					}
-				}
-				if len(judgeResolutionOrganizationUnit) == 0 && userProfile.IsJudge {
-					inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
-						UserProfileID:      userProfile.ID,
-						OrganizationUnitID: jobTender.OrganizationUnitID,
-						ResolutionID:       resolution.Data[0].ID,
-						IsPresident:        true,
-					}
-					_, err := repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
-					if err != nil {
-						return nil, err
-					}
-				}
-
-			}
 		}
 
 		count := 1

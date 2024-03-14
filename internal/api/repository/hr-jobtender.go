@@ -116,7 +116,7 @@ func (repo *MicroserviceRepository) CreateJobTenderApplication(jobTender *struct
 
 func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTenderApplications *structs.JobTenderApplications) (*structs.JobTenderApplications, error) {
 	currentTenderApplication, _ := repo.GetTenderApplication(id)
-	if /*currentTenderApplication.Status != "Izabran" &&*/ jobTenderApplications.Status == "Izabran" {
+	if /*currentTenderApplication.Status != "Izabran" &&*/ jobTenderApplications.Status == "Izabran" && jobTenderApplications.UserProfileID != nil && *jobTenderApplications.UserProfileID > 0 {
 		applications, _ := repo.GetTenderApplicationList(&dto.GetJobTenderApplicationsInput{JobTenderID: &currentTenderApplication.JobTenderID})
 		jobTender, _ := repo.GetJobTender(currentTenderApplication.JobTenderID)
 
@@ -184,6 +184,44 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 				}
 			}
 
+		}
+
+		contract, err := repo.GetEmployeeContracts(*jobTenderApplications.UserProfileID, &dto.GetEmployeeContracts{Active: &active})
+		if err != nil {
+			return nil, err
+		}
+
+		if len(contract) == 0 {
+			_, err := repo.CreateEmployeeContract(&structs.Contracts{
+				ContractTypeID:     7, //srediti ovo
+				OrganizationUnitID: jobTender.OrganizationUnitID,
+				NumberOfConference: jobTenderApplications.NumberOfAssembly,
+				UserProfileID:      *jobTenderApplications.UserProfileID,
+				Active:             true,
+				DateOfEligibility:  jobTenderApplications.DateOfElection,
+				DateOfStart:        jobTenderApplications.DateOfStart,
+				DateOfSignature:    jobTenderApplications.DateOfOath,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+		} else {
+			singleContract := contract[0]
+			singleContract.DateOfEligibility = jobTenderApplications.DateOfElection
+			singleContract.DateOfStart = jobTenderApplications.DateOfStart
+			singleContract.DateOfSignature = jobTenderApplications.DateOfOath
+			singleContract.Active = true
+			singleContract.ContractTypeID = 7 //srediti ovo
+			singleContract.DateOfEnd = nil
+			singleContract.OrganizationUnitDepartmentID = nil
+			singleContract.JobPositionInOrganizationUnitID = 0
+			singleContract.NumberOfConference = jobTenderApplications.NumberOfAssembly
+
+			_, err := repo.UpdateEmployeeContract(singleContract.ID, singleContract)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		count := 1

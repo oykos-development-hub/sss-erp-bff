@@ -4,6 +4,7 @@ import (
 	"bff/internal/api/dto"
 	"bff/structs"
 	"strconv"
+	"time"
 )
 
 func (repo *MicroserviceRepository) GetTenderTypeList(input *dto.GetJobTenderTypeInputMS) ([]*structs.JobTenderTypes, error) {
@@ -219,6 +220,49 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 			singleContract.NumberOfConference = jobTenderApplications.NumberOfAssembly
 
 			_, err := repo.UpdateEmployeeContract(singleContract.ID, singleContract)
+			if err != nil {
+				return nil, err
+			}
+
+			now := time.Now()
+			dateOfStart, err := time.Parse("2006-01-02T00:00:00Z", *contract[0].DateOfStart)
+
+			if err != nil {
+				return nil, err
+			}
+
+			years := now.Year() - dateOfStart.Year()
+			months := now.Month() - dateOfStart.Month()
+			if months < 0 {
+				months = 12 + now.Month() - dateOfStart.Month()
+				years--
+			}
+
+			days := now.Day() - dateOfStart.Day()
+
+			if days < 0 {
+				days = 30 - now.Day() - dateOfStart.Day()
+				months--
+				if months < 0 {
+					months = 12 + months
+					years--
+				}
+			}
+
+			_, err = repo.CreateExperience(&structs.Experience{
+				UserProfileID:             *jobTenderApplications.UserProfileID,
+				OrganizationUnitID:        contract[0].OrganizationUnitID,
+				Relevant:                  active,
+				DateOfStart:               *contract[0].DateOfStart,
+				DateOfEnd:                 now.Format("2006-01-02T00:00:00Z"),
+				YearsOfExperience:         years,
+				YearsOfInsuredExperience:  years,
+				MonthsOfExperience:        int(months),
+				MonthsOfInsuredExperience: int(months),
+				DaysOfExperience:          days,
+				DaysOfInsuredExperience:   days,
+			})
+
 			if err != nil {
 				return nil, err
 			}

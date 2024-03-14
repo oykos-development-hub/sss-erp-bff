@@ -859,32 +859,35 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 
 	dateOfEnd, _ := time.Parse("2006-01-02T00:00:00Z", item.DateOfEnd)
 	dateOfStart, _ := time.Parse("2006-01-02T00:00:00Z", item.DateOfStart)
+	var years, months, days int
+
+	years = dateOfEnd.Year() - dateOfStart.Year()
+	month := dateOfEnd.Month() - dateOfStart.Month()
+	if month < 0 {
+		month = 12 + dateOfEnd.Month() - dateOfStart.Month()
+		years--
+	}
+
+	days = dateOfEnd.Day() - dateOfStart.Day()
+
+	if days < 0 {
+		days = 30 - dateOfEnd.Day() - dateOfStart.Day()
+		month--
+		if month < 0 {
+			month = 12 + month
+			years--
+		}
+	}
+	months = int(month)
 
 	insuredExperienceYears := item.YearsOfInsuredExperience
 	insuredExperienceMonths := item.MonthsOfInsuredExperience
 	insuredExperienceDays := item.DaysOfInsuredExperience
-	var years, months, days int
 	if insuredExperienceYears == 0 && insuredExperienceDays == 0 && insuredExperienceMonths == 0 {
-		years = dateOfEnd.Year() - dateOfStart.Year()
-		month := dateOfEnd.Month() - dateOfStart.Month()
-		if month < 0 {
-			month = 12 + dateOfEnd.Month() - dateOfStart.Month()
-			years--
-		}
-
-		days = dateOfEnd.Day() - dateOfStart.Day()
-
-		if days < 0 {
-			days = 30 - dateOfEnd.Day() - dateOfStart.Day()
-			month--
-			if month < 0 {
-				month = 12 + month
-				years--
-			}
-		}
-		months = int(month)
+		insuredExperienceYears = years
+		insuredExperienceMonths = months
+		insuredExperienceDays = days
 	}
-
 	res := dto.ExperienceResponseItem{
 		ID:                        item.ID,
 		UserProfileID:             item.UserProfileID,

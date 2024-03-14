@@ -7,36 +7,36 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func (f *Field) FineInsertField() *graphql.Field {
+func (f *Field) FeeInsertField() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.FineInsertType,
-		Description: "Creates new or alter existing fine",
+		Type:        types.FeeInsertType,
+		Description: "Creates new or alter existing fee",
 		Args: graphql.FieldConfigArgument{
 			"data": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(mutations.FineMutation),
+				Type: graphql.NewNonNull(mutations.FeeMutation),
 			},
 		},
-		Resolve: f.Resolvers.FineInsertResolver,
+		Resolve: f.Resolvers.FeeInsertResolver,
 	}
 }
 
-func (f *Field) FineDeleteField() *graphql.Field {
+func (f *Field) FeeDeleteField() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.FineDeleteType,
-		Description: "Delete fine",
+		Type:        types.FeeDeleteType,
+		Description: "Delete fee",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
-		Resolve: f.Resolvers.FineDeleteResolver,
+		Resolve: f.Resolvers.FeeDeleteResolver,
 	}
 }
 
-func (f *Field) FineOverviewField() *graphql.Field {
+func (f *Field) FeeOverviewField() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.FineOverviewType,
-		Description: "Returns a data of fines items",
+		Type:        types.FeeOverviewType,
+		Description: "Returns a data of fees items",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
@@ -50,13 +50,16 @@ func (f *Field) FineOverviewField() *graphql.Field {
 			"subject": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
-			"act_type_id": &graphql.ArgumentConfig{
+			"fee_type": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"fee_subcategory": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
 			"search": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
 		},
-		Resolve: f.Resolvers.FineOverviewResolver,
+		Resolve: f.Resolvers.FeeOverviewResolver,
 	}
 }

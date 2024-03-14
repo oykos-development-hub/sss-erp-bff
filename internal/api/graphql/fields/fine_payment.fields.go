@@ -26,7 +26,7 @@ func (f *Field) FinePaymentDeleteField() *graphql.Field {
 		Description: "Delete fine payment",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
 		Resolve: f.Resolvers.FinePaymentDeleteResolver,

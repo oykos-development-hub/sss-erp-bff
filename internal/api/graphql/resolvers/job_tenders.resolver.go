@@ -418,11 +418,6 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 					if err != nil {
 						return errors.HandleAPIError(err)
 					}
-				} else {
-					err := r.Repo.DeleteJJudgeResolutionOrganizationUnit(judgeResolutionOrganizationUnit[0].ID)
-					if err != nil {
-						return errors.HandleAPIError(err)
-					}
 				}
 
 				if len(judgeResolutionOrganizationUnit) == 0 {

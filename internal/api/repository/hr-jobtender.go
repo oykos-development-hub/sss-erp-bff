@@ -208,6 +208,9 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 			}
 
 		} else {
+			orgUnitID := contract[0].OrganizationUnitID
+			dateOfStartString := contract[0].DateOfStart
+
 			singleContract := contract[0]
 			singleContract.DateOfEligibility = jobTenderApplications.DateOfElection
 			singleContract.DateOfStart = jobTenderApplications.DateOfStart
@@ -218,6 +221,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 			singleContract.OrganizationUnitDepartmentID = nil
 			singleContract.JobPositionInOrganizationUnitID = 0
 			singleContract.NumberOfConference = jobTenderApplications.NumberOfAssembly
+			singleContract.OrganizationUnitID = jobTender.OrganizationUnitID
 
 			_, err := repo.UpdateEmployeeContract(singleContract.ID, singleContract)
 			if err != nil {
@@ -225,7 +229,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 			}
 
 			now := time.Now()
-			dateOfStart, err := time.Parse("2006-01-02T00:00:00.000Z", *contract[0].DateOfStart)
+			dateOfStart, err := time.Parse("2006-01-02T00:00:00Z", *dateOfStartString)
 
 			if err != nil {
 				return nil, err
@@ -251,10 +255,10 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 
 			_, err = repo.CreateExperience(&structs.Experience{
 				UserProfileID:             *jobTenderApplications.UserProfileID,
-				OrganizationUnitID:        contract[0].OrganizationUnitID,
+				OrganizationUnitID:        orgUnitID,
 				Relevant:                  active,
-				DateOfStart:               *contract[0].DateOfStart,
-				DateOfEnd:                 now.Format("2006-01-02T00:00:00.000Z"),
+				DateOfStart:               *dateOfStartString,
+				DateOfEnd:                 now.Format("2006-01-02T00:00:00Z"),
 				YearsOfExperience:         years,
 				YearsOfInsuredExperience:  years,
 				MonthsOfExperience:        int(months),

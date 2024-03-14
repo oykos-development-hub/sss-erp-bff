@@ -82,9 +82,7 @@ func (r *Resolver) UserProfileResolutionDeleteResolver(params graphql.ResolvePar
 
 func buildResolutionResponseItemList(r repository.MicroserviceRepositoryInterface, items []*structs.Resolution) (resItemList []*dto.Resolution, err error) {
 	for _, item := range items {
-		if item.Value != "" {
-			continue
-		}
+
 		resItem, err := buildResolutionResItem(r, item)
 		if err != nil {
 			return nil, err
@@ -95,9 +93,6 @@ func buildResolutionResponseItemList(r repository.MicroserviceRepositoryInterfac
 }
 
 func buildResolutionResItem(r repository.MicroserviceRepositoryInterface, item *structs.Resolution) (*dto.Resolution, error) {
-	/*if item.Value != config.VacationTypeValueResolutionType {
-		return nil, nil
-	}*/
 
 	userProfile, err := r.GetUserProfileByID(item.UserProfileID)
 	if err != nil {

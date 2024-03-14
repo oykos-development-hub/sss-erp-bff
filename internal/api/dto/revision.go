@@ -58,6 +58,7 @@ type RevisionsOverviewItem struct {
 	RevisionType            DropdownSimple     `json:"revision_type"`
 	FileID                  *int               `json:"file_id"`
 	File                    FileDropdownSimple `json:"file"`
+	TipsFile                FileDropdownSimple `json:"tips_file"`
 	CreatedAt               string             `json:"created_at"`
 	UpdatedAt               string             `json:"updated_at"`
 }

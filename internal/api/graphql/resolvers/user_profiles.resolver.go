@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -856,13 +857,32 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		}
 	}
 
+	dateOfEnd, _ := time.Parse("2006-01-02T00:00:00Z", item.DateOfEnd)
+	dateOfStart, _ := time.Parse("2006-01-02T00:00:00Z", item.DateOfStart)
+
 	insuredExperienceYears := item.YearsOfInsuredExperience
 	insuredExperienceMonths := item.MonthsOfInsuredExperience
 	insuredExperienceDays := item.DaysOfInsuredExperience
+	var years, months, days int
 	if insuredExperienceYears == 0 && insuredExperienceDays == 0 && insuredExperienceMonths == 0 {
-		insuredExperienceYears = item.YearsOfExperience
-		insuredExperienceMonths = item.MonthsOfExperience
-		insuredExperienceDays = item.DaysOfExperience
+		years = dateOfEnd.Year() - dateOfStart.Year()
+		month := dateOfEnd.Month() - dateOfStart.Month()
+		if month < 0 {
+			month = 12 + dateOfEnd.Month() - dateOfStart.Month()
+			years--
+		}
+
+		days = dateOfEnd.Day() - dateOfStart.Day()
+
+		if days < 0 {
+			days = 30 - dateOfEnd.Day() - dateOfStart.Day()
+			month--
+			if month < 0 {
+				month = 12 + month
+				years--
+			}
+		}
+		months = int(month)
 	}
 
 	res := dto.ExperienceResponseItem{
@@ -871,11 +891,11 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		OrganizationUnitID:        item.OrganizationUnitID,
 		Relevant:                  item.Relevant,
 		OrganizationUnit:          item.OrganizationUnit,
-		YearsOfExperience:         item.YearsOfExperience,
+		YearsOfExperience:         years,
 		YearsOfInsuredExperience:  insuredExperienceYears,
-		MonthsOfExperience:        item.MonthsOfExperience,
+		MonthsOfExperience:        months,
 		MonthsOfInsuredExperience: insuredExperienceMonths,
-		DaysOfExperience:          item.DaysOfExperience,
+		DaysOfExperience:          days,
 		DaysOfInsuredExperience:   insuredExperienceDays,
 		DateOfStart:               item.DateOfStart,
 		DateOfEnd:                 item.DateOfEnd,

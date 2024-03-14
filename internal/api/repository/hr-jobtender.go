@@ -225,7 +225,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 			}
 
 			now := time.Now()
-			dateOfStart, err := time.Parse("2006-01-02T00:00:00Z", *contract[0].DateOfStart)
+			dateOfStart, err := time.Parse("2006-01-02T00:00:00.000Z", *contract[0].DateOfStart)
 
 			if err != nil {
 				return nil, err
@@ -254,7 +254,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 				OrganizationUnitID:        contract[0].OrganizationUnitID,
 				Relevant:                  active,
 				DateOfStart:               *contract[0].DateOfStart,
-				DateOfEnd:                 now.Format("2006-01-02T00:00:00Z"),
+				DateOfEnd:                 now.Format("2006-01-02T00:00:00.000Z"),
 				YearsOfExperience:         years,
 				YearsOfInsuredExperience:  years,
 				MonthsOfExperience:        int(months),

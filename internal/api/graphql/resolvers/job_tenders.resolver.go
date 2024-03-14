@@ -396,37 +396,50 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 			input := dto.GetJudgeResolutionListInputMS{
 				Active: &active,
 			}
+
 			resolution, _ := r.Repo.GetJudgeResolutionList(&input)
 
 			if len(resolution.Data) > 0 {
+				judgeResolutionOrganizationUnit, _, _ := r.Repo.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+					OrganizationUnitID: &item.OrganizationUnit.ID,
+					UserProfileID:      data.UserProfileID,
+					ResolutionID:       &resolution.Data[0].ID,
+				})
 
-				userProfile, err := r.Repo.GetUserProfileByID(*data.UserProfileID)
-				if err != nil {
-					return errors.HandleAPIError(err)
+				if len(judgeResolutionOrganizationUnit) > 0 {
+					inputUpdate := dto.JudgeResolutionsOrganizationUnitItem{
+						ID:                 judgeResolutionOrganizationUnit[0].ID,
+						UserProfileID:      *data.UserProfileID,
+						OrganizationUnitID: item.OrganizationUnit.ID,
+						ResolutionID:       resolution.Data[0].ID,
+						IsPresident:        item.JobTender.Type.IsJudgePresident,
+					}
+					_, err := r.Repo.UpdateJudgeResolutionOrganizationUnit(&inputUpdate)
+					if err != nil {
+						return errors.HandleAPIError(err)
+					}
+				} else {
+					err := r.Repo.DeleteJJudgeResolutionOrganizationUnit(judgeResolutionOrganizationUnit[0].ID)
+					if err != nil {
+						return errors.HandleAPIError(err)
+					}
 				}
 
-				inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
-					UserProfileID:      userProfile.ID,
-					OrganizationUnitID: item.OrganizationUnit.ID,
-					IsPresident:        item.JobTender.Type.IsJudgePresident,
-					ResolutionID:       resolution.Data[0].ID,
-				}
-				_, err = r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
-				if err != nil {
-					return errors.HandleAPIError(err)
+				if len(judgeResolutionOrganizationUnit) == 0 {
+					inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
+						UserProfileID:      *data.UserProfileID,
+						OrganizationUnitID: item.OrganizationUnit.ID,
+						ResolutionID:       resolution.Data[0].ID,
+						IsPresident:        item.JobTender.Type.IsJudgePresident,
+					}
+					_, err := r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
+					if err != nil {
+						return errors.HandleAPIError(err)
+					}
 				}
 
-				userProfile.IsPresident = item.JobTender.Type.IsJudgePresident
-				userProfile.IsJudge = true
-
-				_, err = r.Repo.UpdateUserProfile(userProfile.ID, *userProfile)
-				if err != nil {
-					return errors.HandleAPIError(err)
-				}
 			}
-
 		}
-
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {

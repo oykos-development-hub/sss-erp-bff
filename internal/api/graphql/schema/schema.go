@@ -133,6 +133,10 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"fine_Delete":                                     fields.FineDeleteField(),
 			"finePayment_Insert":                              fields.FinePaymentInsertField(),
 			"finePayment_Delete":                              fields.FinePaymentDeleteField(),
+			"procedureCost_Insert":                            fields.ProcedureCostInsertField(),
+			"procedureCost_Delete":                            fields.ProcedureCostDeleteField(),
+			"procedureCostPayment_Insert":                     fields.ProcedureCostPaymentInsertField(),
+			"procedureCostPayment_Delete":                     fields.ProcedureCostPaymentDeleteField(),
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -228,6 +232,8 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"feePayment_Overview":                                        fields.FeePaymentOverviewField(),
 			"fine_Overview":                                              fields.FineOverviewField(),
 			"finePayment_Overview":                                       fields.FinePaymentOverviewField(),
+			"procedureCost_Overview":                                     fields.ProcedureCostOverviewField(),
+			"procedureCostPayment_Overview":                              fields.ProcedureCostPaymentOverviewField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

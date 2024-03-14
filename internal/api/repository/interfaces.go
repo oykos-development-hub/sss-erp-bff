@@ -364,4 +364,15 @@ type MicroserviceRepositoryInterface interface {
 	DeleteFinePayment(id int) error
 	UpdateFinePayment(item *structs.FinePayment) (*structs.FinePayment, error)
 
+	CreateProcedureCost(item *structs.ProcedureCost) (*structs.ProcedureCost, error)
+	GetProcedureCost(id int) (*structs.ProcedureCost, error)
+	GetProcedureCostList(input *dto.GetProcedureCostListInputMS) ([]structs.ProcedureCost, int, error)
+	DeleteProcedureCost(id int) error
+	UpdateProcedureCost(item *structs.ProcedureCost) (*structs.ProcedureCost, error)
+
+	CreateProcedureCostPayment(item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error)
+	GetProcedureCostPayment(id int) (*structs.ProcedureCostPayment, error)
+	GetProcedureCostPaymentList(input *dto.GetProcedureCostPaymentListInputMS) ([]structs.ProcedureCostPayment, int, error)
+	DeleteProcedureCostPayment(id int) error
+	UpdateProcedureCostPayment(item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error)
 }

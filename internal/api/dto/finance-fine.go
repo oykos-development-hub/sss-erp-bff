@@ -15,9 +15,9 @@ const (
 type FineStatus string
 
 const (
-	FinancialFineUnpayedFineStatus FineStatus = "Neplaćeno"
-	FinancialFinePayedFineStatus   FineStatus = "Plaćeno"
-	FinancialFinePartFineStatus    FineStatus = "Djelimično plaćeno"
+	FinancialFineUnpaidFineStatus FineStatus = "Neplaćeno"
+	FinancialFinePaidFineStatus   FineStatus = "Plaćeno"
+	FinancialFinePartFineStatus   FineStatus = "Djelimično plaćeno"
 )
 
 type FineResponseItem struct {

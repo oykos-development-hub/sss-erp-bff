@@ -391,50 +391,6 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 			return errors.HandleAPIError(err)
 		}
 
-		if item.Status == "Izabran" && data.UserProfileID != nil && *data.UserProfileID != 0 {
-			active := true
-			input := dto.GetJudgeResolutionListInputMS{
-				Active: &active,
-			}
-
-			resolution, _ := r.Repo.GetJudgeResolutionList(&input)
-
-			if len(resolution.Data) > 0 {
-				judgeResolutionOrganizationUnit, _, _ := r.Repo.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
-					OrganizationUnitID: &item.OrganizationUnit.ID,
-					UserProfileID:      data.UserProfileID,
-					ResolutionID:       &resolution.Data[0].ID,
-				})
-
-				if len(judgeResolutionOrganizationUnit) > 0 {
-					inputUpdate := dto.JudgeResolutionsOrganizationUnitItem{
-						ID:                 judgeResolutionOrganizationUnit[0].ID,
-						UserProfileID:      *data.UserProfileID,
-						OrganizationUnitID: item.OrganizationUnit.ID,
-						ResolutionID:       resolution.Data[0].ID,
-						IsPresident:        item.JobTender.Type.IsJudgePresident,
-					}
-					_, err := r.Repo.UpdateJudgeResolutionOrganizationUnit(&inputUpdate)
-					if err != nil {
-						return errors.HandleAPIError(err)
-					}
-				}
-
-				if len(judgeResolutionOrganizationUnit) == 0 {
-					inputCreate := dto.JudgeResolutionsOrganizationUnitItem{
-						UserProfileID:      *data.UserProfileID,
-						OrganizationUnitID: item.OrganizationUnit.ID,
-						ResolutionID:       resolution.Data[0].ID,
-						IsPresident:        item.JobTender.Type.IsJudgePresident,
-					}
-					_, err := r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
-					if err != nil {
-						return errors.HandleAPIError(err)
-					}
-				}
-
-			}
-		}
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {

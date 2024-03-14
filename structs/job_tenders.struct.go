@@ -30,6 +30,10 @@ type JobTenderApplications struct {
 	Evaluation                     int     `json:"evaluation"`
 	Status                         string  `json:"status"`
 	FileID                         int     `json:"file_id"`
+	DateOfStart                    *string `json:"date_of_start"`
+	DateOfElection                 *string `json:"date_of_election"`
+	DateOfOath                     *string `json:"date_f_oath"`
+	NumberOfAssembly               *string `json:"number_of_assembly"`
 	CreatedAt                      string  `json:"created_at"`
 	UpdatedAt                      string  `json:"updated_at"`
 }

@@ -376,6 +376,11 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 		}
 		data.FirstName = userProfile.FirstName
 		data.LastName = userProfile.LastName
+
+		/*if data.ID != 0 && data.Status == "Izabran" {
+
+		}*/
+
 	}
 
 	itemID := data.ID

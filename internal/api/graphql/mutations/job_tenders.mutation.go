@@ -83,5 +83,17 @@ var JobTenderApplicationInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"date_of_start": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_election": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_oath": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"number_of_assembly": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 	},
 })

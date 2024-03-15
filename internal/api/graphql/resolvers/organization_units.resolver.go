@@ -72,14 +72,15 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 
 		organizationUnitsWithPresident := make(map[int]string)
 		if len(resolution.Data) > 0 {
-			resolutionResponseItem, err := processJudgeResolution(r.Repo, resolution.Data[0])
-			if err != nil {
-				return errors.HandleAPIError(err)
-			}
 
-			for _, item := range resolutionResponseItem.Items {
-				if item.AvailableSlotsPredisents == 0 {
-					organizationUnitsWithPresident[item.OrganizationUnit.ID] = item.OrganizationUnit.Title
+			for _, item := range organizationUnits.Data {
+				_, numberOfPresidents, _, _, err := calculateEmployeeStats(r.Repo, item.ID, resolution.Data[0].ID)
+				if err != nil {
+					return errors.HandleAPIError(err)
+				}
+
+				if numberOfPresidents == 1 {
+					organizationUnitsWithPresident[item.ID] = item.Title
 				}
 			}
 

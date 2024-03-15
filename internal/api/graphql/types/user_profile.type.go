@@ -32,6 +32,9 @@ var UserProfilesOverviewItemType = graphql.NewObject(graphql.ObjectConfig{
 		"is_judge_president": &graphql.Field{
 			Type: graphql.Boolean,
 		},
+		"is_president": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"role": &graphql.Field{
 			Type: DropdownItemType,
 		},

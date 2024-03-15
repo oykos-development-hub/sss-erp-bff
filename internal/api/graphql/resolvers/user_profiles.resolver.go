@@ -227,15 +227,16 @@ func buildUserProfileOverviewResponse(
 	}
 
 	return &dto.UserProfileOverviewResponse{
-		ID:          profile.ID,
-		FirstName:   profile.FirstName,
-		LastName:    profile.LastName,
-		DateOfBirth: profile.DateOfBirth,
-		Email:       account.Email,
-		Phone:       account.Phone,
-		Active:      account.Active,
-		IsJudge:     isJudge,
-		IsPresident: isPresident,
+		ID:               profile.ID,
+		FirstName:        profile.FirstName,
+		LastName:         profile.LastName,
+		DateOfBirth:      profile.DateOfBirth,
+		Email:            account.Email,
+		Phone:            account.Phone,
+		Active:           account.Active,
+		IsJudge:          isJudge,
+		IsPresident:      isPresident,
+		IsJudgePresident: isPresident,
 		Role: structs.SettingsDropdown{
 			ID:    role.ID,
 			Title: role.Title,

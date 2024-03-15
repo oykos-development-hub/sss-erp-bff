@@ -141,6 +141,7 @@ type UserProfileOverviewResponse struct {
 	Active           bool                     `json:"active"`
 	IsJudge          bool                     `json:"is_judge"`
 	IsPresident      bool                     `json:"is_president"`
+	IsJudgePresident bool                     `json:"is_judge_president"`
 	Role             structs.SettingsDropdown `json:"role"`
 	OrganizationUnit structs.SettingsDropdown `json:"organization_unit"`
 	Department       DropdownSimple           `json:"department"`

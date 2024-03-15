@@ -64,6 +64,31 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 		loggedInAccount := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 		profileOrganizationUnit := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 
+		active := true
+		resolution, err := r.Repo.GetJudgeResolutionList(&dto.GetJudgeResolutionListInputMS{Active: &active})
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		organizationUnitsWithPresident := make(map[int]string)
+		if len(resolution.Data) > 0 {
+			resolutionResponseItem, err := processJudgeResolution(r.Repo, resolution.Data[0])
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			for _, item := range resolutionResponseItem.Items {
+				if item.AvailableSlotsPredisents == 0 {
+					organizationUnitsWithPresident[item.OrganizationUnit.ID] = item.OrganizationUnit.Title
+				}
+			}
+
+		}
+
+		if err != nil {
+			return dto.ErrorResponse(err), nil
+		}
+
 		for _, organizationUnit := range organizationUnits.Data {
 			organizationUnitItem, err := buildOrganizationUnitOverviewResponse(r.Repo, &organizationUnit)
 			if err != nil {
@@ -88,6 +113,15 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 
 				if !hasGeneralPermission && !isOwnOrChildUnit && !settings {
 					continue
+				}
+
+				hasPresident, ok := params.Args["has_president"].(bool)
+				if ok {
+					_, exists := organizationUnitsWithPresident[organizationUnit.ID]
+
+					if hasPresident && !exists || !hasPresident && exists {
+						continue
+					}
 				}
 			}
 			items = append(items, *organizationUnitItem)

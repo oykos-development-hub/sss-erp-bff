@@ -35,6 +35,9 @@ func (f *Field) OrganizationUnitsField() *graphql.Field {
 				Type:         graphql.Boolean,
 				DefaultValue: false,
 			},
+			"has_president": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
+			},
 		},
 		Resolve: f.Resolvers.OrganizationUnitsResolver,
 	}

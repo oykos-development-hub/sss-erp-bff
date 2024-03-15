@@ -64,28 +64,31 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 		loggedInAccount := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 		profileOrganizationUnit := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 
-		active := true
-		resolution, err := r.Repo.GetJudgeResolutionList(&dto.GetJudgeResolutionListInputMS{Active: &active})
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
+		hasPresident, hasPresidentOk := params.Args["has_president"].(bool)
 		organizationUnitsWithPresident := make(map[int]string)
-		if len(resolution.Data) > 0 {
 
-			for _, item := range organizationUnits.Data {
-				_, numberOfPresidents, _, _, err := calculateEmployeeStats(r.Repo, item.ID, resolution.Data[0].ID)
-				if err != nil {
-					return errors.HandleAPIError(err)
-				}
-
-				if numberOfPresidents == 1 {
-					organizationUnitsWithPresident[item.ID] = item.Title
-				}
+		if hasPresidentOk {
+			active := true
+			resolution, err := r.Repo.GetJudgeResolutionList(&dto.GetJudgeResolutionListInputMS{Active: &active})
+			if err != nil {
+				return errors.HandleAPIError(err)
 			}
 
-		}
+			if len(resolution.Data) > 0 {
 
+				for _, item := range organizationUnits.Data {
+					_, numberOfPresidents, _, _, err := calculateEmployeeStats(r.Repo, item.ID, resolution.Data[0].ID)
+					if err != nil {
+						return errors.HandleAPIError(err)
+					}
+
+					if numberOfPresidents == 1 {
+						organizationUnitsWithPresident[item.ID] = item.Title
+					}
+				}
+
+			}
+		}
 		if err != nil {
 			return dto.ErrorResponse(err), nil
 		}
@@ -116,8 +119,7 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 					continue
 				}
 
-				hasPresident, ok := params.Args["has_president"].(bool)
-				if ok {
+				if hasPresidentOk {
 					_, exists := organizationUnitsWithPresident[organizationUnit.ID]
 
 					if hasPresident && !exists || !hasPresident && exists {

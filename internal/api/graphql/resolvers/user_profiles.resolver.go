@@ -889,6 +889,7 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		insuredExperienceMonths = months
 		insuredExperienceDays = days
 	}
+
 	res := dto.ExperienceResponseItem{
 		ID:                        item.ID,
 		UserProfileID:             item.UserProfileID,
@@ -907,6 +908,16 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		CreatedAt:                 item.CreatedAt,
 		UpdatedAt:                 item.UpdatedAt,
 		File:                      fileDropdown,
+	}
+
+	if item.OrganizationUnitID != 0 {
+		organizationUnit, err := repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		res.OrganizationUnitTitle = organizationUnit.Title
 	}
 
 	return &res, nil

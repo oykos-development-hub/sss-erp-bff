@@ -533,6 +533,9 @@ var UserProfileExperienceItemType = graphql.NewObject(graphql.ObjectConfig{
 		"organization_unit_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"organization_unit_title": &graphql.Field{
+			Type: graphql.String,
+		},
 		"relevant": &graphql.Field{
 			Type: graphql.Boolean,
 		},

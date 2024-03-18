@@ -182,6 +182,7 @@ type ExperienceResponseItem struct {
 	ID                        int                `json:"id"`
 	UserProfileID             int                `json:"user_profile_id"`
 	OrganizationUnitID        int                `json:"organization_unit_id,omitempty"`
+	OrganizationUnitTitle     string             `json:"organization_unit_title"`
 	Relevant                  bool               `json:"relevant"`
 	OrganizationUnit          string             `json:"organization_unit"`
 	YearsOfExperience         int                `json:"years_of_experience"`

@@ -6,6 +6,11 @@ type Invoice struct {
 	ID                    int               `json:"id"`
 	InvoiceNumber         string            `json:"invoice_number"`
 	Status                string            `json:"status"`
+	Type                  string            `json:"type"`
+	TypeOfSubject         int               `json:"type_of_subject"`
+	TypeOfContract        int               `json:"type_of_contract"`
+	SourceOfFunding       int               `json:"source_of_funding"`
+	Supplier              string            `json:"supplier"`
 	GrossPrice            float64           `json:"gross_price"`
 	VATPrice              float64           `json:"vat_price"`
 	SupplierID            int               `json:"supplier_id"`
@@ -14,6 +19,7 @@ type Invoice struct {
 	DateOfInvoice         time.Time         `json:"date_of_invoice"`
 	ReceiptDate           time.Time         `json:"receipt_date"`
 	DateOfPayment         time.Time         `json:"date_of_payment"`
+	DateOfStart           time.Time         `json:"date_of_start"`
 	SSSInvoiceReceiptDate *time.Time        `json:"sss_invoice_receipt_date"`
 	FileID                int               `json:"file_id"`
 	BankAccount           string            `json:"bank_account"`

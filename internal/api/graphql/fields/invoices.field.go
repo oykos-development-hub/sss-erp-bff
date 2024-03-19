@@ -62,6 +62,9 @@ func (f *Field) InvoiceOverviewField() *graphql.Field {
 			"search": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"type": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
 		},
 		Resolve: f.Resolvers.InvoiceOverviewResolver,
 	}

@@ -8,6 +8,11 @@ import (
 type InvoiceResponseItem struct {
 	ID                    int                      `json:"id"`
 	InvoiceNumber         string                   `json:"invoice_number"`
+	Type                  string                   `json:"type"`
+	TypeOfSubject         DropdownSimple           `json:"type_of_subject"`
+	TypeOfContract        DropdownSimple           `json:"type_of_contract"`
+	SourceOfFunding       DropdownSimple           `json:"source_of_funding"`
+	SupplierTitle         string                   `json:"supplier_title"`
 	Status                string                   `json:"status"`
 	GrossPrice            float64                  `json:"gross_price"`
 	VATPrice              float64                  `json:"vat_price"`
@@ -17,6 +22,7 @@ type InvoiceResponseItem struct {
 	DateOfInvoice         time.Time                `json:"date_of_invoice"`
 	ReceiptDate           time.Time                `json:"receipt_date"`
 	DateOfPayment         time.Time                `json:"date_of_payment"`
+	DateOfStart           time.Time                `json:"date_of_start"`
 	SSSInvoiceReceiptDate *time.Time               `json:"sss_invoice_receipt_date"`
 	File                  FileDropdownSimple       `json:"file"`
 	BankAccount           string                   `json:"bank_account"`
@@ -64,6 +70,7 @@ type GetInvoiceListInputMS struct {
 	Status             *string `json:"status"`
 	SupplierID         *int    `json:"supplier_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
+	Type               *string `json:"type"`
 }
 
 type InvoiceArticleFilterDTO struct {

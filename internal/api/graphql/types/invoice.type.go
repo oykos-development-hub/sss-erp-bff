@@ -47,6 +47,24 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"type": &graphql.Field{
+			Type: graphql.String,
+		},
+		"type_of_subject": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"type_of_contract": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"source_of_funding": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"supplier_title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"date_of_start": &graphql.Field{
+			Type: graphql.String,
+		},
 		"invoice_number": &graphql.Field{
 			Type: graphql.String,
 		},

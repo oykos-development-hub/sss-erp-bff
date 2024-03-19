@@ -43,6 +43,10 @@ func (r *Resolver) InvoiceOverviewResolver(params graphql.ResolveParams) (interf
 		input.Search = &value
 	}
 
+	if value, ok := params.Args["type"].(string); ok && value != "" {
+		input.Type = &value
+	}
+
 	if value, ok := params.Args["status"].(string); ok && value != "" {
 		input.Status = &value
 	}
@@ -194,6 +198,9 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 	response := dto.InvoiceResponseItem{
 		ID:                    invoice.ID,
 		InvoiceNumber:         invoice.InvoiceNumber,
+		Type:                  invoice.Type,
+		SupplierTitle:         invoice.Supplier,
+		DateOfStart:           invoice.DateOfStart,
 		Status:                invoice.Status,
 		GrossPrice:            invoice.GrossPrice,
 		VATPrice:              invoice.VATPrice,
@@ -252,6 +259,42 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		}
 
 		response.File = FileDropdown
+	}
+
+	if invoice.SourceOfFunding != 0 {
+		setting, err := r.Repo.GetDropdownSettingByID(invoice.SourceOfFunding)
+		if err != nil {
+			return nil, err
+		}
+		dropdown := dto.DropdownSimple{
+			ID:    setting.ID,
+			Title: setting.Entity,
+		}
+		response.SourceOfFunding = dropdown
+	}
+
+	if invoice.TypeOfSubject != 0 {
+		setting, err := r.Repo.GetDropdownSettingByID(invoice.TypeOfSubject)
+		if err != nil {
+			return nil, err
+		}
+		dropdown := dto.DropdownSimple{
+			ID:    setting.ID,
+			Title: setting.Entity,
+		}
+		response.TypeOfSubject = dropdown
+	}
+
+	if invoice.TypeOfContract != 0 {
+		setting, err := r.Repo.GetDropdownSettingByID(invoice.TypeOfContract)
+		if err != nil {
+			return nil, err
+		}
+		dropdown := dto.DropdownSimple{
+			ID:    setting.ID,
+			Title: setting.Entity,
+		}
+		response.TypeOfContract = dropdown
 	}
 
 	articles, err := r.Repo.GetInvoiceArticleList(invoice.ID)

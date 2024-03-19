@@ -97,7 +97,7 @@ func (r *Resolver) SettingsDropdownInsertResolver(params graphql.ResolveParams) 
 }
 
 func (r *Resolver) SettingsDropdownDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemID := params.Args["id"].(int)
+	/*itemID := params.Args["id"].(int)
 
 	err := r.Repo.DeleteDropdownSettings(itemID)
 	if err != nil {
@@ -107,5 +107,9 @@ func (r *Resolver) SettingsDropdownDeleteResolver(params graphql.ResolveParams) 
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "You deleted this item!",
+	}, nil*/
+	return dto.ResponseSingle{
+		Status:  "failed",
+		Message: "You can not delete this item!",
 	}, nil
 }

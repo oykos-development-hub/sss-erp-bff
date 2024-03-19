@@ -99,40 +99,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 			return apierrors.HandleAPIError(err)
 		}
 	}
-	/*
-		if status == "Arhiva" {
-			var response []*dto.BasicInventoryResponseListItem
-			var responseItem *dto.BasicInventoryResponseListItem
-			basicItems, err := r.Repo.GetAllInventoryItemInOrgUnits(*organizationUnitID)
 
-			if err != nil {
-				return apierrors.HandleAPIError(err)
-			}
-
-			for _, item := range basicItems {
-				var exists bool
-				for _, inventoryItem := range items {
-					if inventoryItem.ID == item.ItemID {
-						exists = true
-						responseItem = inventoryItem
-					}
-				}
-				if exists {
-					var existsInResponse bool
-					for _, responseItem := range response {
-						if responseItem.ID == item.ItemID {
-							existsInResponse = true
-						}
-					}
-					if !existsInResponse {
-						responseItem.SourceType = "Arhiva"
-						response = append(response, responseItem)
-					}
-				}
-			}
-			items = response
-		}
-	*/
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",

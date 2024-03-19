@@ -195,16 +195,16 @@ func (r *Resolver) OrganizationUnitOrderResolver(params graphql.ResolveParams) (
 }
 
 func (r *Resolver) OrganizationUnitDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemID := params.Args["id"]
+	/*itemID := params.Args["id"]
 
 	err := r.Repo.DeleteOrganizationUnits(itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
-	}
+	}*/
 
 	return map[string]interface{}{
-		"status":  "success",
-		"message": "You deleted this item!",
+		"status":  "failed",
+		"message": "You can not delete this item!",
 	}, nil
 
 }

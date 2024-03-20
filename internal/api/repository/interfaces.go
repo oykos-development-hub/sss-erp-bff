@@ -386,4 +386,16 @@ type MicroserviceRepositoryInterface interface {
 	GetFlatRatePaymentList(input *dto.GetFlatRatePaymentListInputMS) ([]structs.FlatRatePayment, int, error)
 	DeleteFlatRatePayment(id int) error
 	UpdateFlatRatePayment(item *structs.FlatRatePayment) (*structs.FlatRatePayment, error)
+
+	CreatePropBenConf(item *structs.PropBenConf) (*structs.PropBenConf, error)
+	GetPropBenConf(id int) (*structs.PropBenConf, error)
+	GetPropBenConfList(input *dto.GetPropBenConfListInputMS) ([]structs.PropBenConf, int, error)
+	DeletePropBenConf(id int) error
+	UpdatePropBenConf(item *structs.PropBenConf) (*structs.PropBenConf, error)
+
+	CreatePropBenConfPayment(item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error)
+	GetPropBenConfPayment(id int) (*structs.PropBenConfPayment, error)
+	GetPropBenConfPaymentList(input *dto.GetPropBenConfPaymentListInputMS) ([]structs.PropBenConfPayment, int, error)
+	DeletePropBenConfPayment(id int) error
+	UpdatePropBenConfPayment(item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error)
 }

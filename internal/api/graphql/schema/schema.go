@@ -141,6 +141,10 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"flatRate_Delete":                                 fields.FlatRateDeleteField(),
 			"flatRatePayment_Insert":                          fields.FlatRatePaymentInsertField(),
 			"flatRatePayment_Delete":                          fields.FlatRatePaymentDeleteField(),
+			"propertyBenefitConfiscation_Insert":              fields.PropBenConfInsertField(),
+			"propertyBenefitConfiscation_Delete":              fields.PropBenConfDeleteField(),
+			"propertyBenefitConfiscationPayment_Insert":       fields.PropBenConfPaymentInsertField(),
+			"propertyBenefitConfiscationPayment_Delete":       fields.PropBenConfPaymentDeleteField(),
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -240,6 +244,8 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"procedureCostPayment_Overview":                              fields.ProcedureCostPaymentOverviewField(),
 			"flatRate_Overview":                                          fields.FlatRateOverviewField(),
 			"flatRatePayment_Overview":                                   fields.FlatRatePaymentOverviewField(),
+			"propertyBenefitConfiscation_Overview":                       fields.PropBenConfOverviewField(),
+			"propertyBenefitConfiscationPayment_Overview":                fields.PropBenConfPaymentOverviewField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

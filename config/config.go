@@ -77,6 +77,8 @@ type FinanceMS struct {
 	FinePayment               string
 	ProcedureCost             string
 	ProcedureCostPayment      string
+	FlatRate                  string
+	FlatRatePayment           string
 }
 
 type ProcurementMS struct {
@@ -340,6 +342,8 @@ func LoadDefaultConfig() (*Config, error) {
 				FinePayment:               financeBase + "/fine-payments",
 				ProcedureCost:             financeBase + "/procedure-costs",
 				ProcedureCostPayment:      financeBase + "/procedure-cost-payments",
+				FlatRate:                  financeBase + "/flat-rates",
+				FlatRatePayment:           financeBase + "/flat-rate-payments",
 			},
 		},
 		Frontend: FrontendConfig{

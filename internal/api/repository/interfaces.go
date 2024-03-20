@@ -339,7 +339,6 @@ type MicroserviceRepositoryInterface interface {
 	CreateInvoiceArticle(article *structs.InvoiceArticles) (*structs.InvoiceArticles, error)
 	UpdateInvoiceArticle(item *structs.InvoiceArticles) (*structs.InvoiceArticles, error)
 
-
 	CreateFee(item *structs.Fee) (*structs.Fee, error)
 	GetFee(id int) (*structs.Fee, error)
 	GetFeeList(input *dto.GetFeeListInputMS) ([]structs.Fee, int, error)
@@ -375,4 +374,16 @@ type MicroserviceRepositoryInterface interface {
 	GetProcedureCostPaymentList(input *dto.GetProcedureCostPaymentListInputMS) ([]structs.ProcedureCostPayment, int, error)
 	DeleteProcedureCostPayment(id int) error
 	UpdateProcedureCostPayment(item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error)
+
+	CreateFlatRate(item *structs.FlatRate) (*structs.FlatRate, error)
+	GetFlatRate(id int) (*structs.FlatRate, error)
+	GetFlatRateList(input *dto.GetFlatRateListInputMS) ([]structs.FlatRate, int, error)
+	DeleteFlatRate(id int) error
+	UpdateFlatRate(item *structs.FlatRate) (*structs.FlatRate, error)
+
+	CreateFlatRatePayment(item *structs.FlatRatePayment) (*structs.FlatRatePayment, error)
+	GetFlatRatePayment(id int) (*structs.FlatRatePayment, error)
+	GetFlatRatePaymentList(input *dto.GetFlatRatePaymentListInputMS) ([]structs.FlatRatePayment, int, error)
+	DeleteFlatRatePayment(id int) error
+	UpdateFlatRatePayment(item *structs.FlatRatePayment) (*structs.FlatRatePayment, error)
 }

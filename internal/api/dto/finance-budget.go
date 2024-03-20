@@ -43,10 +43,10 @@ type GetBudgetListResponseMS struct {
 }
 
 type GetBudgetListInputMS struct {
-	Year       *int    `json:"year"`
-	BudgetType *int    `json:"budget_type"`
-	Status     *string `json:"status"`
-	ID         *int    `json:"id"`
+	Year       *int `json:"year"`
+	BudgetType *int `json:"budget_type"`
+	Status     *int `json:"budget_status"`
+	ID         *int `json:"id"`
 }
 
 type GetBudgetRequestResponseMS struct {

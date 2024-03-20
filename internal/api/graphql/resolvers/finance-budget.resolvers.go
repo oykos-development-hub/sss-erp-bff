@@ -43,7 +43,7 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 	if year, ok := params.Args["year"].(int); ok && year != 0 {
 		input.Year = &year
 	}
-	if status, ok := params.Args["status"].(string); ok && status != "" {
+	if status, ok := params.Args["status"].(int); ok && status != 0 {
 		input.Status = &status
 	}
 

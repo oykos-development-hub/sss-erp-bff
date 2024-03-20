@@ -69,7 +69,7 @@ func (f *Field) BudgetOverviewField() *graphql.Field {
 				Type: graphql.Int,
 			},
 			"status": &graphql.ArgumentConfig{
-				Type: graphql.String,
+				Type: graphql.Int,
 			},
 			"year": &graphql.ArgumentConfig{
 				Type: graphql.Int,

@@ -104,6 +104,42 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
+
+		if item.OrderID != 0 {
+			order, err := r.Repo.GetOrderListByID(item.OrderID)
+
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			_, err = r.Repo.UpdateOrderListItem(item.OrderID, &structs.OrderListItem{
+				ID:                  order.ID,
+				DateOrder:           order.DateOrder,
+				TotalPrice:          order.TotalPrice,
+				PublicProcurementID: order.PublicProcurementID,
+				GroupOfArticlesID:   order.GroupOfArticlesID,
+				SupplierID:          order.SupplierID,
+				Status:              order.Status,
+				PassedToFinance:     true,
+				UsedInFinance:       true,
+				DateSystem:          order.DateSystem,
+				InvoiceDate:         order.InvoiceDate,
+				InvoiceNumber:       order.InvoiceNumber,
+				OrganizationUnitID:  order.OrganizationUnitID,
+				OfficeID:            order.OfficeID,
+				RecipientUserID:     order.RecipientUserID,
+				Description:         order.Description,
+				IsUsed:              order.IsUsed,
+				OrderFile:           order.OrderFile,
+				ReceiveFile:         order.ReceiveFile,
+				MovementFile:        order.MovementFile,
+			})
+
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+		}
+
 	} else {
 		item, err = r.Repo.UpdateInvoice(&data)
 		if err != nil {
@@ -164,10 +200,51 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteInvoice(itemID)
+	item, err := r.Repo.GetInvoice(itemID)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	err = r.Repo.DeleteInvoice(itemID)
 	if err != nil {
 		fmt.Printf("Deleting invoice item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil
+	}
+
+	if item.OrderID != 0 {
+		order, err := r.Repo.GetOrderListByID(item.OrderID)
+
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		_, err = r.Repo.UpdateOrderListItem(item.OrderID, &structs.OrderListItem{
+			ID:                  order.ID,
+			DateOrder:           order.DateOrder,
+			TotalPrice:          order.TotalPrice,
+			PublicProcurementID: order.PublicProcurementID,
+			GroupOfArticlesID:   order.GroupOfArticlesID,
+			SupplierID:          order.SupplierID,
+			Status:              order.Status,
+			PassedToFinance:     true,
+			UsedInFinance:       false,
+			DateSystem:          order.DateSystem,
+			InvoiceDate:         order.InvoiceDate,
+			InvoiceNumber:       order.InvoiceNumber,
+			OrganizationUnitID:  order.OrganizationUnitID,
+			OfficeID:            order.OfficeID,
+			RecipientUserID:     order.RecipientUserID,
+			Description:         order.Description,
+			IsUsed:              order.IsUsed,
+			OrderFile:           order.OrderFile,
+			ReceiveFile:         order.ReceiveFile,
+			MovementFile:        order.MovementFile,
+		})
+
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 	}
 
 	return dto.ResponseSingle{

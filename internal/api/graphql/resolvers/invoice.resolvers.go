@@ -176,6 +176,76 @@ func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interfac
 	}, nil
 }
 
+func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	if id, ok := params.Args["id"].(int); ok && id != 0 {
+		invoice, err := r.Repo.GetInvoice(id)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		invoiceResItem, err := buildInvoiceResponseItem(params.Context, r, *invoice)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Items:   []*dto.InvoiceResponseItem{invoiceResItem},
+			Total:   1,
+		}, nil
+	}
+
+	input := dto.GetInvoiceListInputMS{}
+	if value, ok := params.Args["page"].(int); ok && value != 0 {
+		input.Page = &value
+	}
+
+	if value, ok := params.Args["size"].(int); ok && value != 0 {
+		input.Size = &value
+	}
+
+	if value, ok := params.Args["search"].(string); ok && value != "" {
+		input.Search = &value
+	}
+
+	if value, ok := params.Args["type"].(string); ok && value != "" {
+		input.Type = &value
+	}
+
+	if value, ok := params.Args["status"].(string); ok && value != "" {
+		input.Status = &value
+	}
+
+	if value, ok := params.Args["supplier_id"].(int); ok && value != 0 {
+		input.SupplierID = &value
+	}
+
+	if value, ok := params.Args["year"].(int); ok && value != 0 {
+		input.Year = &value
+	}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = &value
+	}
+
+	invoices, total, err := r.Repo.GetInvoiceList(&input)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	invoiceResItem, err := buildInvoiceResponseItemList(params.Context, r, invoices)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   invoiceResItem,
+		Total:   total,
+	}, nil
+}
+
 func buildInvoiceResponseItemList(ctx context.Context, r *Resolver, itemList []structs.Invoice) ([]*dto.InvoiceResponseItem, error) {
 	var items []*dto.InvoiceResponseItem
 
@@ -297,6 +367,18 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		response.TypeOfContract = dropdown
 	}
 
+	if invoice.ActivityID != 0 {
+		activity, err := r.Repo.GetActivity(invoice.ActivityID)
+		if err != nil {
+			return nil, err
+		}
+		dropdown := dto.DropdownSimple{
+			ID:    activity.ID,
+			Title: activity.Title,
+		}
+		response.Activity = dropdown
+	}
+
 	articles, err := r.Repo.GetInvoiceArticleList(invoice.ID)
 
 	if err != nil {
@@ -311,6 +393,16 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		}
 
 		response.Articles = append(response.Articles, *singleArticle)
+	}
+
+	for _, item := range invoice.AdditionalExpenses {
+		builtItem, err := buildAdditionalExpense(r, item)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.AdditionalExpenses = append(response.AdditionalExpenses, *builtItem)
 	}
 
 	return &response, nil
@@ -355,5 +447,67 @@ func buildInvoiceArtice(r *Resolver, article structs.InvoiceArticles) (*dto.Invo
 		response.CostAccount = accountDropdown
 	}
 
+	return &response, nil
+}
+
+func buildAdditionalExpense(r *Resolver, item structs.AdditionalExpenses) (*dto.AdditionalExpensesResponse, error) {
+	response := dto.AdditionalExpensesResponse{
+		ID:          item.ID,
+		Title:       item.Title,
+		Price:       item.Price,
+		BankAccount: item.BankAccount,
+		Status:      item.Status,
+		CreatedAt:   item.CreatedAt,
+		UpdatedAt:   item.UpdatedAt,
+	}
+
+	if item.AccountID != 0 {
+		account, err := r.Repo.GetAccountItemByID(item.AccountID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.Account = dto.DropdownSimple{
+			ID:    account.ID,
+			Title: account.Title,
+		}
+	}
+
+	if item.InvoiceID != 0 {
+		invoice, err := r.Repo.GetInvoice(item.InvoiceID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.Invoice = dto.DropdownSimple{
+			ID:    invoice.ID,
+			Title: invoice.InvoiceNumber,
+		}
+	}
+
+	if item.SubjectID != 0 {
+		supplier, err := r.Repo.GetSupplier(item.SubjectID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.Subject = dto.DropdownSimple{
+			ID:    supplier.ID,
+			Title: supplier.Title,
+		}
+	}
+
+	if item.OrganizationUnitID != 0 {
+		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.OrganizationUnit = dto.DropdownSimple{
+			ID:    orgUnit.ID,
+			Title: orgUnit.Title,
+		}
+	}
 	return &response, nil
 }

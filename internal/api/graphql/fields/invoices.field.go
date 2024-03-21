@@ -69,3 +69,34 @@ func (f *Field) InvoiceOverviewField() *graphql.Field {
 		Resolve: f.Resolvers.InvoiceOverviewResolver,
 	}
 }
+
+func (f *Field) AdditionalExpensesOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.AdditionalExpensesType,
+		Description: "Returns a data of additional expenses",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"page": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"subject_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"year": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"status": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"search": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+		},
+		Resolve: f.Resolvers.AdditionalExpensesOverviewResolver,
+	}
+}

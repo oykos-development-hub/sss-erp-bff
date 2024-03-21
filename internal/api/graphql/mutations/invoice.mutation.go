@@ -32,6 +32,9 @@ var InvoiceMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"supplier_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"activity_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"order_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
@@ -62,6 +65,9 @@ var InvoiceMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"articles": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(InvoiceArticleMutation),
 		},
+		"additional_expenses": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(AdditionalExpenses),
+		},
 	},
 })
 
@@ -88,6 +94,36 @@ var InvoiceArticleMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		},
 		"cost_account_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
+		},
+	},
+})
+
+var AdditionalExpenses = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "AdditionalExpensesMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"title": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"subject_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"bank_account": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"invoice_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"status": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"price": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
 		},
 	},
 })

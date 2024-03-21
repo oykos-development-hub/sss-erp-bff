@@ -80,6 +80,9 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"activity": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"date_of_invoice": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -103,6 +106,9 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"articles": &graphql.Field{
 			Type: graphql.NewList(InvoiceArticlesType),
+		},
+		"additional_expenses": &graphql.Field{
+			Type: graphql.NewList(AdditionalExpensesType),
 		},
 	},
 })
@@ -145,6 +151,36 @@ var InvoiceArticlesType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"cost_account": &graphql.Field{
 			Type: DropdownItemType,
+		},
+	},
+})
+
+var AdditionalExpensesType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AdditionalExpensesType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"subject": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"bank_account": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"invoice": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"status": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"price": &graphql.Field{
+			Type: graphql.Float,
 		},
 	},
 })

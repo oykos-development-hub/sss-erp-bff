@@ -1518,6 +1518,268 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 	_ = MarshalAndWriteJSON(w, response)
 }
 
+func (h *Handler) ImportExcelPS2(w http.ResponseWriter, r *http.Request) {
+	var response ImportPS1Inventories
+
+	xlsFile, err := openExcelFile(r)
+
+	organizationUnitID := r.FormValue("organization_unit_id")
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	offices, err := h.Repo.GetOfficeDropdownSettings(&dto.GetOfficesOfOrganizationInput{})
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	mapOfOffices := make(map[string]int)
+
+	for _, obj := range offices.Data {
+		mapOfOffices[obj.Title] = obj.ID
+	}
+
+	classTypes, err := h.Repo.GetDropdownSettings(&dto.GetSettingsInput{Entity: "inventory_class_type"})
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	mapOfClassTypes := make(map[string]int)
+
+	for _, obj := range classTypes.Data {
+		mapOfClassTypes[obj.Abbreviation] = obj.ID
+	}
+
+	deprecationTypes, err := h.Repo.GetDropdownSettings(&dto.GetSettingsInput{Entity: "deprecation_types"})
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	mapOfDeprecationTypes := make(map[string]int)
+
+	for _, obj := range deprecationTypes.Data {
+		mapOfDeprecationTypes[obj.Title] = obj.ID
+	}
+
+	sheetMap := xlsFile.GetSheetMap()
+	//var articles []ImportInventoryArticles
+
+	for _, sheetName := range sheetMap {
+
+		if sheetName != "PS -2" {
+			continue
+		}
+
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := -1
+
+		_, _ = h.Repo.GetAllInventoryItem(dto.InventoryItemFilter{OrganizationUnitID: &rowindex})
+
+		for rows.Next() {
+			rowindex++
+			if rowindex < 9 {
+				continue
+			}
+
+			if rowindex > 99 {
+				break
+			}
+			cols := rows.Columns()
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+			var article ImportInventoryArticles
+			var existsArticle *dto.GetAllBasicInventoryItem
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				if value == "" && cellIndex == 2 {
+					break
+				}
+				switch cellIndex {
+				case 1:
+					article.Article.InventoryNumber = value
+					orgUnit, _ := strconv.Atoi(organizationUnitID)
+					var err error
+					existsArticle, err = h.Repo.GetAllInventoryItem(dto.InventoryItemFilter{OrganizationUnitID: &orgUnit, Search: &value})
+					if err != nil {
+						handleError(w, err, http.StatusInternalServerError)
+						return
+					}
+					if len(existsArticle.Data) == 0 {
+						handleError(w, errors.New("kapucino"), http.StatusInternalServerError)
+						return
+					}
+
+				case 2:
+					officeID, exists := mapOfOffices[value]
+					if exists {
+						article.Article.OfficeID = officeID
+						article.Dispatch.OfficeID = officeID
+					} else {
+						newOffice := structs.SettingsDropdown{
+							Value:  organizationUnitID,
+							Title:  value,
+							Entity: config.OfficeTypes,
+						}
+
+						itemRes, err := h.Repo.CreateDropdownSettings(&newOffice)
+
+						if err != nil {
+							responseMessage := ValidationResponse{
+								Column:  2,
+								Row:     rowindex,
+								Message: "Greska prilikom dodavanja kancelarije!",
+							}
+							response.Validation = append(response.Validation, responseMessage)
+						}
+						article.Dispatch.OfficeID = itemRes.ID
+						article.Article.OfficeID = itemRes.ID
+						article.Dispatch.Type = "allocation"
+						mapOfOffices[itemRes.Title] = itemRes.ID
+					}
+				case 14:
+					article.Article.Description = value
+				}
+			}
+			_, err := h.Repo.UpdateInventoryItem(existsArticle.Data[0].ID, &structs.BasicInventoryInsertItem{
+				ID:                           existsArticle.Data[0].ID,
+				ArticleID:                    existsArticle.Data[0].ArticleID,
+				Type:                         existsArticle.Data[0].Type,
+				ClassTypeID:                  existsArticle.Data[0].ClassTypeID,
+				DepreciationTypeID:           existsArticle.Data[0].DepreciationTypeID,
+				SupplierID:                   existsArticle.Data[0].SupplierID,
+				DonorID:                      existsArticle.Data[0].DonorID,
+				SerialNumber:                 existsArticle.Data[0].SerialNumber,
+				InventoryNumber:              existsArticle.Data[0].InventoryNumber,
+				Title:                        existsArticle.Data[0].Title,
+				Owner:                        existsArticle.Data[0].Owner,
+				Abbreviation:                 existsArticle.Data[0].Abbreviation,
+				InternalOwnership:            existsArticle.Data[0].InternalOwnership,
+				InvoiceID:                    existsArticle.Data[0].InvoiceID,
+				OfficeID:                     article.Dispatch.OfficeID,
+				OrganizationUnitID:           existsArticle.Data[0].OrganizationUnitID,
+				TargetOrganizationUnitID:     existsArticle.Data[0].TargetOrganizationUnitID,
+				TargetUserProfileID:          existsArticle.Data[0].TargetUserProfileID,
+				Unit:                         existsArticle.Data[0].Unit,
+				Amount:                       existsArticle.Data[0].Amount,
+				NetPrice:                     existsArticle.Data[0].NetPrice,
+				GrossPrice:                   existsArticle.Data[0].GrossPrice,
+				Description:                  article.Article.Description,
+				DateOfPurchase:               existsArticle.Data[0].DateOfPurchase,
+				Source:                       existsArticle.Data[0].Source,
+				SourceType:                   existsArticle.Data[0].SourceType,
+				DonorTitle:                   existsArticle.Data[0].DonorTitle,
+				InvoiceNumber:                existsArticle.Data[0].InvoiceNumber,
+				PriceOfAssessment:            existsArticle.Data[0].PriceOfAssessment,
+				DateOfAssessment:             existsArticle.Data[0].DateOfAssessment,
+				LifetimeOfAssessmentInMonths: existsArticle.Data[0].LifetimeOfAssessmentInMonths,
+				Active:                       existsArticle.Data[0].Active,
+				DeactivationDescription:      existsArticle.Data[0].DeactivationDescription,
+				Inactive:                     existsArticle.Data[0].Inactive,
+				IsExternalDonation:           existsArticle.Data[0].IsExternalDonation,
+			})
+
+			if err != nil {
+				handleError(w, errors.New("kapucinooooooooo"), http.StatusInternalServerError)
+				return
+			}
+
+			article.Dispatch.Date = existsArticle.Data[0].DateOfPurchase
+			article.Dispatch.IsAccepted = true
+			article.Dispatch.Type = "allocation"
+
+			dispatch, err := h.Repo.CreateDispatchItem(&article.Dispatch)
+
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			article.DispatchItem.InventoryID = existsArticle.Data[0].ID
+			article.DispatchItem.DispatchID = dispatch.ID
+
+			_, err = h.Repo.CreateDispatchItemItem(&article.DispatchItem)
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+			}
+		}
+
+	}
+	/*
+		if len(response.Validation) == 0 {
+			for _, article := range articles {
+				if article.Article.Title == "" {
+					continue
+				}
+				orgUnitID, _ := strconv.Atoi(organizationUnitID)
+				article.Article.TargetOrganizationUnitID = orgUnitID
+				article.Article.Type = "movable"
+				article.Article.Active = true
+				article.Article.IsExternalDonation = true
+				article.Article.NetPrice = 0
+				date := "2023-12-31T00:00:00Z"
+				article.Article.DateOfAssessment = &date
+				article.Article.DateOfPurchase = date
+
+				newArticle, err := h.Repo.CreateInventoryItem(&article.Article)
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+
+				if article.FirstAmortization.EstimatedDuration == 0 {
+					article.FirstAmortization.EstimatedDuration = 10000
+				}
+				article.FirstAmortization.InventoryID = newArticle.ID
+				article.FirstAmortization.Type = "financial"
+				article.FirstAmortization.Active = true
+				article.FirstAmortization.DateOfAssessment = &date
+				_, err = h.Repo.CreateAssessments(&article.FirstAmortization)
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+
+				article.Dispatch.Date = article.Article.DateOfPurchase
+				article.Dispatch.IsAccepted = true
+				article.Dispatch.Type = "allocation"
+
+				dispatch, err := h.Repo.CreateDispatchItem(&article.Dispatch)
+
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+
+				article.DispatchItem.InventoryID = newArticle.ID
+				article.DispatchItem.DispatchID = dispatch.ID
+
+				_, err = h.Repo.CreateDispatchItemItem(&article.DispatchItem)
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+				}
+			}
+		}
+	*/
+	response.Status = "success"
+	response.Message = "File was read successfuly"
+	_ = MarshalAndWriteJSON(w, response)
+}
+
 func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Request) {
 	var response ImportPS1Inventories
 

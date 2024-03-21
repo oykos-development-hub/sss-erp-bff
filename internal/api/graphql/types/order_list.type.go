@@ -55,6 +55,12 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		"description": &graphql.Field{
 			Type: graphql.String,
 		},
+		"passed_to_finance": &graphql.Field{
+			Type: graphql.Boolean,
+		},
+		"used_in_finance": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"order_file": &graphql.Field{
 			Type: FileDropdownItemType,
 		},

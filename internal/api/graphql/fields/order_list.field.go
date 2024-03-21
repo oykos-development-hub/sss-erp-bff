@@ -39,6 +39,9 @@ func (f *Field) OrderListOverviewField() *graphql.Field {
 			"year": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"finance_overview": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
+			},
 			"sort_by_date_order": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},

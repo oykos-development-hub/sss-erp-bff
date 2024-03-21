@@ -32,6 +32,12 @@ var OrderListInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"order_file": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"passed_to_finance": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
+		"used_in_finance": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
 	},
 })
 

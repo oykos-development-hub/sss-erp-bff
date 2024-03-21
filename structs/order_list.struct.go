@@ -8,6 +8,8 @@ type OrderListItem struct {
 	GroupOfArticlesID   *int    `json:"group_of_articles_id"`
 	SupplierID          *int    `json:"supplier_id"`
 	Status              string  `json:"status"`
+	PassedToFinance     bool    `json:"passed_to_finance"`
+	UsedInFinance       bool    `json:"used_in_finance"`
 	DateSystem          *string `json:"date_system"`
 	InvoiceDate         *string `json:"invoice_date"`
 	InvoiceNumber       *string `json:"invoice_number"`
@@ -59,6 +61,8 @@ type OrderListInsertItem struct {
 	Articles            []OrderArticleInsertItem `json:"articles"`
 	IsUsed              bool                     `json:"is_used"`
 	OrderFile           int                      `json:"order_file"`
+	PassedToFinance     bool                     `json:"passed_to_finance"`
+	UsedInFinance       bool                     `json:"used_in_finance"`
 }
 
 type OrderArticleInsertItem struct {

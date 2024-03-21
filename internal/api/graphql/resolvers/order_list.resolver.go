@@ -137,6 +137,7 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 	status, statusOK := params.Args["status"].(string)
 	search, searchOk := params.Args["search"].(string)
 	activePlan, _ := params.Args["active_plan"].(bool)
+	financeOverview, _ := params.Args["finance_overview"].(bool)
 	year, yearOK := params.Args["year"].(string)
 	sortByTotalPrice, sortByTotalPriceOK := params.Args["sort_by_total_price"].(string)
 	sortByDateOrder, sortByDateOrderOK := params.Args["sort_by_date_order"].(string)
@@ -225,6 +226,10 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 
 		if yearOK && year != "" {
 			input.Year = &year
+		}
+
+		if financeOverview {
+			input.FinanceOverview = &financeOverview
 		}
 
 		if sortByDateOrderOK && sortByDateOrder != "" {
@@ -804,6 +809,8 @@ func buildOrderListInsertItem(context context.Context, r repository.Microservice
 		GroupOfArticlesID:   &item.GroupOfArticlesID,
 		SupplierID:          supplierID,
 		OrderFile:           &item.OrderFile,
+		PassedToFinance:     item.PassedToFinance,
+		UsedInFinance:       item.UsedInFinance,
 	}
 
 	// Getting organizationUnitID from job position
@@ -997,6 +1004,8 @@ func buildOrderListResponseItem(context context.Context, r repository.Microservi
 		Supplier:            &supplierDropdown,
 		GroupOfArticles:     &groupOfArticles,
 		Articles:            &articles,
+		PassedToFinance:     item.PassedToFinance,
+		UsedInFinance:       item.UsedInFinance,
 		OrderFile:           orderFile,
 		ReceiveFile:         receiveFile,
 		MovementFile:        movementFile,

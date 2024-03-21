@@ -21,6 +21,7 @@ type GetOrderListInput struct {
 	DateSystem          *string `json:"date_system"`
 	PublicProcurementID *int    `json:"public_procurement_id"`
 	OrganizationUnitID  *int    `json:"organization_unit_id"`
+	FinanceOverview     *bool   `json:"finance_overview"`
 	SortByDateOrder     *string `json:"sort_by_date_order"`
 	SortByTotalPrice    *string `json:"sort_by_total_price"`
 }
@@ -40,6 +41,8 @@ type OrderListOverviewResponse struct {
 	OfficeID            int                                    `json:"office_id"`
 	RecipientUserID     *int                                   `json:"recipient_user_id"`
 	Description         *string                                `json:"description"`
+	PassedToFinance     bool                                   `json:"passed_to_finance"`
+	UsedInFinance       bool                                   `json:"used_in_finance"`
 	IsUsed              bool                                   `json:"is_used"`
 	CreatedAt           string                                 `json:"created_at"`
 	UpdatedAt           string                                 `json:"updated_at"`

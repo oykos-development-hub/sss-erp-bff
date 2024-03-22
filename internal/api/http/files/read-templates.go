@@ -1603,32 +1603,23 @@ func (h *Handler) ImportExcelPS2(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			var article ImportInventoryArticles
-			var existsArticle *dto.GetAllBasicInventoryItem
+			outerLoop := true
 			for cellIndex, cellValue := range cols {
 				value := cellValue
-				if value == "" && cellIndex == 2 {
-					break
-				}
 				switch cellIndex {
+				case 0:
+					if value == "" {
+						outerLoop = false
+					}
 				case 1:
 					article.Article.InventoryNumber = value
-					orgUnit, _ := strconv.Atoi(organizationUnitID)
-					var err error
-					existsArticle, err = h.Repo.GetAllInventoryItem(dto.InventoryItemFilter{OrganizationUnitID: &orgUnit, Search: &value})
-					if err != nil {
-						handleError(w, err, http.StatusInternalServerError)
-						return
-					}
-					if len(existsArticle.Data) == 0 {
-						handleError(w, errors.New("kapucino"), http.StatusInternalServerError)
-						return
-					}
-
 				case 2:
 					officeID, exists := mapOfOffices[value]
 					if exists {
 						article.Article.OfficeID = officeID
 						article.Dispatch.OfficeID = officeID
+					} else if value == "" {
+						article.Article.Amount = 0
 					} else {
 						newOffice := structs.SettingsDropdown{
 							Value:  organizationUnitID,
@@ -1651,89 +1642,45 @@ func (h *Handler) ImportExcelPS2(w http.ResponseWriter, r *http.Request) {
 						article.Dispatch.Type = "allocation"
 						mapOfOffices[itemRes.Title] = itemRes.ID
 					}
+				case 3:
+					article.Article.Title = value
 				case 14:
 					article.Article.Description = value
+				case 15:
+					if _, exists := mapOfClassTypes[value]; !exists && value != "" && value != "0" {
+						responseMessage := ValidationResponse{
+							Column:  26,
+							Row:     rowindex,
+							Message: "Klasa sredstva " + value + " nije validna.",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else {
+						article.Article.ClassTypeID = mapOfClassTypes[value]
+					}
+				case 18:
+					dateOfPurchase, err := parseDate(value)
+
+					if value != "" && err != nil {
+						article.Article.DateOfPurchase = "1980-01-01T00:00:00Z"
+						article.Article.DateOfAssessment = &article.Article.DateOfPurchase
+						article.FirstAmortization.DateOfAssessment = &article.Article.DateOfPurchase
+					} else {
+						dateOfPurchaseString := dateOfPurchase.Format("2006-01-02T15:04:05Z")
+						article.Article.DateOfPurchase = dateOfPurchaseString
+						article.Article.DateOfAssessment = &dateOfPurchaseString
+						article.FirstAmortization.DateOfAssessment = &dateOfPurchaseString
+					}
 				}
 			}
-			_, err := h.Repo.UpdateInventoryItem(existsArticle.Data[0].ID, &structs.BasicInventoryInsertItem{
-				ID:                           existsArticle.Data[0].ID,
-				ArticleID:                    existsArticle.Data[0].ArticleID,
-				Type:                         existsArticle.Data[0].Type,
-				ClassTypeID:                  existsArticle.Data[0].ClassTypeID,
-				DepreciationTypeID:           existsArticle.Data[0].DepreciationTypeID,
-				SupplierID:                   existsArticle.Data[0].SupplierID,
-				DonorID:                      existsArticle.Data[0].DonorID,
-				SerialNumber:                 existsArticle.Data[0].SerialNumber,
-				InventoryNumber:              existsArticle.Data[0].InventoryNumber,
-				Title:                        existsArticle.Data[0].Title,
-				Owner:                        existsArticle.Data[0].Owner,
-				Abbreviation:                 existsArticle.Data[0].Abbreviation,
-				InternalOwnership:            existsArticle.Data[0].InternalOwnership,
-				InvoiceID:                    existsArticle.Data[0].InvoiceID,
-				OfficeID:                     article.Dispatch.OfficeID,
-				OrganizationUnitID:           existsArticle.Data[0].OrganizationUnitID,
-				TargetOrganizationUnitID:     existsArticle.Data[0].TargetOrganizationUnitID,
-				TargetUserProfileID:          existsArticle.Data[0].TargetUserProfileID,
-				Unit:                         existsArticle.Data[0].Unit,
-				Amount:                       existsArticle.Data[0].Amount,
-				NetPrice:                     existsArticle.Data[0].NetPrice,
-				GrossPrice:                   existsArticle.Data[0].GrossPrice,
-				Description:                  article.Article.Description,
-				DateOfPurchase:               existsArticle.Data[0].DateOfPurchase,
-				Source:                       existsArticle.Data[0].Source,
-				SourceType:                   existsArticle.Data[0].SourceType,
-				DonorTitle:                   existsArticle.Data[0].DonorTitle,
-				InvoiceNumber:                existsArticle.Data[0].InvoiceNumber,
-				PriceOfAssessment:            existsArticle.Data[0].PriceOfAssessment,
-				DateOfAssessment:             existsArticle.Data[0].DateOfAssessment,
-				LifetimeOfAssessmentInMonths: existsArticle.Data[0].LifetimeOfAssessmentInMonths,
-				Active:                       existsArticle.Data[0].Active,
-				DeactivationDescription:      existsArticle.Data[0].DeactivationDescription,
-				Inactive:                     existsArticle.Data[0].Inactive,
-				IsExternalDonation:           existsArticle.Data[0].IsExternalDonation,
-			})
-
-			if err != nil {
-				handleError(w, errors.New("kapucinooooooooo"), http.StatusInternalServerError)
-				return
-			}
-
-			article.Dispatch.Date = existsArticle.Data[0].DateOfPurchase
-			article.Dispatch.IsAccepted = true
-			article.Dispatch.Type = "allocation"
-
-			dispatch, err := h.Repo.CreateDispatchItem(&article.Dispatch)
-
-			if err != nil {
-				handleError(w, err, http.StatusInternalServerError)
-				return
-			}
-
-			article.DispatchItem.InventoryID = existsArticle.Data[0].ID
-			article.DispatchItem.DispatchID = dispatch.ID
-
-			_, err = h.Repo.CreateDispatchItemItem(&article.DispatchItem)
-			if err != nil {
-				handleError(w, err, http.StatusInternalServerError)
-			}
-		}
-
-	}
-	/*
-		if len(response.Validation) == 0 {
-			for _, article := range articles {
+			if outerLoop {
 				if article.Article.Title == "" {
 					continue
 				}
-				orgUnitID, _ := strconv.Atoi(organizationUnitID)
-				article.Article.TargetOrganizationUnitID = orgUnitID
+				article.Article.OrganizationUnitID = 3
+				article.Article.TargetOrganizationUnitID, _ = strconv.Atoi(organizationUnitID)
 				article.Article.Type = "movable"
 				article.Article.Active = true
-				article.Article.IsExternalDonation = true
-				article.Article.NetPrice = 0
-				date := "2023-12-31T00:00:00Z"
-				article.Article.DateOfAssessment = &date
-				article.Article.DateOfPurchase = date
+				article.Article.DepreciationTypeID = 168
 
 				newArticle, err := h.Repo.CreateInventoryItem(&article.Article)
 				if err != nil {
@@ -1742,21 +1689,41 @@ func (h *Handler) ImportExcelPS2(w http.ResponseWriter, r *http.Request) {
 				}
 
 				if article.FirstAmortization.EstimatedDuration == 0 {
-					article.FirstAmortization.EstimatedDuration = 10000
+					article.FirstAmortization.EstimatedDuration = 10
 				}
 				article.FirstAmortization.InventoryID = newArticle.ID
 				article.FirstAmortization.Type = "financial"
 				article.FirstAmortization.Active = true
-				article.FirstAmortization.DateOfAssessment = &date
+				article.FirstAmortization.DateOfAssessment = article.Article.DateOfAssessment
+				article.FirstAmortization.DepreciationTypeID = 166
 				_, err = h.Repo.CreateAssessments(&article.FirstAmortization)
 				if err != nil {
 					handleError(w, err, http.StatusInternalServerError)
 					return
 				}
 
+				article.ReversDispatch.TargetOrganizationUnitID, _ = strconv.Atoi(organizationUnitID)
+				article.ReversDispatch.Date = article.Article.DateOfPurchase
+				article.ReversDispatch.IsAccepted = true
+				article.ReversDispatch.Type = "revers"
+
+				reversDispatch, err := h.Repo.CreateDispatchItem(&article.ReversDispatch)
+
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+
+				article.ReversDispatchItem.InventoryID = newArticle.ID
+				article.ReversDispatchItem.DispatchID = reversDispatch.ID
+
+				_, err = h.Repo.CreateDispatchItemItem(&article.ReversDispatchItem)
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+				}
+
 				article.Dispatch.Date = article.Article.DateOfPurchase
 				article.Dispatch.IsAccepted = true
-				article.Dispatch.Type = "allocation"
 
 				dispatch, err := h.Repo.CreateDispatchItem(&article.Dispatch)
 
@@ -1774,7 +1741,7 @@ func (h *Handler) ImportExcelPS2(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-	*/
+	}
 	response.Status = "success"
 	response.Message = "File was read successfuly"
 	_ = MarshalAndWriteJSON(w, response)

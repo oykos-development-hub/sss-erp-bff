@@ -188,6 +188,9 @@ var BasicInventoryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"inventory_number": &graphql.Field{
 			Type: graphql.String,
 		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},

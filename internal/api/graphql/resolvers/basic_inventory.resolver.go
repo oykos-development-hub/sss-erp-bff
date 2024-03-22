@@ -530,6 +530,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		HasAssessments:               hasAssessments,
 		IsExternalDonation:           item.IsExternalDonation,
 		Source:                       item.Source,
+		Description:                  item.Description,
 	}
 
 	return &res, nil

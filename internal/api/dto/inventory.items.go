@@ -94,6 +94,7 @@ type BasicInventoryResponseListItem struct {
 	GrossPrice                   float32                                                        `json:"gross_price"`
 	ResidualPrice                *float32                                                       `json:"residual_price"`
 	DateOfPurchase               string                                                         `json:"date_of_purchase"`
+	Description                  string                                                         `json:"description"`
 	DateOfAssessments            string                                                         `json:"date_of_assessments"`
 	DateOfEndOfAssessment        string                                                         `json:"date_of_end_of_assessment"`
 	Inactive                     *string                                                        `json:"inactive"`

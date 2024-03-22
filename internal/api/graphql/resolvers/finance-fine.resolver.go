@@ -125,14 +125,27 @@ func (r *Resolver) FineDeleteResolver(params graphql.ResolveParams) (interface{}
 }
 
 func buildFineResponseItem(fine structs.Fine, r *Resolver) (*dto.FineResponseItem, error) {
-	status := dto.FinancialFineUnpaidFineStatus
+	status := dto.DropdownSimple{
+		ID:    int(structs.UnpaidFineStatus),
+		Title: string(dto.FinancialFineUnpaidFineStatus),
+	}
+
 	switch fine.Status {
 	case structs.PaidFineStatus:
-		status = dto.FinancialFinePaidFineStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.PaidFineStatus),
+			Title: string(dto.FinancialFinePaidFineStatus),
+		}
 	case structs.UnpaidFineStatus:
-		status = dto.FinancialFineUnpaidFineStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.UnpaidFineStatus),
+			Title: string(dto.FinancialFineUnpaidFineStatus),
+		}
 	case structs.PartFineStatus:
-		status = dto.FinancialFinePartFineStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.PartFineStatus),
+			Title: string(dto.FinancialFinePartFineStatus),
+		}
 	}
 
 	actType := dto.FinancialFineDissisionActType

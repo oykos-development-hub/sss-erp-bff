@@ -125,14 +125,26 @@ func (r *Resolver) FlatRateDeleteResolver(params graphql.ResolveParams) (interfa
 }
 
 func buildFlatRateResponseItem(flatrate structs.FlatRate, r *Resolver) (*dto.FlatRateResponseItem, error) {
-	status := dto.FinancialFlatRateUnpaidStatus
+	status := dto.DropdownSimple{
+		ID:    int(structs.UnpaidFlatRateStatus),
+		Title: string(dto.FinancialFlatRateUnpaidStatus),
+	}
 	switch flatrate.Status {
 	case structs.UnpaidFlatRateStatus:
-		status = dto.FinancialFlatRateUnpaidStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.UnpaidFlatRateStatus),
+			Title: string(dto.FinancialFlatRateUnpaidStatus),
+		}
 	case structs.PaidFlatRateStatus:
-		status = dto.FinancialFlatRatePaidStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.PaidFlatRateStatus),
+			Title: string(dto.FinancialFlatRatePaidStatus),
+		}
 	case structs.PartFlatRateStatus:
-		status = dto.FinancialFlatRatePartStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.PartFlatRateStatus),
+			Title: string(dto.FinancialFlatRatePartStatus),
+		}
 	}
 
 	flatRateType := dto.FinancialFlatRateDissisionType

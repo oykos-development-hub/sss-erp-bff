@@ -87,7 +87,7 @@ var FlatRateType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"status": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"court_costs": &graphql.Field{
 			Type: graphql.Float,
@@ -96,7 +96,7 @@ var FlatRateType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"flat_rate_details": &graphql.Field{
-			Type: FlatRateDetailsType, // Assuming you have deflatrated this GraphQL type
+			Type: FlatRateDetailsType,
 		},
 		"file": &graphql.Field{
 			Type: graphql.NewList(FileDropdownItemType),

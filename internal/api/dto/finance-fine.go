@@ -35,7 +35,7 @@ type FineResponseItem struct {
 	ExecutionDate          time.Time               `json:"execution_date"`
 	PaymentDeadlineDate    time.Time               `json:"payment_deadline_date"`
 	Description            string                  `json:"description"`
-	Status                 FineStatus              `json:"status"`
+	Status                 DropdownSimple          `json:"status"`
 	CourtCosts             *float64                `json:"court_costs"`
 	CourtAccount           *DropdownSimple         `json:"court_account"`
 	FineFeeDetailsDTO      *structs.FineFeeDetails `json:"fine_fee_details"`

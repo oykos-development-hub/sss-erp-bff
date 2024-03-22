@@ -87,7 +87,7 @@ var PropBenConfType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"status": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"court_costs": &graphql.Field{
 			Type: graphql.Float,

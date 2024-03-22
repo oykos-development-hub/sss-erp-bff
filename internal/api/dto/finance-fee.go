@@ -15,9 +15,9 @@ const (
 type FeeStatus string
 
 const (
-	FinancialFeeUnpayedFeeStatus FeeStatus = "Neplaćeno"
-	FinancialFeePayedFeeStatus   FeeStatus = "Plaćeno"
-	FinancialFeePartFeeStatus    FeeStatus = "Djelimično plaćeno"
+	FinancialFeeUnpaidFeeStatus FeeStatus = "Neplaćeno"
+	FinancialFeePaidFeeStatus   FeeStatus = "Plaćeno"
+	FinancialFeePartFeeStatus   FeeStatus = "Djelimično plaćeno"
 )
 
 type FeeSubcategory string
@@ -41,7 +41,7 @@ type FeeResponseItem struct {
 	ExecutionDate          time.Time            `json:"execution_date"`
 	PaymentDeadlineDate    time.Time            `json:"payment_deadline_date"`
 	Description            string               `json:"description"`
-	Status                 FeeStatus            `json:"status"`
+	Status                 DropdownSimple       `json:"status"`
 	CourtAccount           *DropdownSimple      `json:"court_account"`
 	FeeDetails             *structs.FeeDetails  `json:"fee_details"`
 	File                   []FileDropdownSimple `json:"file"`

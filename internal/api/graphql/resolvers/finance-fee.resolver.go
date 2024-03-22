@@ -125,14 +125,26 @@ func (r *Resolver) FeeDeleteResolver(params graphql.ResolveParams) (interface{},
 }
 
 func buildFeeResponseItem(fee structs.Fee, r *Resolver) (*dto.FeeResponseItem, error) {
-	status := dto.FinancialFeeUnpayedFeeStatus
+	status := dto.DropdownSimple{
+		ID:    int(structs.UnpaidFeeStatus),
+		Title: string(dto.FinancialFeeUnpaidFeeStatus),
+	}
 	switch fee.Status {
 	case structs.PaidFeeStatus:
-		status = dto.FinancialFeePayedFeeStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.UnpaidFeeStatus),
+			Title: string(dto.FinancialFeePaidFeeStatus),
+		}
 	case structs.UnpaidFeeStatus:
-		status = dto.FinancialFeeUnpayedFeeStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.UnpaidFeeStatus),
+			Title: string(dto.FinancialFeeUnpaidFeeStatus),
+		}
 	case structs.PartFeeStatus:
-		status = dto.FinancialFeePartFeeStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.UnpaidFeeStatus),
+			Title: string(dto.FinancialFeePartFeeStatus),
+		}
 	}
 
 	feeType := dto.LawsuitFeeType

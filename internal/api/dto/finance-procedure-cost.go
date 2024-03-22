@@ -35,7 +35,7 @@ type ProcedureCostResponseItem struct {
 	ExecutionDate           time.Time                     `json:"execution_date"`
 	PaymentDeadlineDate     time.Time                     `json:"payment_deadline_date"`
 	Description             string                        `json:"description"`
-	Status                  ProcedureCostStatus           `json:"status"`
+	Status                  DropdownSimple                `json:"status"`
 	CourtCosts              *float64                      `json:"court_costs"`
 	CourtAccount            *DropdownSimple               `json:"court_account"`
 	ProcedureCostDetailsDTO *structs.ProcedureCostDetails `json:"procedure_cost_details"`

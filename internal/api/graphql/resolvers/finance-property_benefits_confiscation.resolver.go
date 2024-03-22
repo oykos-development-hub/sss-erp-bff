@@ -122,14 +122,26 @@ func (r *Resolver) PropBenConfDeleteResolver(params graphql.ResolveParams) (inte
 }
 
 func buildPropBenConfResponseItem(PropBenConf structs.PropBenConf, r *Resolver) (*dto.PropBenConfResponseItem, error) {
-	status := dto.FinancialPropBenConfUnpaidStatus
+	status := dto.DropdownSimple{
+		ID:    int(structs.UnpaidPropBenConfStatus),
+		Title: string(dto.FinancialPropBenConfUnpaidStatus),
+	}
 	switch PropBenConf.Status {
 	case structs.PaidPropBenConfStatus:
-		status = dto.FinancialPropBenConfPaidStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.PaidPropBenConfStatus),
+			Title: string(dto.FinancialPropBenConfPaidStatus),
+		}
 	case structs.UnpaidPropBenConfStatus:
-		status = dto.FinancialPropBenConfUnpaidStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.UnpaidPropBenConfStatus),
+			Title: string(dto.FinancialPropBenConfUnpaidStatus),
+		}
 	case structs.PartPropBenConfStatus:
-		status = dto.FinancialPropBenConfPartStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.PartPropBenConfStatus),
+			Title: string(dto.FinancialPropBenConfPartStatus),
+		}
 	}
 
 	propBenConfType := dto.FinancialPropBenConfDissisionType

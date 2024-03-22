@@ -35,7 +35,7 @@ type FlatRateResponseItem struct {
 	ExecutionDate          time.Time                `json:"execution_date"`
 	PaymentDeadlineDate    time.Time                `json:"payment_deadline_date"`
 	Description            string                   `json:"description"`
-	Status                 FlatRateStatus           `json:"status"`
+	Status                 DropdownSimple           `json:"status"`
 	CourtCosts             *float64                 `json:"court_costs"`
 	CourtAccount           *DropdownSimple          `json:"court_account"`
 	FlatRateDetailsDTO     *structs.FlatRateDetails `json:"flat_rate_details"`

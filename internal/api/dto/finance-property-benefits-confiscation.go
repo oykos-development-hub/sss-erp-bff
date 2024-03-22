@@ -35,7 +35,7 @@ type PropBenConfResponseItem struct {
 	ExecutionDate          time.Time                   `json:"execution_date"`
 	PaymentDeadlineDate    time.Time                   `json:"payment_deadline_date"`
 	Description            string                      `json:"description"`
-	Status                 PropBenConfStatus           `json:"status"`
+	Status                 DropdownSimple              `json:"status"`
 	CourtCosts             *float64                    `json:"court_costs"`
 	CourtAccount           *DropdownSimple             `json:"court_account"`
 	PropBenConfDetailsDTO  *structs.PropBenConfDetails `json:"property_benefits_confiscation_details"`

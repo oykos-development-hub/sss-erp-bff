@@ -122,14 +122,27 @@ func (r *Resolver) ProcedureCostDeleteResolver(params graphql.ResolveParams) (in
 }
 
 func buildProcedureCostResponseItem(procedurecost structs.ProcedureCost, r *Resolver) (*dto.ProcedureCostResponseItem, error) {
-	status := dto.FinancialProcedureCostUnpaidStatus
+	status := dto.DropdownSimple{
+		ID:    int(structs.UnpaidProcedureCostStatus),
+		Title: string(dto.FinancialProcedureCostUnpaidStatus),
+	}
+
 	switch procedurecost.Status {
 	case structs.PaidProcedureCostStatus:
-		status = dto.FinancialProcedureCostPaidStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.PaidProcedureCostStatus),
+			Title: string(dto.FinancialProcedureCostPaidStatus),
+		}
 	case structs.UnpaidProcedureCostStatus:
-		status = dto.FinancialProcedureCostUnpaidStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.UnpaidProcedureCostStatus),
+			Title: string(dto.FinancialProcedureCostUnpaidStatus),
+		}
 	case structs.PartProcedureCostStatus:
-		status = dto.FinancialProcedureCostPartStatus
+		status = dto.DropdownSimple{
+			ID:    int(structs.PartProcedureCostStatus),
+			Title: string(dto.FinancialProcedureCostPartStatus),
+		}
 	}
 
 	actType := dto.FinancialProcedureCostDissisionType

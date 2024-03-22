@@ -87,7 +87,7 @@ var FeeType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"status": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"court_account": &graphql.Field{
 			Type: DropdownItemType,

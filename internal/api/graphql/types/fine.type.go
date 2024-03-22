@@ -87,7 +87,7 @@ var FineType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"status": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"court_costs": &graphql.Field{
 			Type: graphql.Float,
@@ -96,7 +96,7 @@ var FineType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"fine_fee_details": &graphql.Field{
-			Type: FineFeeDetailsType, // Assuming you have defined this GraphQL type
+			Type: FineFeeDetailsType,
 		},
 		"file": &graphql.Field{
 			Type: graphql.NewList(FileDropdownItemType),

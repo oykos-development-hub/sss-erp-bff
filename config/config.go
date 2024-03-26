@@ -321,7 +321,7 @@ func LoadDefaultConfig() (*Config, error) {
 			Accounting: AccountingMS{
 				Base:                     accountingBase,
 				OrderLists:               accountingBase + "/order-lists",
-				OrderListSendToFinance:   accountingBase + "/order-lists-send-to-finance",
+				OrderListSendToFinance:   accountingBase + "/order-list-send-to-finance",
 				OrderProcurementArticles: accountingBase + "/order-procurement-articles",
 				Movements:                accountingBase + "/movements",
 				MovementReport:           accountingBase + "/movements-report",

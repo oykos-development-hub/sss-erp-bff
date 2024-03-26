@@ -100,3 +100,22 @@ func (f *Field) AdditionalExpensesOverviewField() *graphql.Field {
 		Resolve: f.Resolvers.AdditionalExpensesOverviewResolver,
 	}
 }
+
+func (f *Field) CalculateAdditionalExpenses() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.AdditionalExpensesOverviewType,
+		Description: "Returns a data of additional expenses",
+		Args: graphql.FieldConfigArgument{
+			"tax_authority_codebook_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"price": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Float),
+			},
+			"previous_income": &graphql.ArgumentConfig{
+				Type: graphql.Float,
+			},
+		},
+		Resolve: f.Resolvers.CalculateAdditionalExpensesResolver,
+	}
+}

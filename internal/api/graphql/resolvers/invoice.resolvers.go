@@ -305,6 +305,37 @@ func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolvePara
 	}, nil
 }
 
+func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolveParams) (interface{}, error) {
+	taxAuthorityCodebookID := params.Args["tax_authority_codebook_id"].(int)
+
+	taxAuthorityCodebook, err := r.Repo.GetTaxAuthorityCodebookByID(taxAuthorityCodebookID)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	price := params.Args["price"].(float32)
+	previousIncome := params.Args["previous_income"].(float32)
+
+	fullPrice := price + previousIncome
+
+	//ceka se uputstvo kolege lalovica za ovo
+	taxPrice := fullPrice * float32(taxAuthorityCodebook.Percentage) / 100
+
+	additionalExpenseTax := dto.AdditionalExpensesResponse{
+		Title:  "Porez",
+		Price:  taxPrice,
+		Status: structs.AdditionalExpenseStatusCreated,
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   additionalExpenseTax,
+		//	Total:   total,
+	}, nil
+}
+
 func buildInvoiceResponseItemList(ctx context.Context, r *Resolver, itemList []structs.Invoice) ([]*dto.InvoiceResponseItem, error) {
 	var items []*dto.InvoiceResponseItem
 

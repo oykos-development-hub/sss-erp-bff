@@ -161,6 +161,27 @@ var InvoiceArticlesType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var AdditionalExpensesOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AdditionalExpensesOverview",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(AdditionalExpensesType),
+		},
+	},
+})
+
 var AdditionalExpensesType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "AdditionalExpensesType",
 	Fields: graphql.Fields{

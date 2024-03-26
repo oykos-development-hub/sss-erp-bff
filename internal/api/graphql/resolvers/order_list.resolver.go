@@ -279,6 +279,18 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 
 	itemID := data.ID
 
+	if data.PassedToFinance && data.DateOrder == "" {
+		err := r.Repo.SendOrderListToFinance(data.ID)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		response.Status = "success"
+		response.Message = "You passed to finance this item!"
+		return response, nil
+	}
+
 	listInsertItem, err := buildOrderListInsertItem(params.Context, r.Repo, &data)
 	if err != nil {
 		return apierrors.HandleAPIError(err)

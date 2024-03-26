@@ -219,6 +219,7 @@ type MicroserviceRepositoryInterface interface {
 	MarkNotificationRead(notificationID int) error
 	RefreshToken(cookie *http.Cookie) (*dto.RefreshTokenResponse, []*http.Cookie, error)
 	ResetPassword(input *dto.ResetPassword) error
+	SendOrderListToFinance(id int) error
 	SyncPermissions(roleID int, input []*structs.RolePermission) ([]structs.RolePermission, error)
 	UpdateAbsent(id int, absent *structs.Absent) (*structs.Absent, error)
 	UpdateAbsentType(id int, absent *structs.AbsentType) (*structs.AbsentType, error)

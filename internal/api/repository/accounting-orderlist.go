@@ -17,6 +17,15 @@ func (repo *MicroserviceRepository) UpdateOrderListItem(id int, orderListItem *s
 	return &res.Data, nil
 }
 
+func (repo *MicroserviceRepository) SendOrderListToFinance(id int) error {
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.OrderListSendToFinance+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repo *MicroserviceRepository) CreateOrderListItem(orderListItem *structs.OrderListItem) (*structs.OrderListItem, error) {
 	res := &dto.GetOrderListResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.OrderLists, orderListItem, res)

@@ -1594,7 +1594,7 @@ func (h *Handler) ImportExcelPS2(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			if rowindex > 99 {
+			if rowindex > 46 {
 				break
 			}
 			cols := rows.Columns()
@@ -1647,6 +1647,7 @@ func (h *Handler) ImportExcelPS2(w http.ResponseWriter, r *http.Request) {
 				case 14:
 					article.Article.Description = value
 				case 15:
+					value = "15310000"
 					if _, exists := mapOfClassTypes[value]; !exists && value != "" && value != "0" {
 						responseMessage := ValidationResponse{
 							Column:  26,

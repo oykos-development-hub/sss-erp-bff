@@ -17,6 +17,7 @@ type InvoiceResponseItem struct {
 	GrossPrice            float64                      `json:"gross_price"`
 	VATPrice              float64                      `json:"vat_price"`
 	Supplier              DropdownSimple               `json:"supplier"`
+	TaxAuthorityCodebook  DropdownSimple               `json:"tax_authority_codebook"`
 	Activity              DropdownSimple               `json:"activity"`
 	OrderID               int                          `json:"order_id"`
 	OrganizationUnit      DropdownSimple               `json:"organization_unit"`
@@ -35,15 +36,16 @@ type InvoiceResponseItem struct {
 }
 
 type InvoiceArticleResponse struct {
-	ID          int            `json:"id"`
-	Title       string         `json:"title"`
-	NetPrice    float64        `json:"net_price"`
-	VatPrice    float64        `json:"vat_price"`
-	Description string         `json:"description"`
-	Account     DropdownSimple `json:"account"`
-	CostAccount DropdownSimple `json:"cost_account"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
+	ID            int            `json:"id"`
+	Title         string         `json:"title"`
+	NetPrice      float64        `json:"net_price"`
+	VatPrice      float64        `json:"vat_price"`
+	VatPercentage int            `json:"vat_percentage"`
+	Description   string         `json:"description"`
+	Account       DropdownSimple `json:"account"`
+	CostAccount   DropdownSimple `json:"cost_account"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
 }
 
 type AdditionalExpensesResponse struct {
@@ -78,6 +80,11 @@ type GetInvoiceArticleListResponseMS struct {
 	Total int                       `json:"total"`
 }
 
+type GetAdditionalExpensesListResponseMS struct {
+	Data  []structs.AdditionalExpenses `json:"data"`
+	Total int                          `json:"total"`
+}
+
 type GetInvoiceListInputMS struct {
 	Search             *string `json:"search"`
 	Page               *int    `json:"page"`
@@ -91,4 +98,28 @@ type GetInvoiceListInputMS struct {
 
 type InvoiceArticleFilterDTO struct {
 	InvoiceID *int `json:"invoice_id"`
+}
+
+type AdditionalExpensesListInputMS struct {
+	Page               *int    `json:"page"`
+	Size               *int    `json:"size"`
+	InvoiceID          *int    `json:"invoice_id"`
+	SubjectID          *int    `json:"subject_id"`
+	OrganizationUnitID *int    `json:"organization_unit_id"`
+	Year               *int    `json:"year"`
+	Status             *int    `json:"status"`
+	Search             *string `json:"search"`
+}
+
+type TaxAuthorityCodebookFilter struct {
+	Search *string `json:"search"`
+}
+
+type GetTaxAuthorityCodebooksResponseMS struct {
+	Data  []structs.TaxAuthorityCodebook `json:"data"`
+	Total int                            `json:"total"`
+}
+
+type GetTaxAuthorityCodebookResponseMS struct {
+	Data structs.TaxAuthorityCodebook `json:"data"`
 }

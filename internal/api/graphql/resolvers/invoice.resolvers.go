@@ -254,25 +254,7 @@ func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interfac
 }
 
 func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
-	if id, ok := params.Args["id"].(int); ok && id != 0 {
-		invoice, err := r.Repo.GetInvoice(id)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-		invoiceResItem, err := buildInvoiceResponseItem(params.Context, r, *invoice)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		return dto.Response{
-			Status:  "success",
-			Message: "Here's the list you asked for!",
-			Items:   []*dto.InvoiceResponseItem{invoiceResItem},
-			Total:   1,
-		}, nil
-	}
-
-	input := dto.GetInvoiceListInputMS{}
+	input := dto.AdditionalExpensesListInputMS{}
 	if value, ok := params.Args["page"].(int); ok && value != 0 {
 		input.Page = &value
 	}
@@ -285,16 +267,16 @@ func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolvePara
 		input.Search = &value
 	}
 
-	if value, ok := params.Args["type"].(string); ok && value != "" {
-		input.Type = &value
+	if value, ok := params.Args["invoice_id"].(int); ok && value != 0 {
+		input.InvoiceID = &value
 	}
 
-	if value, ok := params.Args["status"].(string); ok && value != "" {
+	if value, ok := params.Args["subject_id"].(int); ok && value != 0 {
+		input.SubjectID = &value
+	}
+
+	if value, ok := params.Args["status"].(int); ok && value != 0 {
 		input.Status = &value
-	}
-
-	if value, ok := params.Args["supplier_id"].(int); ok && value != 0 {
-		input.SupplierID = &value
 	}
 
 	if value, ok := params.Args["year"].(int); ok && value != 0 {
@@ -305,12 +287,12 @@ func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolvePara
 		input.OrganizationUnitID = &value
 	}
 
-	invoices, total, err := r.Repo.GetInvoiceList(&input)
+	additionalExpenses, total, err := r.Repo.GetAdditionalExpenses(&input)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
-	invoiceResItem, err := buildInvoiceResponseItemList(params.Context, r, invoices)
+	builedAdditionalExpenses, err := buildAdditionalExpenseItemList(params.Context, r, additionalExpenses)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -318,7 +300,7 @@ func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolvePara
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   invoiceResItem,
+		Items:   builedAdditionalExpenses,
 		Total:   total,
 	}, nil
 }
@@ -390,6 +372,21 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		}
 
 		response.OrganizationUnit = OUDropdown
+	}
+
+	if invoice.TaxAuthorityCodebookID != 0 {
+		TaxAuthorityCodebook, err := r.Repo.GetTaxAuthorityCodebookByID(invoice.TaxAuthorityCodebookID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		OUDropdown := dto.DropdownSimple{
+			ID:    TaxAuthorityCodebook.ID,
+			Title: TaxAuthorityCodebook.Code,
+		}
+
+		response.TaxAuthorityCodebook = OUDropdown
 	}
 
 	if invoice.FileID != 0 {
@@ -487,13 +484,14 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 
 func buildInvoiceArtice(r *Resolver, article structs.InvoiceArticles) (*dto.InvoiceArticleResponse, error) {
 	response := dto.InvoiceArticleResponse{
-		ID:          article.ID,
-		Title:       article.Title,
-		NetPrice:    article.NetPrice,
-		VatPrice:    article.VatPrice,
-		Description: article.Description,
-		CreatedAt:   article.CreatedAt,
-		UpdatedAt:   article.UpdatedAt,
+		ID:            article.ID,
+		Title:         article.Title,
+		NetPrice:      article.NetPrice,
+		VatPrice:      article.VatPrice,
+		VatPercentage: article.VatPercentage,
+		Description:   article.Description,
+		CreatedAt:     article.CreatedAt,
+		UpdatedAt:     article.UpdatedAt,
 	}
 
 	if article.AccountID != 0 {
@@ -525,6 +523,23 @@ func buildInvoiceArtice(r *Resolver, article structs.InvoiceArticles) (*dto.Invo
 	}
 
 	return &response, nil
+}
+
+func buildAdditionalExpenseItemList(ctx context.Context, r *Resolver, itemList []structs.AdditionalExpenses) ([]*dto.AdditionalExpensesResponse, error) {
+	var items []*dto.AdditionalExpensesResponse
+
+	for _, item := range itemList {
+		singleItem, err := buildAdditionalExpense(r, item)
+
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, singleItem)
+
+	}
+
+	return items, nil
 }
 
 func buildAdditionalExpense(r *Resolver, item structs.AdditionalExpenses) (*dto.AdditionalExpensesResponse, error) {

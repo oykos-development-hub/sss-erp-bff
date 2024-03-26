@@ -334,10 +334,17 @@ type MicroserviceRepositoryInterface interface {
 	GetInvoice(id int) (*structs.Invoice, error)
 	GetInvoiceList(input *dto.GetInvoiceListInputMS) ([]structs.Invoice, int, error)
 	GetInvoiceArticleList(id int) ([]structs.InvoiceArticles, error)
+	GetAdditionalExpenses(input *dto.AdditionalExpensesListInputMS) ([]structs.AdditionalExpenses, int, error)
 	DeleteInvoice(id int) error
 	DeleteInvoiceArticle(id int) error
 	CreateInvoiceArticle(article *structs.InvoiceArticles) (*structs.InvoiceArticles, error)
 	UpdateInvoiceArticle(item *structs.InvoiceArticles) (*structs.InvoiceArticles, error)
+
+	GetTaxAuthorityCodebookByID(id int) (*structs.TaxAuthorityCodebook, error)
+	GetTaxAuthorityCodebooks(input dto.TaxAuthorityCodebookFilter) (*dto.GetTaxAuthorityCodebooksResponseMS, error)
+	CreateTaxAuthorityCodebook(item *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error)
+	UpdateTaxAuthorityCodebook(id int, data *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error)
+	DeleteTaxAuthorityCodebook(id int) error
 
 	CreateFee(item *structs.Fee) (*structs.Fee, error)
 	GetFee(id int) (*structs.Fee, error)

@@ -59,6 +59,9 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		"source_of_funding": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"tax_authority_codebook": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"supplier_title": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -141,6 +144,9 @@ var InvoiceArticlesType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Float,
 		},
 		"vat_price": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"vat_percentage": &graphql.Field{
 			Type: graphql.Float,
 		},
 		"description": &graphql.Field{

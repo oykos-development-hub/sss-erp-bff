@@ -94,3 +94,13 @@ func (repo *MicroserviceRepository) UpdateInvoiceArticle(article *structs.Invoic
 	}
 	return &res.Data, nil
 }
+
+func (repo *MicroserviceRepository) GetAdditionalExpenses(input *dto.AdditionalExpensesListInputMS) ([]structs.AdditionalExpenses, int, error) {
+	res := &dto.GetAdditionalExpensesListResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.AdditionalExpenses, input, res)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return res.Data, res.Total, nil
+}

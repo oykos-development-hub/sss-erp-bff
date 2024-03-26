@@ -35,6 +35,9 @@ var InvoiceMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"activity_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"tax_authority_codebook_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"order_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
@@ -85,6 +88,9 @@ var InvoiceArticleMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		},
 		"vat_price": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
+		},
+		"vat_percentage": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
 		},
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

@@ -71,6 +71,8 @@ type FinanceMS struct {
 	NonFinancialGoalIndicator string
 	Invoice                   string
 	InvoiceArticle            string
+	AdditionalExpenses        string
+	TaxAuthorityCodebook      string
 	Fee                       string
 	FeePayment                string
 	Fine                      string
@@ -338,6 +340,8 @@ func LoadDefaultConfig() (*Config, error) {
 				NonFinancialGoalIndicator: financeBase + "/goal-indicators",
 				Invoice:                   financeBase + "/invoices",
 				InvoiceArticle:            financeBase + "/articles",
+				AdditionalExpenses:        financeBase + "/additional-expenses",
+				TaxAuthorityCodebook:      financeBase + "/tax-authority-codebooks",
 				Fee:                       financeBase + "/fees",
 				FeePayment:                financeBase + "/fee-payments",
 				Fine:                      financeBase + "/fines",

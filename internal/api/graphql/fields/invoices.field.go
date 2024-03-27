@@ -72,10 +72,13 @@ func (f *Field) InvoiceOverviewField() *graphql.Field {
 
 func (f *Field) AdditionalExpensesOverviewField() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.AdditionalExpensesType,
+		Type:        types.AdditionalExpensesOverviewType,
 		Description: "Returns a data of additional expenses",
 		Args: graphql.FieldConfigArgument{
 			"id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"size": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
 			"page": &graphql.ArgumentConfig{

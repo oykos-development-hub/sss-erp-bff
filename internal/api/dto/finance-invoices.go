@@ -15,6 +15,7 @@ type InvoiceResponseItem struct {
 	SupplierTitle         string                       `json:"supplier_title"`
 	Status                string                       `json:"status"`
 	GrossPrice            float64                      `json:"gross_price"`
+	NetPrice              float64                      `json:"net_price"`
 	VATPrice              float64                      `json:"vat_price"`
 	Supplier              DropdownSimple               `json:"supplier"`
 	TaxAuthorityCodebook  DropdownSimple               `json:"tax_authority_codebook"`

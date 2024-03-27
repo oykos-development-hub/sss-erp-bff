@@ -585,6 +585,9 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		return nil, err
 	}
 
+	response.NetPrice = 0
+	response.VATPrice = 0
+
 	for _, article := range articles {
 		singleArticle, err := buildInvoiceArtice(r, article)
 
@@ -593,6 +596,8 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		}
 
 		response.Articles = append(response.Articles, *singleArticle)
+		response.NetPrice += singleArticle.NetPrice
+		response.VATPrice += singleArticle.VatPrice
 	}
 
 	for _, item := range invoice.AdditionalExpenses {
@@ -647,6 +652,8 @@ func buildInvoiceArtice(r *Resolver, article structs.InvoiceArticles) (*dto.Invo
 		}
 		response.CostAccount = accountDropdown
 	}
+
+	response.VatPrice = response.NetPrice * float64(response.VatPercentage) / 100
 
 	return &response, nil
 }

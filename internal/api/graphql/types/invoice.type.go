@@ -47,6 +47,12 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"net_price": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"vat_price": &graphql.Field{
+			Type: graphql.Float,
+		},
 		"type": &graphql.Field{
 			Type: graphql.String,
 		},

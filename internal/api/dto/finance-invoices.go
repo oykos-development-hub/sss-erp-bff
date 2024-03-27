@@ -54,7 +54,7 @@ type AdditionalExpensesResponse struct {
 	Account          DropdownSimple                  `json:"account"`
 	Price            float32                         `json:"price"`
 	Subject          DropdownSimple                  `json:"subject"`
-	BankAccount      int                             `json:"bank_account"`
+	BankAccount      string                          `json:"bank_account"`
 	Invoice          DropdownSimple                  `json:"invoice"`
 	OrganizationUnit DropdownSimple                  `json:"organization_unit"`
 	Status           structs.AdditionalExpenseStatus `json:"status"`

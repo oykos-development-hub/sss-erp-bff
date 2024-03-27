@@ -197,6 +197,9 @@ var AdditionalExpensesType = graphql.NewObject(graphql.ObjectConfig{
 		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"account": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"bank_account": &graphql.Field{
 			Type: graphql.String,
 		},

@@ -60,7 +60,7 @@ type AdditionalExpenses struct {
 	AccountID          int                     `json:"account_id"`
 	Price              float32                 `json:"price"`
 	SubjectID          int                     `json:"subject_id"`
-	BankAccount        int                     `json:"bank_account"`
+	BankAccount        string                  `json:"bank_account"`
 	InvoiceID          int                     `json:"invoice_id"`
 	OrganizationUnitID int                     `json:"organization_unit_id"`
 	Status             AdditionalExpenseStatus `json:"status"`

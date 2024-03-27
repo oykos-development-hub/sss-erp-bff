@@ -109,6 +109,9 @@ func (f *Field) CalculateAdditionalExpenses() *graphql.Field {
 			"tax_authority_codebook_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
 			},
+			"municipality_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
 			"price": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Float),
 			},

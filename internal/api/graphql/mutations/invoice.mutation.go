@@ -116,6 +116,9 @@ var AdditionalExpenses = graphql.NewInputObject(graphql.InputObjectConfig{
 		"subject_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"account_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"bank_account": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

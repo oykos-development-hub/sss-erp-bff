@@ -1,12 +1,14 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
@@ -314,26 +316,119 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		return errors.HandleAPIError(err)
 	}
 
-	price := params.Args["price"].(float32)
-	previousIncome := params.Args["previous_income"].(float32)
+	municipalityID := params.Args["municipality_id"].(int)
+	price := params.Args["price"].(float64)
+	previousIncome, previousIncomeOK := params.Args["previous_income"].(float64)
+
+	if !previousIncomeOK {
+		return errors.HandleAPIError(err)
+	}
 
 	fullPrice := price + previousIncome
 
 	//ceka se uputstvo kolege lalovica za ovo
-	taxPrice := fullPrice * float32(taxAuthorityCodebook.Percentage) / 100
+	taxPrice := fullPrice * float64(taxAuthorityCodebook.Percentage) / 100
+
+	var additionalExpenses []dto.AdditionalExpensesResponse
+
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || organizationUnitID == nil {
+		return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+	}
+
+	organizationUnit, err := r.Repo.GetOrganizationUnitByID(*organizationUnitID)
+
+	if !previousIncomeOK {
+		return errors.HandleAPIError(err)
+	}
+
+	supplier, err := getTaxAuthority(r)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
 	additionalExpenseTax := dto.AdditionalExpensesResponse{
 		Title:  "Porez",
-		Price:  taxPrice,
+		Price:  float32(taxPrice),
 		Status: structs.AdditionalExpenseStatusCreated,
+		OrganizationUnit: dto.DropdownSimple{
+			ID:    organizationUnit.ID,
+			Title: organizationUnit.Title,
+		},
+		Subject: *supplier,
 	}
+
+	additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+
+	municipality, err := r.Repo.GetDropdownSettingByID(municipalityID)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	additionalPercentage, err := strconv.Atoi(municipality.Value)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	additionalExpenseAdditionalTax := dto.AdditionalExpensesResponse{
+		Title:  "Prirez",
+		Price:  float32(taxPrice) * float32(additionalPercentage) / 100,
+		Status: structs.AdditionalExpenseStatusCreated,
+		OrganizationUnit: dto.DropdownSimple{
+			ID:    organizationUnit.ID,
+			Title: organizationUnit.Title,
+		},
+		Subject: dto.DropdownSimple{
+			ID:    municipality.ID,
+			Title: municipality.Title,
+		},
+	}
+
+	additionalExpenses[0].Price = additionalExpenses[0].Price - float32(taxPrice)*float32(additionalPercentage)/100
+
+	additionalExpenses = append(additionalExpenses, additionalExpenseAdditionalTax)
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   additionalExpenseTax,
+		Items:   additionalExpenses,
 		//	Total:   total,
 	}, nil
+}
+
+func getTaxAuthority(r *Resolver) (*dto.DropdownSimple, error) {
+	taxAuthority := "Poreska uprava"
+	supplier, err := r.Repo.GetSupplierList(&dto.GetSupplierInputMS{Search: &taxAuthority})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(supplier.Data) > 0 {
+		return &dto.DropdownSimple{
+			ID:    supplier.Data[0].ID,
+			Title: supplier.Data[0].Title,
+		}, err
+	}
+
+	taxAuthority = "Uprava prihoda"
+	supplier, err = r.Repo.GetSupplierList(&dto.GetSupplierInputMS{Search: &taxAuthority})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(supplier.Data) > 0 {
+		return &dto.DropdownSimple{
+			ID:    supplier.Data[0].ID,
+			Title: supplier.Data[0].Title,
+		}, err
+	}
+
+	return nil, errors.APIError{Message: "you_must_add_tax_service_in_codebook"}
 }
 
 func buildInvoiceResponseItemList(ctx context.Context, r *Resolver, itemList []structs.Invoice) ([]*dto.InvoiceResponseItem, error) {

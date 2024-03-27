@@ -1594,7 +1594,7 @@ func (h *Handler) ImportExcelPS2(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			if rowindex > 46 {
+			if rowindex > 67 {
 				break
 			}
 			cols := rows.Columns()

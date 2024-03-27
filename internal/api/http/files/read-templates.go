@@ -1168,8 +1168,8 @@ func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
 		}
 
 		rowindex := 0
-
-		res, _ := h.Repo.GetAllInventoryItem(dto.InventoryItemFilter{SourceOrganizationUnitID: &organizationUnitID})
+		Type := "movable"
+		res, _ := h.Repo.GetAllInventoryItem(dto.InventoryItemFilter{SourceOrganizationUnitID: &organizationUnitID, Type: &Type})
 
 		total := res.Total
 

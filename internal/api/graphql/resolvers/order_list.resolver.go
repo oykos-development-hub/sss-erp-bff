@@ -811,6 +811,16 @@ func buildOrderListInsertItem(context context.Context, r repository.Microservice
 
 	if item.PublicProcurementID == 0 {
 		supplierID = &item.SupplierID
+	} else {
+		item, err := r.GetProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &item.PublicProcurementID})
+
+		if err != nil {
+			return nil, err
+		}
+		if len(item.Data) > 0 {
+			supplierID = &item.Data[0].SupplierID
+		}
+
 	}
 
 	newItem = &structs.OrderListItem{

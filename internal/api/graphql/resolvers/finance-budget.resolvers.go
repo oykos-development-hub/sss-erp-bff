@@ -64,35 +64,43 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 	}, nil
 }
 
-func buildBudgetStatus(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget) (dto.BudgetStatus, error) {
+func buildBudgetStatus(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget) (*dto.DropdownSimple, error) {
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
 	switch budget.Status {
 	case structs.BudgetCreatedStatus:
-		return dto.BudgetCreatedStatus, nil
+		return &dto.DropdownSimple{
+			ID: int(structs.BudgetCreatedStatus),
+			Title: string(dto.BudgetCreatedStatus),
+		}, nil
 	case structs.BudgetClosedStatus:
-		return dto.BudgetClosedStatus, nil
+		return &dto.DropdownSimple{
+			ID: int(structs.BudgetClosedStatus),
+			Title: string(dto.BudgetClosedStatus),
+		}, nil
 	}
 
 	if loggedInUser.RoleID == structs.UserRoleManagerOJ {
 		status, err := buildBudgetStatusForManager(ctx, r, budget)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		return status, nil
 	} else if budget.Status == structs.BudgetSentStatus {
-		return dto.OfficialBudgetSentStatus, nil
-
+		return &dto.DropdownSimple{
+			ID: int(structs.OfficialBudgetSentStatus),
+			Title: string(dto.OfficialBudgetSentStatus),
+		}, nil
 	}
 
-	return "", fmt.Errorf("budget with id: %d has incorrect status: %d", budget.ID, budget.Status)
+	return nil, fmt.Errorf("budget with id: %d has incorrect status: %d", budget.ID, budget.Status)
 }
 
-func buildBudgetStatusForManager(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget) (dto.BudgetStatus, error) {
-	var status dto.BudgetStatus
+func buildBudgetStatusForManager(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget) (*dto.DropdownSimple, error) {
+	var status dto.DropdownSimple
 	managerUnitID, ok := ctx.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || managerUnitID == nil {
-		return status, fmt.Errorf("user does not have organization unit assigned")
+		return &status, fmt.Errorf("user does not have organization unit assigned")
 	}
 
 	requests, err := r.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
@@ -100,7 +108,7 @@ func buildBudgetStatusForManager(ctx context.Context, r repository.MicroserviceR
 		BudgetID:           budget.ID,
 	})
 	if err != nil {
-		return status, nil
+		return &status, nil
 	}
 
 	allRequestsOnReview := true
@@ -112,12 +120,18 @@ func buildBudgetStatusForManager(ctx context.Context, r repository.MicroserviceR
 	}
 
 	if allRequestsOnReview {
-		status = dto.ManagerBudgetOnReviewStatus
+		status = dto.DropdownSimple{
+			ID: int(structs.ManagerBudgetOnReviewStatus),
+			Title: string(dto.ManagerBudgetOnReviewStatus),
+		}
 	} else {
-		status = dto.ManagerBudgetProcessStatus
+		status = dto.DropdownSimple{
+			ID: int(structs.ManagerBudgetProcessStatus),
+			Title: string(dto.ManagerBudgetProcessStatus),
+		}
 	}
 
-	return status, nil
+	return &status, nil
 }
 
 func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceRepositoryInterface, budgetList []structs.Budget) (budgetResItemList []*dto.BudgetResponseItem, err error) {
@@ -154,7 +168,7 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 		ID:         budget.ID,
 		Year:       budget.Year,
 		BudgetType: budget.BudgetType,
-		Status:     status,
+		Status:     *status,
 		Limits:     limits,
 	}
 

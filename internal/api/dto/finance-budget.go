@@ -30,7 +30,7 @@ type BudgetResponseItem struct {
 	Year       int                            `json:"year"`
 	Source     int                            `json:"source"`
 	BudgetType int                            `json:"budget_type"`
-	Status     BudgetStatus                   `json:"status"`
+	Status     DropdownSimple                   `json:"status"`
 	Limits     []structs.FinancialBudgetLimit `json:"limits"`
 }
 

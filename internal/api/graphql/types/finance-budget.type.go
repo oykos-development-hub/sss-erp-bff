@@ -20,7 +20,7 @@ var BudgetType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"status": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"limits": &graphql.Field{
 			Type: graphql.NewList(BudgetLimitType),

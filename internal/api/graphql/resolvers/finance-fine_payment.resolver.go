@@ -41,7 +41,12 @@ func (r *Resolver) FinePaymentInsertResolver(params graphql.ResolveParams) (inte
 
 	}
 
-	response.Item = *item
+	finePaymentResItem, err := buildFinePaymentResponseItem(*item)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	response.Item = finePaymentResItem
 
 	return response, nil
 }
@@ -112,24 +117,50 @@ func (r *Resolver) FinePaymentDeleteResolver(params graphql.ResolveParams) (inte
 }
 
 func buildFinePaymentResponseItem(finePayment structs.FinePayment) (*dto.FinePaymentResponseItem, error) {
-	status := dto.FinancialFinePaymentStatusPaid
-	switch finePayment.Status {
-	case structs.PaidFinePeymentStatus:
-		status = dto.FinancialFinePaymentStatusPaid
-	case structs.CancelledFinePeymentStatus:
-		status = dto.FinancialFinePaymentStatusCanceled
-	case structs.RetunedFinePeymentStatus:
-		status = dto.FinancialFinePaymentStatusReturned
+	status := dto.DropdownSimple{
+		ID:    int(structs.PaidFinePeymentStatus),
+		Title: string(dto.FinancialFinePaymentStatusPaid),
 	}
 
-	finePaymentMethod := dto.FinancialFinePaymentMethodPayment
+	switch finePayment.Status {
+	case structs.PaidFinePeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.PaidFinePeymentStatus),
+			Title: string(dto.FinancialFinePaymentStatusPaid),
+		}
+	case structs.CancelledFinePeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.CancelledFinePeymentStatus),
+			Title: string(dto.FinancialFinePaymentStatusCanceled),
+		}
+	case structs.RetunedFinePeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.RetunedFinePeymentStatus),
+			Title: string(dto.FinancialFinePaymentStatusReturned),
+		}
+	}
+
+	finePaymentMethod := dto.DropdownSimple{
+		ID:    int(structs.PaymentFinePeymentMethod),
+		Title: string(dto.FinancialFinePaymentMethodPayment),
+	}
+
 	switch finePayment.PaymentMethod {
 	case structs.PaymentFinePeymentMethod:
-		finePaymentMethod = dto.FinancialFinePaymentMethodPayment
+		status = dto.DropdownSimple{
+			ID:    int(structs.PaymentFinePeymentMethod),
+			Title: string(dto.FinancialFinePaymentMethodPayment),
+		}
 	case structs.ForcedFinePeymentMethod:
-		finePaymentMethod = dto.FinancialFinePaymentMethodForced
+		status = dto.DropdownSimple{
+			ID:    int(structs.ForcedFinePeymentMethod),
+			Title: string(dto.FinancialFinePaymentMethodForced),
+		}
 	case structs.CourtCostsFinePeymentMethod:
-		finePaymentMethod = dto.FinancialFinePaymentMethodCourtCosts
+		status = dto.DropdownSimple{
+			ID:    int(structs.CourtCostsFinePeymentMethod),
+			Title: string(dto.FinancialFinePaymentMethodCourtCosts),
+		}
 	}
 	response := dto.FinePaymentResponseItem{
 		ID:                     finePayment.ID,

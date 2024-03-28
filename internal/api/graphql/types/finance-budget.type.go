@@ -267,7 +267,7 @@ var BudgetInsertType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "BudgetInsert",
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"data": &graphql.Field{
 			Type: JSON,

@@ -51,7 +51,7 @@ var FlatRatePaymentType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"payment_method": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"amount": &graphql.Field{
 			Type: graphql.Float,
@@ -72,7 +72,7 @@ var FlatRatePaymentType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"status": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.DateTime,

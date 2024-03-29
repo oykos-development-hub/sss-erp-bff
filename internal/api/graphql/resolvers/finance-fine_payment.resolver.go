@@ -147,17 +147,17 @@ func buildFinePaymentResponseItem(finePayment structs.FinePayment) (*dto.FinePay
 
 	switch finePayment.PaymentMethod {
 	case structs.PaymentFinePeymentMethod:
-		status = dto.DropdownSimple{
+		finePaymentMethod = dto.DropdownSimple{
 			ID:    int(structs.PaymentFinePeymentMethod),
 			Title: string(dto.FinancialFinePaymentMethodPayment),
 		}
 	case structs.ForcedFinePeymentMethod:
-		status = dto.DropdownSimple{
+		finePaymentMethod = dto.DropdownSimple{
 			ID:    int(structs.ForcedFinePeymentMethod),
 			Title: string(dto.FinancialFinePaymentMethodForced),
 		}
 	case structs.CourtCostsFinePeymentMethod:
-		status = dto.DropdownSimple{
+		finePaymentMethod = dto.DropdownSimple{
 			ID:    int(structs.CourtCostsFinePeymentMethod),
 			Title: string(dto.FinancialFinePaymentMethodCourtCosts),
 		}

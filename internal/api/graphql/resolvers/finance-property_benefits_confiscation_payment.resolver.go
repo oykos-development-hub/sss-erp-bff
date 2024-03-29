@@ -38,21 +38,25 @@ func (r *Resolver) PropBenConfPaymentInsertResolver(params graphql.ResolveParams
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-
 	}
 
-	response.Item = *item
+	propBenConfPaymentResItem, err := buildPropBenConfPaymentResponseItem(*item)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	response.Item = propBenConfPaymentResItem
 
 	return response, nil
 }
 
 func (r *Resolver) PropBenConfPaymentOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
-		PropBenConfPayment, err := r.Repo.GetPropBenConfPayment(id)
+		propBenConfPayment, err := r.Repo.GetPropBenConfPayment(id)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-		PropBenConfPaymentResItem, err := buildPropBenConfPaymentResponseItem(*PropBenConfPayment)
+		propBenConfPaymentResItem, err := buildPropBenConfPaymentResponseItem(*propBenConfPayment)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -60,7 +64,7 @@ func (r *Resolver) PropBenConfPaymentOverviewResolver(params graphql.ResolvePara
 		return dto.Response{
 			Status:  "success",
 			Message: "Here's the list you asked for!",
-			Items:   []*dto.PropBenConfPaymentResponseItem{PropBenConfPaymentResItem},
+			Items:   []*dto.PropBenConfPaymentResponseItem{propBenConfPaymentResItem},
 			Total:   1,
 		}, nil
 	}
@@ -111,39 +115,66 @@ func (r *Resolver) PropBenConfPaymentDeleteResolver(params graphql.ResolveParams
 	}, nil
 }
 
-func buildPropBenConfPaymentResponseItem(PropBenConfPayment structs.PropBenConfPayment) (*dto.PropBenConfPaymentResponseItem, error) {
-	status := dto.FinancialPropBenConfPaymentStatusPaid
-	switch PropBenConfPayment.Status {
-	case structs.PaidPropBenConfPeymentStatus:
-		status = dto.FinancialPropBenConfPaymentStatusPaid
-	case structs.CancelledPropBenConfPeymentStatus:
-		status = dto.FinancialPropBenConfPaymentStatusCanceled
-	case structs.RetunedPropBenConfPeymentStatus:
-		status = dto.FinancialPropBenConfPaymentStatusReturned
+func buildPropBenConfPaymentResponseItem(propbenconfPayment structs.PropBenConfPayment) (*dto.PropBenConfPaymentResponseItem, error) {
+	status := dto.DropdownSimple{
+		ID:    int(structs.PaidPropBenConfPeymentStatus),
+		Title: string(dto.FinancialPropBenConfPaymentStatusPaid),
 	}
 
-	PropBenConfPaymentMethod := dto.FinancialPropBenConfPaymentMethodPayment
-	switch PropBenConfPayment.PaymentMethod {
-	case structs.PaymentPropBenConfPeymentMethod:
-		PropBenConfPaymentMethod = dto.FinancialPropBenConfPaymentMethodPayment
-	case structs.ForcedPropBenConfPeymentMethod:
-		PropBenConfPaymentMethod = dto.FinancialPropBenConfPaymentMethodForced
-	case structs.CourtCostsPropBenConfPeymentMethod:
-		PropBenConfPaymentMethod = dto.FinancialPropBenConfPaymentMethodCourtCosts
+	switch propbenconfPayment.Status {
+	case structs.PaidPropBenConfPeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.PaidPropBenConfPeymentStatus),
+			Title: string(dto.FinancialPropBenConfPaymentStatusPaid),
+		}
+	case structs.CancelledPropBenConfPeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.CancelledPropBenConfPeymentStatus),
+			Title: string(dto.FinancialPropBenConfPaymentStatusCanceled),
+		}
+	case structs.RetunedPropBenConfPeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.RetunedPropBenConfPeymentStatus),
+			Title: string(dto.FinancialPropBenConfPaymentStatusReturned),
+		}
 	}
+
+	propbenconfPaymentMethod := dto.DropdownSimple{
+		ID:    int(structs.PaymentPropBenConfPeymentMethod),
+		Title: string(dto.FinancialPropBenConfPaymentMethodPayment),
+	}
+
+	switch propbenconfPayment.PaymentMethod {
+	case structs.PaymentPropBenConfPeymentMethod:
+		propbenconfPaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.PaymentPropBenConfPeymentMethod),
+			Title: string(dto.FinancialPropBenConfPaymentMethodPayment),
+		}
+	case structs.ForcedPropBenConfPeymentMethod:
+		propbenconfPaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.ForcedPropBenConfPeymentMethod),
+			Title: string(dto.FinancialPropBenConfPaymentMethodForced),
+		}
+	case structs.CourtCostsPropBenConfPeymentMethod:
+		propbenconfPaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.CourtCostsPropBenConfPeymentMethod),
+			Title: string(dto.FinancialPropBenConfPaymentMethodCourtCosts),
+		}
+	}
+
 	response := dto.PropBenConfPaymentResponseItem{
-		ID:                     PropBenConfPayment.ID,
-		PropBenConfID:          PropBenConfPayment.PropBenConfID,
-		PaymentMethod:          PropBenConfPaymentMethod,
-		Amount:                 PropBenConfPayment.Amount,
-		PaymentDate:            PropBenConfPayment.PaymentDate,
-		PaymentDueDate:         PropBenConfPayment.PaymentDueDate,
-		ReceiptNumber:          PropBenConfPayment.ReceiptNumber,
-		PaymentReferenceNumber: PropBenConfPayment.PaymentReferenceNumber,
-		DebitReferenceNumber:   PropBenConfPayment.DebitReferenceNumber,
+		ID:                     propbenconfPayment.ID,
+		PropBenConfID:          propbenconfPayment.PropBenConfID,
+		PaymentMethod:          propbenconfPaymentMethod,
+		Amount:                 propbenconfPayment.Amount,
+		PaymentDate:            propbenconfPayment.PaymentDate,
+		PaymentDueDate:         propbenconfPayment.PaymentDueDate,
+		ReceiptNumber:          propbenconfPayment.ReceiptNumber,
+		PaymentReferenceNumber: propbenconfPayment.PaymentReferenceNumber,
+		DebitReferenceNumber:   propbenconfPayment.DebitReferenceNumber,
 		Status:                 status,
-		CreatedAt:              PropBenConfPayment.CreatedAt,
-		UpdatedAt:              PropBenConfPayment.UpdatedAt,
+		CreatedAt:              propbenconfPayment.CreatedAt,
+		UpdatedAt:              propbenconfPayment.UpdatedAt,
 	}
 
 	return &response, nil

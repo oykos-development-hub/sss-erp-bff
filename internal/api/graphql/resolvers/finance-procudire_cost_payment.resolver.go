@@ -38,10 +38,13 @@ func (r *Resolver) ProcedureCostPaymentInsertResolver(params graphql.ResolvePara
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-
+	}
+	procedurecostPaymentResItem, err := buildProcedureCostPaymentResponseItem(*item)
+	if err != nil {
+		return errors.HandleAPIError(err)
 	}
 
-	response.Item = *item
+	response.Item = procedurecostPaymentResItem
 
 	return response, nil
 }
@@ -112,25 +115,52 @@ func (r *Resolver) ProcedureCostPaymentDeleteResolver(params graphql.ResolvePara
 }
 
 func buildProcedureCostPaymentResponseItem(procedurecostPayment structs.ProcedureCostPayment) (*dto.ProcedureCostPaymentResponseItem, error) {
-	status := dto.FinancialProcedureCostPaymentStatusPaid
-	switch procedurecostPayment.Status {
-	case structs.PaidProcedureCostPeymentStatus:
-		status = dto.FinancialProcedureCostPaymentStatusPaid
-	case structs.CancelledProcedureCostPeymentStatus:
-		status = dto.FinancialProcedureCostPaymentStatusCanceled
-	case structs.RetunedProcedureCostPeymentStatus:
-		status = dto.FinancialProcedureCostPaymentStatusReturned
+	status := dto.DropdownSimple{
+		ID:    int(structs.PaidProcedureCostPeymentStatus),
+		Title: string(dto.FinancialProcedureCostPaymentStatusPaid),
 	}
 
-	procedurecostPaymentMethod := dto.FinancialProcedureCostPaymentMethodPayment
+	switch procedurecostPayment.Status {
+	case structs.PaidProcedureCostPeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.PaidProcedureCostPeymentStatus),
+			Title: string(dto.FinancialProcedureCostPaymentStatusPaid),
+		}
+	case structs.CancelledProcedureCostPeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.CancelledProcedureCostPeymentStatus),
+			Title: string(dto.FinancialProcedureCostPaymentStatusCanceled),
+		}
+	case structs.RetunedProcedureCostPeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.RetunedProcedureCostPeymentStatus),
+			Title: string(dto.FinancialProcedureCostPaymentStatusReturned),
+		}
+	}
+
+	procedurecostPaymentMethod := dto.DropdownSimple{
+		ID:    int(structs.PaymentProcedureCostPeymentMethod),
+		Title: string(dto.FinancialProcedureCostPaymentMethodPayment),
+	}
+
 	switch procedurecostPayment.PaymentMethod {
 	case structs.PaymentProcedureCostPeymentMethod:
-		procedurecostPaymentMethod = dto.FinancialProcedureCostPaymentMethodPayment
+		procedurecostPaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.PaymentProcedureCostPeymentMethod),
+			Title: string(dto.FinancialProcedureCostPaymentMethodPayment),
+		}
 	case structs.ForcedProcedureCostPeymentMethod:
-		procedurecostPaymentMethod = dto.FinancialProcedureCostPaymentMethodForced
+		procedurecostPaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.ForcedProcedureCostPeymentMethod),
+			Title: string(dto.FinancialProcedureCostPaymentMethodForced),
+		}
 	case structs.CourtCostsProcedureCostPeymentMethod:
-		procedurecostPaymentMethod = dto.FinancialProcedureCostPaymentMethodCourtCosts
+		procedurecostPaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.CourtCostsProcedureCostPeymentMethod),
+			Title: string(dto.FinancialProcedureCostPaymentMethodCourtCosts),
+		}
 	}
+
 	response := dto.ProcedureCostPaymentResponseItem{
 		ID:                     procedurecostPayment.ID,
 		ProcedureCostID:        procedurecostPayment.ProcedureCostID,

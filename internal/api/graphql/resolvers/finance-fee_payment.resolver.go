@@ -116,23 +116,47 @@ func (r *Resolver) FeePaymentDeleteResolver(params graphql.ResolveParams) (inter
 }
 
 func buildFeePaymentResponseItem(feePayment structs.FeePayment) (*dto.FeePaymentResponseItem, error) {
-	status := dto.FinancialFeePaymentStatusPaid
-	switch feePayment.Status {
-	case structs.PaidFeePeymentStatus:
-		status = dto.FinancialFeePaymentStatusPaid
-	case structs.CancelledFeePeymentStatus:
-		status = dto.FinancialFeePaymentStatusCanceled
-	case structs.RetunedFeePeymentStatus:
-		status = dto.FinancialFeePaymentStatusReturned
+	status := dto.DropdownSimple{
+		ID:    int(structs.PaidFeePeymentStatus),
+		Title: string(dto.FinancialFeePaymentStatusPaid),
 	}
 
-	feePaymentMethod := dto.FinancialFeePaymentMethodPayment
+	switch feePayment.Status {
+	case structs.PaidFeePeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.PaidFeePeymentStatus),
+			Title: string(dto.FinancialFeePaymentStatusPaid),
+		}
+	case structs.CancelledFeePeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.CancelledFeePeymentStatus),
+			Title: string(dto.FinancialFeePaymentStatusCanceled),
+		}
+	case structs.RetunedFeePeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.RetunedFeePeymentStatus),
+			Title: string(dto.FinancialFeePaymentStatusReturned),
+		}
+	}
+
+	feePaymentMethod := dto.DropdownSimple{
+		ID:    int(structs.PaymentFeePeymentMethod),
+		Title: string(dto.FinancialFeePaymentMethodPayment),
+	}
+
 	switch feePayment.PaymentMethod {
 	case structs.PaymentFeePeymentMethod:
-		feePaymentMethod = dto.FinancialFeePaymentMethodPayment
+		feePaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.PaymentFeePeymentMethod),
+			Title: string(dto.FinancialFeePaymentMethodPayment),
+		}
 	case structs.ForcedFeePeymentMethod:
-		feePaymentMethod = dto.FinancialFeePaymentMethodForced
+		feePaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.ForcedFeePeymentMethod),
+			Title: string(dto.FinancialFeePaymentMethodForced),
+		}
 	}
+
 	response := dto.FeePaymentResponseItem{
 		ID:                     feePayment.ID,
 		FeeID:                  feePayment.FeeID,

@@ -38,10 +38,14 @@ func (r *Resolver) FlatRatePaymentInsertResolver(params graphql.ResolveParams) (
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-
 	}
 
-	response.Item = *item
+	flatrateResItem, err := buildFlatRatePaymentResponseItem(*item)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	response.Item = flatrateResItem
 
 	return response, nil
 }
@@ -112,29 +116,57 @@ func (r *Resolver) FlatRatePaymentDeleteResolver(params graphql.ResolveParams) (
 }
 
 func buildFlatRatePaymentResponseItem(flatratePayment structs.FlatRatePayment) (*dto.FlatRatePaymentResponseItem, error) {
-	status := dto.FinancialFlatRatePaymentStatusPaid
-	switch flatratePayment.Status {
-	case structs.PaidFlatRatePeymentStatus:
-		status = dto.FinancialFlatRatePaymentStatusPaid
-	case structs.CancelledFlatRatePeymentStatus:
-		status = dto.FinancialFlatRatePaymentStatusCanceled
-	case structs.RetunedFlatRatePeymentStatus:
-		status = dto.FinancialFlatRatePaymentStatusReturned
+
+	status := dto.DropdownSimple{
+		ID:    int(structs.PaidFlatRatePeymentStatus),
+		Title: string(dto.FinancialFlatRatePaymentStatusPaid),
 	}
 
-	flatratePaymentMethod := dto.FinancialFlatRatePaymentMethodPayment
+	switch flatratePayment.Status {
+	case structs.PaidFlatRatePeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.PaidFlatRatePeymentStatus),
+			Title: string(dto.FinancialFlatRatePaymentStatusPaid),
+		}
+	case structs.CancelledFlatRatePeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.CancelledFlatRatePeymentStatus),
+			Title: string(dto.FinancialFlatRatePaymentStatusCanceled),
+		}
+	case structs.RetunedFlatRatePeymentStatus:
+		status = dto.DropdownSimple{
+			ID:    int(structs.RetunedFlatRatePeymentStatus),
+			Title: string(dto.FinancialFlatRatePaymentStatusReturned),
+		}
+	}
+
+	flatRatePaymentMethod := dto.DropdownSimple{
+		ID:    int(structs.PaymentFlatRatePeymentMethod),
+		Title: string(dto.FinancialFlatRatePaymentMethodPayment),
+	}
+
 	switch flatratePayment.PaymentMethod {
 	case structs.PaymentFlatRatePeymentMethod:
-		flatratePaymentMethod = dto.FinancialFlatRatePaymentMethodPayment
+		flatRatePaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.PaymentFlatRatePeymentMethod),
+			Title: string(dto.FinancialFlatRatePaymentMethodPayment),
+		}
 	case structs.ForcedFlatRatePeymentMethod:
-		flatratePaymentMethod = dto.FinancialFlatRatePaymentMethodForced
+		flatRatePaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.ForcedFlatRatePeymentMethod),
+			Title: string(dto.FinancialFlatRatePaymentMethodForced),
+		}
 	case structs.CourtCostsFlatRatePeymentMethod:
-		flatratePaymentMethod = dto.FinancialFlatRatePaymentMethodCourtCosts
+		flatRatePaymentMethod = dto.DropdownSimple{
+			ID:    int(structs.CourtCostsFlatRatePeymentMethod),
+			Title: string(dto.FinancialFlatRatePaymentMethodCourtCosts),
+		}
 	}
+
 	response := dto.FlatRatePaymentResponseItem{
 		ID:                     flatratePayment.ID,
 		FlatRateID:             flatratePayment.FlatRateID,
-		PaymentMethod:          flatratePaymentMethod,
+		PaymentMethod:          flatRatePaymentMethod,
 		Amount:                 flatratePayment.Amount,
 		PaymentDate:            flatratePayment.PaymentDate,
 		PaymentDueDate:         flatratePayment.PaymentDueDate,

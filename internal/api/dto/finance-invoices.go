@@ -95,6 +95,7 @@ type GetInvoiceListInputMS struct {
 	Year               *int    `json:"year"`
 	Status             *string `json:"status"`
 	SupplierID         *int    `json:"supplier_id"`
+	OrderID            *int    `json:"order_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 	Type               *string `json:"type"`
 }

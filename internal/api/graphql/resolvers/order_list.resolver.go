@@ -538,6 +538,7 @@ func parseDate(dateString string) (time.Time, error) {
 		"January 2, 2006",                    // Month dd, yyyy
 		"02 Jan 2006",                        // dd Mon yyyy
 		"2006-01-02T15:04:05Z07:00",          // ISO 8601
+		"2006-01-02T15:04:05Z",               // ISO
 		"Mon Jan 02 15:04:05 -0700 MST 2006", // Go standard format
 		"Jan _2 15:04:05",                    // Without leading zeros in day
 		"2006-01-02 15:04:05",                // YYYY-MM-DD HH:MM:SS
@@ -810,6 +811,60 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 	_, err = r.Repo.UpdateOrderListItem(data.OrderID, orderList)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
+	}
+
+	if orderList.IsProFormaInvoice && orderList.ProFormaInvoiceNumber != "" {
+		invoice, total, err := r.Repo.GetInvoiceList(&dto.GetInvoiceListInputMS{
+			OrderID: &orderList.ID,
+		})
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		if total > 0 {
+			invoiceDate, _ := parseDate(*orderList.InvoiceDate)
+
+			newInvoice := structs.Invoice{
+				ID:                     invoice[0].ID,
+				InvoiceNumber:          *orderList.InvoiceNumber,
+				Status:                 invoice[0].Status,
+				Type:                   invoice[0].Type,
+				TypeOfSubject:          invoice[0].TypeOfSubject,
+				TypeOfContract:         invoice[0].TypeOfContract,
+				SourceOfFunding:        invoice[0].SourceOfFunding,
+				Supplier:               invoice[0].Supplier,
+				GrossPrice:             invoice[0].GrossPrice,
+				VATPrice:               invoice[0].VATPrice,
+				SupplierID:             invoice[0].SupplierID,
+				OrderID:                invoice[0].OrderID,
+				OrganizationUnitID:     invoice[0].OrganizationUnitID,
+				ActivityID:             invoice[0].ActivityID,
+				TaxAuthorityCodebookID: invoice[0].TaxAuthorityCodebookID,
+				DateOfInvoice:          invoiceDate,
+				ReceiptDate:            invoice[0].ReceiptDate,
+				DateOfPayment:          invoice[0].DateOfPayment,
+				DateOfStart:            invoice[0].DateOfStart,
+				SSSInvoiceReceiptDate:  invoice[0].SSSInvoiceReceiptDate,
+				FileID:                 invoice[0].FileID,
+				BankAccount:            invoice[0].BankAccount,
+				Description:            invoice[0].Description,
+				ProFormaInvoiceDate:    invoice[0].ProFormaInvoiceDate,
+				ProFormaInvoiceNumber:  invoice[0].ProFormaInvoiceNumber,
+				Articles:               invoice[0].Articles,
+				AdditionalExpenses:     invoice[0].AdditionalExpenses,
+				CreatedAt:              invoice[0].CreatedAt,
+				UpdatedAt:              invoice[0].UpdatedAt,
+			}
+
+			_, err = r.Repo.UpdateInvoice(&newInvoice)
+
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+		}
+
 	}
 
 	return dto.ResponseSingle{

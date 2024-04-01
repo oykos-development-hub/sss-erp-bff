@@ -22,6 +22,8 @@ type InvoiceResponseItem struct {
 	Activity              DropdownSimple               `json:"activity"`
 	OrderID               int                          `json:"order_id"`
 	OrganizationUnit      DropdownSimple               `json:"organization_unit"`
+	ProFormaInvoiceDate   time.Time                    `json:"pro_forma_invoice_date"`
+	ProFormaInvoiceNumber string                       `json:"pro_forma_invoice_number"`
 	DateOfInvoice         time.Time                    `json:"date_of_invoice"`
 	ReceiptDate           time.Time                    `json:"receipt_date"`
 	DateOfPayment         time.Time                    `json:"date_of_payment"`

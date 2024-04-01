@@ -26,7 +26,7 @@ type Invoice struct {
 	FileID                 int                  `json:"file_id"`
 	BankAccount            string               `json:"bank_account"`
 	Description            string               `json:"description"`
-	ProFormaInvoiceDate    string               `json:"pro_forma_invoice_date"`
+	ProFormaInvoiceDate    time.Time            `json:"pro_forma_invoice_date"`
 	ProFormaInvoiceNumber  string               `json:"pro_forma_invoice_number"`
 	Articles               []InvoiceArticles    `json:"articles"`
 	AdditionalExpenses     []AdditionalExpenses `json:"additional_expenses"`

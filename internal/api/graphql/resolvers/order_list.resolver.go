@@ -340,9 +340,12 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 		}
 
 		if item.IsProFormaInvoice {
+
+			proFormaInvoiceDate, _ := time.Parse("2006-01-02T00:00:00Z", item.ProFormaInvoiceDate)
+
 			invoice := structs.Invoice{
 				ProFormaInvoiceNumber: item.ProFormaInvoiceNumber,
-				ProFormaInvoiceDate:   item.ProFormaInvoiceDate,
+				ProFormaInvoiceDate:   proFormaInvoiceDate,
 				Status:                "created",
 				Type:                  "invoice",
 				SupplierID:            item.SupplierID,

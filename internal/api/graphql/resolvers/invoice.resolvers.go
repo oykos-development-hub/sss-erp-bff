@@ -460,6 +460,8 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		GrossPrice:            invoice.GrossPrice,
 		VATPrice:              invoice.VATPrice,
 		OrderID:               invoice.OrderID,
+		ProFormaInvoiceDate:   invoice.ProFormaInvoiceDate,
+		ProFormaInvoiceNumber: invoice.ProFormaInvoiceNumber,
 		DateOfInvoice:         invoice.DateOfInvoice,
 		ReceiptDate:           invoice.ReceiptDate,
 		DateOfPayment:         invoice.DateOfPayment,

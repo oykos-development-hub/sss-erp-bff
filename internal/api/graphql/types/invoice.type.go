@@ -77,6 +77,12 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		"invoice_number": &graphql.Field{
 			Type: graphql.String,
 		},
+		"pro_forma_invoice_number": &graphql.Field{
+			Type: graphql.String,
+		},
+		"pro_forma_invoice_date": &graphql.Field{
+			Type: graphql.String,
+		},
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},

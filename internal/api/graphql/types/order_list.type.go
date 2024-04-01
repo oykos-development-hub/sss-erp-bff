@@ -40,6 +40,9 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		"office": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"account": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"recipient_user": &graphql.Field{
 			Type: DropdownItemType,
 		},
@@ -60,6 +63,15 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"used_in_finance": &graphql.Field{
 			Type: graphql.Boolean,
+		},
+		"is_pro_forma_invoice": &graphql.Field{
+			Type: graphql.Boolean,
+		},
+		"pro_forma_invoice_date": &graphql.Field{
+			Type: graphql.String,
+		},
+		"pro_forma_invoice_number": &graphql.Field{
+			Type: graphql.String,
 		},
 		"order_file": &graphql.Field{
 			Type: FileDropdownItemType,

@@ -23,6 +23,9 @@ var OrderListInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"supplier_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"account_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"status": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
@@ -36,6 +39,15 @@ var OrderListInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.Boolean,
 		},
 		"used_in_finance": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
+		"is_pro_forma_invoice": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
+		"pro_forma_invoice_date": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"pro_forma_invoice_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
 	},

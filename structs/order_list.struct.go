@@ -1,26 +1,30 @@
 package structs
 
 type OrderListItem struct {
-	ID                  int     `json:"id"`
-	DateOrder           string  `json:"date_order"`
-	TotalPrice          float32 `json:"total_price"`
-	PublicProcurementID *int    `json:"public_procurement_id"`
-	GroupOfArticlesID   *int    `json:"group_of_articles_id"`
-	SupplierID          *int    `json:"supplier_id"`
-	Status              string  `json:"status"`
-	PassedToFinance     bool    `json:"passed_to_finance"`
-	UsedInFinance       bool    `json:"used_in_finance"`
-	DateSystem          *string `json:"date_system"`
-	InvoiceDate         *string `json:"invoice_date"`
-	InvoiceNumber       *string `json:"invoice_number"`
-	OrganizationUnitID  int     `json:"organization_unit_id"`
-	OfficeID            *int    `json:"office_id"`
-	RecipientUserID     *int    `json:"recipient_user_id"`
-	Description         *string `json:"description"`
-	IsUsed              bool    `json:"is_used"`
-	OrderFile           *int    `json:"order_file"`
-	ReceiveFile         []int   `json:"receive_file"`
-	MovementFile        *int    `json:"movement_file"`
+	ID                    int     `json:"id"`
+	DateOrder             string  `json:"date_order"`
+	TotalPrice            float32 `json:"total_price"`
+	PublicProcurementID   *int    `json:"public_procurement_id"`
+	GroupOfArticlesID     *int    `json:"group_of_articles_id"`
+	SupplierID            *int    `json:"supplier_id"`
+	AccountID             *int    `json:"account_id"`
+	Status                string  `json:"status"`
+	PassedToFinance       bool    `json:"passed_to_finance"`
+	UsedInFinance         bool    `json:"used_in_finance"`
+	IsProFormaInvoice     bool    `json:"is_pro_forma_invoice"`
+	ProFormaInvoiceDate   string  `json:"pro_forma_invoice_date"`
+	ProFormaInvoiceNumber string  `json:"pro_forma_invoice_number"`
+	DateSystem            *string `json:"date_system"`
+	InvoiceDate           *string `json:"invoice_date"`
+	InvoiceNumber         *string `json:"invoice_number"`
+	OrganizationUnitID    int     `json:"organization_unit_id"`
+	OfficeID              *int    `json:"office_id"`
+	RecipientUserID       *int    `json:"recipient_user_id"`
+	Description           *string `json:"description"`
+	IsUsed                bool    `json:"is_used"`
+	OrderFile             *int    `json:"order_file"`
+	ReceiveFile           []int   `json:"receive_file"`
+	MovementFile          *int    `json:"movement_file"`
 }
 
 type OrderProcurementArticleItem struct {
@@ -53,16 +57,20 @@ type OrderArticleItem struct {
 }
 
 type OrderListInsertItem struct {
-	ID                  int                      `json:"id"`
-	DateOrder           string                   `json:"date_order"`
-	PublicProcurementID int                      `json:"public_procurement_id"`
-	GroupOfArticlesID   int                      `json:"group_of_articles_id"`
-	SupplierID          int                      `json:"supplier_id"`
-	Articles            []OrderArticleInsertItem `json:"articles"`
-	IsUsed              bool                     `json:"is_used"`
-	OrderFile           int                      `json:"order_file"`
-	PassedToFinance     bool                     `json:"passed_to_finance"`
-	UsedInFinance       bool                     `json:"used_in_finance"`
+	ID                    int                      `json:"id"`
+	DateOrder             string                   `json:"date_order"`
+	PublicProcurementID   int                      `json:"public_procurement_id"`
+	GroupOfArticlesID     int                      `json:"group_of_articles_id"`
+	SupplierID            int                      `json:"supplier_id"`
+	AccountID             int                      `json:"account_id"`
+	Articles              []OrderArticleInsertItem `json:"articles"`
+	IsUsed                bool                     `json:"is_used"`
+	OrderFile             int                      `json:"order_file"`
+	PassedToFinance       bool                     `json:"passed_to_finance"`
+	UsedInFinance         bool                     `json:"used_in_finance"`
+	IsProFormaInvoice     bool                     `json:"is_pro_forma_invoice"`
+	ProFormaInvoiceDate   string                   `json:"pro_forma_invoice_date"`
+	ProFormaInvoiceNumber string                   `json:"pro_forma_invoice_number"`
 }
 
 type OrderArticleInsertItem struct {

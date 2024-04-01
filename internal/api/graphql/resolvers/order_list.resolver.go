@@ -339,6 +339,42 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 			return apierrors.HandleAPIError(err)
 		}
 
+		if item.IsProFormaInvoice {
+			invoice := structs.Invoice{
+				ProFormaInvoiceNumber: item.ProFormaInvoiceNumber,
+				ProFormaInvoiceDate:   item.ProFormaInvoiceDate,
+				Status:                "created",
+				Type:                  "invoice",
+				SupplierID:            item.SupplierID,
+				OrderID:               item.ID,
+				OrganizationUnitID:    item.OrganizationUnitID,
+			}
+
+			insertedItem, err := r.Repo.CreateInvoice(&invoice)
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			for _, article := range *item.Articles {
+				vatPercentage, _ := strconv.Atoi(article.VatPercentage)
+
+				invoiceArticle := structs.InvoiceArticles{
+					Title:         article.Title,
+					NetPrice:      float64(article.NetPrice),
+					VatPercentage: vatPercentage,
+					Description:   article.Description,
+					InvoiceID:     insertedItem.ID,
+					AccountID:     item.Account.ID,
+				}
+
+				_, err = r.Repo.CreateInvoiceArticle(&invoiceArticle)
+
+				if err != nil {
+					return apierrors.HandleAPIError(err)
+				}
+			}
+		}
+
 		response.Message = "You created this item!"
 		response.Item = item
 	}
@@ -824,15 +860,19 @@ func buildOrderListInsertItem(context context.Context, r repository.Microservice
 	}
 
 	newItem = &structs.OrderListItem{
-		ID:                  item.ID,
-		DateOrder:           timeString,
-		TotalPrice:          totalPrice,
-		PublicProcurementID: &item.PublicProcurementID,
-		GroupOfArticlesID:   &item.GroupOfArticlesID,
-		SupplierID:          supplierID,
-		OrderFile:           &item.OrderFile,
-		PassedToFinance:     item.PassedToFinance,
-		UsedInFinance:       item.UsedInFinance,
+		ID:                    item.ID,
+		DateOrder:             timeString,
+		TotalPrice:            totalPrice,
+		PublicProcurementID:   &item.PublicProcurementID,
+		GroupOfArticlesID:     &item.GroupOfArticlesID,
+		SupplierID:            supplierID,
+		OrderFile:             &item.OrderFile,
+		PassedToFinance:       item.PassedToFinance,
+		UsedInFinance:         item.UsedInFinance,
+		IsProFormaInvoice:     item.IsProFormaInvoice,
+		ProFormaInvoiceDate:   item.ProFormaInvoiceDate,
+		ProFormaInvoiceNumber: item.ProFormaInvoiceNumber,
+		AccountID:             &item.AccountID,
 	}
 
 	// Getting organizationUnitID from job position
@@ -1009,28 +1049,43 @@ func buildOrderListResponseItem(context context.Context, r repository.Microservi
 		groupOfArticles.Title = getGroupOfArticles.Title
 	}
 
+	var account dto.DropdownSimple
+	if item.AccountID != nil && *item.AccountID != zero {
+		getAccount, err := r.GetAccountItemByID(*item.AccountID)
+
+		if err != nil {
+			return nil, err
+		}
+		account.ID = getAccount.ID
+		account.Title = getAccount.Title
+	}
+
 	res = dto.OrderListOverviewResponse{
-		ID:                  item.ID,
-		DateOrder:           (string)(item.DateOrder),
-		TotalNeto:           totalNeto,
-		TotalBruto:          totalBruto,
-		PublicProcurementID: procurementDropdown.ID,
-		PublicProcurement:   &procurementDropdown,
-		DateSystem:          item.DateSystem,
-		InvoiceDate:         item.InvoiceDate,
-		OrganizationUnitID:  item.OrganizationUnitID,
-		OfficeID:            office.ID,
-		Office:              office,
-		Description:         item.Description,
-		Status:              item.Status,
-		Supplier:            &supplierDropdown,
-		GroupOfArticles:     &groupOfArticles,
-		Articles:            &articles,
-		PassedToFinance:     item.PassedToFinance,
-		UsedInFinance:       item.UsedInFinance,
-		OrderFile:           orderFile,
-		ReceiveFile:         receiveFile,
-		MovementFile:        movementFile,
+		ID:                    item.ID,
+		DateOrder:             (string)(item.DateOrder),
+		TotalNeto:             totalNeto,
+		TotalBruto:            totalBruto,
+		PublicProcurementID:   procurementDropdown.ID,
+		PublicProcurement:     &procurementDropdown,
+		DateSystem:            item.DateSystem,
+		InvoiceDate:           item.InvoiceDate,
+		OrganizationUnitID:    item.OrganizationUnitID,
+		OfficeID:              office.ID,
+		Office:                office,
+		Description:           item.Description,
+		Status:                item.Status,
+		Supplier:              &supplierDropdown,
+		GroupOfArticles:       &groupOfArticles,
+		Articles:              &articles,
+		PassedToFinance:       item.PassedToFinance,
+		UsedInFinance:         item.UsedInFinance,
+		OrderFile:             orderFile,
+		ReceiveFile:           receiveFile,
+		MovementFile:          movementFile,
+		IsProFormaInvoice:     item.IsProFormaInvoice,
+		ProFormaInvoiceDate:   item.ProFormaInvoiceDate,
+		ProFormaInvoiceNumber: item.ProFormaInvoiceNumber,
+		Account:               &account,
 	}
 
 	if item.RecipientUserID != nil && *item.RecipientUserID > 0 {

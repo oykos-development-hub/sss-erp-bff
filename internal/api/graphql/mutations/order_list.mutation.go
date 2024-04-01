@@ -48,7 +48,7 @@ var OrderListInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"pro_forma_invoice_number": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
+			Type: graphql.String,
 		},
 	},
 })

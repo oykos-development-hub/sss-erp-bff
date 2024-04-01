@@ -339,8 +339,8 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 			return apierrors.HandleAPIError(err)
 		}
 
-		if item.IsProFormaInvoice {
-			proFormaInvoiceDate, _ := parseDate(item.ProFormaInvoiceDate)
+		if item.IsProFormaInvoice && item.ProFormaInvoiceDate != nil {
+			proFormaInvoiceDate, _ := parseDate(*item.ProFormaInvoiceDate)
 
 			invoice := structs.Invoice{
 				ProFormaInvoiceNumber: item.ProFormaInvoiceNumber,
@@ -985,7 +985,7 @@ func buildOrderListInsertItem(context context.Context, r repository.Microservice
 		AccountID:             &item.AccountID,
 	}
 
-	if item.ProFormaInvoiceDate != "" {
+	if item.ProFormaInvoiceDate != nil {
 		newItem.ProFormaInvoiceDate = item.ProFormaInvoiceDate
 	}
 

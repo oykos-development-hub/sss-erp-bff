@@ -47,7 +47,7 @@ type OrderListOverviewResponse struct {
 	CreatedAt             string                                 `json:"created_at"`
 	UpdatedAt             string                                 `json:"updated_at"`
 	IsProFormaInvoice     bool                                   `json:"is_pro_forma_invoice"`
-	ProFormaInvoiceDate   string                                 `json:"pro_forma_invoice_date"`
+	ProFormaInvoiceDate   *string                                `json:"pro_forma_invoice_date"`
 	ProFormaInvoiceNumber string                                 `json:"pro_forma_invoice_number"`
 	Account               *DropdownSimple                        `json:"account"`
 	GroupOfArticles       *DropdownSimple                        `json:"group_of_articles"`

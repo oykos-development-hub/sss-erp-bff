@@ -12,7 +12,7 @@ type OrderListItem struct {
 	PassedToFinance       bool    `json:"passed_to_finance"`
 	UsedInFinance         bool    `json:"used_in_finance"`
 	IsProFormaInvoice     bool    `json:"is_pro_forma_invoice"`
-	ProFormaInvoiceDate   string  `json:"pro_forma_invoice_date"`
+	ProFormaInvoiceDate   *string `json:"pro_forma_invoice_date"`
 	ProFormaInvoiceNumber string  `json:"pro_forma_invoice_number"`
 	DateSystem            *string `json:"date_system"`
 	InvoiceDate           *string `json:"invoice_date"`
@@ -69,7 +69,7 @@ type OrderListInsertItem struct {
 	PassedToFinance       bool                     `json:"passed_to_finance"`
 	UsedInFinance         bool                     `json:"used_in_finance"`
 	IsProFormaInvoice     bool                     `json:"is_pro_forma_invoice"`
-	ProFormaInvoiceDate   string                   `json:"pro_forma_invoice_date"`
+	ProFormaInvoiceDate   *string                  `json:"pro_forma_invoice_date"`
 	ProFormaInvoiceNumber string                   `json:"pro_forma_invoice_number"`
 }
 

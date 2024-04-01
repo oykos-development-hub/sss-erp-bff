@@ -340,8 +340,7 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 		}
 
 		if item.IsProFormaInvoice {
-
-			proFormaInvoiceDate, _ := time.Parse("2006-01-02T00:00:00Z", item.ProFormaInvoiceDate)
+			proFormaInvoiceDate, _ := parseDate(item.ProFormaInvoiceDate)
 
 			invoice := structs.Invoice{
 				ProFormaInvoiceNumber: item.ProFormaInvoiceNumber,
@@ -517,6 +516,60 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, artic
 	}
 
 	return currentArticle, nil
+}
+
+func parseDate(dateString string) (time.Time, error) {
+	var layouts = []string{
+		"02.01.2006",                         // dd.mm.yyyy
+		"02.01.2006.",                        // dd.mm.yyyy.
+		"02/01/2006",                         // dd/mm/yyyy
+		"02-01-2006",                         // dd-mm-yyyy
+		"2006-01-02",                         // yyyy-mm-dd
+		"01/02/2006",                         // mm/dd/yyyy
+		"02.01.06",                           // dd.mm.yy
+		"02.01.06.",                          // dd.mm.yy.
+		"02/01/06",                           // dd/mm/yy
+		"01/02/06",                           // mm/dd/yy
+		"01-02-06",                           // mm-dd-yy
+		"02-01-06",                           // dd-mm-yy
+		"06-01-02",                           // yy-mm-dd
+		"01/02/06",                           // mm/dd/yy
+		"Jan 02, 2006",                       // Mon dd, yyyy
+		"January 2, 2006",                    // Month dd, yyyy
+		"02 Jan 2006",                        // dd Mon yyyy
+		"2006-01-02T15:04:05Z07:00",          // ISO 8601
+		"Mon Jan 02 15:04:05 -0700 MST 2006", // Go standard format
+		"Jan _2 15:04:05",                    // Without leading zeros in day
+		"2006-01-02 15:04:05",                // YYYY-MM-DD HH:MM:SS
+		"02 Jan 06 15:04 MST",                // YY instead of YYYY
+		"02 Jan 2006 15:04",                  // dd Mon yyyy HH:MM
+		"Mon, 02 Jan 2006 15:04:05 MST",      // Day, dd Mon yyyy HH:MM:SS
+		"Mon, 02 Jan 2006 15:04:05 -0700",    // Day, dd Mon yyyy HH:MM:SS Timezone Offset
+		"Monday, 02-Jan-06 15:04:05 MST",     // Full Day, dd-Mon-yy HH:MM:SS
+		"Monday, 02-Jan-06 15:04:05 -0700",   // Full Day, dd-Mon-yy HH:MM:SS Timezone Offset
+		"3:04 PM",                            // Short time
+		"Jan 02, 2006 at 3:04pm",             // Date with time
+	}
+
+	var date time.Time
+	var err error
+
+	for _, layout := range layouts {
+		date, err = time.Parse(layout, dateString)
+		if err == nil {
+			return date, nil
+		}
+	}
+
+	numberOfDays, err := strconv.Atoi(dateString)
+
+	if err == nil {
+		startDate := time.Date(1899, time.December, 31, 0, 0, 0, 0, time.UTC)
+		daysDuration := time.Duration(numberOfDays) * 24 * time.Hour
+		return startDate.Add(daysDuration), nil
+	}
+
+	return date, fmt.Errorf("date format is not valid: %s", dateString)
 }
 
 func (r *Resolver) RecipientUsersResolver(params graphql.ResolveParams) (interface{}, error) {

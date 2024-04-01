@@ -981,9 +981,12 @@ func buildOrderListInsertItem(context context.Context, r repository.Microservice
 		PassedToFinance:       item.PassedToFinance,
 		UsedInFinance:         item.UsedInFinance,
 		IsProFormaInvoice:     item.IsProFormaInvoice,
-		ProFormaInvoiceDate:   item.ProFormaInvoiceDate,
 		ProFormaInvoiceNumber: item.ProFormaInvoiceNumber,
 		AccountID:             &item.AccountID,
+	}
+
+	if item.ProFormaInvoiceDate != "" {
+		newItem.ProFormaInvoiceDate = item.ProFormaInvoiceDate
 	}
 
 	// Getting organizationUnitID from job position

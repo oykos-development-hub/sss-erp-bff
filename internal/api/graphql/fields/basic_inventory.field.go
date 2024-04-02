@@ -92,6 +92,7 @@ func (f *Field) BasicInventoryDetailsField() *graphql.Field {
 		Resolve: f.Resolvers.BasicInventoryDetailsResolver,
 	}
 }
+
 func (f *Field) BasicInventoryInsertField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.BasicInventoryInsertType,
@@ -104,3 +105,18 @@ func (f *Field) BasicInventoryInsertField() *graphql.Field {
 		Resolve: f.Resolvers.BasicInventoryInsertResolver,
 	}
 }
+
+/*
+func (f *Field) InvoicesForInventoryOverview() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.BasicInventoryDetailsType,
+		Description: "Returns a data of Basic Inventory item Details",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.BasicInventoryDetailsResolver,
+	}
+}
+*/

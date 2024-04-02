@@ -285,7 +285,7 @@ func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interfac
 		return fmt.Errorf("error deleting the id"), nil
 	}
 
-	if item.OrderID != 0 {
+	if item.OrderID != 0 && item.InvoiceNumber != "" {
 		order, err := r.Repo.GetOrderListByID(item.OrderID)
 
 		if err != nil {
@@ -315,6 +315,11 @@ func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interfac
 			MovementFile:        order.MovementFile,
 		})
 
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+	} else if item.OrderID != 0 {
+		err = r.Repo.DeleteOrderList(item.OrderID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}

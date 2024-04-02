@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -143,9 +144,36 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		}
 
 	} else {
+
+		invoice, err := r.Repo.GetInvoice(data.ID)
+
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
 		item, err = r.Repo.UpdateInvoice(&data)
 		if err != nil {
 			return errors.HandleAPIError(err)
+		}
+
+		var defaultTime time.Time
+
+		if invoice.DateOfInvoice == defaultTime && data.DateOfInvoice != defaultTime {
+			order, err := r.Repo.GetOrderListByID(data.OrderID)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			invoiceDate := data.DateOfInvoice.Format("2006-01-02T15:04:05Z")
+			order.InvoiceDate = &invoiceDate
+			order.InvoiceNumber = &data.InvoiceNumber
+			order.Status = "receive"
+
+			_, err = r.Repo.UpdateOrderListItem(order.ID, order)
+
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
 		}
 	}
 

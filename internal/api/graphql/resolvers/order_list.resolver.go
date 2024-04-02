@@ -345,7 +345,7 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 			invoice := structs.Invoice{
 				ProFormaInvoiceNumber: item.ProFormaInvoiceNumber,
 				ProFormaInvoiceDate:   proFormaInvoiceDate,
-				Status:                "created",
+				Status:                "waiting",
 				Type:                  "invoice",
 				SupplierID:            item.SupplierID,
 				OrderID:               item.ID,
@@ -730,7 +730,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 	if !ok || organizationUnitID == nil {
 		return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
-	if status != "Receive" {
+	if status != "Receive" || orderList.IsProFormaInvoice {
 		if orderList.GroupOfArticlesID != nil && *orderList.GroupOfArticlesID != 0 {
 			for _, article := range data.Articles {
 				orderArticle, err := r.Repo.GetOrderProcurementArticleByID(article.ID)

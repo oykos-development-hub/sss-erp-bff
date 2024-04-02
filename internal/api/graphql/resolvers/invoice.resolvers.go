@@ -158,7 +158,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 
 		var defaultTime time.Time
 
-		if invoice.DateOfInvoice == defaultTime && data.DateOfInvoice != defaultTime {
+		if invoice.DateOfInvoice == defaultTime && data.DateOfInvoice != defaultTime && invoice.InvoiceNumber == "" && data.InvoiceNumber != "" && data.OrderID != 0 {
 			order, err := r.Repo.GetOrderListByID(data.OrderID)
 			if err != nil {
 				return errors.HandleAPIError(err)
@@ -167,7 +167,6 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			invoiceDate := data.DateOfInvoice.Format("2006-01-02T15:04:05Z")
 			order.InvoiceDate = &invoiceDate
 			order.InvoiceNumber = &data.InvoiceNumber
-			order.Status = "receive"
 
 			_, err = r.Repo.UpdateOrderListItem(order.ID, order)
 

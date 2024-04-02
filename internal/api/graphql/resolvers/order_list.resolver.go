@@ -730,8 +730,8 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 	if !ok || organizationUnitID == nil {
 		return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 	}
-	if status != "Receive" || orderList.IsProFormaInvoice {
-		if orderList.GroupOfArticlesID != nil && *orderList.GroupOfArticlesID != 0 {
+	if status != "Receive" {
+		if (orderList.GroupOfArticlesID != nil && *orderList.GroupOfArticlesID != 0) || orderList.IsProFormaInvoice {
 			for _, article := range data.Articles {
 				orderArticle, err := r.Repo.GetOrderProcurementArticleByID(article.ID)
 

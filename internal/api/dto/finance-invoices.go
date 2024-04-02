@@ -7,6 +7,7 @@ import (
 
 type InvoiceResponseItem struct {
 	ID                    int                          `json:"id"`
+	PassedToInventory     bool                         `json:"passed_to_inventory"`
 	InvoiceNumber         string                       `json:"invoice_number"`
 	Type                  string                       `json:"type"`
 	TypeOfSubject         DropdownSimple               `json:"type_of_subject"`
@@ -99,6 +100,7 @@ type GetInvoiceListInputMS struct {
 	OrderID            *int    `json:"order_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 	Type               *string `json:"type"`
+	PassedToInventory  *bool   `json:"passed_to_inventory"`
 }
 
 type InvoiceArticleFilterDTO struct {

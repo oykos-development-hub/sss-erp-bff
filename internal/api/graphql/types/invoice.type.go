@@ -47,6 +47,9 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"passed_to_inventory": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"net_price": &graphql.Field{
 			Type: graphql.Float,
 		},

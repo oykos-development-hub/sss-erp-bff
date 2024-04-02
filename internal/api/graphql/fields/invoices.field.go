@@ -65,6 +65,9 @@ func (f *Field) InvoiceOverviewField() *graphql.Field {
 			"type": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"passed_to_inventory": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
+			},
 		},
 		Resolve: f.Resolvers.InvoiceOverviewResolver,
 	}

@@ -66,6 +66,10 @@ func (r *Resolver) InvoiceOverviewResolver(params graphql.ResolveParams) (interf
 		input.OrganizationUnitID = &value
 	}
 
+	if value, ok := params.Args["passed_to_inventory"].(bool); ok && value {
+		input.PassedToInventory = &value
+	}
+
 	invoices, total, err := r.Repo.GetInvoiceList(&input)
 	if err != nil {
 		return errors.HandleAPIError(err)
@@ -519,6 +523,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 
 	response := dto.InvoiceResponseItem{
 		ID:                    invoice.ID,
+		PassedToInventory:     invoice.PassedToInventory,
 		InvoiceNumber:         invoice.InvoiceNumber,
 		Type:                  invoice.Type,
 		SupplierTitle:         invoice.Supplier,

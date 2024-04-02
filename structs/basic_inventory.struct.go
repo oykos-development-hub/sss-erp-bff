@@ -44,6 +44,7 @@ type BasicInventoryDetailsItem struct {
 type BasicInventoryInsertItem struct {
 	ID                           int                            `json:"id"`
 	ArticleID                    int                            `json:"article_id"`
+	InvoiceArticleID             int                            `json:"invoice_article_id"`
 	Type                         string                         `json:"type"`
 	ClassTypeID                  int                            `json:"class_type_id"`
 	DepreciationTypeID           int                            `json:"depreciation_type_id"`

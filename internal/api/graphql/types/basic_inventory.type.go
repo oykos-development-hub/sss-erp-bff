@@ -11,6 +11,9 @@ var BasicInventoryDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"article_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"invoice_article_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"type": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -301,6 +304,60 @@ var BasicInventoryDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"items": &graphql.Field{
 			Type: BasicInventoryDetailsItemType,
+		},
+	},
+})
+
+var InvoiceArticleType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "InvoiceArticleType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(InventoryInvoiceType),
+		},
+	},
+})
+
+var InventoryInvoiceType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "InventoryInvoiceType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"invoice_number": &graphql.Field{
+			Type: graphql.String,
+		},
+		"date_of_invoice": &graphql.Field{
+			Type: graphql.String,
+		},
+		"articles": &graphql.Field{
+			Type: graphql.NewList(InventoryArticleType),
+		},
+	},
+})
+
+var InventoryArticleType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "InventoryArticleType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"net_price": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"amount": &graphql.Field{
+			Type: graphql.Int,
 		},
 	},
 })

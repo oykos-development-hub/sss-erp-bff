@@ -278,6 +278,74 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 	return response, nil
 }
 
+func (r *Resolver) InvoicesForInventoryOverview(params graphql.ResolveParams) (interface{}, error) {
+	response := dto.Response{
+		Status: "success",
+	}
+
+	supplierID := params.Args["supplier_id"].(int)
+	organizationUnitID, ok := params.Args["organization_unit_id"].(int)
+
+	if !ok {
+		organizationUnitIDPtr, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitIDPtr == nil {
+			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		}
+
+		organizationUnitID = *organizationUnitIDPtr
+	}
+
+	invoices, _, err := r.Repo.GetInvoiceList(&dto.GetInvoiceListInputMS{
+		SupplierID:         &supplierID,
+		OrganizationUnitID: &organizationUnitID,
+	})
+
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	var invoicesResponse []structs.Invoice
+
+	for _, invoice := range invoices {
+
+		invoiceResponse, _ := buildInvoiceResponseItem(params.Context, r, invoice)
+		var invoiceArticles []structs.InvoiceArticles
+		for _, article := range invoiceResponse.Articles {
+			data, err := r.Repo.GetAllInventoryItem(dto.InventoryItemFilter{
+				InvoiceArticleID: &article.ID,
+			})
+
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			if article.Amount-data.Total > 0 {
+				invoiceArticle := structs.InvoiceArticles{
+					ID:       article.ID,
+					Title:    article.Title,
+					NetPrice: article.NetPrice,
+					Amount:   article.Amount - data.Total,
+				}
+
+				invoiceArticles = append(invoiceArticles, invoiceArticle)
+			}
+		}
+
+		if len(invoiceArticles) > 0 {
+			invoicesResponse = append(invoicesResponse, structs.Invoice{
+				ID:            invoice.ID,
+				InvoiceNumber: invoice.InvoiceNumber,
+				DateOfInvoice: invoice.DateOfInvoice,
+				Articles:      invoiceArticles,
+			})
+		}
+	}
+
+	response.Items = invoicesResponse
+
+	return response, nil
+}
+
 func (r *Resolver) BasicInventoryDeactivateResolver(params graphql.ResolveParams) (interface{}, error) {
 	response := dto.Response{
 		Status: "success",
@@ -816,6 +884,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	res := dto.BasicInventoryResponseItem{
 		ID:                           item.ID,
+		InvoiceArticleID:             item.InvoiceArticleID,
 		ArticleID:                    item.ArticleID,
 		Type:                         item.Type,
 		SourceType:                   item.SourceType,

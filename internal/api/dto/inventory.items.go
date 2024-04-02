@@ -27,7 +27,8 @@ type InventoryItemFilter struct {
 	DeprecationTypeID        *int    `json:"depreciation_type_id"`
 	OrganizationUnitID       *int    `json:"organization_unit_id"`
 	SourceOrganizationUnitID *int    `json:"source_organization_unit_id"`
-	ContractID               *int    `json:"contract_id "`
+	ContractID               *int    `json:"contract_id"`
+	InvoiceArticleID         *int    `json:"invoice_article_id"`
 	ArticleID                *int    `json:"article_id"`
 	SerialNumber             *string `json:"serial_number"`
 	InventoryNumber          *string `json:"inventory_number"`
@@ -120,6 +121,7 @@ type BasicInventoryResponseListItem struct {
 type BasicInventoryResponseItem struct {
 	ID                           int                                                            `json:"id"`
 	ArticleID                    int                                                            `json:"article_id"`
+	InvoiceArticleID             int                                                            `json:"invoice_article_id"`
 	Type                         string                                                         `json:"type"`
 	ClassType                    DropdownSimple                                                 `json:"class_type"`
 	DepreciationType             DropdownSimple                                                 `json:"depreciation_type"`

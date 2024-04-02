@@ -42,6 +42,7 @@ type InvoiceArticles struct {
 	VatPercentage int       `json:"vat_percentage"`
 	Description   string    `json:"description"`
 	InvoiceID     int       `json:"invoice_id"`
+	Amount        int       `json:"amount"`
 	AccountID     int       `json:"account_id"`
 	CostAccountID int       `json:"cost_account_id"`
 	CreatedAt     time.Time `json:"created_at"`

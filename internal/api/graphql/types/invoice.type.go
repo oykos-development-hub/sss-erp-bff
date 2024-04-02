@@ -164,6 +164,9 @@ var InvoiceArticlesType = graphql.NewObject(graphql.ObjectConfig{
 		"description": &graphql.Field{
 			Type: graphql.String,
 		},
+		"amount": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"account": &graphql.Field{
 			Type: DropdownItemType,
 		},

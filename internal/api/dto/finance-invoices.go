@@ -45,6 +45,7 @@ type InvoiceArticleResponse struct {
 	VatPrice      float64        `json:"vat_price"`
 	VatPercentage int            `json:"vat_percentage"`
 	Description   string         `json:"description"`
+	Amount        int            `json:"amount"`
 	Account       DropdownSimple `json:"account"`
 	CostAccount   DropdownSimple `json:"cost_account"`
 	CreatedAt     time.Time      `json:"created_at"`

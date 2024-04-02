@@ -86,6 +86,7 @@ func (r *Resolver) InvoiceOverviewResolver(params graphql.ResolveParams) (interf
 
 func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.Invoice
+	var defaultTime time.Time
 	response := dto.ResponseSingle{
 		Status:  "success",
 		Message: "You created this item!",
@@ -103,6 +104,48 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 	var item *structs.Invoice
 
 	if data.ID == 0 {
+		if data.ProFormaInvoiceDate != defaultTime && data.ProFormaInvoiceNumber != "" {
+			proFormaInvoiceDate := data.ProFormaInvoiceDate.Format("206-01-02T15:04:05Z")
+
+			orderList := &structs.OrderListItem{
+				SupplierID:            &data.SupplierID,
+				Status:                "created",
+				IsProFormaInvoice:     true,
+				ProFormaInvoiceDate:   &proFormaInvoiceDate,
+				ProFormaInvoiceNumber: data.ProFormaInvoiceNumber,
+				OrganizationUnitID:    data.OrganizationUnitID,
+				OrderFile:             &data.FileID,
+			}
+
+			order, err := r.Repo.CreateOrderListItem(orderList)
+
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			for _, article := range data.Articles {
+				year := strconv.Itoa(time.Now().Year())
+				newArticle := structs.OrderProcurementArticleItem{
+					OrderID:       order.ID,
+					Year:          year,
+					Title:         article.Title,
+					Description:   article.Description,
+					Amount:        article.Amount,
+					NetPrice:      float32(article.NetPrice),
+					VatPercentage: article.VatPercentage,
+				}
+
+				_, err := r.Repo.CreateOrderProcurementArticle(&newArticle)
+
+				if err != nil {
+					return errors.HandleAPIError(err)
+				}
+			}
+
+			data.OrderID = order.ID
+
+		}
+
 		item, err = r.Repo.CreateInvoice(&data)
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -142,7 +185,6 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				return errors.HandleAPIError(err)
 			}
 		}
-
 	} else {
 
 		invoice, err := r.Repo.GetInvoice(data.ID)
@@ -155,8 +197,6 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-
-		var defaultTime time.Time
 
 		if invoice.DateOfInvoice == defaultTime && data.DateOfInvoice != defaultTime && invoice.InvoiceNumber == "" && data.InvoiceNumber != "" && data.OrderID != 0 {
 			order, err := r.Repo.GetOrderListByID(data.OrderID)
@@ -650,6 +690,7 @@ func buildInvoiceArtice(r *Resolver, article structs.InvoiceArticles) (*dto.Invo
 		VatPrice:      article.VatPrice,
 		VatPercentage: article.VatPercentage,
 		Description:   article.Description,
+		Amount:        article.Amount,
 		CreatedAt:     article.CreatedAt,
 		UpdatedAt:     article.UpdatedAt,
 	}

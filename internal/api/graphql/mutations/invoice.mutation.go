@@ -101,6 +101,9 @@ var InvoiceArticleMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"cost_account_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"amount": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 	},
 })
 

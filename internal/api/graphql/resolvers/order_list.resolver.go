@@ -350,6 +350,7 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 				SupplierID:            item.SupplierID,
 				OrderID:               item.ID,
 				OrganizationUnitID:    item.OrganizationUnitID,
+				FileID:                item.OrderFile.ID,
 			}
 
 			insertedItem, err := r.Repo.CreateInvoice(&invoice)

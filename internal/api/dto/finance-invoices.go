@@ -8,6 +8,7 @@ import (
 type InvoiceResponseItem struct {
 	ID                    int                          `json:"id"`
 	PassedToInventory     bool                         `json:"passed_to_inventory"`
+	PassedToAccounting    bool                         `json:"passed_to_accounting"`
 	InvoiceNumber         string                       `json:"invoice_number"`
 	Type                  string                       `json:"type"`
 	TypeOfSubject         DropdownSimple               `json:"type_of_subject"`

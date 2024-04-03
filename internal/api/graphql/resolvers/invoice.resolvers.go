@@ -108,8 +108,8 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 	var item *structs.Invoice
 
 	if data.ID == 0 {
-		if data.ProFormaInvoiceDate != defaultTime && data.ProFormaInvoiceNumber != "" {
-			proFormaInvoiceDate := data.ProFormaInvoiceDate.Format("206-01-02T15:04:05Z")
+		if data.PassedToAccounting {
+			proFormaInvoiceDate := data.ProFormaInvoiceDate.Format("2006-01-02T15:04:05Z")
 
 			orderList := &structs.OrderListItem{
 				SupplierID:            &data.SupplierID,
@@ -563,6 +563,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 	response := dto.InvoiceResponseItem{
 		ID:                    invoice.ID,
 		PassedToInventory:     invoice.PassedToInventory,
+		PassedToAccounting:    invoice.PassedToAccounting,
 		InvoiceNumber:         invoice.InvoiceNumber,
 		Type:                  invoice.Type,
 		SupplierTitle:         invoice.Supplier,

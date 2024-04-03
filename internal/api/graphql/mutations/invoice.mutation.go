@@ -9,7 +9,10 @@ var InvoiceMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.Int,
 		},
 		"passed_to_inventory": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Boolean,
+		},
+		"passed_to_accounting": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
 		},
 		"invoice_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

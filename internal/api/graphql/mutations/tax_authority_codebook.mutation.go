@@ -14,7 +14,10 @@ var TaxAuthorityCodebookInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"title": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"percentage": &graphql.InputObjectFieldConfig{
+		"tax_percentage": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"release_percentage": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
 		"previous_income_percentage_less_than_700": &graphql.InputObjectFieldConfig{

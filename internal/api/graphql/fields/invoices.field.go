@@ -118,8 +118,11 @@ func (f *Field) CalculateAdditionalExpenses() *graphql.Field {
 			"municipality_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
 			},
-			"price": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Float),
+			"net_price": &graphql.ArgumentConfig{
+				Type: graphql.Float,
+			},
+			"gross_price": &graphql.ArgumentConfig{
+				Type: graphql.Float,
 			},
 			"previous_income": &graphql.ArgumentConfig{
 				Type: graphql.Float,

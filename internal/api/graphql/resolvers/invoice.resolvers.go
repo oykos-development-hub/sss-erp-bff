@@ -393,17 +393,48 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	}
 
 	municipalityID := params.Args["municipality_id"].(int)
-	price := params.Args["price"].(float64)
-	previousIncome, previousIncomeOK := params.Args["previous_income"].(float64)
+
+	/*previousIncome, previousIncomeOK := params.Args["previous_income"].(float64)
 
 	if !previousIncomeOK {
 		return errors.HandleAPIError(err)
+	}*/
+
+	netPrice, netPriceOK := params.Args["net_price"].(float64)
+	var grossPrice float64
+	var grossPriceOK bool
+
+	if !netPriceOK {
+		grossPrice, grossPriceOK = params.Args["gross_price"].(float64)
+
+		if !grossPriceOK {
+			err := errors.APIError{Message: "you must provide price"}
+			return errors.HandleAPIError(err)
+		}
 	}
 
-	fullPrice := price + previousIncome
+	municipality, err := r.Repo.GetDropdownSettingByID(municipalityID)
 
-	//ceka se uputstvo kolege lalovica za ovo
-	taxPrice := fullPrice * float64(taxAuthorityCodebook.Percentage) / 100
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	additionalPercentage, err := strconv.Atoi(municipality.Value)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	//fullPrice := price + previousIncome
+
+	//neto u bruto
+	if netPrice != 0 {
+		coeficient := 1 * (1 - (((1 - (1 * taxAuthorityCodebook.ReleasePercentage / 100)) * taxAuthorityCodebook.TaxPercentage / 100) + ((1 - (1 * taxAuthorityCodebook.ReleasePercentage / 100)) * taxAuthorityCodebook.TaxPercentage / 100 * float64(additionalPercentage) / 100)))
+		grossPrice = netPrice / coeficient
+	}
+
+	releaseGrossPrice := grossPrice - grossPrice*taxAuthorityCodebook.ReleasePercentage/100
+	taxPrice := releaseGrossPrice * taxAuthorityCodebook.TaxPercentage / 100
 
 	var additionalExpenses []dto.AdditionalExpensesResponse
 
@@ -414,7 +445,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	organizationUnit, err := r.Repo.GetOrganizationUnitByID(*organizationUnitID)
 
-	if !previousIncomeOK {
+	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
@@ -437,18 +468,6 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 
-	municipality, err := r.Repo.GetDropdownSettingByID(municipalityID)
-
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
-
-	additionalPercentage, err := strconv.Atoi(municipality.Value)
-
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
-
 	additionalExpenseAdditionalTax := dto.AdditionalExpensesResponse{
 		Title:  "Prirez",
 		Price:  float32(taxPrice) * float32(additionalPercentage) / 100,
@@ -466,6 +485,21 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	additionalExpenses[0].Price = additionalExpenses[0].Price - float32(taxPrice)*float32(additionalPercentage)/100
 
 	additionalExpenses = append(additionalExpenses, additionalExpenseAdditionalTax)
+
+	additionalExpensePIOTax := dto.AdditionalExpensesResponse{
+		Title:  "PIO",
+		Price:  0, //float32(taxPrice) * float32(additionalPercentage) / 100,
+		Status: structs.AdditionalExpenseStatusCreated,
+		OrganizationUnit: dto.DropdownSimple{
+			ID:    organizationUnit.ID,
+			Title: organizationUnit.Title,
+		},
+		Subject: *supplier,
+	}
+
+	//additionalExpenses[0].Price = additionalExpenses[0].Price - float32(taxPrice)*float32(additionalPercentage)/100
+
+	additionalExpenses = append(additionalExpenses, additionalExpensePIOTax)
 
 	return dto.Response{
 		Status:  "success",

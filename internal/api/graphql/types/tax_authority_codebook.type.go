@@ -14,7 +14,10 @@ var TaxAuthorityCodebooksType = graphql.NewObject(graphql.ObjectConfig{
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},
-		"percentage": &graphql.Field{
+		"tax_percentage": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"release_percentage": &graphql.Field{
 			Type: graphql.Float,
 		},
 		"previous_income_percentage_less_than_700": &graphql.Field{

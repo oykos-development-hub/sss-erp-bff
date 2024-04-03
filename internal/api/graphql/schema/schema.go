@@ -126,7 +126,6 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"invoice_Insert":                                  fields.InvoiceInsertField(),
 			"invoice_Delete":                                  fields.InvoiceDeleteField(),
 			"taxAuthorityCodebooks_Insert":                    fields.TaxAuthorityCodebooksInsertField(),
-			"taxAuthorityCodebooks_Delete":                    fields.TaxAuthorityCodebooksDeleteField(),
 			"fee_Insert":                                      fields.FeeInsertField(),
 			"fee_Delete":                                      fields.FeeDeleteField(),
 			"feePayment_Insert":                               fields.FeePaymentInsertField(),

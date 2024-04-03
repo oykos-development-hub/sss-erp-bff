@@ -6,6 +6,7 @@ type TaxAuthorityCodebook struct {
 	ID                                   int       `json:"id"`
 	Title                                string    `json:"title"`
 	Code                                 string    `json:"code"`
+	Active                               bool      `json:"active"`
 	TaxPercentage                        float64   `json:"tax_percentage"`
 	ReleasePercentage                    float64   `json:"release_percentage"`
 	PreviousIncomePercentageLessThan700  float64   `json:"previous_income_percentage_less_than_700"`

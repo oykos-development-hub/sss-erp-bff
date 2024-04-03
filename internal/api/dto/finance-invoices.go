@@ -120,6 +120,7 @@ type AdditionalExpensesListInputMS struct {
 
 type TaxAuthorityCodebookFilter struct {
 	Search *string `json:"search"`
+	Active *bool   `json:"active"`
 }
 
 type GetTaxAuthorityCodebooksResponseMS struct {

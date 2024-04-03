@@ -18,6 +18,9 @@ func (f *Field) TaxAuthorityCodebooksOverviewField() *graphql.Field {
 			"search": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"active": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
+			},
 		},
 		Resolve: f.Resolvers.TaxAuthorityCodebooksOverviewResolver,
 	}
@@ -33,18 +36,5 @@ func (f *Field) TaxAuthorityCodebooksInsertField() *graphql.Field {
 			},
 		},
 		Resolve: f.Resolvers.TaxAuthorityCodebooksInsertResolver,
-	}
-}
-
-func (f *Field) TaxAuthorityCodebooksDeleteField() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.TaxAuthorityCodebooksDeleteType,
-		Description: "Deletes existing Settings Dropdown options",
-		Args: graphql.FieldConfigArgument{
-			"id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
-			},
-		},
-		Resolve: f.Resolvers.TaxAuthorityCodebooksDeleteResolver,
 	}
 }

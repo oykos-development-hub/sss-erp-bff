@@ -11,6 +11,9 @@ var TaxAuthorityCodebookInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"code": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"active": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
 		"title": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

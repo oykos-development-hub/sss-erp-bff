@@ -29,6 +29,9 @@ var TaxAuthorityCodebooksType = graphql.NewObject(graphql.ObjectConfig{
 		"previous_income_percentage_more_than_1000": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"active": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 	},
 })
 

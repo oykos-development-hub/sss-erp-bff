@@ -12,6 +12,7 @@ import (
 func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"]
 	search, searchOk := params.Args["search"].(string)
+	active, activeOk := params.Args["search"].(bool)
 
 	var (
 		items []structs.TaxAuthorityCodebook
@@ -29,6 +30,10 @@ func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveP
 		input := dto.TaxAuthorityCodebookFilter{}
 		if searchOk && search != "" {
 			input.Search = &search
+		}
+
+		if activeOk {
+			input.Active = &active
 		}
 
 		res, err := r.Repo.GetTaxAuthorityCodebooks(input)
@@ -78,22 +83,4 @@ func (r *Resolver) TaxAuthorityCodebooksInsertResolver(params graphql.ResolvePar
 
 	return response, nil
 
-}
-
-func (r *Resolver) TaxAuthorityCodebooksDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	/*itemID := params.Args["id"].(int)
-
-	err := r.Repo.DeleteDropdownSettings(itemID)
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
-
-	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
-	}, nil*/
-	return dto.ResponseSingle{
-		Status:  "failed",
-		Message: "You can not delete this item!",
-	}, nil
 }

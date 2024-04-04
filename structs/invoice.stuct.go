@@ -20,16 +20,16 @@ type Invoice struct {
 	OrganizationUnitID     int                  `json:"organization_unit_id"`
 	ActivityID             int                  `json:"activity_id"`
 	TaxAuthorityCodebookID int                  `json:"tax_authority_codebook_id"`
-	DateOfInvoice          time.Time            `json:"date_of_invoice"`
-	ReceiptDate            time.Time            `json:"receipt_date"`
-	DateOfPayment          time.Time            `json:"date_of_payment"`
-	DateOfStart            time.Time            `json:"date_of_start"`
+	DateOfInvoice          *time.Time           `json:"date_of_invoice"`
+	ReceiptDate            *time.Time           `json:"receipt_date"`
+	DateOfPayment          *time.Time           `json:"date_of_payment"`
+	DateOfStart            *time.Time           `json:"date_of_start"`
 	SSSInvoiceReceiptDate  *time.Time           `json:"sss_invoice_receipt_date"`
 	FileID                 int                  `json:"file_id"`
 	ProFormaInvoiceFileID  int                  `json:"pro_forma_invoice_file_id"`
 	BankAccount            string               `json:"bank_account"`
 	Description            string               `json:"description"`
-	ProFormaInvoiceDate    time.Time            `json:"pro_forma_invoice_date"`
+	ProFormaInvoiceDate    *time.Time           `json:"pro_forma_invoice_date"`
 	ProFormaInvoiceNumber  string               `json:"pro_forma_invoice_number"`
 	Articles               []InvoiceArticles    `json:"articles"`
 	AdditionalExpenses     []AdditionalExpenses `json:"additional_expenses"`

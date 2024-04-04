@@ -344,7 +344,7 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 
 			invoice := structs.Invoice{
 				ProFormaInvoiceNumber: item.ProFormaInvoiceNumber,
-				ProFormaInvoiceDate:   proFormaInvoiceDate,
+				ProFormaInvoiceDate:   &proFormaInvoiceDate,
 				Status:                "waiting",
 				Type:                  "invoice",
 				SupplierID:            item.SupplierID,
@@ -865,7 +865,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				OrganizationUnitID:     invoice[0].OrganizationUnitID,
 				ActivityID:             invoice[0].ActivityID,
 				TaxAuthorityCodebookID: invoice[0].TaxAuthorityCodebookID,
-				DateOfInvoice:          invoiceDate,
+				DateOfInvoice:          &invoiceDate,
 				ReceiptDate:            invoice[0].ReceiptDate,
 				DateOfPayment:          invoice[0].DateOfPayment,
 				DateOfStart:            invoice[0].DateOfStart,

@@ -90,7 +90,6 @@ func (r *Resolver) InvoiceOverviewResolver(params graphql.ResolveParams) (interf
 
 func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.Invoice
-	var defaultTime time.Time
 	response := dto.ResponseSingle{
 		Status:  "success",
 		Message: "You created this item!",
@@ -121,15 +120,13 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				InvoiceNumber:         &data.InvoiceNumber,
 			}
 
-			var defaultTime time.Time
-
-			if data.ProFormaInvoiceDate != defaultTime {
+			if data.ProFormaInvoiceDate != nil {
 				proFormaInvoiceDate := data.ProFormaInvoiceDate.Format("2006-01-02T15:04:05Z")
 				orderList.ProFormaInvoiceDate = &proFormaInvoiceDate
 				orderList.DateOrder = proFormaInvoiceDate
 			}
 
-			if data.DateOfInvoice != defaultTime {
+			if data.DateOfInvoice != nil {
 				invoiceDate := data.DateOfInvoice.Format("2006-01-02T15:04:05Z")
 				orderList.InvoiceDate = &invoiceDate
 				orderList.DateOrder = invoiceDate
@@ -216,7 +213,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			return errors.HandleAPIError(err)
 		}
 
-		if invoice.DateOfInvoice == defaultTime && data.DateOfInvoice != defaultTime && invoice.InvoiceNumber == "" && data.InvoiceNumber != "" && data.OrderID != 0 {
+		if invoice.DateOfInvoice == nil && data.DateOfInvoice != nil && invoice.InvoiceNumber == "" && data.InvoiceNumber != "" && data.OrderID != 0 {
 			order, err := r.Repo.GetOrderListByID(data.OrderID)
 			if err != nil {
 				return errors.HandleAPIError(err)
@@ -609,6 +606,11 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		Description:           invoice.Description,
 		CreatedAt:             invoice.CreatedAt,
 		UpdatedAt:             invoice.UpdatedAt,
+	}
+
+	var defaultTime time.Time
+	if response.ProFormaInvoiceDate != nil && *response.ProFormaInvoiceDate == defaultTime {
+		response.ProFormaInvoiceDate = nil
 	}
 
 	if invoice.SupplierID != 0 {

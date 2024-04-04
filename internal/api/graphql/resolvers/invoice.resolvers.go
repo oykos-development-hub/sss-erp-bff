@@ -613,6 +613,22 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		response.ProFormaInvoiceDate = nil
 	}
 
+	if response.DateOfInvoice != nil && *response.DateOfInvoice == defaultTime {
+		response.DateOfInvoice = nil
+	}
+
+	if response.DateOfPayment != nil && *response.DateOfPayment == defaultTime {
+		response.DateOfPayment = nil
+	}
+
+	if response.DateOfStart != nil && *response.DateOfStart == defaultTime {
+		response.DateOfStart = nil
+	}
+
+	if response.ReceiptDate != nil && *response.ReceiptDate == defaultTime {
+		response.ReceiptDate = nil
+	}
+
 	if invoice.SupplierID != 0 {
 		supplier, err := r.Repo.GetSupplier(invoice.SupplierID)
 

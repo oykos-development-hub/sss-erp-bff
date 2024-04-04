@@ -1226,6 +1226,10 @@ func buildOrderListResponseItem(context context.Context, r repository.Microservi
 		Account:               &account,
 	}
 
+	if res.ProFormaInvoiceDate != nil && *res.ProFormaInvoiceDate == "0001-01-01T00:00:00Z" {
+		res.ProFormaInvoiceDate = nil
+	}
+
 	if item.RecipientUserID != nil && *item.RecipientUserID > 0 {
 		userProfile, err := r.GetUserProfileByID(*item.RecipientUserID)
 		if err != nil {

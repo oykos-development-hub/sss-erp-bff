@@ -119,6 +119,9 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		"file": &graphql.Field{
 			Type: FileDropdownItemType,
 		},
+		"pro_forma_invoice_file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
 		"bank_account": &graphql.Field{
 			Type: graphql.String,
 		},

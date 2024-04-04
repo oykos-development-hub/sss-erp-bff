@@ -26,6 +26,7 @@ type Invoice struct {
 	DateOfStart            time.Time            `json:"date_of_start"`
 	SSSInvoiceReceiptDate  *time.Time           `json:"sss_invoice_receipt_date"`
 	FileID                 int                  `json:"file_id"`
+	ProFormaInvoiceFileID  int                  `json:"pro_forma_invoice_file_id"`
 	BankAccount            string               `json:"bank_account"`
 	Description            string               `json:"description"`
 	ProFormaInvoiceDate    time.Time            `json:"pro_forma_invoice_date"`

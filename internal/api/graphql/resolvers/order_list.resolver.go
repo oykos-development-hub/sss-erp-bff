@@ -353,6 +353,10 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 				FileID:                item.OrderFile.ID,
 			}
 
+			if len(item.ReceiveFile) > 0 {
+				invoice.ProFormaInvoiceFileID = item.ReceiveFile[0].ID
+			}
+
 			insertedItem, err := r.Repo.CreateInvoice(&invoice)
 			if err != nil {
 				return apierrors.HandleAPIError(err)

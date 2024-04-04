@@ -109,16 +109,30 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 
 	if data.ID == 0 {
 		if data.PassedToAccounting {
-			proFormaInvoiceDate := data.ProFormaInvoiceDate.Format("2006-01-02T15:04:05Z")
 
 			orderList := &structs.OrderListItem{
 				SupplierID:            &data.SupplierID,
 				Status:                "created",
 				IsProFormaInvoice:     true,
-				ProFormaInvoiceDate:   &proFormaInvoiceDate,
 				ProFormaInvoiceNumber: data.ProFormaInvoiceNumber,
 				OrganizationUnitID:    data.OrganizationUnitID,
 				OrderFile:             &data.FileID,
+				ReceiveFile:           []int{data.ProFormaInvoiceFileID},
+				InvoiceNumber:         &data.InvoiceNumber,
+			}
+
+			var defaultTime time.Time
+
+			if data.ProFormaInvoiceDate != defaultTime {
+				proFormaInvoiceDate := data.ProFormaInvoiceDate.Format("2006-01-02T15:04:05Z")
+				orderList.ProFormaInvoiceDate = &proFormaInvoiceDate
+				orderList.DateOrder = proFormaInvoiceDate
+			}
+
+			if data.DateOfInvoice != defaultTime {
+				invoiceDate := data.DateOfInvoice.Format("2006-01-02T15:04:05Z")
+				orderList.InvoiceDate = &invoiceDate
+				orderList.DateOrder = invoiceDate
 			}
 
 			order, err := r.Repo.CreateOrderListItem(orderList)
@@ -211,6 +225,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			invoiceDate := data.DateOfInvoice.Format("2006-01-02T15:04:05Z")
 			order.InvoiceDate = &invoiceDate
 			order.InvoiceNumber = &data.InvoiceNumber
+			order.ReceiveFile = []int{data.ProFormaInvoiceFileID}
 
 			_, err = r.Repo.UpdateOrderListItem(order.ID, order)
 
@@ -429,7 +444,21 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	//neto u bruto
 	if netPrice != 0 {
-		coeficient := 1 * (1 - (((1 - (1 * taxAuthorityCodebook.ReleasePercentage / 100)) * taxAuthorityCodebook.TaxPercentage / 100) + ((1 - (1 * taxAuthorityCodebook.ReleasePercentage / 100)) * taxAuthorityCodebook.TaxPercentage / 100 * float64(additionalPercentage) / 100)))
+
+		//ako nema procenat pio onda ne treba da se racuna, inace treba
+		var pioVariable float64
+		if taxAuthorityCodebook.PioPercentage != 0 {
+			pioVariable = 1
+		} else {
+			pioVariable = 0
+		}
+
+		//koeficijent dobijen iz borkove tabele
+		//koeficijent ne valja!!!!!!!!!!!!!!!!
+		coeficient := 1 * (1 - (((1 - (1 * taxAuthorityCodebook.ReleasePercentage / 100)) * taxAuthorityCodebook.TaxPercentage / 100) +
+			((1 - (1 * taxAuthorityCodebook.ReleasePercentage / 100)) * taxAuthorityCodebook.TaxPercentage / 100 * float64(additionalPercentage) / 100)) +
+			+((pioVariable - (1 * taxAuthorityCodebook.ReleasePercentage / 100)) * taxAuthorityCodebook.PioPercentage / 100))
+
 		grossPrice = netPrice / coeficient
 	}
 
@@ -482,13 +511,11 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		},
 	}
 
-	additionalExpenses[0].Price = additionalExpenses[0].Price - float32(taxPrice)*float32(additionalPercentage)/100
-
 	additionalExpenses = append(additionalExpenses, additionalExpenseAdditionalTax)
 
 	additionalExpensePIOTax := dto.AdditionalExpensesResponse{
 		Title:  "PIO",
-		Price:  0, //float32(taxPrice) * float32(additionalPercentage) / 100,
+		Price:  float32(releaseGrossPrice) * float32(taxAuthorityCodebook.PioPercentage) / 100,
 		Status: structs.AdditionalExpenseStatusCreated,
 		OrganizationUnit: dto.DropdownSimple{
 			ID:    organizationUnit.ID,
@@ -643,6 +670,22 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		}
 
 		response.File = FileDropdown
+	}
+
+	if invoice.ProFormaInvoiceFileID != 0 {
+		file, err := r.Repo.GetFileByID(invoice.ProFormaInvoiceFileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		FileDropdown := dto.FileDropdownSimple{
+			ID:   file.ID,
+			Name: file.Name,
+			Type: *file.Type,
+		}
+
+		response.ProFormaInvoiceFile = FileDropdown
 	}
 
 	if invoice.SourceOfFunding != 0 {

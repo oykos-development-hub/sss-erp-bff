@@ -65,6 +65,12 @@ var InvoiceMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"pro_forma_invoice_file_number": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"pro_forma_invoice_file_date": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"pro_forma_invoice_file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

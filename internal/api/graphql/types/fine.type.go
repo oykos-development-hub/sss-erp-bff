@@ -48,7 +48,7 @@ var FineType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"act_type": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"decision_number": &graphql.Field{
 			Type: graphql.String,

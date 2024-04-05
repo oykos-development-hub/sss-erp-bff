@@ -124,7 +124,10 @@ func (f *Field) CalculateAdditionalExpenses() *graphql.Field {
 			"gross_price": &graphql.ArgumentConfig{
 				Type: graphql.Float,
 			},
-			"previous_income": &graphql.ArgumentConfig{
+			"previous_income_net": &graphql.ArgumentConfig{
+				Type: graphql.Float,
+			},
+			"previous_income_gross": &graphql.ArgumentConfig{
 				Type: graphql.Float,
 			},
 		},

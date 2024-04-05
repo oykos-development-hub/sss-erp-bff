@@ -148,12 +148,21 @@ func buildFineResponseItem(fine structs.Fine, r *Resolver) (*dto.FineResponseIte
 		}
 	}
 
-	actType := dto.FinancialFineDissisionActType
+	actType := dto.DropdownSimple{
+		ID:    int(structs.DissisionActType),
+		Title: string(dto.FinancialFineDissisionActType),
+	}
 	switch fine.ActType {
 	case structs.VerdictActType:
-		actType = dto.FinancialFineVerdictActType
+		actType = dto.DropdownSimple{
+			ID:    int(structs.VerdictActType),
+			Title: string(dto.FinancialFineVerdictActType),
+		}
 	case structs.DissisionActType:
-		actType = dto.FinancialFineDissisionActType
+		actType = dto.DropdownSimple{
+			ID:    int(structs.DissisionActType),
+			Title: string(dto.FinancialFineDissisionActType),
+		}
 	}
 
 	response := dto.FineResponseItem{

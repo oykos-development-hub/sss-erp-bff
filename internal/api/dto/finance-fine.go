@@ -22,7 +22,7 @@ const (
 
 type FineResponseItem struct {
 	ID                     int                     `json:"id"`
-	ActType                FineActType             `json:"act_type"`
+	ActType                DropdownSimple          `json:"act_type"`
 	DecisionNumber         string                  `json:"decision_number"`
 	DecisionDate           time.Time               `json:"decision_date"`
 	Subject                string                  `json:"subject"`

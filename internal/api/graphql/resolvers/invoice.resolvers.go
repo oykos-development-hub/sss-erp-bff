@@ -406,23 +406,18 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	municipalityID := params.Args["municipality_id"].(int)
 
-	/*previousIncome, previousIncomeOK := params.Args["previous_income"].(float64)
+	grossPrice, grossPriceOK := params.Args["gross_price"].(float64)
 
-	if !previousIncomeOK {
-		return errors.HandleAPIError(err)
-	}*/
+	if !grossPriceOK {
+		netPrice, netPriceOK := params.Args["net_price"].(float64)
 
-	netPrice, netPriceOK := params.Args["net_price"].(float64)
-	var grossPrice float64
-	var grossPriceOK bool
-
-	if !netPriceOK {
-		grossPrice, grossPriceOK = params.Args["gross_price"].(float64)
-
-		if !grossPriceOK {
+		//konvertuje neto u bruto
+		if !netPriceOK {
 			err := errors.APIError{Message: "you must provide price"}
 			return errors.HandleAPIError(err)
 		}
+		grossPrice = netPrice / taxAuthorityCodebook.Coefficient
+
 	}
 
 	municipality, err := r.Repo.GetDropdownSettingByID(municipalityID)
@@ -437,33 +432,6 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		return errors.HandleAPIError(err)
 	}
 
-	//fullPrice := price + previousIncome
-
-	//neto u bruto
-	if netPrice != 0 {
-
-		//ako nema procenat pio onda ne treba da se racuna, inace treba
-		var pioVariable float64
-		if taxAuthorityCodebook.PioPercentage != 0 {
-			pioVariable = 1
-		} else {
-			pioVariable = 0
-		}
-
-		//koeficijent dobijen iz borkove tabele
-		//koeficijent ne valja!!!!!!!!!!!!!!!!
-		coeficient := 1 * (1 - (((1 - (1 * taxAuthorityCodebook.ReleasePercentage / 100)) * taxAuthorityCodebook.TaxPercentage / 100) +
-			((1 - (1 * taxAuthorityCodebook.ReleasePercentage / 100)) * taxAuthorityCodebook.TaxPercentage / 100 * float64(additionalPercentage) / 100)) +
-			+((pioVariable - (1 * taxAuthorityCodebook.ReleasePercentage / 100)) * taxAuthorityCodebook.PioPercentage / 100))
-
-		grossPrice = netPrice / coeficient
-	}
-
-	releaseGrossPrice := grossPrice - grossPrice*taxAuthorityCodebook.ReleasePercentage/100
-	taxPrice := releaseGrossPrice * taxAuthorityCodebook.TaxPercentage / 100
-
-	var additionalExpenses []dto.AdditionalExpensesResponse
-
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
 		return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
@@ -475,55 +443,324 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		return errors.HandleAPIError(err)
 	}
 
-	supplier, err := getTaxAuthority(r)
+	var additionalExpenses []dto.AdditionalExpensesResponse
 
-	if err != nil {
-		return errors.HandleAPIError(err)
+	//porez
+	if taxAuthorityCodebook.TaxPercentage != 0 {
+
+		taxPrice := grossPrice * taxAuthorityCodebook.TaxPercentage / 100
+
+		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
+
+		if err != nil {
+			return errors.HandleAPIError(errors.APIError{Message: "tax supplier is not valid"})
+		}
+
+		additionalExpenseTax := dto.AdditionalExpensesResponse{
+			Title:  "Porez",
+			Price:  float32(taxPrice),
+			Status: structs.AdditionalExpenseStatusCreated,
+			OrganizationUnit: dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			},
+			Subject: dto.DropdownSimple{
+				ID:    taxSupplier.ID,
+				Title: taxSupplier.Title,
+			},
+		}
+
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 	}
 
-	additionalExpenseTax := dto.AdditionalExpensesResponse{
-		Title:  "Porez",
-		Price:  float32(taxPrice),
-		Status: structs.AdditionalExpenseStatusCreated,
-		OrganizationUnit: dto.DropdownSimple{
-			ID:    organizationUnit.ID,
-			Title: organizationUnit.Title,
-		},
-		Subject: *supplier,
+	if taxAuthorityCodebook.PreviousIncomePercentageLessThan700 != 0 || taxAuthorityCodebook.PreviousIncomePercentageLessThan1000 != 0 || taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000 != 0 {
+
+		previousIncomeGross, previousIncomeGrossOK := params.Args["previous_income_gross"].(float64)
+
+		if !previousIncomeGrossOK {
+			previousIncomeNet, previousIncomeNetOK := params.Args["previous_income_net"].(float64)
+
+			//konvertuje neto u bruto
+			if previousIncomeNetOK {
+				previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.Coefficient
+			}
+		}
+
+		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
+
+		if err != nil {
+			return errors.HandleAPIError(errors.APIError{Message: "tax supplier is not valid"})
+		}
+
+		if previousIncomeGross < 700 {
+			taxPrice := grossPrice * taxAuthorityCodebook.PreviousIncomePercentageLessThan700 / 100
+
+			additionalExpenseTax := dto.AdditionalExpensesResponse{
+				Title:  "Porez",
+				Price:  float32(taxPrice),
+				Status: structs.AdditionalExpenseStatusCreated,
+				OrganizationUnit: dto.DropdownSimple{
+					ID:    organizationUnit.ID,
+					Title: organizationUnit.Title,
+				},
+				Subject: dto.DropdownSimple{
+					ID:    taxSupplier.ID,
+					Title: taxSupplier.Title,
+				},
+			}
+
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		} else if previousIncomeGross > 700 && previousIncomeGross < 1000 {
+			taxPrice := grossPrice * taxAuthorityCodebook.PreviousIncomePercentageLessThan1000 / 100
+
+			additionalExpenseTax := dto.AdditionalExpensesResponse{
+				Title:  "Porez",
+				Price:  float32(taxPrice),
+				Status: structs.AdditionalExpenseStatusCreated,
+				OrganizationUnit: dto.DropdownSimple{
+					ID:    organizationUnit.ID,
+					Title: organizationUnit.Title,
+				},
+				Subject: dto.DropdownSimple{
+					ID:    taxSupplier.ID,
+					Title: taxSupplier.Title,
+				},
+			}
+
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		} else {
+			taxPrice := grossPrice * taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000 / 100
+
+			additionalExpenseTax := dto.AdditionalExpensesResponse{
+				Title:  "Porez",
+				Price:  float32(taxPrice),
+				Status: structs.AdditionalExpenseStatusCreated,
+				OrganizationUnit: dto.DropdownSimple{
+					ID:    organizationUnit.ID,
+					Title: organizationUnit.Title,
+				},
+				Subject: dto.DropdownSimple{
+					ID:    taxSupplier.ID,
+					Title: taxSupplier.Title,
+				},
+			}
+
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		}
+
 	}
 
-	additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	//fond rada
+	if taxAuthorityCodebook.LaborFund != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.LaborFund / 100
 
-	additionalExpenseAdditionalTax := dto.AdditionalExpensesResponse{
-		Title:  "Prirez",
-		Price:  float32(taxPrice) * float32(additionalPercentage) / 100,
-		Status: structs.AdditionalExpenseStatusCreated,
-		OrganizationUnit: dto.DropdownSimple{
-			ID:    organizationUnit.ID,
-			Title: organizationUnit.Title,
-		},
-		Subject: dto.DropdownSimple{
-			ID:    municipality.ID,
-			Title: municipality.Title,
-		},
+		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.LaborFundSupplierID)
+
+		if err != nil {
+			return errors.HandleAPIError(errors.APIError{Message: "labor fund supplier is not valid"})
+		}
+
+		additionalExpenseTax := dto.AdditionalExpensesResponse{
+			Title:  "Fond rada",
+			Price:  float32(taxPrice),
+			Status: structs.AdditionalExpenseStatusCreated,
+			OrganizationUnit: dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			},
+			Subject: dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			},
+		}
+
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 	}
 
-	additionalExpenses = append(additionalExpenses, additionalExpenseAdditionalTax)
+	//pio
+	if taxAuthorityCodebook.PioPercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentage / 100
 
-	additionalExpensePIOTax := dto.AdditionalExpensesResponse{
-		Title:  "PIO",
-		Price:  float32(releaseGrossPrice) * float32(taxAuthorityCodebook.PioPercentage) / 100,
-		Status: structs.AdditionalExpenseStatusCreated,
-		OrganizationUnit: dto.DropdownSimple{
-			ID:    organizationUnit.ID,
-			Title: organizationUnit.Title,
-		},
-		Subject: *supplier,
+		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
+
+		if err != nil {
+			return errors.HandleAPIError(errors.APIError{Message: "pio supplier is not valid"})
+		}
+
+		additionalExpenseTax := dto.AdditionalExpensesResponse{
+			Title:  "PIO",
+			Price:  float32(taxPrice),
+			Status: structs.AdditionalExpenseStatusCreated,
+			OrganizationUnit: dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			},
+			Subject: dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			},
+		}
+
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 	}
 
-	//additionalExpenses[0].Price = additionalExpenses[0].Price - float32(taxPrice)*float32(additionalPercentage)/100
+	//pio na teret zaposlenog
+	if taxAuthorityCodebook.PioPercentageEmployeePercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployeePercentage / 100
 
-	additionalExpenses = append(additionalExpenses, additionalExpensePIOTax)
+		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
+
+		if err != nil {
+			return errors.HandleAPIError(errors.APIError{Message: "pio supplier is not valid"})
+		}
+
+		additionalExpenseTax := dto.AdditionalExpensesResponse{
+			Title:  "PIO na teret zaposlenog",
+			Price:  float32(taxPrice),
+			Status: structs.AdditionalExpenseStatusCreated,
+			OrganizationUnit: dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			},
+			Subject: dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			},
+		}
+
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	}
+
+	//pio na teret poslodavca
+	if taxAuthorityCodebook.PioPercentageEmployerPercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployerPercentage / 100
+
+		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
+
+		if err != nil {
+			return errors.HandleAPIError(errors.APIError{Message: "pio supplier is not valid"})
+		}
+
+		additionalExpenseTax := dto.AdditionalExpensesResponse{
+			Title:  "PIO na teret poslodavca",
+			Price:  float32(taxPrice),
+			Status: structs.AdditionalExpenseStatusCreated,
+			OrganizationUnit: dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			},
+			Subject: dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			},
+		}
+
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	}
+
+	//za nezaposlenost
+	if taxAuthorityCodebook.UnemploymentPercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentPercentage / 100
+
+		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
+
+		if err != nil {
+			return errors.HandleAPIError(errors.APIError{Message: "unemployment supplier is not valid"})
+		}
+
+		additionalExpenseTax := dto.AdditionalExpensesResponse{
+			Title:  "Nezaposlenost",
+			Price:  float32(taxPrice),
+			Status: structs.AdditionalExpenseStatusCreated,
+			OrganizationUnit: dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			},
+			Subject: dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			},
+		}
+
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	}
+
+	//za nezaposlenost na teret poslodavca
+	if taxAuthorityCodebook.UnemploymentEmployerPercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentEmployerPercentage / 100
+
+		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
+
+		if err != nil {
+			return errors.HandleAPIError(errors.APIError{Message: "unemployment supplier is not valid"})
+		}
+
+		additionalExpenseTax := dto.AdditionalExpensesResponse{
+			Title:  "Nezaposlenost na teret poslodavca",
+			Price:  float32(taxPrice),
+			Status: structs.AdditionalExpenseStatusCreated,
+			OrganizationUnit: dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			},
+			Subject: dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			},
+		}
+
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	}
+
+	//za nezaposlenost na teret zaposlenog
+	if taxAuthorityCodebook.UnemploymentEmployeePercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentEmployeePercentage / 100
+
+		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
+
+		if err != nil {
+			return errors.HandleAPIError(errors.APIError{Message: "unemployment supplier is not valid"})
+		}
+
+		additionalExpenseTax := dto.AdditionalExpensesResponse{
+			Title:  "Nezaposlenost na teret zaposlenog",
+			Price:  float32(taxPrice),
+			Status: structs.AdditionalExpenseStatusCreated,
+			OrganizationUnit: dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			},
+			Subject: dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			},
+		}
+
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	}
+
+	var taxValue float32
+	for _, item := range additionalExpenses {
+		taxValue += item.Price
+
+		taxPrice := taxValue * float32(additionalPercentage) / 100
+
+		additionalExpenseTax := dto.AdditionalExpensesResponse{
+			Title:  "Prirez",
+			Price:  float32(taxPrice),
+			Status: structs.AdditionalExpenseStatusCreated,
+			OrganizationUnit: dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			},
+			Subject: dto.DropdownSimple{
+				ID:    municipality.ID,
+				Title: municipality.Title,
+			},
+		}
+
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	}
 
 	return dto.Response{
 		Status:  "success",
@@ -531,38 +768,6 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		Items:   additionalExpenses,
 		//	Total:   total,
 	}, nil
-}
-
-func getTaxAuthority(r *Resolver) (*dto.DropdownSimple, error) {
-	taxAuthority := "Poreska uprava"
-	supplier, err := r.Repo.GetSupplierList(&dto.GetSupplierInputMS{Search: &taxAuthority})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(supplier.Data) > 0 {
-		return &dto.DropdownSimple{
-			ID:    supplier.Data[0].ID,
-			Title: supplier.Data[0].Title,
-		}, err
-	}
-
-	taxAuthority = "Uprava prihoda"
-	supplier, err = r.Repo.GetSupplierList(&dto.GetSupplierInputMS{Search: &taxAuthority})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(supplier.Data) > 0 {
-		return &dto.DropdownSimple{
-			ID:    supplier.Data[0].ID,
-			Title: supplier.Data[0].Title,
-		}, err
-	}
-
-	return nil, errors.APIError{Message: "you_must_add_tax_service_in_codebook"}
 }
 
 func buildInvoiceResponseItemList(ctx context.Context, r *Resolver, itemList []structs.Invoice) ([]*dto.InvoiceResponseItem, error) {

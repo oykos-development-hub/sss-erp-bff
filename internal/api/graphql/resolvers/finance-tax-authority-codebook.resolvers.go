@@ -15,7 +15,7 @@ func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveP
 	active, activeOk := params.Args["search"].(bool)
 
 	var (
-		items []structs.TaxAuthorityCodebook
+		items []dto.TaxAuthorityCodebookResponse
 		total int
 	)
 
@@ -24,7 +24,12 @@ func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveP
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-		items = []structs.TaxAuthorityCodebook{*setting}
+
+		responseItem, err := buildTaxAuthorityCodeBook(*setting, r)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		items = []dto.TaxAuthorityCodebookResponse{*responseItem}
 		total = 1
 	} else {
 		input := dto.TaxAuthorityCodebookFilter{}
@@ -40,7 +45,17 @@ func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveP
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-		items = res.Data
+
+		for _, item := range res.Data {
+			resItem, err := buildTaxAuthorityCodeBook(item, r)
+
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
+			items = append(items, *resItem)
+		}
+
 		total = res.Total
 	}
 

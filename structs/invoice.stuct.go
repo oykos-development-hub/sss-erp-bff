@@ -6,6 +6,7 @@ type Invoice struct {
 	ID                     int                  `json:"id"`
 	PassedToInventory      bool                 `json:"passed_to_inventory"`
 	PassedToAccounting     bool                 `json:"passed_to_accounting"`
+	IsInvoice              bool                 `json:"is_invoice"`
 	InvoiceNumber          string               `json:"invoice_number"`
 	Status                 string               `json:"status"`
 	Type                   string               `json:"type"`

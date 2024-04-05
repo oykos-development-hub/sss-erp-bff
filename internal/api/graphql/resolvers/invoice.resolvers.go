@@ -588,6 +588,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		ID:                    invoice.ID,
 		PassedToInventory:     invoice.PassedToInventory,
 		PassedToAccounting:    invoice.PassedToAccounting,
+		IsInvoice:             invoice.IsInvoice,
 		InvoiceNumber:         invoice.InvoiceNumber,
 		Type:                  invoice.Type,
 		SupplierTitle:         invoice.Supplier,

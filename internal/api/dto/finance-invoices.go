@@ -134,3 +134,33 @@ type GetTaxAuthorityCodebooksResponseMS struct {
 type GetTaxAuthorityCodebookResponseMS struct {
 	Data structs.TaxAuthorityCodebook `json:"data"`
 }
+
+type TaxAuthorityCodebookResponse struct {
+	ID                                   int            `json:"id"`
+	Title                                string         `json:"title"`
+	Code                                 string         `json:"code"`
+	Active                               bool           `json:"active"`
+	TaxPercentage                        float64        `json:"tax_percentage"`
+	TaxSupplier                          DropdownSimple `json:"tax_supplier"`
+	ReleasePercentage                    float64        `json:"release_percentage"`
+	PioPercentage                        float64        `json:"pio_percentage"`
+	PioSupplier                          DropdownSimple `json:"pio_supplier"`
+	PioPercentageEmployerPercentage      float64        `json:"pio_percentage_employer_percentage"`
+	PioEmployerSupplier                  DropdownSimple `json:"pio_employer_supplier"`
+	PioPercentageEmployeePercentage      float64        `json:"pio_percentage_employee_percentage"`
+	PioEmployeeSupplier                  DropdownSimple `json:"pio_employee_supplier"`
+	UnemploymentPercentage               float64        `json:"unemployment_percentage"`
+	UnemploymentSupplier                 DropdownSimple `json:"unemployment_supplier"`
+	UnemploymentEmployerPercentage       float64        `json:"unemployment_employer_percentage"`
+	UnemploymentEmployerSupplier         DropdownSimple `json:"unemployment_employer_supplier"`
+	UnemploymentEmployeePercentage       float64        `json:"unemployment_employee_percentage"`
+	UnemploymentEmployeeSupplier         DropdownSimple `json:"unemployment_employee_supplier"`
+	LaborFund                            float64        `json:"labor_fund"`
+	LaborFundSupplier                    DropdownSimple `json:"labor_fund_supplier"`
+	PreviousIncomePercentageLessThan700  float64        `json:"previous_income_percentage_less_than_700"`
+	PreviousIncomePercentageLessThan1000 float64        `json:"previous_income_percentage_less_than_1000"`
+	PreviousIncomePercentageMoreThan1000 float64        `json:"previous_income_percentage_more_than_1000"`
+	Coefficient                          float64        `json:"coefficient"`
+	CreatedAt                            time.Time      `json:"created_at"`
+	UpdatedAt                            time.Time      `json:"updated_at"`
+}

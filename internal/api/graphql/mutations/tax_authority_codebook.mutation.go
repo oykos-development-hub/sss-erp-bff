@@ -26,6 +26,45 @@ var TaxAuthorityCodebookInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"release_percentage": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
+		"pio_supplier_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"pio_percentage_employer_percentage": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"pio_employer_supplier_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"pio_percentage_employee_percentage": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"pio_employee_supplier_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"unemployment_percentage": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"unemployment_supplier_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"unemployment_employer_percentage": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"unemployment_employer_supplier_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"unemployment_employee_percentage": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"unemployment_employee_supplier_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"labor_fund": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"labor_fund_supplier_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"previous_income_percentage_less_than_700": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
@@ -33,6 +72,9 @@ var TaxAuthorityCodebookInsertMutation = graphql.NewInputObject(graphql.InputObj
 			Type: graphql.Float,
 		},
 		"previous_income_percentage_more_than_1000": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"coefficient": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
 	},

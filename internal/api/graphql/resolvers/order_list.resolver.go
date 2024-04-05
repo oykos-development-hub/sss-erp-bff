@@ -1154,6 +1154,11 @@ func buildOrderListResponseItem(context context.Context, r repository.Microservi
 	}
 
 	for _, fileID := range item.ReceiveFile {
+
+		if fileID == 0 {
+			continue
+		}
+
 		file, err := r.GetFileByID(fileID)
 		if err != nil {
 			return nil, err

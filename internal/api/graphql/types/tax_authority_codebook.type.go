@@ -35,6 +35,54 @@ var TaxAuthorityCodebooksType = graphql.NewObject(graphql.ObjectConfig{
 		"active": &graphql.Field{
 			Type: graphql.Boolean,
 		},
+		"pio_supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"pio_percentage_employer_percentage": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"pio_employer_supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"pio_percentage_employee_percentage": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"pio_employee_supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"unemployment_percentage": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"unemployment_supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"unemployment_employer_percentage": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"unemployment_employer_supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"unemployment_employee_percentage": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"unemployment_employee_supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"labor_fund": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"labor_fund_supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"coefficient": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"created_at": &graphql.Field{
+			Type: graphql.DateTime,
+		},
+		"updated_at": &graphql.Field{
+			Type: graphql.DateTime,
+		},
 	},
 })
 

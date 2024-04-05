@@ -742,25 +742,25 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	var taxValue float32
 	for _, item := range additionalExpenses {
 		taxValue += item.Price
-
-		taxPrice := taxValue * float32(additionalPercentage) / 100
-
-		additionalExpenseTax := dto.AdditionalExpensesResponse{
-			Title:  "Prirez",
-			Price:  float32(taxPrice),
-			Status: structs.AdditionalExpenseStatusCreated,
-			OrganizationUnit: dto.DropdownSimple{
-				ID:    organizationUnit.ID,
-				Title: organizationUnit.Title,
-			},
-			Subject: dto.DropdownSimple{
-				ID:    municipality.ID,
-				Title: municipality.Title,
-			},
-		}
-
-		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 	}
+
+	taxPrice := taxValue * float32(additionalPercentage) / 100
+
+	additionalExpenseTax := dto.AdditionalExpensesResponse{
+		Title:  "Prirez",
+		Price:  float32(taxPrice),
+		Status: structs.AdditionalExpenseStatusCreated,
+		OrganizationUnit: dto.DropdownSimple{
+			ID:    organizationUnit.ID,
+			Title: organizationUnit.Title,
+		},
+		Subject: dto.DropdownSimple{
+			ID:    municipality.ID,
+			Title: municipality.Title,
+		},
+	}
+
+	additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 
 	return dto.Response{
 		Status:  "success",

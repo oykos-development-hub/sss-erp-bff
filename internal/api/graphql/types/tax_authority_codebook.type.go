@@ -17,6 +17,9 @@ var TaxAuthorityCodebooksType = graphql.NewObject(graphql.ObjectConfig{
 		"tax_percentage": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"tax_supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"pio_percentage": &graphql.Field{
 			Type: graphql.Float,
 		},

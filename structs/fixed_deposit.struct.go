@@ -12,6 +12,7 @@ type FixedDeposit struct {
 	DateOfCase           *time.Time             `json:"date_of_case"`
 	DateOfFinality       *time.Time             `json:"date_of_finality"`
 	DateOfEnforceability *time.Time             `json:"date_of_enforceability"`
+	DateOfEnd            *time.Time             `json:"date_of_end"`
 	AccountID            int                    `json:"account_id"`
 	FileID               int                    `json:"file_id"`
 	Status               string                 `json:"status"`

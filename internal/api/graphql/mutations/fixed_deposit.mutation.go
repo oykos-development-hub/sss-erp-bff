@@ -32,14 +32,14 @@ var FixedDepositMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"date_of_enforceability": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"date_of_end": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"account_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
-		},
-		"status": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
 		},
 		"type": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

@@ -35,6 +35,7 @@ type FixedDepositResponse struct {
 	DateOfCase           *time.Time                     `json:"date_of_case"`
 	DateOfFinality       *time.Time                     `json:"date_of_finality"`
 	DateOfEnforceability *time.Time                     `json:"date_of_enforceability"`
+	DateOfEnd            *time.Time                     `json:"date_of_end"`
 	Account              DropdownSimple                 `json:"account"`
 	File                 FileDropdownSimple             `json:"file"`
 	Status               string                         `json:"status"`

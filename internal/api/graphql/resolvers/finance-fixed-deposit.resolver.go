@@ -291,6 +291,7 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 		DateOfCase:           item.DateOfCase,
 		DateOfFinality:       item.DateOfFinality,
 		DateOfEnforceability: item.DateOfEnforceability,
+		DateOfEnd:            item.DateOfEnd,
 		Status:               item.Status,
 		Type:                 item.Type,
 		CreatedAt:            item.CreatedAt,

@@ -86,6 +86,9 @@ var FixedDepositType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_enforceability": &graphql.Field{
 			Type: graphql.String,
 		},
+		"date_of_end": &graphql.Field{
+			Type: graphql.String,
+		},
 		"account": &graphql.Field{
 			Type: DropdownItemType,
 		},

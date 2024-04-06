@@ -166,3 +166,75 @@ var FixedDepositJudgeMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		},
 	},
 })
+
+var FixedDepositWillMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "FixedDepositWillMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"subject": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"case_number_si": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"case_number_rs": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_recipiet_si": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_recipiet_rs": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"father_name": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_birth": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"jmbg": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_end": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"account_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"file_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+	},
+})
+
+var FixedDepositWillDispatchMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "FixedDepositWillDispatchMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"will_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"dispatch_type_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"judge_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"case_number": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_dispatch": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"file_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+	},
+})

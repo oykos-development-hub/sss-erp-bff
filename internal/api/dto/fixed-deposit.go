@@ -9,6 +9,10 @@ type GetFixedDepositResponseMS struct {
 	Data structs.FixedDeposit `json:"data"`
 }
 
+type GetFixedDepositWillDispatchResponseMS struct {
+	Data structs.FixedDepositWillDispatch `json:"data"`
+}
+
 type GetFixedDepositListResponseMS struct {
 	Data  []structs.FixedDeposit `json:"data"`
 	Total int                    `json:"total"`
@@ -22,6 +26,15 @@ type FixedDepositFilter struct {
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 	Search             *string `json:"search"`
 	JudgeID            *int    `json:"judge_id"`
+	Status             *string `json:"status"`
+}
+
+type FixedDepositWillFilter struct {
+	Page               *int    `json:"page"`
+	Size               *int    `json:"size"`
+	SortByTitle        *string `json:"sort_by_title"`
+	Search             *string `json:"search"`
+	OrganizationUnitID *int    `json:"organization_unit_id"`
 	Status             *string `json:"status"`
 }
 
@@ -93,4 +106,45 @@ type FixedDepositJudgeResponse struct {
 	File        FileDropdownSimple `json:"file"`
 	CreatedAt   time.Time          `json:"created_at"`
 	UpdatedAt   time.Time          `json:"updated_at"`
+}
+
+type GetFixedDepositWillResponseMS struct {
+	Data structs.FixedDepositWill `json:"data"`
+}
+
+type GetFixedDepositWillListResponseMS struct {
+	Data  []structs.FixedDepositWill `json:"data"`
+	Total int                        `json:"total"`
+}
+
+type FixedDepositWillResponse struct {
+	ID               int                                `json:"id"`
+	OrganizationUnit DropdownSimple                     `json:"organization_unit"`
+	Subject          string                             `json:"subject"`
+	FatherName       string                             `json:"father_name"`
+	DateOfBirth      time.Time                          `json:"date_of_birth"`
+	JMBG             string                             `json:"jmbg"`
+	CaseNumberSI     string                             `json:"case_number_si"`
+	CaseNumberRS     string                             `json:"case_number_rs"`
+	DateOfReceiptSI  *time.Time                         `json:"date_of_receipt_si"`
+	DateOfReceiptRS  *time.Time                         `json:"date_of_receipt_rs"`
+	DateOfEnd        *time.Time                         `json:"date_of_end"`
+	Status           string                             `json:"status"`
+	File             FileDropdownSimple                 `json:"file"`
+	Judges           []FixedDepositJudgeResponse        `json:"judges"`
+	Dispatches       []FixedDepositWillDispatchResponse `json:"dispatches"`
+	CreatedAt        time.Time                          `json:"created_at"`
+	UpdatedAt        time.Time                          `json:"updated_at"`
+}
+
+type FixedDepositWillDispatchResponse struct {
+	ID             int                `json:"id"`
+	WillID         int                `json:"will_id"`
+	DispatchType   DropdownSimple     `json:"dispatch_type"`
+	Judge          DropdownSimple     `json:"judge"`
+	CaseNumber     string             `json:"case_number"`
+	DateOfDispatch time.Time          `json:"date_of_dispatch"`
+	File           FileDropdownSimple `json:"file"`
+	CreatedAt      time.Time          `json:"created_at"`
+	UpdatedAt      time.Time          `json:"updated_at"`
 }

@@ -154,6 +154,10 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"fixedDepositDispatch_Delete":                     fields.FixedDepositDispatchDeleteField(),
 			"fixedDepositJudge_Insert":                        fields.FixedDepositJudgeInsertField(),
 			"fixedDepositJudge_Delete":                        fields.FixedDepositJudgeDeleteField(),
+			"fixedDepositWill_Insert":                         fields.FixedDepositWillInsertField(),
+			"fixedDepositWill_Delete":                         fields.FixedDepositWillDeleteField(),
+			"fixedDepositWillDispatch_Insert":                 fields.FixedDepositWillDispatchInsertField(),
+			"fixedDepositWillDispatch_Delete":                 fields.FixedDepositWillDispatchDeleteField(),
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -260,6 +264,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"propertyBenefitConfiscation_Overview":                       fields.PropBenConfOverviewField(),
 			"propertyBenefitConfiscationPayment_Overview":                fields.PropBenConfPaymentOverviewField(),
 			"fixedDeposit_Overview":                                      fields.FixedDepositOverviewField(),
+			"fixedDepositWill_Overview":                                  fields.FixedDepositWillOverviewField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

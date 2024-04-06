@@ -144,3 +144,84 @@ func (f *Field) FixedDepositJudgeDeleteField() *graphql.Field {
 		Resolve: f.Resolvers.FixedDepositJudgeDeleteResolver,
 	}
 }
+
+// testament
+func (f *Field) FixedDepositWillInsertField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FixedDepositWillInsertType,
+		Description: "Creates new or alter existing fixed deposit will",
+		Args: graphql.FieldConfigArgument{
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(mutations.FixedDepositWillMutation),
+			},
+		},
+		Resolve: f.Resolvers.FixedDepositWillInsertResolver,
+	}
+}
+
+func (f *Field) FixedDepositWillDeleteField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FineDeleteType,
+		Description: "Delete fixed deposit will",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.FixedDepositWillDeleteResolver,
+	}
+}
+
+func (f *Field) FixedDepositWillOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FixedDepositWillOverviewType,
+		Description: "Returns a data of fixed deposit wills",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"page": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"size": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"search": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"status": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+		},
+		Resolve: f.Resolvers.FixedDepositWillOverviewResolver,
+	}
+}
+
+func (f *Field) FixedDepositWillDispatchInsertField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FixedDepositItemInsertType,
+		Description: "Creates new or alter existing fixed deposit will dispatch item",
+		Args: graphql.FieldConfigArgument{
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(mutations.FixedDepositWillDispatchMutation),
+			},
+		},
+		Resolve: f.Resolvers.FixedDepositWillDispatchInsertResolver,
+	}
+}
+
+func (f *Field) FixedDepositWillDispatchDeleteField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FineDeleteType,
+		Description: "Delete fixed deposit will dispatch",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.FixedDepositWillDispatchDeleteResolver,
+	}
+}

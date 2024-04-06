@@ -24,6 +24,38 @@ type FixedDeposit struct {
 	UpdatedAt            time.Time              `json:"updated_at"`
 }
 
+type FixedDepositWill struct {
+	ID                 int                        `json:"id"`
+	OrganizationUnitID int                        `json:"organization_unit_id"`
+	Subject            string                     `json:"subject"`
+	FatherName         string                     `json:"father_name"`
+	DateOfBirth        time.Time                  `json:"date_of_birth"`
+	JMBG               string                     `json:"jmbg"`
+	CaseNumberSI       string                     `json:"case_number_si"`
+	CaseNumberRS       string                     `json:"case_number_rs"`
+	DateOfReceiptSI    *time.Time                 `json:"date_of_receipt_si"`
+	DateOfReceiptRS    *time.Time                 `json:"date_of_receipt_rs"`
+	DateOfEnd          *time.Time                 `json:"date_of_end"`
+	Status             string                     `json:"status"`
+	FileID             int                        `json:"file_id"`
+	Judges             []FixedDepositJudge        `json:"judges"`
+	Dispatches         []FixedDepositWillDispatch `json:"dispatches"`
+	CreatedAt          time.Time                  `json:"created_at"`
+	UpdatedAt          time.Time                  `json:"updated_at"`
+}
+
+type FixedDepositWillDispatch struct {
+	ID             int       `json:"id"`
+	WillID         int       `json:"will_id"`
+	DispatchTypeID int       `json:"dispatch_type_id"`
+	JudgeID        int       `json:"judge_id"`
+	CaseNumber     string    `json:"case_number"`
+	DateOfDispatch time.Time `json:"date_of_dispatch"`
+	FileID         int       `json:"file_id"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
 type FixedDepositItem struct {
 	ID                 int        `json:"id"`
 	DepositID          int        `json:"deposit_id"`

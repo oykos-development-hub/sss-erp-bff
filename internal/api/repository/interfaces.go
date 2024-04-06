@@ -413,6 +413,12 @@ type MicroserviceRepositoryInterface interface {
 	GetFixedDepositByID(id int) (*structs.FixedDeposit, error)
 	GetFixedDepositList(input dto.FixedDepositFilter) ([]structs.FixedDeposit, int, error)
 
+	CreateFixedDepositWill(item *structs.FixedDepositWill) (*structs.FixedDepositWill, error)
+	DeleteFixedDepositWill(id int) error
+	UpdateFixedDepositWill(item *structs.FixedDepositWill) (*structs.FixedDepositWill, error)
+	GetFixedDepositWillByID(id int) (*structs.FixedDepositWill, error)
+	GetFixedDepositWillList(input dto.FixedDepositWillFilter) ([]structs.FixedDepositWill, int, error)
+
 	CreateFixedDepositItem(item *structs.FixedDepositItem) error
 	UpdateFixedDepositItem(item *structs.FixedDepositItem) error
 	DeleteFixedDepositItem(id int) error
@@ -422,4 +428,7 @@ type MicroserviceRepositoryInterface interface {
 	CreateFixedDepositJudge(item *structs.FixedDepositJudge) error
 	UpdateFixedDepositJudge(item *structs.FixedDepositJudge) error
 	DeleteFixedDepositJudge(id int) error
+	CreateFixedDepositWillDispatch(item *structs.FixedDepositWillDispatch) error
+	UpdateFixedDepositWillDispatch(item *structs.FixedDepositWillDispatch) error
+	DeleteFixedDepositWillDispatch(id int) error
 }

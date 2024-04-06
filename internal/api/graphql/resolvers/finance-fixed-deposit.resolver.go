@@ -4,6 +4,7 @@ import (
 	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
+	apierrors "bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -99,6 +100,17 @@ func (r *Resolver) FixedDepositInsertResolver(params graphql.ResolveParams) (int
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
 		return errors.HandleAPIError(err)
+	}
+
+	if data.OrganizationUnitID == 0 {
+
+		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitID == nil {
+			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		}
+
+		data.OrganizationUnitID = *organizationUnitID
+
 	}
 
 	var item *structs.FixedDeposit
@@ -282,6 +294,185 @@ func (r *Resolver) FixedDepositJudgeDeleteResolver(params graphql.ResolveParams)
 	}, nil
 }
 
+func (r *Resolver) FixedDepositWillOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	if id, ok := params.Args["id"].(int); ok && id != 0 {
+		fixedDeposit, err := r.Repo.GetFixedDepositWillByID(id)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+		res, err := buildFixedDepositWill(*fixedDeposit, r)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Items:   []*dto.FixedDepositWillResponse{res},
+			Total:   1,
+		}, nil
+	}
+
+	input := dto.FixedDepositWillFilter{}
+	if value, ok := params.Args["page"].(int); ok && value != 0 {
+		input.Page = &value
+	}
+
+	if value, ok := params.Args["size"].(int); ok && value != 0 {
+		input.Size = &value
+	}
+
+	if value, ok := params.Args["search"].(string); ok && value != "" {
+		input.Search = &value
+	}
+
+	if value, ok := params.Args["status"].(string); ok && value != "" {
+		input.Status = &value
+	}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = &value
+	} else {
+		input.OrganizationUnitID, _ = params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	}
+
+	items, total, err := r.Repo.GetFixedDepositWillList(input)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	var resItems []dto.FixedDepositWillResponse
+	for _, item := range items {
+		resItem, err := buildFixedDepositWill(item, r)
+
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		resItems = append(resItems, *resItem)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   resItems,
+		Total:   total,
+	}, nil
+}
+
+func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.FixedDepositWill
+	response := dto.ResponseSingle{
+		Status:  "success",
+		Message: "You created this item!",
+	}
+
+	dataBytes, err := json.Marshal(params.Args["data"])
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	err = json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	if data.OrganizationUnitID == 0 {
+
+		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitID == nil {
+			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		}
+
+		data.OrganizationUnitID = *organizationUnitID
+	}
+
+	var item *structs.FixedDepositWill
+
+	if data.ID == 0 {
+		item, err = r.Repo.CreateFixedDepositWill(&data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+	} else {
+		item, err = r.Repo.UpdateFixedDepositWill(&data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+	}
+
+	singleItem, err := buildFixedDepositWill(*item, r)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	response.Item = *singleItem
+
+	return response, nil
+}
+
+func (r *Resolver) FixedDepositWillDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+
+	err := r.Repo.DeleteFixedDepositWill(itemID)
+	if err != nil {
+		fmt.Printf("Deleting fixed deposit will failed because of this error - %s.\n", err)
+		return fmt.Errorf("error deleting the id"), nil
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
+	}, nil
+}
+
+func (r *Resolver) FixedDepositWillDispatchInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.FixedDepositWillDispatch
+	response := dto.ResponseSingle{
+		Status:  "success",
+		Message: "You created this item!",
+	}
+
+	dataBytes, err := json.Marshal(params.Args["data"])
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	err = json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	if data.ID == 0 {
+		err = r.Repo.CreateFixedDepositWillDispatch(&data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+	} else {
+		err = r.Repo.UpdateFixedDepositWillDispatch(&data)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+	}
+
+	return response, nil
+}
+
+func (r *Resolver) FixedDepositWillDispatchDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+
+	err := r.Repo.DeleteFixedDepositWillDispatch(itemID)
+	if err != nil {
+		fmt.Printf("Deleting fixed deposit item failed because of this error - %s.\n", err)
+		return fmt.Errorf("error deleting the id"), nil
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
+	}, nil
+}
+
 func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDepositResponse, error) {
 	response := dto.FixedDepositResponse{
 		ID:                   item.ID,
@@ -296,17 +487,6 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 		Type:                 item.Type,
 		CreatedAt:            item.CreatedAt,
 		UpdatedAt:            item.UpdatedAt,
-	}
-
-	if item.OrganizationUnitID != 0 {
-		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		response.OrganizationUnit.ID = orgUnit.ID
-		response.OrganizationUnit.Title = orgUnit.Title
 	}
 
 	if item.OrganizationUnitID != 0 {
@@ -366,6 +546,67 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 
 	for _, dispatch := range item.Dispatches {
 		builtDispatch, err := buildFixedDepositDispatches(dispatch, r)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.Dispatches = append(response.Dispatches, *builtDispatch)
+	}
+
+	for _, judge := range item.Judges {
+		builtJudge, err := buildFixedDepositJudges(judge, r)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.Judges = append(response.Judges, *builtJudge)
+	}
+
+	return &response, nil
+}
+
+func buildFixedDepositWill(item structs.FixedDepositWill, r *Resolver) (*dto.FixedDepositWillResponse, error) {
+	response := dto.FixedDepositWillResponse{
+		ID:              item.ID,
+		Subject:         item.Subject,
+		FatherName:      item.FatherName,
+		DateOfBirth:     item.DateOfBirth,
+		JMBG:            item.JMBG,
+		CaseNumberSI:    item.CaseNumberSI,
+		CaseNumberRS:    item.CaseNumberRS,
+		DateOfReceiptSI: item.DateOfReceiptSI,
+		DateOfReceiptRS: item.DateOfReceiptRS,
+		DateOfEnd:       item.DateOfEnd,
+		Status:          item.Status,
+	}
+
+	if item.OrganizationUnitID != 0 {
+		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.OrganizationUnit.ID = orgUnit.ID
+		response.OrganizationUnit.Title = orgUnit.Title
+	}
+
+	if item.FileID != 0 {
+		file, err := r.Repo.GetFileByID(item.FileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.File.ID = file.ID
+		response.File.Name = file.Name
+		response.File.Type = *file.Type
+	}
+
+	for _, dispatch := range item.Dispatches {
+		builtDispatch, err := buildFixedDepositWillDispatches(dispatch, r)
 
 		if err != nil {
 			return nil, err
@@ -558,6 +799,53 @@ func buildFixedDepositDispatches(item structs.FixedDepositDispatch, r *Resolver)
 
 		response.Action.ID = setting.ID
 		response.Action.Title = setting.Title
+	}
+
+	return &response, nil
+}
+
+func buildFixedDepositWillDispatches(item structs.FixedDepositWillDispatch, r *Resolver) (*dto.FixedDepositWillDispatchResponse, error) {
+	response := dto.FixedDepositWillDispatchResponse{
+		ID:             item.ID,
+		CaseNumber:     item.CaseNumber,
+		WillID:         item.WillID,
+		DateOfDispatch: item.DateOfDispatch,
+		CreatedAt:      item.CreatedAt,
+		UpdatedAt:      item.UpdatedAt,
+	}
+
+	if item.DispatchTypeID != 0 {
+		setting, err := r.Repo.GetDropdownSettingByID(item.DispatchTypeID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.DispatchType.ID = setting.ID
+		response.DispatchType.Title = setting.Title
+	}
+
+	if item.FileID != 0 {
+		file, err := r.Repo.GetFileByID(item.FileID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.File.ID = file.ID
+		response.File.Name = file.Name
+		response.File.Type = *file.Type
+	}
+
+	if item.JudgeID != 0 {
+		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.Judge.ID = judge.ID
+		response.Judge.Title = judge.FirstName + " " + judge.LastName
 	}
 
 	return &response, nil

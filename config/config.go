@@ -83,6 +83,10 @@ type FinanceMS struct {
 	FlatRatePayment           string
 	PropBenConf               string
 	PropBenConfPayment        string
+	FixedDeposit              string
+	FixedDepositItem          string
+	FixedDepositJudge         string
+	FixedDepositDispatch      string
 }
 
 type ProcurementMS struct {
@@ -354,6 +358,10 @@ func LoadDefaultConfig() (*Config, error) {
 				FlatRatePayment:           financeBase + "/flat-rate-payments",
 				PropBenConf:               financeBase + "/property-benefits-confiscations",
 				PropBenConfPayment:        financeBase + "/property-benefits-confiscation-payments",
+				FixedDeposit:              financeBase + "/fixed-deposits",
+				FixedDepositItem:          financeBase + "/fixed-deposit-items",
+				FixedDepositDispatch:      financeBase + "/fixed-deposit-dispatches",
+				FixedDepositJudge:         financeBase + "/fixed-deposit-judges",
 			},
 		},
 		Frontend: FrontendConfig{

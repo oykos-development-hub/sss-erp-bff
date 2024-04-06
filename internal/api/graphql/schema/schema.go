@@ -146,6 +146,14 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"propertyBenefitConfiscation_Delete":              fields.PropBenConfDeleteField(),
 			"propertyBenefitConfiscationPayment_Insert":       fields.PropBenConfPaymentInsertField(),
 			"propertyBenefitConfiscationPayment_Delete":       fields.PropBenConfPaymentDeleteField(),
+			"fixedDeposit_Insert":                             fields.FixedDepositInsertField(),
+			"fixedDeposit_Delete":                             fields.FixedDepositDeleteField(),
+			"fixedDepositItem_Insert":                         fields.FixedDepositItemInsertField(),
+			"fixedDepositItem_Delete":                         fields.FixedDepositItemDeleteField(),
+			"fixedDepositDispatch_Insert":                     fields.FixedDepositDispatchInsertField(),
+			"fixedDepositDispatch_Delete":                     fields.FixedDepositDispatchDeleteField(),
+			"fixedDepositJudge_Insert":                        fields.FixedDepositJudgeInsertField(),
+			"fixedDepositJudge_Delete":                        fields.FixedDepositJudgeDeleteField(),
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -251,6 +259,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"flatRatePayment_Overview":                                   fields.FlatRatePaymentOverviewField(),
 			"propertyBenefitConfiscation_Overview":                       fields.PropBenConfOverviewField(),
 			"propertyBenefitConfiscationPayment_Overview":                fields.PropBenConfPaymentOverviewField(),
+			"fixedDeposit_Overview":                                      fields.FixedDepositOverviewField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

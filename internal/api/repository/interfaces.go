@@ -406,4 +406,20 @@ type MicroserviceRepositoryInterface interface {
 	GetPropBenConfPaymentList(input *dto.GetPropBenConfPaymentListInputMS) ([]structs.PropBenConfPayment, int, error)
 	DeletePropBenConfPayment(id int) error
 	UpdatePropBenConfPayment(item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error)
+
+	CreateFixedDeposit(item *structs.FixedDeposit) (*structs.FixedDeposit, error)
+	DeleteFixedDeposit(id int) error
+	UpdateFixedDeposit(item *structs.FixedDeposit) (*structs.FixedDeposit, error)
+	GetFixedDepositByID(id int) (*structs.FixedDeposit, error)
+	GetFixedDepositList(input dto.FixedDepositFilter) ([]structs.FixedDeposit, int, error)
+
+	CreateFixedDepositItem(item *structs.FixedDepositItem) error
+	UpdateFixedDepositItem(item *structs.FixedDepositItem) error
+	DeleteFixedDepositItem(id int) error
+	CreateFixedDepositDispatch(item *structs.FixedDepositDispatch) error
+	UpdateFixedDepositDispatch(item *structs.FixedDepositDispatch) error
+	DeleteFixedDepositDispatch(id int) error
+	CreateFixedDepositJudge(item *structs.FixedDepositJudge) error
+	UpdateFixedDepositJudge(item *structs.FixedDepositJudge) error
+	DeleteFixedDepositJudge(id int) error
 }

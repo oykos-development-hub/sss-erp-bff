@@ -20,6 +20,9 @@ var SuppliersInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"official_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"tax_percentage": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
 		"address": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

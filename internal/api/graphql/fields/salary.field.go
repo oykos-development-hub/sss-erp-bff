@@ -53,13 +53,10 @@ func (f *Field) SalaryOverviewField() *graphql.Field {
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
-			"type": &graphql.ArgumentConfig{
-				Type: graphql.String,
+			"activity_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
 			},
-			"status": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"judge_id": &graphql.ArgumentConfig{
+			"year": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
 		},

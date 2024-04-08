@@ -3,38 +3,31 @@ package structs
 import "time"
 
 type Salary struct {
-	ID                   int        `json:"id"`
-	OrganizationUnitID   int        `json:"organization_unit_id"`
-	Subject              string     `json:"subject"`
-	JudgeID              int        `json:"judge_id"`
-	CaseNumber           string     `json:"case_number"`
-	DateOfRecipiet       *time.Time `json:"date_of_recipiet"`
-	DateOfCase           *time.Time `json:"date_of_case"`
-	DateOfFinality       *time.Time `json:"date_of_finality"`
-	DateOfEnforceability *time.Time `json:"date_of_enforceability"`
-	DateOfEnd            *time.Time `json:"date_of_end"`
-	AccountID            int        `json:"account_id"`
-	FileID               int        `json:"file_id"`
-	Status               string     `json:"status"`
-	Type                 string     `json:"type"`
-	CreatedAt            time.Time  `json:"created_at"`
-	UpdatedAt            time.Time  `json:"updated_at"`
+	ID                       int                       `json:"id"`
+	ActivityID               int                       `json:"activity_id"`
+	Month                    string                    `json:"month"`
+	DateOfCalculation        time.Time                 `json:"date_of_calculation"`
+	Description              string                    `json:"description"`
+	OrganizationUnitID       int                       `json:"organization_unit_id"`
+	Status                   string                    `json:"status"`
+	GrossPrice               float64                   `json:"gross_price"`
+	VatPrice                 float64                   `json:"vat_price"`
+	NetPrice                 float64                   `json:"net_price"`
+	SalaryAdditionalExpenses []SalaryAdditionalExpense `json:"salary_additional_expenses"`
+	CreatedAt                time.Time                 `json:"created_at"`
+	UpdatedAt                time.Time                 `json:"updated_at"`
 }
 
-type SalaryWill struct {
-	ID                 int        `json:"id"`
-	OrganizationUnitID int        `json:"organization_unit_id"`
-	Subject            string     `json:"subject"`
-	FatherName         string     `json:"father_name"`
-	DateOfBirth        time.Time  `json:"date_of_birth"`
-	JMBG               string     `json:"jmbg"`
-	CaseNumberSI       string     `json:"case_number_si"`
-	CaseNumberRS       string     `json:"case_number_rs"`
-	DateOfReceiptSI    *time.Time `json:"date_of_receipt_si"`
-	DateOfReceiptRS    *time.Time `json:"date_of_receipt_rs"`
-	DateOfEnd          *time.Time `json:"date_of_end"`
-	Status             string     `json:"status"`
-	FileID             int        `json:"file_id"`
-	CreatedAt          time.Time  `json:"created_at"`
-	UpdatedAt          time.Time  `json:"updated_at"`
+type SalaryAdditionalExpense struct {
+	ID                 int       `json:"id"`
+	SalaryID           int       `json:"salary_id"`
+	AccountID          int       `json:"account_id"`
+	Amount             float64   `json:"amount"`
+	SubjectID          int       `json:"subject_id"`
+	BankAccount        string    `json:"bank_account"`
+	Status             string    `json:"status"`
+	OrganizationUnitID int       `json:"organization_unit_id"`
+	Type               string    `json:"type"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }

@@ -35,55 +35,38 @@ type GetSalaryListResponseMS struct {
 type SalaryFilter struct {
 	Page               *int    `json:"page"`
 	Size               *int    `json:"size"`
-	SortByTitle        *string `json:"sort_by_title"`
-	Type               *string `json:"type"`
+	Year               *int    `json:"year"`
+	ActivityID         *int    `json:"activity_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 	Search             *string `json:"search"`
-	JudgeID            *int    `json:"judge_id"`
-	Status             *string `json:"status"`
-}
-
-type SalaryWillFilter struct {
-	Page               *int    `json:"page"`
-	Size               *int    `json:"size"`
-	SortByTitle        *string `json:"sort_by_title"`
-	Search             *string `json:"search"`
-	OrganizationUnitID *int    `json:"organization_unit_id"`
-	Status             *string `json:"status"`
 }
 
 type SalaryResponse struct {
-	ID                   int                `json:"id"`
-	OrganizationUnit     DropdownSimple     `json:"organization_unit"`
-	Subject              string             `json:"subject"`
-	Judge                DropdownSimple     `json:"judge"`
-	CaseNumber           string             `json:"case_number"`
-	DateOfRecipiet       *time.Time         `json:"date_of_recipiet"`
-	DateOfCase           *time.Time         `json:"date_of_case"`
-	DateOfFinality       *time.Time         `json:"date_of_finality"`
-	DateOfEnforceability *time.Time         `json:"date_of_enforceability"`
-	DateOfEnd            *time.Time         `json:"date_of_end"`
-	Account              DropdownSimple     `json:"account"`
-	File                 FileDropdownSimple `json:"file"`
-	Status               string             `json:"status"`
-	Type                 string             `json:"type"`
-	CreatedAt            time.Time          `json:"created_at"`
-	UpdatedAt            time.Time          `json:"updated_at"`
+	ID                       int                                `json:"id"`
+	Activity                 DropdownSimple                     `json:"activity"`
+	Month                    string                             `json:"month"`
+	DateOfCalculation        time.Time                          `json:"date_of_calculation"`
+	Description              string                             `json:"description"`
+	Status                   string                             `json:"status"`
+	OrganizationUnit         DropdownSimple                     `json:"organization_unit"`
+	SalaryAdditionalExpenses []SalaryAdditionalExpensesResponse `json:"salary_additional_expenses"`
+	GrossPrice               float64                            `json:"gross_price"`
+	VatPrice                 float64                            `json:"vat_price"`
+	NetPrice                 float64                            `json:"net_price"`
+	CreatedAt                time.Time                          `json:"created_at"`
+	UpdatedAt                time.Time                          `json:"updated_at"`
 }
 
-type SalaryItemResponse struct {
-	ID                 int                `json:"id"`
-	DepositID          int                `json:"deposit_id"`
-	Category           DropdownSimple     `json:"category"`
-	Type               DropdownSimple     `json:"type"`
-	Unit               string             `json:"unit"`
-	Currency           string             `json:"currency"`
-	Amount             float32            `json:"amount"`
-	SerialNumber       string             `json:"serial_number"`
-	DateOfConfiscation *time.Time         `json:"date_of_confiscation"`
-	CaseNumber         string             `json:"case_number"`
-	Judge              DropdownSimple     `json:"judge"`
-	File               FileDropdownSimple `json:"file"`
-	CreatedAt          time.Time          `json:"created_at"`
-	UpdatedAt          time.Time          `json:"updated_at"`
+type SalaryAdditionalExpensesResponse struct {
+	ID               int            `json:"id"`
+	SalaryID         int            `json:"salary_id"`
+	Account          DropdownSimple `json:"account"`
+	Amount           float64        `json:"amount"`
+	Subject          DropdownSimple `json:"subject"`
+	BankAccount      string         `json:"bank_account"`
+	Status           string         `json:"status"`
+	OrganizationUnit DropdownSimple `json:"organization_unit"`
+	Type             string         `json:"type"`
+	CreatedAt        time.Time      `json:"created_at"`
+	UpdatedAt        time.Time      `json:"updated_at"`
 }

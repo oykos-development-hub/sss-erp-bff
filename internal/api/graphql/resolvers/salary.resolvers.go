@@ -43,14 +43,6 @@ func (r *Resolver) SalaryOverviewResolver(params graphql.ResolveParams) (interfa
 		input.Search = &value
 	}
 
-	if value, ok := params.Args["status"].(string); ok && value != "" {
-		input.Status = &value
-	}
-
-	if value, ok := params.Args["type"].(string); ok && value != "" {
-		input.Type = &value
-	}
-
 	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
 		input.OrganizationUnitID = &value
 	} else {
@@ -58,7 +50,7 @@ func (r *Resolver) SalaryOverviewResolver(params graphql.ResolveParams) (interfa
 	}
 
 	if value, ok := params.Args["judge_id"].(int); ok && value != 0 {
-		input.JudgeID = &value
+		input.ActivityID = &value
 	}
 
 	items, total, err := r.Repo.GetSalaryList(input)
@@ -153,5 +145,90 @@ func (r *Resolver) SalaryDeleteResolver(params graphql.ResolveParams) (interface
 }
 
 func buildSalary(item structs.Salary, r *Resolver) (*dto.SalaryResponse, error) {
-	return nil, nil
+	response := dto.SalaryResponse{
+		ID:                item.ID,
+		Month:             item.Month,
+		DateOfCalculation: item.DateOfCalculation,
+		Description:       item.Description,
+		Status:            item.Status,
+		GrossPrice:        item.GrossPrice,
+		VatPrice:          item.VatPrice,
+		NetPrice:          item.NetPrice,
+	}
+
+	if item.ActivityID != 0 {
+		activity, err := r.Repo.GetActivity(item.ActivityID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.Activity.ID = activity.ID
+		response.Activity.Title = activity.Title
+	}
+
+	if item.OrganizationUnitID != 0 {
+		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.OrganizationUnit.ID = orgUnit.ID
+		response.OrganizationUnit.Title = orgUnit.Title
+	}
+
+	for _, additionalExpense := range item.SalaryAdditionalExpenses {
+		data, err := buildSalaryAdditionalExpense(additionalExpense, r)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.SalaryAdditionalExpenses = append(response.SalaryAdditionalExpenses, *data)
+	}
+
+	return &response, nil
+}
+
+func buildSalaryAdditionalExpense(item structs.SalaryAdditionalExpense, r *Resolver) (*dto.SalaryAdditionalExpensesResponse, error) {
+	response := dto.SalaryAdditionalExpensesResponse{
+		ID:          item.ID,
+		SalaryID:    item.SalaryID,
+		Amount:      item.Amount,
+		BankAccount: item.BankAccount,
+		Status:      item.Status,
+		Type:        item.Type,
+	}
+
+	if item.OrganizationUnitID != 0 {
+		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.OrganizationUnit.ID = orgUnit.ID
+		response.OrganizationUnit.Title = orgUnit.Title
+	}
+
+	if item.AccountID != 0 {
+		account, err := r.Repo.GetAccountItemByID(item.AccountID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.Account.ID = account.ID
+		response.Account.Title = account.Title
+	}
+
+	if item.SubjectID != 0 {
+		subject, err := r.Repo.GetSupplier(item.SubjectID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.Subject.ID = subject.ID
+		response.Subject.Title = subject.Title
+	}
+
+	return &response, nil
 }

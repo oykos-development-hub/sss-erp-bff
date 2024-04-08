@@ -50,41 +50,74 @@ var SalaryType = graphql.NewObject(graphql.ObjectConfig{
 		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},
-		"subject": &graphql.Field{
-			Type: graphql.String,
-		},
-		"judge": &graphql.Field{
+		"activity": &graphql.Field{
 			Type: DropdownItemType,
 		},
-		"case_number": &graphql.Field{
+		"month": &graphql.Field{
 			Type: graphql.String,
 		},
-		"date_of_recipiet": &graphql.Field{
+		"date_of_calculation": &graphql.Field{
 			Type: graphql.String,
 		},
-		"date_of_case": &graphql.Field{
+		"description": &graphql.Field{
 			Type: graphql.String,
 		},
-		"date_of_finality": &graphql.Field{
+		"status": &graphql.Field{
 			Type: graphql.String,
 		},
-		"date_of_enforceability": &graphql.Field{
-			Type: graphql.String,
+		"gross_price": &graphql.Field{
+			Type: graphql.Float,
 		},
-		"date_of_end": &graphql.Field{
-			Type: graphql.String,
+		"vat_price": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"net_price": &graphql.Field{
+			Type: graphql.Float,
 		},
 		"account": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"salary_additional_expenses": &graphql.Field{
+			Type: graphql.NewList(SalaryAdditionalExpenses),
+		},
+		"created_at": &graphql.Field{
+			Type: graphql.DateTime,
+		},
+		"updated_at": &graphql.Field{
+			Type: graphql.DateTime,
+		},
+	},
+})
+
+var SalaryAdditionalExpenses = graphql.NewObject(graphql.ObjectConfig{
+	Name: "SalaryAdditionalExpenses",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"activity": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"account": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"amount": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"subject": &graphql.Field{
 			Type: DropdownItemType,
 		},
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
-		"type": &graphql.Field{
+		"bank_account": &graphql.Field{
 			Type: graphql.String,
 		},
-		"file": &graphql.Field{
-			Type: FileDropdownItemType,
+		"type": &graphql.Field{
+			Type: graphql.String,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.DateTime,

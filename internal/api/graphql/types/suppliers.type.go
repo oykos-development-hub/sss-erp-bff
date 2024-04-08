@@ -17,6 +17,9 @@ var SuppliersItemType = graphql.NewObject(graphql.ObjectConfig{
 		"entity": &graphql.Field{
 			Type: graphql.String,
 		},
+		"tax_percentage": &graphql.Field{
+			Type: graphql.Float,
+		},
 		"official_id": &graphql.Field{
 			Type: graphql.String,
 		},

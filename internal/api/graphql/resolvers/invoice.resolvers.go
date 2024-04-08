@@ -420,13 +420,11 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	}
 
-	municipality, err := r.Repo.GetDropdownSettingByID(municipalityID)
+	municipality, err := r.Repo.GetSupplier(municipalityID)
 
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
-
-	additionalPercentage, err := strconv.Atoi(municipality.Value)
 
 	if err != nil {
 		return errors.HandleAPIError(err)
@@ -744,7 +742,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		taxValue += item.Price
 	}
 
-	taxPrice := taxValue * float32(additionalPercentage) / 100
+	taxPrice := taxValue * municipality.TaxPercentage / 100
 
 	additionalExpenseTax := dto.AdditionalExpensesResponse{
 		Title:  "Prirez",

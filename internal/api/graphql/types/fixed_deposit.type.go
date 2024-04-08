@@ -138,10 +138,10 @@ var FixedDepositItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"unit": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"currency": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"case_number": &graphql.Field{
 			Type: graphql.String,
@@ -189,10 +189,10 @@ var FixedDepositDispatchType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"unit": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"currency": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"case_number": &graphql.Field{
 			Type: graphql.String,
@@ -210,7 +210,7 @@ var FixedDepositDispatchType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"action": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"file": &graphql.Field{
 			Type: FileDropdownItemType,
@@ -357,7 +357,7 @@ var FixedDepositWillDispatchType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"dispatch_type": &graphql.Field{
-			Type: DropdownItemType,
+			Type: graphql.String,
 		},
 		"judge": &graphql.Field{
 			Type: DropdownItemType,

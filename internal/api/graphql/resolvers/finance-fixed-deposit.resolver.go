@@ -636,6 +636,8 @@ func buildFixedDepositItem(item structs.FixedDepositItem, r *Resolver) (*dto.Fix
 		SerialNumber:       item.SerialNumber,
 		DateOfConfiscation: item.DateOfConfiscation,
 		CaseNumber:         item.CaseNumber,
+		Unit:               item.Unit,
+		Currency:           item.Currency,
 		CreatedAt:          item.CreatedAt,
 		UpdatedAt:          item.UpdatedAt,
 	}
@@ -651,17 +653,6 @@ func buildFixedDepositItem(item structs.FixedDepositItem, r *Resolver) (*dto.Fix
 		response.Category.Title = setting.Title
 	}
 
-	if item.CurrencyID != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(item.CurrencyID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		response.Currency.ID = setting.ID
-		response.Currency.Title = setting.Title
-	}
-
 	if item.TypeID != 0 {
 		setting, err := r.Repo.GetDropdownSettingByID(item.TypeID)
 
@@ -671,17 +662,6 @@ func buildFixedDepositItem(item structs.FixedDepositItem, r *Resolver) (*dto.Fix
 
 		response.Type.ID = setting.ID
 		response.Type.Title = setting.Title
-	}
-
-	if item.UnitID != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(item.UnitID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		response.Unit.ID = setting.ID
-		response.Unit.Title = setting.Title
 	}
 
 	if item.FileID != 0 {
@@ -719,6 +699,9 @@ func buildFixedDepositDispatches(item structs.FixedDepositDispatch, r *Resolver)
 		DateOfAction: item.DateOfAction,
 		CaseNumber:   item.CaseNumber,
 		Subject:      item.Subject,
+		Unit:         item.Unit,
+		Currency:     item.Currency,
+		Action:       item.Action,
 		CreatedAt:    item.CreatedAt,
 		UpdatedAt:    item.UpdatedAt,
 	}
@@ -734,17 +717,6 @@ func buildFixedDepositDispatches(item structs.FixedDepositDispatch, r *Resolver)
 		response.Category.Title = setting.Title
 	}
 
-	if item.CurrencyID != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(item.CurrencyID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		response.Currency.ID = setting.ID
-		response.Currency.Title = setting.Title
-	}
-
 	if item.TypeID != 0 {
 		setting, err := r.Repo.GetDropdownSettingByID(item.TypeID)
 
@@ -754,17 +726,6 @@ func buildFixedDepositDispatches(item structs.FixedDepositDispatch, r *Resolver)
 
 		response.Type.ID = setting.ID
 		response.Type.Title = setting.Title
-	}
-
-	if item.UnitID != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(item.UnitID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		response.Unit.ID = setting.ID
-		response.Unit.Title = setting.Title
 	}
 
 	if item.FileID != 0 {
@@ -790,17 +751,6 @@ func buildFixedDepositDispatches(item structs.FixedDepositDispatch, r *Resolver)
 		response.Judge.Title = judge.FirstName + " " + judge.LastName
 	}
 
-	if item.ActionID != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(item.ActionID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		response.Action.ID = setting.ID
-		response.Action.Title = setting.Title
-	}
-
 	return &response, nil
 }
 
@@ -810,19 +760,9 @@ func buildFixedDepositWillDispatches(item structs.FixedDepositWillDispatch, r *R
 		CaseNumber:     item.CaseNumber,
 		WillID:         item.WillID,
 		DateOfDispatch: item.DateOfDispatch,
+		DispatchType:   item.DispatchType,
 		CreatedAt:      item.CreatedAt,
 		UpdatedAt:      item.UpdatedAt,
-	}
-
-	if item.DispatchTypeID != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(item.DispatchTypeID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		response.DispatchType.ID = setting.ID
-		response.DispatchType.Title = setting.Title
 	}
 
 	if item.FileID != 0 {

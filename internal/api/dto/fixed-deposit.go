@@ -65,8 +65,8 @@ type FixedDepositItemResponse struct {
 	DepositID          int                `json:"deposit_id"`
 	Category           DropdownSimple     `json:"category"`
 	Type               DropdownSimple     `json:"type"`
-	Unit               DropdownSimple     `json:"unit"`
-	Currency           DropdownSimple     `json:"currency"`
+	Unit               string             `json:"unit"`
+	Currency           string             `json:"currency"`
 	Amount             float32            `json:"amount"`
 	SerialNumber       string             `json:"serial_number"`
 	DateOfConfiscation *time.Time         `json:"date_of_confiscation"`
@@ -82,13 +82,13 @@ type FixedDepositDispatchResponse struct {
 	DepositID    int                `json:"deposit_id"`
 	Category     DropdownSimple     `json:"category"`
 	Type         DropdownSimple     `json:"type"`
-	Unit         DropdownSimple     `json:"unit"`
-	Currency     DropdownSimple     `json:"currency"`
+	Unit         string             `json:"unit"`
+	Currency     string             `json:"currency"`
 	Amount       float32            `json:"amount"`
 	SerialNumber string             `json:"serial_number"`
 	DateOfAction *time.Time         `json:"date_of_action"`
 	Subject      string             `json:"subject"`
-	Action       DropdownSimple     `json:"action"`
+	Action       string             `json:"action"`
 	CaseNumber   string             `json:"case_number"`
 	Judge        DropdownSimple     `json:"judge"`
 	File         FileDropdownSimple `json:"file"`
@@ -140,7 +140,7 @@ type FixedDepositWillResponse struct {
 type FixedDepositWillDispatchResponse struct {
 	ID             int                `json:"id"`
 	WillID         int                `json:"will_id"`
-	DispatchType   DropdownSimple     `json:"dispatch_type"`
+	DispatchType   string             `json:"dispatch_type"`
 	Judge          DropdownSimple     `json:"judge"`
 	CaseNumber     string             `json:"case_number"`
 	DateOfDispatch time.Time          `json:"date_of_dispatch"`

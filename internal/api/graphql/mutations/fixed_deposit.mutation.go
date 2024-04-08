@@ -62,14 +62,14 @@ var FixedDepositItemMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"type_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"unit": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"amount": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
-		"currency_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"currency": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"serial_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
@@ -107,14 +107,14 @@ var FixedDepositDispatchMutation = graphql.NewInputObject(graphql.InputObjectCon
 		"type_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"unit": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"amount": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
-		"currency_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"currency": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"serial_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
@@ -128,8 +128,8 @@ var FixedDepositDispatchMutation = graphql.NewInputObject(graphql.InputObjectCon
 		"subject": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"action_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"action": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"judge_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
@@ -221,8 +221,8 @@ var FixedDepositWillDispatchMutation = graphql.NewInputObject(graphql.InputObjec
 		"will_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"dispatch_type_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"dispatch_type": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"judge_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,

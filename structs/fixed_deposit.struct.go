@@ -47,7 +47,7 @@ type FixedDepositWill struct {
 type FixedDepositWillDispatch struct {
 	ID             int       `json:"id"`
 	WillID         int       `json:"will_id"`
-	DispatchTypeID int       `json:"dispatch_type_id"`
+	DispatchType   string    `json:"dispatch_type"`
 	JudgeID        int       `json:"judge_id"`
 	CaseNumber     string    `json:"case_number"`
 	DateOfDispatch time.Time `json:"date_of_dispatch"`
@@ -61,8 +61,8 @@ type FixedDepositItem struct {
 	DepositID          int        `json:"deposit_id"`
 	CategoryID         int        `json:"category_id"`
 	TypeID             int        `json:"type_id"`
-	UnitID             int        `json:"unit_id"`
-	CurrencyID         int        `json:"currency_id"`
+	Unit               string     `json:"unit"`
+	Currency           string     `json:"currency"`
 	Amount             float32    `json:"amount"`
 	SerialNumber       string     `json:"serial_number"`
 	DateOfConfiscation *time.Time `json:"date_of_confiscation"`
@@ -78,13 +78,13 @@ type FixedDepositDispatch struct {
 	DepositID    int        `json:"deposit_id"`
 	CategoryID   int        `json:"category_id"`
 	TypeID       int        `json:"type_id"`
-	UnitID       int        `json:"unit_id"`
-	CurrencyID   int        `json:"currency_id"`
+	Unit         string     `json:"unit"`
+	Currency     string     `json:"currency"`
 	Amount       float32    `json:"amount"`
 	SerialNumber string     `json:"serial_number"`
 	DateOfAction *time.Time `json:"date_of_action"`
 	Subject      string     `json:"subject"`
-	ActionID     int        `json:"action_id"`
+	Action       string     `json:"action"`
 	CaseNumber   string     `json:"case_number"`
 	JudgeID      int        `json:"judge_id"`
 	FileID       int        `json:"file_id"`

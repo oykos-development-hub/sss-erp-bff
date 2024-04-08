@@ -3,7 +3,6 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	"bff/internal/api/errors"
 	apierrors "bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
@@ -16,11 +15,11 @@ func (r *Resolver) FixedDepositOverviewResolver(params graphql.ResolveParams) (i
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		fixedDeposit, err := r.Repo.GetFixedDepositByID(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 		res, err := buildFixedDeposit(*fixedDeposit, r)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 
 		return dto.Response{
@@ -64,7 +63,7 @@ func (r *Resolver) FixedDepositOverviewResolver(params graphql.ResolveParams) (i
 
 	items, total, err := r.Repo.GetFixedDepositList(input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 
 	var resItems []dto.FixedDepositResponse
@@ -72,7 +71,7 @@ func (r *Resolver) FixedDepositOverviewResolver(params graphql.ResolveParams) (i
 		resItem, err := buildFixedDeposit(item, r)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -95,11 +94,11 @@ func (r *Resolver) FixedDepositInsertResolver(params graphql.ResolveParams) (int
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 
 	if data.OrganizationUnitID == 0 {
@@ -118,19 +117,19 @@ func (r *Resolver) FixedDepositInsertResolver(params graphql.ResolveParams) (int
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFixedDeposit(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFixedDeposit(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 
 	}
 
 	singleItem, err := buildFixedDeposit(*item, r)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 
 	response.Item = *singleItem
@@ -162,22 +161,22 @@ func (r *Resolver) FixedDepositItemInsertResolver(params graphql.ResolveParams) 
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositItem(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositItem(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 
 	}
@@ -209,22 +208,22 @@ func (r *Resolver) FixedDepositDispatchInsertResolver(params graphql.ResolvePara
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositDispatch(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositDispatch(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 
 	}
@@ -256,22 +255,22 @@ func (r *Resolver) FixedDepositJudgeInsertResolver(params graphql.ResolveParams)
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositJudge(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositJudge(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 
 	}
@@ -298,11 +297,11 @@ func (r *Resolver) FixedDepositWillOverviewResolver(params graphql.ResolveParams
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		fixedDeposit, err := r.Repo.GetFixedDepositWillByID(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 		res, err := buildFixedDepositWill(*fixedDeposit, r)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 
 		return dto.Response{
@@ -338,7 +337,7 @@ func (r *Resolver) FixedDepositWillOverviewResolver(params graphql.ResolveParams
 
 	items, total, err := r.Repo.GetFixedDepositWillList(input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 
 	var resItems []dto.FixedDepositWillResponse
@@ -346,7 +345,7 @@ func (r *Resolver) FixedDepositWillOverviewResolver(params graphql.ResolveParams
 		resItem, err := buildFixedDepositWill(item, r)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -369,11 +368,11 @@ func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) 
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 
 	if data.OrganizationUnitID == 0 {
@@ -391,19 +390,19 @@ func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) 
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFixedDepositWill(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFixedDepositWill(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 
 	}
 
 	singleItem, err := buildFixedDepositWill(*item, r)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 
 	response.Item = *singleItem
@@ -435,22 +434,22 @@ func (r *Resolver) FixedDepositWillDispatchInsertResolver(params graphql.Resolve
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return apierrors.HandleAPIError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositWillDispatch(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositWillDispatch(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return apierrors.HandleAPIError(err)
 		}
 
 	}

@@ -431,4 +431,10 @@ type MicroserviceRepositoryInterface interface {
 	CreateFixedDepositWillDispatch(item *structs.FixedDepositWillDispatch) error
 	UpdateFixedDepositWillDispatch(item *structs.FixedDepositWillDispatch) error
 	DeleteFixedDepositWillDispatch(id int) error
+
+	CreateSalary(item *structs.Salary) (*structs.Salary, error)
+	DeleteSalary(id int) error
+	UpdateSalary(item *structs.Salary) (*structs.Salary, error)
+	GetSalaryByID(id int) (*structs.Salary, error)
+	GetSalaryList(input dto.SalaryFilter) ([]structs.Salary, int, error)
 }

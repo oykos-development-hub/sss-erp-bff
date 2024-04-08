@@ -89,6 +89,7 @@ type FinanceMS struct {
 	FixedDepositDispatch      string
 	FixedDepositWill          string
 	FixedDepositWillDispatch  string
+	Salary                    string
 }
 
 type ProcurementMS struct {
@@ -366,6 +367,7 @@ func LoadDefaultConfig() (*Config, error) {
 				FixedDepositJudge:         financeBase + "/fixed-deposit-judges",
 				FixedDepositWill:          financeBase + "/fixed-deposit-wills",
 				FixedDepositWillDispatch:  financeBase + "/fixed-deposit-will-dispatches",
+				Salary:                    financeBase + "/salaries",
 			},
 		},
 		Frontend: FrontendConfig{

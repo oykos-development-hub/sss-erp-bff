@@ -3,11 +3,12 @@ package dto
 import "bff/structs"
 
 type GetSettingsInput struct {
-	Entity string  `json:"entity"`
-	Page   *int    `json:"page"`
-	Size   *int    `json:"size"`
-	Search *string `json:"search"`
-	Value  *string `json:"value"`
+	Entity   string  `json:"entity"`
+	Page     *int    `json:"page"`
+	Size     *int    `json:"size"`
+	Search   *string `json:"search"`
+	Value    *string `json:"value"`
+	ParentID *int    `json:"parent_id"`
 }
 
 type GetOfficesOfOrganizationInput struct {

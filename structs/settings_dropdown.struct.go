@@ -9,4 +9,5 @@ type SettingsDropdown struct {
 	Description  string `json:"description"`
 	Color        string `json:"color"`
 	Icon         string `json:"icon"`
+	ParentID     int    `json:"parent_id"`
 }

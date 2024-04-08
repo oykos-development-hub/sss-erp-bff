@@ -15,6 +15,7 @@ func (r *Resolver) SettingsDropdownResolver(params graphql.ResolveParams) (inter
 	page := params.Args["page"]
 	size := params.Args["size"]
 	search, searchOk := params.Args["search"].(string)
+	parentID, parentIDOK := params.Args["parent_id"].(int)
 
 	var (
 		items []structs.SettingsDropdown
@@ -40,6 +41,10 @@ func (r *Resolver) SettingsDropdownResolver(params graphql.ResolveParams) (inter
 		}
 		if searchOk && search != "" {
 			input.Search = &search
+		}
+
+		if parentIDOK && parentID != 0 {
+			input.ParentID = &parentID
 		}
 		input.Entity = entity
 

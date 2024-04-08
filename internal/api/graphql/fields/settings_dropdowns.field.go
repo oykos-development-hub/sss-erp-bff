@@ -24,6 +24,9 @@ func (f *Field) SettingsDropdownField() *graphql.Field {
 			"value": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"parent_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 			"page": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},

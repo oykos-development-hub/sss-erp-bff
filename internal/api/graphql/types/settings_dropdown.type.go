@@ -8,6 +8,9 @@ var SettingsDropdownItemType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"parent_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"entity": &graphql.Field{
 			Type: graphql.String,
 		},

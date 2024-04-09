@@ -27,7 +27,7 @@ var SalaryMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"salary_additional_expenses": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(SalaryAdditionalExpensesMutation),
+			Type: graphql.NewList(SalaryAdditionalExpensesMutation),
 		},
 	},
 })

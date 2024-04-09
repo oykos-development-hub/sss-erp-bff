@@ -127,6 +127,9 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 		PreviousIncomePercentageLessThan1000: item.PreviousIncomePercentageLessThan1000,
 		PreviousIncomePercentageMoreThan1000: item.PreviousIncomePercentageMoreThan1000,
 		Coefficient:                          item.Coefficient,
+		CoefficientLess700:                   item.CoefficientLess700,
+		CoefficientLess1000:                  item.CoefficientLess1000,
+		CoefficientMore1000:                  item.CoefficientMore1000,
 	}
 
 	if item.TaxSupplierID != 0 {

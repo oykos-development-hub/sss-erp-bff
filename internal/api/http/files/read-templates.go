@@ -1996,3 +1996,60 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 	response.Message = "File was read successfuly"
 	_ = MarshalAndWriteJSON(w, response)
 }
+
+func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) {
+	var response ImportSalaries
+
+	xlsFile, err := openExcelFile(r)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	sheetMap := xlsFile.GetSheetMap()
+
+	for _, sheetName := range sheetMap {
+
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := 0
+
+		for rows.Next() {
+			if rowindex == 0 {
+				rowindex++
+				continue
+			}
+
+			rowindex++
+
+			//			cols := rows.Columns()
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			/*var err error
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				switch cellIndex {
+				case 0:
+
+				}
+			}*/
+
+		}
+	}
+
+	/*	if len(response.Validation) == 0 {
+			response.Data = item
+		}
+	*/
+	response.Status = "success"
+	response.Message = "File was read successfuly"
+	_ = MarshalAndWriteJSON(w, response)
+}

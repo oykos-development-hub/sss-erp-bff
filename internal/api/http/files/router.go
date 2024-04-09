@@ -25,6 +25,7 @@ func GetFileRouter(h *Handler) *chi.Mux {
 	filesRouter.Post("/import-ps2-excel", h.ImportExcelPS2)
 	filesRouter.Post("/import-vacations-excel", h.ImportUserProfileVacationsHandler)
 	filesRouter.Post("/import-expirience-excel", h.ImportUserExpirienceHandler)
+	filesRouter.Post("/import-salaries-excel", h.ImportSalariesHandler)
 
 	return filesRouter
 }

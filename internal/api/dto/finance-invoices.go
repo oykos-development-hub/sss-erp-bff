@@ -33,7 +33,7 @@ type InvoiceResponseItem struct {
 	DateOfStart           *time.Time                   `json:"date_of_start"`
 	SSSInvoiceReceiptDate *time.Time                   `json:"sss_invoice_receipt_date"`
 	File                  FileDropdownSimple           `json:"file"`
-	ProFormaInvoiceFile   FileDropdownSimple           `json:"pro_forma_invoice_file_id"`
+	ProFormaInvoiceFile   FileDropdownSimple           `json:"pro_forma_invoice_file"`
 	BankAccount           string                       `json:"bank_account"`
 	Description           string                       `json:"description"`
 	Articles              []InvoiceArticleResponse     `json:"articles"`
@@ -161,6 +161,9 @@ type TaxAuthorityCodebookResponse struct {
 	PreviousIncomePercentageLessThan1000 float64        `json:"previous_income_percentage_less_than_1000"`
 	PreviousIncomePercentageMoreThan1000 float64        `json:"previous_income_percentage_more_than_1000"`
 	Coefficient                          float64        `json:"coefficient"`
+	CoefficientLess700                   float64        `json:"coefficient_less_700"`
+	CoefficientLess1000                  float64        `json:"coefficient_less_1000"`
+	CoefficientMore1000                  float64        `json:"coefficient_more_1000"`
 	CreatedAt                            time.Time      `json:"created_at"`
 	UpdatedAt                            time.Time      `json:"updated_at"`
 }

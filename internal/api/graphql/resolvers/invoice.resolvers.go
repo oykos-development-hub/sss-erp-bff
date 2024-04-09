@@ -406,6 +406,25 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	municipalityID := params.Args["municipality_id"].(int)
 
+	previousIncomeGross, previousIncomeGrossOK := params.Args["previous_income_gross"].(float64)
+
+	if !previousIncomeGrossOK {
+		previousIncomeNet, previousIncomeNetOK := params.Args["previous_income_net"].(float64)
+
+		//konvertuje neto u bruto
+		if previousIncomeNetOK && taxAuthorityCodebook.Coefficient != 0 {
+			previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.Coefficient
+		} else if previousIncomeNetOK && taxAuthorityCodebook.Coefficient == 0 {
+			if previousIncomeNet > 818 {
+				previousIncomeGross = (previousIncomeNet - 123) * taxAuthorityCodebook.CoefficientLess700
+			} else if previousIncomeNet > 591.51 {
+				previousIncomeGross = (previousIncomeNet - 63) * taxAuthorityCodebook.CoefficientLess1000
+			} else {
+				previousIncomeGross = previousIncomeNet * taxAuthorityCodebook.CoefficientMore1000
+			}
+		}
+	}
+
 	grossPrice, grossPriceOK := params.Args["gross_price"].(float64)
 
 	if !grossPriceOK {
@@ -416,7 +435,18 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 			err := errors.APIError{Message: "you must provide price"}
 			return errors.HandleAPIError(err)
 		}
-		grossPrice = netPrice / taxAuthorityCodebook.Coefficient
+
+		if taxAuthorityCodebook.Coefficient != 0 {
+			grossPrice = netPrice / taxAuthorityCodebook.Coefficient
+		} else {
+			if netPrice > 818 {
+				grossPrice = (netPrice - 123) * taxAuthorityCodebook.CoefficientLess700
+			} else if netPrice > 591.51 {
+				grossPrice = (netPrice - 63) * taxAuthorityCodebook.CoefficientLess1000
+			} else {
+				grossPrice = netPrice * taxAuthorityCodebook.CoefficientMore1000
+			}
+		}
 
 	}
 
@@ -472,17 +502,6 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	}
 
 	if taxAuthorityCodebook.PreviousIncomePercentageLessThan700 != 0 || taxAuthorityCodebook.PreviousIncomePercentageLessThan1000 != 0 || taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000 != 0 {
-
-		previousIncomeGross, previousIncomeGrossOK := params.Args["previous_income_gross"].(float64)
-
-		if !previousIncomeGrossOK {
-			previousIncomeNet, previousIncomeNetOK := params.Args["previous_income_net"].(float64)
-
-			//konvertuje neto u bruto
-			if previousIncomeNetOK {
-				previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.Coefficient
-			}
-		}
 
 		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
 

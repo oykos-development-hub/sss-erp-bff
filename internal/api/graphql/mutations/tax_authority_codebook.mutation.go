@@ -80,5 +80,14 @@ var TaxAuthorityCodebookInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"coefficient": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
+		"coefficient_less_700": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"coefficient_less_1000": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"coefficient_more_1000": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
 	},
 })

@@ -102,6 +102,14 @@ type ImportPS1Inventories struct {
 	Data       []structs.Experience `json:"data"`
 }
 
+type ImportSalaries struct {
+	Status     string               `json:"status"`
+	Message    string               `json:"message"`
+	Error      string               `json:"error"`
+	Validation []ValidationResponse `json:"validation"`
+	Data       []structs.Salary     `json:"data"`
+}
+
 type ImportUserProfileVacation struct {
 	UserProfileID int `json:"user_profile_id"`
 	NumberOfDays  int `json:"number_of_days"`

@@ -28,6 +28,9 @@ type TaxAuthorityCodebook struct {
 	PreviousIncomePercentageLessThan1000 float64   `json:"previous_income_percentage_less_than_1000"`
 	PreviousIncomePercentageMoreThan1000 float64   `json:"previous_income_percentage_more_than_1000"`
 	Coefficient                          float64   `json:"coefficient"`
+	CoefficientLess700                   float64   `json:"coefficient_less_700"`
+	CoefficientLess1000                  float64   `json:"coefficient_less_1000"`
+	CoefficientMore1000                  float64   `json:"coefficient_more_1000"`
 	CreatedAt                            time.Time `json:"created_at"`
 	UpdatedAt                            time.Time `json:"updated_at"`
 }

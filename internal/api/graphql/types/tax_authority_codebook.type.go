@@ -80,6 +80,15 @@ var TaxAuthorityCodebooksType = graphql.NewObject(graphql.ObjectConfig{
 		"coefficient": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"coefficient_less_700": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"coefficient_less_1000": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"coefficient_more_1000": &graphql.Field{
+			Type: graphql.Float,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.DateTime,
 		},

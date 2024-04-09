@@ -145,12 +145,23 @@ func buildProcedureCostResponseItem(procedurecost structs.ProcedureCost, r *Reso
 		}
 	}
 
-	actType := dto.FinancialProcedureCostDissisionType
+	actType := dto.DropdownSimple{
+		ID:    int(structs.DissisionProcedureCostType),
+		Title: string(dto.FinancialProcedureCostDissisionType),
+	}
+
 	switch procedurecost.ProcedureCostType {
-	case structs.VerdictProcedureCostType:
-		actType = dto.FinancialProcedureCostVerdictType
 	case structs.DissisionProcedureCostType:
-		actType = dto.FinancialProcedureCostDissisionType
+		actType = dto.DropdownSimple{
+			ID:    int(structs.DissisionProcedureCostType),
+			Title: string(dto.FinancialProcedureCostDissisionType),
+		}
+	case structs.VerdictProcedureCostType:
+		actType = dto.DropdownSimple{
+			ID:    int(structs.VerdictProcedureCostType),
+			Title: string(dto.FinancialProcedureCostVerdictType),
+		}
+
 	}
 
 	response := dto.ProcedureCostResponseItem{

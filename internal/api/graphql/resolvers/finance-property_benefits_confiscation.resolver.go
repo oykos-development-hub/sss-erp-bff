@@ -144,12 +144,22 @@ func buildPropBenConfResponseItem(PropBenConf structs.PropBenConf, r *Resolver) 
 		}
 	}
 
-	propBenConfType := dto.FinancialPropBenConfDissisionType
+	propBenConfType := dto.DropdownSimple{
+		ID:    int(structs.DissisionPropBenConfType),
+		Title: string(dto.FinancialPropBenConfDissisionType),
+	}
 	switch PropBenConf.PropBenConfType {
-	case structs.VerdictPropBenConfType:
-		propBenConfType = dto.FinancialPropBenConfVerdictType
 	case structs.DissisionPropBenConfType:
-		propBenConfType = dto.FinancialPropBenConfDissisionType
+		propBenConfType = dto.DropdownSimple{
+			ID:    int(structs.DissisionPropBenConfType),
+			Title: string(dto.FinancialPropBenConfDissisionType),
+		}
+	case structs.VerdictPropBenConfType:
+		propBenConfType = dto.DropdownSimple{
+			ID:    int(structs.VerdictPropBenConfType),
+			Title: string(dto.FinancialPropBenConfVerdictType),
+		}
+
 	}
 
 	response := dto.PropBenConfResponseItem{

@@ -48,10 +48,10 @@ var FeeType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"fee_type": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"fee_subcategory": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
 		},
 		"decision_number": &graphql.Field{
 			Type: graphql.String,

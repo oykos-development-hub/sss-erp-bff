@@ -22,7 +22,7 @@ const (
 
 type FlatRateResponseItem struct {
 	ID                     int                      `json:"id"`
-	FlatRateType           FlatRateType             `json:"flat_rate_type"`
+	FlatRateType           DropdownSimple           `json:"flat_rate_type"`
 	DecisionNumber         string                   `json:"decision_number"`
 	DecisionDate           time.Time                `json:"decision_date"`
 	Subject                string                   `json:"subject"`

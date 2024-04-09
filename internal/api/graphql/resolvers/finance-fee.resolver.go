@@ -83,11 +83,11 @@ func (r *Resolver) FeeOverviewResolver(params graphql.ResolveParams) (interface{
 		input.Search = &value
 	}
 
-	if value, ok := params.Args["fee_subcategory"].(int); ok && value != 0 {
+	if value, ok := params.Args["fee_subcategory_id"].(int); ok && value != 0 {
 		input.FilterBySubcategoryID = &value
 	}
 
-	if value, ok := params.Args["fee_type"].(int); ok && value != 0 {
+	if value, ok := params.Args["fee_type_id"].(int); ok && value != 0 {
 		input.FilterByFeeTypeID = &value
 	}
 
@@ -147,18 +147,33 @@ func buildFeeResponseItem(fee structs.Fee, r *Resolver) (*dto.FeeResponseItem, e
 		}
 	}
 
-	feeType := dto.LawsuitFeeType
+	feeType := dto.DropdownSimple{
+		ID:    int(structs.LawsuitFeeType),
+		Title: string(dto.LawsuitFeeType),
+	}
 	switch fee.FeeType {
 	case structs.LawsuitFeeType:
-		feeType = dto.LawsuitFeeType
+		feeType = dto.DropdownSimple{
+			ID:    int(structs.LawsuitFeeType),
+			Title: string(dto.LawsuitFeeType),
+		}
 	case structs.JudgmentFeeType:
-		feeType = dto.JudgmentFeeType
+		feeType = dto.DropdownSimple{
+			ID:    int(structs.JudgmentFeeType),
+			Title: string(dto.JudgmentFeeType),
+		}
 	}
 
-	feeSubcategory := dto.CopyingFeeSubcategory
+	feeSubcategory := dto.DropdownSimple{
+		ID:    int(structs.CopyingFeeSubcategory),
+		Title: string(dto.CopyingFeeSubcategory),
+	}
 	switch fee.FeeSubcategory {
 	case structs.CopyingFeeSubcategory:
-		feeSubcategory = dto.CopyingFeeSubcategory
+		feeSubcategory = dto.DropdownSimple{
+			ID:    int(structs.CopyingFeeSubcategory),
+			Title: string(dto.CopyingFeeSubcategory),
+		}
 	}
 
 	response := dto.FeeResponseItem{

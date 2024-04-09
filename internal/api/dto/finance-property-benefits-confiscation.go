@@ -22,7 +22,7 @@ const (
 
 type PropBenConfResponseItem struct {
 	ID                     int                         `json:"id"`
-	PropBenConfType        PropBenConfType             `json:"property_benefits_confiscation_type"`
+	PropBenConfType        DropdownSimple              `json:"property_benefits_confiscation_type"`
 	DecisionNumber         string                      `json:"decision_number"`
 	DecisionDate           time.Time                   `json:"decision_date"`
 	Subject                string                      `json:"subject"`

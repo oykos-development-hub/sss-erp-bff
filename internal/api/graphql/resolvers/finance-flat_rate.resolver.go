@@ -147,12 +147,21 @@ func buildFlatRateResponseItem(flatrate structs.FlatRate, r *Resolver) (*dto.Fla
 		}
 	}
 
-	flatRateType := dto.FinancialFlatRateDissisionType
+	flatRateType := dto.DropdownSimple{
+		ID:    int(structs.DissisionType),
+		Title: string(dto.FinancialFlatRateDissisionType),
+	}
 	switch flatrate.FlatRateType {
-	case structs.VerdictType:
-		flatRateType = dto.FinancialFlatRateVerdictType
 	case structs.DissisionType:
-		flatRateType = dto.FinancialFlatRateDissisionType
+		flatRateType = dto.DropdownSimple{
+			ID:    int(structs.DissisionType),
+			Title: string(dto.FinancialFlatRateDissisionType),
+		}
+	case structs.VerdictType:
+		flatRateType = dto.DropdownSimple{
+			ID:    int(structs.VerdictType),
+			Title: string(dto.FinancialFlatRateVerdictType),
+		}
 	}
 
 	response := dto.FlatRateResponseItem{

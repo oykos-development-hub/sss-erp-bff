@@ -28,8 +28,8 @@ const (
 
 type FeeResponseItem struct {
 	ID                     int                  `json:"id"`
-	FeeType                FeeType              `json:"fee_type"`
-	FeeSubcategory         FeeSubcategory       `json:"fee_subcategory"`
+	FeeType                DropdownSimple       `json:"fee_type"`
+	FeeSubcategory         DropdownSimple       `json:"fee_subcategory"`
 	DecisionNumber         string               `json:"decision_number"`
 	DecisionDate           time.Time            `json:"decision_date"`
 	Subject                string               `json:"subject"`

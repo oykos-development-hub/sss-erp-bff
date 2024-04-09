@@ -22,7 +22,7 @@ const (
 
 type ProcedureCostResponseItem struct {
 	ID                      int                           `json:"id"`
-	ActType                 ProcedureCostType             `json:"procedure_cost_type"`
+	ActType                 DropdownSimple                `json:"procedure_cost_type"`
 	DecisionNumber          string                        `json:"decision_number"`
 	DecisionDate            time.Time                     `json:"decision_date"`
 	Subject                 string                        `json:"subject"`

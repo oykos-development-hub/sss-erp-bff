@@ -130,6 +130,7 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 		CoefficientLess700:                   item.CoefficientLess700,
 		CoefficientLess1000:                  item.CoefficientLess1000,
 		CoefficientMore1000:                  item.CoefficientMore1000,
+		IncludeSubtax:                        item.IncludeSubtax,
 	}
 
 	if item.TaxSupplierID != 0 {

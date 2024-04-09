@@ -89,6 +89,9 @@ var TaxAuthorityCodebooksType = graphql.NewObject(graphql.ObjectConfig{
 		"coefficient_more_1000": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"include_subtax": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.DateTime,
 		},

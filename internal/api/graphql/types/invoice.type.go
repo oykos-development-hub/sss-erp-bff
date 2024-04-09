@@ -101,6 +101,9 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		"order_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"order": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},

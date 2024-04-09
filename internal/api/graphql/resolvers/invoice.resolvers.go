@@ -977,6 +977,20 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		response.Activity = dropdown
 	}
 
+	if invoice.OrderID != 0 {
+		order, err := r.Repo.GetOrderListByID(invoice.OrderID)
+
+		if err != nil {
+			return nil, err
+		}
+		dropdown := dto.DropdownSimple{
+			ID:    order.ID,
+			Title: *order.InvoiceNumber,
+		}
+		response.Order = dropdown
+
+	}
+
 	articles, err := r.Repo.GetInvoiceArticleList(invoice.ID)
 
 	if err != nil {

@@ -984,9 +984,15 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 			return nil, err
 		}
 		dropdown := dto.DropdownSimple{
-			ID:    order.ID,
-			Title: *order.InvoiceNumber,
+			ID: order.ID,
 		}
+
+		if order.InvoiceNumber != nil {
+			dropdown.Title = *order.InvoiceNumber
+		} else {
+			dropdown.Title = order.ProFormaInvoiceNumber
+		}
+
 		response.Order = dropdown
 
 	}

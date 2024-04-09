@@ -165,6 +165,9 @@ type TaxAuthorityCodebookResponse struct {
 	CoefficientLess700                   float64        `json:"coefficient_less_700"`
 	CoefficientLess1000                  float64        `json:"coefficient_less_1000"`
 	CoefficientMore1000                  float64        `json:"coefficient_more_1000"`
+	AmountLess700                        float64        `json:"amount_less_700"`
+	AmountLess1000                       float64        `json:"amount_less_1000"`
+	AmountMore1000                       float64        `json:"amount_more_1000"`
 	IncludeSubtax                        bool           `json:"include_subtax"`
 	CreatedAt                            time.Time      `json:"created_at"`
 	UpdatedAt                            time.Time      `json:"updated_at"`

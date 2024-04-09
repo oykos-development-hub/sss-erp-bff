@@ -130,6 +130,9 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 		CoefficientLess700:                   item.CoefficientLess700,
 		CoefficientLess1000:                  item.CoefficientLess1000,
 		CoefficientMore1000:                  item.CoefficientMore1000,
+		AmountLess700:                        item.AmountLess700,
+		AmountLess1000:                       item.AmountLess1000,
+		AmountMore1000:                       item.AmountMore1000,
 		IncludeSubtax:                        item.IncludeSubtax,
 	}
 

@@ -29,6 +29,9 @@ var InvoiceMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"type_of_contract": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"type_of_decision": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"source_of_funding": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

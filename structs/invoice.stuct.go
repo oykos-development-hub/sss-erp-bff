@@ -10,6 +10,7 @@ type Invoice struct {
 	InvoiceNumber          string               `json:"invoice_number"`
 	Status                 string               `json:"status"`
 	Type                   string               `json:"type"`
+	TypeOfDecision         string               `json:"type_of_decision"`
 	TypeOfSubject          int                  `json:"type_of_subject"`
 	TypeOfContract         int                  `json:"type_of_contract"`
 	SourceOfFunding        int                  `json:"source_of_funding"`

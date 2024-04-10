@@ -802,6 +802,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		IsInvoice:             invoice.IsInvoice,
 		InvoiceNumber:         invoice.InvoiceNumber,
 		Type:                  invoice.Type,
+		TypeOfDecision:        invoice.TypeOfDecision,
 		SupplierTitle:         invoice.Supplier,
 		DateOfStart:           invoice.DateOfStart,
 		Status:                invoice.Status,

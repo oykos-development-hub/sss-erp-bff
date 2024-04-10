@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -414,16 +415,24 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		//konvertuje neto u bruto
 		if previousIncomeNetOK && taxAuthorityCodebook.Coefficient != 0 {
 			previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.Coefficient
+			helper := math.Round(previousIncomeGross*100) / 100
+			previousIncomeGross = float64(helper)
 		} else if previousIncomeNetOK && taxAuthorityCodebook.Coefficient == 0 {
 			if previousIncomeNet < taxAuthorityCodebook.AmountLess700 {
 				previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.CoefficientLess700
+				helper := math.Round(previousIncomeGross*100) / 100
+				previousIncomeGross = float64(helper)
 			} else if previousIncomeNet > taxAuthorityCodebook.AmountLess1000 {
 				previousIncomeGross = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 					(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
 					(previousIncomeNet-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
+				helper := math.Round(previousIncomeGross*100) / 100
+				previousIncomeGross = float64(helper)
 			} else {
 				previousIncomeGross = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 					(previousIncomeNet-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000)
+				helper := math.Round(previousIncomeGross*100) / 100
+				previousIncomeGross = float64(helper)
 			}
 		}
 
@@ -442,6 +451,8 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 		if taxAuthorityCodebook.Coefficient != 0 {
 			grossPrice = netPrice / taxAuthorityCodebook.Coefficient
+			helper := math.Round(grossPrice*100) / 100
+			grossPrice = float64(helper)
 		} else if previousIncomeNetOK {
 			if !previousIncomeGrossOK {
 				sumNetPrice := previousIncomeNet + netPrice
@@ -449,26 +460,38 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 				//konvertuje neto u bruto
 				if sumNetPrice < taxAuthorityCodebook.AmountLess700 {
 					sumNetPrice = sumNetPrice / taxAuthorityCodebook.CoefficientLess700
+					helper := math.Round(sumNetPrice*100) / 100
+					sumNetPrice = float64(helper)
 				} else if sumNetPrice > taxAuthorityCodebook.AmountLess1000 {
 					sumNetPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 						(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
 						(sumNetPrice-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
+					helper := math.Round(sumNetPrice*100) / 100
+					sumNetPrice = float64(helper)
 				} else {
 					sumNetPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 						(sumNetPrice-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000)
+					helper := math.Round(sumNetPrice*100) / 100
+					sumNetPrice = float64(helper)
 				}
 				grossPrice = sumNetPrice - previousIncomeGross
 			}
 		} else {
 			if netPrice < taxAuthorityCodebook.AmountLess700 {
 				grossPrice = netPrice / taxAuthorityCodebook.CoefficientLess700
+				helper := math.Round(grossPrice*100) / 100
+				grossPrice = float64(helper)
 			} else if netPrice > taxAuthorityCodebook.AmountLess1000 {
 				grossPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 					(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
 					(netPrice-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
+				helper := math.Round(grossPrice*100) / 100
+				grossPrice = float64(helper)
 			} else {
 				grossPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 					(netPrice-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000)
+				helper := math.Round(grossPrice*100) / 100
+				grossPrice = float64(helper)
 			}
 		}
 
@@ -500,6 +523,8 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	//oslobodjenje
 	if taxAuthorityCodebook.ReleasePercentage != 0 {
 		grossPrice = grossPrice - grossPrice*taxAuthorityCodebook.ReleasePercentage/100
+		helper := math.Round(grossPrice*100) / 100
+		grossPrice = float64(helper)
 	}
 
 	var taxPrice float64
@@ -507,6 +532,8 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	if taxAuthorityCodebook.TaxPercentage != 0 {
 
 		taxPrice = grossPrice * taxAuthorityCodebook.TaxPercentage / 100
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
 
@@ -550,6 +577,8 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		if firstGross > 0 {
 			taxPrice = firstGross * taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000 / 100
 			remainGross -= firstGross
+			helper := math.Round(taxPrice*100) / 100
+			taxPrice = float64(helper)
 		}
 
 		secondGross := remainGross - 700
@@ -562,7 +591,13 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 		taxPrice += secondGross * taxAuthorityCodebook.PreviousIncomePercentageLessThan1000 / 100
 
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
+
 		taxPrice += remainGross * taxAuthorityCodebook.PreviousIncomePercentageLessThan700 / 100
+
+		helper = math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  "Porez",
@@ -581,9 +616,13 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 	}
 
+	subTaxPrice := float64(taxPrice) * float64(municipality.TaxPercentage/100)
+	helper := math.Round(subTaxPrice*100) / 100
+	subTaxPrice = float64(helper)
+
 	additionalExpenseTax := dto.AdditionalExpensesResponse{
 		Title:  "Prirez",
-		Price:  float32(taxPrice) * float32(municipality.TaxPercentage/100),
+		Price:  float32(subTaxPrice),
 		Status: structs.AdditionalExpenseStatusCreated,
 		OrganizationUnit: dto.DropdownSimple{
 			ID:    organizationUnit.ID,
@@ -600,6 +639,9 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	//fond rada
 	if taxAuthorityCodebook.LaborFund != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.LaborFund / 100
+
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.LaborFundSupplierID)
 
@@ -628,6 +670,9 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	if taxAuthorityCodebook.PioPercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentage / 100
 
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
+
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
 		if err != nil {
@@ -654,6 +699,9 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	//pio na teret zaposlenog
 	if taxAuthorityCodebook.PioPercentageEmployeePercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployeePercentage / 100
+
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
@@ -682,6 +730,9 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	if taxAuthorityCodebook.PioPercentageEmployerPercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployerPercentage / 100
 
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
+
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
 		if err != nil {
@@ -708,6 +759,9 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	//za nezaposlenost
 	if taxAuthorityCodebook.UnemploymentPercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentPercentage / 100
+
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
@@ -736,6 +790,9 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	if taxAuthorityCodebook.UnemploymentEmployerPercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentEmployerPercentage / 100
 
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
+
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
 		if err != nil {
@@ -763,6 +820,9 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	if taxAuthorityCodebook.UnemploymentEmployeePercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentEmployeePercentage / 100
 
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
+
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
 		if err != nil {
@@ -785,6 +845,33 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 	}
+
+	for _, item := range additionalExpenses {
+		//ako prirez ne ide na teret poslodavca, ili je nesto na teret poslodavca, ne pravi razliku izmedju bruto i neto
+		if (item.Title == "Prirez" && !taxAuthorityCodebook.IncludeSubtax) ||
+			(item.Title == "Nezaposlenost na teret poslodavca") || (item.Title == "PIO na teret poslodavca") || (item.Title == "Fond rada") {
+			grossPrice -= 0
+		} else {
+			grossPrice -= float64(item.Price)
+		}
+	}
+
+	additionalExpenseTax = dto.AdditionalExpensesResponse{
+		Title:  "Neto",
+		Price:  float32(grossPrice),
+		Status: structs.AdditionalExpenseStatusCreated,
+		OrganizationUnit: dto.DropdownSimple{
+			ID:    organizationUnit.ID,
+			Title: organizationUnit.Title,
+		},
+		/*	ime subjekta kojem se uplacuje
+			Subject: dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			},*/
+	}
+
+	additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 
 	return dto.Response{
 		Status:  "success",

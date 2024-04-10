@@ -407,9 +407,9 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	municipalityID := params.Args["municipality_id"].(int)
 
 	previousIncomeGross, previousIncomeGrossOK := params.Args["previous_income_gross"].(float64)
+	previousIncomeNet, previousIncomeNetOK := params.Args["previous_income_net"].(float64)
 
 	if !previousIncomeGrossOK {
-		previousIncomeNet, previousIncomeNetOK := params.Args["previous_income_net"].(float64)
 
 		//konvertuje neto u bruto
 		if previousIncomeNetOK && taxAuthorityCodebook.Coefficient != 0 {
@@ -419,13 +419,14 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 				previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.CoefficientLess700
 			} else if previousIncomeNet > taxAuthorityCodebook.AmountLess1000 {
 				previousIncomeGross = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
-					(973-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
+					(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
 					(previousIncomeNet-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
 			} else {
 				previousIncomeGross = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 					(previousIncomeNet-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000)
 			}
 		}
+
 	}
 
 	grossPrice, grossPriceOK := params.Args["gross_price"].(float64)
@@ -441,12 +442,29 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 		if taxAuthorityCodebook.Coefficient != 0 {
 			grossPrice = netPrice / taxAuthorityCodebook.Coefficient
+		} else if previousIncomeNetOK {
+			if !previousIncomeGrossOK {
+				sumNetPrice := previousIncomeNet + netPrice
+
+				//konvertuje neto u bruto
+				if sumNetPrice < taxAuthorityCodebook.AmountLess700 {
+					sumNetPrice = sumNetPrice / taxAuthorityCodebook.CoefficientLess700
+				} else if sumNetPrice > taxAuthorityCodebook.AmountLess1000 {
+					sumNetPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
+						(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
+						(sumNetPrice-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
+				} else {
+					sumNetPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
+						(sumNetPrice-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000)
+				}
+				grossPrice = sumNetPrice - previousIncomeGross
+			}
 		} else {
 			if netPrice < taxAuthorityCodebook.AmountLess700 {
 				grossPrice = netPrice / taxAuthorityCodebook.CoefficientLess700
-			} else if netPrice < taxAuthorityCodebook.AmountLess1000 {
+			} else if netPrice > taxAuthorityCodebook.AmountLess1000 {
 				grossPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
-					(973-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
+					(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
 					(netPrice-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
 			} else {
 				grossPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +

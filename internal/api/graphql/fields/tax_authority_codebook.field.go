@@ -19,7 +19,8 @@ func (f *Field) TaxAuthorityCodebooksOverviewField() *graphql.Field {
 				Type: graphql.String,
 			},
 			"active": &graphql.ArgumentConfig{
-				Type: graphql.Boolean,
+				Type:         graphql.Boolean,
+				DefaultValue: true,
 			},
 		},
 		Resolve: f.Resolvers.TaxAuthorityCodebooksOverviewResolver,

@@ -396,6 +396,81 @@ func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolvePara
 	}, nil
 }
 
+func calculateCoefficient(item structs.TaxAuthorityCodebook, subTax float64) float64 {
+	var coefficient float64
+
+	coefficient = 1
+	release := item.ReleasePercentage
+
+	if release != 0 {
+		if item.TaxPercentage != 0 {
+			coefficient -= (1 - release/100) * (item.TaxPercentage / 100)
+			if subTax != 0 {
+				coefficient -= (1 - release/100) * (item.TaxPercentage / 100) * (subTax / 100)
+			}
+		}
+		if item.PioPercentage != 0 {
+			coefficient -= (1 - release/100) * (item.PioPercentage / 100)
+		}
+	} else {
+		if item.TaxPercentage != 0 {
+			coefficient -= 1 - (item.TaxPercentage / 100)
+			if subTax != 0 {
+				coefficient -= 1 - (item.TaxPercentage/100)*(subTax/100)
+			}
+		}
+		if item.PioPercentage != 0 {
+			coefficient -= 1 - (item.PioPercentage / 100)
+		}
+	}
+
+	return coefficient
+}
+
+func calculateCoefficientLess700(item structs.TaxAuthorityCodebook, previousIncomeGross float64, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (float64, float64, error) {
+
+	additionalExpenses, err := calculateAdditionalExpenses(item, float64(700), previousIncomeGross, r, organizationUnit, municipality)
+
+	if err != nil {
+		return float64(0), float64(0), err
+	}
+
+	maxNetAmount := additionalExpenses[len(additionalExpenses)-1].Price
+
+	coefficient := maxNetAmount / 700
+
+	return float64(coefficient), float64(maxNetAmount), nil
+}
+
+func calculateCoefficientLess1000(item structs.TaxAuthorityCodebook, previousIncomeGross float64, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (float64, float64, error) {
+
+	additionalExpenses, err := calculateAdditionalExpenses(item, float64(1000), previousIncomeGross, r, organizationUnit, municipality)
+
+	if err != nil {
+		return float64(0), float64(0), err
+	}
+
+	maxNetAmount := additionalExpenses[len(additionalExpenses)-1].Price
+
+	_, amount, err := calculateCoefficientLess700(item, previousIncomeGross, r, organizationUnit, municipality)
+
+	if err != nil {
+		return float64(0), float64(0), err
+	}
+
+	coefficient := (maxNetAmount - float32(amount)) / 300
+
+	return float64(coefficient), float64(maxNetAmount), nil
+}
+
+func calculateCoefficientMore1000(item structs.TaxAuthorityCodebook, previousIncomeGross float64, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (float64, float64, error) {
+
+	coefficient := item.PreviousIncomePercentageMoreThan1000 + item.PioPercentage + item.PioPercentageEmployeePercentage +
+		item.UnemploymentEmployeePercentage + item.UnemploymentPercentage
+
+	return float64(1 - coefficient/100), float64(0), nil
+}
+
 func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolveParams) (interface{}, error) {
 	taxAuthorityCodebookID := params.Args["tax_authority_codebook_id"].(int)
 
@@ -407,17 +482,52 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	municipalityID := params.Args["municipality_id"].(int)
 
+	municipality, err := r.Repo.GetSupplier(municipalityID)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok || organizationUnitID == nil {
+		return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+	}
+
+	organizationUnit, err := r.Repo.GetOrganizationUnitByID(*organizationUnitID)
+
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
 	previousIncomeGross, previousIncomeGrossOK := params.Args["previous_income_gross"].(float64)
 	previousIncomeNet, previousIncomeNetOK := params.Args["previous_income_net"].(float64)
+
+	taxAuthorityCodebook.CoefficientLess700, taxAuthorityCodebook.AmountLess700, err = calculateCoefficientLess700(*taxAuthorityCodebook, 0, r, organizationUnit, *municipality)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	taxAuthorityCodebook.CoefficientLess1000, taxAuthorityCodebook.AmountLess1000, err = calculateCoefficientLess1000(*taxAuthorityCodebook, 0, r, organizationUnit, *municipality)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	taxAuthorityCodebook.CoefficientMore1000, taxAuthorityCodebook.AmountMore1000, err = calculateCoefficientMore1000(*taxAuthorityCodebook, 0, r, organizationUnit, *municipality)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
 
 	if !previousIncomeGrossOK {
 
 		//konvertuje neto u bruto
-		if previousIncomeNetOK && taxAuthorityCodebook.Coefficient != 0 {
+		if previousIncomeNetOK && taxAuthorityCodebook.TaxPercentage != 0 {
+			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage))
 			previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.Coefficient
 			helper := math.Round(previousIncomeGross*100) / 100
 			previousIncomeGross = float64(helper)
-		} else if previousIncomeNetOK && taxAuthorityCodebook.Coefficient == 0 {
+
+		} else if previousIncomeNetOK && taxAuthorityCodebook.TaxPercentage == 0 {
+
 			if previousIncomeNet < taxAuthorityCodebook.AmountLess700 {
 				previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.CoefficientLess700
 				helper := math.Round(previousIncomeGross*100) / 100
@@ -449,11 +559,13 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 			return errors.HandleAPIError(err)
 		}
 
-		if taxAuthorityCodebook.Coefficient != 0 {
+		if taxAuthorityCodebook.TaxPercentage != 0 {
+			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage))
 			grossPrice = netPrice / taxAuthorityCodebook.Coefficient
 			helper := math.Round(grossPrice*100) / 100
 			grossPrice = float64(helper)
 		} else if previousIncomeNetOK {
+			//ne valja
 			if !previousIncomeGrossOK {
 				sumNetPrice := previousIncomeNet + netPrice
 
@@ -497,28 +609,24 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	}
 
-	municipality, err := r.Repo.GetSupplier(municipalityID)
+	additionalExpenses, err := calculateAdditionalExpenses(*taxAuthorityCodebook, grossPrice, previousIncomeGross, r, organizationUnit, *municipality)
 
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   additionalExpenses,
+		//	Total:   total,
+	}, nil
+}
 
-	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-	if !ok || organizationUnitID == nil {
-		return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
-	}
-
-	organizationUnit, err := r.Repo.GetOrganizationUnitByID(*organizationUnitID)
-
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
-
+func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebook, grossPrice float64, previousIncomeGross float64, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) ([]dto.AdditionalExpensesResponse, error) {
 	var additionalExpenses []dto.AdditionalExpensesResponse
+
+	nonReleasedGrossPrice := grossPrice
 
 	//oslobodjenje
 	if taxAuthorityCodebook.ReleasePercentage != 0 {
@@ -538,7 +646,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
 
 		if err != nil {
-			return errors.HandleAPIError(errors.APIError{Message: "tax supplier is not valid"})
+			return nil, err
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -563,7 +671,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
 
 		if err != nil {
-			return errors.HandleAPIError(errors.APIError{Message: "tax supplier is not valid"})
+			return nil, err
 		}
 
 		remainGross := grossPrice
@@ -646,7 +754,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.LaborFundSupplierID)
 
 		if err != nil {
-			return errors.HandleAPIError(errors.APIError{Message: "labor fund supplier is not valid"})
+			return nil, err
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -676,7 +784,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
 		if err != nil {
-			return errors.HandleAPIError(errors.APIError{Message: "pio supplier is not valid"})
+			return nil, err
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -706,7 +814,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
 		if err != nil {
-			return errors.HandleAPIError(errors.APIError{Message: "pio supplier is not valid"})
+			return nil, err
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -736,7 +844,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
 		if err != nil {
-			return errors.HandleAPIError(errors.APIError{Message: "pio supplier is not valid"})
+			return nil, err
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -766,7 +874,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
 		if err != nil {
-			return errors.HandleAPIError(errors.APIError{Message: "unemployment supplier is not valid"})
+			return nil, err
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -796,7 +904,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
 		if err != nil {
-			return errors.HandleAPIError(errors.APIError{Message: "unemployment supplier is not valid"})
+			return nil, err
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -826,7 +934,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
 		if err != nil {
-			return errors.HandleAPIError(errors.APIError{Message: "unemployment supplier is not valid"})
+			return nil, err
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -850,15 +958,15 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		//ako prirez ne ide na teret poslodavca, ili je nesto na teret poslodavca, ne pravi razliku izmedju bruto i neto
 		if (item.Title == "Prirez" && !taxAuthorityCodebook.IncludeSubtax) ||
 			(item.Title == "Nezaposlenost na teret poslodavca") || (item.Title == "PIO na teret poslodavca") || (item.Title == "Fond rada") {
-			grossPrice -= 0
+			nonReleasedGrossPrice -= 0
 		} else {
-			grossPrice -= float64(item.Price)
+			nonReleasedGrossPrice -= float64(item.Price)
 		}
 	}
 
 	additionalExpenseTax = dto.AdditionalExpensesResponse{
 		Title:  "Neto",
-		Price:  float32(grossPrice),
+		Price:  float32(nonReleasedGrossPrice),
 		Status: structs.AdditionalExpenseStatusCreated,
 		OrganizationUnit: dto.DropdownSimple{
 			ID:    organizationUnit.ID,
@@ -873,12 +981,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   additionalExpenses,
-		//	Total:   total,
-	}, nil
+	return additionalExpenses, nil
 }
 
 func buildInvoiceResponseItemList(ctx context.Context, r *Resolver, itemList []structs.Invoice) ([]*dto.InvoiceResponseItem, error) {

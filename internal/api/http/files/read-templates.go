@@ -2060,7 +2060,7 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 
 					additionalSalaryExpense.Title = value
 
-					if value == "Doprinosi" || value == "Porezi" || value == "Prirezi" || value == "Obustave" || value == "Banke" {
+					if value == "Doprinosi" || value == "Porezi" || value == "Prirezi" || value == "Obustave" || value == "Banka" {
 						typeOfInput = value
 					}
 

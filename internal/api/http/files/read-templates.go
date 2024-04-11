@@ -2051,7 +2051,7 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 					case "Porezi":
 						additionalSalaryExpense.Type = "taxes"
 					case "Obustave":
-						additionalSalaryExpense.Type = "deductions"
+						additionalSalaryExpense.Type = "suspensions"
 					case "Prirezi":
 						additionalSalaryExpense.Type = "subtaxes"
 					case "Banke":
@@ -2073,6 +2073,91 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 					if err != nil && value != "" && additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
 						responseMessage := ValidationResponse{
 							Column:  7,
+							Row:     rowindex,
+							Message: "Iznos nije ispravno unijet!",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else {
+						additionalSalaryExpense.Amount = price
+					}
+
+				}
+			}
+			if additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
+				additionalSalaryExpense.OrganizationUnitID = organizationUnitID
+				additionalSalaryExpense.Status = "created"
+				response.Data = append(response.Data, additionalSalaryExpense)
+			}
+		}
+	}
+
+	/*	if len(response.Validation) == 0 {
+			response.Data = item
+		}
+	*/
+	response.Status = "success"
+	response.Message = "File was read successfuly"
+	_ = MarshalAndWriteJSON(w, response)
+}
+
+func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Request) {
+	var response ImportSalaries
+
+	xlsFile, err := openExcelFile(r)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	organizationUnitIDStr := r.FormValue("organization_unit_id")
+
+	organizationUnitID, err := strconv.Atoi(organizationUnitIDStr)
+
+	if err != nil {
+		handleError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	sheetMap := xlsFile.GetSheetMap()
+
+	for _, sheetName := range sheetMap {
+
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := 0
+
+		for rows.Next() {
+			rowindex++
+
+			cols := rows.Columns()
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+
+			additionalSalaryExpense := structs.SalaryAdditionalExpense{}
+			//var err error
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				switch cellIndex {
+				case 1:
+					if value != "" && value != "Zaposleni" {
+						additionalSalaryExpense.Title = value
+						additionalSalaryExpense.Type = "suspensions"
+					}
+				case 4:
+					additionalSalaryExpense.BankAccount = value
+				case 10:
+					price, err := strconv.ParseFloat(value, 32)
+
+					if err != nil && value != "" && additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
+						responseMessage := ValidationResponse{
+							Column:  10,
 							Row:     rowindex,
 							Message: "Iznos nije ispravno unijet!",
 						}

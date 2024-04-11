@@ -12,7 +12,7 @@ import (
 func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
 	id := params.Args["id"]
 	search, searchOk := params.Args["search"].(string)
-	active, activeOk := params.Args["search"].(bool)
+	active, activeOk := params.Args["active"].(bool)
 
 	var (
 		items []dto.TaxAuthorityCodebookResponse

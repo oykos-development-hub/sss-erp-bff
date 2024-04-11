@@ -345,6 +345,7 @@ type MicroserviceRepositoryInterface interface {
 	GetTaxAuthorityCodebooks(input dto.TaxAuthorityCodebookFilter) (*dto.GetTaxAuthorityCodebooksResponseMS, error)
 	CreateTaxAuthorityCodebook(item *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error)
 	UpdateTaxAuthorityCodebook(id int, data *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error)
+	DeactivateTaxAuthorityCodebook(id int, active bool) error
 	DeleteTaxAuthorityCodebook(id int) error
 
 	CreateFee(item *structs.Fee) (*structs.Fee, error)

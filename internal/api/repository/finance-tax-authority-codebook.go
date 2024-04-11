@@ -35,6 +35,18 @@ func (repo *MicroserviceRepository) UpdateTaxAuthorityCodebook(id int, data *str
 	return &res.Data, nil
 }
 
+func (repo *MicroserviceRepository) DeactivateTaxAuthorityCodebook(id int, active bool) error {
+	data := structs.TaxAuthorityCodebook{
+		Active: active,
+	}
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.DeactivateTaxAuthorityCodebook+"/"+strconv.Itoa(id), data, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repo *MicroserviceRepository) GetTaxAuthorityCodebooks(input dto.TaxAuthorityCodebookFilter) (*dto.GetTaxAuthorityCodebooksResponseMS, error) {
 	res := &dto.GetTaxAuthorityCodebooksResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.TaxAuthorityCodebook, input, res)

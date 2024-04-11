@@ -80,17 +80,25 @@ func (r *Resolver) TaxAuthorityCodebooksInsertResolver(params graphql.ResolvePar
 	}
 
 	if itemID != 0 {
-		itemRes, err := r.Repo.UpdateTaxAuthorityCodebook(itemID, &data)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-		response.Message = "You updated this item!"
-		responseItem, err := buildTaxAuthorityCodeBook(*itemRes, r)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-		response.Item = responseItem
 
+		if data.Code == "" && data.Title == "" {
+			err := r.Repo.DeactivateTaxAuthorityCodebook(itemID, data.Active)
+
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+		} else {
+			itemRes, err := r.Repo.UpdateTaxAuthorityCodebook(itemID, &data)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+			response.Message = "You updated this item!"
+			responseItem, err := buildTaxAuthorityCodeBook(*itemRes, r)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+			response.Item = responseItem
+		}
 	} else {
 		itemRes, err := r.Repo.CreateTaxAuthorityCodebook(&data)
 		if err != nil {

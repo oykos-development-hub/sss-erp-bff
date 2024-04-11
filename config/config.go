@@ -58,38 +58,39 @@ type MicroservicesConfig struct {
 }
 
 type FinanceMS struct {
-	Base                      string
-	Budget                    string
-	BudgetRequest             string
-	Program                   string
-	Activity                  string
-	FinancialBudget           string
-	FilledFinancialBudget     string
-	FinancialBudgetLimit      string
-	NonFinancialBudget        string
-	NonFinancialGoal          string
-	NonFinancialGoalIndicator string
-	Invoice                   string
-	InvoiceArticle            string
-	AdditionalExpenses        string
-	TaxAuthorityCodebook      string
-	Fee                       string
-	FeePayment                string
-	Fine                      string
-	FinePayment               string
-	ProcedureCost             string
-	ProcedureCostPayment      string
-	FlatRate                  string
-	FlatRatePayment           string
-	PropBenConf               string
-	PropBenConfPayment        string
-	FixedDeposit              string
-	FixedDepositItem          string
-	FixedDepositJudge         string
-	FixedDepositDispatch      string
-	FixedDepositWill          string
-	FixedDepositWillDispatch  string
-	Salary                    string
+	Base                           string
+	Budget                         string
+	BudgetRequest                  string
+	Program                        string
+	Activity                       string
+	FinancialBudget                string
+	FilledFinancialBudget          string
+	FinancialBudgetLimit           string
+	NonFinancialBudget             string
+	NonFinancialGoal               string
+	NonFinancialGoalIndicator      string
+	Invoice                        string
+	InvoiceArticle                 string
+	AdditionalExpenses             string
+	TaxAuthorityCodebook           string
+	DeactivateTaxAuthorityCodebook string
+	Fee                            string
+	FeePayment                     string
+	Fine                           string
+	FinePayment                    string
+	ProcedureCost                  string
+	ProcedureCostPayment           string
+	FlatRate                       string
+	FlatRatePayment                string
+	PropBenConf                    string
+	PropBenConfPayment             string
+	FixedDeposit                   string
+	FixedDepositItem               string
+	FixedDepositJudge              string
+	FixedDepositDispatch           string
+	FixedDepositWill               string
+	FixedDepositWillDispatch       string
+	Salary                         string
 }
 
 type ProcurementMS struct {
@@ -336,38 +337,39 @@ func LoadDefaultConfig() (*Config, error) {
 				Stock:                    accountingBase + "/stocks",
 			},
 			Finance: FinanceMS{
-				Base:                      financeBase,
-				Budget:                    financeBase + "/budgets",
-				BudgetRequest:             financeBase + "/budget-requests",
-				FinancialBudget:           financeBase + "/financial-budgets",
-				FilledFinancialBudget:     financeBase + "/filled-financial-budgets",
-				FinancialBudgetLimit:      financeBase + "/financial-budget-limits",
-				Program:                   financeBase + "/programs",
-				Activity:                  financeBase + "/activities",
-				NonFinancialGoal:          financeBase + "/non-financial-budget-goals",
-				NonFinancialBudget:        financeBase + "/non-financial-budgets",
-				NonFinancialGoalIndicator: financeBase + "/goal-indicators",
-				Invoice:                   financeBase + "/invoices",
-				InvoiceArticle:            financeBase + "/articles",
-				AdditionalExpenses:        financeBase + "/additional-expenses",
-				TaxAuthorityCodebook:      financeBase + "/tax-authority-codebooks",
-				Fee:                       financeBase + "/fees",
-				FeePayment:                financeBase + "/fee-payments",
-				Fine:                      financeBase + "/fines",
-				FinePayment:               financeBase + "/fine-payments",
-				ProcedureCost:             financeBase + "/procedure-costs",
-				ProcedureCostPayment:      financeBase + "/procedure-cost-payments",
-				FlatRate:                  financeBase + "/flat-rates",
-				FlatRatePayment:           financeBase + "/flat-rate-payments",
-				PropBenConf:               financeBase + "/property-benefits-confiscations",
-				PropBenConfPayment:        financeBase + "/property-benefits-confiscation-payments",
-				FixedDeposit:              financeBase + "/fixed-deposits",
-				FixedDepositItem:          financeBase + "/fixed-deposit-items",
-				FixedDepositDispatch:      financeBase + "/fixed-deposit-dispatches",
-				FixedDepositJudge:         financeBase + "/fixed-deposit-judges",
-				FixedDepositWill:          financeBase + "/fixed-deposit-wills",
-				FixedDepositWillDispatch:  financeBase + "/fixed-deposit-will-dispatches",
-				Salary:                    financeBase + "/salaries",
+				Base:                           financeBase,
+				Budget:                         financeBase + "/budgets",
+				BudgetRequest:                  financeBase + "/budget-requests",
+				FinancialBudget:                financeBase + "/financial-budgets",
+				FilledFinancialBudget:          financeBase + "/filled-financial-budgets",
+				FinancialBudgetLimit:           financeBase + "/financial-budget-limits",
+				Program:                        financeBase + "/programs",
+				Activity:                       financeBase + "/activities",
+				NonFinancialGoal:               financeBase + "/non-financial-budget-goals",
+				NonFinancialBudget:             financeBase + "/non-financial-budgets",
+				NonFinancialGoalIndicator:      financeBase + "/goal-indicators",
+				Invoice:                        financeBase + "/invoices",
+				InvoiceArticle:                 financeBase + "/articles",
+				AdditionalExpenses:             financeBase + "/additional-expenses",
+				TaxAuthorityCodebook:           financeBase + "/tax-authority-codebooks",
+				DeactivateTaxAuthorityCodebook: financeBase + "/tax-authority-codebook-deactivate",
+				Fee:                            financeBase + "/fees",
+				FeePayment:                     financeBase + "/fee-payments",
+				Fine:                           financeBase + "/fines",
+				FinePayment:                    financeBase + "/fine-payments",
+				ProcedureCost:                  financeBase + "/procedure-costs",
+				ProcedureCostPayment:           financeBase + "/procedure-cost-payments",
+				FlatRate:                       financeBase + "/flat-rates",
+				FlatRatePayment:                financeBase + "/flat-rate-payments",
+				PropBenConf:                    financeBase + "/property-benefits-confiscations",
+				PropBenConfPayment:             financeBase + "/property-benefits-confiscation-payments",
+				FixedDeposit:                   financeBase + "/fixed-deposits",
+				FixedDepositItem:               financeBase + "/fixed-deposit-items",
+				FixedDepositDispatch:           financeBase + "/fixed-deposit-dispatches",
+				FixedDepositJudge:              financeBase + "/fixed-deposit-judges",
+				FixedDepositWill:               financeBase + "/fixed-deposit-wills",
+				FixedDepositWillDispatch:       financeBase + "/fixed-deposit-will-dispatches",
+				Salary:                         financeBase + "/salaries",
 			},
 		},
 		Frontend: FrontendConfig{

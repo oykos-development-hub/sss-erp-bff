@@ -56,6 +56,9 @@ var SalaryAdditionalExpensesMutation = graphql.NewInputObject(graphql.InputObjec
 		"status": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"title": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"organization_unit_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

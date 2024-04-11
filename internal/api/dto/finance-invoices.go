@@ -142,30 +142,30 @@ type TaxAuthorityCodebookResponse struct {
 	Title                                string         `json:"title"`
 	Code                                 string         `json:"code"`
 	Active                               bool           `json:"active"`
-	TaxPercentage                        float64        `json:"tax_percentage"`
+	TaxPercentage                        *float64       `json:"tax_percentage"`
 	TaxSupplier                          DropdownSimple `json:"tax_supplier"`
-	ReleasePercentage                    float64        `json:"release_percentage"`
-	PioPercentage                        float64        `json:"pio_percentage"`
+	ReleasePercentage                    *float64       `json:"release_percentage"`
+	PioPercentage                        *float64       `json:"pio_percentage"`
 	PioSupplier                          DropdownSimple `json:"pio_supplier"`
-	PioPercentageEmployerPercentage      float64        `json:"pio_percentage_employer_percentage"`
+	PioPercentageEmployerPercentage      *float64       `json:"pio_percentage_employer_percentage"`
 	PioEmployerSupplier                  DropdownSimple `json:"pio_employer_supplier"`
-	PioPercentageEmployeePercentage      float64        `json:"pio_percentage_employee_percentage"`
+	PioPercentageEmployeePercentage      *float64       `json:"pio_percentage_employee_percentage"`
 	PioEmployeeSupplier                  DropdownSimple `json:"pio_employee_supplier"`
-	UnemploymentPercentage               float64        `json:"unemployment_percentage"`
+	UnemploymentPercentage               *float64       `json:"unemployment_percentage"`
 	UnemploymentSupplier                 DropdownSimple `json:"unemployment_supplier"`
-	UnemploymentEmployerPercentage       float64        `json:"unemployment_employer_percentage"`
+	UnemploymentEmployerPercentage       *float64       `json:"unemployment_employer_percentage"`
 	UnemploymentEmployerSupplier         DropdownSimple `json:"unemployment_employer_supplier"`
-	UnemploymentEmployeePercentage       float64        `json:"unemployment_employee_percentage"`
+	UnemploymentEmployeePercentage       *float64       `json:"unemployment_employee_percentage"`
 	UnemploymentEmployeeSupplier         DropdownSimple `json:"unemployment_employee_supplier"`
-	LaborFund                            float64        `json:"labor_fund"`
+	LaborFund                            *float64       `json:"labor_fund"`
 	LaborFundSupplier                    DropdownSimple `json:"labor_fund_supplier"`
-	PreviousIncomePercentageLessThan700  float64        `json:"previous_income_percentage_less_than_700"`
-	PreviousIncomePercentageLessThan1000 float64        `json:"previous_income_percentage_less_than_1000"`
-	PreviousIncomePercentageMoreThan1000 float64        `json:"previous_income_percentage_more_than_1000"`
-	Coefficient                          float64        `json:"coefficient"`
-	CoefficientLess700                   float64        `json:"coefficient_less_700"`
-	CoefficientLess1000                  float64        `json:"coefficient_less_1000"`
-	CoefficientMore1000                  float64        `json:"coefficient_more_1000"`
+	PreviousIncomePercentageLessThan700  *float64       `json:"previous_income_percentage_less_than_700"`
+	PreviousIncomePercentageLessThan1000 *float64       `json:"previous_income_percentage_less_than_1000"`
+	PreviousIncomePercentageMoreThan1000 *float64       `json:"previous_income_percentage_more_than_1000"`
+	Coefficient                          *float64       `json:"coefficient"`
+	CoefficientLess700                   *float64       `json:"coefficient_less_700"`
+	CoefficientLess1000                  *float64       `json:"coefficient_less_1000"`
+	CoefficientMore1000                  *float64       `json:"coefficient_more_1000"`
 	AmountLess700                        float64        `json:"amount_less_700"`
 	AmountLess1000                       float64        `json:"amount_less_1000"`
 	AmountMore1000                       float64        `json:"amount_more_1000"`

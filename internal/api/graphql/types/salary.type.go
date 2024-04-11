@@ -113,6 +113,9 @@ var SalaryAdditionalExpenses = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
 		"bank_account": &graphql.Field{
 			Type: graphql.String,
 		},

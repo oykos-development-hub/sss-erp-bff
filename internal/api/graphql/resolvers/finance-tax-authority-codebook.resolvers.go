@@ -110,30 +110,63 @@ func (r *Resolver) TaxAuthorityCodebooksInsertResolver(params graphql.ResolvePar
 
 func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (*dto.TaxAuthorityCodebookResponse, error) {
 	response := &dto.TaxAuthorityCodebookResponse{
-		ID:                                   item.ID,
-		Title:                                item.Title,
-		Code:                                 item.Code,
-		Active:                               item.Active,
-		TaxPercentage:                        item.TaxPercentage,
-		ReleasePercentage:                    item.ReleasePercentage,
-		PioPercentage:                        item.PioPercentage,
-		PioPercentageEmployerPercentage:      item.PioPercentageEmployerPercentage,
-		PioPercentageEmployeePercentage:      item.PioPercentageEmployeePercentage,
-		UnemploymentPercentage:               item.UnemploymentPercentage,
-		UnemploymentEmployerPercentage:       item.UnemploymentEmployerPercentage,
-		UnemploymentEmployeePercentage:       item.UnemploymentEmployeePercentage,
-		LaborFund:                            item.LaborFund,
-		PreviousIncomePercentageLessThan700:  item.PreviousIncomePercentageLessThan700,
-		PreviousIncomePercentageLessThan1000: item.PreviousIncomePercentageLessThan1000,
-		PreviousIncomePercentageMoreThan1000: item.PreviousIncomePercentageMoreThan1000,
-		Coefficient:                          item.Coefficient,
-		CoefficientLess700:                   item.CoefficientLess700,
-		CoefficientLess1000:                  item.CoefficientLess1000,
-		CoefficientMore1000:                  item.CoefficientMore1000,
-		AmountLess700:                        item.AmountLess700,
-		AmountLess1000:                       item.AmountLess1000,
-		AmountMore1000:                       item.AmountMore1000,
-		IncludeSubtax:                        item.IncludeSubtax,
+		ID:             item.ID,
+		Title:          item.Title,
+		Code:           item.Code,
+		Active:         item.Active,
+		AmountLess700:  item.AmountLess700,
+		AmountLess1000: item.AmountLess1000,
+		AmountMore1000: item.AmountMore1000,
+		IncludeSubtax:  item.IncludeSubtax,
+	}
+
+	if item.TaxPercentage != 0 {
+		response.TaxPercentage = &item.TaxPercentage
+	}
+	if item.ReleasePercentage != 0 {
+		response.ReleasePercentage = &item.ReleasePercentage
+	}
+	if item.PioPercentage != 0 {
+		response.PioPercentage = &item.PioPercentage
+	}
+	if item.PioPercentageEmployerPercentage != 0 {
+		response.PioPercentageEmployerPercentage = &item.PioPercentageEmployerPercentage
+	}
+	if item.PioPercentageEmployeePercentage != 0 {
+		response.PioPercentageEmployeePercentage = &item.PioPercentageEmployeePercentage
+	}
+	if item.UnemploymentPercentage != 0 {
+		response.UnemploymentPercentage = &item.UnemploymentPercentage
+	}
+	if item.UnemploymentEmployerPercentage != 0 {
+		response.UnemploymentEmployerPercentage = &item.UnemploymentEmployerPercentage
+	}
+	if item.UnemploymentEmployeePercentage != 0 {
+		response.UnemploymentEmployeePercentage = &item.UnemploymentEmployeePercentage
+	}
+	if item.LaborFund != 0 {
+		response.LaborFund = &item.LaborFund
+	}
+	if item.PreviousIncomePercentageLessThan700 != 0 {
+		response.PreviousIncomePercentageLessThan700 = &item.PreviousIncomePercentageLessThan700
+	}
+	if item.PreviousIncomePercentageLessThan1000 != 0 {
+		response.PreviousIncomePercentageLessThan1000 = &item.PreviousIncomePercentageLessThan1000
+	}
+	if item.PreviousIncomePercentageMoreThan1000 != 0 {
+		response.PreviousIncomePercentageMoreThan1000 = &item.PreviousIncomePercentageMoreThan1000
+	}
+	if item.Coefficient != 0 {
+		response.Coefficient = &item.Coefficient
+	}
+	if item.CoefficientLess700 != 0 {
+		response.CoefficientLess700 = &item.CoefficientLess700
+	}
+	if item.CoefficientLess1000 != 0 {
+		response.CoefficientLess1000 = &item.CoefficientLess1000
+	}
+	if item.CoefficientMore1000 != 0 {
+		response.CoefficientMore1000 = &item.CoefficientMore1000
 	}
 
 	if item.TaxSupplierID != 0 {

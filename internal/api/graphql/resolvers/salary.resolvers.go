@@ -197,6 +197,7 @@ func buildSalaryAdditionalExpense(item structs.SalaryAdditionalExpense, r *Resol
 		BankAccount: item.BankAccount,
 		Status:      item.Status,
 		Type:        item.Type,
+		Title:       item.Title,
 	}
 
 	if item.OrganizationUnitID != 0 {

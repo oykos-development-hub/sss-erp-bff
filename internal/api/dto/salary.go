@@ -65,6 +65,7 @@ type SalaryAdditionalExpensesResponse struct {
 	Subject          DropdownSimple `json:"subject"`
 	BankAccount      string         `json:"bank_account"`
 	Status           string         `json:"status"`
+	Title            string         `json:"title"`
 	OrganizationUnit DropdownSimple `json:"organization_unit"`
 	Type             string         `json:"type"`
 	CreatedAt        time.Time      `json:"created_at"`

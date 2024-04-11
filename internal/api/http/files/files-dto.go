@@ -103,11 +103,11 @@ type ImportPS1Inventories struct {
 }
 
 type ImportSalaries struct {
-	Status     string               `json:"status"`
-	Message    string               `json:"message"`
-	Error      string               `json:"error"`
-	Validation []ValidationResponse `json:"validation"`
-	Data       []structs.Salary     `json:"data"`
+	Status     string                            `json:"status"`
+	Message    string                            `json:"message"`
+	Error      string                            `json:"error"`
+	Validation []ValidationResponse              `json:"validation"`
+	Data       []structs.SalaryAdditionalExpense `json:"data"`
 }
 
 type ImportUserProfileVacation struct {

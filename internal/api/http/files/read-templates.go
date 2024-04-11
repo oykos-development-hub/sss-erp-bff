@@ -8,6 +8,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -2007,6 +2008,15 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	organizationUnitIDStr := r.FormValue("organization_unit_id")
+
+	organizationUnitID, err := strconv.Atoi(organizationUnitIDStr)
+
+	if err != nil {
+		handleError(w, err, http.StatusBadRequest)
+		return
+	}
+
 	sheetMap := xlsFile.GetSheetMap()
 
 	for _, sheetName := range sheetMap {
@@ -2018,30 +2028,66 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 		}
 
 		rowindex := 0
+		var typeOfInput string
 
 		for rows.Next() {
-			if rowindex == 0 {
-				rowindex++
-				continue
-			}
-
 			rowindex++
 
-			//			cols := rows.Columns()
+			cols := rows.Columns()
 			if err != nil {
 				handleError(w, err, http.StatusInternalServerError)
 				return
 			}
 
-			/*var err error
+			additionalSalaryExpense := structs.SalaryAdditionalExpense{}
+			//var err error
 			for cellIndex, cellValue := range cols {
 				value := cellValue
 				switch cellIndex {
 				case 0:
+					switch typeOfInput {
+					case "Doprinosi":
+						additionalSalaryExpense.Type = "contributions"
+					case "Porezi":
+						additionalSalaryExpense.Type = "taxes"
+					case "Obustave":
+						additionalSalaryExpense.Type = "deductions"
+					case "Prirezi":
+						additionalSalaryExpense.Type = "subtaxes"
+					case "Banke":
+						additionalSalaryExpense.Type = "banks"
+					}
+
+					additionalSalaryExpense.Title = value
+
+					if value == "Doprinosi" || value == "Porezi" || value == "Prirezi" || value == "Obustave" || value == "Banke" {
+						typeOfInput = value
+					}
+
+					if strings.Contains(value, "Ukupno") {
+						typeOfInput = ""
+					}
+				case 7:
+					price, err := strconv.ParseFloat(value, 32)
+
+					if err != nil && value != "" && additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
+						responseMessage := ValidationResponse{
+							Column:  7,
+							Row:     rowindex,
+							Message: "Iznos nije ispravno unijet!",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else {
+						additionalSalaryExpense.Amount = price
+					}
 
 				}
-			}*/
-
+			}
+			if additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
+				additionalSalaryExpense.OrganizationUnitID = organizationUnitID
+				additionalSalaryExpense.Status = "created"
+				response.Data = append(response.Data, additionalSalaryExpense)
+			}
 		}
 	}
 

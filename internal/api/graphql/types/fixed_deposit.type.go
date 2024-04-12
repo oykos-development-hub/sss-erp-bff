@@ -326,6 +326,12 @@ var FixedDepositWillType = graphql.NewObject(graphql.ObjectConfig{
 		"case_number_rs": &graphql.Field{
 			Type: graphql.String,
 		},
+		"date_of_receipt_si": &graphql.Field{
+			Type: graphql.String,
+		},
+		"date_of_receipt_rs": &graphql.Field{
+			Type: graphql.String,
+		},
 		"date_of_end": &graphql.Field{
 			Type: graphql.String,
 		},

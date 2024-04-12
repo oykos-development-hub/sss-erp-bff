@@ -27,6 +27,7 @@ type DepositPaymentFilter struct {
 	SortByTitle        *string `json:"sort_by_title"`
 	Status             *string `json:"status"`
 	Search             *string `json:"search"`
+	CaseuNumber        *string `json:"case_number"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 }
 

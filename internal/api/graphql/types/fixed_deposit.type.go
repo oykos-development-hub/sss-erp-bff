@@ -317,6 +317,9 @@ var FixedDepositWillType = graphql.NewObject(graphql.ObjectConfig{
 		"jmbg": &graphql.Field{
 			Type: graphql.String,
 		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
 		"case_number_si": &graphql.Field{
 			Type: graphql.String,
 		},

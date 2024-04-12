@@ -575,6 +575,7 @@ func buildFixedDepositWill(item structs.FixedDepositWill, r *Resolver) (*dto.Fix
 		JMBG:            item.JMBG,
 		CaseNumberSI:    item.CaseNumberSI,
 		CaseNumberRS:    item.CaseNumberRS,
+		Description:     item.Description,
 		DateOfReceiptSI: item.DateOfReceiptSI,
 		DateOfReceiptRS: item.DateOfReceiptRS,
 		DateOfEnd:       item.DateOfEnd,

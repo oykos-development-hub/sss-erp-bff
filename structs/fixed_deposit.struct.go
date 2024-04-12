@@ -8,6 +8,7 @@ type FixedDeposit struct {
 	Subject              string                 `json:"subject"`
 	JudgeID              int                    `json:"judge_id"`
 	CaseNumber           string                 `json:"case_number"`
+	Description          string                 `json:"description"`
 	DateOfRecipiet       *time.Time             `json:"date_of_recipiet"`
 	DateOfCase           *time.Time             `json:"date_of_case"`
 	DateOfFinality       *time.Time             `json:"date_of_finality"`
@@ -31,6 +32,7 @@ type FixedDepositWill struct {
 	FatherName         string                     `json:"father_name"`
 	DateOfBirth        time.Time                  `json:"date_of_birth"`
 	JMBG               string                     `json:"jmbg"`
+	Description        string                     `json:"description"`
 	CaseNumberSI       string                     `json:"case_number_si"`
 	CaseNumberRS       string                     `json:"case_number_rs"`
 	DateOfReceiptSI    *time.Time                 `json:"date_of_receipt_si"`

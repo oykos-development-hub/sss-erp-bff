@@ -65,6 +65,7 @@ type FixedDepositItemResponse struct {
 	DepositID          int                `json:"deposit_id"`
 	Category           DropdownSimple     `json:"category"`
 	Type               DropdownSimple     `json:"type"`
+	Description        string             `json:"description"`
 	Unit               string             `json:"unit"`
 	Currency           string             `json:"currency"`
 	Amount             float32            `json:"amount"`
@@ -129,6 +130,7 @@ type FixedDepositWillResponse struct {
 	DateOfReceiptSI  *time.Time                         `json:"date_of_receipt_si"`
 	DateOfReceiptRS  *time.Time                         `json:"date_of_receipt_rs"`
 	DateOfEnd        *time.Time                         `json:"date_of_end"`
+	Description      string                             `json:"description"`
 	Status           string                             `json:"status"`
 	File             FileDropdownSimple                 `json:"file"`
 	Judges           []FixedDepositJudgeResponse        `json:"judges"`

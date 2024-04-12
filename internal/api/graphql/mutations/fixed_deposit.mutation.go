@@ -200,6 +200,9 @@ var FixedDepositWillMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"jmbg": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"description": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"date_of_end": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

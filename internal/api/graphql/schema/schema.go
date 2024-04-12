@@ -160,6 +160,8 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"fixedDepositWillDispatch_Delete":                 fields.FixedDepositWillDispatchDeleteField(),
 			"depositPayment_Insert":                           fields.DepositPaymentInsertField(),
 			"depositPayment_Delete":                           fields.DepositPaymentDeleteField(),
+			"depositPaymentOrder_Insert":                      fields.DepositPaymentOrderInsertField(),
+			"depositPaymentOrder_Delete":                      fields.DepositPaymentOrderDeleteField(),
 			"salary_Insert":                                   fields.SalaryInsertField(),
 			"salary_Delete":                                   fields.SalaryDeleteField(),
 		},
@@ -270,6 +272,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"fixedDeposit_Overview":                                      fields.FixedDepositOverviewField(),
 			"fixedDepositWill_Overview":                                  fields.FixedDepositWillOverviewField(),
 			"depositPayment_Overview":                                    fields.DepositPaymentOverviewField(),
+			"depositPaymentOrder_Overview":                               fields.DepositPaymentOrderOverviewField(),
 			"salary_Overview":                                            fields.SalaryOverviewField(),
 		},
 	})

@@ -1209,21 +1209,23 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		return nil, err
 	}
 
-	response.NetPrice = 0
-	response.VATPrice = 0
+	if len(articles) > 0 {
 
-	for _, article := range articles {
-		singleArticle, err := buildInvoiceArtice(r, article)
+		response.NetPrice = 0
+		response.VATPrice = 0
 
-		if err != nil {
-			return nil, err
+		for _, article := range articles {
+			singleArticle, err := buildInvoiceArtice(r, article)
+
+			if err != nil {
+				return nil, err
+			}
+
+			response.Articles = append(response.Articles, *singleArticle)
+			response.NetPrice += singleArticle.NetPrice
+			response.VATPrice += singleArticle.VatPrice
 		}
-
-		response.Articles = append(response.Articles, *singleArticle)
-		response.NetPrice += singleArticle.NetPrice
-		response.VATPrice += singleArticle.VatPrice
 	}
-
 	for _, item := range invoice.AdditionalExpenses {
 		builtItem, err := buildAdditionalExpense(r, item)
 

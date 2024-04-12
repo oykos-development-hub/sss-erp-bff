@@ -167,7 +167,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
 			}
 
-			item.OrganizationUnitID = *organizationUnitID
+			data.OrganizationUnitID = *organizationUnitID
 		}
 
 		item, err = r.Repo.CreateInvoice(&data)

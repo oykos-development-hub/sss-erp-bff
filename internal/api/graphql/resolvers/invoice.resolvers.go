@@ -1015,6 +1015,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		PassedToInventory:     invoice.PassedToInventory,
 		PassedToAccounting:    invoice.PassedToAccounting,
 		IsInvoice:             invoice.IsInvoice,
+		Issuer:                invoice.Issuer,
 		InvoiceNumber:         invoice.InvoiceNumber,
 		Type:                  invoice.Type,
 		TypeOfDecision:        invoice.TypeOfDecision,

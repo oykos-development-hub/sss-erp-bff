@@ -11,6 +11,7 @@ type InvoiceResponseItem struct {
 	PassedToAccounting    bool                         `json:"passed_to_accounting"`
 	IsInvoice             bool                         `json:"is_invoice"`
 	InvoiceNumber         string                       `json:"invoice_number"`
+	Issuer                string                       `json:"issuer"`
 	Type                  string                       `json:"type"`
 	TypeOfDecision        string                       `json:"type_of_decision"`
 	TypeOfSubject         DropdownSimple               `json:"type_of_subject"`

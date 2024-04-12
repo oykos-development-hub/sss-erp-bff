@@ -17,6 +17,7 @@ type Invoice struct {
 	Supplier               string               `json:"supplier"`
 	GrossPrice             float64              `json:"gross_price"`
 	VATPrice               float64              `json:"vat_price"`
+	NetPrice               float64              `json:"net_price"`
 	SupplierID             int                  `json:"supplier_id"`
 	OrderID                int                  `json:"order_id"`
 	OrganizationUnitID     int                  `json:"organization_unit_id"`

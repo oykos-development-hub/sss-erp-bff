@@ -1023,6 +1023,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		Status:                invoice.Status,
 		GrossPrice:            invoice.GrossPrice,
 		VATPrice:              invoice.VATPrice,
+		NetPrice:              invoice.NetPrice,
 		OrderID:               invoice.OrderID,
 		ProFormaInvoiceDate:   invoice.ProFormaInvoiceDate,
 		ProFormaInvoiceNumber: invoice.ProFormaInvoiceNumber,

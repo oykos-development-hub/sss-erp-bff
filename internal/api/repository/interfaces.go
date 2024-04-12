@@ -438,4 +438,10 @@ type MicroserviceRepositoryInterface interface {
 	UpdateSalary(item *structs.Salary) (*structs.Salary, error)
 	GetSalaryByID(id int) (*structs.Salary, error)
 	GetSalaryList(input dto.SalaryFilter) ([]structs.Salary, int, error)
+
+	CreateDepositPayment(item *structs.DepositPayment) (*structs.DepositPayment, error)
+	DeleteDepositPayment(id int) error
+	UpdateDepositPayment(item *structs.DepositPayment) (*structs.DepositPayment, error)
+	GetDepositPaymentByID(id int) (*structs.DepositPayment, error)
+	GetDepositPaymentList(input dto.DepositPaymentFilter) ([]structs.DepositPayment, int, error)
 }

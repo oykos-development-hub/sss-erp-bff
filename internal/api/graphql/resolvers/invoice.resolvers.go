@@ -565,7 +565,6 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 			helper := math.Round(grossPrice*100) / 100
 			grossPrice = float64(helper)
 		} else if previousIncomeNetOK {
-			//ne valja
 			if !previousIncomeGrossOK {
 				sumNetPrice := previousIncomeNet + netPrice
 

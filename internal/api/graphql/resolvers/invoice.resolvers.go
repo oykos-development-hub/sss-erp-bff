@@ -4,6 +4,7 @@ import (
 	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
+	apierrors "bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"encoding/json"
@@ -161,6 +162,13 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			data.OrderID = order.ID
 
 		}
+
+		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitID == nil {
+			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		}
+
+		item.OrganizationUnitID = *organizationUnitID
 
 		item, err = r.Repo.CreateInvoice(&data)
 		if err != nil {

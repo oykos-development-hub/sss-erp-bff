@@ -185,10 +185,10 @@ var FixedDepositWillMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"case_number_rs": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"date_of_receiept_si": &graphql.InputObjectFieldConfig{
+		"date_of_receipt_si": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"date_of_receiept_rs": &graphql.InputObjectFieldConfig{
+		"date_of_receipt_rs": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"father_name": &graphql.InputObjectFieldConfig{

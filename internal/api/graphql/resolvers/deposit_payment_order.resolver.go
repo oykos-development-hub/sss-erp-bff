@@ -232,7 +232,16 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		}
 
 		response.AdditionalExpenses = append(response.AdditionalExpenses, *builtItem)
+	}
 
+	for _, additionalExpense := range item.AdditionalExpensesForPaying {
+		builtItem, err := buildDepositPaymentAdditionalExpense(r, additionalExpense)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.AdditionalExpensesForPaying = append(response.AdditionalExpenses, *builtItem)
 	}
 
 	return &response, nil

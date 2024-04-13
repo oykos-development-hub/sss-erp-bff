@@ -38,6 +38,9 @@ var DepositPaymentOrderMutation = graphql.NewInputObject(graphql.InputObjectConf
 		"additional_expenses": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(DepositPaymentAdditionalExpenses),
 		},
+		"additional_expenses_for_paying": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(DepositPaymentAdditionalExpenses),
+		},
 	},
 })
 

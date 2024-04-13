@@ -77,6 +77,9 @@ var DepositPaymentOrderType = graphql.NewObject(graphql.ObjectConfig{
 		"additional_expenses": &graphql.Field{
 			Type: graphql.NewList(DepositPaymentAdditionalExpensesType),
 		},
+		"additional_expenses_for_paying": &graphql.Field{
+			Type: graphql.NewList(DepositPaymentAdditionalExpensesType),
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.DateTime,
 		},

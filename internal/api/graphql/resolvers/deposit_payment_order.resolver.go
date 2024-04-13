@@ -149,6 +149,40 @@ func (r *Resolver) DepositPaymentOrderDeleteResolver(params graphql.ResolveParam
 	}, nil
 }
 
+func (r *Resolver) PayDepositOrderResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+	IDOfStatement := params.Args["id_of_statement"].(string)
+	DateOfStatement := params.Args["date_of_statement"].(string)
+
+	dateOfStatement, err := parseDate(DateOfStatement)
+
+	if err != nil {
+		fmt.Printf("Paying the order failed because this error - %s.\n", err)
+		return dto.ResponseSingle{
+			Status: "failed",
+		}, nil
+	}
+
+	paymentOrder := structs.DepositPaymentOrder{
+		ID:              itemID,
+		IDOfStatement:   &IDOfStatement,
+		DateOfStatement: &dateOfStatement,
+	}
+
+	err = r.Repo.PayDepositPaymentOrder(paymentOrder)
+	if err != nil {
+		fmt.Printf("Paying the order failed because this error - %s.\n", err)
+		return dto.ResponseSingle{
+			Status: "failed",
+		}, nil
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You paid this item!",
+	}, nil
+}
+
 func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*dto.DepositPaymentOrderResponse, error) {
 	response := dto.DepositPaymentOrderResponse{
 		ID:              item.ID,

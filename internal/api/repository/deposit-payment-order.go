@@ -62,3 +62,11 @@ func (repo *MicroserviceRepository) GetDepositPaymentAdditionalExpenses(input *d
 
 	return res.Data, res.Total, nil
 }
+
+func (repo *MicroserviceRepository) PayDepositPaymentOrder(input structs.DepositPaymentOrder) error {
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.PayDepositPaymentOrder+"/"+strconv.Itoa(input.ID), input, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}

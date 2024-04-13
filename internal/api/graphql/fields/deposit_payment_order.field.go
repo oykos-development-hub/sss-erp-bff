@@ -97,3 +97,22 @@ func (f *Field) DepositPaymentAdditionalExpensesOverviewField() *graphql.Field {
 		Resolve: f.Resolvers.DepositPaymentAdditionalExpensesOverviewResolver,
 	}
 }
+
+func (f *Field) PayDepositOrderField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FineDeleteType,
+		Description: "Delete fixed deposit will",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"id_of_statement": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.String),
+			},
+			"date_of_statement": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.String),
+			},
+		},
+		Resolve: f.Resolvers.PayDepositOrderResolver,
+	}
+}

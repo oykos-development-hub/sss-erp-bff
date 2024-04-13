@@ -94,6 +94,7 @@ type FinanceMS struct {
 	DepositPayment                   string
 	DepositPaymentOrder              string
 	DepositPaymentAdditionalExpenses string
+	PayDepositPaymentOrder           string
 }
 
 type ProcurementMS struct {
@@ -375,6 +376,7 @@ func LoadDefaultConfig() (*Config, error) {
 				Salary:                           financeBase + "/salaries",
 				DepositPayment:                   financeBase + "/deposit-payments",
 				DepositPaymentOrder:              financeBase + "/deposit-payment-orders",
+				PayDepositPaymentOrder:           financeBase + "/pay-deposit-payment-order",
 				DepositPaymentAdditionalExpenses: financeBase + "/deposit-additional-expenses",
 			},
 		},

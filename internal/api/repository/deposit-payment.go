@@ -44,6 +44,19 @@ func (repo *MicroserviceRepository) GetDepositPaymentList(filter dto.DepositPaym
 	return res.Data, res.Total, nil
 }
 
+func (repo *MicroserviceRepository) GetDepositPaymentCaseNumber(caseNumber string) (*structs.DepositPayment, error) {
+	res := &dto.GetDepositPaymentResponseMS{}
+	filter := dto.DepositPaymentFilter{
+		CaseuNumber: &caseNumber,
+	}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.DepositPaymentCaseNumber, filter, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
 func (repo *MicroserviceRepository) DeleteDepositPayment(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.DepositPayment+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {

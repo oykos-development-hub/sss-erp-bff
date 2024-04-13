@@ -60,3 +60,16 @@ func (f *Field) DepositPaymentOverviewField() *graphql.Field {
 		Resolve: f.Resolvers.DepositPaymentOverviewResolver,
 	}
 }
+
+func (f *Field) DepositPaymentCaseNumberField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.DepositPaymentInsertType,
+		Description: "Returns a data of fixed deposit wills",
+		Args: graphql.FieldConfigArgument{
+			"case_number": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.String),
+			},
+		},
+		Resolve: f.Resolvers.DepositPaymentCaseNumberResolver,
+	}
+}

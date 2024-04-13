@@ -129,6 +129,21 @@ func (r *Resolver) DepositPaymentInsertResolver(params graphql.ResolveParams) (i
 	return response, nil
 }
 
+func (r *Resolver) DepositPaymentCaseNumberResolver(params graphql.ResolveParams) (interface{}, error) {
+	caseNumber := params.Args["case_number"].(string)
+
+	res, err := r.Repo.GetDepositPaymentCaseNumber(caseNumber)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Item:    res,
+	}, nil
+}
+
 func (r *Resolver) DepositPaymentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 

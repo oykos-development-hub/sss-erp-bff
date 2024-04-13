@@ -140,7 +140,9 @@ func (r *Resolver) DepositPaymentOrderDeleteResolver(params graphql.ResolveParam
 	err := r.Repo.DeleteDepositPaymentOrder(itemID)
 	if err != nil {
 		fmt.Printf("Deleting fixed deposit failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return dto.ResponseSingle{
+			Status: "failed",
+		}, nil
 	}
 
 	return dto.ResponseSingle{

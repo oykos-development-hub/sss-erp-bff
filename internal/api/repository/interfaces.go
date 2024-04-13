@@ -444,6 +444,7 @@ type MicroserviceRepositoryInterface interface {
 	UpdateDepositPayment(item *structs.DepositPayment) (*structs.DepositPayment, error)
 	GetDepositPaymentByID(id int) (*structs.DepositPayment, error)
 	GetDepositPaymentList(input dto.DepositPaymentFilter) ([]structs.DepositPayment, int, error)
+	GetDepositPaymentCaseNumber(caseNumber string) (*structs.DepositPayment, error)
 
 	CreateDepositPaymentOrder(item *structs.DepositPaymentOrder) (*structs.DepositPaymentOrder, error)
 	DeleteDepositPaymentOrder(id int) error

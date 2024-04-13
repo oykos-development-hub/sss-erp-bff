@@ -450,4 +450,5 @@ type MicroserviceRepositoryInterface interface {
 	UpdateDepositPaymentOrder(item *structs.DepositPaymentOrder) (*structs.DepositPaymentOrder, error)
 	GetDepositPaymentOrderByID(id int) (*structs.DepositPaymentOrder, error)
 	GetDepositPaymentOrderList(input dto.DepositPaymentOrderFilter) ([]structs.DepositPaymentOrder, int, error)
+	GetDepositPaymentAdditionalExpenses(input *dto.DepositPaymentAdditionalExpensesListInputMS) ([]structs.DepositPaymentAdditionalExpenses, int, error)
 }

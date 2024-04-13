@@ -52,3 +52,13 @@ func (repo *MicroserviceRepository) DeleteDepositPaymentOrder(id int) error {
 
 	return nil
 }
+
+func (repo *MicroserviceRepository) GetDepositPaymentAdditionalExpenses(input *dto.DepositPaymentAdditionalExpensesListInputMS) ([]structs.DepositPaymentAdditionalExpenses, int, error) {
+	res := &dto.GetDepositPaymentAdditionalExpensesListResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.DepositPaymentAdditionalExpenses, input, res)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return res.Data, res.Total, nil
+}

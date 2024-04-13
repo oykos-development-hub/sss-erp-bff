@@ -35,5 +35,41 @@ var DepositPaymentOrderMutation = graphql.NewInputObject(graphql.InputObjectConf
 		"status": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"additional_expenses": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(DepositPaymentAdditionalExpenses),
+		},
+	},
+})
+
+var DepositPaymentAdditionalExpenses = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "DepositPaymentAdditionalExpenses",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"title": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"subject_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"account_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"bank_account": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"payment_order_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"status": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"price": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
 	},
 })

@@ -88,3 +88,57 @@ var DepositPaymentType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var DepositPaymentAdditionalExpensesOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DepositPaymentAdditionalExpensesOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(AdditionalExpensesType),
+		},
+	},
+})
+
+var DepositPaymentAdditionalExpensesType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DepositPaymentAdditionalExpensesType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"subject": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"account": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"bank_account": &graphql.Field{
+			Type: graphql.String,
+		},
+		"payment_order": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"status": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"price": &graphql.Field{
+			Type: graphql.Float,
+		},
+	},
+})

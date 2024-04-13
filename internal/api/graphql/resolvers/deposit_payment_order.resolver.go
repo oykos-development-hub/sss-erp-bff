@@ -5,6 +5,7 @@ import (
 	"bff/internal/api/dto"
 	apierrors "bff/internal/api/errors"
 	"bff/structs"
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -175,7 +176,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 	}
 
 	if item.SupplierID != 0 {
-		value, err := r.Repo.GetAccountItemByID(item.SupplierID)
+		value, err := r.Repo.GetSupplier(item.SupplierID)
 
 		if err != nil {
 			return nil, err
@@ -189,5 +190,147 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		response.Supplier = dropdown
 	}
 
+	for _, additionalExpense := range item.AdditionalExpenses {
+		builtItem, err := buildDepositPaymentAdditionalExpense(r, additionalExpense)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.AdditionalExpenses = append(response.AdditionalExpenses, *builtItem)
+
+	}
+
+	return &response, nil
+}
+
+func (r *Resolver) DepositPaymentAdditionalExpensesOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	input := dto.DepositPaymentAdditionalExpensesListInputMS{}
+	if value, ok := params.Args["page"].(int); ok && value != 0 {
+		input.Page = &value
+	}
+
+	if value, ok := params.Args["size"].(int); ok && value != 0 {
+		input.Size = &value
+	}
+
+	if value, ok := params.Args["search"].(string); ok && value != "" {
+		input.Search = &value
+	}
+
+	if value, ok := params.Args["payment_order_id"].(int); ok && value != 0 {
+		input.PaymentOrderID = &value
+	}
+
+	if value, ok := params.Args["subject_id"].(int); ok && value != 0 {
+		input.SubjectID = &value
+	}
+
+	if value, ok := params.Args["status"].(string); ok && value != "" {
+		input.Status = &value
+	}
+
+	if value, ok := params.Args["year"].(int); ok && value != 0 {
+		input.Year = &value
+	}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = &value
+	}
+
+	additionalExpenses, total, err := r.Repo.GetDepositPaymentAdditionalExpenses(&input)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	builtAdditionalExpenses, err := buildDepositPaymentAdditionalExpenseItemList(params.Context, r, additionalExpenses)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   builtAdditionalExpenses,
+		Total:   total,
+	}, nil
+}
+
+func buildDepositPaymentAdditionalExpenseItemList(ctx context.Context, r *Resolver, itemList []structs.DepositPaymentAdditionalExpenses) ([]*dto.DepositPaymentAdditionalExpensesResponse, error) {
+	var items []*dto.DepositPaymentAdditionalExpensesResponse
+
+	for _, item := range itemList {
+		singleItem, err := buildDepositPaymentAdditionalExpense(r, item)
+
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, singleItem)
+
+	}
+
+	return items, nil
+}
+
+func buildDepositPaymentAdditionalExpense(r *Resolver, item structs.DepositPaymentAdditionalExpenses) (*dto.DepositPaymentAdditionalExpensesResponse, error) {
+	response := dto.DepositPaymentAdditionalExpensesResponse{
+		ID:          item.ID,
+		Title:       item.Title,
+		Price:       item.Price,
+		BankAccount: item.BankAccount,
+		Status:      item.Status,
+		CreatedAt:   item.CreatedAt,
+		UpdatedAt:   item.UpdatedAt,
+	}
+
+	if item.AccountID != 0 {
+		account, err := r.Repo.GetAccountItemByID(item.AccountID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.Account = dto.DropdownSimple{
+			ID:    account.ID,
+			Title: account.Title,
+		}
+	}
+
+	if item.PaymentOrderID != 0 {
+		invoice, err := r.Repo.GetDepositPaymentOrderByID(item.PaymentOrderID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.PaymentOrder = dto.DropdownSimple{
+			ID:    invoice.ID,
+			Title: invoice.CaseNumber,
+		}
+	}
+
+	if item.SubjectID != 0 {
+		supplier, err := r.Repo.GetSupplier(item.SubjectID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.Subject = dto.DropdownSimple{
+			ID:    supplier.ID,
+			Title: supplier.Title,
+		}
+	}
+
+	if item.OrganizationUnitID != 0 {
+		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.OrganizationUnit = dto.DropdownSimple{
+			ID:    orgUnit.ID,
+			Title: orgUnit.Title,
+		}
+	}
 	return &response, nil
 }

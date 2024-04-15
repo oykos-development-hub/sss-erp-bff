@@ -13,7 +13,7 @@ type InvoiceResponseItem struct {
 	InvoiceNumber         string                       `json:"invoice_number"`
 	Issuer                string                       `json:"issuer"`
 	Type                  string                       `json:"type"`
-	TypeOfDecision        string                       `json:"type_of_decision"`
+	TypeOfDecision        DropdownSimple               `json:"type_of_decision"`
 	TypeOfSubject         DropdownSimple               `json:"type_of_subject"`
 	TypeOfContract        DropdownSimple               `json:"type_of_contract"`
 	SourceOfFunding       DropdownSimple               `json:"source_of_funding"`

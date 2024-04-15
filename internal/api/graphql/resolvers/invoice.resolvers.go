@@ -1018,7 +1018,6 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		Issuer:                invoice.Issuer,
 		InvoiceNumber:         invoice.InvoiceNumber,
 		Type:                  invoice.Type,
-		TypeOfDecision:        invoice.TypeOfDecision,
 		SupplierTitle:         invoice.Supplier,
 		DateOfStart:           invoice.DateOfStart,
 		Status:                invoice.Status,
@@ -1143,7 +1142,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		}
 		dropdown := dto.DropdownSimple{
 			ID:    setting.ID,
-			Title: setting.Entity,
+			Title: setting.Title,
 		}
 		response.SourceOfFunding = dropdown
 	}
@@ -1158,6 +1157,18 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 			Title: setting.Entity,
 		}
 		response.TypeOfSubject = dropdown
+	}
+
+	if invoice.TypeOfDecision != 0 {
+		setting, err := r.Repo.GetDropdownSettingByID(invoice.TypeOfDecision)
+		if err != nil {
+			return nil, err
+		}
+		dropdown := dto.DropdownSimple{
+			ID:    setting.ID,
+			Title: setting.Entity,
+		}
+		response.TypeOfDecision = dropdown
 	}
 
 	if invoice.TypeOfContract != 0 {

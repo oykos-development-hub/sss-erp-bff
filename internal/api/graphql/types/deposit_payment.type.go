@@ -68,6 +68,9 @@ var DepositPaymentType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_bank_statement": &graphql.Field{
 			Type: graphql.String,
 		},
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
 		"account": &graphql.Field{
 			Type: DropdownItemType,
 		},

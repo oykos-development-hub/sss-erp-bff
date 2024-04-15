@@ -171,6 +171,7 @@ func buildDepositPayment(item structs.DepositPayment, r *Resolver) (*dto.Deposit
 		MainBankAccount:           item.MainBankAccount,
 		DateOfTransferMainAccount: item.DateOfTransferMainAccount,
 		CurrentBankAccount:        item.CurrentBankAccount,
+		Status:                    item.Status,
 		CreatedAt:                 item.CreatedAt,
 		UpdatedAt:                 item.UpdatedAt,
 	}

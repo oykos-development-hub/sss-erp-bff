@@ -16,6 +16,7 @@ type DepositPayment struct {
 	CurrentBankAccount        string     `json:"current_bank_account"`
 	DateOfTransferMainAccount *time.Time `json:"date_of_transfer_main_account"`
 	FileID                    int        `json:"file_id"`
+	Status                    string     `json:"status"`
 	CreatedAt                 time.Time  `json:"created_at"`
 	UpdatedAt                 time.Time  `json:"updated_at"`
 }

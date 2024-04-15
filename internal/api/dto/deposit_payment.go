@@ -17,6 +17,7 @@ type DepositPaymentResponse struct {
 	Amount                    float64            `json:"amount"`
 	MainBankAccount           bool               `json:"main_bank_account"`
 	CurrentBankAccount        string             `json:"current_bank_account"`
+	Status                    string             `json:"status"`
 	DateOfTransferMainAccount *time.Time         `json:"date_of_transfer_main_account"`
 	File                      FileDropdownSimple `json:"file"`
 	CreatedAt                 time.Time          `json:"created_at"`

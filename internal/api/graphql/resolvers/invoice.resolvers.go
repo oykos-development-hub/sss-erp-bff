@@ -1159,7 +1159,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		}
 		dropdown := dto.DropdownSimple{
 			ID:    setting.ID,
-			Title: setting.Entity,
+			Title: setting.Title,
 		}
 		response.TypeOfSubject = dropdown
 	}
@@ -1171,7 +1171,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		}
 		dropdown := dto.DropdownSimple{
 			ID:    setting.ID,
-			Title: setting.Entity,
+			Title: setting.Title,
 		}
 		response.TypeOfDecision = dropdown
 	}
@@ -1183,7 +1183,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		}
 		dropdown := dto.DropdownSimple{
 			ID:    setting.ID,
-			Title: setting.Entity,
+			Title: setting.Title,
 		}
 		response.TypeOfContract = dropdown
 	}

@@ -192,10 +192,10 @@ func (repo *MicroserviceRepository) CreateFixedDepositWillDispatch(item *structs
 		return err
 	}
 
-	if will.Status == "U toku" {
+	if will.Status == "U radu" {
 		will.Status = "Depozit"
 	} else {
-		will.Status = "U toku"
+		will.Status = "U radu"
 	}
 
 	_, err = repo.UpdateFixedDepositWill(will)
@@ -233,10 +233,10 @@ func (repo *MicroserviceRepository) DeleteFixedDepositWillDispatch(id int) error
 		return err
 	}
 
-	if will.Status == "U toku" {
+	if will.Status == "U radu" {
 		will.Status = "Depozit"
 	} else {
-		will.Status = "U toku"
+		will.Status = "U radu"
 	}
 
 	_, err = repo.UpdateFixedDepositWill(will)

@@ -1073,6 +1073,21 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		response.Supplier = supplierDropdown
 	}
 
+	if invoice.MunicipalityID != 0 {
+		supplier, err := r.Repo.GetSupplier(invoice.MunicipalityID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		supplierDropdown := dto.DropdownSimple{
+			ID:    supplier.ID,
+			Title: supplier.Title,
+		}
+
+		response.Municipality = supplierDropdown
+	}
+
 	if invoice.OrganizationUnitID != 0 {
 		organizationUnit, err := r.Repo.GetOrganizationUnitByID(invoice.OrganizationUnitID)
 

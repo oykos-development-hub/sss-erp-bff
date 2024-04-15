@@ -74,6 +74,9 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		"type_of_subject": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"municipality": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"type_of_contract": &graphql.Field{
 			Type: DropdownItemType,
 		},

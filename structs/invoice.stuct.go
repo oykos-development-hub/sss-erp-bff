@@ -15,6 +15,7 @@ type Invoice struct {
 	TypeOfSubject          int                  `json:"type_of_subject"`
 	TypeOfContract         int                  `json:"type_of_contract"`
 	SourceOfFunding        int                  `json:"source_of_funding"`
+	MunicipalityID         int                  `json:"municipality_id"`
 	Supplier               string               `json:"supplier"`
 	GrossPrice             float64              `json:"gross_price"`
 	VATPrice               float64              `json:"vat_price"`

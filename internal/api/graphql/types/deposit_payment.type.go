@@ -59,6 +59,9 @@ var DepositPaymentType = graphql.NewObject(graphql.ObjectConfig{
 		"party_name": &graphql.Field{
 			Type: graphql.String,
 		},
+		"current_bank_account": &graphql.Field{
+			Type: graphql.String,
+		},
 		"number_of_bank_statement": &graphql.Field{
 			Type: graphql.String,
 		},

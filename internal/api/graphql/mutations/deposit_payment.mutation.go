@@ -20,6 +20,9 @@ var DepositPaymentMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"party_name": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"current_bank_account": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"number_of_bank_statement": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

@@ -74,7 +74,7 @@ var DepositPaymentOrderType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
-		"file_id": &graphql.Field{
+		"file": &graphql.Field{
 			Type: FileDropdownItemType,
 		},
 		"additional_expenses": &graphql.Field{

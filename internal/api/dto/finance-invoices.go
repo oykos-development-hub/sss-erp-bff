@@ -16,7 +16,7 @@ type InvoiceResponseItem struct {
 	TypeOfDecision        DropdownSimple               `json:"type_of_decision"`
 	TypeOfSubject         DropdownSimple               `json:"type_of_subject"`
 	TypeOfContract        DropdownSimple               `json:"type_of_contract"`
-	SourceOfFunding       DropdownSimple               `json:"source_of_funding"`
+	SourceOfFunding       string                       `json:"source_of_funding"`
 	Municipality          DropdownSimple               `json:"municipality"`
 	SupplierTitle         string                       `json:"supplier_title"`
 	Status                string                       `json:"status"`

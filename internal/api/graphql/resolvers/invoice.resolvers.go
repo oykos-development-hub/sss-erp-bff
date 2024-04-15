@@ -107,6 +107,15 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 
 	var item *structs.Invoice
 
+	if data.OrganizationUnitID == 0 {
+		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitID == nil {
+			return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		}
+
+		data.OrganizationUnitID = *organizationUnitID
+	}
+
 	if data.ID == 0 {
 		if data.PassedToAccounting {
 
@@ -160,14 +169,6 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 
 			data.OrderID = order.ID
 
-		}
-		if data.OrganizationUnitID == 0 {
-			organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-			if !ok || organizationUnitID == nil {
-				return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
-			}
-
-			data.OrganizationUnitID = *organizationUnitID
 		}
 
 		item, err = r.Repo.CreateInvoice(&data)
@@ -1033,6 +1034,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		SSSInvoiceReceiptDate: invoice.SSSInvoiceReceiptDate,
 		BankAccount:           invoice.BankAccount,
 		Description:           invoice.Description,
+		SourceOfFunding:       invoice.SourceOfFunding,
 		CreatedAt:             invoice.CreatedAt,
 		UpdatedAt:             invoice.UpdatedAt,
 	}
@@ -1148,18 +1150,6 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 		}
 
 		response.ProFormaInvoiceFile = FileDropdown
-	}
-
-	if invoice.SourceOfFunding != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(invoice.SourceOfFunding)
-		if err != nil {
-			return nil, err
-		}
-		dropdown := dto.DropdownSimple{
-			ID:    setting.ID,
-			Title: setting.Title,
-		}
-		response.SourceOfFunding = dropdown
 	}
 
 	if invoice.TypeOfSubject != 0 {

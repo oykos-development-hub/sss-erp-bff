@@ -18,6 +18,7 @@ type DepositPaymentOrderResponse struct {
 	Status                      string                                     `json:"status"`
 	AdditionalExpenses          []DepositPaymentAdditionalExpensesResponse `json:"additional_expenses"`
 	AdditionalExpensesForPaying []DepositPaymentAdditionalExpensesResponse `json:"additional_expenses_for_paying"`
+	File                        FileDropdownSimple                         `json:"file"`
 	CreatedAt                   time.Time                                  `json:"created_at"`
 	UpdatedAt                   time.Time                                  `json:"updated_at"`
 }

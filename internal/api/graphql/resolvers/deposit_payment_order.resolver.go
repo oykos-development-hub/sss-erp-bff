@@ -246,6 +246,21 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		response.AdditionalExpensesForPaying = append(response.AdditionalExpenses, *builtItem)
 	}
 
+	if item.FileID != 0 {
+		file, err := r.Repo.GetFileByID(item.FileID)
+
+		if err != nil {
+			return nil, err
+		}
+		fileDropdown := dto.FileDropdownSimple{
+			ID:   file.ID,
+			Name: file.Name,
+			Type: *file.Type,
+		}
+
+		response.File = fileDropdown
+	}
+
 	return &response, nil
 }
 

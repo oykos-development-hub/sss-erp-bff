@@ -80,6 +80,9 @@ var DepositPaymentType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_transfer_main_account": &graphql.Field{
 			Type: graphql.String,
 		},
+		"file_id": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

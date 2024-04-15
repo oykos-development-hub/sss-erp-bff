@@ -41,6 +41,9 @@ var DepositPaymentMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"date_of_transfer_main_account": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"file_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"created_at": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

@@ -15,6 +15,7 @@ type DepositPaymentOrder struct {
 	Status                      string                             `json:"status"`
 	AdditionalExpenses          []DepositPaymentAdditionalExpenses `json:"additional_expenses"`
 	AdditionalExpensesForPaying []DepositPaymentAdditionalExpenses `json:"additional_expenses_for_paying"`
+	FileID                      int                                `json:"file_id"`
 	CreatedAt                   time.Time                          `json:"created_at"`
 	UpdatedAt                   time.Time                          `json:"updated_at"`
 }

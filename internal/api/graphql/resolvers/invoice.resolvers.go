@@ -1112,7 +1112,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 
 		OUDropdown := dto.DropdownSimple{
 			ID:    TaxAuthorityCodebook.ID,
-			Title: TaxAuthorityCodebook.Code,
+			Title: TaxAuthorityCodebook.Title,
 		}
 
 		response.TaxAuthorityCodebook = OUDropdown

@@ -453,4 +453,12 @@ type MicroserviceRepositoryInterface interface {
 	GetDepositPaymentOrderList(input dto.DepositPaymentOrderFilter) ([]structs.DepositPaymentOrder, int, error)
 	GetDepositPaymentAdditionalExpenses(input *dto.DepositPaymentAdditionalExpensesListInputMS) ([]structs.DepositPaymentAdditionalExpenses, int, error)
 	PayDepositPaymentOrder(input structs.DepositPaymentOrder) error
+
+	CreatePaymentOrder(item *structs.PaymentOrder) (*structs.PaymentOrder, error)
+	DeletePaymentOrder(id int) error
+	UpdatePaymentOrder(item *structs.PaymentOrder) (*structs.PaymentOrder, error)
+	GetPaymentOrderByID(id int) (*structs.PaymentOrder, error)
+	GetPaymentOrderList(input dto.PaymentOrderFilter) ([]structs.PaymentOrder, int, error)
+	//GetPaymentAdditionalExpenses(input *dto.PaymentAdditionalExpensesListInputMS) ([]structs.PaymentAdditionalExpenses, int, error)
+	//PayPaymentOrder(input structs.PaymentOrder) error
 }

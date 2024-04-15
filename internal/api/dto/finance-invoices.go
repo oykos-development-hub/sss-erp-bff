@@ -61,17 +61,17 @@ type InvoiceArticleResponse struct {
 }
 
 type AdditionalExpensesResponse struct {
-	ID               int                             `json:"id"`
-	Title            string                          `json:"title"`
-	Account          DropdownSimple                  `json:"account"`
-	Price            float32                         `json:"price"`
-	Subject          DropdownSimple                  `json:"subject"`
-	BankAccount      string                          `json:"bank_account"`
-	Invoice          DropdownSimple                  `json:"invoice"`
-	OrganizationUnit DropdownSimple                  `json:"organization_unit"`
-	Status           structs.AdditionalExpenseStatus `json:"status"`
-	CreatedAt        time.Time                       `json:"created_at"`
-	UpdatedAt        time.Time                       `json:"updated_at"`
+	ID               int            `json:"id"`
+	Title            string         `json:"title"`
+	Account          DropdownSimple `json:"account"`
+	Price            float32        `json:"price"`
+	Subject          DropdownSimple `json:"subject"`
+	BankAccount      string         `json:"bank_account"`
+	Invoice          DropdownSimple `json:"invoice"`
+	OrganizationUnit DropdownSimple `json:"organization_unit"`
+	Status           string         `json:"status"`
+	CreatedAt        time.Time      `json:"created_at"`
+	UpdatedAt        time.Time      `json:"updated_at"`
 }
 
 type GetInvoiceResponseMS struct {
@@ -121,7 +121,7 @@ type AdditionalExpensesListInputMS struct {
 	SubjectID          *int    `json:"subject_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 	Year               *int    `json:"year"`
-	Status             *int    `json:"status"`
+	Status             *string `json:"status"`
 	Search             *string `json:"search"`
 }
 

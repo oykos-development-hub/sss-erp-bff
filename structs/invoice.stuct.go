@@ -57,24 +57,24 @@ type InvoiceArticles struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-type AdditionalExpenseStatus int
+type AdditionalExpenseStatus string
 
 const (
-	AdditionalExpenseStatusCreated        AdditionalExpenseStatus = 1
-	AdditionalExpenseStatusWaitingPayment AdditionalExpenseStatus = 2
-	AdditionalExpenseStatusPaid           AdditionalExpenseStatus = 3
+	AdditionalExpenseStatusCreated        AdditionalExpenseStatus = "Kreiran"
+	AdditionalExpenseStatusWaitingPayment AdditionalExpenseStatus = "Na čekanju"
+	AdditionalExpenseStatusPaid           AdditionalExpenseStatus = "Plaćen"
 )
 
 type AdditionalExpenses struct {
-	ID                 int                     `json:"id"`
-	Title              string                  `json:"title"`
-	AccountID          int                     `json:"account_id"`
-	Price              float32                 `json:"price"`
-	SubjectID          int                     `json:"subject_id"`
-	BankAccount        string                  `json:"bank_account"`
-	InvoiceID          int                     `json:"invoice_id"`
-	OrganizationUnitID int                     `json:"organization_unit_id"`
-	Status             AdditionalExpenseStatus `json:"status"`
-	CreatedAt          time.Time               `json:"created_at"`
-	UpdatedAt          time.Time               `json:"updated_at"`
+	ID                 int       `json:"id"`
+	Title              string    `json:"title"`
+	AccountID          int       `json:"account_id"`
+	Price              float32   `json:"price"`
+	SubjectID          int       `json:"subject_id"`
+	BankAccount        string    `json:"bank_account"`
+	InvoiceID          int       `json:"invoice_id"`
+	OrganizationUnitID int       `json:"organization_unit_id"`
+	Status             string    `json:"status"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }

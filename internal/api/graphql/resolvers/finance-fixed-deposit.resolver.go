@@ -388,7 +388,7 @@ func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) 
 	var item *structs.FixedDepositWill
 
 	if data.ID == 0 {
-		item.Status = "Depozit"
+		data.Status = "Depozit"
 		item, err = r.Repo.CreateFixedDepositWill(&data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)

@@ -32,6 +32,30 @@ type PaymentOrderFilter struct {
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 }
 
+type ObligationsFilter struct {
+	Page               *int    `json:"page"`
+	Size               *int    `json:"size"`
+	OrganizationUnitID int     `json:"organization_unit_id"`
+	SupplierID         int     `json:"supplier_id"`
+	Type               *string `json:"type"`
+}
+
+type Obligation struct {
+	InvoiceID                 *int      `json:"invoice_id"`
+	AdditionalExpenseID       *int      `json:"additional_expense_id"`
+	SalaryAdditionalExpenseID *int      `json:"salary_additional_expense_id"`
+	Type                      string    `json:"type"`
+	Title                     string    `json:"title"`
+	Price                     float64   `json:"price"`
+	Status                    string    `json:"status"`
+	CreatedAt                 time.Time `json:"created_at"`
+}
+
+type GetObligationsResponseMS struct {
+	Data  []Obligation `json:"data"`
+	Total int          `json:"total"`
+}
+
 type GetPaymentOrderResponseMS struct {
 	Data structs.PaymentOrder `json:"data"`
 }

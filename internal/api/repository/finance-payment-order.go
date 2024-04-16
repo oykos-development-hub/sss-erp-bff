@@ -44,6 +44,16 @@ func (repo *MicroserviceRepository) GetPaymentOrderList(filter dto.PaymentOrderF
 	return res.Data, res.Total, nil
 }
 
+func (repo *MicroserviceRepository) GetAllObligations(input dto.ObligationsFilter) ([]dto.Obligation, int, error) {
+	res := &dto.GetObligationsResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetObligation, input, res)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return res.Data, res.Total, nil
+}
+
 func (repo *MicroserviceRepository) DeletePaymentOrder(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.PaymentOrder+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
@@ -53,17 +63,6 @@ func (repo *MicroserviceRepository) DeletePaymentOrder(id int) error {
 	return nil
 }
 
-/*
-func (repo *MicroserviceRepository) GetPaymentAdditionalExpenses(input *dto.PaymentAdditionalExpensesListInputMS) ([]structs.PaymentAdditionalExpenses, int, error) {
-	res := &dto.GetPaymentAdditionalExpensesListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.PaymentAdditionalExpenses, input, res)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return res.Data, res.Total, nil
-}
-*/
 /*
 
 func (repo *MicroserviceRepository) PayPaymentOrder(input structs.PaymentOrder) error {

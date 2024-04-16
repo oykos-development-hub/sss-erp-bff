@@ -150,6 +150,34 @@ func (r *Resolver) PaymentOrderDeleteResolver(params graphql.ResolveParams) (int
 	}, nil
 }
 
+func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	input := dto.ObligationsFilter{}
+
+	if value, ok := params.Args["supplier_id"].(int); ok && value != 0 {
+		input.SupplierID = value
+	}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = value
+	}
+
+	if value, ok := params.Args["type"].(string); ok && value != "" {
+		input.Type = &value
+	}
+
+	items, total, err := r.Repo.GetAllObligations(input)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   items,
+		Total:   total,
+	}, nil
+}
+
 /*
 	func (r *Resolver) PayDepositOrderResolver(params graphql.ResolveParams) (interface{}, error) {
 		itemID := params.Args["id"].(int)

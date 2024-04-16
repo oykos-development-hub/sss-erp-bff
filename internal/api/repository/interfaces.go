@@ -459,6 +459,6 @@ type MicroserviceRepositoryInterface interface {
 	UpdatePaymentOrder(item *structs.PaymentOrder) (*structs.PaymentOrder, error)
 	GetPaymentOrderByID(id int) (*structs.PaymentOrder, error)
 	GetPaymentOrderList(input dto.PaymentOrderFilter) ([]structs.PaymentOrder, int, error)
-	//GetPaymentAdditionalExpenses(input *dto.PaymentAdditionalExpensesListInputMS) ([]structs.PaymentAdditionalExpenses, int, error)
+	GetAllObligations(input dto.ObligationsFilter) ([]dto.Obligation, int, error)
 	//PayPaymentOrder(input structs.PaymentOrder) error
 }

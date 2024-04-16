@@ -64,6 +64,25 @@ func (f *Field) PaymentOrderOverviewField() *graphql.Field {
 	}
 }
 
+func (f *Field) ObligationsOverview() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.ObligationsOverviewType,
+		Description: "Returns a data of fixed deposits",
+		Args: graphql.FieldConfigArgument{
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"supplier_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"type": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+		},
+		Resolve: f.Resolvers.ObligationsOverviewResolver,
+	}
+}
+
 /*
 func (f *Field) PayOrderField() *graphql.Field {
 	return &graphql.Field{

@@ -143,10 +143,10 @@ var ObligationsType = graphql.NewObject(graphql.ObjectConfig{
 		"invoice_id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"additional_expenses_id": &graphql.Field{
+		"additional_expense_id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"salary_additional_expenses_id": &graphql.Field{
+		"salary_additional_expense_id": &graphql.Field{
 			Type: graphql.Int,
 		},
 		"price": &graphql.Field{

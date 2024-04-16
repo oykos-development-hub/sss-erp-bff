@@ -2085,7 +2085,7 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 			}
 			if additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
 				additionalSalaryExpense.OrganizationUnitID = organizationUnitID
-				additionalSalaryExpense.Status = "created"
+				additionalSalaryExpense.Status = "Kreiran"
 				response.Data = append(response.Data, additionalSalaryExpense)
 			}
 		}
@@ -2170,7 +2170,7 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 			}
 			if additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
 				additionalSalaryExpense.OrganizationUnitID = organizationUnitID
-				additionalSalaryExpense.Status = "created"
+				additionalSalaryExpense.Status = "Kreiran"
 				response.Data = append(response.Data, additionalSalaryExpense)
 			}
 		}

@@ -71,7 +71,7 @@ func (repo *MicroserviceRepository) GetCaseNumber(organizationUnitID int) ([]str
 	filter := dto.DepositPaymentFilter{
 		OrganizationUnitID: &organizationUnitID,
 	}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.DepositPaymentCaseNumber, filter, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetDepositPaymentCaseNumber, filter, res)
 	if err != nil {
 		return nil, err
 	}

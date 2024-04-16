@@ -10,6 +10,6 @@ type Suppliers struct {
 	Description   string   `json:"description"`
 	FolderID      int      `json:"folder_id"`
 	TaxPercentage float32  `json:"tax_percentage"`
-	ParentID      int      `json:"parent_id"`
+	ParentID      *int     `json:"parent_id"`
 	BankAccounts  []string `json:"bank_accounts"`
 }

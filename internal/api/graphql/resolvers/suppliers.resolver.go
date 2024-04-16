@@ -15,6 +15,7 @@ func (r *Resolver) SuppliersOverviewResolver(params graphql.ResolveParams) (inte
 	size := params.Args["size"]
 	search := params.Args["search"]
 	entity := params.Args["entity"]
+	parentID := params.Args["parent_id"]
 
 	if id != nil && id.(int) > 0 {
 		supplier, err := r.Repo.GetSupplier(id.(int))
@@ -47,6 +48,12 @@ func (r *Resolver) SuppliersOverviewResolver(params graphql.ResolveParams) (inte
 
 		input.Size = &sizeValue
 		input.Page = &pageValue
+
+	}
+
+	if parentID != nil {
+		value := parentID.(int)
+		input.ParentID = &value
 
 	}
 

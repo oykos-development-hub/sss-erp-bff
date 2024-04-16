@@ -27,6 +27,9 @@ func (f *Field) SuppliersOverviewField() *graphql.Field {
 			"entity": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"parent_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 		},
 		Resolve: f.Resolvers.SuppliersOverviewResolver,
 	}

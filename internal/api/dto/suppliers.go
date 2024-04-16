@@ -7,10 +7,11 @@ type GetSupplierResponseMS struct {
 }
 
 type GetSupplierInputMS struct {
-	Entity *string `json:"entity"`
-	Search *string `json:"search"`
-	Page   *int    `json:"page"`
-	Size   *int    `json:"size"`
+	Entity   *string `json:"entity"`
+	Search   *string `json:"search"`
+	Page     *int    `json:"page"`
+	ParentID *int    `json:"parent_id"`
+	Size     *int    `json:"size"`
 }
 
 type GetSupplierListResponseMS struct {

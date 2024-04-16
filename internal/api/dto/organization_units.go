@@ -34,6 +34,7 @@ type OrganizationUnitsOverviewResponse struct {
 	FolderID       int                          `json:"folder_id"`
 	CreatedAt      string                       `json:"created_at"`
 	UpdatedAt      string                       `json:"updated_at"`
+	BankAccounts   []string                     `json:"bank_accounts"`
 	Children       *[]structs.OrganizationUnits `json:"children"`
 }
 

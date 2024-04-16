@@ -235,5 +235,6 @@ func buildOrganizationUnitOverviewResponse(
 		Icon:           organizationUnits.Icon,
 		Children:       &organizationUnitsChildrenResponse.Data,
 		FolderID:       organizationUnits.FolderID,
+		BankAccounts:   organizationUnits.BankAccounts,
 	}, nil
 }

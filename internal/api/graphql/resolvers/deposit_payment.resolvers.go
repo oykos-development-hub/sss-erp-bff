@@ -144,6 +144,21 @@ func (r *Resolver) DepositPaymentCaseNumberResolver(params graphql.ResolveParams
 	}, nil
 }
 
+func (r *Resolver) DepositCaseNumberResolver(params graphql.ResolveParams) (interface{}, error) {
+	organizationUnitID := params.Args["organization_unit_id"].(int)
+
+	res, err := r.Repo.GetCaseNumber(organizationUnitID)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   res,
+	}, nil
+}
+
 func (r *Resolver) DepositPaymentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 

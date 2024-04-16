@@ -275,6 +275,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"fixedDepositWill_Overview":                                  fields.FixedDepositWillOverviewField(),
 			"depositPayment_Overview":                                    fields.DepositPaymentOverviewField(),
 			"depositPaymentCaseNumber_Overview":                          fields.DepositPaymentCaseNumberField(),
+			"depositCaseNumbers_Overview":                                fields.DepositCaseNumberField(),
 			"depositPaymentOrder_Overview":                               fields.DepositPaymentOrderOverviewField(),
 			"payDepositPaymentOrder":                                     fields.PayDepositOrderField(),
 			"depositPaymentAdditionalExpenses_Overview":                  fields.DepositPaymentAdditionalExpensesOverviewField(),

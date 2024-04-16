@@ -231,5 +231,15 @@ func buildSalaryAdditionalExpense(item structs.SalaryAdditionalExpense, r *Resol
 		response.Subject.Title = subject.Title
 	}
 
+	if item.DebtorID != 0 {
+		debtor, err := r.Repo.GetUserProfileByID(item.DebtorID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.Debtor.ID = debtor.ID
+		response.Debtor.Title = debtor.FirstName + " " + debtor.LastName
+	}
+
 	return &response, nil
 }

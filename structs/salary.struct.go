@@ -5,6 +5,7 @@ import "time"
 type Salary struct {
 	ID                       int                       `json:"id"`
 	ActivityID               int                       `json:"activity_id"`
+	DebtorID                 int                       `json:"debtor_id"`
 	Month                    string                    `json:"month"`
 	DateOfCalculation        time.Time                 `json:"date_of_calculation"`
 	Description              string                    `json:"description"`
@@ -23,6 +24,7 @@ type SalaryAdditionalExpense struct {
 	Title              string    `json:"title"`
 	SalaryID           int       `json:"salary_id"`
 	AccountID          int       `json:"account_id"`
+	DebtorID           int       `json:"debtor_id"`
 	Amount             float64   `json:"amount"`
 	SubjectID          int       `json:"subject_id"`
 	BankAccount        string    `json:"bank_account"`

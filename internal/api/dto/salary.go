@@ -61,6 +61,7 @@ type SalaryAdditionalExpensesResponse struct {
 	ID               int            `json:"id"`
 	SalaryID         int            `json:"salary_id"`
 	Account          DropdownSimple `json:"account"`
+	Debtor           DropdownSimple `json:"debtor"`
 	Amount           float64        `json:"amount"`
 	Subject          DropdownSimple `json:"subject"`
 	BankAccount      string         `json:"bank_account"`

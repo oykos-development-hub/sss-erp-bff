@@ -98,6 +98,9 @@ var SalaryAdditionalExpenses = graphql.NewObject(graphql.ObjectConfig{
 		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"debtor": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"activity": &graphql.Field{
 			Type: DropdownItemType,
 		},

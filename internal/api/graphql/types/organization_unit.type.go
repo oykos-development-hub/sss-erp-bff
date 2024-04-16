@@ -88,6 +88,9 @@ var OrganizationUnitParentType = graphql.NewObject(graphql.ObjectConfig{
 		"children": &graphql.Field{
 			Type: graphql.NewList(OrganizationUnitItemType),
 		},
+		"bank_accounts": &graphql.Field{
+			Type: graphql.NewList(graphql.String),
+		},
 		"city": &graphql.Field{
 			Type: graphql.String,
 		},

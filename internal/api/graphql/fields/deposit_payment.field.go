@@ -80,7 +80,7 @@ func (f *Field) DepositCaseNumberField() *graphql.Field {
 		Description: "Returns a data of fixed deposit wills",
 		Args: graphql.FieldConfigArgument{
 			"organization_unit_id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.String),
+				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
 		Resolve: f.Resolvers.DepositCaseNumberResolver,

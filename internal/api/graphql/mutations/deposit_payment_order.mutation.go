@@ -81,7 +81,7 @@ var DepositPaymentAdditionalExpenses = graphql.NewInputObject(graphql.InputObjec
 			Type: graphql.Int,
 		},
 		"status": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 		"price": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,

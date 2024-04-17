@@ -31,6 +31,9 @@ var OrganizationUnitItemType = graphql.NewObject(graphql.ObjectConfig{
 		"description": &graphql.Field{
 			Type: graphql.String,
 		},
+		"bank_accounts": &graphql.Field{
+			Type: graphql.NewList(graphql.String),
+		},
 		"address": &graphql.Field{
 			Type: graphql.String,
 		},

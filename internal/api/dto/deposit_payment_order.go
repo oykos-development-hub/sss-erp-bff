@@ -16,6 +16,8 @@ type DepositPaymentOrderResponse struct {
 	DateOfStatement             *time.Time                                 `json:"date_of_statement"`
 	IDOfStatement               *string                                    `json:"id_of_statement"`
 	Status                      string                                     `json:"status"`
+	Municipality                DropdownSimple                             `json:"municipality"`
+	TaxAuthorityCodebook        DropdownSimple                             `json:"tax_authority_codebook"`
 	AdditionalExpenses          []DepositPaymentAdditionalExpensesResponse `json:"additional_expenses"`
 	AdditionalExpensesForPaying []DepositPaymentAdditionalExpensesResponse `json:"additional_expenses_for_paying"`
 	File                        FileDropdownSimple                         `json:"file"`

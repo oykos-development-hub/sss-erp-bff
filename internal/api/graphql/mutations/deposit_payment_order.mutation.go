@@ -17,6 +17,12 @@ var DepositPaymentOrderMutation = graphql.NewInputObject(graphql.InputObjectConf
 		"supplier_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"municipality_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"tax_authority_codebook_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"net_amount": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},

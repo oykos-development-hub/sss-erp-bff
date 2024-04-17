@@ -13,6 +13,8 @@ type DepositPaymentOrder struct {
 	DateOfStatement             *time.Time                         `json:"date_of_statement"`
 	IDOfStatement               *string                            `json:"id_of_statement"`
 	Status                      string                             `json:"status"`
+	MunicipalityID              *int                               `json:"municipality_id"`
+	TaxAuthorityCodebookID      *int                               `json:"tax_authority_codebook_id"`
 	AdditionalExpenses          []DepositPaymentAdditionalExpenses `json:"additional_expenses"`
 	AdditionalExpensesForPaying []DepositPaymentAdditionalExpenses `json:"additional_expenses_for_paying"`
 	FileID                      int                                `json:"file_id"`

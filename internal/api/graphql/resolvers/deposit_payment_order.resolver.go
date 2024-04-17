@@ -196,6 +196,36 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		IDOfStatement:   item.IDOfStatement,
 	}
 
+	if item.MunicipalityID != nil && *item.MunicipalityID != 0 {
+		supplier, err := r.Repo.GetSupplier(*item.MunicipalityID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		supplierDropdown := dto.DropdownSimple{
+			ID:    supplier.ID,
+			Title: supplier.Title,
+		}
+
+		response.Municipality = supplierDropdown
+	}
+
+	if item.TaxAuthorityCodebookID != nil && *item.TaxAuthorityCodebookID != 0 {
+		TaxAuthorityCodebook, err := r.Repo.GetTaxAuthorityCodebookByID(*item.TaxAuthorityCodebookID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		OUDropdown := dto.DropdownSimple{
+			ID:    TaxAuthorityCodebook.ID,
+			Title: TaxAuthorityCodebook.Title,
+		}
+
+		response.TaxAuthorityCodebook = OUDropdown
+	}
+
 	if item.OrganizationUnitID != 0 {
 		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 

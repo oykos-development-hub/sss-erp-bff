@@ -282,6 +282,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"salary_Overview":                                            fields.SalaryOverviewField(),
 			"obligations_Overview":                                       fields.ObligationsOverview(),
 			"paymentOrder_Overview":                                      fields.PaymentOrderOverviewField(),
+			"payPaymentOrder":                                            fields.PayOrderField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

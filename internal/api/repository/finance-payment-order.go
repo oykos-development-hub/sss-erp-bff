@@ -63,8 +63,6 @@ func (repo *MicroserviceRepository) DeletePaymentOrder(id int) error {
 	return nil
 }
 
-/*
-
 func (repo *MicroserviceRepository) PayPaymentOrder(input structs.PaymentOrder) error {
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.PayPaymentOrder+"/"+strconv.Itoa(input.ID), input, nil)
 	if err != nil {
@@ -72,4 +70,3 @@ func (repo *MicroserviceRepository) PayPaymentOrder(input structs.PaymentOrder) 
 	}
 	return nil
 }
-*/

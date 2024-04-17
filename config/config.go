@@ -98,6 +98,7 @@ type FinanceMS struct {
 	DepositPaymentAdditionalExpenses string
 	PayDepositPaymentOrder           string
 	PaymentOrder                     string
+	PayPaymentOrder                  string
 	GetObligation                    string
 }
 
@@ -385,6 +386,7 @@ func LoadDefaultConfig() (*Config, error) {
 				PayDepositPaymentOrder:           financeBase + "/pay-deposit-payment-order",
 				DepositPaymentAdditionalExpenses: financeBase + "/deposit-additional-expenses",
 				PaymentOrder:                     financeBase + "/payment-orders",
+				PayPaymentOrder:                  financeBase + "/pay-payment-order",
 				GetObligation:                    financeBase + "/get-all-obligations",
 			},
 		},

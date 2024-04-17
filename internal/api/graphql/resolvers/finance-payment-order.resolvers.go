@@ -178,41 +178,40 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 	}, nil
 }
 
-/*
-	func (r *Resolver) PayDepositOrderResolver(params graphql.ResolveParams) (interface{}, error) {
-		itemID := params.Args["id"].(int)
-		IDOfStatement := params.Args["id_of_statement"].(string)
-		DateOfStatement := params.Args["date_of_statement"].(string)
+func (r *Resolver) PayOrderResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+	SAPID := params.Args["sap_id"].(string)
+	DateOfSAP := params.Args["date_of_sap"].(string)
 
-		dateOfStatement, err := parseDate(DateOfStatement)
+	dateOfSAP, err := parseDate(DateOfSAP)
 
-		if err != nil {
-			fmt.Printf("Paying the order failed because this error - %s.\n", err)
-			return dto.ResponseSingle{
-				Status: "failed",
-			}, nil
-		}
-
-		paymentOrder := structs.PaymentOrder{
-			ID:              itemID,
-			IDOfStatement:   &IDOfStatement,
-			DateOfStatement: &dateOfStatement,
-		}
-
-		err = r.Repo.PayPaymentOrder(paymentOrder)
-		if err != nil {
-			fmt.Printf("Paying the order failed because this error - %s.\n", err)
-			return dto.ResponseSingle{
-				Status: "failed",
-			}, nil
-		}
-
+	if err != nil {
+		fmt.Printf("Paying the order failed because this error - %s.\n", err)
 		return dto.ResponseSingle{
-			Status:  "success",
-			Message: "You paid this item!",
+			Status: "failed",
 		}, nil
 	}
-*/
+
+	paymentOrder := structs.PaymentOrder{
+		ID:        itemID,
+		SAPID:     &SAPID,
+		DateOfSAP: &dateOfSAP,
+	}
+
+	err = r.Repo.PayPaymentOrder(paymentOrder)
+	if err != nil {
+		fmt.Printf("Paying the order failed because this error - %s.\n", err)
+		return dto.ResponseSingle{
+			Status: "failed",
+		}, nil
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You paid this item!",
+	}, nil
+}
+
 func buildPaymentOrder(item structs.PaymentOrder, r *Resolver) (*dto.PaymentOrderResponse, error) {
 	response := dto.PaymentOrderResponse{
 		ID:            item.ID,

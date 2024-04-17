@@ -83,7 +83,6 @@ func (f *Field) ObligationsOverview() *graphql.Field {
 	}
 }
 
-/*
 func (f *Field) PayOrderField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.FineDeleteType,
@@ -92,14 +91,13 @@ func (f *Field) PayOrderField() *graphql.Field {
 			"id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
 			},
-			"id_of_statement": &graphql.ArgumentConfig{
+			"sap_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.String),
 			},
-			"date_of_statement": &graphql.ArgumentConfig{
+			"date_of_sap": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.String),
 			},
 		},
-		Resolve: f.Resolvers.PayDepositOrderResolver,
+		Resolve: f.Resolvers.PayOrderResolver,
 	}
 }
-*/

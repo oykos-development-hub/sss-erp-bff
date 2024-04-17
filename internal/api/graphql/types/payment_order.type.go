@@ -78,7 +78,7 @@ var PaymentOrderType = graphql.NewObject(graphql.ObjectConfig{
 			Type: FileDropdownItemType,
 		},
 		"items": &graphql.Field{
-			Type: PaymentOrderItemsType,
+			Type: graphql.NewList(PaymentOrderItemsType),
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.DateTime,

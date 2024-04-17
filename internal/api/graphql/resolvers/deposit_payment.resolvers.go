@@ -131,8 +131,9 @@ func (r *Resolver) DepositPaymentInsertResolver(params graphql.ResolveParams) (i
 
 func (r *Resolver) DepositPaymentCaseNumberResolver(params graphql.ResolveParams) (interface{}, error) {
 	caseNumber := params.Args["case_number"].(string)
+	bankAccount := params.Args["bank_account"].(string)
 
-	res, err := r.Repo.GetDepositPaymentCaseNumber(caseNumber)
+	res, err := r.Repo.GetDepositPaymentCaseNumber(caseNumber, bankAccount)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -146,8 +147,9 @@ func (r *Resolver) DepositPaymentCaseNumberResolver(params graphql.ResolveParams
 
 func (r *Resolver) DepositCaseNumberResolver(params graphql.ResolveParams) (interface{}, error) {
 	organizationUnitID := params.Args["organization_unit_id"].(int)
+	bankAccount := params.Args["bank_account"].(string)
 
-	res, err := r.Repo.GetCaseNumber(organizationUnitID)
+	res, err := r.Repo.GetCaseNumber(organizationUnitID, bankAccount)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}

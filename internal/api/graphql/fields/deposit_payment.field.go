@@ -69,6 +69,9 @@ func (f *Field) DepositPaymentCaseNumberField() *graphql.Field {
 			"case_number": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.String),
 			},
+			"bank_account": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.String),
+			},
 		},
 		Resolve: f.Resolvers.DepositPaymentCaseNumberResolver,
 	}
@@ -81,6 +84,9 @@ func (f *Field) DepositCaseNumberField() *graphql.Field {
 		Args: graphql.FieldConfigArgument{
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"bank_account": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.String),
 			},
 		},
 		Resolve: f.Resolvers.DepositCaseNumberResolver,

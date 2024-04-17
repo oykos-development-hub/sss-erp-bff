@@ -65,6 +65,9 @@ var DepositPaymentOrderType = graphql.NewObject(graphql.ObjectConfig{
 		"net_amount": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"source_bank_account": &graphql.Field{
+			Type: graphql.String,
+		},
 		"bank_account": &graphql.Field{
 			Type: graphql.String,
 		},

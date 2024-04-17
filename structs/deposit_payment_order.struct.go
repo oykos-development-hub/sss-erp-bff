@@ -9,6 +9,7 @@ type DepositPaymentOrder struct {
 	SupplierID                  int                                `json:"supplier_id"`
 	NetAmount                   float64                            `json:"net_amount"`
 	BankAccount                 string                             `json:"bank_account"`
+	CurrentBankAccount          string                             `json:"current_bank_account"`
 	DateOfPayment               time.Time                          `json:"date_of_payment"`
 	DateOfStatement             *time.Time                         `json:"date_of_statement"`
 	IDOfStatement               *string                            `json:"id_of_statement"`

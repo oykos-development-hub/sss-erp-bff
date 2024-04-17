@@ -31,6 +31,8 @@ type DepositPaymentFilter struct {
 	Status             *string `json:"status"`
 	Search             *string `json:"search"`
 	CaseuNumber        *string `json:"case_number"`
+	BankAccount        *string `json:"bank_account"`
+	SourceBankAccount  *string `json:"source_bank_account"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 }
 

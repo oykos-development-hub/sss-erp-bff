@@ -77,6 +77,9 @@ var DepositPaymentAdditionalExpenses = graphql.NewInputObject(graphql.InputObjec
 		"bank_account": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"source_bank_account": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"payment_order_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

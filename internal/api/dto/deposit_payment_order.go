@@ -57,6 +57,7 @@ type DepositPaymentAdditionalExpensesListInputMS struct {
 	Year                 *int    `json:"year"`
 	Status               *string `json:"status"`
 	Search               *string `json:"search"`
+	SourceBankAccount    *string `json:"source_bank_account"`
 }
 
 type GetDepositPaymentAdditionalExpensesListResponseMS struct {
@@ -65,15 +66,16 @@ type GetDepositPaymentAdditionalExpensesListResponseMS struct {
 }
 
 type DepositPaymentAdditionalExpensesResponse struct {
-	ID               int            `json:"id"`
-	Title            string         `json:"title"`
-	Account          DropdownSimple `json:"account"`
-	Price            float32        `json:"price"`
-	Subject          DropdownSimple `json:"subject"`
-	BankAccount      string         `json:"bank_account"`
-	PaymentOrder     DropdownSimple `json:"payment_order"`
-	OrganizationUnit DropdownSimple `json:"organization_unit"`
-	Status           string         `json:"status"`
-	CreatedAt        time.Time      `json:"created_at"`
-	UpdatedAt        time.Time      `json:"updated_at"`
+	ID                int            `json:"id"`
+	Title             string         `json:"title"`
+	Account           DropdownSimple `json:"account"`
+	Price             float32        `json:"price"`
+	Subject           DropdownSimple `json:"subject"`
+	BankAccount       string         `json:"bank_account"`
+	PaymentOrder      DropdownSimple `json:"payment_order"`
+	OrganizationUnit  DropdownSimple `json:"organization_unit"`
+	SourceBankAccount string         `json:"source_bank_account"`
+	Status            string         `json:"status"`
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
 }

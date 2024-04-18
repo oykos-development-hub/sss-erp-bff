@@ -90,6 +90,9 @@ func (f *Field) DepositPaymentAdditionalExpensesOverviewField() *graphql.Field {
 			"status": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"source_bank_account": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
 			"search": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},

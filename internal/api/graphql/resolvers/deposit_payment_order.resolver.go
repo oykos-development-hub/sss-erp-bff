@@ -336,6 +336,10 @@ func (r *Resolver) DepositPaymentAdditionalExpensesOverviewResolver(params graph
 		input.Status = &value
 	}
 
+	if value, ok := params.Args["source_bank_account"].(string); ok && value != "" {
+		input.SourceBankAccount = &value
+	}
+
 	if value, ok := params.Args["year"].(int); ok && value != 0 {
 		input.Year = &value
 	}
@@ -381,13 +385,14 @@ func buildDepositPaymentAdditionalExpenseItemList(ctx context.Context, r *Resolv
 
 func buildDepositPaymentAdditionalExpense(r *Resolver, item structs.DepositPaymentAdditionalExpenses) (*dto.DepositPaymentAdditionalExpensesResponse, error) {
 	response := dto.DepositPaymentAdditionalExpensesResponse{
-		ID:          item.ID,
-		Title:       item.Title,
-		Price:       item.Price,
-		BankAccount: item.BankAccount,
-		Status:      item.Status,
-		CreatedAt:   item.CreatedAt,
-		UpdatedAt:   item.UpdatedAt,
+		ID:                item.ID,
+		Title:             item.Title,
+		Price:             item.Price,
+		BankAccount:       item.BankAccount,
+		Status:            item.Status,
+		SourceBankAccount: item.SourceBankAccount,
+		CreatedAt:         item.CreatedAt,
+		UpdatedAt:         item.UpdatedAt,
 	}
 
 	if item.AccountID != 0 {

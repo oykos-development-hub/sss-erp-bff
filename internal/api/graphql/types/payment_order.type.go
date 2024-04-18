@@ -152,7 +152,10 @@ var ObligationsType = graphql.NewObject(graphql.ObjectConfig{
 		"salary_additional_expense_id": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"price": &graphql.Field{
+		"total_price": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"remain_price": &graphql.Field{
 			Type: graphql.Float,
 		},
 		"title": &graphql.Field{

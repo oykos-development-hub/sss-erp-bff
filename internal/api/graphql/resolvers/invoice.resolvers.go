@@ -460,6 +460,9 @@ func calculateCoefficientLess1000(item structs.TaxAuthorityCodebook, previousInc
 	}
 
 	maxNetAmount := additionalExpenses[len(additionalExpenses)-1].Price
+	if item.IncludeSubtax {
+		maxNetAmount += additionalExpenses[1].Price
+	}
 
 	_, amount, err := calculateCoefficientLess700(item, previousIncomeGross, r, organizationUnit, municipality)
 
@@ -619,9 +622,9 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	additionalExpenses, err := calculateAdditionalExpenses(*taxAuthorityCodebook, grossPrice, previousIncomeGross, r, organizationUnit, *municipality)
 
-	/*if !taxAuthorityCodebook.IncludeSubtax {
-		additionalExpenses[len(additionalExpenses)-1].Price -= additionalExpenses[1].Price
-	}*/
+	if taxAuthorityCodebook.IncludeSubtax {
+		additionalExpenses[len(additionalExpenses)-1].Price += additionalExpenses[1].Price
+	}
 
 	if err != nil {
 		return errors.HandleAPIError(err)
@@ -701,7 +704,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			taxPrice = float64(helper)
 		}
 
-		secondGross := remainGross - 700
+		secondGross := remainGross - 700 + previousIncomeGross
 
 		if secondGross < 0 {
 			secondGross = 0
@@ -968,8 +971,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 	for _, item := range additionalExpenses {
 		//ako prirez ne ide na teret poslodavca, ili je nesto na teret poslodavca, ne pravi razliku izmedju bruto i neto
-		if (item.Title == "Prirez" && taxAuthorityCodebook.IncludeSubtax) ||
-			(item.Title == "Nezaposlenost na teret poslodavca") || (item.Title == "PIO na teret poslodavca") || (item.Title == "Fond rada") {
+		if /*(item.Title == "Prirez" && !taxAuthorityCodebook.IncludeSubtax) ||*/
+		(item.Title == "Nezaposlenost na teret poslodavca") || (item.Title == "PIO na teret poslodavca") || (item.Title == "Fond rada") {
 			nonReleasedGrossPrice -= 0
 		} else {
 			nonReleasedGrossPrice -= float64(item.Price)

@@ -59,6 +59,9 @@ var PaymentOrderType = graphql.NewObject(graphql.ObjectConfig{
 		"bank_account": &graphql.Field{
 			Type: graphql.String,
 		},
+		"date_of_order": &graphql.Field{
+			Type: graphql.DateTime,
+		},
 		"date_of_payment": &graphql.Field{
 			Type: graphql.DateTime,
 		},

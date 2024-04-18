@@ -61,6 +61,28 @@ func (f *Field) DepositPaymentOverviewField() *graphql.Field {
 	}
 }
 
+func (f *Field) GetInitialStateOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.DepositPaymentOverviewType,
+		Description: "Returns a data of fixed deposit wills",
+		Args: graphql.FieldConfigArgument{
+			"date": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.String),
+			},
+			"bank_account": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"transitional_bank_account": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
+			},
+		},
+		Resolve: f.Resolvers.GetInitialStateOverviewResolver,
+	}
+}
+
 func (f *Field) DepositPaymentCaseNumberField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.DepositPaymentInsertType,

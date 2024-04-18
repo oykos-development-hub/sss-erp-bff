@@ -94,6 +94,7 @@ type FinanceMS struct {
 	DepositPayment                   string
 	DepositPaymentCaseNumber         string
 	GetDepositPaymentCaseNumber      string
+	GetInitialState                  string
 	DepositPaymentOrder              string
 	DepositPaymentAdditionalExpenses string
 	PayDepositPaymentOrder           string
@@ -379,6 +380,7 @@ func LoadDefaultConfig() (*Config, error) {
 				FixedDepositWill:                 financeBase + "/fixed-deposit-wills",
 				FixedDepositWillDispatch:         financeBase + "/fixed-deposit-will-dispatches",
 				Salary:                           financeBase + "/salaries",
+				GetInitialState:                  financeBase + "/get-initial-state",
 				DepositPayment:                   financeBase + "/deposit-payments",
 				DepositPaymentCaseNumber:         financeBase + "/deposit-payments-case-number",
 				GetDepositPaymentCaseNumber:      financeBase + "/get-case-number",

@@ -36,6 +36,13 @@ type DepositPaymentFilter struct {
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 }
 
+type DepositInitialStateFilter struct {
+	BankAccount             *string   `json:"bank_account"`
+	OrganizationUnitID      *int      `json:"organization_unit_id"`
+	Date                    time.Time `json:"date"`
+	TransitionalBankAccount *bool     `json:"transitional_bank_account"`
+}
+
 type GetDepositPaymentResponseMS struct {
 	Data structs.DepositPayment `json:"data"`
 }

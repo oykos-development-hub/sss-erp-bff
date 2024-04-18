@@ -11,6 +11,7 @@ type PaymentOrderResponse struct {
 	Supplier         DropdownSimple             `json:"supplier"`
 	BankAccount      string                     `json:"bank_account"`
 	DateOfPayment    time.Time                  `json:"date_of_payment"`
+	DateOfOrder      *time.Time                 `json:"date_of_order"`
 	IDOfStatement    *string                    `json:"id_of_statement"`
 	SAPID            *string                    `json:"sap_id"`
 	DateOfSAP        *time.Time                 `json:"date_of_sap"`

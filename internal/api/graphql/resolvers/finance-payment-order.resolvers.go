@@ -220,6 +220,7 @@ func buildPaymentOrder(item structs.PaymentOrder, r *Resolver) (*dto.PaymentOrde
 		IDOfStatement: item.IDOfStatement,
 		SAPID:         item.SAPID,
 		DateOfSAP:     item.DateOfSAP,
+		DateOfOrder:   item.DateOfOrder,
 		Amount:        item.Amount,
 		Status:        item.Status,
 		CreatedAt:     item.CreatedAt,

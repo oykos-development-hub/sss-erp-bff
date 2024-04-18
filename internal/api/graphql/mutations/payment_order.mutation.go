@@ -20,11 +20,8 @@ var PaymentOrderMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"date_of_payment": &graphql.InputObjectFieldConfig{
 			Type: graphql.DateTime,
 		},
-		"date_of_sap": &graphql.InputObjectFieldConfig{
+		"date_of_order": &graphql.InputObjectFieldConfig{
 			Type: graphql.DateTime,
-		},
-		"id_of_statement": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
 		},
 		"sap_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

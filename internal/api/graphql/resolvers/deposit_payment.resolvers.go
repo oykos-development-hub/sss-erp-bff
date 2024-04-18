@@ -77,6 +77,74 @@ func (r *Resolver) DepositPaymentOverviewResolver(params graphql.ResolveParams) 
 	}, nil
 }
 
+func (r *Resolver) GetInitialStateOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+
+	input := dto.DepositInitialStateFilter{}
+	if value, ok := params.Args["date"].(string); ok && value != "" {
+		date, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		input.Date = date
+	}
+
+	if value, ok := params.Args["bank_account"].(string); ok && value != "" {
+		input.BankAccount = &value
+	}
+
+	if value, ok := params.Args["transitional_bank_account"].(bool); ok && value {
+		input.TransitionalBankAccount = &value
+	}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = &value
+	} else {
+		input.OrganizationUnitID, _ = params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	}
+
+	var resItems []structs.DepositPayment
+	var items []structs.DepositPayment
+	var err error
+	if input.TransitionalBankAccount != nil && input.OrganizationUnitID != nil {
+		items, err = r.Repo.GetInitialState(input)
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		resItems = append(resItems, items...)
+	} else if input.BankAccount != nil {
+		items, err = r.Repo.GetInitialState(input)
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		resItems = append(resItems, items...)
+	} else if input.OrganizationUnitID != nil && input.BankAccount == nil {
+		orgUnit, err := r.Repo.GetOrganizationUnitByID(*input.OrganizationUnitID)
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		for _, bankAccount := range orgUnit.BankAccounts {
+			input.BankAccount = &bankAccount
+			items, err = r.Repo.GetInitialState(input)
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			resItems = append(resItems, items...)
+		}
+
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   resItems,
+	}, nil
+}
+
 func (r *Resolver) DepositPaymentInsertResolver(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.DepositPayment
 	response := dto.ResponseSingle{

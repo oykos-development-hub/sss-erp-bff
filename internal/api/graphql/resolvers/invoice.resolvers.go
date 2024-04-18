@@ -818,7 +818,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 	//pio na teret zaposlenog
 	if taxAuthorityCodebook.PioPercentageEmployeePercentage != 0 {
-		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployeePercentage / 100
+		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployerPercentage / 100
 
 		helper := math.Round(taxPrice*100) / 100
 		taxPrice = float64(helper)
@@ -848,7 +848,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 	//pio na teret poslodavca
 	if taxAuthorityCodebook.PioPercentageEmployerPercentage != 0 {
-		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployerPercentage / 100
+		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployeePercentage / 100
 
 		helper := math.Round(taxPrice*100) / 100
 		taxPrice = float64(helper)

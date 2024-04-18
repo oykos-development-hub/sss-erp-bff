@@ -47,6 +47,9 @@ func (f *Field) PaymentOrderOverviewField() *graphql.Field {
 			"size": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"year": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 			"search": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},

@@ -29,6 +29,7 @@ type PaymentOrderFilter struct {
 	SortByTitle        *string `json:"sort_by_title"`
 	Status             *string `json:"status"`
 	Search             *string `json:"search"`
+	Year               *int    `json:"year"`
 	SupplierID         *int    `json:"supplier_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 }

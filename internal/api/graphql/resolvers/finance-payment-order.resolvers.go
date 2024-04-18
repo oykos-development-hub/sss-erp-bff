@@ -39,6 +39,10 @@ func (r *Resolver) PaymentOrderOverviewResolver(params graphql.ResolveParams) (i
 		input.Size = &value
 	}
 
+	if value, ok := params.Args["year"].(int); ok && value != 0 {
+		input.Year = &value
+	}
+
 	if value, ok := params.Args["search"].(string); ok && value != "" {
 		input.Search = &value
 	}

@@ -257,6 +257,21 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		response.Supplier = dropdown
 	}
 
+	if item.SubjectTypeID != 0 {
+		value, err := r.Repo.GetSupplier(item.SubjectTypeID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: value.Title,
+		}
+
+		response.SubjectType = dropdown
+	}
+
 	for _, additionalExpense := range item.AdditionalExpenses {
 		builtItem, err := buildDepositPaymentAdditionalExpense(r, additionalExpense)
 

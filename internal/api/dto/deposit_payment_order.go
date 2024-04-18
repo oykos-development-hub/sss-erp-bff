@@ -10,6 +10,7 @@ type DepositPaymentOrderResponse struct {
 	OrganizationUnit            DropdownSimple                             `json:"organization_unit"`
 	CaseNumber                  string                                     `json:"case_number"`
 	Supplier                    DropdownSimple                             `json:"supplier"`
+	SubjectType                 DropdownSimple                             `json:"subject_type"`
 	NetAmount                   float64                                    `json:"net_amount"`
 	BankAccount                 string                                     `json:"bank_account"`
 	CurrentBankAccount          string                                     `json:"current_bank_account"`

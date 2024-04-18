@@ -7,6 +7,7 @@ type DepositPaymentOrder struct {
 	OrganizationUnitID          int                                `json:"organization_unit_id"`
 	CaseNumber                  string                             `json:"case_number"`
 	SupplierID                  int                                `json:"supplier_id"`
+	SubjectTypeID               int                                `json:"subject_type_id"`
 	NetAmount                   float64                            `json:"net_amount"`
 	BankAccount                 string                             `json:"bank_account"`
 	CurrentBankAccount          string                             `json:"current_bank_account"`

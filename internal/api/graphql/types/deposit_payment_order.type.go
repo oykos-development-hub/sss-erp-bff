@@ -56,6 +56,9 @@ var DepositPaymentOrderType = graphql.NewObject(graphql.ObjectConfig{
 		"supplier": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"subject_type": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"tax_authority_codebook": &graphql.Field{
 			Type: DropdownItemType,
 		},

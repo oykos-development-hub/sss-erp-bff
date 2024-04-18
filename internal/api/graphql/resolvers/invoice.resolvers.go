@@ -474,7 +474,7 @@ func calculateCoefficientLess1000(item structs.TaxAuthorityCodebook, previousInc
 
 func calculateCoefficientMore1000(item structs.TaxAuthorityCodebook, previousIncomeGross float64, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (float64, float64, error) {
 
-	coefficient := item.PreviousIncomePercentageMoreThan1000 + item.PioPercentage + item.PioPercentageEmployeePercentage +
+	coefficient := item.PreviousIncomePercentageMoreThan1000 + item.PioPercentage + item.PioPercentageEmployerPercentage +
 		item.UnemploymentEmployeePercentage + item.UnemploymentPercentage
 
 	return float64(1 - coefficient/100), float64(0), nil
@@ -968,7 +968,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 	for _, item := range additionalExpenses {
 		//ako prirez ne ide na teret poslodavca, ili je nesto na teret poslodavca, ne pravi razliku izmedju bruto i neto
-		if (item.Title == "Prirez" && !taxAuthorityCodebook.IncludeSubtax) ||
+		if (item.Title == "Prirez" && taxAuthorityCodebook.IncludeSubtax) ||
 			(item.Title == "Nezaposlenost na teret poslodavca") || (item.Title == "PIO na teret poslodavca") || (item.Title == "Fond rada") {
 			nonReleasedGrossPrice -= 0
 		} else {

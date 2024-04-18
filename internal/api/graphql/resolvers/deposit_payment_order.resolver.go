@@ -187,14 +187,14 @@ func (r *Resolver) PayDepositOrderResolver(params graphql.ResolveParams) (interf
 
 func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*dto.DepositPaymentOrderResponse, error) {
 	response := dto.DepositPaymentOrderResponse{
-		ID:                 item.ID,
-		CaseNumber:         item.CaseNumber,
-		NetAmount:          item.NetAmount,
-		BankAccount:        item.BankAccount,
-		DateOfPayment:      item.DateOfPayment,
-		DateOfStatement:    item.DateOfStatement,
-		IDOfStatement:      item.IDOfStatement,
-		CurrentBankAccount: item.CurrentBankAccount,
+		ID:                item.ID,
+		CaseNumber:        item.CaseNumber,
+		NetAmount:         item.NetAmount,
+		BankAccount:       item.BankAccount,
+		DateOfPayment:     item.DateOfPayment,
+		DateOfStatement:   item.DateOfStatement,
+		IDOfStatement:     item.IDOfStatement,
+		SourceBankAccount: item.SourceBankAccount,
 	}
 
 	if item.MunicipalityID != nil && *item.MunicipalityID != 0 {

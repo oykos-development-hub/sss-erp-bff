@@ -2067,6 +2067,21 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 					if strings.Contains(value, "Ukupno") {
 						typeOfInput = ""
 					}
+
+				case 3:
+					if value != "" {
+						numberOfEmployees, err := strconv.Atoi(value)
+						if err != nil {
+							responseMessage := ValidationResponse{
+								Column:  7,
+								Row:     rowindex,
+								Message: "Broj zaposlenih nije ispravno unijet!",
+							}
+							response.Validation = append(response.Validation, responseMessage)
+						}
+						response.NumberOfEmployees = numberOfEmployees
+
+					}
 				case 7:
 					price, err := strconv.ParseFloat(value, 32)
 

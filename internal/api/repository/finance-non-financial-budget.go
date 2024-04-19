@@ -2,6 +2,7 @@ package repository
 
 import (
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"strconv"
 )
@@ -41,6 +42,26 @@ func (repo *MicroserviceRepository) GetNonFinancialBudgetList(input *dto.GetNonF
 	}
 
 	return res.Data, nil
+}
+
+func (repo *MicroserviceRepository) GetNonFinancialBudgetByRequestID(requestID int) (structs.NonFinancialBudgetItem, error) {
+	var response structs.NonFinancialBudgetItem
+
+	resList := &dto.GetNonFinancialBudgetListResponseMS{}
+	reqIDList := []int{requestID}
+	input := dto.GetNonFinancialBudgetListInputMS{
+		RequestIDList: &reqIDList,
+	}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.NonFinancialBudget, input, resList)
+	if err != nil {
+		return response, errors.WrapInternalServerError(err, "repo.GetNonFinancialBudgetByRequestID")
+	}
+
+	if len(resList.Data) == 0 {
+		return response, errors.WrapNotFoundError(errors.ErrNonFinancialBudgetNotFound, "repo.GetNonFinancialBudgetByRequestID")
+	}
+
+	return resList.Data[0], nil
 }
 
 func (repo *MicroserviceRepository) GetNonFinancialBudget(id int) (*structs.NonFinancialBudgetItem, error) {

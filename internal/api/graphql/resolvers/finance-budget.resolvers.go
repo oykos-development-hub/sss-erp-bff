@@ -65,76 +65,6 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 	}, nil
 }
 
-func buildBudgetStatus(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget) (*dto.DropdownSimple, error) {
-	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-
-	switch budget.Status {
-	case structs.BudgetCreatedStatus:
-		return &dto.DropdownSimple{
-			ID:    int(structs.BudgetCreatedStatus),
-			Title: string(dto.BudgetCreatedStatus),
-		}, nil
-	case structs.BudgetClosedStatus:
-		return &dto.DropdownSimple{
-			ID:    int(structs.BudgetClosedStatus),
-			Title: string(dto.BudgetClosedStatus),
-		}, nil
-	}
-
-	if loggedInUser.RoleID == structs.UserRoleManagerOJ {
-		status, err := buildBudgetStatusForManager(ctx, r, budget)
-		if err != nil {
-			return nil, err
-		}
-		return status, nil
-	} else if budget.Status == structs.BudgetSentStatus {
-		return &dto.DropdownSimple{
-			ID:    int(structs.OfficialBudgetSentStatus),
-			Title: string(dto.OfficialBudgetSentStatus),
-		}, nil
-	}
-
-	return nil, fmt.Errorf("budget with id: %d has incorrect status: %d", budget.ID, budget.Status)
-}
-
-func buildBudgetStatusForManager(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget) (*dto.DropdownSimple, error) {
-	var status dto.DropdownSimple
-	managerUnitID, ok := ctx.Value(config.OrganizationUnitIDKey).(*int)
-	if !ok || managerUnitID == nil {
-		return &status, fmt.Errorf("user does not have organization unit assigned")
-	}
-
-	requests, err := r.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
-		OrganizationUnitID: managerUnitID,
-		BudgetID:           budget.ID,
-	})
-	if err != nil {
-		return &status, nil
-	}
-
-	allRequestsOnReview := true
-	for _, request := range requests {
-		if request.Status != structs.BudgetRequestSentOnReviewStatus {
-			allRequestsOnReview = false
-			break
-		}
-	}
-
-	if allRequestsOnReview {
-		status = dto.DropdownSimple{
-			ID:    int(structs.ManagerBudgetOnReviewStatus),
-			Title: string(dto.ManagerBudgetOnReviewStatus),
-		}
-	} else {
-		status = dto.DropdownSimple{
-			ID:    int(structs.ManagerBudgetProcessStatus),
-			Title: string(dto.ManagerBudgetProcessStatus),
-		}
-	}
-
-	return &status, nil
-}
-
 func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceRepositoryInterface, budgetList []structs.Budget) (budgetResItemList []*dto.BudgetResponseItem, err error) {
 	for _, budget := range budgetList {
 		budgetResponseItem, err := buildBudgetResponseItem(ctx, r, budget, nil)
@@ -155,10 +85,7 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 		return nil, nil
 	}
 
-	status, err := buildBudgetStatus(ctx, r, budget)
-	if err != nil {
-		return nil, err
-	}
+	status := buildBudgetStatus(ctx, budget.Status)
 
 	limits, err := r.GetBudgetLimits(budget.ID)
 	if err != nil {
@@ -169,11 +96,27 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 		ID:         budget.ID,
 		Year:       budget.Year,
 		BudgetType: budget.BudgetType,
-		Status:     *status,
+		Status:     status,
 		Limits:     limits,
 	}
 
 	return item, nil
+}
+
+func buildBudgetStatus(ctx context.Context, s structs.BudgetStatus) dto.DropdownSimple {
+	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+
+	if loggedInUser.RoleID == structs.UserRoleOfficialForFinanceBudget {
+		return dto.DropdownSimple{
+			ID:    int(s),
+			Title: string(dto.StatusForOfficial(s)),
+		}
+	}
+
+	return dto.DropdownSimple{
+		ID:    int(s),
+		Title: string(dto.StatusForManager(s)),
+	}
 }
 
 func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -306,31 +249,38 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		}, nil
 	}
 
-	budget.Status = structs.BudgetSentStatus
-	updatedBudget, err := r.Repo.UpdateBudget(budget)
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
-
 	isParent := true
 	organizationUnitList, err := r.Repo.GetOrganizationUnits(&dto.GetOrganizationUnitsInput{IsParent: &isParent})
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 	for _, organizationUnit := range organizationUnitList.Data {
+		financialRequestToCreate := &structs.BudgetRequest{
+			OrganizationUnitID: organizationUnit.ID,
+			BudgetID:           budgetID,
+			RequestType:        structs.FinancialRequestType,
+			Status:             structs.BudgetRequestSentStatus,
+		}
+		financialRequest, err := r.Repo.CreateBudgetRequest(financialRequestToCreate)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetSendResolver: error creating financial request type"))
+		}
+
 		currentFinancialRequestToCreate := &structs.BudgetRequest{
 			OrganizationUnitID: organizationUnit.ID,
+			ParentID:           &financialRequest.ID,
 			BudgetID:           budgetID,
 			RequestType:        structs.CurrentFinancialRequestType,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		_, err := r.Repo.CreateBudgetRequest(currentFinancialRequestToCreate)
+		_, err = r.Repo.CreateBudgetRequest(currentFinancialRequestToCreate)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 
 		donationFinancialRequestToCreate := &structs.BudgetRequest{
 			OrganizationUnitID: organizationUnit.ID,
+			ParentID:           &financialRequest.ID,
 			BudgetID:           budgetID,
 			RequestType:        structs.DonationFinancialRequestType,
 			Status:             structs.BudgetRequestSentStatus,
@@ -350,6 +300,12 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
+	}
+
+	budget.Status = structs.BudgetSentStatus
+	updatedBudget, err := r.Repo.UpdateBudget(budget)
+	if err != nil {
+		return errors.HandleAPIError(err)
 	}
 
 	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *updatedBudget, nil)
@@ -391,6 +347,11 @@ func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (int
 	}
 
 	budget, err := r.Repo.GetBudget(budgetID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	budget.Status = structs.BudgetSentOnReview
+	budget, err = r.Repo.UpdateBudget(budget)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -443,23 +404,24 @@ func (r *Resolver) BudgetDetailsResolver(params graphql.ResolveParams) (interfac
 
 }
 
-func buildBudgetRequestStatus(budgetRequests *structs.BudgetRequest) (dto.BudgetRequestStatus, error) {
-	if budgetRequests.Status == structs.BudgetRequestSentStatus {
-		return dto.FinancialBudgetTakeActionStatus, nil
-	} else if budgetRequests.Status == structs.BudgetRequestFilledStatus || budgetRequests.Status == structs.BudgetRequestSentOnReviewStatus {
-		return dto.FinancialBudgetFinishedStatus, nil
+func buildBudgetRequestStatus(ctx context.Context, s structs.BudgetRequestStatus) dto.DropdownSimple {
+	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+
+	if loggedInUser.RoleID == structs.UserRoleOfficialForFinanceBudget {
+		return dto.DropdownSimple{
+			ID:    int(s),
+			Title: string(dto.RequestStatusForOfficial(s)),
+		}
 	}
 
-	return "", fmt.Errorf("could not determine status of request budget")
+	return dto.DropdownSimple{
+		ID:    int(s),
+		Title: string(dto.RequestStatusForManager(s)),
+	}
 }
 
-func buildBudgetRequestResponseItem(r repository.MicroserviceRepositoryInterface, request *structs.BudgetRequest) (*dto.BudgetRequestResponseItem, error) {
+func buildBudgetRequestResponseItem(ctx context.Context, r repository.MicroserviceRepositoryInterface, request *structs.BudgetRequest) (*dto.BudgetRequestResponseItem, error) {
 	organizationUnit, err := r.GetOrganizationUnitByID(request.OrganizationUnitID)
-	if err != nil {
-		return nil, err
-	}
-
-	status, err := buildBudgetRequestStatus(request)
 	if err != nil {
 		return nil, err
 	}
@@ -468,7 +430,7 @@ func buildBudgetRequestResponseItem(r repository.MicroserviceRepositoryInterface
 		ID:               request.ID,
 		OrganizationUnit: dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title},
 		BudgetID:         request.BudgetID,
-		Status:           status,
+		Status:           buildBudgetRequestStatus(ctx, request.Status),
 		RequestType:      dto.GetRequestType(request.RequestType),
 	}
 
@@ -495,9 +457,16 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 				receiveDate = &request.UpdatedAt
 				totalOnReview++
 			}
+			unit, err := r.Repo.GetOrganizationUnitByID(request.OrganizationUnitID)
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: unit not found"))
+			}
 			unitRequests[request.OrganizationUnitID] = dto.BudgetRequestOfficialOverview{
-				UnitID:      request.OrganizationUnitID,
-				Status:      request.Status.StatusForOfficial(),
+				Unit: dto.DropdownOUSimple{
+					ID:    unit.ID,
+					Title: unit.Title,
+				},
+				Status:      string(dto.RequestStatusForOfficial(request.Status)),
 				ReceiveDate: receiveDate,
 			}
 		}
@@ -513,5 +482,39 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 		Status:  "success",
 		Items:   unitRequestsList,
 		Total:   totalOnReview,
+	}, nil
+}
+
+func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (interface{}, error) {
+	budgetID := params.Args["budget_id"].(int)
+	unitID := params.Args["unit_id"].(int)
+
+	financialDetails, err := r.GetFinancialBudgetDetails(budgetID, unitID)
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting non financial request"))
+	}
+
+	financialRequestType := structs.NonFinancialRequestType
+	request, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &unitID,
+		BudgetID:           budgetID,
+		RequestType:        &financialRequestType,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	nonFinancialDetails, err := r.buildNonFinancialBudgetDetails(params.Context, request)
+	if err != nil {
+		return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestsDetailsResolver"))
+	}
+
+	return dto.ResponseSingle{
+		Message: "Budget requests",
+		Status:  "success",
+		Item: &dto.BudgetRequestsDetails{
+			FinancialBudgetDetails:    financialDetails,
+			NonFinancialBudgetDetails: nonFinancialDetails,
+		},
 	}, nil
 }

@@ -5,93 +5,80 @@ import (
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
 	"bff/structs"
+	"context"
 	"encoding/json"
-	"fmt"
+	goerrors "errors"
 
 	"github.com/graphql-go/graphql"
 )
 
-func (r *Resolver) NonFinancialBudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
-	if requestID, ok := params.Args["request_id"].(int); ok && requestID != 0 {
-		request, err := r.Repo.GetBudgetRequest(requestID)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
+func (r *Resolver) buildNonFinancialBudgetDetails(ctx context.Context, request *structs.BudgetRequest) (*dto.NonFinancialBudgetResItem, error) {
+	resItem := &dto.NonFinancialBudgetResItem{}
 
-		nonFinancialBudget, err := r.Repo.GetNonFinancialBudget(request.BudgetID)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
+	resItem.Status = buildBudgetRequestStatus(ctx, request.Status)
+	resItem.RequestID = request.ID
 
-		nonFinancialBudgetResItem, err := buildNonFinancialBudgetResItem(r.Repo, *nonFinancialBudget)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		return dto.Response{
-			Status:  "success",
-			Message: "Here's the list you asked for!",
-			Items:   []*dto.NonFinancialBudgetResItem{nonFinancialBudgetResItem},
-			Total:   1,
-		}, nil
-	}
-
-	budgetID, ok := params.Args["budget_id"].(int)
-	if !ok || budgetID == 0 {
-		return errors.HandleAPIError(fmt.Errorf("budget_id is required"))
-	}
-
-	input := dto.GetNonFinancialBudgetListInputMS{}
-	if organizationUnitID, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitID != 0 {
-		request, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{OrganizationUnitID: &organizationUnitID, BudgetID: budgetID})
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-		requestIDList := []int{request.ID}
-		input.RequestIDList = &requestIDList
-	} else {
-		requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{BudgetID: budgetID})
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-		var requestIDs []int
-		for _, request := range requests {
-			requestIDs = append(requestIDs, request.ID)
-		}
-		input.RequestIDList = &requestIDs
-	}
-
-	nonFinancialBudgets, err := r.Repo.GetNonFinancialBudgetList(&input)
+	activity, err := r.Repo.GetActivityByUnit(request.OrganizationUnitID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return nil, err
 	}
-
-	nonFinancialBudgetResItemList, err := buildNonFinancialBudgetResItemList(r.Repo, nonFinancialBudgets)
+	activityResItem, err := buildActivityResItem(r.Repo, *activity)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return nil, err
 	}
 
-	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   nonFinancialBudgetResItemList,
-		Total:   len(nonFinancialBudgetResItemList),
-	}, nil
+	activityRequest := &dto.ActivityRequestResItem{
+		ID:               activityResItem.ID,
+		SubProgram:       activityResItem.SubProgram,
+		OrganizationUnit: activityResItem.OrganizationUnit,
+		Title:            activityResItem.Title,
+		Description:      activityResItem.Description,
+		Code:             activityResItem.Code,
+	}
+
+	resItem.ActivityRequest = *activityRequest
+
+	nonFinancialBudget, err := r.Repo.GetNonFinancialBudgetByRequestID(request.ID)
+	if err != nil {
+		var appErr *errors.AppError
+		if goerrors.As(err, &appErr) {
+			if goerrors.Is(appErr.Err, errors.ErrNonFinancialBudgetNotFound) {
+				return resItem, nil
+			}
+
+			return nil, errors.Wrap(err, "GetNonFinancialBudgetDetails")
+		}
+	}
+
+	resItem.ID = nonFinancialBudget.ID
+	resItem.ImplContactFullName = nonFinancialBudget.ImplContactFullName
+	resItem.ImplContactWorkingPlace = nonFinancialBudget.ImplContactWorkingPlace
+	resItem.ImplContactPhone = nonFinancialBudget.ImplContactPhone
+	resItem.ImplContactPhone = nonFinancialBudget.ImplContactPhone
+	resItem.ImplContactEmail = nonFinancialBudget.ImplContactEmail
+	resItem.ContactFullName = nonFinancialBudget.ContactFullName
+	resItem.ContactWorkingPlace = nonFinancialBudget.ContactWorkingPlace
+	resItem.ContactPhone = nonFinancialBudget.ContactPhone
+	resItem.ContactEmail = nonFinancialBudget.ContactEmail
+
+	goalList, err := r.Repo.GetNonFinancialGoalList(&dto.GetNonFinancialGoalListInputMS{
+		ActivityID:           &activity.ID,
+		NonFinancialBudgetID: &nonFinancialBudget.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	goalResItemList, err := buildActivityGoalRequestResItemList(r.Repo, goalList)
+	if err != nil {
+		return nil, err
+	}
+
+	resItem.ActivityRequest.Goals = goalResItemList
+
+	return resItem, nil
 }
 
-func buildNonFinancialBudgetResItemList(r repository.MicroserviceRepositoryInterface, nonFinancialBudgetList []structs.NonFinancialBudgetItem) (nonFinancialBudgetResItemList []*dto.NonFinancialBudgetResItem, err error) {
-	for _, nonFinancialBudget := range nonFinancialBudgetList {
-		nonFinancialBudgetResItem, err := buildNonFinancialBudgetResItem(r, nonFinancialBudget)
-		if err != nil {
-			return nil, err
-		}
-		nonFinancialBudgetResItemList = append(nonFinancialBudgetResItemList, nonFinancialBudgetResItem)
-	}
-
-	return
-}
-
-func buildNonFinancialBudgetResItem(r repository.MicroserviceRepositoryInterface, nonFinancialBudget structs.NonFinancialBudgetItem) (*dto.NonFinancialBudgetResItem, error) {
+func buildNonFinancialBudgetResItem(ctx context.Context, r repository.MicroserviceRepositoryInterface, nonFinancialBudget structs.NonFinancialBudgetItem) (*dto.NonFinancialBudgetResItem, error) {
 	resItem := &dto.NonFinancialBudgetResItem{
 		ID:                      nonFinancialBudget.ID,
 		ImplContactFullName:     nonFinancialBudget.ImplContactFullName,
@@ -104,60 +91,7 @@ func buildNonFinancialBudgetResItem(r repository.MicroserviceRepositoryInterface
 		ContactEmail:            nonFinancialBudget.ContactEmail,
 	}
 
-	request, err := r.GetBudgetRequest(nonFinancialBudget.RequestID)
-	if err != nil {
-		return nil, err
-	}
-	requestResItem, err := buildBudgetRequestResponseItem(r, request)
-	if err != nil {
-		return nil, err
-	}
-	resItem.Request = *requestResItem
-	resItem.Status = string(requestResItem.Status)
-
-	activityRequest, err := buildActivityRequestResItem(r, resItem)
-	if err != nil {
-		return nil, err
-	}
-
-	resItem.ActivityRequest = *activityRequest
-
 	return resItem, nil
-}
-
-func buildActivityRequestResItem(r repository.MicroserviceRepositoryInterface, nonFinancialBudget *dto.NonFinancialBudgetResItem) (*dto.ActivityRequestResItem, error) {
-	activity, err := r.GetActivityByUnit(nonFinancialBudget.Request.OrganizationUnit.ID)
-	if err != nil {
-		return nil, err
-	}
-	activityResItem, err := buildActivityResItem(r, *activity)
-	if err != nil {
-		return nil, err
-	}
-
-	goalList, err := r.GetNonFinancialGoalList(&dto.GetNonFinancialGoalListInputMS{
-		ActivityID:           &activity.ID,
-		NonFinancialBudgetID: &nonFinancialBudget.ID,
-	})
-	if err != nil {
-		return nil, err
-	}
-	goalResItemList, err := buildActivityGoalRequestResItemList(r, goalList)
-	if err != nil {
-		return nil, err
-	}
-
-	activityRequest := &dto.ActivityRequestResItem{
-		ID:               activityResItem.ID,
-		SubProgram:       activityResItem.SubProgram,
-		OrganizationUnit: activityResItem.OrganizationUnit,
-		Title:            activityResItem.Title,
-		Description:      activityResItem.Description,
-		Code:             activityResItem.Code,
-		Goals:            goalResItemList,
-	}
-
-	return activityRequest, nil
 }
 
 func buildActivityGoalRequestResItemList(r repository.MicroserviceRepositoryInterface, goals []structs.NonFinancialGoalItem) (goalsRequestResItemList []*dto.ActivityGoalRequestResItem, err error) {
@@ -245,32 +179,27 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 		return errors.HandleAPIError(err)
 	}
 
-	requestType := structs.NonFinancialRequestType
-	request, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
-		OrganizationUnitID: &data.OrganizationUnitID,
-		BudgetID:           data.BudgetID,
-		RequestType:        &requestType,
-	})
+	_, err = r.upsertNonFinancialBudget(data)
 	if err != nil {
 		return nil, err
 	}
-	data.RequestID = request.ID
 
-	item, err := r.upsertNonFinancialBudget(data)
+	request, err := r.Repo.GetBudgetRequest(data.RequestID)
 	if err != nil {
-		return nil, err
+		return errors.HandleAPPError(errors.Wrap(err, "NonFinancialBudgetInsertResolver"))
 	}
 
 	request.Status = structs.BudgetRequestFilledStatus
-	_, err = r.Repo.UpdateBudgetRequest(&request)
+	_, err = r.Repo.UpdateBudgetRequest(request)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(errors.Wrap(err, "NonFinancialBudgetInsertResolver"))
 	}
 
-	resItem, err := buildNonFinancialBudgetResItem(r.Repo, *item)
+	resItem, err := r.buildNonFinancialBudgetDetails(params.Context, request)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(errors.Wrap(err, "NonFinancialBudgetInsertResolver"))
 	}
+
 	response.Item = resItem
 
 	return response, nil

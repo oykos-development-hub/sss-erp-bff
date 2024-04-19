@@ -2,8 +2,8 @@ package repository
 
 import (
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
-	"fmt"
 	"strconv"
 )
 
@@ -29,24 +29,24 @@ func (repo *MicroserviceRepository) GetBudgetRequestList(input *dto.GetBudgetReq
 	res := &dto.GetBudgetRequestListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.BudgetRequest, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapInternalServerError(err, "repo.GetBudgetRequestList")
 	}
 
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) GetOneBudgetRequest(input *dto.GetBudgetRequestListInputMS) (budgetReq structs.BudgetRequest, err error) {
+func (repo *MicroserviceRepository) GetOneBudgetRequest(input *dto.GetBudgetRequestListInputMS) (budgetReq *structs.BudgetRequest, err error) {
 	res := &dto.GetBudgetRequestListResponseMS{}
 	_, err = makeAPIRequest("GET", repo.Config.Microservices.Finance.BudgetRequest, input, res)
 	if err != nil {
-		return budgetReq, err
+		return budgetReq, errors.WrapInternalServerError(err, "repo.GetOneBudgetRequest")
 	}
 
 	if len(res.Data) == 0 {
-		return budgetReq, fmt.Errorf("budget not sent")
+		return budgetReq, errors.NewInternalServerError("repo.GetOneBudgetRequest: budget not sent")
 	}
 
-	return res.Data[0], nil
+	return &res.Data[0], nil
 }
 
 func (repo *MicroserviceRepository) GetBudgetRequest(id int) (*structs.BudgetRequest, error) {

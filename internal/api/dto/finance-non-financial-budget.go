@@ -15,10 +15,10 @@ type GetNonFinancialBudgetListInputMS struct {
 }
 
 type NonFinancialBudgetResItem struct {
-	ID              int                       `json:"id"`
-	Budet           DropdownSimple            `json:"budget"`
-	Request         BudgetRequestResponseItem `json:"request"`
-	ActivityRequest ActivityRequestResItem    `json:"activity"`
+	ID              int                    `json:"id"`
+	RequestID       int                    `json:"request_id"`
+	Status          DropdownSimple         `json:"status"`
+	ActivityRequest ActivityRequestResItem `json:"activity"`
 
 	ImplContactFullName     string `json:"impl_contact_fullname"`
 	ImplContactWorkingPlace string `json:"impl_contact_working_place"`
@@ -29,8 +29,6 @@ type NonFinancialBudgetResItem struct {
 	ContactWorkingPlace string `json:"contact_working_place"`
 	ContactPhone        string `json:"contact_phone"`
 	ContactEmail        string `json:"contact_email"`
-
-	Status string `json:"status"`
 }
 
 type ActivityRequestResItem struct {

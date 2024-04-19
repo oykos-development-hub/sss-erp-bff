@@ -7,25 +7,6 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func (f *Field) NonFinancialBudgetOverviewType() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.NonFinancialBudgetOverviewType,
-		Description: "Returns a data of Not Financially Budget Activity item",
-		Args: graphql.FieldConfigArgument{
-			"request_id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
-			},
-			"organization_unit_id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
-			},
-			"budget_id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
-			},
-		},
-		Resolve: f.Resolvers.NonFinancialBudgetOverviewResolver,
-	}
-}
-
 func (f *Field) NonFinancialBudgetInsertField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.NonFinancialBudgetInsertType,

@@ -158,6 +158,9 @@ var FinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"donation_budget_comment": &graphql.Field{
 			Type: graphql.String,
 		},
+		"official_comment": &graphql.Field{
+			Type: graphql.String,
+		},
 		"donation_accounts": &graphql.Field{
 			Type: graphql.NewList(GetAccountWithFilledDataType()),
 		},
@@ -374,14 +377,68 @@ var OfficialBudgetRequestOverviewType = graphql.NewObject(graphql.ObjectConfig{
 var OfficialBudgetRequestType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "OfficialBudgetRequestItemType",
 	Fields: graphql.Fields{
-		"unit_id": &graphql.Field{
-			Type: graphql.Int,
+		"unit": &graphql.Field{
+			Type: DropdownItemType,
 		},
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
 		"receive_date": &graphql.Field{
 			Type: graphql.DateTime,
+		},
+	},
+})
+
+var BudgetRequestsDetailsType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BudgetRequestsDetailsType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: BudgetRequestsDetailsItemType,
+		},
+	},
+})
+
+var BudgetRequestsDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BudgetRequestsDetailsItemType",
+	Fields: graphql.Fields{
+		"financial": &graphql.Field{
+			Type: FinancialBudgetType,
+		},
+		"non_financial": &graphql.Field{
+			Type: NonFinancialBudgetType,
+		},
+	},
+})
+
+var BudgetRequestsDetailsFinancialItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BudgetRequestsDetailsFinancialItemType",
+	Fields: graphql.Fields{
+		"financial": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"non_financial": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+var BudgetRequestsDetailsNonFinancialItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BudgetRequestsDetailsNonFinancialItemType",
+	Fields: graphql.Fields{
+		"financial": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"non_financial": &graphql.Field{
+			Type: graphql.String,
 		},
 	},
 })

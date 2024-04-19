@@ -1,6 +1,8 @@
 package structs
 
-import "time"
+import (
+	"time"
+)
 
 type BudgetIndent struct {
 	ID           int    `json:"id"`
@@ -12,8 +14,12 @@ type BudgetIndent struct {
 type BudgetStatus int
 
 const (
-	BudgetCreatedStatus         BudgetStatus = 1
-	BudgetSentStatus            BudgetStatus = 2
+	BudgetCreatedStatus  BudgetStatus = 1
+	BudgetSentStatus     BudgetStatus = 2
+	BudgetSentOnReview   BudgetStatus = 3
+	BudgetRejectedStatus BudgetStatus = 4
+	BudgetAcceptedStatus BudgetStatus = 5
+
 	BudgetClosedStatus          BudgetStatus = 3
 	ManagerBudgetProcessStatus  BudgetStatus = 4
 	ManagerBudgetOnReviewStatus BudgetStatus = 5
@@ -38,40 +44,18 @@ const (
 	BudgetRequestRejectedStatus     BudgetRequestStatus = 5
 )
 
-func (s BudgetRequestStatus) StatusForOfficial() string {
-	switch s {
-	case BudgetRequestSentOnReviewStatus:
-		return "Obradi"
-	case BudgetRequestAcceptedStatus:
-		return "Odobreno"
-	default:
-		return "Na čekanju"
-	}
-}
-
-func (s BudgetRequestStatus) StatusForManager() string {
-	switch s {
-	case BudgetRequestSentStatus:
-		return "Obradi"
-	case BudgetRequestFilledStatus:
-		return "Popunjeno"
-	case BudgetRequestAcceptedStatus:
-		return "Odobreno"
-	default:
-		return "Na čekanju"
-	}
-}
-
 type RequestType int
 
 const (
 	CurrentFinancialRequestType  RequestType = 1
 	DonationFinancialRequestType RequestType = 2
 	NonFinancialRequestType      RequestType = 3
+	FinancialRequestType         RequestType = 4
 )
 
 type BudgetRequest struct {
 	ID                 int                 `json:"id"`
+	ParentID           *int                `json:"parent_id"`
 	OrganizationUnitID int                 `json:"organization_unit_id"`
 	BudgetID           int                 `json:"budget_id"`
 	RequestType        RequestType         `json:"request_type"`

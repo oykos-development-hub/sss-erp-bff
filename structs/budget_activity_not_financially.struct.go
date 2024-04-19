@@ -1,10 +1,8 @@
 package structs
 
 type NonFinancialBudgetItem struct {
-	ID                 int `json:"id"`
-	RequestID          int `json:"request_id"`
-	OrganizationUnitID int `json:"organization_unit_id"`
-	BudgetID           int `json:"budget_id"`
+	ID        int `json:"id"`
+	RequestID int `json:"request_id"`
 
 	ImplContactFullName     string `json:"impl_contact_fullname"`
 	ImplContactWorkingPlace string `json:"impl_contact_working_place"`

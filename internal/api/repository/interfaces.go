@@ -283,7 +283,7 @@ type MicroserviceRepositoryInterface interface {
 	UpdateBudgetRequest(budget *structs.BudgetRequest) (*structs.BudgetRequest, error)
 	GetBudgetRequest(id int) (*structs.BudgetRequest, error)
 	GetBudgetRequestList(input *dto.GetBudgetRequestListInputMS) ([]structs.BudgetRequest, error)
-	GetOneBudgetRequest(input *dto.GetBudgetRequestListInputMS) (structs.BudgetRequest, error)
+	GetOneBudgetRequest(input *dto.GetBudgetRequestListInputMS) (*structs.BudgetRequest, error)
 
 	UpdateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
 	CreateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
@@ -304,6 +304,7 @@ type MicroserviceRepositoryInterface interface {
 	DeleteNonFinancialBudget(id int) error
 	GetNonFinancialBudget(id int) (*structs.NonFinancialBudgetItem, error)
 	GetNonFinancialBudgetList(input *dto.GetNonFinancialBudgetListInputMS) ([]structs.NonFinancialBudgetItem, error)
+	GetNonFinancialBudgetByRequestID(requestID int) (structs.NonFinancialBudgetItem, error)
 
 	UpdateNonFinancialGoal(id int, activity *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error)
 	CreateNonFinancialGoal(goal *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error)

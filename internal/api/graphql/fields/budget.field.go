@@ -60,6 +60,22 @@ func (f *Field) BudgetSendOnReviewField() *graphql.Field {
 	}
 }
 
+func (f *Field) BudgetRequestsDetailsField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.BudgetRequestsDetailsType,
+		Description: "Send Budget",
+		Args: graphql.FieldConfigArgument{
+			"budget_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"unit_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.BudgetRequestsDetailsResolver,
+	}
+}
+
 func (f *Field) BudgetRequestsOfficialField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.OfficialBudgetRequestOverviewType,

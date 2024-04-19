@@ -2,6 +2,7 @@ package repository
 
 import (
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"strconv"
 )
@@ -128,7 +129,7 @@ func (repo *MicroserviceRepository) GetFilledFinancialBudgetList(requestID int) 
 	res := &dto.GetFilledFinancialBudgetResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FilledFinancialBudget, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.WrapInternalServerError(err, "repo.GetFilledFinancialBudgetList")
 	}
 
 	return res.Data, nil

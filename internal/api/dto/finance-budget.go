@@ -9,22 +9,77 @@ import (
 type BudgetRequestStatus string
 
 const (
-	FinancialBudgetTakeActionStatus BudgetRequestStatus = "Obradi"
-	FinancialBudgetFinishedStatus   BudgetRequestStatus = "Obrađen"
+	BudgetRequestTakeActionStatus BudgetRequestStatus = "Obradi"
+	BudgetRequestFinishedStatus   BudgetRequestStatus = "Obrađen"
+	BudgetRequestAcceptedStatus   BudgetRequestStatus = "Odobreno"
+	BudgetRequestOnHoldStatus     BudgetRequestStatus = "Na čekanju"
+	BudgetRequestFilledStatus     BudgetRequestStatus = "Popunjeno"
 )
+
+func RequestStatusForOfficial(s structs.BudgetRequestStatus) BudgetRequestStatus {
+	switch s {
+	case structs.BudgetRequestSentOnReviewStatus:
+		return BudgetRequestTakeActionStatus
+	case structs.BudgetRequestAcceptedStatus:
+		return BudgetRequestAcceptedStatus
+	default:
+		return BudgetRequestOnHoldStatus
+	}
+}
+
+func RequestStatusForManager(s structs.BudgetRequestStatus) BudgetRequestStatus {
+	switch s {
+	case structs.BudgetRequestSentStatus:
+		return BudgetRequestTakeActionStatus
+	case structs.BudgetRequestFilledStatus:
+		return BudgetRequestFilledStatus
+	case structs.BudgetRequestAcceptedStatus:
+		return BudgetRequestAcceptedStatus
+	default:
+		return BudgetRequestOnHoldStatus
+	}
+}
 
 type BudgetStatus string
 
 const (
-	BudgetCreatedStatus BudgetStatus = "Kreiran"
-	BudgetClosedStatus  BudgetStatus = "Završen"
-
-	ManagerBudgetProcessStatus  BudgetStatus = "Obradi"
-	ManagerBudgetOnReviewStatus BudgetStatus = "Na čekanju"
-	ManagerBudgetClosedStatus   BudgetStatus = "Završen"
-
-	OfficialBudgetSentStatus BudgetStatus = "Poslat"
+	BudgetCreatedStatus  BudgetStatus = "Kreiran"
+	BudgetClosedStatus   BudgetStatus = "Završen"
+	BudgetSentStatus     BudgetStatus = "Poslat"
+	BudgetAcceptedStatus BudgetStatus = "Prihvaćen"
+	BudgetOnHoldStatus   BudgetStatus = "Na čekanju"
+	BudgetTodoStatus     BudgetStatus = "Obradi"
 )
+
+func StatusForOfficial(s structs.BudgetStatus) BudgetStatus {
+	switch s {
+	case structs.BudgetCreatedStatus:
+		return BudgetCreatedStatus
+	case structs.BudgetSentStatus:
+		return BudgetSentStatus
+	case structs.BudgetSentOnReview:
+		return BudgetTodoStatus
+	case structs.BudgetAcceptedStatus:
+		return BudgetAcceptedStatus
+	case structs.BudgetRejectedStatus:
+		return BudgetOnHoldStatus
+	default:
+		return BudgetOnHoldStatus
+	}
+}
+
+func StatusForManager(s structs.BudgetStatus) BudgetStatus {
+	switch s {
+	case structs.BudgetSentStatus, structs.BudgetRejectedStatus:
+		return BudgetTodoStatus
+	case structs.BudgetAcceptedStatus:
+		return BudgetAcceptedStatus
+	case structs.BudgetSentOnReview:
+		return BudgetOnHoldStatus
+	default:
+		return BudgetOnHoldStatus
+	}
+}
 
 type BudgetResponseItem struct {
 	ID         int                            `json:"id"`
@@ -59,10 +114,10 @@ type GetBudgetRequestListResponseMS struct {
 }
 
 type GetBudgetRequestListInputMS struct {
-	OrganizationUnitID *int                   `json:"organization_unit_id"`
-	BudgetID           int                    `json:"budget_id"`
-	RequestType        *structs.RequestType   `json:"request_type"`
-	RequestTypes       *[]structs.RequestType `json:"request_types"`
+	OrganizationUnitID *int                  `json:"organization_unit_id"`
+	BudgetID           int                   `json:"budget_id"`
+	RequestType        *structs.RequestType  `json:"request_type"`
+	RequestTypes       []structs.RequestType `json:"request_types"`
 }
 
 type RequestType string
@@ -87,11 +142,11 @@ func GetRequestType(r structs.RequestType) RequestType {
 }
 
 type BudgetRequestResponseItem struct {
-	ID               int                 `json:"id"`
-	OrganizationUnit DropdownSimple      `json:"organization_unit"`
-	BudgetID         int                 `json:"budget_id"`
-	RequestType      RequestType         `json:"request_type"`
-	Status           BudgetRequestStatus `json:"status"`
+	ID               int            `json:"id"`
+	OrganizationUnit DropdownSimple `json:"organization_unit"`
+	BudgetID         int            `json:"budget_id"`
+	RequestType      RequestType    `json:"request_type"`
+	Status           DropdownSimple `json:"status"`
 }
 
 type FinancialBudgetResponseItem struct {
@@ -121,12 +176,15 @@ type FinancialBudgetOverviewResponse struct {
 	AccountVersion                 int                               `json:"account_version"`
 	RequestID                      int                               `json:"request_id"`
 	Status                         BudgetRequestStatus               `json:"status"`
+	DonationBudgetStatus           BudgetRequestStatus               `json:"donation_status"`
+	CurrentBudgetStatus            BudgetRequestStatus               `json:"current_status"`
 	CurrentAccountsWithFilledData  []*AccountWithFilledFinanceBudget `json:"current_accounts"`
 	CurrentRequestID               int                               `json:"current_request_id"`
 	DonationAccountsWithFilledData []*AccountWithFilledFinanceBudget `json:"donation_accounts"`
 	DonationRequestID              int                               `json:"donation_request_id"`
 	DonationBudgetComment          string                            `json:"donation_budget_comment"`
 	CurrentBudgetComment           string                            `json:"current_budget_comment"`
+	OfficialComment                string                            `json:"official_comment"`
 }
 
 type CreateBudget struct {
@@ -195,7 +253,12 @@ type FinancialBudgetDetails struct {
 }
 
 type BudgetRequestOfficialOverview struct {
-	UnitID      int        `json:"unit_id"`
-	Status      string     `json:"status"`
-	ReceiveDate *time.Time `json:"receive_date"`
+	Unit        DropdownOUSimple `json:"unit"`
+	Status      string           `json:"status"`
+	ReceiveDate *time.Time       `json:"receive_date"`
+}
+
+type BudgetRequestsDetails struct {
+	FinancialBudgetDetails    *FinancialBudgetOverviewResponse `json:"financial"`
+	NonFinancialBudgetDetails *NonFinancialBudgetResItem       `json:"non_financial"`
 }

@@ -49,8 +49,12 @@ func (r *Resolver) SalaryOverviewResolver(params graphql.ResolveParams) (interfa
 		input.OrganizationUnitID, _ = params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	}
 
-	if value, ok := params.Args["judge_id"].(int); ok && value != 0 {
+	if value, ok := params.Args["activity_id"].(int); ok && value != 0 {
 		input.ActivityID = &value
+	}
+
+	if value, ok := params.Args["year"].(int); ok && value != 0 {
+		input.Year = &value
 	}
 
 	items, total, err := r.Repo.GetSalaryList(input)

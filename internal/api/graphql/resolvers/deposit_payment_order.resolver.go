@@ -194,6 +194,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		DateOfPayment:     item.DateOfPayment,
 		DateOfStatement:   item.DateOfStatement,
 		IDOfStatement:     item.IDOfStatement,
+		Status:            item.Status,
 		SourceBankAccount: item.SourceBankAccount,
 	}
 

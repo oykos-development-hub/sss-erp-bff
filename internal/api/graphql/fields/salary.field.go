@@ -47,7 +47,7 @@ func (f *Field) SalaryOverviewField() *graphql.Field {
 			"size": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
-			"search": &graphql.ArgumentConfig{
+			"month": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
 			"organization_unit_id": &graphql.ArgumentConfig{

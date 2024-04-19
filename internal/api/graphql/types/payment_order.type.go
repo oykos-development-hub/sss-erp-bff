@@ -77,6 +77,9 @@ var PaymentOrderType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
 		"file": &graphql.Field{
 			Type: FileDropdownItemType,
 		},

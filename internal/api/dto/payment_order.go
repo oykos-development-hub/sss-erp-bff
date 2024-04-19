@@ -14,6 +14,7 @@ type PaymentOrderResponse struct {
 	DateOfOrder      *time.Time                 `json:"date_of_order"`
 	IDOfStatement    *string                    `json:"id_of_statement"`
 	SAPID            *string                    `json:"sap_id"`
+	Description      string                     `json:"description"`
 	DateOfSAP        *time.Time                 `json:"date_of_sap"`
 	File             FileDropdownSimple         `json:"file"`
 	Items            []PaymentOrderItemResponse `json:"items"`

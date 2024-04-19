@@ -51,6 +51,7 @@ type SalaryResponse struct {
 	OrganizationUnit         DropdownSimple                     `json:"organization_unit"`
 	SalaryAdditionalExpenses []SalaryAdditionalExpensesResponse `json:"salary_additional_expenses"`
 	GrossPrice               float64                            `json:"gross_price"`
+	NumberOfEmployees        int                                `json:"number_of_employees"`
 	VatPrice                 float64                            `json:"vat_price"`
 	NetPrice                 float64                            `json:"net_price"`
 	CreatedAt                time.Time                          `json:"created_at"`

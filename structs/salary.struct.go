@@ -11,6 +11,7 @@ type Salary struct {
 	Description              string                    `json:"description"`
 	OrganizationUnitID       int                       `json:"organization_unit_id"`
 	Status                   string                    `json:"status"`
+	NumberOfEmployees        int                       `json:"number_of_employees"`
 	GrossPrice               float64                   `json:"gross_price"`
 	VatPrice                 float64                   `json:"vat_price"`
 	NetPrice                 float64                   `json:"net_price"`

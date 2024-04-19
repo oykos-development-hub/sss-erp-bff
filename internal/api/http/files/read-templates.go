@@ -2069,7 +2069,7 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 					}
 
 				case 3:
-					if value != "" {
+					if value != "" && value != "Broj zaposlenih" {
 						numberOfEmployees, err := strconv.Atoi(value)
 						if err != nil {
 							responseMessage := ValidationResponse{

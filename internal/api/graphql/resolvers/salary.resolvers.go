@@ -39,8 +39,8 @@ func (r *Resolver) SalaryOverviewResolver(params graphql.ResolveParams) (interfa
 		input.Size = &value
 	}
 
-	if value, ok := params.Args["search"].(string); ok && value != "" {
-		input.Search = &value
+	if value, ok := params.Args["month"].(string); ok && value != "" {
+		input.Month = &value
 	}
 
 	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {

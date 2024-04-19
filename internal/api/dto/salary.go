@@ -38,7 +38,7 @@ type SalaryFilter struct {
 	Year               *int    `json:"year"`
 	ActivityID         *int    `json:"activity_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
-	Search             *string `json:"search"`
+	Month              *string `json:"month"`
 }
 
 type SalaryResponse struct {

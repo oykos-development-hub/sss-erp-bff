@@ -7,12 +7,11 @@ require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/graphql-go/graphql v0.8.1
 	github.com/graphql-go/handler v0.2.3
+	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 )
 
-require (
-	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
-)
+require github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 
 require (
 	github.com/gorilla/websocket v1.5.1 // direct

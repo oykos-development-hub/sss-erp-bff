@@ -1,8 +1,6 @@
 package fields
 
-import (
-	"bff/internal/api/graphql/resolvers"
-)
+import "bff/internal/api/graphql/resolvers"
 
 type Field struct {
 	Resolvers *resolvers.Resolver

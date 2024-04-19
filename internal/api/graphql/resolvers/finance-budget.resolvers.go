@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -70,12 +71,12 @@ func buildBudgetStatus(ctx context.Context, r repository.MicroserviceRepositoryI
 	switch budget.Status {
 	case structs.BudgetCreatedStatus:
 		return &dto.DropdownSimple{
-			ID: int(structs.BudgetCreatedStatus),
+			ID:    int(structs.BudgetCreatedStatus),
 			Title: string(dto.BudgetCreatedStatus),
 		}, nil
 	case structs.BudgetClosedStatus:
 		return &dto.DropdownSimple{
-			ID: int(structs.BudgetClosedStatus),
+			ID:    int(structs.BudgetClosedStatus),
 			Title: string(dto.BudgetClosedStatus),
 		}, nil
 	}
@@ -88,7 +89,7 @@ func buildBudgetStatus(ctx context.Context, r repository.MicroserviceRepositoryI
 		return status, nil
 	} else if budget.Status == structs.BudgetSentStatus {
 		return &dto.DropdownSimple{
-			ID: int(structs.OfficialBudgetSentStatus),
+			ID:    int(structs.OfficialBudgetSentStatus),
 			Title: string(dto.OfficialBudgetSentStatus),
 		}, nil
 	}
@@ -121,12 +122,12 @@ func buildBudgetStatusForManager(ctx context.Context, r repository.MicroserviceR
 
 	if allRequestsOnReview {
 		status = dto.DropdownSimple{
-			ID: int(structs.ManagerBudgetOnReviewStatus),
+			ID:    int(structs.ManagerBudgetOnReviewStatus),
 			Title: string(dto.ManagerBudgetOnReviewStatus),
 		}
 	} else {
 		status = dto.DropdownSimple{
-			ID: int(structs.ManagerBudgetProcessStatus),
+			ID:    int(structs.ManagerBudgetProcessStatus),
 			Title: string(dto.ManagerBudgetProcessStatus),
 		}
 	}
@@ -376,6 +377,12 @@ func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (int
 	}
 
 	for _, request := range requests {
+		if request.Status != structs.BudgetRequestFilledStatus {
+			return errors.HandleAPPError(errors.NewBadRequestError("resolvers.BudgetSendOnReviewResolver: request with id %d is not filled", request.ID))
+		}
+	}
+
+	for _, request := range requests {
 		request.Status = structs.BudgetRequestSentOnReviewStatus
 		_, err := r.Repo.UpdateBudgetRequest(&request)
 		if err != nil {
@@ -466,4 +473,45 @@ func buildBudgetRequestResponseItem(r repository.MicroserviceRepositoryInterface
 	}
 
 	return item, nil
+}
+
+func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) (interface{}, error) {
+	budgetID := params.Args["budget_id"].(int)
+
+	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		BudgetID: budgetID,
+	})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	unitRequests := make(map[int]dto.BudgetRequestOfficialOverview)
+	totalOnReview := 0
+
+	for _, request := range requests {
+		if _, exists := unitRequests[request.OrganizationUnitID]; !exists {
+			var receiveDate *time.Time
+			if request.Status == structs.BudgetRequestSentOnReviewStatus {
+				receiveDate = &request.UpdatedAt
+				totalOnReview++
+			}
+			unitRequests[request.OrganizationUnitID] = dto.BudgetRequestOfficialOverview{
+				UnitID:      request.OrganizationUnitID,
+				Status:      request.Status.StatusForOfficial(),
+				ReceiveDate: receiveDate,
+			}
+		}
+	}
+
+	unitRequestsList := make([]dto.BudgetRequestOfficialOverview, 0, len(unitRequests))
+	for _, item := range unitRequests {
+		unitRequestsList = append(unitRequestsList, item)
+	}
+
+	return dto.Response{
+		Message: "Budget requests",
+		Status:  "success",
+		Items:   unitRequestsList,
+		Total:   totalOnReview,
+	}, nil
 }

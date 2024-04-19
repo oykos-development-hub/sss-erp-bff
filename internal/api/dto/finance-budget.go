@@ -3,6 +3,7 @@ package dto
 import (
 	"bff/structs"
 	"sort"
+	"time"
 )
 
 type BudgetRequestStatus string
@@ -30,7 +31,7 @@ type BudgetResponseItem struct {
 	Year       int                            `json:"year"`
 	Source     int                            `json:"source"`
 	BudgetType int                            `json:"budget_type"`
-	Status     DropdownSimple                   `json:"status"`
+	Status     DropdownSimple                 `json:"status"`
 	Limits     []structs.FinancialBudgetLimit `json:"limits"`
 }
 
@@ -124,6 +125,8 @@ type FinancialBudgetOverviewResponse struct {
 	CurrentRequestID               int                               `json:"current_request_id"`
 	DonationAccountsWithFilledData []*AccountWithFilledFinanceBudget `json:"donation_accounts"`
 	DonationRequestID              int                               `json:"donation_request_id"`
+	DonationBudgetComment          string                            `json:"donation_budget_comment"`
+	CurrentBudgetComment           string                            `json:"current_budget_comment"`
 }
 
 type CreateBudget struct {
@@ -189,4 +192,10 @@ type FinancialBudgetDetails struct {
 	Version       int                        `json:"version"`
 	LatestVersion int                        `json:"latest_version"`
 	Accounts      []*AccountItemResponseItem `json:"accounts"`
+}
+
+type BudgetRequestOfficialOverview struct {
+	UnitID      int        `json:"unit_id"`
+	Status      string     `json:"status"`
+	ReceiveDate *time.Time `json:"receive_date"`
 }

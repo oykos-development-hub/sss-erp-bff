@@ -146,11 +146,17 @@ var FinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"current_request_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"current_budget_comment": &graphql.Field{
+			Type: graphql.String,
+		},
 		"current_accounts": &graphql.Field{
 			Type: graphql.NewList(GetAccountWithFilledDataType()),
 		},
 		"donation_request_id": &graphql.Field{
 			Type: graphql.Int,
+		},
+		"donation_budget_comment": &graphql.Field{
+			Type: graphql.String,
 		},
 		"donation_accounts": &graphql.Field{
 			Type: graphql.NewList(GetAccountWithFilledDataType()),
@@ -340,6 +346,42 @@ var FinancialBudgetSendOnReviewType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"message": &graphql.Field{
 			Type: graphql.String,
+		},
+	},
+})
+
+var OfficialBudgetRequestOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "OfficialBudgetRequestOverview",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(OfficialBudgetRequestType),
+		},
+	},
+})
+
+var OfficialBudgetRequestType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "OfficialBudgetRequestItemType",
+	Fields: graphql.Fields{
+		"unit_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"receive_date": &graphql.Field{
+			Type: graphql.DateTime,
 		},
 	},
 })

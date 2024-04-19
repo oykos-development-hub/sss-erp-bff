@@ -1,5 +1,7 @@
 package structs
 
+import "time"
+
 type BudgetIndent struct {
 	ID           int    `json:"id"`
 	ParentID     int    `json:"parent_id"`
@@ -32,7 +34,33 @@ const (
 	BudgetRequestSentStatus         BudgetRequestStatus = 1
 	BudgetRequestFilledStatus       BudgetRequestStatus = 2
 	BudgetRequestSentOnReviewStatus BudgetRequestStatus = 3
+	BudgetRequestAcceptedStatus     BudgetRequestStatus = 4
+	BudgetRequestRejectedStatus     BudgetRequestStatus = 5
 )
+
+func (s BudgetRequestStatus) StatusForOfficial() string {
+	switch s {
+	case BudgetRequestSentOnReviewStatus:
+		return "Obradi"
+	case BudgetRequestAcceptedStatus:
+		return "Odobreno"
+	default:
+		return "Na čekanju"
+	}
+}
+
+func (s BudgetRequestStatus) StatusForManager() string {
+	switch s {
+	case BudgetRequestSentStatus:
+		return "Obradi"
+	case BudgetRequestFilledStatus:
+		return "Popunjeno"
+	case BudgetRequestAcceptedStatus:
+		return "Odobreno"
+	default:
+		return "Na čekanju"
+	}
+}
 
 type RequestType int
 
@@ -48,6 +76,9 @@ type BudgetRequest struct {
 	BudgetID           int                 `json:"budget_id"`
 	RequestType        RequestType         `json:"request_type"`
 	Status             BudgetRequestStatus `json:"status"`
+	Comment            string              `json:"comment"`
+	CreatedAt          time.Time           `json:"created_at"`
+	UpdatedAt          time.Time           `json:"updated_at"`
 }
 
 type FinancialBudget struct {

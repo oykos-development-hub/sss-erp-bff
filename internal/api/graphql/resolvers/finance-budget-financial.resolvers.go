@@ -109,6 +109,8 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 		DonationAccountsWithFilledData: donationFinancialRequestResList.CreateTree(),
 		DonationRequestID:              donationFinancialBudgetRequest.ID,
 		Status:                         status,
+		CurrentBudgetComment:           currentFinancialBudgetRequest.Comment,
+		DonationBudgetComment:          donationFinancialBudgetRequest.Comment,
 	}
 
 	return dto.ResponseSingle{
@@ -273,6 +275,7 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 
 func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (interface{}, error) {
 	requestID := params.Args["request_id"].(int)
+
 	var items []structs.FilledFinanceBudget
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
@@ -317,7 +320,10 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
+
 	request.Status = structs.BudgetRequestFilledStatus
+	request.Comment = params.Args["comment"].(string)
+
 	_, err = r.Repo.UpdateBudgetRequest(request)
 	if err != nil {
 		return errors.HandleAPIError(err)

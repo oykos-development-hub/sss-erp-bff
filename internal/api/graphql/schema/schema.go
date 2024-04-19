@@ -256,6 +256,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"financialBudget_Details":                                    fields.FinancialBudgetDetails(),
 			"programs_Overview":                                          fields.ProgramOverviewField(),
 			"nonFinancialBudget_Overview":                                fields.NonFinancialBudgetOverviewType(),
+			"officialBudgetRequests_Overview":                            fields.BudgetRequestsOfficialField(),
 			"activities_Overview":                                        fields.ActivitiesOverviewField(),
 			"invoice_Overview":                                           fields.InvoiceOverviewField(),
 			"taxAuthorityCodebooks_Overview":                             fields.TaxAuthorityCodebooksOverviewField(),

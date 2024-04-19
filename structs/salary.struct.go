@@ -15,6 +15,7 @@ type Salary struct {
 	GrossPrice               float64                   `json:"gross_price"`
 	VatPrice                 float64                   `json:"vat_price"`
 	NetPrice                 float64                   `json:"net_price"`
+	ObligationsPrice         float64                   `json:"obligations_price"`
 	SalaryAdditionalExpenses []SalaryAdditionalExpense `json:"salary_additional_expenses"`
 	CreatedAt                time.Time                 `json:"created_at"`
 	UpdatedAt                time.Time                 `json:"updated_at"`

@@ -158,6 +158,7 @@ func buildSalary(item structs.Salary, r *Resolver) (*dto.SalaryResponse, error) 
 		GrossPrice:        item.GrossPrice,
 		VatPrice:          item.VatPrice,
 		NetPrice:          item.NetPrice,
+		ObligationsPrice:  item.ObligationsPrice,
 		NumberOfEmployees: item.NumberOfEmployees,
 		CreatedAt:         item.CreatedAt,
 		UpdatedAt:         item.UpdatedAt,

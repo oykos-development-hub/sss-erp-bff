@@ -68,6 +68,9 @@ var SalaryType = graphql.NewObject(graphql.ObjectConfig{
 		"number_of_employees": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"obligations_price": &graphql.Field{
+			Type: graphql.Float,
+		},
 		"gross_price": &graphql.Field{
 			Type: graphql.Float,
 		},

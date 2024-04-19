@@ -54,6 +54,7 @@ type SalaryResponse struct {
 	NumberOfEmployees        int                                `json:"number_of_employees"`
 	VatPrice                 float64                            `json:"vat_price"`
 	NetPrice                 float64                            `json:"net_price"`
+	ObligationsPrice         float64                            `json:"obligations_price"`
 	CreatedAt                time.Time                          `json:"created_at"`
 	UpdatedAt                time.Time                          `json:"updated_at"`
 }

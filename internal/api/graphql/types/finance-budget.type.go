@@ -281,8 +281,38 @@ var BudgetSendType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var BudgetSendOnReviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BudgetSendOnReview",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var BudgetRequestAcceptType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "BudgetRequestAccept",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+var BudgetRequestRejectType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BudgetRequestReject",
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
@@ -434,35 +464,17 @@ var BudgetRequestsDetailsType = graphql.NewObject(graphql.ObjectConfig{
 var BudgetRequestsDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "BudgetRequestsDetailsItemType",
 	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"request_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"financial": &graphql.Field{
 			Type: FinancialBudgetType,
 		},
 		"non_financial": &graphql.Field{
 			Type: NonFinancialBudgetType,
-		},
-	},
-})
-
-var BudgetRequestsDetailsFinancialItemType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "BudgetRequestsDetailsFinancialItemType",
-	Fields: graphql.Fields{
-		"financial": &graphql.Field{
-			Type: DropdownItemType,
-		},
-		"non_financial": &graphql.Field{
-			Type: graphql.String,
-		},
-	},
-})
-
-var BudgetRequestsDetailsNonFinancialItemType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "BudgetRequestsDetailsNonFinancialItemType",
-	Fields: graphql.Fields{
-		"financial": &graphql.Field{
-			Type: DropdownItemType,
-		},
-		"non_financial": &graphql.Field{
-			Type: graphql.String,
 		},
 	},
 })

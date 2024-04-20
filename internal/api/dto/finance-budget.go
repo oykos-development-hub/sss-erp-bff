@@ -29,7 +29,7 @@ func RequestStatusForOfficial(s structs.BudgetRequestStatus) BudgetRequestStatus
 
 func RequestStatusForManager(s structs.BudgetRequestStatus) BudgetRequestStatus {
 	switch s {
-	case structs.BudgetRequestSentStatus:
+	case structs.BudgetRequestSentStatus, structs.BudgetRequestRejectedStatus:
 		return BudgetRequestTakeActionStatus
 	case structs.BudgetRequestFilledStatus:
 		return BudgetRequestFilledStatus
@@ -44,40 +44,18 @@ type BudgetStatus string
 
 const (
 	BudgetCreatedStatus  BudgetStatus = "Kreiran"
-	BudgetClosedStatus   BudgetStatus = "Završen"
 	BudgetSentStatus     BudgetStatus = "Poslat"
 	BudgetAcceptedStatus BudgetStatus = "Prihvaćen"
-	BudgetOnHoldStatus   BudgetStatus = "Na čekanju"
-	BudgetTodoStatus     BudgetStatus = "Obradi"
 )
 
-func StatusForOfficial(s structs.BudgetStatus) BudgetStatus {
+func GetBudgetStatus(s structs.BudgetStatus) BudgetStatus {
 	switch s {
-	case structs.BudgetCreatedStatus:
-		return BudgetCreatedStatus
 	case structs.BudgetSentStatus:
 		return BudgetSentStatus
-	case structs.BudgetSentOnReview:
-		return BudgetTodoStatus
 	case structs.BudgetAcceptedStatus:
 		return BudgetAcceptedStatus
-	case structs.BudgetRejectedStatus:
-		return BudgetOnHoldStatus
 	default:
-		return BudgetOnHoldStatus
-	}
-}
-
-func StatusForManager(s structs.BudgetStatus) BudgetStatus {
-	switch s {
-	case structs.BudgetSentStatus, structs.BudgetRejectedStatus:
-		return BudgetTodoStatus
-	case structs.BudgetAcceptedStatus:
-		return BudgetAcceptedStatus
-	case structs.BudgetSentOnReview:
-		return BudgetOnHoldStatus
-	default:
-		return BudgetOnHoldStatus
+		return BudgetCreatedStatus
 	}
 }
 
@@ -115,9 +93,10 @@ type GetBudgetRequestListResponseMS struct {
 
 type GetBudgetRequestListInputMS struct {
 	OrganizationUnitID *int                  `json:"organization_unit_id"`
-	BudgetID           int                   `json:"budget_id"`
+	BudgetID           *int                  `json:"budget_id"`
 	RequestType        *structs.RequestType  `json:"request_type"`
 	RequestTypes       []structs.RequestType `json:"request_types"`
+	ParentID           *int                  `json:"parent_id"`
 }
 
 type RequestType string
@@ -130,11 +109,11 @@ const (
 
 func GetRequestType(r structs.RequestType) RequestType {
 	switch r {
-	case structs.CurrentFinancialRequestType:
+	case structs.RequestTypeCurrentFinancial:
 		return CurrentFinancialRequestType
-	case structs.DonationFinancialRequestType:
+	case structs.RequestTypeDonationFinancial:
 		return DonationFinancialRequestType
-	case structs.NonFinancialRequestType:
+	case structs.RequestTypeNonFinancial:
 		return NonFinancialRequestType
 	}
 
@@ -259,6 +238,8 @@ type BudgetRequestOfficialOverview struct {
 }
 
 type BudgetRequestsDetails struct {
+	Status                    DropdownSimple                   `json:"status"`
+	RequestID                 int                              `json:"request_id"`
 	FinancialBudgetDetails    *FinancialBudgetOverviewResponse `json:"financial"`
 	NonFinancialBudgetDetails *NonFinancialBudgetResItem       `json:"non_financial"`
 }

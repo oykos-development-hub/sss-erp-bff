@@ -80,8 +80,6 @@ func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceR
 }
 
 func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget, organizationUnitID *int) (*dto.BudgetResponseItem, error) {
-	status := buildBudgetStatus(ctx, budget.Status)
-
 	limits, err := r.GetBudgetLimits(budget.ID)
 	if err != nil {
 		return nil, err
@@ -91,27 +89,14 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 		ID:         budget.ID,
 		Year:       budget.Year,
 		BudgetType: budget.BudgetType,
-		Status:     status,
-		Limits:     limits,
+		Status: dto.DropdownSimple{
+			ID:    int(budget.Status),
+			Title: string(dto.GetBudgetStatus(budget.Status)),
+		},
+		Limits: limits,
 	}
 
 	return item, nil
-}
-
-func buildBudgetStatus(ctx context.Context, s structs.BudgetStatus) dto.DropdownSimple {
-	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-
-	if loggedInUser.RoleID == structs.UserRoleOfficialForFinanceBudget {
-		return dto.DropdownSimple{
-			ID:    int(s),
-			Title: string(dto.StatusForOfficial(s)),
-		}
-	}
-
-	return dto.DropdownSimple{
-		ID:    int(s),
-		Title: string(dto.StatusForManager(s)),
-	}
 }
 
 func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -250,10 +235,34 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		return errors.HandleAPIError(err)
 	}
 	for _, organizationUnit := range organizationUnitList.Data {
-		financialRequestToCreate := &structs.BudgetRequest{
+		generalRequestToCreate := &structs.BudgetRequest{
 			OrganizationUnitID: organizationUnit.ID,
 			BudgetID:           budgetID,
-			RequestType:        structs.FinancialRequestType,
+			RequestType:        structs.RequestTypeGeneral,
+			Status:             structs.BudgetRequestSentStatus,
+		}
+		generalRequest, err := r.Repo.CreateBudgetRequest(generalRequestToCreate)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetSendResolver: error creating general request type"))
+		}
+
+		nonFinancialRequestToCreate := &structs.BudgetRequest{
+			ParentID:           &generalRequest.ID,
+			OrganizationUnitID: organizationUnit.ID,
+			BudgetID:           budgetID,
+			RequestType:        structs.RequestTypeNonFinancial,
+			Status:             structs.BudgetRequestSentStatus,
+		}
+		_, err = r.Repo.CreateBudgetRequest(nonFinancialRequestToCreate)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		financialRequestToCreate := &structs.BudgetRequest{
+			ParentID:           &generalRequest.ID,
+			OrganizationUnitID: organizationUnit.ID,
+			BudgetID:           budgetID,
+			RequestType:        structs.RequestTypeFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
 		financialRequest, err := r.Repo.CreateBudgetRequest(financialRequestToCreate)
@@ -262,10 +271,10 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		}
 
 		currentFinancialRequestToCreate := &structs.BudgetRequest{
-			OrganizationUnitID: organizationUnit.ID,
 			ParentID:           &financialRequest.ID,
+			OrganizationUnitID: organizationUnit.ID,
 			BudgetID:           budgetID,
-			RequestType:        structs.CurrentFinancialRequestType,
+			RequestType:        structs.RequestTypeCurrentFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
 		_, err = r.Repo.CreateBudgetRequest(currentFinancialRequestToCreate)
@@ -274,24 +283,13 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		}
 
 		donationFinancialRequestToCreate := &structs.BudgetRequest{
-			OrganizationUnitID: organizationUnit.ID,
 			ParentID:           &financialRequest.ID,
+			OrganizationUnitID: organizationUnit.ID,
 			BudgetID:           budgetID,
-			RequestType:        structs.DonationFinancialRequestType,
+			RequestType:        structs.RequestTypeDonationFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
 		_, err = r.Repo.CreateBudgetRequest(donationFinancialRequestToCreate)
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
-		nonFinancialRequestToCreate := &structs.BudgetRequest{
-			OrganizationUnitID: organizationUnit.ID,
-			BudgetID:           budgetID,
-			RequestType:        structs.NonFinancialRequestType,
-			Status:             structs.BudgetRequestSentStatus,
-		}
-		_, err = r.Repo.CreateBudgetRequest(nonFinancialRequestToCreate)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -316,21 +314,44 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 }
 
 func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (interface{}, error) {
-	budgetID := params.Args["budget_id"].(int)
-	unitID := params.Args["unit_id"].(int)
-
-	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
-		OrganizationUnitID: &unitID,
-		BudgetID:           budgetID,
-	})
+	reqID := params.Args["request_id"].(int)
+	req, err := r.Repo.GetBudgetRequest(reqID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
-	for _, request := range requests {
-		if request.Status != structs.BudgetRequestFilledStatus {
-			return errors.HandleAPPError(errors.NewBadRequestError("resolvers.BudgetSendOnReviewResolver: request with id %d is not filled", request.ID))
+	if req.RequestType != structs.RequestTypeGeneral {
+		return errors.HandleAPPError(errors.NewBadRequestError(
+			"request must be of type %s, provided request is of type: %s",
+			dto.GetRequestType(structs.RequestTypeGeneral),
+			dto.GetRequestType(req.RequestType),
+		))
+	}
+
+	subRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		ParentID: &reqID,
+	})
+	if err != nil {
+		return errors.HandleAPPError(errors.Wrap(err, "BudgetSendOnReviewResolver"))
+	}
+
+	allFilled := true
+	for _, req := range subRequests {
+		if req.Status != structs.BudgetRequestFilledStatus {
+			allFilled = false
+			break
 		}
+	}
+	if !allFilled {
+		return errors.HandleAPPError(errors.NewBadRequestError("financial and non-financial requests are not filled"))
+	}
+
+	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &req.OrganizationUnitID,
+		BudgetID:           &req.BudgetID,
+	})
+	if err != nil {
+		return errors.HandleAPIError(err)
 	}
 
 	for _, request := range requests {
@@ -341,26 +362,93 @@ func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (int
 		}
 	}
 
-	budget, err := r.Repo.GetBudget(budgetID)
+	return dto.ResponseSingle{
+		Message: "Budget sent on review",
+		Status:  "success",
+	}, nil
+}
+
+func (r *Resolver) BudgetRequestRejectResolver(params graphql.ResolveParams) (interface{}, error) {
+	requestID := params.Args["request_id"].(int)
+	request, err := r.Repo.GetBudgetRequest(requestID)
 	if err != nil {
-		return errors.HandleAPIError(err)
-	}
-	budget.Status = structs.BudgetSentOnReview
-	budget, err = r.Repo.UpdateBudget(budget)
-	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestRejectResolver"))
 	}
 
-	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget, nil)
+	if request.RequestType != structs.RequestTypeFinancial && request.RequestType != structs.RequestTypeNonFinancial {
+		return errors.HandleAPPError(errors.NewBadRequestError(
+			"request must be one of types: %s, %s, provided request is of type: %s",
+			dto.GetRequestType(structs.RequestTypeFinancial),
+			dto.GetRequestType(structs.RequestTypeNonFinancial),
+			dto.GetRequestType(request.RequestType),
+		))
+	}
+
+	switch request.RequestType {
+	case structs.RequestTypeFinancial:
+		err := r.rejectFinancialRequest(request)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestRejectResolver"))
+		}
+	case structs.RequestTypeNonFinancial:
+		err := r.rejectNonFinancialRequest(request)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestRejectResolver"))
+		}
+	default:
+		return errors.HandleAPPError(errors.NewInternalServerError("request type: %d with id: %d must be of type financial or non-financial", request.RequestType, request.ID))
+	}
+
+	generalRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestAcceptResolver"))
+	}
+
+	generalRequest.Status = structs.BudgetRequestRejectedStatus
+	_, err = r.Repo.UpdateBudgetRequest(generalRequest)
+	if err != nil {
+		return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestAcceptResolver"))
 	}
 
 	return dto.ResponseSingle{
-		Message: "Budget sent successfuly",
+		Message: "Budget rejected and sent to managers again",
 		Status:  "success",
-		Item:    resItem,
 	}, nil
+}
+
+func (r *Resolver) rejectFinancialRequest(request *structs.BudgetRequest) error {
+	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &request.OrganizationUnitID,
+		BudgetID:           &request.BudgetID,
+		RequestTypes: []structs.RequestType{
+			structs.RequestTypeCurrentFinancial,
+			structs.RequestTypeDonationFinancial,
+			structs.RequestTypeFinancial,
+		},
+	})
+	if err != nil {
+		return errors.Wrap(err, "rejectFinancialRequest: error getting financial budget requests")
+	}
+
+	for _, req := range requests {
+		req.Status = structs.BudgetRequestRejectedStatus
+		_, err := r.Repo.UpdateBudgetRequest(&req)
+		if err != nil {
+			return errors.Wrap(err, "rejectFinancialRequest: error updating financial request")
+		}
+	}
+
+	return nil
+}
+
+func (r *Resolver) rejectNonFinancialRequest(request *structs.BudgetRequest) error {
+	request.Status = structs.BudgetRequestRejectedStatus
+	_, err := r.Repo.UpdateBudgetRequest(request)
+	if err != nil {
+		return errors.Wrap(err, "acceptFinancialRequest: error updating non-financial request")
+	}
+
+	return nil
 }
 
 func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -370,13 +458,22 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetAcceptResolver"))
 	}
 
+	if request.RequestType != structs.RequestTypeFinancial && request.RequestType != structs.RequestTypeNonFinancial {
+		return errors.HandleAPPError(errors.NewBadRequestError(
+			"request must be one of types: %s, %s, provided request is of type: %s",
+			dto.GetRequestType(structs.RequestTypeFinancial),
+			dto.GetRequestType(structs.RequestTypeNonFinancial),
+			dto.GetRequestType(request.RequestType),
+		))
+	}
+
 	switch request.RequestType {
-	case structs.FinancialRequestType:
+	case structs.RequestTypeFinancial:
 		err := r.acceptFinancialRequest(request)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetAcceptResolver"))
 		}
-	case structs.NonFinancialRequestType:
+	case structs.RequestTypeNonFinancial:
 		err := r.acceptNonFinancialRequest(request)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetAcceptResolver"))
@@ -385,33 +482,29 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 		return errors.HandleAPPError(errors.NewInternalServerError("request type: %d with id: %d must be of type financial or non-financial", request.RequestType, request.ID))
 	}
 
-	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
-		OrganizationUnitID: &request.OrganizationUnitID,
-		BudgetID:           request.BudgetID,
+	siblingRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		ParentID: request.ParentID,
 	})
 	if err != nil {
-		return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestAcceptResolver"))
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error updating parent budget request"))
 	}
 
 	allAccepted := true
-	for _, request := range requests {
-		if request.Status != structs.BudgetRequestAcceptedStatus {
+	for _, req := range siblingRequests {
+		if req.Status != structs.BudgetRequestAcceptedStatus {
 			allAccepted = false
 			break
 		}
 	}
-
 	if allAccepted {
-		budget, err := r.Repo.GetBudget(request.BudgetID)
+		generalRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
 		if err != nil {
-			return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestAcceptResolver"))
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error getting parent financial request"))
 		}
-
-		budget.Status = structs.BudgetAcceptedStatus
-
-		_, err = r.Repo.UpdateBudget(budget)
+		generalRequest.Status = structs.BudgetRequestAcceptedStatus
+		_, err = r.Repo.UpdateBudgetRequest(generalRequest)
 		if err != nil {
-			return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestAcceptResolver"))
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error updating parent budget request"))
 		}
 	}
 
@@ -424,20 +517,22 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 func (r *Resolver) acceptFinancialRequest(request *structs.BudgetRequest) error {
 	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
 		OrganizationUnitID: &request.OrganizationUnitID,
-		BudgetID:           request.BudgetID,
+		BudgetID:           &request.BudgetID,
+		RequestTypes: []structs.RequestType{
+			structs.RequestTypeCurrentFinancial,
+			structs.RequestTypeDonationFinancial,
+			structs.RequestTypeFinancial,
+		},
 	})
 	if err != nil {
-		return errors.Wrap(err, "BudgetAcceptResolver: error getting budget requests")
+		return errors.Wrap(err, "acceptFinancialRequest: error getting budget requests")
 	}
 
 	for _, req := range requests {
-		switch req.RequestType {
-		case structs.CurrentFinancialRequestType, structs.DonationFinancialRequestType, structs.FinancialRequestType:
-			req.Status = structs.BudgetRequestAcceptedStatus
-			_, err := r.Repo.UpdateBudgetRequest(&req)
-			if err != nil {
-				return errors.Wrap(err, "acceptFinancialRequest: error updating financial request")
-			}
+		req.Status = structs.BudgetRequestAcceptedStatus
+		_, err := r.Repo.UpdateBudgetRequest(&req)
+		if err != nil {
+			return errors.Wrap(err, "acceptFinancialRequest: error updating financial request")
 		}
 	}
 
@@ -509,41 +604,36 @@ func buildBudgetRequestStatus(ctx context.Context, s structs.BudgetRequestStatus
 func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) (interface{}, error) {
 	budgetID := params.Args["budget_id"].(int)
 
+	generalReqType := structs.RequestTypeGeneral
 	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
-		BudgetID: budgetID,
+		BudgetID:    &budgetID,
+		RequestType: &generalReqType,
 	})
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
-	unitRequests := make(map[int]dto.BudgetRequestOfficialOverview)
+	unitRequestsList := make([]dto.BudgetRequestOfficialOverview, 0, len(requests))
 	totalOnReview := 0
 
 	for _, request := range requests {
-		if _, exists := unitRequests[request.OrganizationUnitID]; !exists {
-			var receiveDate *time.Time
-			if request.Status == structs.BudgetRequestSentOnReviewStatus {
-				receiveDate = &request.UpdatedAt
-				totalOnReview++
-			}
-			unit, err := r.Repo.GetOrganizationUnitByID(request.OrganizationUnitID)
-			if err != nil {
-				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: unit not found"))
-			}
-			unitRequests[request.OrganizationUnitID] = dto.BudgetRequestOfficialOverview{
-				Unit: dto.DropdownOUSimple{
-					ID:    unit.ID,
-					Title: unit.Title,
-				},
-				Status:      string(dto.RequestStatusForOfficial(request.Status)),
-				ReceiveDate: receiveDate,
-			}
+		var receiveDate *time.Time
+		if request.Status == structs.BudgetRequestSentOnReviewStatus {
+			receiveDate = &request.UpdatedAt
+			totalOnReview++
 		}
-	}
-
-	unitRequestsList := make([]dto.BudgetRequestOfficialOverview, 0, len(unitRequests))
-	for _, item := range unitRequests {
-		unitRequestsList = append(unitRequestsList, item)
+		unit, err := r.Repo.GetOrganizationUnitByID(request.OrganizationUnitID)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: unit not found"))
+		}
+		unitRequestsList = append(unitRequestsList, dto.BudgetRequestOfficialOverview{
+			Unit: dto.DropdownOUSimple{
+				ID:    unit.ID,
+				Title: unit.Title,
+			},
+			Status:      string(dto.RequestStatusForOfficial(request.Status)),
+			ReceiveDate: receiveDate,
+		})
 	}
 
 	return dto.Response{
@@ -563,10 +653,10 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting financial details"))
 	}
 
-	nonFinancialRequestType := structs.NonFinancialRequestType
+	nonFinancialRequestType := structs.RequestTypeNonFinancial
 	nonFinancialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
 		OrganizationUnitID: &unitID,
-		BudgetID:           budgetID,
+		BudgetID:           &budgetID,
 		RequestType:        &nonFinancialRequestType,
 	})
 	if err != nil {
@@ -578,10 +668,17 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 		return errors.HandleAPPError(errors.Wrap(err, "Error getting non financial data"))
 	}
 
+	generalRequest, err := r.Repo.GetBudgetRequest(*nonFinancialRequest.ParentID)
+	if err != nil {
+		return errors.HandleAPPError(errors.Wrap(err, "Error getting general req data"))
+	}
+
 	return dto.ResponseSingle{
 		Message: "Budget requests",
 		Status:  "success",
 		Item: &dto.BudgetRequestsDetails{
+			Status:                    buildBudgetRequestStatus(params.Context, generalRequest.Status),
+			RequestID:                 generalRequest.ID,
 			FinancialBudgetDetails:    financialDetails,
 			NonFinancialBudgetDetails: nonFinancialDetails,
 		},

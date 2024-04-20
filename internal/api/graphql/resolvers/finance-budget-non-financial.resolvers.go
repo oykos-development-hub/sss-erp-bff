@@ -179,6 +179,32 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 		return errors.HandleAPPError(errors.Wrap(err, "NonFinancialBudgetInsertResolver"))
 	}
 
+	financialAndNonFinancialRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		ParentID: request.ParentID,
+	})
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error updating parent budget request"))
+	}
+
+	allFilled := true
+	for _, financialChildRequest := range financialAndNonFinancialRequests {
+		if financialChildRequest.Status != structs.BudgetRequestFilledStatus {
+			allFilled = false
+			break
+		}
+	}
+	if allFilled {
+		generalRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error getting parent financial request"))
+		}
+		generalRequest.Status = structs.BudgetRequestFilledStatus
+		_, err = r.Repo.UpdateBudgetRequest(generalRequest)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error updating parent budget request"))
+		}
+	}
+
 	resItem, err := r.buildNonFinancialBudgetDetails(params.Context, request)
 	if err != nil {
 		return errors.HandleAPPError(errors.Wrap(err, "NonFinancialBudgetInsertResolver"))

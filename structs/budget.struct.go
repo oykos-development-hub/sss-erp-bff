@@ -16,9 +16,7 @@ type BudgetStatus int
 const (
 	BudgetCreatedStatus  BudgetStatus = 1
 	BudgetSentStatus     BudgetStatus = 2
-	BudgetSentOnReview   BudgetStatus = 3
-	BudgetRejectedStatus BudgetStatus = 4
-	BudgetAcceptedStatus BudgetStatus = 5
+	BudgetAcceptedStatus BudgetStatus = 3
 )
 
 type Budget struct {
@@ -41,10 +39,11 @@ const (
 type RequestType int
 
 const (
-	CurrentFinancialRequestType  RequestType = 1
-	DonationFinancialRequestType RequestType = 2
-	NonFinancialRequestType      RequestType = 3
-	FinancialRequestType         RequestType = 4
+	RequestTypeGeneral           RequestType = 1
+	RequestTypeNonFinancial      RequestType = 2
+	RequestTypeFinancial         RequestType = 3
+	RequestTypeCurrentFinancial  RequestType = 4
+	RequestTypeDonationFinancial RequestType = 5
 )
 
 type BudgetRequest struct {

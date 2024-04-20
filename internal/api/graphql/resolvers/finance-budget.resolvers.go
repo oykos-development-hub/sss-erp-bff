@@ -489,24 +489,24 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 	budgetID := params.Args["budget_id"].(int)
 	unitID := params.Args["unit_id"].(int)
 
-	financialDetails, err := r.GetFinancialBudgetDetails(budgetID, unitID)
+	financialDetails, err := r.GetFinancialBudgetDetails(params.Context, budgetID, unitID)
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting financial details"))
+	}
+
+	nonFinancialRequestType := structs.NonFinancialRequestType
+	nonFinancialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &unitID,
+		BudgetID:           budgetID,
+		RequestType:        &nonFinancialRequestType,
+	})
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting non financial request"))
 	}
 
-	financialRequestType := structs.NonFinancialRequestType
-	request, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
-		OrganizationUnitID: &unitID,
-		BudgetID:           budgetID,
-		RequestType:        &financialRequestType,
-	})
+	nonFinancialDetails, err := r.buildNonFinancialBudgetDetails(params.Context, nonFinancialRequest)
 	if err != nil {
-		return nil, err
-	}
-
-	nonFinancialDetails, err := r.buildNonFinancialBudgetDetails(params.Context, request)
-	if err != nil {
-		return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestsDetailsResolver"))
+		return errors.HandleAPPError(errors.Wrap(err, "Error getting non financial data"))
 	}
 
 	return dto.ResponseSingle{

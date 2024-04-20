@@ -5,6 +5,7 @@ import (
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
 	"bff/structs"
+	"context"
 	"encoding/json"
 
 	"github.com/graphql-go/graphql"
@@ -47,7 +48,7 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 	budgetID := params.Args["budget_id"].(int)
 	unitID := params.Args["organization_unit_id"].(int)
 
-	financialBudgetOveriew, err := r.GetFinancialBudgetDetails(budgetID, unitID)
+	financialBudgetOveriew, err := r.GetFinancialBudgetDetails(params.Context, budgetID, unitID)
 	if err != nil {
 		return errors.HandleAPPError(errors.Wrap(err, "FinancialBudgetOverview"))
 	}
@@ -59,7 +60,7 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 	}, nil
 }
 
-func (r *Resolver) GetFinancialBudgetDetails(budgetID, unitID int) (*dto.FinancialBudgetOverviewResponse, error) {
+func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unitID int) (*dto.FinancialBudgetOverviewResponse, error) {
 	var response dto.FinancialBudgetOverviewResponse
 
 	financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
@@ -118,9 +119,9 @@ func (r *Resolver) GetFinancialBudgetDetails(budgetID, unitID int) (*dto.Financi
 		CurrentRequestID:               currentFinancialBudgetRequest.ID,
 		DonationAccountsWithFilledData: donationFinancialRequestResList.CreateTree(),
 		DonationRequestID:              donationFinancialBudgetRequest.ID,
-		Status:                         dto.RequestStatusForManager(financialParentRequest.Status),
-		DonationBudgetStatus:           dto.RequestStatusForManager(donationFinancialBudgetRequest.Status),
-		CurrentBudgetStatus:            dto.RequestStatusForManager(currentFinancialBudgetRequest.Status),
+		Status:                         buildBudgetRequestStatus(ctx, financialParentRequest.Status),
+		DonationBudgetStatus:           buildBudgetRequestStatus(ctx, donationFinancialBudgetRequest.Status),
+		CurrentBudgetStatus:            buildBudgetRequestStatus(ctx, currentFinancialBudgetRequest.Status),
 		OfficialComment:                financialParentRequest.Comment,
 		CurrentBudgetComment:           currentFinancialBudgetRequest.Comment,
 		DonationBudgetComment:          donationFinancialBudgetRequest.Comment,

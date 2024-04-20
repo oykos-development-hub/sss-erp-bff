@@ -175,9 +175,9 @@ type GetFinancialBudgetListInputMS struct {
 type FinancialBudgetOverviewResponse struct {
 	AccountVersion                 int                               `json:"account_version"`
 	RequestID                      int                               `json:"request_id"`
-	Status                         BudgetRequestStatus               `json:"status"`
-	DonationBudgetStatus           BudgetRequestStatus               `json:"donation_status"`
-	CurrentBudgetStatus            BudgetRequestStatus               `json:"current_status"`
+	Status                         DropdownSimple                    `json:"status"`
+	DonationBudgetStatus           DropdownSimple                    `json:"donation_status"`
+	CurrentBudgetStatus            DropdownSimple                    `json:"current_status"`
 	CurrentAccountsWithFilledData  []*AccountWithFilledFinanceBudget `json:"current_accounts"`
 	CurrentRequestID               int                               `json:"current_request_id"`
 	DonationAccountsWithFilledData []*AccountWithFilledFinanceBudget `json:"donation_accounts"`

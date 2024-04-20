@@ -141,10 +141,16 @@ var FinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"status": &graphql.Field{
-			Type: graphql.String,
+			Type: DropdownItemType,
+		},
+		"request_id": &graphql.Field{
+			Type: graphql.Int,
 		},
 		"current_request_id": &graphql.Field{
 			Type: graphql.Int,
+		},
+		"current_status": &graphql.Field{
+			Type: DropdownItemType,
 		},
 		"current_budget_comment": &graphql.Field{
 			Type: graphql.String,
@@ -154,6 +160,9 @@ var FinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"donation_request_id": &graphql.Field{
 			Type: graphql.Int,
+		},
+		"donation_status": &graphql.Field{
+			Type: DropdownItemType,
 		},
 		"donation_budget_comment": &graphql.Field{
 			Type: graphql.String,
@@ -268,6 +277,21 @@ var BudgetSendType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"item": &graphql.Field{
 			Type: BudgetType,
+		},
+	},
+})
+
+var BudgetRequestAcceptType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "BudgetRequestAccept",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
 		},
 	},
 })

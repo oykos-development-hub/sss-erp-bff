@@ -78,22 +78,6 @@ func (r *Resolver) buildNonFinancialBudgetDetails(ctx context.Context, request *
 	return resItem, nil
 }
 
-func buildNonFinancialBudgetResItem(ctx context.Context, r repository.MicroserviceRepositoryInterface, nonFinancialBudget structs.NonFinancialBudgetItem) (*dto.NonFinancialBudgetResItem, error) {
-	resItem := &dto.NonFinancialBudgetResItem{
-		ID:                      nonFinancialBudget.ID,
-		ImplContactFullName:     nonFinancialBudget.ImplContactFullName,
-		ImplContactWorkingPlace: nonFinancialBudget.ImplContactWorkingPlace,
-		ImplContactPhone:        nonFinancialBudget.ImplContactPhone,
-		ImplContactEmail:        nonFinancialBudget.ImplContactEmail,
-		ContactFullName:         nonFinancialBudget.ContactFullName,
-		ContactWorkingPlace:     nonFinancialBudget.ContactWorkingPlace,
-		ContactPhone:            nonFinancialBudget.ContactPhone,
-		ContactEmail:            nonFinancialBudget.ContactEmail,
-	}
-
-	return resItem, nil
-}
-
 func buildActivityGoalRequestResItemList(r repository.MicroserviceRepositoryInterface, goals []structs.NonFinancialGoalItem) (goalsRequestResItemList []*dto.ActivityGoalRequestResItem, err error) {
 	for _, goal := range goals {
 		goalRequestResItem, err := buildGoalRequestResItem(r, goal)

@@ -19,12 +19,6 @@ const (
 	BudgetSentOnReview   BudgetStatus = 3
 	BudgetRejectedStatus BudgetStatus = 4
 	BudgetAcceptedStatus BudgetStatus = 5
-
-	BudgetClosedStatus          BudgetStatus = 3
-	ManagerBudgetProcessStatus  BudgetStatus = 4
-	ManagerBudgetOnReviewStatus BudgetStatus = 5
-	ManagerBudgetClosedStatus   BudgetStatus = 6
-	OfficialBudgetSentStatus    BudgetStatus = 7
 )
 
 type Budget struct {

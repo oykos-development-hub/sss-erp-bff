@@ -80,11 +80,6 @@ func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceR
 }
 
 func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget, organizationUnitID *int) (*dto.BudgetResponseItem, error) {
-	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	if loggedInUser.RoleID == structs.UserRoleManagerOJ && (budget.Status == structs.BudgetCreatedStatus || budget.Status == structs.BudgetClosedStatus) {
-		return nil, nil
-	}
-
 	status := buildBudgetStatus(ctx, budget.Status)
 
 	limits, err := r.GetBudgetLimits(budget.ID)
@@ -368,6 +363,97 @@ func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (int
 	}, nil
 }
 
+func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (interface{}, error) {
+	requestID := params.Args["request_id"].(int)
+	request, err := r.Repo.GetBudgetRequest(requestID)
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetAcceptResolver"))
+	}
+
+	switch request.RequestType {
+	case structs.FinancialRequestType:
+		err := r.acceptFinancialRequest(request)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetAcceptResolver"))
+		}
+	case structs.NonFinancialRequestType:
+		err := r.acceptNonFinancialRequest(request)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetAcceptResolver"))
+		}
+	default:
+		return errors.HandleAPPError(errors.NewInternalServerError("request type: %d with id: %d must be of type financial or non-financial", request.RequestType, request.ID))
+	}
+
+	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &request.OrganizationUnitID,
+		BudgetID:           request.BudgetID,
+	})
+	if err != nil {
+		return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestAcceptResolver"))
+	}
+
+	allAccepted := true
+	for _, request := range requests {
+		if request.Status != structs.BudgetRequestAcceptedStatus {
+			allAccepted = false
+			break
+		}
+	}
+
+	if allAccepted {
+		budget, err := r.Repo.GetBudget(request.BudgetID)
+		if err != nil {
+			return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestAcceptResolver"))
+		}
+
+		budget.Status = structs.BudgetAcceptedStatus
+
+		_, err = r.Repo.UpdateBudget(budget)
+		if err != nil {
+			return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestAcceptResolver"))
+		}
+	}
+
+	return dto.ResponseSingle{
+		Message: "Budget accepted successfuly",
+		Status:  "success",
+	}, nil
+}
+
+func (r *Resolver) acceptFinancialRequest(request *structs.BudgetRequest) error {
+	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &request.OrganizationUnitID,
+		BudgetID:           request.BudgetID,
+	})
+	if err != nil {
+		return errors.Wrap(err, "BudgetAcceptResolver: error getting budget requests")
+	}
+
+	for _, req := range requests {
+		switch req.RequestType {
+		case structs.CurrentFinancialRequestType, structs.DonationFinancialRequestType, structs.FinancialRequestType:
+			req.Status = structs.BudgetRequestAcceptedStatus
+			_, err := r.Repo.UpdateBudgetRequest(&req)
+			if err != nil {
+				return errors.Wrap(err, "acceptFinancialRequest: error updating financial request")
+			}
+		}
+	}
+
+	return nil
+}
+
+func (r *Resolver) acceptNonFinancialRequest(request *structs.BudgetRequest) error {
+	request.Status = structs.BudgetRequestAcceptedStatus
+	_, err := r.Repo.UpdateBudgetRequest(request)
+	if err != nil {
+		return errors.Wrap(err, "acceptFinancialRequest: error updating non-financial request")
+	}
+
+	return nil
+}
+
 func (r *Resolver) BudgetDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
@@ -418,23 +504,6 @@ func buildBudgetRequestStatus(ctx context.Context, s structs.BudgetRequestStatus
 		ID:    int(s),
 		Title: string(dto.RequestStatusForManager(s)),
 	}
-}
-
-func buildBudgetRequestResponseItem(ctx context.Context, r repository.MicroserviceRepositoryInterface, request *structs.BudgetRequest) (*dto.BudgetRequestResponseItem, error) {
-	organizationUnit, err := r.GetOrganizationUnitByID(request.OrganizationUnitID)
-	if err != nil {
-		return nil, err
-	}
-
-	item := &dto.BudgetRequestResponseItem{
-		ID:               request.ID,
-		OrganizationUnit: dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title},
-		BudgetID:         request.BudgetID,
-		Status:           buildBudgetRequestStatus(ctx, request.Status),
-		RequestType:      dto.GetRequestType(request.RequestType),
-	}
-
-	return item, nil
 }
 
 func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) (interface{}, error) {

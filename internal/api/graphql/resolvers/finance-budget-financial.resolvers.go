@@ -114,6 +114,7 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 	}
 
 	financialBudgetOveriew := &dto.FinancialBudgetOverviewResponse{
+		RequestID:                      financialParentRequest.ID,
 		AccountVersion:                 financialBudget.AccountVersion,
 		CurrentAccountsWithFilledData:  currentFinancialRequestResList.CreateTree(),
 		CurrentRequestID:               currentFinancialBudgetRequest.ID,

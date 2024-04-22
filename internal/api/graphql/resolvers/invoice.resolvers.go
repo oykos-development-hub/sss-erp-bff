@@ -1172,7 +1172,7 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 	}
 
 	if invoice.TypeOfDecision != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(invoice.TypeOfDecision)
+		setting, err := r.Repo.GetSupplier(invoice.TypeOfDecision)
 		if err != nil {
 			return nil, err
 		}

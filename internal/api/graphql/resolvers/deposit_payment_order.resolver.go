@@ -290,7 +290,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 			return nil, err
 		}
 
-		response.AdditionalExpensesForPaying = append(response.AdditionalExpenses, *builtItem)
+		response.AdditionalExpensesForPaying = append(response.AdditionalExpensesForPaying, *builtItem)
 	}
 
 	if item.FileID != 0 {

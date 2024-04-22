@@ -102,6 +102,22 @@ func (f *Field) BudgetRequestsDetailsField() *graphql.Field {
 	}
 }
 
+func (f *Field) FinancialBudgetSummary() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FinancialBudgetSummaryType,
+		Description: "Send Budget",
+		Args: graphql.FieldConfigArgument{
+			"budget_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"request_type": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.FinancialBudgetSummary,
+	}
+}
+
 func (f *Field) BudgetRequestsOfficialField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.OfficialBudgetRequestOverviewType,
@@ -183,6 +199,22 @@ func (f *Field) FinancialBudgetFillField() *graphql.Field {
 			},
 		},
 		Resolve: f.Resolvers.FinancialBudgetFillResolver,
+	}
+}
+
+func (f *Field) FinancialBudgetFillActualField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FinancialBudgetFillType,
+		Description: "Fill Financially Budget item",
+		Args: graphql.FieldConfigArgument{
+			"request_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewList(mutations.FinancialBudgetFillActualMutation),
+			},
+		},
+		Resolve: f.Resolvers.FinancialBudgetFillActualResolver,
 	}
 }
 

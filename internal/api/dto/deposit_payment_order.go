@@ -68,6 +68,7 @@ type GetDepositPaymentAdditionalExpensesListResponseMS struct {
 type DepositPaymentAdditionalExpensesResponse struct {
 	ID                int            `json:"id"`
 	Title             string         `json:"title"`
+	CaseNumber        string         `json:"case_number"`
 	Account           DropdownSimple `json:"account"`
 	Price             float32        `json:"price"`
 	Subject           DropdownSimple `json:"subject"`

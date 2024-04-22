@@ -73,7 +73,6 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 	if err != nil {
 		return nil, errors.Wrap(err, "GetFinancialBudgetDetails: error getting account items")
 	}
-	accountResItemlist, _ := buildAccountItemResponseItemList(accounts.Data)
 
 	currentFinancialType := structs.RequestTypeCurrentFinancial
 	currentFinancialBudgetRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
@@ -84,7 +83,7 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 	if err != nil {
 		return nil, errors.Wrap(err, "GetFinancialBudgetDetails: error getting current financial budget request")
 	}
-	currentFinancialRequestResList, err := buildFilledRequestData(r.Repo, accountResItemlist, currentFinancialBudgetRequest.ID)
+	currentFinancialRequestResList, err := buildFilledRequestData(r.Repo, accounts.Data, currentFinancialBudgetRequest.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
 	}
@@ -98,7 +97,7 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 	if err != nil {
 		return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
 	}
-	donationFinancialRequestResList, err := buildFilledRequestData(r.Repo, accountResItemlist, donationFinancialBudgetRequest.ID)
+	donationFinancialRequestResList, err := buildFilledRequestData(r.Repo, accounts.Data, donationFinancialBudgetRequest.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
 	}
@@ -127,10 +126,11 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 		CurrentBudgetComment:           currentFinancialBudgetRequest.Comment,
 		DonationBudgetComment:          donationFinancialBudgetRequest.Comment,
 	}
+
 	return financialBudgetOveriew, nil
 }
 
-func buildFilledRequestData(r repository.MicroserviceRepositoryInterface, accounts []*dto.AccountItemResponseItem, requestID int) (dto.AccountWithFilledFinanceBudgetResponseList, error) {
+func buildFilledRequestData(r repository.MicroserviceRepositoryInterface, accounts []*structs.AccountItem, requestID int) (dto.AccountWithFilledFinanceBudgetResponseList, error) {
 	var filledAccountResItemList dto.AccountWithFilledFinanceBudgetResponseList
 
 	filledAccounts, err := r.GetFilledFinancialBudgetList(requestID)
@@ -149,7 +149,7 @@ func buildFilledRequestData(r repository.MicroserviceRepositoryInterface, accoun
 	return filledAccountResItemList, nil
 }
 
-func buildAccountWithFilledFinanceResponseItem(item *dto.AccountItemResponseItem, filledAccounts []structs.FilledFinanceBudget) (*dto.AccountWithFilledFinanceBudget, error) {
+func buildAccountWithFilledFinanceResponseItem(item *structs.AccountItem, filledAccounts []structs.FilledFinanceBudget) (*dto.AccountWithFilledFinanceBudget, error) {
 	resItem := &dto.AccountWithFilledFinanceBudget{
 		ID:           item.ID,
 		Title:        item.Title,
@@ -390,12 +390,93 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 	}, nil
 }
 
+func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParams) (interface{}, error) {
+	requestID := params.Args["request_id"].(int)
+
+	request, err := r.Repo.GetBudgetRequest(requestID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+	if request.RequestType != structs.RequestTypeCurrentFinancial && request.RequestType != structs.RequestTypeDonationFinancial {
+		return errors.HandleAPPError(errors.NewBadRequestError(
+			"request must be one of types: %s, %s, provided request is of type: %s",
+			dto.GetRequestType(structs.RequestTypeCurrentFinancial),
+			dto.GetRequestType(structs.RequestTypeDonationFinancial),
+			dto.GetRequestType(request.RequestType),
+		))
+	}
+
+	var items []dto.FillActualFinanceBudgetInput
+
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	err = json.Unmarshal(dataBytes, &items)
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapBadRequestError(err, "FinancialBudgetFillActualResolver"))
+	}
+
+	var resItemList []dto.FilledFinancialBudgetResItem
+
+	for _, data := range items {
+		item, err := r.Repo.FillActualFinancialBudget(data.ID, data.Actual)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver"))
+		}
+		resItem, err := buildFilledFinancialBudgetResItem(r.Repo, *item)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver"))
+		}
+
+		resItemList = append(resItemList, *resItem)
+	}
+
+	request.Status = structs.BudgetRequestCompletedActualStatus
+	_, err = r.Repo.UpdateBudgetRequest(request)
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver"))
+	}
+
+	//update parent financial status to sent if all financial sub requests (current, donation) are filled
+	financialSubRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		ParentID: request.ParentID,
+	})
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error getting financial child requests"))
+	}
+
+	allFinancialFilled := true
+	for _, financialChildRequest := range financialSubRequests {
+		if financialChildRequest.Status != structs.BudgetRequestFilledStatus {
+			allFinancialFilled = false
+			break
+		}
+	}
+
+	if allFinancialFilled {
+		financialRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error getting parent financial request"))
+		}
+		financialRequest.Status = structs.BudgetRequestCompletedActualStatus
+		_, err = r.Repo.UpdateBudgetRequest(financialRequest)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
+		}
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here is the list of updated items.",
+		Items:   resItemList,
+	}, nil
+}
+
 func buildFilledFinancialBudgetResItem(r repository.MicroserviceRepositoryInterface, filledFinancialBudget structs.FilledFinanceBudget) (*dto.FilledFinancialBudgetResItem, error) {
 	resItem := &dto.FilledFinancialBudgetResItem{
 		ID:            filledFinancialBudget.ID,
 		CurrentYear:   filledFinancialBudget.CurrentYear,
 		NextYear:      filledFinancialBudget.NextYear,
 		YearAfterNext: filledFinancialBudget.YearAfterNext,
+		Actual:        filledFinancialBudget.Actual,
 		Description:   filledFinancialBudget.Description,
 		RequestID:     filledFinancialBudget.BudgetRequestID,
 	}

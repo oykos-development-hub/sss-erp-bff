@@ -3,9 +3,10 @@ package errors
 import "net/http"
 
 const (
-	BadRequestCode = 100
-	NotFoundCode   = 101
-	InternalCode   = 104
+	BadRequestCode          = 100
+	NotFoundCode            = 101
+	InternalCode            = 104
+	MicroserviceRequestCode = 105
 )
 
 func httpStatusCode(code int) int {

@@ -1,6 +1,10 @@
 package dto
 
-import "bff/structs"
+import (
+	"bff/structs"
+
+	"github.com/shopspring/decimal"
+)
 
 type GetNonFinancialBudgetResponseMS struct {
 	Data structs.NonFinancialBudgetItem `json:"data"`
@@ -75,8 +79,10 @@ type FilledFinancialBudgetResItem struct {
 	OrganizationUnit DropdownSimple `json:"organization_unit"`
 	Account          DropdownSimple `json:"account"`
 
-	CurrentYear   int    `json:"current_year"`
-	NextYear      int    `json:"next_year"`
-	YearAfterNext int    `json:"year_after_next"`
-	Description   string `json:"description"`
+	CurrentYear   decimal.Decimal     `json:"current_year"`
+	NextYear      decimal.Decimal     `json:"next_year"`
+	YearAfterNext decimal.Decimal     `json:"year_after_next"`
+	Actual        decimal.NullDecimal `json:"actual"`
+
+	Description string `json:"description"`
 }

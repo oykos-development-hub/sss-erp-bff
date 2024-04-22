@@ -4,6 +4,8 @@ import (
 	"bff/structs"
 	"sort"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type BudgetRequestStatus string
@@ -22,6 +24,10 @@ func RequestStatusForOfficial(s structs.BudgetRequestStatus) BudgetRequestStatus
 		return BudgetRequestTakeActionStatus
 	case structs.BudgetRequestAcceptedStatus:
 		return BudgetRequestAcceptedStatus
+	case structs.BudgetRequestWaitingForActual:
+		return BudgetRequestTakeActionStatus
+	case structs.BudgetRequestCompletedActualStatus:
+		return BudgetRequestFinishedStatus
 	default:
 		return BudgetRequestOnHoldStatus
 	}
@@ -33,7 +39,7 @@ func RequestStatusForManager(s structs.BudgetRequestStatus) BudgetRequestStatus 
 		return BudgetRequestTakeActionStatus
 	case structs.BudgetRequestFilledStatus:
 		return BudgetRequestFilledStatus
-	case structs.BudgetRequestAcceptedStatus:
+	case structs.BudgetRequestAcceptedStatus, structs.BudgetRequestWaitingForActual, structs.BudgetRequestCompletedActualStatus:
 		return BudgetRequestAcceptedStatus
 	default:
 		return BudgetRequestOnHoldStatus
@@ -43,9 +49,9 @@ func RequestStatusForManager(s structs.BudgetRequestStatus) BudgetRequestStatus 
 type BudgetStatus string
 
 const (
-	BudgetCreatedStatus  BudgetStatus = "Kreiran"
-	BudgetSentStatus     BudgetStatus = "Poslat"
-	BudgetAcceptedStatus BudgetStatus = "Prihvaćen"
+	BudgetCreatedStatus       BudgetStatus = "Kreiran"
+	BudgetSentStatus          BudgetStatus = "Poslat"
+	BudgetWaitForActualStatus BudgetStatus = "Čekanje odobrenog budžeta"
 )
 
 func GetBudgetStatus(s structs.BudgetStatus) BudgetStatus {
@@ -53,7 +59,7 @@ func GetBudgetStatus(s structs.BudgetStatus) BudgetStatus {
 	case structs.BudgetSentStatus:
 		return BudgetSentStatus
 	case structs.BudgetAcceptedStatus:
-		return BudgetAcceptedStatus
+		return BudgetWaitForActualStatus
 	default:
 		return BudgetCreatedStatus
 	}
@@ -171,6 +177,11 @@ type CreateBudget struct {
 	Year       int                            `json:"year"`
 	BudgetType int                            `json:"budget_type"`
 	Limits     []structs.FinancialBudgetLimit `json:"limits"`
+}
+
+type FillActualFinanceBudgetInput struct {
+	ID     int             `json:"id"`
+	Actual decimal.Decimal `json:"actual"`
 }
 
 type GetFilledFinancialBudgetResponseItemMS struct {

@@ -388,6 +388,7 @@ func buildDepositPaymentAdditionalExpense(r *Resolver, item structs.DepositPayme
 	response := dto.DepositPaymentAdditionalExpensesResponse{
 		ID:                item.ID,
 		Title:             item.Title,
+		CaseNumber:        item.CaseNumber,
 		Price:             item.Price,
 		BankAccount:       item.BankAccount,
 		Status:            item.Status,

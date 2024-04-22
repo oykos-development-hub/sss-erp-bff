@@ -471,12 +471,12 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 	case structs.RequestTypeFinancial:
 		err := r.acceptFinancialRequest(request)
 		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetAcceptResolver"))
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
 		}
 	case structs.RequestTypeNonFinancial:
 		err := r.acceptNonFinancialRequest(request)
 		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetAcceptResolver"))
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
 		}
 	default:
 		return errors.HandleAPPError(errors.NewInternalServerError("request type: %d with id: %d must be of type financial or non-financial", request.RequestType, request.ID))
@@ -486,7 +486,7 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 		ParentID: request.ParentID,
 	})
 	if err != nil {
-		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error updating parent budget request"))
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver: error updating parent budget request"))
 	}
 
 	allAccepted := true
@@ -499,12 +499,62 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 	if allAccepted {
 		generalRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
 		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error getting parent financial request"))
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver: error getting parent financial request"))
 		}
 		generalRequest.Status = structs.BudgetRequestAcceptedStatus
 		_, err = r.Repo.UpdateBudgetRequest(generalRequest)
 		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error updating parent budget request"))
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver: error updating parent budget request"))
+		}
+	}
+
+	generalReqType := structs.RequestTypeGeneral
+	generalBudgets, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		BudgetID:    &request.BudgetID,
+		RequestType: &generalReqType,
+	})
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
+	}
+	allGeneralAccepted := true
+	for _, req := range generalBudgets {
+		if req.Status != structs.BudgetRequestAcceptedStatus {
+			allGeneralAccepted = false
+			break
+		}
+	}
+	if allGeneralAccepted {
+		budget, err := r.Repo.GetBudget(request.BudgetID)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
+		}
+
+		budget.Status = structs.BudgetAcceptedStatus
+		_, err = r.Repo.UpdateBudget(budget)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
+		}
+
+		financialRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+			OrganizationUnitID: &request.OrganizationUnitID,
+			BudgetID:           &request.BudgetID,
+			RequestTypes: []structs.RequestType{
+				structs.RequestTypeGeneral,
+				structs.RequestTypeFinancial,
+				structs.RequestTypeCurrentFinancial,
+				structs.RequestTypeDonationFinancial,
+			},
+		})
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
+		}
+
+		for _, req := range financialRequests {
+			req.Status = structs.BudgetRequestWaitingForActual
+			_, err = r.Repo.UpdateBudgetRequest(&req)
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
+			}
 		}
 	}
 
@@ -682,5 +732,41 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 			FinancialBudgetDetails:    financialDetails,
 			NonFinancialBudgetDetails: nonFinancialDetails,
 		},
+	}, nil
+}
+
+func (r *Resolver) FinancialBudgetSummary(params graphql.ResolveParams) (interface{}, error) {
+	budgetID := params.Args["budget_id"].(int)
+	reqType := structs.RequestType(params.Args["request_type"].(int))
+
+	financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{Version: &financialBudget.AccountVersion})
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	filledData, err := r.Repo.GetFinancialFilledSummary(budgetID, reqType)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetFinancialBudgetDetails: error getting current financial budget request")
+	}
+
+	var filledAccountResItemList dto.AccountWithFilledFinanceBudgetResponseList
+
+	for _, account := range accounts.Data {
+		filledAccountItem, err := buildAccountWithFilledFinanceResponseItem(account, filledData)
+		if err != nil {
+			return filledAccountResItemList, errors.Wrap(err, "buildFilledRequestData")
+		}
+		filledAccountResItemList.Data = append(filledAccountResItemList.Data, filledAccountItem)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "Here's the data you asked for!",
+		Item:    filledAccountResItemList.CreateTree(),
 	}, nil
 }

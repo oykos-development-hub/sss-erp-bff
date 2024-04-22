@@ -87,6 +87,13 @@ func WrapBadRequestError(err error, message string, args ...interface{}) error {
 	}
 }
 
+func WrapMicroserviceError(err error, message string, args ...interface{}) error {
+	return &AppError{
+		Code: MicroserviceRequestCode,
+		Err:  fmt.Errorf("%s: %w", fmt.Sprintf(message, args...), err),
+	}
+}
+
 func WrapNotFoundError(err error, message string, args ...any) error {
 	return &AppError{
 		Code: NotFoundCode,

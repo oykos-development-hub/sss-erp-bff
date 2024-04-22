@@ -227,6 +227,9 @@ var AdditionalExpensesType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"case_number": &graphql.Field{
+			Type: graphql.String,
+		},
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},

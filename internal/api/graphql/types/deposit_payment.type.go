@@ -128,6 +128,9 @@ var DepositPaymentAdditionalExpensesType = graphql.NewObject(graphql.ObjectConfi
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},
+		"case_number": &graphql.Field{
+			Type: graphql.String,
+		},
 		"subject": &graphql.Field{
 			Type: DropdownItemType,
 		},

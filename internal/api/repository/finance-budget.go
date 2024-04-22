@@ -4,7 +4,10 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
+	"fmt"
 	"strconv"
+
+	"github.com/shopspring/decimal"
 )
 
 func (repo *MicroserviceRepository) CreateBudget(budgetItem *structs.Budget) (*structs.Budget, error) {
@@ -163,6 +166,16 @@ func (repo *MicroserviceRepository) UpdateFilledFinancialBudget(id int, data *st
 	return &res.Data, nil
 }
 
+func (repo *MicroserviceRepository) FillActualFinancialBudget(id int, actual decimal.Decimal) (*structs.FilledFinanceBudget, error) {
+	data := &dto.FillActualFinanceBudgetInput{Actual: actual}
+	res := &dto.GetFilledFinancialBudgetResponseItemMS{}
+	_, err := makeAPIRequest("PATCH", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id)+"/actual", data, res)
+	if err != nil {
+		return nil, errors.WrapMicroserviceError(err, "FillActualFinancialBudget")
+	}
+	return &res.Data, nil
+}
+
 func (repo *MicroserviceRepository) DeleteFilledFinancialBudgetData(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
@@ -170,4 +183,14 @@ func (repo *MicroserviceRepository) DeleteFilledFinancialBudgetData(id int) erro
 	}
 
 	return nil
+}
+
+func (repo *MicroserviceRepository) GetFinancialFilledSummary(budgetID int, reqType structs.RequestType) ([]structs.FilledFinanceBudget, error) {
+	res := &dto.GetFilledFinancialBudgetResponseMS{}
+	_, err := makeAPIRequest("GET", fmt.Sprintf("%s/%d/filled-financial-summary/%d", repo.Config.Microservices.Finance.Budget, budgetID, reqType), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
 }

@@ -42,16 +42,28 @@ var FinancialBudgetFillMutation = graphql.NewInputObject(graphql.InputObjectConf
 			Type: graphql.Int,
 		},
 		"current_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"next_year": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"year_after_next": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
+		},
+	},
+})
+
+var FinancialBudgetFillActualMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "FinancialBudgetFillActualMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"actual": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Float),
 		},
 	},
 })

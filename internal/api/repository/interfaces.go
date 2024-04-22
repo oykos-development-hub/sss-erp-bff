@@ -4,6 +4,8 @@ import (
 	"bff/internal/api/dto"
 	"bff/structs"
 	"net/http"
+
+	"github.com/shopspring/decimal"
 )
 
 type MicroserviceRepositoryInterface interface {
@@ -300,6 +302,8 @@ type MicroserviceRepositoryInterface interface {
 	CreateNonFinancialBudget(budget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
 	FillFinancialBudget(budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
 	UpdateFilledFinancialBudget(id int, budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
+	FillActualFinancialBudget(id int, actual decimal.Decimal) (*structs.FilledFinanceBudget, error)
+	GetFinancialFilledSummary(budgetID int, reqType structs.RequestType) ([]structs.FilledFinanceBudget, error)
 	DeleteFilledFinancialBudgetData(id int) error
 	DeleteNonFinancialBudget(id int) error
 	GetNonFinancialBudget(id int) (*structs.NonFinancialBudgetItem, error)

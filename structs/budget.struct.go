@@ -2,6 +2,8 @@ package structs
 
 import (
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type BudgetIndent struct {
@@ -29,11 +31,13 @@ type Budget struct {
 type BudgetRequestStatus int
 
 const (
-	BudgetRequestSentStatus         BudgetRequestStatus = 1
-	BudgetRequestFilledStatus       BudgetRequestStatus = 2
-	BudgetRequestSentOnReviewStatus BudgetRequestStatus = 3
-	BudgetRequestAcceptedStatus     BudgetRequestStatus = 4
-	BudgetRequestRejectedStatus     BudgetRequestStatus = 5
+	BudgetRequestSentStatus            BudgetRequestStatus = 1
+	BudgetRequestFilledStatus          BudgetRequestStatus = 2
+	BudgetRequestSentOnReviewStatus    BudgetRequestStatus = 3
+	BudgetRequestAcceptedStatus        BudgetRequestStatus = 4
+	BudgetRequestRejectedStatus        BudgetRequestStatus = 5
+	BudgetRequestWaitingForActual      BudgetRequestStatus = 6
+	BudgetRequestCompletedActualStatus BudgetRequestStatus = 7
 )
 
 type RequestType int
@@ -72,11 +76,12 @@ type FinancialBudgetLimit struct {
 }
 
 type FilledFinanceBudget struct {
-	ID              int    `json:"id"`
-	BudgetRequestID int    `json:"budget_request_id"`
-	AccountID       int    `json:"account_id"`
-	CurrentYear     int    `json:"current_year"`
-	NextYear        int    `json:"next_year"`
-	YearAfterNext   int    `json:"year_after_next"`
-	Description     string `json:"description"`
+	ID              int                 `json:"id"`
+	BudgetRequestID int                 `json:"budget_request_id"`
+	AccountID       int                 `json:"account_id"`
+	CurrentYear     decimal.Decimal     `json:"current_year"`
+	NextYear        decimal.Decimal     `json:"next_year"`
+	YearAfterNext   decimal.Decimal     `json:"year_after_next"`
+	Actual          decimal.NullDecimal `json:"actual"`
+	Description     string              `json:"description"`
 }

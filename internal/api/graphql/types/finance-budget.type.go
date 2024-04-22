@@ -65,13 +65,16 @@ var FilledAccountData = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"current_year": &graphql.Field{
-			Type: graphql.Int,
+			Type: decimalType,
 		},
 		"next_year": &graphql.Field{
-			Type: graphql.Int,
+			Type: decimalType,
 		},
 		"year_after_next": &graphql.Field{
-			Type: graphql.Int,
+			Type: decimalType,
+		},
+		"actual": &graphql.Field{
+			Type: decimalType,
 		},
 		"description": &graphql.Field{
 			Type: graphql.String,
@@ -378,13 +381,16 @@ var FinancialBudgetFillItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"current_year": &graphql.Field{
-			Type: graphql.Int,
+			Type: decimalType,
 		},
 		"next_year": &graphql.Field{
-			Type: graphql.Int,
+			Type: decimalType,
 		},
 		"year_after_next": &graphql.Field{
-			Type: graphql.Int,
+			Type: decimalType,
+		},
+		"actual": &graphql.Field{
+			Type: decimalType,
 		},
 		"description": &graphql.Field{
 			Type: graphql.String,
@@ -475,6 +481,24 @@ var BudgetRequestsDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"non_financial": &graphql.Field{
 			Type: NonFinancialBudgetType,
+		},
+	},
+})
+
+var FinancialBudgetSummaryType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "FinancialBudgetSummaryType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: graphql.NewList(GetAccountWithFilledDataType()),
 		},
 	},
 })

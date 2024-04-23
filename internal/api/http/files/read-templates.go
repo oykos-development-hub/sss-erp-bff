@@ -2148,6 +2148,9 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 
 		for rows.Next() {
 			rowindex++
+			if rowindex < 11 {
+				continue
+			}
 
 			cols := rows.Columns()
 			if err != nil {
@@ -2162,15 +2165,22 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 				switch cellIndex {
 				case 1:
 					if value != "" && value != "Zaposleni" {
-						additionalSalaryExpense.Title = value
 						additionalSalaryExpense.Type = "suspensions"
+					}
+				case 2:
+					if value != "" && additionalSalaryExpense.Type == "suspensions" {
+						additionalSalaryExpense.Title = value
 					}
 				case 4:
 					additionalSalaryExpense.BankAccount = value
 				case 11:
-					price, err := strconv.ParseFloat(value, 32)
+					noThousands := strings.ReplaceAll(value, ".", "")
 
-					if err != nil && value != "" && additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
+					normalized := strings.ReplaceAll(noThousands, ",", ".")
+
+					price, err := strconv.ParseFloat(normalized, 32)
+
+					if err != nil && value != "" && additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" && value != "Iznos rate" {
 						responseMessage := ValidationResponse{
 							Column:  11,
 							Row:     rowindex,

@@ -2167,12 +2167,12 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 					}
 				case 4:
 					additionalSalaryExpense.BankAccount = value
-				case 10:
+				case 11:
 					price, err := strconv.ParseFloat(value, 32)
 
 					if err != nil && value != "" && additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
 						responseMessage := ValidationResponse{
-							Column:  10,
+							Column:  11,
 							Row:     rowindex,
 							Message: "Iznos nije ispravno unijet!",
 						}

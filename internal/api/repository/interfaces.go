@@ -474,4 +474,6 @@ type MicroserviceRepositoryInterface interface {
 	GetEnforcedPaymentByID(id int) (*structs.EnforcedPayment, error)
 	GetEnforcedPaymentList(input dto.EnforcedPaymentFilter) ([]structs.EnforcedPayment, int, error)
 	ReturnEnforcedPayment(input structs.EnforcedPayment) error
+
+	GetAllObligationsForAccounting(input dto.ObligationsFilter) ([]dto.ObligationForAccounting, int, error)
 }

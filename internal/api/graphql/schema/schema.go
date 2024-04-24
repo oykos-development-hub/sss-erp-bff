@@ -288,6 +288,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"depositPaymentAdditionalExpenses_Overview":                  fields.DepositPaymentAdditionalExpensesOverviewField(),
 			"salary_Overview":                                            fields.SalaryOverviewField(),
 			"obligations_Overview":                                       fields.ObligationsOverview(),
+			"getObligationsForAccounting":                                fields.GetObligationsForAccounting(),
 			"paymentOrder_Overview":                                      fields.PaymentOrderOverviewField(),
 			"payPaymentOrder":                                            fields.PayOrderField(),
 			"enforcedPayment_Overview":                                   fields.EnforcedPaymentOverviewField(),

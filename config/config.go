@@ -101,6 +101,8 @@ type FinanceMS struct {
 	PaymentOrder                     string
 	PayPaymentOrder                  string
 	GetObligation                    string
+	EnforcedPayment                  string
+	ReturnEnforcedPayment            string
 }
 
 type ProcurementMS struct {
@@ -390,6 +392,8 @@ func LoadDefaultConfig() (*Config, error) {
 				PaymentOrder:                     financeBase + "/payment-orders",
 				PayPaymentOrder:                  financeBase + "/pay-payment-order",
 				GetObligation:                    financeBase + "/get-all-obligations",
+				EnforcedPayment:                  financeBase + "/enforced-payments",
+				ReturnEnforcedPayment:            financeBase + "/return-enforced-payment",
 			},
 		},
 		Frontend: FrontendConfig{

@@ -468,4 +468,10 @@ type MicroserviceRepositoryInterface interface {
 	GetPaymentOrderList(input dto.PaymentOrderFilter) ([]structs.PaymentOrder, int, error)
 	GetAllObligations(input dto.ObligationsFilter) ([]dto.Obligation, int, error)
 	PayPaymentOrder(input structs.PaymentOrder) error
+
+	CreateEnforcedPayment(item *structs.EnforcedPayment) (*structs.EnforcedPayment, error)
+	UpdateEnforcedPayment(item *structs.EnforcedPayment) (*structs.EnforcedPayment, error)
+	GetEnforcedPaymentByID(id int) (*structs.EnforcedPayment, error)
+	GetEnforcedPaymentList(input dto.EnforcedPaymentFilter) ([]structs.EnforcedPayment, int, error)
+	ReturnEnforcedPayment(input structs.EnforcedPayment) error
 }

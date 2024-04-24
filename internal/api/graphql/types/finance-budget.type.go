@@ -498,7 +498,7 @@ var FinancialBudgetSummaryType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"item": &graphql.Field{
-			Type: graphql.NewList(GetAccountWithFilledDataType()),
+			Type: FinancialBudgetType,
 		},
 	},
 })

@@ -110,8 +110,9 @@ func (f *Field) FinancialBudgetSummary() *graphql.Field {
 			"budget_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
 			},
-			"request_type": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
+			"unit_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
 			},
 		},
 		Resolve: f.Resolvers.FinancialBudgetSummary,

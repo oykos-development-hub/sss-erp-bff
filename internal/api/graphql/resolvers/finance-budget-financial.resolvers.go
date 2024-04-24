@@ -48,7 +48,7 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 	budgetID := params.Args["budget_id"].(int)
 	unitID := params.Args["organization_unit_id"].(int)
 
-	financialBudgetOveriew, err := r.GetFinancialBudgetDetails(params.Context, budgetID, unitID)
+	financialBudgetOveriew, err := r.GetFinancialBudgetDetails(params.Context, budgetID, unitID, false)
 	if err != nil {
 		return errors.HandleAPPError(errors.Wrap(err, "FinancialBudgetOverview"))
 	}
@@ -60,8 +60,12 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 	}, nil
 }
 
-func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unitID int) (*dto.FinancialBudgetOverviewResponse, error) {
+func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unitID int, summary bool) (*dto.FinancialBudgetOverviewResponse, error) {
 	var response dto.FinancialBudgetOverviewResponse
+
+	var filledAccounts []structs.FilledFinanceBudget
+	var donationFinancialBudgetRequest *structs.BudgetRequest
+	var currentFinancialBudgetRequest *structs.BudgetRequest
 
 	financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
 	if err != nil {
@@ -75,68 +79,92 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 	}
 
 	currentFinancialType := structs.RequestTypeCurrentFinancial
-	currentFinancialBudgetRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
-		OrganizationUnitID: &unitID,
-		BudgetID:           &budgetID,
-		RequestType:        &currentFinancialType,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "GetFinancialBudgetDetails: error getting current financial budget request")
+	if summary {
+		filledAccounts, err = r.Repo.GetFinancialFilledSummary(budgetID, currentFinancialType)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetFinancialBudgetDetails: error getting current financial budget request")
+		}
+	} else {
+		currentFinancialBudgetRequest, err = r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+			OrganizationUnitID: &unitID,
+			BudgetID:           &budgetID,
+			RequestType:        &currentFinancialType,
+		})
+		if err != nil {
+			return nil, errors.Wrap(err, "GetFinancialBudgetDetails: error getting current financial budget request")
+		}
+		filledAccounts, err = r.Repo.GetFilledFinancialBudgetList(currentFinancialBudgetRequest.ID)
+		if err != nil {
+			return nil, errors.Wrap(err, "buildFilledRequestData")
+		}
 	}
-	currentFinancialRequestResList, err := buildFilledRequestData(r.Repo, accounts.Data, currentFinancialBudgetRequest.ID)
+
+	currentFinancialRequestResList, err := buildFilledRequestData(r.Repo, accounts.Data, filledAccounts)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
 	}
 
 	donationFinancialType := structs.RequestTypeDonationFinancial
-	donationFinancialBudgetRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
-		OrganizationUnitID: &unitID,
-		BudgetID:           &budgetID,
-		RequestType:        &donationFinancialType,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
+	if summary {
+		filledAccounts, err = r.Repo.GetFinancialFilledSummary(budgetID, donationFinancialType)
+		if err != nil {
+			return nil, errors.Wrap(err, "GetFinancialBudgetDetails: error getting current financial budget request")
+		}
+	} else {
+		donationFinancialBudgetRequest, err = r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+			OrganizationUnitID: &unitID,
+			BudgetID:           &budgetID,
+			RequestType:        &donationFinancialType,
+		})
+		if err != nil {
+			return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
+		}
+		filledAccounts, err = r.Repo.GetFilledFinancialBudgetList(donationFinancialBudgetRequest.ID)
+		if err != nil {
+			return nil, errors.Wrap(err, "buildFilledRequestData")
+		}
 	}
-	donationFinancialRequestResList, err := buildFilledRequestData(r.Repo, accounts.Data, donationFinancialBudgetRequest.ID)
-	if err != nil {
-		return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
-	}
-
-	financialRequestType := structs.RequestTypeFinancial
-	financialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
-		OrganizationUnitID: &unitID,
-		BudgetID:           &budgetID,
-		RequestType:        &financialRequestType,
-	})
+	donationFinancialRequestResList, err := buildFilledRequestData(r.Repo, accounts.Data, filledAccounts)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
 	}
 
 	financialBudgetOveriew := &dto.FinancialBudgetOverviewResponse{
-		RequestID:                      financialRequest.ID,
 		AccountVersion:                 financialBudget.AccountVersion,
 		CurrentAccountsWithFilledData:  currentFinancialRequestResList.CreateTree(),
-		CurrentRequestID:               currentFinancialBudgetRequest.ID,
 		DonationAccountsWithFilledData: donationFinancialRequestResList.CreateTree(),
-		DonationRequestID:              donationFinancialBudgetRequest.ID,
-		Status:                         buildBudgetRequestStatus(ctx, financialRequest.Status),
-		DonationBudgetStatus:           buildBudgetRequestStatus(ctx, donationFinancialBudgetRequest.Status),
-		CurrentBudgetStatus:            buildBudgetRequestStatus(ctx, currentFinancialBudgetRequest.Status),
-		OfficialComment:                financialRequest.Comment,
-		CurrentBudgetComment:           currentFinancialBudgetRequest.Comment,
-		DonationBudgetComment:          donationFinancialBudgetRequest.Comment,
+	}
+
+	if !summary {
+		financialRequestType := structs.RequestTypeFinancial
+		financialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+			OrganizationUnitID: &unitID,
+			BudgetID:           &budgetID,
+			RequestType:        &financialRequestType,
+		})
+		if err != nil {
+			return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
+		}
+
+		financialBudgetOveriew.RequestID = financialRequest.ID
+		financialBudgetOveriew.OfficialComment = financialRequest.Comment
+		financialBudgetOveriew.Status = buildBudgetRequestStatus(ctx, financialRequest.Status)
+
+		financialBudgetOveriew.CurrentRequestID = currentFinancialBudgetRequest.ID
+		financialBudgetOveriew.CurrentBudgetComment = currentFinancialBudgetRequest.Comment
+		financialBudgetOveriew.CurrentBudgetStatus = buildBudgetRequestStatus(ctx, currentFinancialBudgetRequest.Status)
+
+		financialBudgetOveriew.DonationRequestID = donationFinancialBudgetRequest.ID
+		financialBudgetOveriew.CurrentBudgetComment = donationFinancialBudgetRequest.Comment
+		financialBudgetOveriew.DonationBudgetStatus = buildBudgetRequestStatus(ctx, donationFinancialBudgetRequest.Status)
+
 	}
 
 	return financialBudgetOveriew, nil
 }
 
-func buildFilledRequestData(r repository.MicroserviceRepositoryInterface, accounts []*structs.AccountItem, requestID int) (dto.AccountWithFilledFinanceBudgetResponseList, error) {
+func buildFilledRequestData(r repository.MicroserviceRepositoryInterface, accounts []*structs.AccountItem, filledAccounts []structs.FilledFinanceBudget) (dto.AccountWithFilledFinanceBudgetResponseList, error) {
 	var filledAccountResItemList dto.AccountWithFilledFinanceBudgetResponseList
-
-	filledAccounts, err := r.GetFilledFinancialBudgetList(requestID)
-	if err != nil {
-		return filledAccountResItemList, errors.Wrap(err, "buildFilledRequestData")
-	}
 
 	for _, account := range accounts {
 		filledAccountItem, err := buildAccountWithFilledFinanceResponseItem(account, filledAccounts)
@@ -460,6 +488,31 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 		_, err = r.Repo.UpdateBudgetRequest(financialRequest)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
+		}
+
+		financialReqType := structs.RequestTypeFinancial
+		budgetFinancialRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+			BudgetID:    &financialRequest.BudgetID,
+			RequestType: &financialReqType,
+		})
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
+		}
+
+		allFinancialRequestsCompleted := true
+		for _, generalReq := range budgetFinancialRequests {
+			if generalReq.Status != structs.BudgetRequestCompletedActualStatus {
+				allFinancialRequestsCompleted = false
+				break
+			}
+		}
+
+		if allFinancialRequestsCompleted {
+			budget, err := r.Repo.GetBudget(request.BudgetID)
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver"))
+			}
+			budget.Status = structs.BudgetCompletedActualStatus
 		}
 	}
 

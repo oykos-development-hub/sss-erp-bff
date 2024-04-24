@@ -49,9 +49,10 @@ func RequestStatusForManager(s structs.BudgetRequestStatus) BudgetRequestStatus 
 type BudgetStatus string
 
 const (
-	BudgetCreatedStatus       BudgetStatus = "Kreiran"
-	BudgetSentStatus          BudgetStatus = "Poslat"
-	BudgetWaitForActualStatus BudgetStatus = "Čekanje odobrenog budžeta"
+	BudgetCreatedStatus         BudgetStatus = "Kreiran"
+	BudgetSentStatus            BudgetStatus = "Poslat"
+	BudgetWaitForActualStatus   BudgetStatus = "Čekanje odobrenog budžeta"
+	BudgetCompletedActualStatus BudgetStatus = "Odobreno"
 )
 
 func GetBudgetStatus(s structs.BudgetStatus) BudgetStatus {
@@ -60,6 +61,8 @@ func GetBudgetStatus(s structs.BudgetStatus) BudgetStatus {
 		return BudgetSentStatus
 	case structs.BudgetAcceptedStatus:
 		return BudgetWaitForActualStatus
+	case structs.BudgetCompletedActualStatus:
+		return BudgetCompletedActualStatus
 	default:
 		return BudgetCreatedStatus
 	}

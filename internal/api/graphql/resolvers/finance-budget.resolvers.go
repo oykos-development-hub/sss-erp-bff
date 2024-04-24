@@ -698,7 +698,7 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 	budgetID := params.Args["budget_id"].(int)
 	unitID := params.Args["unit_id"].(int)
 
-	financialDetails, err := r.GetFinancialBudgetDetails(params.Context, budgetID, unitID)
+	financialDetails, err := r.GetFinancialBudgetDetails(params.Context, budgetID, unitID, false)
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting financial details"))
 	}
@@ -737,36 +737,16 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 
 func (r *Resolver) FinancialBudgetSummary(params graphql.ResolveParams) (interface{}, error) {
 	budgetID := params.Args["budget_id"].(int)
-	reqType := structs.RequestType(params.Args["request_type"].(int))
+	unitID := params.Args["unit_id"].(int)
 
-	financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
+	financialDetails, err := r.GetFinancialBudgetDetails(params.Context, budgetID, unitID, unitID == 0)
 	if err != nil {
-		return errors.HandleAPIError(err)
-	}
-
-	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{Version: &financialBudget.AccountVersion})
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
-
-	filledData, err := r.Repo.GetFinancialFilledSummary(budgetID, reqType)
-	if err != nil {
-		return nil, errors.Wrap(err, "GetFinancialBudgetDetails: error getting current financial budget request")
-	}
-
-	var filledAccountResItemList dto.AccountWithFilledFinanceBudgetResponseList
-
-	for _, account := range accounts.Data {
-		filledAccountItem, err := buildAccountWithFilledFinanceResponseItem(account, filledData)
-		if err != nil {
-			return filledAccountResItemList, errors.Wrap(err, "buildFilledRequestData")
-		}
-		filledAccountResItemList.Data = append(filledAccountResItemList.Data, filledAccountItem)
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting financial details"))
 	}
 
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "Here's the data you asked for!",
-		Item:    filledAccountResItemList.CreateTree(),
+		Item:    financialDetails,
 	}, nil
 }

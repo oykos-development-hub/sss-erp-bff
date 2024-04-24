@@ -16,9 +16,10 @@ type BudgetIndent struct {
 type BudgetStatus int
 
 const (
-	BudgetCreatedStatus  BudgetStatus = 1
-	BudgetSentStatus     BudgetStatus = 2
-	BudgetAcceptedStatus BudgetStatus = 3
+	BudgetCreatedStatus         BudgetStatus = 1
+	BudgetSentStatus            BudgetStatus = 2
+	BudgetAcceptedStatus        BudgetStatus = 3
+	BudgetCompletedActualStatus BudgetStatus = 4
 )
 
 type Budget struct {

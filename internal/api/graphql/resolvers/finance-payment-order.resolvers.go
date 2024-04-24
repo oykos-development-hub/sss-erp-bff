@@ -174,9 +174,15 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 		return apierrors.HandleAPIError(err)
 	}
 
+	message := "Here's the list you asked for!"
+
+	if len(items) == 0 {
+		message = "There aren't items!"
+	}
+
 	return dto.Response{
 		Status:  "success",
-		Message: "Here's the list you asked for!",
+		Message: message,
 		Items:   items,
 		Total:   total,
 	}, nil

@@ -218,18 +218,19 @@ func (r *Resolver) PayOrderResolver(params graphql.ResolveParams) (interface{}, 
 
 func buildPaymentOrder(item structs.PaymentOrder, r *Resolver) (*dto.PaymentOrderResponse, error) {
 	response := dto.PaymentOrderResponse{
-		ID:            item.ID,
-		BankAccount:   item.BankAccount,
-		DateOfPayment: item.DateOfPayment,
-		IDOfStatement: item.IDOfStatement,
-		SAPID:         item.SAPID,
-		DateOfSAP:     item.DateOfSAP,
-		DateOfOrder:   item.DateOfOrder,
-		Amount:        item.Amount,
-		Status:        item.Status,
-		Description:   item.Description,
-		CreatedAt:     item.CreatedAt,
-		UpdatedAt:     item.UpdatedAt,
+		ID:              item.ID,
+		BankAccount:     item.BankAccount,
+		DateOfPayment:   item.DateOfPayment,
+		IDOfStatement:   item.IDOfStatement,
+		SAPID:           item.SAPID,
+		DateOfSAP:       item.DateOfSAP,
+		DateOfOrder:     item.DateOfOrder,
+		Amount:          item.Amount,
+		Status:          item.Status,
+		SourceOfFunding: item.SourceOfFunding,
+		Description:     item.Description,
+		CreatedAt:       item.CreatedAt,
+		UpdatedAt:       item.UpdatedAt,
 	}
 
 	if item.OrganizationUnitID != 0 {

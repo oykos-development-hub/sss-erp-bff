@@ -34,6 +34,7 @@ type EnforcedPaymentFilter struct {
 	Search             *string `json:"search"`
 	Year               *int    `json:"year"`
 	SupplierID         *int    `json:"supplier_id"`
+	Registred          *bool   `json:"registred"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 }
 

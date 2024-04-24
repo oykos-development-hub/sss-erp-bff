@@ -34,6 +34,7 @@ type PaymentOrderFilter struct {
 	Year               *int    `json:"year"`
 	SupplierID         *int    `json:"supplier_id"`
 	OrganizationUnitID *int    `json:"organization_unit_id"`
+	Registred          *bool   `json:"registred"`
 }
 
 type ObligationsFilter struct {

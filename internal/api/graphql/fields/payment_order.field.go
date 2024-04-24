@@ -62,6 +62,9 @@ func (f *Field) PaymentOrderOverviewField() *graphql.Field {
 			"status": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"registred": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
+			},
 		},
 		Resolve: f.Resolvers.PaymentOrderOverviewResolver,
 	}

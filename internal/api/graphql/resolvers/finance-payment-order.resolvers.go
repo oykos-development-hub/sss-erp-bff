@@ -51,6 +51,10 @@ func (r *Resolver) PaymentOrderOverviewResolver(params graphql.ResolveParams) (i
 		input.Status = &value
 	}
 
+	if value, ok := params.Args["registred"].(bool); ok {
+		input.Registred = &value
+	}
+
 	if value, ok := params.Args["supplier_id"].(int); ok && value != 0 {
 		input.SupplierID = &value
 	}

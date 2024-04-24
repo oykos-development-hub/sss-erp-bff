@@ -47,6 +47,10 @@ func (r *Resolver) EnforcedPaymentOverviewResolver(params graphql.ResolveParams)
 		input.Search = &value
 	}
 
+	if value, ok := params.Args["registred"].(bool); ok {
+		input.Registred = &value
+	}
+
 	if value, ok := params.Args["status"].(string); ok && value != "" {
 		input.Status = &value
 	}

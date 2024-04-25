@@ -65,7 +65,7 @@ var AccountingOrderForObligationsOverviewType = graphql.NewObject(graphql.Object
 var AccountingOrderForObligationsType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "AccountingOrderForObligationsType",
 	Fields: graphql.Fields{
-		"organization_unit_id": &graphql.Field{
+		"organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},
 		"date_of_booking": &graphql.Field{

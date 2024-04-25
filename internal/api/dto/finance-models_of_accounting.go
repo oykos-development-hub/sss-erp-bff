@@ -18,8 +18,8 @@ type ModelOfAccountingItemResponse struct {
 	ID            int                     `json:"id"`
 	Title         string                  `json:"title"`
 	ModelID       int                     `json:"model_id"`
-	DebitAccount  AccountItemResponseItem `json:"debit_account_id"`
-	CreditAccount AccountItemResponseItem `json:"credit_account_id"`
+	DebitAccount  AccountItemResponseItem `json:"debit_account"`
+	CreditAccount AccountItemResponseItem `json:"credit_account"`
 	CreatedAt     time.Time               `json:"created_at"`
 	UpdatedAt     time.Time               `json:"updated_at"`
 }

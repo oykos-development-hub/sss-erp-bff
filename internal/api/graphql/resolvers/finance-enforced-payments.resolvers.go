@@ -177,19 +177,21 @@ func (r *Resolver) ReturnEnforcedPaymentResolver(params graphql.ResolveParams) (
 
 func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.EnforcedPaymentResponse, error) {
 	response := dto.EnforcedPaymentResponse{
-		ID:            item.ID,
-		BankAccount:   item.BankAccount,
-		DateOfPayment: item.DateOfPayment,
-		IDOfStatement: item.IDOfStatement,
-		ReturnDate:    item.ReturnDate,
-		SAPID:         item.SAPID,
-		DateOfSAP:     item.DateOfSAP,
-		DateOfOrder:   item.DateOfOrder,
-		Amount:        item.Amount,
-		Status:        item.Status,
-		Description:   item.Description,
-		CreatedAt:     item.CreatedAt,
-		UpdatedAt:     item.UpdatedAt,
+		ID:              item.ID,
+		BankAccount:     item.BankAccount,
+		DateOfPayment:   item.DateOfPayment,
+		IDOfStatement:   item.IDOfStatement,
+		ReturnDate:      item.ReturnDate,
+		SAPID:           item.SAPID,
+		DateOfSAP:       item.DateOfSAP,
+		DateOfOrder:     item.DateOfOrder,
+		Amount:          item.Amount,
+		AmountForLawyer: item.AmountForLawyer,
+		AmountForAgent:  item.AmountForAgent,
+		Status:          item.Status,
+		Description:     item.Description,
+		CreatedAt:       item.CreatedAt,
+		UpdatedAt:       item.UpdatedAt,
 	}
 
 	if item.OrganizationUnitID != 0 {

@@ -56,6 +56,12 @@ var EnforcedPaymentType = graphql.NewObject(graphql.ObjectConfig{
 		"amount": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"amount_for_lawyer": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"amount_for_agent": &graphql.Field{
+			Type: graphql.Float,
+		},
 		"bank_account": &graphql.Field{
 			Type: graphql.String,
 		},

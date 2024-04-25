@@ -62,7 +62,7 @@ func (r *Resolver) ModelsOfAccountingUpdateResolver(params graphql.ResolveParams
 	var data structs.ModelsOfAccounting
 	response := dto.ResponseSingle{
 		Status:  "success",
-		Message: "You created this item!",
+		Message: "You updated this item!",
 	}
 
 	dataBytes, err := json.Marshal(params.Args["data"])

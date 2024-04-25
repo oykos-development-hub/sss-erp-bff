@@ -17,6 +17,8 @@ type EnforcedPayment struct {
 	ReturnDate         *time.Time             `json:"return_date"`
 	Items              []EnforcedPaymentItems `json:"items"`
 	Amount             float64                `json:"amount"`
+	AmountForLawyer    float64                `json:"amount_for_lawyer"`
+	AmountForAgent     float64                `json:"amount_for_agent"`
 	Description        string                 `json:"description"`
 	Status             string                 `json:"status"`
 	CreatedAt          time.Time              `json:"created_at"`

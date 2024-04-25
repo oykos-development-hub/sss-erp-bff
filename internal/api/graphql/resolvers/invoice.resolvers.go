@@ -80,10 +80,16 @@ func (r *Resolver) InvoiceOverviewResolver(params graphql.ResolveParams) (interf
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
+	var message string
+	if total == 0 {
+		message = "There aren`t item!"
+	} else {
+		message = "Here's the list you asked for!"
+	}
 
 	return dto.Response{
 		Status:  "success",
-		Message: "Here's the list you asked for!",
+		Message: message,
 		Items:   invoiceResItem,
 		Total:   total,
 	}, nil

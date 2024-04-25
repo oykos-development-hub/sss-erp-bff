@@ -41,6 +41,12 @@ var EnforcedPaymentMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"amount": &graphql.InputObjectFieldConfig{
 			Type: graphql.Float,
 		},
+		"amount_for_lawyer": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
+		"amount_for_agent": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
 		"items": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(PaymentItems),
 		},

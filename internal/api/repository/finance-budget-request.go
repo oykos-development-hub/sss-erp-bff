@@ -43,7 +43,7 @@ func (repo *MicroserviceRepository) GetOneBudgetRequest(input *dto.GetBudgetRequ
 	}
 
 	if len(res.Data) == 0 {
-		return budgetReq, errors.NewInternalServerError("repo.GetOneBudgetRequest: budget not sent")
+		return budgetReq, errors.NewNotFoundError("budget not found")
 	}
 
 	return &res.Data[0], nil

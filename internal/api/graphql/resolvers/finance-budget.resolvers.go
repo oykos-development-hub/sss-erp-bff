@@ -8,6 +8,7 @@ import (
 	"bff/structs"
 	"context"
 	"encoding/json"
+	goerrors "errors"
 	"fmt"
 	"time"
 
@@ -61,7 +62,7 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 		Items:   items,
-		Total:   len(budgets),
+		Total:   len(items),
 	}, nil
 }
 
@@ -97,6 +98,14 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 			RequestType:        &generalRequestType,
 		})
 		if err != nil {
+			var appErr *errors.AppError
+			if goerrors.As(err, &appErr) {
+				if appErr.Code == errors.NotFoundCode {
+					return nil, nil
+				}
+
+				return nil, errors.Wrap(err, "buildBudgetResponseItem")
+			}
 			return nil, errors.Wrap(err, "buildBudgetResponseItem")
 		}
 		status = buildBudgetRequestStatus(ctx, req.Status)

@@ -94,6 +94,9 @@ func (f *Field) BudgetRequestsDetailsField() *graphql.Field {
 			"budget_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
 			},
+			"unit_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
 		},
 		Resolve: f.Resolvers.BudgetRequestsDetailsResolver,
 	}
@@ -144,6 +147,9 @@ func (f *Field) BudgetOverviewField() *graphql.Field {
 				Type: graphql.Int,
 			},
 			"budget_type": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"unit_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
 		},

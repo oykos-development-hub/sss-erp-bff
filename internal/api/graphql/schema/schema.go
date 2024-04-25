@@ -171,6 +171,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"paymentOrder_Delete":                             fields.PaymentOrderDeleteField(),
 			"enforcedPayment_Insert":                          fields.EnforcedPaymentInsertField(),
 			"modelsOfAccounting_Update":                       fields.ModelsOfAccountingUpdateField(),
+			"buildAccountingOrderForObligations":              fields.BuildAccountingOrderForObligationsField(),
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{

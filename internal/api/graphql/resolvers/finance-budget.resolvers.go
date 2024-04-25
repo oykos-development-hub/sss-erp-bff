@@ -724,16 +724,16 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 
 func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (interface{}, error) {
 	budgetID := params.Args["budget_id"].(int)
-	unitID := params.Args["unit_id"].(int)
+	unitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 
-	financialDetails, err := r.GetFinancialBudgetDetails(params.Context, budgetID, unitID, false)
+	financialDetails, err := r.GetFinancialBudgetDetails(params.Context, budgetID, *unitID, false)
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting financial details"))
 	}
 
 	nonFinancialRequestType := structs.RequestTypeNonFinancial
 	nonFinancialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
-		OrganizationUnitID: &unitID,
+		OrganizationUnitID: unitID,
 		BudgetID:           &budgetID,
 		RequestType:        &nonFinancialRequestType,
 	})

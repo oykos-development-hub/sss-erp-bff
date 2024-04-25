@@ -17,7 +17,7 @@ func (repo *MicroserviceRepository) GetAllObligationsForAccounting(input dto.Obl
 
 func (repo *MicroserviceRepository) BuildAccountingOrderForObligations(data structs.AccountingOrderForObligationsData) (*dto.AccountingOrderForObligations, error) {
 	res := &dto.GetAccountingOrderForObligations{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetObligationsForAccounting, data, res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.BuildAccountingOrderForObligations, data, res)
 	if err != nil {
 		return nil, err
 	}

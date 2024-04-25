@@ -102,10 +102,10 @@ var AccountingOrderItemForObligationsType = graphql.NewObject(graphql.ObjectConf
 			Type: graphql.String,
 		},
 		"invoice": &graphql.Field{
-			Type: InvoiceType,
+			Type: DropdownItemType,
 		},
 		"salary": &graphql.Field{
-			Type: SalaryType,
+			Type: DropdownItemType,
 		},
 	},
 })

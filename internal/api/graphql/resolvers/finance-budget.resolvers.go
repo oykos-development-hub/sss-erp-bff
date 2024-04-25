@@ -88,7 +88,7 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 	var status dto.DropdownSimple
 
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	if loggedInUser.RoleID == structs.UserRoleOfficialForFinanceBudget {
+	if loggedInUser.RoleID == structs.UserRoleManagerOJ {
 		unitID, _ := ctx.Value(config.OrganizationUnitIDKey).(*int)
 		generalRequestType := structs.RequestTypeGeneral
 		req, err := r.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{

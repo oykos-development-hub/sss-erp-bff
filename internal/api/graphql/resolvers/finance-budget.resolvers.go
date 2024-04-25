@@ -85,15 +85,34 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 		return nil, err
 	}
 
+	var status dto.DropdownSimple
+
+	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	if loggedInUser.RoleID == structs.UserRoleOfficialForFinanceBudget {
+		unitID, _ := ctx.Value(config.OrganizationUnitIDKey).(*int)
+		generalRequestType := structs.RequestTypeGeneral
+		req, err := r.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+			OrganizationUnitID: unitID,
+			BudgetID:           &budget.ID,
+			RequestType:        &generalRequestType,
+		})
+		if err != nil {
+			return nil, errors.Wrap(err, "buildBudgetResponseItem")
+		}
+		status = buildBudgetRequestStatus(ctx, req.Status)
+	} else {
+		status = dto.DropdownSimple{
+			ID:    int(budget.Status),
+			Title: string(dto.GetBudgetStatus(budget.Status)),
+		}
+	}
+
 	item := &dto.BudgetResponseItem{
 		ID:         budget.ID,
 		Year:       budget.Year,
 		BudgetType: budget.BudgetType,
-		Status: dto.DropdownSimple{
-			ID:    int(budget.Status),
-			Title: string(dto.GetBudgetStatus(budget.Status)),
-		},
-		Limits: limits,
+		Status:     status,
+		Limits:     limits,
 	}
 
 	return item, nil

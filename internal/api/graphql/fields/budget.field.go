@@ -149,6 +149,9 @@ func (f *Field) BudgetOverviewField() *graphql.Field {
 			"budget_type": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"unit_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 		},
 		Resolve: f.Resolvers.BudgetOverviewResolver,
 	}

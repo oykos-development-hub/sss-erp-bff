@@ -92,7 +92,6 @@ func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.Res
 
 func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObligations, r *Resolver) (*dto.AccountingOrderItemsForObligationsResponse, error) {
 	response := dto.AccountingOrderItemsForObligationsResponse{
-		Title:        item.Title,
 		CreditAmount: item.CreditAmount,
 		DebitAmount:  item.DebitAmount,
 		Type:         item.Type,
@@ -113,6 +112,21 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 		}
 
 		response.Account = dropdown
+	}
+
+	if item.SupplierID != 0 {
+		value, err := r.Repo.GetSupplier(item.SupplierID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: value.Title,
+		}
+
+		response.Title = dropdown.Title
 	}
 
 	return &response, nil

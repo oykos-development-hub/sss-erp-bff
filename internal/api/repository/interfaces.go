@@ -476,4 +476,8 @@ type MicroserviceRepositoryInterface interface {
 	ReturnEnforcedPayment(input structs.EnforcedPayment) error
 
 	GetAllObligationsForAccounting(input dto.ObligationsFilter) ([]dto.ObligationForAccounting, int, error)
+
+	UpdateModelsOfAccounting(item *structs.ModelsOfAccounting) (*structs.ModelsOfAccounting, error)
+	GetModelsOfAccountingByID(id int) (*structs.ModelsOfAccounting, error)
+	GetModelsOfAccountingList(input dto.ModelsOfAccountingFilter) ([]structs.ModelsOfAccounting, int, error)
 }

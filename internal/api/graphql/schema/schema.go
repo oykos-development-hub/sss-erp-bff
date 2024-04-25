@@ -170,6 +170,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"paymentOrder_Insert":                             fields.PaymentOrderInsertField(),
 			"paymentOrder_Delete":                             fields.PaymentOrderDeleteField(),
 			"enforcedPayment_Insert":                          fields.EnforcedPaymentInsertField(),
+			"modelsOfAccounting_Update":                       fields.ModelsOfAccountingUpdateField(),
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -293,6 +294,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"payPaymentOrder":                                            fields.PayOrderField(),
 			"enforcedPayment_Overview":                                   fields.EnforcedPaymentOverviewField(),
 			"returnEnforcedPayment":                                      fields.ReturnEnforcedPaymentField(),
+			"modelsOfAccounting_Overview":                                fields.ModelsOfAccountingOverviewField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

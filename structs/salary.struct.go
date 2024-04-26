@@ -7,6 +7,7 @@ type Salary struct {
 	ActivityID               int                       `json:"activity_id"`
 	DebtorID                 int                       `json:"debtor_id"`
 	Month                    string                    `json:"month"`
+	Registred                bool                      `json:"registred"`
 	DateOfCalculation        time.Time                 `json:"date_of_calculation"`
 	Description              string                    `json:"description"`
 	OrganizationUnitID       int                       `json:"organization_unit_id"`

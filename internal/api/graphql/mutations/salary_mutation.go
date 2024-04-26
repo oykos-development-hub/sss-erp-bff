@@ -17,6 +17,9 @@ var SalaryMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"month": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"registred": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
 		"date_of_calculation": &graphql.InputObjectFieldConfig{
 			Type: graphql.DateTime,
 		},

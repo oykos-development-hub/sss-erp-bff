@@ -97,6 +97,7 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 		Type:         item.Type,
 		Salary:       item.Salary,
 		Invoice:      item.Invoice,
+		Title:        item.Title,
 	}
 
 	if item.AccountID != 0 {

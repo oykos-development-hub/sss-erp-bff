@@ -490,24 +490,34 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
 		}
 
-		financialReqType := structs.RequestTypeFinancial
-		budgetFinancialRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		generalRequest, err := r.Repo.GetBudgetRequest(*financialRequest.ParentID)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error getting parent financial request"))
+		}
+		generalRequest.Status = structs.BudgetRequestCompletedActualStatus
+		_, err = r.Repo.UpdateBudgetRequest(generalRequest)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
+		}
+
+		generallReqType := structs.RequestTypeGeneral
+		budgetGeneralRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
 			BudgetID:    &financialRequest.BudgetID,
-			RequestType: &financialReqType,
+			RequestType: &generallReqType,
 		})
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
 		}
 
-		allFinancialRequestsCompleted := true
-		for _, generalReq := range budgetFinancialRequests {
+		allGeneralRequestsCompleted := true
+		for _, generalReq := range budgetGeneralRequests {
 			if generalReq.Status != structs.BudgetRequestCompletedActualStatus {
-				allFinancialRequestsCompleted = false
+				allGeneralRequestsCompleted = false
 				break
 			}
 		}
 
-		if allFinancialRequestsCompleted {
+		if allGeneralRequestsCompleted {
 			budget, err := r.Repo.GetBudget(request.BudgetID)
 			if err != nil {
 				return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver"))

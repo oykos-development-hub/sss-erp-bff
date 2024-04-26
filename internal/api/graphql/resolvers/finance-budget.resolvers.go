@@ -356,22 +356,8 @@ func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (int
 		))
 	}
 
-	subRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
-		ParentID: &reqID,
-	})
-	if err != nil {
-		return errors.HandleAPPError(errors.Wrap(err, "BudgetSendOnReviewResolver"))
-	}
-
-	allFilled := true
-	for _, req := range subRequests {
-		if req.Status != structs.BudgetRequestFilledStatus {
-			allFilled = false
-			break
-		}
-	}
-	if !allFilled {
-		return errors.HandleAPPError(errors.NewBadRequestError("financial and non-financial requests are not filled"))
+	if req.Status != structs.BudgetRequestFilledStatus {
+		return errors.HandleAPPError(errors.NewBadRequestError("budget is not filled"))
 	}
 
 	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{

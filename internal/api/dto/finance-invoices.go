@@ -10,6 +10,7 @@ type InvoiceResponseItem struct {
 	PassedToInventory     bool                         `json:"passed_to_inventory"`
 	PassedToAccounting    bool                         `json:"passed_to_accounting"`
 	IsInvoice             bool                         `json:"is_invoice"`
+	Registred             bool                         `json:"registred"`
 	InvoiceNumber         string                       `json:"invoice_number"`
 	Issuer                string                       `json:"issuer"`
 	Type                  string                       `json:"type"`

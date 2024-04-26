@@ -23,6 +23,9 @@ var InvoiceMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"is_invoice": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
+		"registred": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
 		"type": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

@@ -1252,8 +1252,8 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 			}
 
 			response.Articles = append(response.Articles, *singleArticle)
-			response.NetPrice += singleArticle.NetPrice
-			response.VATPrice += singleArticle.VatPrice
+			response.NetPrice += singleArticle.NetPrice * float64(singleArticle.Amount)
+			response.VATPrice += singleArticle.VatPrice * float64(singleArticle.Amount)
 		}
 	}
 	for _, item := range invoice.AdditionalExpenses {

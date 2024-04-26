@@ -23,17 +23,14 @@ var AccountingOrderForObligationsMutation = graphql.NewInputObject(graphql.Input
 var AccountingEntryMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "AccountingEntryMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"date_of_booking": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"invoice_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(graphql.Int),
-		},
-		"salary_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(graphql.Int),
-		},
-		"organization_unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+		"items": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(AccountingEntryItemMutation),
 		},
 	},
 })
@@ -41,17 +38,26 @@ var AccountingEntryMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 var AccountingEntryItemMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "AccountingEntryItemMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
-		"date_of_booking": &graphql.InputObjectFieldConfig{
+		"title": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"type": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"invoice_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(graphql.Int),
+			Type: graphql.Int,
 		},
 		"salary_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewList(graphql.Int),
+			Type: graphql.Int,
 		},
-		"organization_unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+		"account_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"credit_amount": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"debit_amount": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
 		},
 	},
 })

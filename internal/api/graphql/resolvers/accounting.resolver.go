@@ -120,26 +120,6 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		input.Size = &value
 	}
 
-	if value, ok := params.Args["year"].(int); ok && value != 0 {
-		input.Year = &value
-	}
-
-	if value, ok := params.Args["search"].(string); ok && value != "" {
-		input.Search = &value
-	}
-
-	if value, ok := params.Args["status"].(string); ok && value != "" {
-		input.Status = &value
-	}
-
-	if value, ok := params.Args["registred"].(bool); ok {
-		input.Registred = &value
-	}
-
-	if value, ok := params.Args["supplier_id"].(int); ok && value != 0 {
-		input.SupplierID = &value
-	}
-
 	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
 		input.OrganizationUnitID = &value
 	} else {
@@ -219,7 +199,7 @@ func (r *Resolver) AccountingEntryDeleteResolver(params graphql.ResolveParams) (
 
 	err := r.Repo.DeleteAccountingEntry(itemID)
 	if err != nil {
-		fmt.Printf("Deleting fixed deposit failed because of this error - %s.\n", err)
+		fmt.Printf("Deleting accounting entry failed because of this error - %s.\n", err)
 		return dto.ResponseSingle{
 			Status: "failed",
 		}, nil
@@ -276,19 +256,13 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 
 func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.AccountingEntryResponse, error) {
 	response := dto.AccountingEntryResponse{
-		ID:              item.ID,
-		BankAccount:     item.BankAccount,
-		DateOfPayment:   item.DateOfPayment,
-		IDOfStatement:   item.IDOfStatement,
-		SAPID:           item.SAPID,
-		DateOfSAP:       item.DateOfSAP,
-		DateOfOrder:     item.DateOfOrder,
-		Amount:          item.Amount,
-		Status:          item.Status,
-		SourceOfFunding: item.SourceOfFunding,
-		Description:     item.Description,
-		CreatedAt:       item.CreatedAt,
-		UpdatedAt:       item.UpdatedAt,
+		ID:            item.ID,
+		Title:         item.Title,
+		DateOfBooking: item.DateOfBooking,
+		CreditAmount:  item.CreditAmount,
+		DebitAmount:   item.DebitAmount,
+		CreatedAt:     item.CreatedAt,
+		UpdatedAt:     item.UpdatedAt,
 	}
 
 	if item.OrganizationUnitID != 0 {
@@ -306,36 +280,6 @@ func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.Accou
 		response.OrganizationUnit = dropdown
 	}
 
-	if item.SupplierID != 0 {
-		value, err := r.Repo.GetSupplier(item.SupplierID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
-
-		response.Supplier = dropdown
-	}
-
-	if item.FileID != nil && *item.FileID != 0 {
-		file, err := r.Repo.GetFileByID(*item.FileID)
-
-		if err != nil {
-			return nil, err
-		}
-		fileDropdown := dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
-		}
-
-		response.File = fileDropdown
-	}
-
 	for _, orderItem := range item.Items {
 		builtItem, err := buildAccountingEntryItem(orderItem, r)
 
@@ -351,11 +295,59 @@ func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.Accou
 
 func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*dto.AccountingEntryItemResponse, error) {
 	response := dto.AccountingEntryItemResponse{
-		ID: item.ID,
+		ID:           item.ID,
+		Title:        item.Title,
+		EntryID:      item.EntryID,
+		CreditAmount: item.CreditAmount,
+		DebitAmount:  item.DebitAmount,
+		Type:         item.Type,
+		CreatedAt:    item.CreatedAt,
+		UpdatedAt:    item.UpdatedAt,
+	}
 
-		Amount:    item.Amount,
-		CreatedAt: item.CreatedAt,
-		UpdatedAt: item.UpdatedAt,
+	if item.AccountID != 0 {
+		value, err := r.Repo.GetAccountItemByID(item.AccountID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: value.Title,
+		}
+
+		response.Account = dropdown
+	}
+
+	if item.SalaryID != 0 {
+		value, err := r.Repo.GetSalaryByID(item.SalaryID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: value.Month,
+		}
+
+		response.Salary = dropdown
+	}
+
+	if item.InvoiceID != 0 {
+		value, err := r.Repo.GetInvoice(item.InvoiceID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: value.InvoiceNumber,
+		}
+
+		response.Invoice = dropdown
 	}
 
 	return &response, nil

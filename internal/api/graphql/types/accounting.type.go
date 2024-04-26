@@ -149,11 +149,14 @@ var AccountingEntryInsertType = graphql.NewObject(graphql.ObjectConfig{
 var AccountingEntryType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "AccountingEntryType",
 	Fields: graphql.Fields{
-		"account": &graphql.Field{
-			Type: DropdownItemType,
+		"id": &graphql.Field{
+			Type: graphql.Int,
 		},
 		"title": &graphql.Field{
 			Type: graphql.String,
+		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
 		},
 		"credit_amount": &graphql.Field{
 			Type: graphql.Float,
@@ -161,14 +164,11 @@ var AccountingEntryType = graphql.NewObject(graphql.ObjectConfig{
 		"debit_amount": &graphql.Field{
 			Type: graphql.Float,
 		},
-		"type": &graphql.Field{
+		"date_of_booking": &graphql.Field{
 			Type: graphql.String,
 		},
-		"invoice": &graphql.Field{
-			Type: DropdownItemType,
-		},
-		"salary": &graphql.Field{
-			Type: DropdownItemType,
+		"items": &graphql.Field{
+			Type: graphql.NewList(AccountingEntryItemType),
 		},
 	},
 })
@@ -176,6 +176,9 @@ var AccountingEntryType = graphql.NewObject(graphql.ObjectConfig{
 var AccountingEntryItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "AccountingEntryItemType",
 	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"account": &graphql.Field{
 			Type: DropdownItemType,
 		},

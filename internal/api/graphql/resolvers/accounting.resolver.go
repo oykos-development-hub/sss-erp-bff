@@ -1,10 +1,12 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	apierrors "bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -90,6 +92,145 @@ func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.Res
 	return response, nil
 }
 
+func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	if id, ok := params.Args["id"].(int); ok && id != 0 {
+		AccountingEntry, err := r.Repo.GetAccountingEntryByID(id)
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		res, err := buildAccountingEntry(*AccountingEntry, r)
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Items:   []*dto.AccountingEntryResponse{res},
+			Total:   1,
+		}, nil
+	}
+
+	input := dto.AccountingEntryFilter{}
+	if value, ok := params.Args["page"].(int); ok && value != 0 {
+		input.Page = &value
+	}
+
+	if value, ok := params.Args["size"].(int); ok && value != 0 {
+		input.Size = &value
+	}
+
+	if value, ok := params.Args["year"].(int); ok && value != 0 {
+		input.Year = &value
+	}
+
+	if value, ok := params.Args["search"].(string); ok && value != "" {
+		input.Search = &value
+	}
+
+	if value, ok := params.Args["status"].(string); ok && value != "" {
+		input.Status = &value
+	}
+
+	if value, ok := params.Args["registred"].(bool); ok {
+		input.Registred = &value
+	}
+
+	if value, ok := params.Args["supplier_id"].(int); ok && value != 0 {
+		input.SupplierID = &value
+	}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = &value
+	} else {
+		input.OrganizationUnitID, _ = params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	}
+
+	items, total, err := r.Repo.GetAccountingEntryList(input)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	var resItems []dto.AccountingEntryResponse
+	for _, item := range items {
+		resItem, err := buildAccountingEntry(item, r)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		resItems = append(resItems, *resItem)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   resItems,
+		Total:   total,
+	}, nil
+}
+
+func (r *Resolver) AccountingEntryInsertResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.AccountingEntry
+	response := dto.ResponseSingle{
+		Status:  "success",
+		Message: "You created this item!",
+	}
+
+	dataBytes, err := json.Marshal(params.Args["data"])
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+	err = json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	if data.OrganizationUnitID == 0 {
+
+		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitID == nil {
+			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		}
+
+		data.OrganizationUnitID = *organizationUnitID
+
+	}
+
+	var item *structs.AccountingEntry
+
+	item, err = r.Repo.CreateAccountingEntry(&data)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	singleItem, err := buildAccountingEntry(*item, r)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	response.Item = *singleItem
+
+	return response, nil
+}
+
+func (r *Resolver) AccountingEntryDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+
+	err := r.Repo.DeleteAccountingEntry(itemID)
+	if err != nil {
+		fmt.Printf("Deleting fixed deposit failed because of this error - %s.\n", err)
+		return dto.ResponseSingle{
+			Status: "failed",
+		}, nil
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
+	}, nil
+}
+
 func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObligations, r *Resolver) (*dto.AccountingOrderItemsForObligationsResponse, error) {
 	response := dto.AccountingOrderItemsForObligationsResponse{
 		CreditAmount: item.CreditAmount,
@@ -128,6 +269,93 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 		}
 
 		response.Title = dropdown.Title
+	}
+
+	return &response, nil
+}
+
+func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.AccountingEntryResponse, error) {
+	response := dto.AccountingEntryResponse{
+		ID:              item.ID,
+		BankAccount:     item.BankAccount,
+		DateOfPayment:   item.DateOfPayment,
+		IDOfStatement:   item.IDOfStatement,
+		SAPID:           item.SAPID,
+		DateOfSAP:       item.DateOfSAP,
+		DateOfOrder:     item.DateOfOrder,
+		Amount:          item.Amount,
+		Status:          item.Status,
+		SourceOfFunding: item.SourceOfFunding,
+		Description:     item.Description,
+		CreatedAt:       item.CreatedAt,
+		UpdatedAt:       item.UpdatedAt,
+	}
+
+	if item.OrganizationUnitID != 0 {
+		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: value.Title,
+		}
+
+		response.OrganizationUnit = dropdown
+	}
+
+	if item.SupplierID != 0 {
+		value, err := r.Repo.GetSupplier(item.SupplierID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: value.Title,
+		}
+
+		response.Supplier = dropdown
+	}
+
+	if item.FileID != nil && *item.FileID != 0 {
+		file, err := r.Repo.GetFileByID(*item.FileID)
+
+		if err != nil {
+			return nil, err
+		}
+		fileDropdown := dto.FileDropdownSimple{
+			ID:   file.ID,
+			Name: file.Name,
+			Type: *file.Type,
+		}
+
+		response.File = fileDropdown
+	}
+
+	for _, orderItem := range item.Items {
+		builtItem, err := buildAccountingEntryItem(orderItem, r)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.Items = append(response.Items, *builtItem)
+	}
+
+	return &response, nil
+}
+
+func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*dto.AccountingEntryItemResponse, error) {
+	response := dto.AccountingEntryItemResponse{
+		ID: item.ID,
+
+		Amount:    item.Amount,
+		CreatedAt: item.CreatedAt,
+		UpdatedAt: item.UpdatedAt,
 	}
 
 	return &response, nil

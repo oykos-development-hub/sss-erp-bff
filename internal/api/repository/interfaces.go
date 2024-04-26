@@ -481,4 +481,9 @@ type MicroserviceRepositoryInterface interface {
 	UpdateModelsOfAccounting(item *structs.ModelsOfAccounting) (*structs.ModelsOfAccounting, error)
 	GetModelsOfAccountingByID(id int) (*structs.ModelsOfAccounting, error)
 	GetModelsOfAccountingList(input dto.ModelsOfAccountingFilter) ([]structs.ModelsOfAccounting, int, error)
+
+	CreateAccountingEntry(item *structs.AccountingEntry) (*structs.AccountingEntry, error)
+	DeleteAccountingEntry(id int) error
+	GetAccountingEntryByID(id int) (*structs.AccountingEntry, error)
+	GetAccountingEntryList(input dto.AccountingEntryFilter) ([]structs.AccountingEntry, int, error)
 }

@@ -19,3 +19,39 @@ var AccountingOrderForObligationsMutation = graphql.NewInputObject(graphql.Input
 		},
 	},
 })
+
+var AccountingEntryMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "AccountingEntryMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"date_of_booking": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"invoice_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
+		"salary_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+	},
+})
+
+var AccountingEntryItemMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "AccountingEntryItemMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"date_of_booking": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"invoice_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
+		"salary_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+	},
+})

@@ -106,6 +106,7 @@ type FinanceMS struct {
 	ReturnEnforcedPayment              string
 	ModelsOfAccounting                 string
 	BuildAccountingOrderForObligations string
+	AccountingEntry                    string
 }
 
 type ProcurementMS struct {
@@ -400,6 +401,7 @@ func LoadDefaultConfig() (*Config, error) {
 				ReturnEnforcedPayment:              financeBase + "/return-enforced-payment",
 				ModelsOfAccounting:                 financeBase + "/models-of-accountings",
 				BuildAccountingOrderForObligations: financeBase + "/build-accounting-order-for-obligations",
+				AccountingEntry:                    financeBase + "/accounting-entries",
 			},
 		},
 		Frontend: FrontendConfig{

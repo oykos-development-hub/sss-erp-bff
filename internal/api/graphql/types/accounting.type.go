@@ -109,3 +109,93 @@ var AccountingOrderItemForObligationsType = graphql.NewObject(graphql.ObjectConf
 		},
 	},
 })
+
+var AccountingEntryOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AccountingEntryOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: AccountingEntryType,
+		},
+	},
+})
+
+var AccountingEntryInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AccountingEntryInsertType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: AccountingEntryType,
+		},
+	},
+})
+
+var AccountingEntryType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AccountingEntryType",
+	Fields: graphql.Fields{
+		"account": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"credit_amount": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"debit_amount": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"type": &graphql.Field{
+			Type: graphql.String,
+		},
+		"invoice": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"salary": &graphql.Field{
+			Type: DropdownItemType,
+		},
+	},
+})
+
+var AccountingEntryItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AccountingEntryItemType",
+	Fields: graphql.Fields{
+		"account": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"credit_amount": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"debit_amount": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"type": &graphql.Field{
+			Type: graphql.String,
+		},
+		"invoice": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"salary": &graphql.Field{
+			Type: DropdownItemType,
+		},
+	},
+})

@@ -172,6 +172,8 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"enforcedPayment_Insert":                          fields.EnforcedPaymentInsertField(),
 			"modelsOfAccounting_Update":                       fields.ModelsOfAccountingUpdateField(),
 			"buildAccountingOrderForObligations":              fields.BuildAccountingOrderForObligationsField(),
+			"accountingEntry_Insert":                          fields.AccountingEntryInsertField(),
+			"accountingEntry_Delete":                          fields.AccountingEntryDeleteField(),
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -296,6 +298,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"enforcedPayment_Overview":                                   fields.EnforcedPaymentOverviewField(),
 			"returnEnforcedPayment":                                      fields.ReturnEnforcedPaymentField(),
 			"modelsOfAccounting_Overview":                                fields.ModelsOfAccountingOverviewField(),
+			"accountingEntry_Overview":                                   fields.AccountingEntryOverviewField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

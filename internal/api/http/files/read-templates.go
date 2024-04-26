@@ -2066,6 +2066,7 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 
 					if strings.Contains(value, "Ukupno") {
 						typeOfInput = ""
+						additionalSalaryExpense.Type = ""
 					}
 
 				case 3:

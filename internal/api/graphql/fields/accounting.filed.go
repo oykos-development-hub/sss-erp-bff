@@ -42,13 +42,13 @@ func (f *Field) AccountingEntryOverviewField() *graphql.Field {
 				Type: graphql.Int,
 			},
 			"page": &graphql.ArgumentConfig{
-				Type: graphql.String,
+				Type: graphql.Int,
 			},
 			"size": &graphql.ArgumentConfig{
-				Type: graphql.String,
+				Type: graphql.Int,
 			},
 			"organization_unit_id": &graphql.ArgumentConfig{
-				Type: graphql.String,
+				Type: graphql.Int,
 			},
 		},
 		Resolve: f.Resolvers.AccountingEntryOverviewResolver,

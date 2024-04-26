@@ -45,6 +45,7 @@ type SalaryResponse struct {
 	ID                       int                                `json:"id"`
 	Activity                 DropdownSimple                     `json:"activity"`
 	Month                    string                             `json:"month"`
+	IsDeletable              bool                               `json:"is_deletable"`
 	Registred                bool                               `json:"registred"`
 	DateOfCalculation        time.Time                          `json:"date_of_calculation"`
 	Description              string                             `json:"description"`

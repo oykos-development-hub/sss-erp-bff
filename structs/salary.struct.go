@@ -5,6 +5,7 @@ import "time"
 type Salary struct {
 	ID                       int                       `json:"id"`
 	ActivityID               int                       `json:"activity_id"`
+	IsDeletable              bool                      `json:"is_deletable"`
 	DebtorID                 int                       `json:"debtor_id"`
 	Month                    string                    `json:"month"`
 	Registred                bool                      `json:"registred"`

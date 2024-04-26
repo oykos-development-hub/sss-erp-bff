@@ -68,6 +68,9 @@ var SalaryType = graphql.NewObject(graphql.ObjectConfig{
 		"registred": &graphql.Field{
 			Type: graphql.Boolean,
 		},
+		"is_deletable": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"number_of_employees": &graphql.Field{
 			Type: graphql.Int,
 		},

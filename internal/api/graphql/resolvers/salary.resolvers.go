@@ -152,6 +152,7 @@ func buildSalary(item structs.Salary, r *Resolver) (*dto.SalaryResponse, error) 
 	response := dto.SalaryResponse{
 		ID:                item.ID,
 		Month:             item.Month,
+		IsDeletable:       item.IsDeletable,
 		Registred:         item.Registred,
 		DateOfCalculation: item.DateOfCalculation,
 		Description:       item.Description,

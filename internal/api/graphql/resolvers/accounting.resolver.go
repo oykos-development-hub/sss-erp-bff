@@ -320,8 +320,8 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		response.Account = dropdown
 	}
 
-	if item.SalaryID != 0 {
-		value, err := r.Repo.GetSalaryByID(item.SalaryID)
+	if item.SalaryID != nil && *item.SalaryID != 0 {
+		value, err := r.Repo.GetSalaryByID(*item.SalaryID)
 
 		if err != nil {
 			return nil, err
@@ -335,8 +335,8 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		response.Salary = dropdown
 	}
 
-	if item.InvoiceID != 0 {
-		value, err := r.Repo.GetInvoice(item.InvoiceID)
+	if item.InvoiceID != nil && *item.InvoiceID != 0 {
+		value, err := r.Repo.GetInvoice(*item.InvoiceID)
 
 		if err != nil {
 			return nil, err

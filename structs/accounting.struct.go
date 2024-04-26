@@ -28,8 +28,8 @@ type AccountingEntryItems struct {
 	AccountID    int       `json:"account_id"`
 	CreditAmount float64   `json:"credit_amount"`
 	DebitAmount  float64   `json:"debit_amount"`
-	InvoiceID    int       `json:"invoice_id"`
-	SalaryID     int       `json:"salary_id"`
+	InvoiceID    *int      `json:"invoice_id"`
+	SalaryID     *int      `json:"salary_id"`
 	Type         string    `json:"type"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`

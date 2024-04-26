@@ -57,7 +57,7 @@ var AccountingOrderForObligationsOverviewType = graphql.NewObject(graphql.Object
 			Type: graphql.String,
 		},
 		"items": &graphql.Field{
-			Type: graphql.NewList(AccountingOrderForObligationsType),
+			Type: AccountingOrderForObligationsType,
 		},
 	},
 })

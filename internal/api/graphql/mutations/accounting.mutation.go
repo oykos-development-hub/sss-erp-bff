@@ -5,9 +5,6 @@ import "github.com/graphql-go/graphql"
 var AccountingOrderForObligationsMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "AccountingOrderForObligationsMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
-		"id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
-		},
 		"date_of_booking": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
@@ -16,6 +13,9 @@ var AccountingOrderForObligationsMutation = graphql.NewInputObject(graphql.Input
 		},
 		"salary_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(graphql.Int),
+		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 	},
 })

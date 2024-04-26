@@ -62,7 +62,7 @@ func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.Res
 		DebitAmount:   items.DebitAmount,
 	}
 
-	orgUnit, err := r.Repo.GetOrganizationUnitByID(items.OrganizationUnitID)
+	orgUnit, err := r.Repo.GetOrganizationUnitByID(data.OrganizationUnitID)
 
 	if err != nil {
 		return apierrors.HandleAPIError(err)

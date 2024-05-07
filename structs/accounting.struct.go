@@ -24,15 +24,16 @@ type AccountingEntry struct {
 }
 
 type AccountingEntryItems struct {
-	ID           int       `json:"id"`
-	Title        string    `json:"title"`
-	EntryID      int       `json:"entry_id"`
-	AccountID    int       `json:"account_id"`
-	CreditAmount float64   `json:"credit_amount"`
-	DebitAmount  float64   `json:"debit_amount"`
-	InvoiceID    *int      `json:"invoice_id"`
-	SalaryID     *int      `json:"salary_id"`
-	Type         string    `json:"type"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID             int       `json:"id"`
+	Title          string    `json:"title"`
+	EntryID        int       `json:"entry_id"`
+	AccountID      int       `json:"account_id"`
+	CreditAmount   float64   `json:"credit_amount"`
+	DebitAmount    float64   `json:"debit_amount"`
+	InvoiceID      *int      `json:"invoice_id"`
+	SalaryID       *int      `json:"salary_id"`
+	PaymentOrderID *int      `json:"payment_order_id"`
+	Type           string    `json:"type"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }

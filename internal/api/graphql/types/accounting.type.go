@@ -251,5 +251,8 @@ var AccountingEntryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"salary": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"payment_order": &graphql.Field{
+			Type: DropdownItemType,
+		},
 	},
 })

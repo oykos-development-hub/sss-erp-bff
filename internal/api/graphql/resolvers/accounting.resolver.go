@@ -404,5 +404,20 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		response.Invoice = dropdown
 	}
 
+	if item.PaymentOrderID != nil && *item.PaymentOrderID != 0 {
+		value, err := r.Repo.GetPaymentOrderByID(*item.PaymentOrderID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: *value.SAPID,
+		}
+
+		response.PaymentOrder = dropdown
+	}
+
 	return &response, nil
 }

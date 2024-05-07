@@ -103,6 +103,7 @@ type AccountingEntryItemResponse struct {
 	DebitAmount  float64        `json:"debit_amount"`
 	Invoice      DropdownSimple `json:"invoice"`
 	Salary       DropdownSimple `json:"salary"`
+	PaymentOrder DropdownSimple `json:"payment_order"`
 	Type         string         `json:"type"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`

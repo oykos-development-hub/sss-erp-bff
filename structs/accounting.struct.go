@@ -12,6 +12,7 @@ type AccountingOrderForObligationsData struct {
 type AccountingEntry struct {
 	ID                 int                    `json:"id"`
 	Title              string                 `json:"title"`
+	IDOfEntry          int                    `json:"id_of_entry"`
 	OrganizationUnitID int                    `json:"organization_unit_id"`
 	DateOfBooking      time.Time              `json:"date_of_booking"`
 	CreditAmount       float64                `json:"credit_amount"`

@@ -23,6 +23,19 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 		return apierrors.HandleAPIError(err)
 	}
 
+	for i := 0; i < len(items); i++ {
+		if items[i].SupplierID != nil && *items[i].SupplierID != 0 {
+			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
+
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			items[i].Supplier.ID = supplier.ID
+			items[i].Supplier.Title = supplier.Title
+		}
+	}
+
 	message := "Here's the list you asked for!"
 
 	if len(items) == 0 {

@@ -41,6 +41,12 @@ var ObligationsForAccountingType = graphql.NewObject(graphql.ObjectConfig{
 		"type": &graphql.Field{
 			Type: graphql.String,
 		},
+		"date": &graphql.Field{
+			Type: graphql.String,
+		},
+		"supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
 	},
 })
 

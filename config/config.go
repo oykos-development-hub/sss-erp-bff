@@ -102,6 +102,7 @@ type FinanceMS struct {
 	PayPaymentOrder                    string
 	GetObligation                      string
 	GetObligationsForAccounting        string
+	GetPaymentOrdersForAccounting      string
 	EnforcedPayment                    string
 	ReturnEnforcedPayment              string
 	ModelsOfAccounting                 string
@@ -397,6 +398,7 @@ func LoadDefaultConfig() (*Config, error) {
 				PayPaymentOrder:                    financeBase + "/pay-payment-order",
 				GetObligation:                      financeBase + "/get-all-obligations",
 				GetObligationsForAccounting:        financeBase + "/get-obligations-for-accounting",
+				GetPaymentOrdersForAccounting:      financeBase + "/get-payment-orders-for-accounting",
 				EnforcedPayment:                    financeBase + "/enforced-payments",
 				ReturnEnforcedPayment:              financeBase + "/return-enforced-payment",
 				ModelsOfAccounting:                 financeBase + "/models-of-accountings",

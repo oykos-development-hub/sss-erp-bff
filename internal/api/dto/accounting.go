@@ -18,9 +18,24 @@ type ObligationForAccounting struct {
 	CreatedAt  time.Time      `json:"created_at"`
 }
 
+type PaymentOrdersForAccounting struct {
+	PaymentOrderID int            `json:"payment_order_id"`
+	SupplierID     *int           `json:"supplier_id"`
+	Supplier       DropdownSimple `json:"supplier"`
+	Date           time.Time      `json:"date"`
+	Title          string         `json:"title"`
+	Price          float64        `json:"price"`
+	CreatedAt      time.Time      `json:"created_at"`
+}
+
 type GetObligationsForAccountingResponseMS struct {
 	Data  []ObligationForAccounting `json:"data"`
 	Total int                       `json:"total"`
+}
+
+type GetPaymentOrdersForAccountingResponseMS struct {
+	Data  []PaymentOrdersForAccounting `json:"data"`
+	Total int                          `json:"total"`
 }
 
 type GetAccountingOrderForObligations struct {

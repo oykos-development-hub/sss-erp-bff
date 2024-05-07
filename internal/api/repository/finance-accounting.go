@@ -16,6 +16,16 @@ func (repo *MicroserviceRepository) GetAllObligationsForAccounting(input dto.Obl
 	return res.Data, res.Total, nil
 }
 
+func (repo *MicroserviceRepository) GetAllPaymentOrdersForAccounting(input dto.ObligationsFilter) ([]dto.PaymentOrdersForAccounting, int, error) {
+	res := &dto.GetPaymentOrdersForAccountingResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetPaymentOrdersForAccounting, input, res)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return res.Data, res.Total, nil
+}
+
 func (repo *MicroserviceRepository) BuildAccountingOrderForObligations(data structs.AccountingOrderForObligationsData) (*dto.AccountingOrderForObligations, error) {
 	res := &dto.GetAccountingOrderForObligations{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.BuildAccountingOrderForObligations, data, res)

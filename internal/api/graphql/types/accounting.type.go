@@ -50,6 +50,45 @@ var ObligationsForAccountingType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var PaymentOrdersForAccountingOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "PaymentOrdersForAccountingOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(PaymentOrdersForAccountingType),
+		},
+	},
+})
+
+var PaymentOrdersForAccountingType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "PaymentOrdersForAccountingType",
+	Fields: graphql.Fields{
+		"payment_order_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"price": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"date": &graphql.Field{
+			Type: graphql.String,
+		},
+		"supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
+	},
+})
+
 var AccountingOrderForObligationsOverviewType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "AccountingOrderForObligationsOverviewType",
 	Fields: graphql.Fields{

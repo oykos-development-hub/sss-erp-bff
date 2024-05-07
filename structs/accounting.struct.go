@@ -5,6 +5,7 @@ import "time"
 type AccountingOrderForObligationsData struct {
 	InvoiceID          []int     `json:"invoice_id"`
 	SalaryID           []int     `json:"salary_id"`
+	PaymentOrderID     []int     `json:"payment_order_id"`
 	DateOfBooking      time.Time `json:"date_of_booking"`
 	OrganizationUnitID int       `json:"organization_unit_id"`
 }

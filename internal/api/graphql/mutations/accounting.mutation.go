@@ -14,6 +14,9 @@ var AccountingOrderForObligationsMutation = graphql.NewInputObject(graphql.Input
 		"salary_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(graphql.Int),
 		},
+		"payment_order_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
 		"organization_unit_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},

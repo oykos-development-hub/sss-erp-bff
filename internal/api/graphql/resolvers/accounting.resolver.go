@@ -270,6 +270,7 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 		Type:         item.Type,
 		Salary:       item.Salary,
 		Invoice:      item.Invoice,
+		PaymentOrder: item.PaymentOrder,
 		Title:        item.Title,
 	}
 

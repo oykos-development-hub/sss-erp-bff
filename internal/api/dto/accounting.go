@@ -59,6 +59,7 @@ type AccountingOrderItemsForObligations struct {
 	SupplierID   int            `json:"supplier_id"`
 	Invoice      DropdownSimple `json:"invoice"`
 	Salary       DropdownSimple `json:"salary"`
+	PaymentOrder DropdownSimple `json:"payment_order"`
 }
 
 type AccountingOrderForObligationsResponse struct {
@@ -77,6 +78,7 @@ type AccountingOrderItemsForObligationsResponse struct {
 	Type         string         `json:"type"`
 	Invoice      DropdownSimple `json:"invoice"`
 	Salary       DropdownSimple `json:"salary"`
+	PaymentOrder DropdownSimple `json:"payment_order"`
 }
 
 type AccountingEntryResponse struct {

@@ -178,6 +178,10 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		input.OrganizationUnitID, _ = params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	}
 
+	if value, ok := params.Args["type"].(string); ok && value != "" {
+		input.Type = &value
+	}
+
 	items, total, err := r.Repo.GetAccountingEntryList(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)

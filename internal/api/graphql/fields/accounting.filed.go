@@ -63,6 +63,9 @@ func (f *Field) AccountingEntryOverviewField() *graphql.Field {
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"type": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
 		},
 		Resolve: f.Resolvers.AccountingEntryOverviewResolver,
 	}

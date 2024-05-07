@@ -110,9 +110,10 @@ type AccountingEntryItemResponse struct {
 }
 
 type AccountingEntryFilter struct {
-	Page               *int `json:"page"`
-	Size               *int `json:"size"`
-	OrganizationUnitID *int `json:"organization_unit_id"`
+	Page               *int    `json:"page"`
+	Size               *int    `json:"size"`
+	OrganizationUnitID *int    `json:"organization_unit_id"`
+	Type               *string `json:"type"`
 }
 
 type GetAccountingEntryResponseMS struct {

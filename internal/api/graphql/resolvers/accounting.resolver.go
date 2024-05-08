@@ -18,6 +18,10 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 		input.OrganizationUnitID = value
 	}
 
+	if value, ok := params.Args["type"].(string); ok && value != "" {
+		input.Type = &value
+	}
+
 	items, total, err := r.Repo.GetAllObligationsForAccounting(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
@@ -58,6 +62,10 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 
 	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
 		input.OrganizationUnitID = value
+	}
+
+	if value, ok := params.Args["search"].(string); ok && value != "" {
+		input.Search = &value
 	}
 
 	items, total, err := r.Repo.GetAllPaymentOrdersForAccounting(input)
@@ -104,10 +112,6 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 
 	if value, ok := params.Args["search"].(string); ok && value != "" {
 		input.Search = &value
-	}
-
-	if value, ok := params.Args["type"].(string); ok && value != "" {
-		input.Type = &value
 	}
 
 	items, total, err := r.Repo.GetAllEnforcedPaymentsForAccounting(input)

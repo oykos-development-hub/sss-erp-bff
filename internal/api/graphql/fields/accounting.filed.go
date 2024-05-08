@@ -34,6 +34,9 @@ func (f *Field) GetPaymentOrdersForAccounting() *graphql.Field {
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
 			},
+			"search": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
 		},
 		Resolve: f.Resolvers.GetPaymentOrdersForAccountingResolver,
 	}
@@ -46,6 +49,9 @@ func (f *Field) GetEnforcedPaymentsForAccounting() *graphql.Field {
 		Args: graphql.FieldConfigArgument{
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"search": &graphql.ArgumentConfig{
+				Type: graphql.String,
 			},
 		},
 		Resolve: f.Resolvers.GetEnforcedPaymentsForAccountingResolver,

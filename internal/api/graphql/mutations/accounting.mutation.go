@@ -62,6 +62,12 @@ var AccountingEntryItemMutation = graphql.NewInputObject(graphql.InputObjectConf
 		"payment_order_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"enforced_payment_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"return_enforced_payment_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"account_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

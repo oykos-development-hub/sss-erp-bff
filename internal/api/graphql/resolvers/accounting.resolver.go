@@ -22,6 +22,10 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 		input.Type = &value
 	}
 
+	if value, ok := params.Args["search"].(string); ok && value != "" {
+		input.Search = &value
+	}
+
 	items, total, err := r.Repo.GetAllObligationsForAccounting(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)

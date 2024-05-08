@@ -23,6 +23,9 @@ var ObligationsForAccountingOverviewType = graphql.NewObject(graphql.ObjectConfi
 var ObligationsForAccountingType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "ObligationsForAccountingType",
 	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"invoice_id": &graphql.Field{
 			Type: graphql.Int,
 		},
@@ -71,6 +74,9 @@ var PaymentOrdersForAccountingOverviewType = graphql.NewObject(graphql.ObjectCon
 var PaymentOrdersForAccountingType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "PaymentOrdersForAccountingType",
 	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"payment_order_id": &graphql.Field{
 			Type: graphql.Int,
 		},

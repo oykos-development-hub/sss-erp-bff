@@ -6,6 +6,7 @@ import (
 )
 
 type ObligationForAccounting struct {
+	ID         int            `json:"id"`
 	InvoiceID  *int           `json:"invoice_id"`
 	SalaryID   *int           `json:"salary_id"`
 	Type       string         `json:"type"`
@@ -19,6 +20,7 @@ type ObligationForAccounting struct {
 }
 
 type PaymentOrdersForAccounting struct {
+	ID             int            `json:"id"`
 	PaymentOrderID int            `json:"payment_order_id"`
 	SupplierID     *int           `json:"supplier_id"`
 	Supplier       DropdownSimple `json:"supplier"`

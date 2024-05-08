@@ -36,7 +36,7 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 		}
 
 		//id ne znaci nista, znaci samo kolegama sa fe, jer imaju felericnu tabelu
-		items[i].ID = i
+		items[i].ID = i + 1
 	}
 
 	message := "Here's the list you asked for!"
@@ -77,7 +77,7 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 			items[i].Supplier.Title = supplier.Title
 
 			//zbog fronta dodato
-			items[i].ID = i
+			items[i].ID = i + 1
 		}
 	}
 
@@ -119,7 +119,7 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 			items[i].Supplier.Title = supplier.Title
 
 			//zbog fronta dodato
-			items[i].ID = i
+			items[i].ID = i + 1
 		}
 	}
 

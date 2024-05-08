@@ -33,6 +33,19 @@ func (f *Field) GetPaymentOrdersForAccounting() *graphql.Field {
 	}
 }
 
+func (f *Field) GetEnforcedPaymentsForAccounting() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.PaymentOrdersForAccountingOverviewType,
+		Description: "Returns a data of fixed deposits",
+		Args: graphql.FieldConfigArgument{
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.GetEnforcedPaymentsForAccountingResolver,
+	}
+}
+
 func (f *Field) BuildAccountingOrderForObligationsField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.AccountingOrderForObligationsOverviewType,

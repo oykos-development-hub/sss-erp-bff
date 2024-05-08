@@ -477,6 +477,7 @@ type MicroserviceRepositoryInterface interface {
 
 	GetAllObligationsForAccounting(input dto.ObligationsFilter) ([]dto.ObligationForAccounting, int, error)
 	GetAllPaymentOrdersForAccounting(input dto.ObligationsFilter) ([]dto.PaymentOrdersForAccounting, int, error)
+	GetAllEnforcedPaymentsForAccounting(input dto.ObligationsFilter) ([]dto.PaymentOrdersForAccounting, int, error)
 	BuildAccountingOrderForObligations(data structs.AccountingOrderForObligationsData) (*dto.AccountingOrderForObligations, error)
 
 	UpdateModelsOfAccounting(item *structs.ModelsOfAccounting) (*structs.ModelsOfAccounting, error)

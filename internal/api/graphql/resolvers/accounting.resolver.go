@@ -89,6 +89,45 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 	}, nil
 }
 
+func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.ResolveParams) (interface{}, error) {
+	input := dto.ObligationsFilter{}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = value
+	}
+
+	items, total, err := r.Repo.GetAllEnforcedPaymentsForAccounting(input)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	for i := 0; i < len(items); i++ {
+		if items[i].SupplierID != nil && *items[i].SupplierID != 0 {
+			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
+
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			items[i].Supplier.ID = supplier.ID
+			items[i].Supplier.Title = supplier.Title
+		}
+	}
+
+	message := "Here's the list you asked for!"
+
+	if len(items) == 0 {
+		message = "There aren't items!"
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: message,
+		Items:   items,
+		Total:   total,
+	}, nil
+}
+
 func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.AccountingOrderForObligationsData
 	response := dto.Response{

@@ -153,6 +153,52 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 	}, nil
 }
 
+func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graphql.ResolveParams) (interface{}, error) {
+	input := dto.ObligationsFilter{}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = value
+	}
+
+	if value, ok := params.Args["search"].(string); ok && value != "" {
+		input.Search = &value
+	}
+
+	items, total, err := r.Repo.GetAllReturnedEnforcedPaymentsForAccounting(input)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	for i := 0; i < len(items); i++ {
+		if items[i].SupplierID != nil && *items[i].SupplierID != 0 {
+			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
+
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			items[i].Supplier.ID = supplier.ID
+			items[i].Supplier.Title = supplier.Title
+
+			//zbog fronta dodato
+			items[i].ID = i + 1
+		}
+	}
+
+	message := "Here's the list you asked for!"
+
+	if len(items) == 0 {
+		message = "There aren't items!"
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: message,
+		Items:   items,
+		Total:   total,
+	}, nil
+}
+
 func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.AccountingOrderForObligationsData
 	response := dto.Response{

@@ -102,6 +102,14 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 		input.OrganizationUnitID = value
 	}
 
+	if value, ok := params.Args["search"].(string); ok && value != "" {
+		input.Search = &value
+	}
+
+	if value, ok := params.Args["type"].(string); ok && value != "" {
+		input.Type = &value
+	}
+
 	items, total, err := r.Repo.GetAllEnforcedPaymentsForAccounting(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)

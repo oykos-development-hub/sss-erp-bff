@@ -42,6 +42,7 @@ type ObligationsFilter struct {
 	Size               *int    `json:"size"`
 	OrganizationUnitID int     `json:"organization_unit_id"`
 	SupplierID         int     `json:"supplier_id"`
+	Search             *string `json:"search"`
 	Type               *string `json:"type"`
 }
 

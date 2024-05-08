@@ -308,13 +308,15 @@ func (r *Resolver) AccountingEntryDeleteResolver(params graphql.ResolveParams) (
 
 func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObligations, r *Resolver) (*dto.AccountingOrderItemsForObligationsResponse, error) {
 	response := dto.AccountingOrderItemsForObligationsResponse{
-		CreditAmount: item.CreditAmount,
-		DebitAmount:  item.DebitAmount,
-		Type:         item.Type,
-		Salary:       item.Salary,
-		Invoice:      item.Invoice,
-		PaymentOrder: item.PaymentOrder,
-		Title:        item.Title,
+		CreditAmount:          item.CreditAmount,
+		DebitAmount:           item.DebitAmount,
+		Type:                  item.Type,
+		Salary:                item.Salary,
+		Invoice:               item.Invoice,
+		PaymentOrder:          item.PaymentOrder,
+		EnforcedPayment:       item.EnforcedPayment,
+		ReturnEnforcedPayment: item.ReturnEnforcedPayment,
+		Title:                 item.Title,
 	}
 
 	if item.AccountID != 0 {

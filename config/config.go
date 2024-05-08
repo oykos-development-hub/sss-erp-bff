@@ -402,7 +402,7 @@ func LoadDefaultConfig() (*Config, error) {
 				GetObligationsForAccounting:              financeBase + "/get-obligations-for-accounting",
 				GetPaymentOrdersForAccounting:            financeBase + "/get-payment-orders-for-accounting",
 				GetEnforcedPaymentsForAccounting:         financeBase + "/get-enforced-payments-for-accounting",
-				GetReturnedEnforcedPaymentsForAccounting: financeBase + "get-returned-enforced-payments-for-accounting",
+				GetReturnedEnforcedPaymentsForAccounting: financeBase + "/get-returned-enforced-payments-for-accounting",
 				EnforcedPayment:                          financeBase + "/enforced-payments",
 				ReturnEnforcedPayment:                    financeBase + "/return-enforced-payment",
 				ModelsOfAccounting:                       financeBase + "/models-of-accountings",

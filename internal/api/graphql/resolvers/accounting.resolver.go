@@ -462,5 +462,35 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		response.PaymentOrder = dropdown
 	}
 
+	if item.EnforcedPaymentID != nil && *item.EnforcedPaymentID != 0 {
+		value, err := r.Repo.GetEnforcedPaymentByID(*item.EnforcedPaymentID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: *value.SAPID,
+		}
+
+		response.EnforcedPayment = dropdown
+	}
+
+	if item.ReturnEnforcedPaymentID != nil && *item.ReturnEnforcedPaymentID != 0 {
+		value, err := r.Repo.GetEnforcedPaymentByID(*item.ReturnEnforcedPaymentID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: *value.SAPID,
+		}
+
+		response.ReturnEnforcedPayment = dropdown
+	}
+
 	return &response, nil
 }

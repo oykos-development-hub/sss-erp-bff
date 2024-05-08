@@ -155,6 +155,12 @@ var AccountingOrderItemForObligationsType = graphql.NewObject(graphql.ObjectConf
 		"payment_order": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"enforced_payment": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"return_enforced_payment": &graphql.Field{
+			Type: DropdownItemType,
+		},
 	},
 })
 

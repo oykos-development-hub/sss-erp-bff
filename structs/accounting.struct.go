@@ -3,11 +3,13 @@ package structs
 import "time"
 
 type AccountingOrderForObligationsData struct {
-	InvoiceID          []int     `json:"invoice_id"`
-	SalaryID           []int     `json:"salary_id"`
-	PaymentOrderID     []int     `json:"payment_order_id"`
-	DateOfBooking      time.Time `json:"date_of_booking"`
-	OrganizationUnitID int       `json:"organization_unit_id"`
+	InvoiceID               []int     `json:"invoice_id"`
+	SalaryID                []int     `json:"salary_id"`
+	PaymentOrderID          []int     `json:"payment_order_id"`
+	EnforcedPaymentID       []int     `json:"enforced_payment_id"`
+	ReturnEnforcedPaymentID []int     `json:"return_enforced_payment_id"`
+	DateOfBooking           time.Time `json:"date_of_booking"`
+	OrganizationUnitID      int       `json:"organization_unit_id"`
 }
 
 type AccountingEntry struct {
@@ -24,16 +26,18 @@ type AccountingEntry struct {
 }
 
 type AccountingEntryItems struct {
-	ID             int       `json:"id"`
-	Title          string    `json:"title"`
-	EntryID        int       `json:"entry_id"`
-	AccountID      int       `json:"account_id"`
-	CreditAmount   float64   `json:"credit_amount"`
-	DebitAmount    float64   `json:"debit_amount"`
-	InvoiceID      *int      `json:"invoice_id"`
-	SalaryID       *int      `json:"salary_id"`
-	PaymentOrderID *int      `json:"payment_order_id"`
-	Type           string    `json:"type"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID                      int       `json:"id"`
+	Title                   string    `json:"title"`
+	EntryID                 int       `json:"entry_id"`
+	AccountID               int       `json:"account_id"`
+	CreditAmount            float64   `json:"credit_amount"`
+	DebitAmount             float64   `json:"debit_amount"`
+	InvoiceID               *int      `json:"invoice_id"`
+	SalaryID                *int      `json:"salary_id"`
+	EnforcedPaymentID       *int      `json:"enforced_payment_id"`
+	ReturnEnforcedPaymentID *int      `json:"return_enforced_payment_id"`
+	PaymentOrderID          *int      `json:"payment_order_id"`
+	Type                    string    `json:"type"`
+	CreatedAt               time.Time `json:"created_at"`
+	UpdatedAt               time.Time `json:"updated_at"`
 }

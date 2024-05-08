@@ -95,18 +95,20 @@ type AccountingEntryResponse struct {
 }
 
 type AccountingEntryItemResponse struct {
-	ID           int            `json:"id"`
-	Title        string         `json:"title"`
-	EntryID      int            `json:"entry_id"`
-	Account      DropdownSimple `json:"account"`
-	CreditAmount float64        `json:"credit_amount"`
-	DebitAmount  float64        `json:"debit_amount"`
-	Invoice      DropdownSimple `json:"invoice"`
-	Salary       DropdownSimple `json:"salary"`
-	PaymentOrder DropdownSimple `json:"payment_order"`
-	Type         string         `json:"type"`
-	CreatedAt    time.Time      `json:"created_at"`
-	UpdatedAt    time.Time      `json:"updated_at"`
+	ID                    int            `json:"id"`
+	Title                 string         `json:"title"`
+	EntryID               int            `json:"entry_id"`
+	Account               DropdownSimple `json:"account"`
+	CreditAmount          float64        `json:"credit_amount"`
+	DebitAmount           float64        `json:"debit_amount"`
+	Invoice               DropdownSimple `json:"invoice"`
+	Salary                DropdownSimple `json:"salary"`
+	PaymentOrder          DropdownSimple `json:"payment_order"`
+	EnforcedPayment       DropdownSimple `json:"enforced_payment"`
+	ReturnEnforcedPayment DropdownSimple `json:"return_enforced_payment"`
+	Type                  string         `json:"type"`
+	CreatedAt             time.Time      `json:"created_at"`
+	UpdatedAt             time.Time      `json:"updated_at"`
 }
 
 type AccountingEntryFilter struct {

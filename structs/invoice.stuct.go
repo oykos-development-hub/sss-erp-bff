@@ -66,16 +66,31 @@ const (
 	AdditionalExpenseStatusPaid           AdditionalExpenseStatus = "Plaćen"
 )
 
+type AdditionalExpensesTitles string
+
+var (
+	NetTitle                                 AdditionalExpensesTitles = "Neto"
+	ObligationTaxTitle                       AdditionalExpensesTitles = "Porez"
+	ObligationSubTaxTitle                    AdditionalExpensesTitles = "Prirez"
+	LaborFundTitle                           AdditionalExpensesTitles = "Fond rada"
+	ContributionForPIOTitle                  AdditionalExpensesTitles = "PIO"
+	ContributionForPIOEmployeeTitle          AdditionalExpensesTitles = "PIO na teret zaposlenog"
+	ContributionForPIOEmployerTitle          AdditionalExpensesTitles = "PIO na teret poslodavca"
+	ContributionForUnemploymentTitle         AdditionalExpensesTitles = "Nezaposlenost"
+	ContributionForUnemploymentEmployeeTitle AdditionalExpensesTitles = "Nezaposlenost na teret zaposlenog"
+	ContributionForUnemploymentEmployerTitle AdditionalExpensesTitles = "Nezaposlenost na teret poslodavca"
+)
+
 type AdditionalExpenses struct {
-	ID                 int       `json:"id"`
-	Title              string    `json:"title"`
-	AccountID          int       `json:"account_id"`
-	Price              float32   `json:"price"`
-	SubjectID          int       `json:"subject_id"`
-	BankAccount        string    `json:"bank_account"`
-	InvoiceID          int       `json:"invoice_id"`
-	OrganizationUnitID int       `json:"organization_unit_id"`
-	Status             string    `json:"status"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
+	ID                 int                      `json:"id"`
+	Title              AdditionalExpensesTitles `json:"title"`
+	AccountID          int                      `json:"account_id"`
+	Price              float32                  `json:"price"`
+	SubjectID          int                      `json:"subject_id"`
+	BankAccount        string                   `json:"bank_account"`
+	InvoiceID          int                      `json:"invoice_id"`
+	OrganizationUnitID int                      `json:"organization_unit_id"`
+	Status             string                   `json:"status"`
+	CreatedAt          time.Time                `json:"created_at"`
+	UpdatedAt          time.Time                `json:"updated_at"`
 }

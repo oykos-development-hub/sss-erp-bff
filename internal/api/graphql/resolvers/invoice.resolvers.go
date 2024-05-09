@@ -675,7 +675,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
-			Title:  "Porez",
+			Title:  structs.ObligationTaxTitle,
 			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
@@ -733,7 +733,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		taxPrice = float64(helper)
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
-			Title:  "Porez",
+			Title:  structs.ObligationTaxTitle,
 			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
@@ -754,7 +754,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	subTaxPrice = float64(helper)
 
 	additionalExpenseTax := dto.AdditionalExpensesResponse{
-		Title:  "Prirez",
+		Title:  structs.ObligationSubTaxTitle,
 		Price:  float32(subTaxPrice),
 		Status: string(structs.AdditionalExpenseStatusCreated),
 		OrganizationUnit: dto.DropdownSimple{
@@ -783,7 +783,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
-			Title:  "Fond rada",
+			Title:  structs.LaborFundTitle,
 			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
@@ -813,7 +813,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
-			Title:  "PIO",
+			Title:  structs.ContributionForPIOTitle,
 			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
@@ -843,7 +843,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
-			Title:  "PIO na teret zaposlenog",
+			Title:  structs.ContributionForPIOEmployeeTitle,
 			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
@@ -873,7 +873,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
-			Title:  "PIO na teret poslodavca",
+			Title:  structs.ContributionForPIOEmployerTitle,
 			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
@@ -903,7 +903,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
-			Title:  "Nezaposlenost",
+			Title:  structs.ContributionForUnemploymentTitle,
 			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
@@ -933,7 +933,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
-			Title:  "Nezaposlenost na teret poslodavca",
+			Title:  structs.ContributionForUnemploymentEmployerTitle,
 			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
@@ -963,7 +963,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
-			Title:  "Nezaposlenost na teret zaposlenog",
+			Title:  structs.ContributionForUnemploymentEmployeeTitle,
 			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
@@ -982,7 +982,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	for _, item := range additionalExpenses {
 		//ako prirez ne ide na teret poslodavca, ili je nesto na teret poslodavca, ne pravi razliku izmedju bruto i neto
 		if /*(item.Title == "Prirez" && !taxAuthorityCodebook.IncludeSubtax) ||*/
-		(item.Title == "Nezaposlenost na teret poslodavca") || (item.Title == "PIO na teret poslodavca") || (item.Title == "Fond rada") {
+		(item.Title == structs.ContributionForUnemploymentEmployerTitle) || (item.Title == structs.ContributionForPIOEmployerTitle) ||
+			(item.Title == structs.LaborFundTitle) {
 			nonReleasedGrossPrice -= 0
 		} else {
 			nonReleasedGrossPrice -= float64(item.Price)
@@ -990,7 +991,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	}
 
 	additionalExpenseTax = dto.AdditionalExpensesResponse{
-		Title:  "Neto",
+		Title:  structs.NetTitle,
 		Price:  float32(nonReleasedGrossPrice),
 		Status: string(structs.AdditionalExpenseStatusCreated),
 		OrganizationUnit: dto.DropdownSimple{

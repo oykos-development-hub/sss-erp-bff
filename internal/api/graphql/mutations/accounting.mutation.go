@@ -72,10 +72,10 @@ var AccountingEntryItemMutation = graphql.NewInputObject(graphql.InputObjectConf
 			Type: graphql.Int,
 		},
 		"credit_amount": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 		"debit_amount": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.Float,
 		},
 	},
 })

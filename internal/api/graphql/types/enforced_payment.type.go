@@ -80,6 +80,9 @@ var EnforcedPaymentType = graphql.NewObject(graphql.ObjectConfig{
 		"return_date": &graphql.Field{
 			Type: graphql.String,
 		},
+		"return_amount": &graphql.Field{
+			Type: graphql.Float,
+		},
 		"sap_id": &graphql.Field{
 			Type: graphql.String,
 		},

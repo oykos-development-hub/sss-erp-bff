@@ -14,6 +14,7 @@ type EnforcedPaymentResponse struct {
 	DateOfOrder      *time.Time                    `json:"date_of_order"`
 	ReturnFile       FileDropdownSimple            `json:"return_file"`
 	ReturnDate       *time.Time                    `json:"return_date"`
+	ReturnAmount     *float64                      `json:"return_amount"`
 	IDOfStatement    *string                       `json:"id_of_statement"`
 	SAPID            *string                       `json:"sap_id"`
 	Description      string                        `json:"description"`

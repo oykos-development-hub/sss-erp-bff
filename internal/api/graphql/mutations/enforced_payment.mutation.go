@@ -59,6 +59,9 @@ var EnforcedPaymentMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"return_date": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"return_amount": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
 	},
 })
 

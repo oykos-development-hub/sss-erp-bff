@@ -15,6 +15,7 @@ type EnforcedPayment struct {
 	FileID             *int                   `json:"file_id"`
 	ReturnFileID       *int                   `json:"return_file_id"`
 	ReturnDate         *time.Time             `json:"return_date"`
+	ReturnAmount       *float64               `json:"return_amount"`
 	Items              []EnforcedPaymentItems `json:"items"`
 	Amount             float64                `json:"amount"`
 	AmountForLawyer    float64                `json:"amount_for_lawyer"`

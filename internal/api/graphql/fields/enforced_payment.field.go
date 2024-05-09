@@ -71,6 +71,9 @@ func (f *Field) ReturnEnforcedPaymentField() *graphql.Field {
 			"return_date": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.String),
 			},
+			"return_amount": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Float),
+			},
 		},
 		Resolve: f.Resolvers.ReturnEnforcedPaymentResolver,
 	}

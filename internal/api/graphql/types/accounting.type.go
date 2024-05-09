@@ -137,6 +137,9 @@ var AccountingOrderForObligationsType = graphql.NewObject(graphql.ObjectConfig{
 var AccountingOrderItemForObligationsType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "AccountingOrderItemForObligationsType",
 	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"account": &graphql.Field{
 			Type: DropdownItemType,
 		},

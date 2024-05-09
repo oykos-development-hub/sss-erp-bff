@@ -75,6 +75,7 @@ type AccountingOrderForObligationsResponse struct {
 }
 
 type AccountingOrderItemsForObligationsResponse struct {
+	ID                    int            `json:"id"`
 	Account               DropdownSimple `json:"account"`
 	Title                 string         `json:"title"`
 	CreditAmount          float32        `json:"credit_amount"`

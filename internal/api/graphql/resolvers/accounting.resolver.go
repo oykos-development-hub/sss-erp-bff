@@ -239,8 +239,11 @@ func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.Res
 
 	responseData.OrganizationUnit = dropdown
 
-	for _, item := range items.Items {
+	for id, item := range items.Items {
 		builtItem, err := buildAccountingOrderItemForObligations(item, r)
+
+		//za front i felericne tabele
+		builtItem.ID = id + 1
 
 		if err != nil {
 			return apierrors.HandleAPIError(err)

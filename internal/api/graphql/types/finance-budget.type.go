@@ -473,6 +473,9 @@ var BudgetRequestsDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"budget": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"request_id": &graphql.Field{
 			Type: graphql.Int,
 		},

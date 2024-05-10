@@ -252,6 +252,7 @@ type BudgetRequestOfficialOverview struct {
 }
 
 type BudgetRequestsDetails struct {
+	Budget                    DropdownSimple                   `json:"budget"`
 	Status                    DropdownSimple                   `json:"status"`
 	RequestID                 int                              `json:"request_id"`
 	FinancialBudgetDetails    *FinancialBudgetOverviewResponse `json:"financial"`

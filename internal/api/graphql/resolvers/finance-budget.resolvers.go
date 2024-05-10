@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	goerrors "errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -737,10 +738,19 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 		return errors.HandleAPPError(errors.Wrap(err, "Error getting general req data"))
 	}
 
+	budget, err := r.Repo.GetBudget(budgetID)
+	if err != nil {
+		return errors.HandleAPPError(errors.Wrap(err, "Error getting budget data"))
+	}
+
 	return dto.ResponseSingle{
 		Message: "Budget requests",
 		Status:  "success",
 		Item: &dto.BudgetRequestsDetails{
+			Budget: dto.DropdownSimple{
+				ID:    budget.ID,
+				Title: strconv.Itoa(budget.Year),
+			},
 			Status:                    buildBudgetRequestStatus(params.Context, generalRequest.Status),
 			RequestID:                 generalRequest.ID,
 			FinancialBudgetDetails:    financialDetails,

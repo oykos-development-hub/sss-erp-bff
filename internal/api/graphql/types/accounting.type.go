@@ -155,6 +155,9 @@ var AccountingOrderItemForObligationsType = graphql.NewObject(graphql.ObjectConf
 		"type": &graphql.Field{
 			Type: graphql.String,
 		},
+		"supplier_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"invoice": &graphql.Field{
 			Type: DropdownItemType,
 		},

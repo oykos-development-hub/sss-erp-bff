@@ -391,6 +391,7 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 		EnforcedPayment:       item.EnforcedPayment,
 		ReturnEnforcedPayment: item.ReturnEnforcedPayment,
 		Title:                 item.Title,
+		SupplierID:            item.SupplierID,
 	}
 
 	if item.AccountID != 0 {

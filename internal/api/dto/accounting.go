@@ -81,6 +81,7 @@ type AccountingOrderItemsForObligationsResponse struct {
 	CreditAmount          float32        `json:"credit_amount"`
 	DebitAmount           float32        `json:"debit_amount"`
 	Type                  string         `json:"type"`
+	SupplierID            int            `json:"supplier_id"`
 	Invoice               DropdownSimple `json:"invoice"`
 	Salary                DropdownSimple `json:"salary"`
 	PaymentOrder          DropdownSimple `json:"payment_order"`

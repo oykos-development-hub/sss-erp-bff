@@ -53,6 +53,9 @@ var AccountingEntryItemMutation = graphql.NewInputObject(graphql.InputObjectConf
 		"type": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"supplier_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"invoice_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

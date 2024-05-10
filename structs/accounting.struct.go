@@ -34,6 +34,7 @@ type AccountingEntryItems struct {
 	DebitAmount             float64   `json:"debit_amount"`
 	InvoiceID               *int      `json:"invoice_id"`
 	SalaryID                *int      `json:"salary_id"`
+	SupplierID              int       `json:"supplier_id"`
 	EnforcedPaymentID       *int      `json:"enforced_payment_id"`
 	ReturnEnforcedPaymentID *int      `json:"return_enforced_payment_id"`
 	PaymentOrderID          *int      `json:"payment_order_id"`

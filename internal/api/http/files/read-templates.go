@@ -2054,7 +2054,7 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 						additionalSalaryExpense.Type = "suspensions"
 					case "Prirezi":
 						additionalSalaryExpense.Type = "subtaxes"
-					case "Banke":
+					case "Banka":
 						additionalSalaryExpense.Type = "banks"
 					}
 

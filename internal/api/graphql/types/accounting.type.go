@@ -299,8 +299,8 @@ var AnalyticalCardOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(AnalyticalCardType),
+		"item": &graphql.Field{
+			Type: AnalyticalCardType,
 		},
 	},
 })
@@ -348,6 +348,9 @@ var AnalyticalCardItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Float,
 		},
 		"debit_amount": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"balance": &graphql.Field{
 			Type: graphql.Float,
 		},
 		"document_title": &graphql.Field{

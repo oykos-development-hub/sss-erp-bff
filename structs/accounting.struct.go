@@ -58,6 +58,7 @@ type AnalyticalCardItems struct {
 	Title          string    `json:"title"`
 	CreditAmount   float64   `json:"credit_amount"`
 	DebitAmount    float64   `json:"debit_amount"`
+	Balance        float64   `json:"balance"`
 	DateOfBooking  string    `json:"date_of_booking"`
 	Date           string    `json:"date"`
 	DocumentNumber string    `json:"document_number"`

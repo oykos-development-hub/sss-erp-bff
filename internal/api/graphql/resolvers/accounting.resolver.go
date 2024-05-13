@@ -414,9 +414,9 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		return apierrors.HandleAPIError(err)
 	}
 
-	return dto.Response{
+	return dto.ResponseSingle{
 		Status: "success",
-		Items:  items,
+		Item:   items,
 	}, nil
 }
 

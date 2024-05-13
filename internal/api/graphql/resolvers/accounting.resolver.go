@@ -390,6 +390,7 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 		PaymentOrder:          item.PaymentOrder,
 		EnforcedPayment:       item.EnforcedPayment,
 		ReturnEnforcedPayment: item.ReturnEnforcedPayment,
+		Date:                  item.Date,
 		Title:                 item.Title,
 		SupplierID:            item.SupplierID,
 	}

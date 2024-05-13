@@ -477,6 +477,7 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		CreditAmount: item.CreditAmount,
 		DebitAmount:  item.DebitAmount,
 		Type:         item.Type,
+		Date:         item.Date,
 		CreatedAt:    item.CreatedAt,
 		UpdatedAt:    item.UpdatedAt,
 	}

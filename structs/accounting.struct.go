@@ -39,6 +39,7 @@ type AccountingEntryItems struct {
 	ReturnEnforcedPaymentID *int      `json:"return_enforced_payment_id"`
 	PaymentOrderID          *int      `json:"payment_order_id"`
 	Type                    string    `json:"type"`
+	Date                    string    `json:"date"`
 	CreatedAt               time.Time `json:"created_at"`
 	UpdatedAt               time.Time `json:"updated_at"`
 }

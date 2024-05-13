@@ -114,6 +114,7 @@ type AccountingEntryItemResponse struct {
 	PaymentOrder          DropdownSimple `json:"payment_order"`
 	EnforcedPayment       DropdownSimple `json:"enforced_payment"`
 	ReturnEnforcedPayment DropdownSimple `json:"return_enforced_payment"`
+	Date                  string         `json:"date"`
 	Type                  string         `json:"type"`
 	CreatedAt             time.Time      `json:"created_at"`
 	UpdatedAt             time.Time      `json:"updated_at"`

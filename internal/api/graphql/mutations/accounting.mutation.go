@@ -50,6 +50,9 @@ var AccountingEntryItemMutation = graphql.NewInputObject(graphql.InputObjectConf
 		"title": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"date": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"type": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

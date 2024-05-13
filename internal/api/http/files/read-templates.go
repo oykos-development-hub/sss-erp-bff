@@ -2099,7 +2099,7 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 
 				}
 			}
-			if additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
+			if additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" && additionalSalaryExpense.Amount > 0 {
 				additionalSalaryExpense.OrganizationUnitID = organizationUnitID
 				additionalSalaryExpense.Status = "Kreiran"
 				response.Data = append(response.Data, additionalSalaryExpense)

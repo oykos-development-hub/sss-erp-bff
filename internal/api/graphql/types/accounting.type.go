@@ -146,6 +146,9 @@ var AccountingOrderItemForObligationsType = graphql.NewObject(graphql.ObjectConf
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},
+		"date": &graphql.Field{
+			Type: graphql.String,
+		},
 		"credit_amount": &graphql.Field{
 			Type: graphql.Float,
 		},

@@ -286,3 +286,72 @@ var AccountingEntryItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var AnalyticalCardOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AnalyticalCardOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(AnalyticalCardType),
+		},
+	},
+})
+
+var AnalyticalCardType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AnalyticalCardType",
+	Fields: graphql.Fields{
+		"initial_state": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"sum_debit_amount_in_period": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"sum_credit_amount_in_period": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"sum_debit_amount": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"sum_credit_amount": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(AnalyticalCardItemType),
+		},
+	},
+})
+
+var AnalyticalCardItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AnalyticalCardItemType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"date": &graphql.Field{
+			Type: graphql.String,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"date_of_booking": &graphql.Field{
+			Type: graphql.String,
+		},
+		"credit_amount": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"debit_amount": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"document_title": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})

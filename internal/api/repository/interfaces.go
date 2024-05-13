@@ -489,4 +489,6 @@ type MicroserviceRepositoryInterface interface {
 	DeleteAccountingEntry(id int) error
 	GetAccountingEntryByID(id int) (*structs.AccountingEntry, error)
 	GetAccountingEntryList(input dto.AccountingEntryFilter) ([]structs.AccountingEntry, int, error)
+
+	GetAnalyticalCard(input dto.AnalyticalCardFilter) ([]structs.AnalyticalCard, error)
 }

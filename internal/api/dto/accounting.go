@@ -137,3 +137,15 @@ type GetAccountingEntryListResponseMS struct {
 	Data  []structs.AccountingEntry `json:"data"`
 	Total int                       `json:"total"`
 }
+
+type AnalyticalCardFilter struct {
+	SupplierID         int       `json:"supplier_id"`
+	OrganizationUnitID int       `json:"organization_unit_id"`
+	DateOfStart        time.Time `json:"date_of_start"`
+	DateOfEnd          time.Time `json:"date_of_end"`
+}
+
+type GetAnalyticalCardListResponseMS struct {
+	Data  []structs.AnalyticalCard `json:"data"`
+	Total int                      `json:"total"`
+}

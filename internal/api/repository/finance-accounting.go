@@ -93,3 +93,13 @@ func (repo *MicroserviceRepository) DeleteAccountingEntry(id int) error {
 
 	return nil
 }
+
+func (repo *MicroserviceRepository) GetAnalyticalCard(input dto.AnalyticalCardFilter) ([]structs.AnalyticalCard, error) {
+	res := &dto.GetAnalyticalCardListResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.AnalyticalCard, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}

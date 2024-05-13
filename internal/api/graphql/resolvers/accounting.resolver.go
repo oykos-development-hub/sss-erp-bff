@@ -380,6 +380,46 @@ func (r *Resolver) AccountingEntryDeleteResolver(params graphql.ResolveParams) (
 	}, nil
 }
 
+func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	input := dto.AnalyticalCardFilter{}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = value
+	}
+
+	if value, ok := params.Args["supplier_id"].(int); ok && value != 0 {
+		input.SupplierID = value
+	}
+
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStart = dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEnd = dateOfEnd
+	}
+
+	items, err := r.Repo.GetAnalyticalCard(input)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	return dto.Response{
+		Status: "success",
+		Items:  items,
+	}, nil
+}
+
 func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObligations, r *Resolver) (*dto.AccountingOrderItemsForObligationsResponse, error) {
 	response := dto.AccountingOrderItemsForObligationsResponse{
 		CreditAmount:          item.CreditAmount,

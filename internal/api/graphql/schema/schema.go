@@ -302,6 +302,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"returnEnforcedPayment":                                      fields.ReturnEnforcedPaymentField(),
 			"modelsOfAccounting_Overview":                                fields.ModelsOfAccountingOverviewField(),
 			"accountingEntry_Overview":                                   fields.AccountingEntryOverviewField(),
+			"analyticalCard_Overview":                                    fields.AnalyticalCardOverviewField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

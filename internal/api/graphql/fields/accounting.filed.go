@@ -137,3 +137,24 @@ func (f *Field) AccountingEntryDeleteField() *graphql.Field {
 		Resolve: f.Resolvers.AccountingEntryDeleteResolver,
 	}
 }
+
+func (f *Field) AnalyticalCardOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type: types.AnalyticalCardOverviewType,
+		Args: graphql.FieldConfigArgument{
+			"supplier_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"date_of_start": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.String),
+			},
+			"date_of_end": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.String),
+			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.AnalyticalCardOverviewResolver,
+	}
+}

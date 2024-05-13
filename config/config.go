@@ -110,6 +110,7 @@ type FinanceMS struct {
 	ModelsOfAccounting                       string
 	BuildAccountingOrderForObligations       string
 	AccountingEntry                          string
+	AnalyticalCard                           string
 }
 
 type ProcurementMS struct {
@@ -408,6 +409,7 @@ func LoadDefaultConfig() (*Config, error) {
 				ModelsOfAccounting:                       financeBase + "/models-of-accountings",
 				BuildAccountingOrderForObligations:       financeBase + "/build-accounting-order-for-obligations",
 				AccountingEntry:                          financeBase + "/accounting-entries",
+				AnalyticalCard:                           financeBase + "/analytical_card",
 			},
 		},
 		Frontend: FrontendConfig{

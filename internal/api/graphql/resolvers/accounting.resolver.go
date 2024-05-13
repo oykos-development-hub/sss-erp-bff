@@ -421,7 +421,9 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 			Title: value.Title,
 		}
 
-		response.Title = dropdown.Title
+		if response.Title == structs.SupplierTitle {
+			response.Title = dropdown.Title
+		}
 	}
 
 	return &response, nil

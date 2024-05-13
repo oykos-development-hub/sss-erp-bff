@@ -79,6 +79,8 @@ var (
 	ContributionForUnemploymentTitle         AdditionalExpensesTitles = "Nezaposlenost"
 	ContributionForUnemploymentEmployeeTitle AdditionalExpensesTitles = "Nezaposlenost na teret zaposlenog"
 	ContributionForUnemploymentEmployerTitle AdditionalExpensesTitles = "Nezaposlenost na teret poslodavca"
+
+	SupplierTitle = "Dobavljač"
 )
 
 type AdditionalExpenses struct {

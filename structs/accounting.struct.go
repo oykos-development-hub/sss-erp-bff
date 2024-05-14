@@ -56,6 +56,7 @@ type AnalyticalCard struct {
 type AnalyticalCardItems struct {
 	ID             int       `json:"id"`
 	Title          string    `json:"title"`
+	Type           string    `json:"type"`
 	CreditAmount   float64   `json:"credit_amount"`
 	DebitAmount    float64   `json:"debit_amount"`
 	Balance        float64   `json:"balance"`

@@ -356,5 +356,8 @@ var AnalyticalCardItemType = graphql.NewObject(graphql.ObjectConfig{
 		"document_title": &graphql.Field{
 			Type: graphql.String,
 		},
+		"type": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })

@@ -323,6 +323,9 @@ var AnalyticalCardType = graphql.NewObject(graphql.ObjectConfig{
 		"sum_credit_amount": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"items": &graphql.Field{
 			Type: graphql.NewList(AnalyticalCardItemType),
 		},

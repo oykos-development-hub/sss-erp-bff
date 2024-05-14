@@ -299,8 +299,8 @@ var AnalyticalCardOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"item": &graphql.Field{
-			Type: AnalyticalCardType,
+		"items": &graphql.Field{
+			Type: graphql.NewList(AnalyticalCardType),
 		},
 	},
 })

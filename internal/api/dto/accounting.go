@@ -148,5 +148,5 @@ type AnalyticalCardFilter struct {
 }
 
 type GetAnalyticalCardListResponseMS struct {
-	Data structs.AnalyticalCard `json:"data"`
+	Data []structs.AnalyticalCard `json:"data"`
 }

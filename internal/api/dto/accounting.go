@@ -139,10 +139,12 @@ type GetAccountingEntryListResponseMS struct {
 }
 
 type AnalyticalCardFilter struct {
-	SupplierID         int       `json:"supplier_id"`
-	OrganizationUnitID int       `json:"organization_unit_id"`
-	DateOfStart        time.Time `json:"date_of_start"`
-	DateOfEnd          time.Time `json:"date_of_end"`
+	SupplierID         *int       `json:"supplier_id"`
+	OrganizationUnitID int        `json:"organization_unit_id"`
+	DateOfStart        *time.Time `json:"date_of_start"`
+	DateOfEnd          *time.Time `json:"date_of_end"`
+	DateOfStartBooking *time.Time `json:"date_of_start_booking"`
+	DateOfEndBooking   *time.Time `json:"date_of_end_booking"`
 }
 
 type GetAnalyticalCardListResponseMS struct {

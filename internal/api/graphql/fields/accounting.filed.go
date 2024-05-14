@@ -143,13 +143,19 @@ func (f *Field) AnalyticalCardOverviewField() *graphql.Field {
 		Type: types.AnalyticalCardOverviewType,
 		Args: graphql.FieldConfigArgument{
 			"supplier_id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
+				Type: graphql.Int,
 			},
 			"date_of_start": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.String),
+				Type: graphql.String,
 			},
 			"date_of_end": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.String),
+				Type: graphql.String,
+			},
+			"date_of_start_booking": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"date_of_end_booking": &graphql.ArgumentConfig{
+				Type: graphql.String,
 			},
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),

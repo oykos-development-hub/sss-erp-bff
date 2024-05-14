@@ -388,7 +388,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 	}
 
 	if value, ok := params.Args["supplier_id"].(int); ok && value != 0 {
-		input.SupplierID = value
+		input.SupplierID = &value
 	}
 
 	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
@@ -397,7 +397,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
-		input.DateOfStart = dateOfStart
+		input.DateOfStart = &dateOfStart
 	}
 
 	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
@@ -406,7 +406,25 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
-		input.DateOfEnd = dateOfEnd
+		input.DateOfEnd = &dateOfEnd
+	}
+
+	if value, ok := params.Args["date_of_start_booking"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStartBooking = &dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end_booking"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEndBooking = &dateOfEnd
 	}
 
 	items, err := r.Repo.GetAnalyticalCard(input)
@@ -444,7 +462,7 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 
 		dropdown := dto.DropdownSimple{
 			ID:    value.ID,
-			Title: value.Title,
+			Title: value.Title + " - " + value.SerialNumber,
 		}
 
 		response.Account = dropdown

@@ -432,9 +432,14 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		return apierrors.HandleAPIError(err)
 	}
 
+	response, err := buildAnalyticalCardResponse(items, r)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
 	return dto.Response{
 		Status: "success",
-		Items:  items,
+		Items:  response,
 	}, nil
 }
 
@@ -632,4 +637,47 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 	}
 
 	return &response, nil
+}
+
+func buildAnalyticalCardResponse(items []structs.AnalyticalCard, r *Resolver) ([]dto.AnalyticalCardDTO, error) {
+	var response []dto.AnalyticalCardDTO
+
+	for _, item := range items {
+		if item.SupplierID != 0 {
+			supplier, err := r.Repo.GetSupplier(item.SupplierID)
+
+			if err != nil {
+				return nil, err
+			}
+
+			responseItem := dto.AnalyticalCardDTO{
+				InitialState:            item.InitialState,
+				SumCreditAmount:         item.SumCreditAmount,
+				SumDebitAmount:          item.SumDebitAmount,
+				SumCreditAmountInPeriod: item.SumCreditAmountInPeriod,
+				SumDebitAmountInPeriod:  item.SumDebitAmountInPeriod,
+				Supplier: dto.DropdownSimple{
+					ID:    supplier.ID,
+					Title: supplier.Title,
+				}}
+
+			for _, entryItem := range item.Items {
+				responseItem.Items = append(responseItem.Items, dto.AnalyticalCardItemsDTO{
+					ID:             entryItem.ID,
+					Title:          entryItem.Title,
+					Type:           entryItem.Type,
+					CreditAmount:   entryItem.CreditAmount,
+					DebitAmount:    entryItem.DebitAmount,
+					Balance:        entryItem.Balance,
+					DateOfBooking:  entryItem.DateOfBooking,
+					Date:           entryItem.Date,
+					DocumentNumber: entryItem.DocumentNumber,
+				})
+			}
+
+			response = append(response, responseItem)
+		}
+	}
+
+	return response, nil
 }

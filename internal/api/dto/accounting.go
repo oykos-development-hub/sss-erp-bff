@@ -150,3 +150,27 @@ type AnalyticalCardFilter struct {
 type GetAnalyticalCardListResponseMS struct {
 	Data []structs.AnalyticalCard `json:"data"`
 }
+
+type AnalyticalCardDTO struct {
+	InitialState            float64                  `json:"initial_state"`
+	SumCreditAmount         float64                  `json:"sum_credit_amount"`
+	SumDebitAmount          float64                  `json:"sum_debit_amount"`
+	SumCreditAmountInPeriod float64                  `json:"sum_credit_amount_in_period"`
+	SumDebitAmountInPeriod  float64                  `json:"sum_debit_amount_in_period"`
+	Supplier                DropdownSimple           `json:"supplier"`
+	Items                   []AnalyticalCardItemsDTO `json:"items"`
+}
+
+type AnalyticalCardItemsDTO struct {
+	ID             int       `json:"id"`
+	Title          string    `json:"title"`
+	Type           string    `json:"type"`
+	CreditAmount   float64   `json:"credit_amount"`
+	DebitAmount    float64   `json:"debit_amount"`
+	Balance        float64   `json:"balance"`
+	DateOfBooking  string    `json:"date_of_booking"`
+	Date           string    `json:"date"`
+	DocumentNumber string    `json:"document_number"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}

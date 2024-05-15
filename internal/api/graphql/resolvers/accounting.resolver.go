@@ -497,6 +497,7 @@ func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.Accou
 	response := dto.AccountingEntryResponse{
 		ID:            item.ID,
 		Title:         item.Title,
+		Type:          item.Type,
 		IDOfEntry:     item.IDOfEntry,
 		DateOfBooking: item.DateOfBooking,
 		CreditAmount:  item.CreditAmount,

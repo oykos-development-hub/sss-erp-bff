@@ -444,10 +444,13 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 }
 
 func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObligations, r *Resolver) (*dto.AccountingOrderItemsForObligationsResponse, error) {
+
+	responseType := buildTypeForAccountingOrder(item.Type)
+
 	response := dto.AccountingOrderItemsForObligationsResponse{
 		CreditAmount:          item.CreditAmount,
 		DebitAmount:           item.DebitAmount,
-		Type:                  item.Type,
+		Type:                  responseType,
 		Salary:                item.Salary,
 		Invoice:               item.Invoice,
 		PaymentOrder:          item.PaymentOrder,
@@ -491,6 +494,29 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 	}
 
 	return &response, nil
+}
+
+func buildTypeForAccountingOrder(itemType string) string {
+	switch itemType {
+	case config.TypeInvoice:
+		return config.TitleInvoice
+	case config.TypeDecision:
+		return config.TitleDecision
+	case config.TypeContract:
+		return config.TitleContract
+	case config.TypeSalary:
+		return config.TitleSalary
+	case config.TypeObligations:
+		return config.TitleObligations
+	case config.TypePaymentOrder:
+		return config.TitlePaymentOrder
+	case config.TypeEnforcedPayment:
+		return config.TitleEnforcedPayment
+	case config.TypeReturnEnforcedPayment:
+		return config.TitleReturnEnforcedPayment
+
+	}
+	return ""
 }
 
 func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.AccountingEntryResponse, error) {

@@ -520,10 +520,13 @@ func buildTypeForAccountingOrder(itemType string) string {
 }
 
 func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.AccountingEntryResponse, error) {
+
+	responseType := buildTypeForAccountingOrder(item.Type)
+
 	response := dto.AccountingEntryResponse{
 		ID:            item.ID,
 		Title:         item.Title,
-		Type:          item.Type,
+		Type:          responseType,
 		IDOfEntry:     item.IDOfEntry,
 		DateOfBooking: item.DateOfBooking,
 		CreditAmount:  item.CreditAmount,

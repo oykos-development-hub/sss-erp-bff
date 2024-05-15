@@ -636,6 +636,21 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		response.ReturnEnforcedPayment = dropdown
 	}
 
+	if item.SupplierID != 0 {
+		value, err := r.Repo.GetSupplier(item.SupplierID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: value.Title,
+		}
+
+		response.Supplier = dropdown
+	}
+
 	return &response, nil
 }
 

@@ -284,6 +284,9 @@ var AccountingEntryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"return_enforced_payment": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
 	},
 })
 

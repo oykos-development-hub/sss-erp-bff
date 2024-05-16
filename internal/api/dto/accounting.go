@@ -161,19 +161,23 @@ type AnalyticalCardDTO struct {
 	SumCreditAmountInPeriod float64                  `json:"sum_credit_amount_in_period"`
 	SumDebitAmountInPeriod  float64                  `json:"sum_debit_amount_in_period"`
 	Supplier                DropdownSimple           `json:"supplier"`
+	OrganizationUnit        DropdownSimple           `json:"organization_unit"`
+	DateOfStart             *time.Time               `json:"date_of_start"`
+	DateOfEnd               *time.Time               `json:"date_of_end"`
 	Items                   []AnalyticalCardItemsDTO `json:"items"`
 }
 
 type AnalyticalCardItemsDTO struct {
-	ID             int       `json:"id"`
-	Title          string    `json:"title"`
-	Type           string    `json:"type"`
-	CreditAmount   float64   `json:"credit_amount"`
-	DebitAmount    float64   `json:"debit_amount"`
-	Balance        float64   `json:"balance"`
-	DateOfBooking  string    `json:"date_of_booking"`
-	Date           string    `json:"date"`
-	DocumentNumber string    `json:"document_number"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID                int       `json:"id"`
+	Title             string    `json:"title"`
+	Type              string    `json:"type"`
+	FormatedIDOfEntry string    `json:"formated_id_of_entry"`
+	CreditAmount      float64   `json:"credit_amount"`
+	DebitAmount       float64   `json:"debit_amount"`
+	Balance           float64   `json:"balance"`
+	DateOfBooking     string    `json:"date_of_booking"`
+	Date              string    `json:"date"`
+	DocumentNumber    string    `json:"document_number"`
+	CreatedAt         time.Time `json:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
 }

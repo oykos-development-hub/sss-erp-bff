@@ -7,6 +7,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -432,6 +433,18 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		return apierrors.HandleAPIError(err)
 	}
 
+	for i := 0; i < len(items); i++ {
+		if input.DateOfStart != nil && input.DateOfEnd != nil {
+			items[i].DateOfStart = input.DateOfStart
+			items[i].DateOfEnd = input.DateOfEnd
+		} else {
+			items[i].DateOfStart = input.DateOfStartBooking
+			items[i].DateOfEnd = input.DateOfEndBooking
+		}
+
+		items[i].OrganizationUnitID = input.OrganizationUnitID
+	}
+
 	response, err := buildAnalyticalCardResponse(items, r)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
@@ -714,16 +727,30 @@ func buildAnalyticalCardResponse(items []structs.AnalyticalCard, r *Resolver) ([
 				}}
 
 			for _, entryItem := range item.Items {
+
+				dateOfBooking, err := time.Parse(config.ISO8601Format, entryItem.DateOfBooking)
+
+				if err != nil {
+					return nil, err
+				}
+
+				year := dateOfBooking.Year()
+				yearLastTwoDigits := year % 100
+
+				// Format the string
+				formatedIDOfEntry := fmt.Sprintf("%02d-%03d", yearLastTwoDigits, entryItem.IDOfEntry)
+
 				responseItem.Items = append(responseItem.Items, dto.AnalyticalCardItemsDTO{
-					ID:             entryItem.ID,
-					Title:          entryItem.Title,
-					Type:           entryItem.Type,
-					CreditAmount:   entryItem.CreditAmount,
-					DebitAmount:    entryItem.DebitAmount,
-					Balance:        entryItem.Balance,
-					DateOfBooking:  entryItem.DateOfBooking,
-					Date:           entryItem.Date,
-					DocumentNumber: entryItem.DocumentNumber,
+					ID:                entryItem.ID,
+					Title:             entryItem.Title,
+					Type:              entryItem.Type,
+					CreditAmount:      entryItem.CreditAmount,
+					DebitAmount:       entryItem.DebitAmount,
+					Balance:           entryItem.Balance,
+					DateOfBooking:     entryItem.DateOfBooking,
+					Date:              entryItem.Date,
+					DocumentNumber:    entryItem.DocumentNumber,
+					FormatedIDOfEntry: formatedIDOfEntry,
 				})
 			}
 

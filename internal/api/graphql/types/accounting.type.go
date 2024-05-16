@@ -335,6 +335,15 @@ var AnalyticalCardType = graphql.NewObject(graphql.ObjectConfig{
 		"supplier": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"date_of_start": &graphql.Field{
+			Type: graphql.String,
+		},
+		"date_of_end": &graphql.Field{
+			Type: graphql.String,
+		},
 		"items": &graphql.Field{
 			Type: graphql.NewList(AnalyticalCardItemType),
 		},
@@ -346,6 +355,9 @@ var AnalyticalCardItemType = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.Int,
+		},
+		"formated_id_of_entry": &graphql.Field{
+			Type: graphql.String,
 		},
 		"date": &graphql.Field{
 			Type: graphql.String,

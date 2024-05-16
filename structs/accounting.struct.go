@@ -52,6 +52,9 @@ type AnalyticalCard struct {
 	SumCreditAmountInPeriod float64               `json:"sum_credit_amount_in_period"`
 	SumDebitAmountInPeriod  float64               `json:"sum_debit_amount_in_period"`
 	SupplierID              int                   `json:"supplier_id"`
+	OrganizationUnitID      int                   `json:"organization_unit_id"`
+	DateOfStart             *time.Time            `json:"date_of_start"`
+	DateOfEnd               *time.Time            `json:"date_of_end"`
 	Items                   []AnalyticalCardItems `json:"items"`
 }
 
@@ -59,6 +62,7 @@ type AnalyticalCardItems struct {
 	ID             int       `json:"id"`
 	Title          string    `json:"title"`
 	Type           string    `json:"type"`
+	IDOfEntry      int       `json:"id_of_entry"`
 	CreditAmount   float64   `json:"credit_amount"`
 	DebitAmount    float64   `json:"debit_amount"`
 	Balance        float64   `json:"balance"`

@@ -7,7 +7,6 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -450,6 +449,17 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		return apierrors.HandleAPIError(err)
 	}
 
+	orgUnitID, err := r.Repo.GetOrganizationUnitByID(input.OrganizationUnitID)
+
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	for i := 0; i < len(response); i++ {
+		response[i].OrganizationUnit.ID = orgUnitID.ID
+		response[i].OrganizationUnit.Title = orgUnitID.Title
+	}
+
 	return dto.Response{
 		Status: "success",
 		Items:  response,
@@ -721,6 +731,8 @@ func buildAnalyticalCardResponse(items []structs.AnalyticalCard, r *Resolver) ([
 				SumDebitAmount:          item.SumDebitAmount,
 				SumCreditAmountInPeriod: item.SumCreditAmountInPeriod,
 				SumDebitAmountInPeriod:  item.SumDebitAmountInPeriod,
+				DateOfStart:             item.DateOfStart,
+				DateOfEnd:               item.DateOfEnd,
 				Supplier: dto.DropdownSimple{
 					ID:    supplier.ID,
 					Title: supplier.Title,
@@ -728,7 +740,7 @@ func buildAnalyticalCardResponse(items []structs.AnalyticalCard, r *Resolver) ([
 
 			for _, entryItem := range item.Items {
 
-				dateOfBooking, err := time.Parse(config.ISO8601Format, entryItem.DateOfBooking)
+				dateOfBooking, err := parseDate(entryItem.DateOfBooking)
 
 				if err != nil {
 					return nil, err

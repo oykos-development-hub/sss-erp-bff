@@ -571,7 +571,7 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 				return
 			}
 			now := time.Now()
-			nowString := now.Format("2006-01-02T00:00:00Z")
+			nowString := now.Format(config.ISO8601Format)
 			dispatch.DateOfAssessment = &nowString
 			dispatch.DepreciationTypeID = item.DepreciationTypeID
 
@@ -582,7 +582,7 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 			// 	return
 			// }
 			// now := time.Now()
-			// nowString := now.Format("2006-01-02T00:00:00Z")
+			// nowString := now.Format( config.ISO8601Format)
 			// dispatch.DateOfAssessment = &nowString
 			// dispatch.DepreciationTypeId = item.DepreciationTypeId
 			// _, err = h.Repo.CreateAssessments(&dispatch)
@@ -698,7 +698,7 @@ func (h *Handler) ReadExpireImovableInventoriesHandler(w http.ResponseWriter, r 
 				return
 			}
 			now := time.Now()
-			nowString := now.Format("2006-01-02T00:00:00Z")
+			nowString := now.Format(config.ISO8601Format)
 			dispatch.DateOfAssessment = &nowString
 			dispatch.DepreciationTypeID = item.DepreciationTypeID
 			_, err = h.Repo.CreateAssessments(&dispatch)
@@ -1897,7 +1897,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 						}
 						response.Validation = append(response.Validation, responseMessage)
 					} else {
-						item.DateOfStart = dateOfStart.Format("2006-01-02T00:00:00Z")
+						item.DateOfStart = dateOfStart.Format(config.ISO8601Format)
 					}
 				case 5:
 					dateOfEnd, err = parseDate(value)
@@ -1909,7 +1909,7 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 						}
 						response.Validation = append(response.Validation, responseMessage)
 					} else {
-						item.DateOfEnd = dateOfEnd.Format("2006-01-02T00:00:00Z")
+						item.DateOfEnd = dateOfEnd.Format(config.ISO8601Format)
 
 					}
 				case 6:

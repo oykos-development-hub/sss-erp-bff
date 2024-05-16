@@ -13,6 +13,8 @@ const (
 	OrganizationUnitIDKey ContextKey = "unit_id"
 	ConfigKey             ContextKey = "config"
 
+	ISO8601Format string = "2006-01-02T00:00:00Z"
+
 	ResolutionTypes                     string = "resolution_types"
 	VacationTypeValueResolutionType     string = "vacation"
 	EmploymentTerminationResolutionType string = "employment_termination"
@@ -29,12 +31,12 @@ const (
 	TypeEnforcedPayment       string = "enforced_payments"
 	TypeReturnEnforcedPayment string = "return_enforced_payment"
 
-	TitleInvoice               string = "Račun"
-	TitleContract              string = "Ugovor"
-	TitleDecision              string = "Rješenje"
-	TitleSalary                string = "Zarada"
-	TitleObligations           string = "Obaveza"
-	TitlePaymentOrder          string = "Nalog za plaćanje"
-	TitleEnforcedPayment       string = "Prinudna naplata"
-	TitleReturnEnforcedPayment string = "Povraćaj prinudne naplate"
+	TitleInvoice               string = "Računi"
+	TitleContract              string = "Ugovori"
+	TitleDecision              string = "Rješenja"
+	TitleSalary                string = "Zarade"
+	TitleObligations           string = "Obaveze"
+	TitlePaymentOrder          string = "Nalozi za plaćanje"
+	TitleEnforcedPayment       string = "Prinudna naplate"
+	TitleReturnEnforcedPayment string = "Povraćaji prinudne naplate"
 )

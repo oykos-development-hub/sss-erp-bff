@@ -858,8 +858,8 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		}
 	}
 
-	dateOfEnd, _ := time.Parse("2006-01-02T00:00:00Z", item.DateOfEnd)
-	dateOfStart, _ := time.Parse("2006-01-02T00:00:00Z", item.DateOfStart)
+	dateOfEnd, _ := time.Parse(config.ISO8601Format, item.DateOfEnd)
+	dateOfStart, _ := time.Parse(config.ISO8601Format, item.DateOfStart)
 	var years, months, days int
 
 	years = dateOfEnd.Year() - dateOfStart.Year()

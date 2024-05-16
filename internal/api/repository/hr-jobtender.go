@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
 	"strconv"
@@ -229,7 +230,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 			}
 
 			now := time.Now()
-			dateOfStart, err := time.Parse("2006-01-02T00:00:00Z", *dateOfStartString)
+			dateOfStart, err := time.Parse(config.ISO8601Format, *dateOfStartString)
 
 			if err != nil {
 				return nil, err
@@ -258,7 +259,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(id int, jobTender
 				OrganizationUnitID:        orgUnitID,
 				Relevant:                  active,
 				DateOfStart:               *dateOfStartString,
-				DateOfEnd:                 now.Format("2006-01-02T00:00:00Z"),
+				DateOfEnd:                 now.Format(config.ISO8601Format),
 				YearsOfExperience:         years,
 				YearsOfInsuredExperience:  years,
 				MonthsOfExperience:        int(months),

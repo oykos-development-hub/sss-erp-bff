@@ -224,6 +224,9 @@ var AccountingEntryType = graphql.NewObject(graphql.ObjectConfig{
 		"id_of_entry": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"formated_id_of_entry": &graphql.Field{
+			Type: graphql.String,
+		},
 		"title": &graphql.Field{
 			Type: graphql.String,
 		},

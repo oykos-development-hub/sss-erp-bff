@@ -523,16 +523,23 @@ func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.Accou
 
 	responseType := buildTypeForAccountingOrder(item.Type)
 
+	year := item.DateOfBooking.Year()
+	yearLastTwoDigits := year % 100
+
+	// Format the string
+	formatedIDOfEntry := fmt.Sprintf("%02d-%03d", yearLastTwoDigits, item.IDOfEntry)
+
 	response := dto.AccountingEntryResponse{
-		ID:            item.ID,
-		Title:         item.Title,
-		Type:          responseType,
-		IDOfEntry:     item.IDOfEntry,
-		DateOfBooking: item.DateOfBooking,
-		CreditAmount:  item.CreditAmount,
-		DebitAmount:   item.DebitAmount,
-		CreatedAt:     item.CreatedAt,
-		UpdatedAt:     item.UpdatedAt,
+		ID:                item.ID,
+		Title:             item.Title,
+		Type:              responseType,
+		IDOfEntry:         item.IDOfEntry,
+		FormatedIDOfEntry: formatedIDOfEntry,
+		DateOfBooking:     item.DateOfBooking,
+		CreditAmount:      item.CreditAmount,
+		DebitAmount:       item.DebitAmount,
+		CreatedAt:         item.CreatedAt,
+		UpdatedAt:         item.UpdatedAt,
 	}
 
 	if item.OrganizationUnitID != 0 {

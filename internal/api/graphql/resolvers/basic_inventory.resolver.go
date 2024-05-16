@@ -472,7 +472,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 						return nil, err
 					}
 					newDate := date.AddDate(estimatedDuration, 0, 0)
-					dateOfEndOfAssessment = newDate.Format("2006-01-02T00:00:00Z")
+					dateOfEndOfAssessment = newDate.Format(config.ISO8601Format)
 					//amortizationValue = calculateMonthlyConsumption(dateOfAssessment, 100/estimatedDuration, grossPrice, estimatedDuration)
 					amortizationValue = item.AssessmentPrice
 					break

@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
@@ -151,7 +152,7 @@ func BuildAssessmentResponse(
 }
 
 func calculateMonthlyConsumption(startDateStr string, annualPercentage int, initialPrice float32, estimatedDuration int) float32 {
-	startDate, _ := time.Parse("2006-01-02T00:00:00Z", startDateStr)
+	startDate, _ := time.Parse(config.ISO8601Format, startDateStr)
 	today := time.Date(2023, time.December, 31, 0, 0, 0, 0, time.UTC)
 	endDate := startDate.AddDate(estimatedDuration, 0, 0)
 

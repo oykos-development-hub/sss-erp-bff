@@ -624,7 +624,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 			return errors.HandleAPIError(err)
 		}
 		now := time.Now()
-		format := "2006-01-02T00:00:00Z"
+		format := config.ISO8601Format
 		dateOfEnd := now.Format(format)
 		dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
 
@@ -683,7 +683,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 			}
 
 			now := time.Now()
-			format := "2006-01-02T00:00:00Z"
+			format := config.ISO8601Format
 			dateOfEnd := now.Format(format)
 			dateOfStart, _ := time.Parse(format, *contract[0].DateOfStart)
 			yearsDiff := time.Now().Year() - dateOfStart.Year()
@@ -751,7 +751,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 		UserProfileID:    userID,
 		ResolutionTypeID: terminateResolutionType.Data[0].ID,
 		IsAffect:         true,
-		DateOfStart:      now.Format("2006-01-02T00:00:00Z"),
+		DateOfStart:      now.Format(config.ISO8601Format),
 		FileID:           fileID,
 	})
 	if err != nil {

@@ -13,7 +13,8 @@ const (
 	OrganizationUnitIDKey ContextKey = "unit_id"
 	ConfigKey             ContextKey = "config"
 
-	ISO8601Format string = "2006-01-02T00:00:00Z"
+	ISO8601Format     string = "2006-01-02T00:00:00Z"
+	DefaultDateString string = "0001-01-01T00:00:00Z"
 
 	ResolutionTypes                     string = "resolution_types"
 	VacationTypeValueResolutionType     string = "vacation"

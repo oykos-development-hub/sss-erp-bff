@@ -377,7 +377,7 @@ var AnalyticalCardItemType = graphql.NewObject(graphql.ObjectConfig{
 		"balance": &graphql.Field{
 			Type: graphql.Float,
 		},
-		"document_title": &graphql.Field{
+		"document_number": &graphql.Field{
 			Type: graphql.String,
 		},
 		"type": &graphql.Field{

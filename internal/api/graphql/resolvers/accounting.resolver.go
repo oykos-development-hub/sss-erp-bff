@@ -752,10 +752,16 @@ func buildAnalyticalCardResponse(items []structs.AnalyticalCard, r *Resolver) ([
 				// Format the string
 				formatedIDOfEntry := fmt.Sprintf("%02d-%03d", yearLastTwoDigits, entryItem.IDOfEntry)
 
+				itemType := buildTypeForAccountingOrder(entryItem.Type)
+
+				if entryItem.Date == config.DefaultDateString {
+					entryItem.Date = ""
+				}
+
 				responseItem.Items = append(responseItem.Items, dto.AnalyticalCardItemsDTO{
 					ID:                entryItem.ID,
 					Title:             entryItem.Title,
-					Type:              entryItem.Type,
+					Type:              itemType,
 					CreditAmount:      entryItem.CreditAmount,
 					DebitAmount:       entryItem.DebitAmount,
 					Balance:           entryItem.Balance,

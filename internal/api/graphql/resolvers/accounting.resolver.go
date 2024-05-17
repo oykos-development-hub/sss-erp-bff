@@ -468,12 +468,10 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 
 func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObligations, r *Resolver) (*dto.AccountingOrderItemsForObligationsResponse, error) {
 
-	responseType := buildTypeForAccountingOrder(item.Type)
-
 	response := dto.AccountingOrderItemsForObligationsResponse{
 		CreditAmount:          item.CreditAmount,
 		DebitAmount:           item.DebitAmount,
-		Type:                  responseType,
+		Type:                  item.Type,
 		Salary:                item.Salary,
 		Invoice:               item.Invoice,
 		PaymentOrder:          item.PaymentOrder,

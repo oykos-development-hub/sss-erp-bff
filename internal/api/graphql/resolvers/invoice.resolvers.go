@@ -729,6 +729,18 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		taxPrice += remainGross * taxAuthorityCodebook.PreviousIncomePercentageLessThan700 / 100
 
+		if previousIncomeGross != 0 {
+			additionalExpensesForTax, err := calculateAdditionalExpenses(taxAuthorityCodebook, previousIncomeGross, 0, r, organizationUnit, municipality)
+
+			if err != nil {
+				return nil, err
+			}
+
+			if len(additionalExpensesForTax) > 0 {
+				taxPrice -= float64(additionalExpensesForTax[0].Price)
+			}
+		}
+
 		helper = math.Round(taxPrice*100) / 100
 		taxPrice = float64(helper)
 

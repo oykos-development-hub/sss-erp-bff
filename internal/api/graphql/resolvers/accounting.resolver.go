@@ -570,9 +570,9 @@ func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.Accou
 			return nil, err
 		}
 
-		dropdown := dto.DropdownSimple{
+		dropdown := dto.OrganizationUnitsOverviewResponse{
 			ID:    value.ID,
-			Title: value.Title + " - " + value.Address,
+			Title: value.Title,
 		}
 
 		response.OrganizationUnit = dropdown

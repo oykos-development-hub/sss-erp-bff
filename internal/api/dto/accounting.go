@@ -92,18 +92,18 @@ type AccountingOrderItemsForObligationsResponse struct {
 }
 
 type AccountingEntryResponse struct {
-	ID                int                           `json:"id"`
-	Title             string                        `json:"title"`
-	Type              string                        `json:"type"`
-	IDOfEntry         int                           `json:"id_of_entry"`
-	FormatedIDOfEntry string                        `json:"formated_id_of_entry"`
-	OrganizationUnit  DropdownSimple                `json:"organization_unit"`
-	DateOfBooking     time.Time                     `json:"date_of_booking"`
-	CreditAmount      float64                       `json:"credit_amount"`
-	DebitAmount       float64                       `json:"debit_amount"`
-	Items             []AccountingEntryItemResponse `json:"items"`
-	CreatedAt         time.Time                     `json:"created_at"`
-	UpdatedAt         time.Time                     `json:"updated_at"`
+	ID                int                               `json:"id"`
+	Title             string                            `json:"title"`
+	Type              string                            `json:"type"`
+	IDOfEntry         int                               `json:"id_of_entry"`
+	FormatedIDOfEntry string                            `json:"formated_id_of_entry"`
+	OrganizationUnit  OrganizationUnitsOverviewResponse `json:"organization_unit"`
+	DateOfBooking     time.Time                         `json:"date_of_booking"`
+	CreditAmount      float64                           `json:"credit_amount"`
+	DebitAmount       float64                           `json:"debit_amount"`
+	Items             []AccountingEntryItemResponse     `json:"items"`
+	CreatedAt         time.Time                         `json:"created_at"`
+	UpdatedAt         time.Time                         `json:"updated_at"`
 }
 
 type AccountingEntryItemResponse struct {

@@ -7,6 +7,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+	"math"
 
 	"github.com/graphql-go/graphql"
 )
@@ -176,6 +177,10 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 	items, total, err := r.Repo.GetAllObligations(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
+	}
+
+	for i := 0; i < len(items); i++ {
+		items[i].RemainPrice = math.Round(items[i].RemainPrice*100) / 100
 	}
 
 	message := "Here's the list you asked for!"

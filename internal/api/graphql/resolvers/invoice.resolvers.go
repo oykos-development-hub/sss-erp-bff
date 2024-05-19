@@ -470,9 +470,9 @@ func calculateCoefficientLess1000(item structs.TaxAuthorityCodebook, previousInc
 	}
 
 	maxNetAmount := additionalExpenses[len(additionalExpenses)-1].Price
-	if item.IncludeSubtax {
-		maxNetAmount += additionalExpenses[1].Price
-	}
+	//if item.IncludeSubtax {
+	maxNetAmount += additionalExpenses[1].Price
+	//}
 
 	_, amount, err := calculateCoefficientLess700(item, previousIncomeGross, r, organizationUnit, municipality)
 

@@ -703,9 +703,6 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		helpGross := grossPrice + previousIncomeGross
 
 		firstGross := helpGross - 1000
-		if previousIncomeGross > 1000 {
-			firstGross -= previousIncomeGross - 1000
-		}
 
 		if firstGross > 0 {
 			taxPrice = firstGross * taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000 / 100

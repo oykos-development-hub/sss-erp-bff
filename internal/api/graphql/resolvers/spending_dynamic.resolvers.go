@@ -33,7 +33,12 @@ func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interf
 	if history {
 		spendingDynamic, err = r.Repo.GetSpendingDynamicHistory(budgetID, unitID)
 		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
+			var apiErr *errors.APIError
+			if goerrors.As(err, &apiErr) {
+				if apiErr.StatusCode != 404 {
+					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
+				}
+			}
 		}
 	} else {
 		spendingDynamic, err = r.Repo.GetSpendingDynamic(budgetID, unitID)

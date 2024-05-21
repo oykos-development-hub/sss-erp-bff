@@ -335,6 +335,10 @@ type MicroserviceRepositoryInterface interface {
 	GetActivityList(input *dto.GetFinanceActivityListInputMS) ([]structs.ActivitiesItem, error)
 	GetActivityByUnit(organizationUnitID int) (*structs.ActivitiesItem, error)
 
+	GetSpendingDynamic(budgetID, unitID int) (*structs.SpendingDynamic, error)
+	GetSpendingDynamicHistory(budgetID, unitID int) (*structs.SpendingDynamic, error)
+	GetSpendingDynamicActual(budgetID, unitID int) (decimal.NullDecimal, error)
+
 	CreateInvoice(item *structs.Invoice) (*structs.Invoice, error)
 	UpdateInvoice(item *structs.Invoice) (*structs.Invoice, error)
 	GetInvoice(id int) (*structs.Invoice, error)

@@ -18,7 +18,7 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-func (e APIError) Error() string {
+func (e *APIError) Error() string {
 	if e.Data != nil {
 		dataBytes, err := json.Marshal(e.Data)
 		if err != nil {
@@ -33,7 +33,7 @@ func HandleAPIError(err error) (dto.Response, error) {
 	_, file, line, _ := runtime.Caller(1) // 1 is the number of stack frames to ascend
 	log.Logger.Printf("Error occurred in file %s at line %d: %v", file, line, err)
 
-	if apiError, ok := err.(APIError); ok {
+	if apiError, ok := err.(*APIError); ok {
 		return ErrorResponse(apiError.Message, apiError.Data), nil
 	}
 	return ErrorResponse(err.Error()), nil

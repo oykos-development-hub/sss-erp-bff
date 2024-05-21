@@ -149,9 +149,6 @@ func (f *Field) BudgetOverviewField() *graphql.Field {
 			"budget_type": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
-			"unit_id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
-			},
 		},
 		Resolve: f.Resolvers.BudgetOverviewResolver,
 	}
@@ -232,5 +229,26 @@ func (f *Field) FinancialBudgetVersionUpdateField() *graphql.Field {
 			},
 		},
 		Resolve: f.Resolvers.FinancialBudgetVersionUpdate,
+	}
+}
+
+func (f *Field) SpendingDynamicOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.SpendingDynamicType,
+		Description: "Spending dynamic overview",
+		Args: graphql.FieldConfigArgument{
+			"budget_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"unit_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
+			"history": &graphql.ArgumentConfig{
+				Type:         graphql.Boolean,
+				DefaultValue: false,
+			},
+		},
+		Resolve: f.Resolvers.SpendingDynamicOverview,
 	}
 }

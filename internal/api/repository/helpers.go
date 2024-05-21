@@ -41,7 +41,7 @@ func makeAPIRequest(method, url string, data interface{}, response interface{}, 
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		apiError := errors.APIError{
+		apiError := &errors.APIError{
 			StatusCode: resp.StatusCode,
 		}
 
@@ -98,7 +98,7 @@ func makeAPIRequestWithCookie(method, url string, data interface{}, response int
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		apiError := errors.APIError{
+		apiError := &errors.APIError{
 			StatusCode: resp.StatusCode,
 		}
 

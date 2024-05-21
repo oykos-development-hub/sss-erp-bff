@@ -577,7 +577,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 		//konvertuje neto u bruto
 		if !netPriceOK {
-			err := errors.APIError{Message: "you must provide price"}
+			err := &errors.APIError{Message: "you must provide price"}
 			return errors.HandleAPIError(err)
 		}
 

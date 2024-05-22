@@ -63,8 +63,8 @@ type FinanceMS struct {
 	BudgetRequest                            string
 	SpendingDynamicGet                       string
 	SpendingDynamicGetHistory                string
-	SpendingDynamicCreate                    string
 	SpendingDynamicActual                    string
+	SpendingDynamicInsert                    string
 	Program                                  string
 	Activity                                 string
 	FinancialBudget                          string
@@ -364,10 +364,10 @@ func LoadDefaultConfig() (*Config, error) {
 				Base:                                     financeBase,
 				Budget:                                   financeBase + "/budgets",
 				BudgetRequest:                            financeBase + "/budget-requests",
-				SpendingDynamicCreate:                    financeBase + "/budget-requests",
 				SpendingDynamicGet:                       financeBase + "/budgets/%d/units/%d/spending-dynamics",
 				SpendingDynamicGetHistory:                financeBase + "/budgets/%d/units/%d/spending-dynamics/history",
 				SpendingDynamicActual:                    financeBase + "/budgets/%d/units/%d/spending-dynamics/actual",
+				SpendingDynamicInsert:                    financeBase + "/spending-dynamics",
 				FinancialBudget:                          financeBase + "/financial-budgets",
 				FilledFinancialBudget:                    financeBase + "/filled-financial-budgets",
 				FinancialBudgetLimit:                     financeBase + "/financial-budget-limits",

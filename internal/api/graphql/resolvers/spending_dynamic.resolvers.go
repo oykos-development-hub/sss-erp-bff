@@ -5,11 +5,33 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
+	"encoding/json"
 	goerrors "errors"
 
 	"github.com/graphql-go/graphql"
 	"github.com/shopspring/decimal"
 )
+
+func (r *Resolver) SpendingDynamicInsert(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.SpendingDynamicInsert
+
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	err := json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	item, err := r.Repo.CreateSpendingDynamic(&data)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You created this item!",
+		Item:    item,
+	}, nil
+}
 
 func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interface{}, error) {
 	budgetID := params.Args["budget_id"].(int)

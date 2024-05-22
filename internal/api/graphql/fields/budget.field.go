@@ -252,3 +252,16 @@ func (f *Field) SpendingDynamicOverviewField() *graphql.Field {
 		Resolve: f.Resolvers.SpendingDynamicOverview,
 	}
 }
+
+func (f *Field) SpendingDynamicInsertField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.SpendingDynamicType,
+		Description: "Creates new spending dynamic",
+		Args: graphql.FieldConfigArgument{
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(mutations.SpendingDynamicMutation),
+			},
+		},
+		Resolve: f.Resolvers.SpendingDynamicInsert,
+	}
+}

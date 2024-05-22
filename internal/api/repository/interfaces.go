@@ -338,6 +338,7 @@ type MicroserviceRepositoryInterface interface {
 	GetSpendingDynamic(budgetID, unitID int) (*structs.SpendingDynamic, error)
 	GetSpendingDynamicHistory(budgetID, unitID int) (*structs.SpendingDynamic, error)
 	GetSpendingDynamicActual(budgetID, unitID int) (decimal.NullDecimal, error)
+	CreateSpendingDynamic(spendingDynamic *structs.SpendingDynamicInsert) (*structs.SpendingDynamic, error)
 
 	CreateInvoice(item *structs.Invoice) (*structs.Invoice, error)
 	UpdateInvoice(item *structs.Invoice) (*structs.Invoice, error)

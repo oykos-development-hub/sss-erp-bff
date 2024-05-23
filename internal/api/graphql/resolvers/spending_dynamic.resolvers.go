@@ -65,17 +65,7 @@ func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interf
 	} else {
 		spendingDynamic, err = r.Repo.GetSpendingDynamic(budgetID, unitID)
 		if err != nil {
-			var apiErr *errors.APIError
-			if goerrors.As(err, &apiErr) {
-				if apiErr.StatusCode == 404 {
-					spendingDynamic, err = r.generatePreparedSpendingDynamicData(budgetID, unitID)
-					if err != nil {
-						return errors.HandleAPPError(err)
-					}
-				} else {
-					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic history"))
-				}
-			}
+			return errors.HandleAPPError(err)
 		}
 	}
 
@@ -86,7 +76,7 @@ func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interf
 	}, nil
 }
 
-func (r *Resolver) generatePreparedSpendingDynamicData(budgetID, unitID int) (*structs.SpendingDynamic, error) {
+func (r *Resolver) generateInitialSpendingDynamic(budgetID, unitID int) (*structs.SpendingDynamicInsert, error) {
 	actual, err := r.Repo.GetSpendingDynamicActual(budgetID, unitID)
 	if err != nil {
 		return nil, errors.WrapBadRequestError(err, "budget has no actual yet")
@@ -103,26 +93,21 @@ func (r *Resolver) generatePreparedSpendingDynamicData(budgetID, unitID int) (*s
 	// Adjust the December amount to account for rounding differences
 	decemberAmount := actual.Decimal.Sub(totalForFirst11Months).Round(2)
 
-	spendingDynamic := structs.SpendingDynamic{
-		BudgetID: budgetID,
-		UnitID:   unitID,
-		Actual:   actual.Decimal,
-		Entries: []structs.SpendingDynamicEntry{
-			{
-				January:   monthlyAmount,
-				February:  monthlyAmount,
-				March:     monthlyAmount,
-				April:     monthlyAmount,
-				May:       monthlyAmount,
-				June:      monthlyAmount,
-				July:      monthlyAmount,
-				August:    monthlyAmount,
-				September: monthlyAmount,
-				October:   monthlyAmount,
-				November:  monthlyAmount,
-				December:  decemberAmount,
-			},
-		},
+	spendingDynamic := structs.SpendingDynamicInsert{
+		BudgetID:  budgetID,
+		UnitID:    unitID,
+		January:   monthlyAmount,
+		February:  monthlyAmount,
+		March:     monthlyAmount,
+		April:     monthlyAmount,
+		May:       monthlyAmount,
+		June:      monthlyAmount,
+		July:      monthlyAmount,
+		August:    monthlyAmount,
+		September: monthlyAmount,
+		October:   monthlyAmount,
+		November:  monthlyAmount,
+		December:  decemberAmount,
 	}
 
 	return &spendingDynamic, nil

@@ -13,7 +13,7 @@ import (
 )
 
 func (r *Resolver) SpendingDynamicInsert(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.SpendingDynamicInsert
+	var data []structs.SpendingDynamicInsert
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
@@ -21,22 +21,21 @@ func (r *Resolver) SpendingDynamicInsert(params graphql.ResolveParams) (interfac
 		return errors.HandleAPIError(err)
 	}
 
-	item, err := r.Repo.CreateSpendingDynamic(&data)
+	items, err := r.Repo.CreateSpendingDynamic(params.Context, data)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
-	return dto.ResponseSingle{
+	return dto.Response{
 		Status:  "success",
 		Message: "You created this item!",
-		Item:    item,
+		Items:   items,
 	}, nil
 }
 
 func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interface{}, error) {
 	budgetID := params.Args["budget_id"].(int)
 	unitID := params.Args["unit_id"].(int)
-	history := params.Args["history"].(bool)
 
 	if unitID == 0 {
 		loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
@@ -47,42 +46,62 @@ func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interf
 		unitID = *loggedInOrganizationUnitID
 	}
 
-	var (
-		spendingDynamic *structs.SpendingDynamic
-		err             error
-	)
-
-	if history {
-		spendingDynamic, err = r.Repo.GetSpendingDynamicHistory(budgetID, unitID)
-		if err != nil {
-			var apiErr *errors.APIError
-			if goerrors.As(err, &apiErr) {
-				if apiErr.StatusCode != 404 {
-					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
-				}
+	spendingDynamic, err := r.Repo.GetSpendingDynamic(budgetID, unitID)
+	if err != nil {
+		var apiErr *errors.APIError
+		if goerrors.As(err, &apiErr) {
+			if apiErr.StatusCode != 404 {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
 			}
-		}
-	} else {
-		spendingDynamic, err = r.Repo.GetSpendingDynamic(budgetID, unitID)
-		if err != nil {
-			return errors.HandleAPPError(err)
 		}
 	}
 
-	return dto.ResponseSingle{
+	return dto.Response{
 		Status:  "success",
 		Message: "Here's the data you asked for!",
-		Item:    spendingDynamic,
+		Items:   spendingDynamic,
 	}, nil
 }
 
-func (r *Resolver) generateInitialSpendingDynamic(budgetID, unitID, accountID int) (*structs.SpendingDynamicInsert, error) {
+func (r *Resolver) SpendingDynamicHistoryOverview(params graphql.ResolveParams) (interface{}, error) {
+	budgetID := params.Args["budget_id"].(int)
+	unitID := params.Args["unit_id"].(int)
+
+	if unitID == 0 {
+		loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok {
+			return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
+		}
+
+		unitID = *loggedInOrganizationUnitID
+	}
+
+	spendingDynamicHistory, err := r.Repo.GetSpendingDynamicHistory(budgetID, unitID)
+	if err != nil {
+		var apiErr *errors.APIError
+		if goerrors.As(err, &apiErr) {
+			if apiErr.StatusCode != 404 {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
+			}
+		}
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the data you asked for!",
+		Items:   spendingDynamicHistory,
+	}, nil
+}
+
+func (r *Resolver) generateInitialSpendingDynamic(budgetID, unitID, accountID int) (structs.SpendingDynamicInsert, error) {
+	var spendingDynamic structs.SpendingDynamicInsert
+
 	actual, err := r.Repo.GetSpendingDynamicActual(budgetID, unitID, accountID)
 	if err != nil {
-		return nil, errors.WrapBadRequestError(err, "budget has no actual yet")
+		return spendingDynamic, errors.WrapBadRequestError(err, "budget has no actual yet")
 	}
 	if !actual.Valid {
-		return nil, errors.NewBadRequestError("budget has no actual yet")
+		return spendingDynamic, errors.NewBadRequestError("budget has no actual yet")
 	}
 
 	monthlyAmount := actual.Decimal.Div(decimal.NewFromInt(12)).Round(2)
@@ -93,7 +112,7 @@ func (r *Resolver) generateInitialSpendingDynamic(budgetID, unitID, accountID in
 	// Adjust the December amount to account for rounding differences
 	decemberAmount := actual.Decimal.Sub(totalForFirst11Months).Round(2)
 
-	spendingDynamic := structs.SpendingDynamicInsert{
+	return structs.SpendingDynamicInsert{
 		BudgetID:  budgetID,
 		UnitID:    unitID,
 		AccountID: accountID,
@@ -109,7 +128,5 @@ func (r *Resolver) generateInitialSpendingDynamic(budgetID, unitID, accountID in
 		October:   monthlyAmount,
 		November:  monthlyAmount,
 		December:  decemberAmount,
-	}
-
-	return &spendingDynamic, nil
+	}, nil
 }

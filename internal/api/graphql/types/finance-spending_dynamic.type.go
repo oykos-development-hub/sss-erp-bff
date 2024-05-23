@@ -16,8 +16,8 @@ var SpendingDynamicType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"item": &graphql.Field{
-			Type: SpendingDynamicItemType,
+		"items": &graphql.Field{
+			Type: graphql.NewList(SpendingDynamicItemType),
 		},
 	},
 })
@@ -40,20 +40,11 @@ var SpendingDynamicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"actual": &graphql.Field{
 			Type: graphql.String,
 		},
-		"entries": &graphql.Field{
-			Type: graphql.NewList(SpendingDynamicEntryType),
-		},
-	},
-})
-
-var SpendingDynamicEntryType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "SpendingDynamicType",
-	Fields: graphql.Fields{
-		"id": &graphql.Field{
-			Type: graphql.Int,
-		},
 		"spending_dynamic_id": &graphql.Field{
 			Type: graphql.Int,
+		},
+		"username": &graphql.Field{
+			Type: graphql.String,
 		},
 		"january": &graphql.Field{
 			Type: graphql.String,
@@ -89,6 +80,45 @@ var SpendingDynamicEntryType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"december": &graphql.Field{
+			Type: graphql.String,
+		},
+		"created_at": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+var SpendingDynamicHistoryType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "SpendingDynamicHistory",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(SpendingDynamicHistoryItemType),
+		},
+	},
+})
+
+var SpendingDynamicHistoryItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "SpendingDynamicHistoryItem",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"budget_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"unit_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"username": &graphql.Field{
 			Type: graphql.String,
 		},
 		"created_at": &graphql.Field{

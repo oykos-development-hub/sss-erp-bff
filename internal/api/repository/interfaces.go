@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"net/http"
 
 	"github.com/shopspring/decimal"
@@ -335,10 +336,10 @@ type MicroserviceRepositoryInterface interface {
 	GetActivityList(input *dto.GetFinanceActivityListInputMS) ([]structs.ActivitiesItem, error)
 	GetActivityByUnit(organizationUnitID int) (*structs.ActivitiesItem, error)
 
-	GetSpendingDynamic(budgetID, unitID int) (*structs.SpendingDynamic, error)
-	GetSpendingDynamicHistory(budgetID, unitID int) (*structs.SpendingDynamic, error)
+	GetSpendingDynamic(budgetID, unitID int) ([]structs.SpendingDynamic, error)
+	GetSpendingDynamicHistory(budgetID, unitID int) ([]dto.SpendingDynamicHistoryDTO, error)
 	GetSpendingDynamicActual(budgetID, unitID, accountID int) (decimal.NullDecimal, error)
-	CreateSpendingDynamic(spendingDynamic *structs.SpendingDynamicInsert) (*structs.SpendingDynamic, error)
+	CreateSpendingDynamic(ctx context.Context, spendingDynamic []structs.SpendingDynamicInsert) ([]structs.SpendingDynamic, error)
 
 	CreateInvoice(item *structs.Invoice) (*structs.Invoice, error)
 	UpdateInvoice(item *structs.Invoice) (*structs.Invoice, error)

@@ -10,6 +10,7 @@ type SpendingDynamicInsert struct {
 	ID        int             `json:"id"`
 	BudgetID  int             `json:"budget_id"`
 	UnitID    int             `json:"unit_id"`
+	Username  string          `json:"username"`
 	AccountID int             `json:"account_id"`
 	January   decimal.Decimal `json:"january"`
 	February  decimal.Decimal `json:"february"`
@@ -27,17 +28,13 @@ type SpendingDynamicInsert struct {
 }
 
 type SpendingDynamic struct {
-	ID        int                    `json:"id"`
-	BudgetID  int                    `json:"budget_id"`
-	UnitID    int                    `json:"unit_id"`
-	AccountID int                    `json:"account_id"`
-	Actual    decimal.Decimal        `json:"actual"`
-	Entries   []SpendingDynamicEntry `json:"entries"`
-}
-
-type SpendingDynamicEntry struct {
 	ID                int             `json:"id"`
+	BudgetID          int             `json:"budget_id"`
+	UnitID            int             `json:"unit_id"`
+	AccountID         int             `json:"account_id"`
+	Actual            decimal.Decimal `json:"actual"`
 	SpendingDynamicID int             `json:"spending_dynamic_id"`
+	Username          string          `json:"username"`
 	January           decimal.Decimal `json:"january"`
 	February          decimal.Decimal `json:"february"`
 	March             decimal.Decimal `json:"march"`

@@ -512,16 +512,16 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 		}
 
 		for _, req := range budgetGeneralRequests {
-			for _, account := range accounts.Data {
-				spendingDynamic, err := r.generateInitialSpendingDynamic(req.BudgetID, req.OrganizationUnitID, account.ID)
+			dynamicsToCreate := make([]structs.SpendingDynamicInsert, accounts.Total)
+			for i, account := range accounts.Data {
+				dynamicsToCreate[i], err = r.generateInitialSpendingDynamic(req.BudgetID, req.OrganizationUnitID, account.ID)
 				if err != nil {
 					return errors.HandleAPPError(errors.WrapInternalServerError(err, "get init spending dynamic"))
 				}
-
-				_, err = r.Repo.CreateSpendingDynamic(spendingDynamic)
-				if err != nil {
-					return errors.HandleAPPError(errors.WrapInternalServerError(err, "create init spending dynamic"))
-				}
+			}
+			_, err = r.Repo.CreateSpendingDynamic(params.Context, dynamicsToCreate)
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "create init spending dynamic"))
 			}
 		}
 	}

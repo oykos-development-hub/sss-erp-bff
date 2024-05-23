@@ -244,12 +244,25 @@ func (f *Field) SpendingDynamicOverviewField() *graphql.Field {
 				Type:         graphql.Int,
 				DefaultValue: 0,
 			},
-			"history": &graphql.ArgumentConfig{
-				Type:         graphql.Boolean,
-				DefaultValue: false,
-			},
 		},
 		Resolve: f.Resolvers.SpendingDynamicOverview,
+	}
+}
+
+func (f *Field) SpendingDynamicHistoryOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.SpendingDynamicHistoryType,
+		Description: "Spending dynamic overview",
+		Args: graphql.FieldConfigArgument{
+			"budget_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"unit_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
+		},
+		Resolve: f.Resolvers.SpendingDynamicHistoryOverview,
 	}
 }
 
@@ -259,7 +272,7 @@ func (f *Field) SpendingDynamicInsertField() *graphql.Field {
 		Description: "Creates new spending dynamic",
 		Args: graphql.FieldConfigArgument{
 			"data": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(mutations.SpendingDynamicMutation),
+				Type: graphql.NewList(mutations.SpendingDynamicMutation),
 			},
 		},
 		Resolve: f.Resolvers.SpendingDynamicInsert,

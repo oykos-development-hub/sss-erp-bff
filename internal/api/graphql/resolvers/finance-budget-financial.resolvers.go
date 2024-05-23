@@ -425,11 +425,10 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
-	if request.RequestType != structs.RequestTypeCurrentFinancial && request.RequestType != structs.RequestTypeDonationFinancial {
+	if request.RequestType != structs.RequestTypeCurrentFinancial {
 		return errors.HandleAPPError(errors.NewBadRequestError(
-			"request must be one of types: %s, %s, provided request is of type: %s",
+			"request must be if type: %s, provided request is of type: %s",
 			dto.GetRequestType(structs.RequestTypeCurrentFinancial),
-			dto.GetRequestType(structs.RequestTypeDonationFinancial),
 			dto.GetRequestType(request.RequestType),
 		))
 	}
@@ -463,77 +462,59 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver"))
 	}
 
-	//update parent financial status to sent if all financial sub requests (current, donation) are filled
-	financialSubRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
-		ParentID: request.ParentID,
-	})
+	financialRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
 	if err != nil {
-		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error getting financial child requests"))
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error getting parent financial request"))
+	}
+	financialRequest.Status = structs.BudgetRequestCompletedActualStatus
+	_, err = r.Repo.UpdateBudgetRequest(financialRequest)
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
 	}
 
-	allFinancialFilled := true
-	for _, financialChildRequest := range financialSubRequests {
-		if financialChildRequest.Status != structs.BudgetRequestFilledStatus {
-			allFinancialFilled = false
+	generalRequest, err := r.Repo.GetBudgetRequest(*financialRequest.ParentID)
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error getting parent financial request"))
+	}
+	generalRequest.Status = structs.BudgetRequestCompletedActualStatus
+	_, err = r.Repo.UpdateBudgetRequest(generalRequest)
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
+	}
+
+	generallReqType := structs.RequestTypeGeneral
+	budgetGeneralRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		BudgetID:    &financialRequest.BudgetID,
+		RequestType: &generallReqType,
+	})
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
+	}
+
+	allGeneralRequestsCompleted := true
+	for _, generalReq := range budgetGeneralRequests {
+		if generalReq.Status != structs.BudgetRequestCompletedActualStatus {
+			allGeneralRequestsCompleted = false
 			break
 		}
 	}
 
-	if allFinancialFilled {
-		financialRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
+	if allGeneralRequestsCompleted {
+		budget, err := r.Repo.GetBudget(request.BudgetID)
 		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error getting parent financial request"))
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver"))
 		}
-		financialRequest.Status = structs.BudgetRequestCompletedActualStatus
-		_, err = r.Repo.UpdateBudgetRequest(financialRequest)
-		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
-		}
+		budget.Status = structs.BudgetCompletedActualStatus
 
-		generalRequest, err := r.Repo.GetBudgetRequest(*financialRequest.ParentID)
-		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error getting parent financial request"))
-		}
-		generalRequest.Status = structs.BudgetRequestCompletedActualStatus
-		_, err = r.Repo.UpdateBudgetRequest(generalRequest)
-		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
-		}
-
-		generallReqType := structs.RequestTypeGeneral
-		budgetGeneralRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
-			BudgetID:    &financialRequest.BudgetID,
-			RequestType: &generallReqType,
-		})
-		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
-		}
-
-		allGeneralRequestsCompleted := true
-		for _, generalReq := range budgetGeneralRequests {
-			if generalReq.Status != structs.BudgetRequestCompletedActualStatus {
-				allGeneralRequestsCompleted = false
-				break
-			}
-		}
-
-		if allGeneralRequestsCompleted {
-			budget, err := r.Repo.GetBudget(request.BudgetID)
+		for _, req := range budgetGeneralRequests {
+			spendingDynamic, err := r.generateInitialSpendingDynamic(req.BudgetID, req.OrganizationUnitID)
 			if err != nil {
-				return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver"))
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "get init spending dynamic"))
 			}
-			budget.Status = structs.BudgetCompletedActualStatus
 
-			for _, req := range budgetGeneralRequests {
-				spendingDynamic, err := r.generateInitialSpendingDynamic(req.BudgetID, req.OrganizationUnitID)
-				if err != nil {
-					return errors.HandleAPPError(errors.WrapInternalServerError(err, "get init spending dynamic"))
-				}
-
-				_, err = r.Repo.CreateSpendingDynamic(spendingDynamic)
-				if err != nil {
-					return errors.HandleAPPError(errors.WrapInternalServerError(err, "create init spending dynamic"))
-				}
+			_, err = r.Repo.CreateSpendingDynamic(spendingDynamic)
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "create init spending dynamic"))
 			}
 		}
 	}

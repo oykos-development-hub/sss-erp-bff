@@ -34,6 +34,9 @@ var SpendingDynamicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"unit_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"account_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"actual": &graphql.Field{
 			Type: graphql.String,
 		},

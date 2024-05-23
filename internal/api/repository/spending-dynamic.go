@@ -30,9 +30,9 @@ func (repo *MicroserviceRepository) GetSpendingDynamicHistory(BudgetID, unitID i
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) GetSpendingDynamicActual(BudgetID, unitID int) (decimal.NullDecimal, error) {
+func (repo *MicroserviceRepository) GetSpendingDynamicActual(BudgetID, unitID, accountID int) (decimal.NullDecimal, error) {
 	res := dto.GetSpendingDynamicActualResponseMS{}
-	_, err := makeAPIRequest("GET", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingDynamicActual, BudgetID, unitID), nil, &res)
+	_, err := makeAPIRequest("GET", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingDynamicActual, BudgetID, unitID, accountID), nil, &res)
 	if err != nil {
 		return res.Data, err
 	}

@@ -366,7 +366,7 @@ func LoadDefaultConfig() (*Config, error) {
 				BudgetRequest:                            financeBase + "/budget-requests",
 				SpendingDynamicGet:                       financeBase + "/budgets/%d/units/%d/spending-dynamics",
 				SpendingDynamicGetHistory:                financeBase + "/budgets/%d/units/%d/spending-dynamics/history",
-				SpendingDynamicActual:                    financeBase + "/budgets/%d/units/%d/spending-dynamics/actual",
+				SpendingDynamicActual:                    financeBase + "/budgets/%d/units/%d/accounts/%d/actual",
 				SpendingDynamicInsert:                    financeBase + "/spending-dynamics",
 				FinancialBudget:                          financeBase + "/financial-budgets",
 				FilledFinancialBudget:                    financeBase + "/filled-financial-budgets",

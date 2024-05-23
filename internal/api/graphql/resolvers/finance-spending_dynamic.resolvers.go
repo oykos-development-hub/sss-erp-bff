@@ -76,8 +76,8 @@ func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interf
 	}, nil
 }
 
-func (r *Resolver) generateInitialSpendingDynamic(budgetID, unitID int) (*structs.SpendingDynamicInsert, error) {
-	actual, err := r.Repo.GetSpendingDynamicActual(budgetID, unitID)
+func (r *Resolver) generateInitialSpendingDynamic(budgetID, unitID, accountID int) (*structs.SpendingDynamicInsert, error) {
+	actual, err := r.Repo.GetSpendingDynamicActual(budgetID, unitID, accountID)
 	if err != nil {
 		return nil, errors.WrapBadRequestError(err, "budget has no actual yet")
 	}
@@ -96,6 +96,7 @@ func (r *Resolver) generateInitialSpendingDynamic(budgetID, unitID int) (*struct
 	spendingDynamic := structs.SpendingDynamicInsert{
 		BudgetID:  budgetID,
 		UnitID:    unitID,
+		AccountID: accountID,
 		January:   monthlyAmount,
 		February:  monthlyAmount,
 		March:     monthlyAmount,

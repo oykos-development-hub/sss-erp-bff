@@ -6,10 +6,13 @@ var SpendingDynamicMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "SpendingDynamicMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"budget_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"account_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"january": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

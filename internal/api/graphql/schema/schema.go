@@ -17,6 +17,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 	mutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{
+			"mocCurrentBudget_Insert":                         fields.InsertCurrentBudgetMock(),
 			"role_Insert":                                     fields.RoleInsertField(),
 			"permissions_Update":                              fields.PermissionsUpdate(),
 			"userAccount_Insert":                              fields.UserAccountInsertField(),

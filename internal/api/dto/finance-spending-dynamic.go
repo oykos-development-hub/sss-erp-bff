@@ -28,4 +28,9 @@ type SpendingDynamicHistoryDTO struct {
 	UnitID    int       `json:"unit_id"`
 	CreatedAt time.Time `json:"created_at"`
 	Username  string    `json:"username"`
+	Version   int       `json:"version"`
+}
+
+type GetSpendingDynamicHistoryInput struct {
+	Version *int `json:"version"`
 }

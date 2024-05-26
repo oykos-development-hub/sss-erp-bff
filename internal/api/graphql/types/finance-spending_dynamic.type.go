@@ -121,6 +121,9 @@ var SpendingDynamicHistoryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"username": &graphql.Field{
 			Type: graphql.String,
 		},
+		"version": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

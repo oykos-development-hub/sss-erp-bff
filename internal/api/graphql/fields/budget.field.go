@@ -244,6 +244,10 @@ func (f *Field) SpendingDynamicOverviewField() *graphql.Field {
 				Type:         graphql.Int,
 				DefaultValue: 0,
 			},
+			"version": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
 		},
 		Resolve: f.Resolvers.SpendingDynamicOverview,
 	}
@@ -258,10 +262,6 @@ func (f *Field) SpendingDynamicHistoryOverviewField() *graphql.Field {
 				Type: graphql.NewNonNull(graphql.Int),
 			},
 			"unit_id": &graphql.ArgumentConfig{
-				Type:         graphql.Int,
-				DefaultValue: 0,
-			},
-			"version": &graphql.ArgumentConfig{
 				Type:         graphql.Int,
 				DefaultValue: 0,
 			},

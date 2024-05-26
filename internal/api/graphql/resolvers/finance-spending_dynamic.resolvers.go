@@ -35,6 +35,7 @@ func (r *Resolver) SpendingDynamicInsert(params graphql.ResolveParams) (interfac
 func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interface{}, error) {
 	budgetID := params.Args["budget_id"].(int)
 	unitID := params.Args["unit_id"].(int)
+	version := params.Args["version"].(int)
 
 	if unitID == 0 {
 		loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
@@ -45,7 +46,12 @@ func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interf
 		unitID = *loggedInOrganizationUnitID
 	}
 
-	spendingDynamic, err := r.Repo.GetSpendingDynamic(budgetID, unitID)
+	input := &dto.GetSpendingDynamicHistoryInput{}
+	if version != 0 {
+		input.Version = &version
+	}
+
+	spendingDynamic, err := r.Repo.GetSpendingDynamic(budgetID, unitID, input)
 	if err != nil {
 		var apiErr *errors.APIError
 		if goerrors.As(err, &apiErr) {
@@ -65,7 +71,6 @@ func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interf
 func (r *Resolver) SpendingDynamicHistoryOverview(params graphql.ResolveParams) (interface{}, error) {
 	budgetID := params.Args["budget_id"].(int)
 	unitID := params.Args["unit_id"].(int)
-	version := params.Args["version"].(int)
 
 	if unitID == 0 {
 		loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
@@ -76,12 +81,7 @@ func (r *Resolver) SpendingDynamicHistoryOverview(params graphql.ResolveParams) 
 		unitID = *loggedInOrganizationUnitID
 	}
 
-	input := &dto.GetSpendingDynamicHistoryInput{}
-	if version != 0 {
-		input.Version = &version
-	}
-
-	spendingDynamicHistory, err := r.Repo.GetSpendingDynamicHistory(budgetID, unitID, input)
+	spendingDynamicHistory, err := r.Repo.GetSpendingDynamicHistory(budgetID, unitID)
 	if err != nil {
 		var apiErr *errors.APIError
 		if goerrors.As(err, &apiErr) {

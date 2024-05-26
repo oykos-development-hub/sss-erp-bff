@@ -336,8 +336,8 @@ type MicroserviceRepositoryInterface interface {
 	GetActivityList(input *dto.GetFinanceActivityListInputMS) ([]structs.ActivitiesItem, error)
 	GetActivityByUnit(organizationUnitID int) (*structs.ActivitiesItem, error)
 
-	GetSpendingDynamic(budgetID, unitID int) ([]structs.SpendingDynamic, error)
-	GetSpendingDynamicHistory(budgetID, unitID int, input *dto.GetSpendingDynamicHistoryInput) ([]dto.SpendingDynamicHistoryDTO, error)
+	GetSpendingDynamic(budgetID, unitID int, input *dto.GetSpendingDynamicHistoryInput) ([]structs.SpendingDynamic, error)
+	GetSpendingDynamicHistory(budgetID, unitID int) ([]dto.SpendingDynamicHistoryDTO, error)
 	GetSpendingDynamicActual(budgetID, unitID, accountID int) (decimal.NullDecimal, error)
 	CreateSpendingDynamic(ctx context.Context, spendingDynamic []structs.SpendingDynamicInsert) ([]structs.SpendingDynamic, error)
 

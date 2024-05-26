@@ -9,7 +9,6 @@ import (
 	goerrors "errors"
 
 	"github.com/graphql-go/graphql"
-	"github.com/shopspring/decimal"
 )
 
 func (r *Resolver) SpendingDynamicInsert(params graphql.ResolveParams) (interface{}, error) {
@@ -90,43 +89,5 @@ func (r *Resolver) SpendingDynamicHistoryOverview(params graphql.ResolveParams) 
 		Status:  "success",
 		Message: "Here's the data you asked for!",
 		Items:   spendingDynamicHistory,
-	}, nil
-}
-
-func (r *Resolver) generateInitialSpendingDynamic(budgetID, unitID, accountID int) (structs.SpendingDynamicInsert, error) {
-	var spendingDynamic structs.SpendingDynamicInsert
-
-	actual, err := r.Repo.GetSpendingDynamicActual(budgetID, unitID, accountID)
-	if err != nil {
-		return spendingDynamic, errors.WrapBadRequestError(err, "budget has no actual yet")
-	}
-	if !actual.Valid {
-		return spendingDynamic, errors.NewBadRequestError("budget has no actual yet")
-	}
-
-	monthlyAmount := actual.Decimal.Div(decimal.NewFromInt(12)).Round(2)
-
-	// Sum of the first 11 rounded months
-	totalForFirst11Months := monthlyAmount.Mul(decimal.NewFromInt(11))
-
-	// Adjust the December amount to account for rounding differences
-	decemberAmount := actual.Decimal.Sub(totalForFirst11Months).Round(2)
-
-	return structs.SpendingDynamicInsert{
-		BudgetID:  budgetID,
-		UnitID:    unitID,
-		AccountID: accountID,
-		January:   monthlyAmount,
-		February:  monthlyAmount,
-		March:     monthlyAmount,
-		April:     monthlyAmount,
-		May:       monthlyAmount,
-		June:      monthlyAmount,
-		July:      monthlyAmount,
-		August:    monthlyAmount,
-		September: monthlyAmount,
-		October:   monthlyAmount,
-		November:  monthlyAmount,
-		December:  decemberAmount,
 	}, nil
 }

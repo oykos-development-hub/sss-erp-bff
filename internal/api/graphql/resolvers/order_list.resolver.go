@@ -680,9 +680,11 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 	}
 
 	for _, fileID := range orderList.ReceiveFile {
-		err := r.Repo.DeleteFile(fileID)
-		if err != nil {
-			return nil, err
+		if fileID != 0 {
+			err := r.Repo.DeleteFile(fileID)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 

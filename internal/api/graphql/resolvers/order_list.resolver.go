@@ -699,22 +699,19 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 		return apierrors.HandleAPIError(err)
 	}
 
-	var defaultString string
-	if *orderList.InvoiceNumber == defaultString {
-		invoice, total, err := r.Repo.GetInvoiceList(&dto.GetInvoiceListInputMS{
-			OrderID: &itemID,
-		})
+	invoice, total, err := r.Repo.GetInvoiceList(&dto.GetInvoiceListInputMS{
+		OrderID: &itemID,
+	})
+
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	if total > 0 {
+		err = r.Repo.DeleteInvoice(invoice[0].ID)
 
 		if err != nil {
 			return apierrors.HandleAPIError(err)
-		}
-
-		if total > 0 {
-			err = r.Repo.DeleteInvoice(invoice[0].ID)
-
-			if err != nil {
-				return apierrors.HandleAPIError(err)
-			}
 		}
 	}
 

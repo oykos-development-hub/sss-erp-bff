@@ -847,11 +847,9 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 		}
 
 		if total > 0 {
-			invoiceDate, _ := parseDate(*orderList.InvoiceDate)
 
 			newInvoice := structs.Invoice{
 				ID:                     invoice[0].ID,
-				InvoiceNumber:          *orderList.InvoiceNumber,
 				Status:                 invoice[0].Status,
 				Type:                   invoice[0].Type,
 				TypeOfSubject:          invoice[0].TypeOfSubject,
@@ -865,7 +863,6 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				OrganizationUnitID:     invoice[0].OrganizationUnitID,
 				ActivityID:             invoice[0].ActivityID,
 				TaxAuthorityCodebookID: invoice[0].TaxAuthorityCodebookID,
-				DateOfInvoice:          &invoiceDate,
 				ReceiptDate:            invoice[0].ReceiptDate,
 				DateOfPayment:          invoice[0].DateOfPayment,
 				DateOfStart:            invoice[0].DateOfStart,
@@ -879,6 +876,16 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				AdditionalExpenses:     invoice[0].AdditionalExpenses,
 				CreatedAt:              invoice[0].CreatedAt,
 				UpdatedAt:              invoice[0].UpdatedAt,
+			}
+
+			if orderList.InvoiceDate != nil {
+				invoiceDate, _ := parseDate(*orderList.InvoiceDate)
+
+				newInvoice.DateOfInvoice = &invoiceDate
+			}
+
+			if orderList.InvoiceNumber != nil {
+				newInvoice.InvoiceNumber = *orderList.InvoiceNumber
 			}
 
 			_, err = r.Repo.UpdateInvoice(&newInvoice)

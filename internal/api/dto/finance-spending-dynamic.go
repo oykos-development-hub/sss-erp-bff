@@ -55,6 +55,7 @@ type SpendingDynamicDTO struct {
 	October         MonthEntry      `json:"october"`
 	November        MonthEntry      `json:"november"`
 	December        MonthEntry      `json:"december"`
+	TotalSavings    decimal.Decimal `json:"total_savings"`
 	CreatedAt       time.Time       `json:"created_at"`
 }
 

@@ -94,6 +94,9 @@ var SpendingDynamicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"december": &graphql.Field{
 			Type: SpendingDynamicMonthEntryItemType,
 		},
+		"total_savings": &graphql.Field{
+			Type: graphql.String,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,
 		},

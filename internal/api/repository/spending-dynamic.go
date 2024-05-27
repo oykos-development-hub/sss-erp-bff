@@ -10,7 +10,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func (repo *MicroserviceRepository) GetSpendingDynamic(BudgetID, unitID int, input *dto.GetSpendingDynamicHistoryInput) ([]structs.SpendingDynamic, error) {
+func (repo *MicroserviceRepository) GetSpendingDynamic(BudgetID, unitID int, input *dto.GetSpendingDynamicHistoryInput) ([]dto.SpendingDynamicDTO, error) {
 	res := dto.GetSpendingDynamicListResponseMS{}
 	_, err := makeAPIRequest("GET", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingDynamicGet, BudgetID, unitID), input, &res)
 	if err != nil {
@@ -40,7 +40,7 @@ func (repo *MicroserviceRepository) GetSpendingDynamicActual(BudgetID, unitID, a
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateSpendingDynamic(ctx context.Context, spendingDynamicList []structs.SpendingDynamicInsert) ([]structs.SpendingDynamic, error) {
+func (repo *MicroserviceRepository) CreateSpendingDynamic(ctx context.Context, spendingDynamicList []structs.SpendingDynamicInsert) ([]dto.SpendingDynamicDTO, error) {
 	loggedInProfile, _ := ctx.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
 
 	spendingDynamicListToInsert := make([]structs.SpendingDynamicInsert, len(spendingDynamicList))

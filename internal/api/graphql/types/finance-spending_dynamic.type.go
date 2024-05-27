@@ -22,6 +22,18 @@ var SpendingDynamicType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var SpendingDynamicMonthEntryItemType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "SpendingDynamicMonthEntryItem",
+	Fields: graphql.Fields{
+		"value": &graphql.Field{
+			Type: graphql.String,
+		},
+		"savings": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var SpendingDynamicItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "SpendingDynamicItem",
 	Fields: graphql.Fields{
@@ -37,50 +49,50 @@ var SpendingDynamicItemType = graphql.NewObject(graphql.ObjectConfig{
 		"account_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"current_budget_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"actual": &graphql.Field{
 			Type: graphql.String,
-		},
-		"spending_dynamic_id": &graphql.Field{
-			Type: graphql.Int,
 		},
 		"username": &graphql.Field{
 			Type: graphql.String,
 		},
 		"january": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"february": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"march": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"april": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"may": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"june": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"july": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"august": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"september": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"october": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"november": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"december": &graphql.Field{
-			Type: graphql.String,
+			Type: SpendingDynamicMonthEntryItemType,
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

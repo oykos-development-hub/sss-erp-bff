@@ -4,7 +4,6 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
-	"log"
 
 	"github.com/graphql-go/graphql"
 	"github.com/shopspring/decimal"
@@ -27,7 +26,6 @@ func (r *Resolver) CurrentBudgetMockResolver(params graphql.ResolveParams) (inte
 		return errors.HandleAPIError(err)
 	}
 
-	totalMocked := 0
 	for _, budget := range budgets {
 		for _, unit := range units.Data {
 			for _, account := range accounts.Data {
@@ -42,12 +40,9 @@ func (r *Resolver) CurrentBudgetMockResolver(params graphql.ResolveParams) (inte
 				if err != nil {
 					return errors.HandleAPIError(err)
 				}
-				totalMocked++
 			}
 		}
 	}
-
-	log.Println(totalMocked)
 
 	return dto.ResponseSingle{
 		Status:  "success",

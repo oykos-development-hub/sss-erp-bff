@@ -181,45 +181,6 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-
-		if item.OrderID != 0 {
-			order, err := r.Repo.GetOrderListByID(item.OrderID)
-
-			if err != nil {
-				return errors.HandleAPIError(err)
-			}
-
-			_, err = r.Repo.UpdateOrderListItem(item.OrderID, &structs.OrderListItem{
-				ID:                    order.ID,
-				DateOrder:             order.DateOrder,
-				TotalPrice:            order.TotalPrice,
-				PublicProcurementID:   order.PublicProcurementID,
-				GroupOfArticlesID:     order.GroupOfArticlesID,
-				SupplierID:            order.SupplierID,
-				Status:                order.Status,
-				PassedToFinance:       true,
-				UsedInFinance:         true,
-				DateSystem:            order.DateSystem,
-				InvoiceDate:           order.InvoiceDate,
-				InvoiceNumber:         order.InvoiceNumber,
-				OrganizationUnitID:    order.OrganizationUnitID,
-				OfficeID:              order.OfficeID,
-				RecipientUserID:       order.RecipientUserID,
-				Description:           order.Description,
-				IsUsed:                order.IsUsed,
-				OrderFile:             order.OrderFile,
-				ReceiveFile:           order.ReceiveFile,
-				MovementFile:          order.MovementFile,
-				IsProFormaInvoice:     order.IsProFormaInvoice,
-				ProFormaInvoiceDate:   order.ProFormaInvoiceDate,
-				ProFormaInvoiceNumber: order.ProFormaInvoiceNumber,
-				AccountID:             order.AccountID,
-			})
-
-			if err != nil {
-				return errors.HandleAPIError(err)
-			}
-		}
 	} else {
 
 		invoice, err := r.Repo.GetInvoice(data.ID)
@@ -249,6 +210,45 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
+		}
+	}
+
+	if item.OrderID != 0 {
+		order, err := r.Repo.GetOrderListByID(item.OrderID)
+
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		_, err = r.Repo.UpdateOrderListItem(item.OrderID, &structs.OrderListItem{
+			ID:                    order.ID,
+			DateOrder:             order.DateOrder,
+			TotalPrice:            order.TotalPrice,
+			PublicProcurementID:   order.PublicProcurementID,
+			GroupOfArticlesID:     order.GroupOfArticlesID,
+			SupplierID:            order.SupplierID,
+			Status:                order.Status,
+			PassedToFinance:       true,
+			UsedInFinance:         true,
+			DateSystem:            order.DateSystem,
+			InvoiceDate:           order.InvoiceDate,
+			InvoiceNumber:         order.InvoiceNumber,
+			OrganizationUnitID:    order.OrganizationUnitID,
+			OfficeID:              order.OfficeID,
+			RecipientUserID:       order.RecipientUserID,
+			Description:           order.Description,
+			IsUsed:                order.IsUsed,
+			OrderFile:             order.OrderFile,
+			ReceiveFile:           order.ReceiveFile,
+			MovementFile:          order.MovementFile,
+			IsProFormaInvoice:     order.IsProFormaInvoice,
+			ProFormaInvoiceDate:   order.ProFormaInvoiceDate,
+			ProFormaInvoiceNumber: order.ProFormaInvoiceNumber,
+			AccountID:             order.AccountID,
+		})
+
+		if err != nil {
+			return errors.HandleAPIError(err)
 		}
 	}
 

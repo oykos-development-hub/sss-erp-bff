@@ -235,7 +235,7 @@ func (f *Field) FinancialBudgetVersionUpdateField() *graphql.Field {
 func (f *Field) SpendingDynamicOverviewField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.SpendingDynamicType,
-		Description: "Spending dynamic overview",
+		Description: "Spending dynamic list",
 		Args: graphql.FieldConfigArgument{
 			"budget_id": &graphql.ArgumentConfig{
 				Type:         graphql.Int,

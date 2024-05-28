@@ -1270,6 +1270,24 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 			response.NetPrice += singleArticle.NetPrice * float64(singleArticle.Amount)
 			response.VATPrice += singleArticle.VatPrice * float64(singleArticle.Amount)
 		}
+
+		accountMap := make(map[string]float64)
+
+		for _, item := range response.Articles {
+			if currentAmount, exists := accountMap[item.Account.Title]; exists {
+				accountMap[item.Account.Title] = currentAmount + float64(float64(item.Amount)*(item.NetPrice+item.NetPrice*float64(item.VatPercentage)/100))
+			} else {
+				accountMap[item.Account.Title] = float64(float64(item.Amount) * (item.NetPrice + item.NetPrice*float64(item.VatPercentage)/100))
+			}
+		}
+
+		for title, amount := range accountMap {
+			response.AccountAmounts = append(response.AccountAmounts, dto.AccountAmounts{
+				Account: title,
+				Amount:  amount,
+			})
+		}
+
 	}
 	for _, item := range invoice.AdditionalExpenses {
 		builtItem, err := buildAdditionalExpense(r, item)

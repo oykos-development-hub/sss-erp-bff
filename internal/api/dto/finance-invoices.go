@@ -43,8 +43,14 @@ type InvoiceResponseItem struct {
 	Description           string                       `json:"description"`
 	Articles              []InvoiceArticleResponse     `json:"articles"`
 	AdditionalExpenses    []AdditionalExpensesResponse `json:"additional_expenses"`
+	AccountAmounts        []AccountAmounts             `json:"account_amounts"`
 	CreatedAt             time.Time                    `json:"created_at"`
 	UpdatedAt             time.Time                    `json:"updated_at"`
+}
+
+type AccountAmounts struct {
+	Account string  `json:"account"`
+	Amount  float64 `json:"amount"`
 }
 
 type InvoiceArticleResponse struct {

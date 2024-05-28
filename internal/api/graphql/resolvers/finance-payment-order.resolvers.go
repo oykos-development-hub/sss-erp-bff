@@ -180,6 +180,17 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 	}
 
 	for i := 0; i < len(items); i++ {
+
+		if items[i].InvoiceID != nil && *items[i].InvoiceID != 0 {
+			invoiceItems, err := buildInvoiceItemsForPaymentOrder(*items[i].InvoiceID, r)
+
+			if err != nil {
+				return apierrors.HandleAPIError(err)
+			}
+
+			items[i].InvoiceItems = invoiceItems
+		}
+
 		items[i].RemainPrice = math.Round(items[i].RemainPrice*100) / 100
 	}
 
@@ -336,4 +347,8 @@ func buildPaymentOrderItem(item structs.PaymentOrderItems, r *Resolver) (*dto.Pa
 	}
 
 	return &response, nil
+}
+
+func buildInvoiceItemsForPaymentOrder(invoiceID int, r *Resolver) ([]dto.Obligation, error) {
+	return nil, nil
 }

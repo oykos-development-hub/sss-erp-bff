@@ -7,6 +7,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	goerrors "errors"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -36,14 +37,28 @@ func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interf
 	budgetID := params.Args["budget_id"].(int)
 	unitID := params.Args["unit_id"].(int)
 	version := params.Args["version"].(int)
+	loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok {
+		return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
+	}
 
 	if unitID == 0 {
-		loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-		if !ok {
-			return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
-		}
-
 		unitID = *loggedInOrganizationUnitID
+	}
+
+	if budgetID == 0 {
+		currentYear := time.Now().Year()
+		//TODO: after planning budget is done on FE, add status filter Done
+		budget, err := r.Repo.GetBudgetList(&dto.GetBudgetListInputMS{
+			Year: &currentYear,
+		})
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting budget for current year"))
+		}
+		if len(budget) != 1 {
+			return errors.HandleAPPError(errors.NewBadRequestError("Budget for current year not found"))
+		}
+		budgetID = budget[0].ID
 	}
 
 	input := &dto.GetSpendingDynamicHistoryInput{}

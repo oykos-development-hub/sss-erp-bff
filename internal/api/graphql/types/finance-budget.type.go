@@ -485,6 +485,9 @@ var BudgetRequestsDetailsItemType = graphql.NewObject(graphql.ObjectConfig{
 		"non_financial": &graphql.Field{
 			Type: NonFinancialBudgetType,
 		},
+		"limit": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 

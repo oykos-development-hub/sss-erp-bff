@@ -157,7 +157,8 @@ type GetFinancialBudgetLimitListResponseMS struct {
 }
 
 type GetFinancialBudgetListInputMS struct {
-	BudgetID int `json:"budget_id"`
+	BudgetID int  `json:"budget_id"`
+	UnitID   *int `json:"unit_id"`
 }
 
 type FinancialBudgetOverviewResponse struct {
@@ -257,4 +258,5 @@ type BudgetRequestsDetails struct {
 	RequestID                 int                              `json:"request_id"`
 	FinancialBudgetDetails    *FinancialBudgetOverviewResponse `json:"financial"`
 	NonFinancialBudgetDetails *NonFinancialBudgetResItem       `json:"non_financial"`
+	Limit                     int                              `json:"limits"`
 }

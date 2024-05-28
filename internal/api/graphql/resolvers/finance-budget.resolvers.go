@@ -743,10 +743,16 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 		return errors.HandleAPPError(errors.Wrap(err, "Error getting budget data"))
 	}
 
+	limit, err := r.Repo.GetBudgetUnitLimit(budgetID, unitID)
+	if err != nil {
+		return nil, err
+	}
+
 	return dto.ResponseSingle{
 		Message: "Budget requests",
 		Status:  "success",
 		Item: &dto.BudgetRequestsDetails{
+			Limit: limit,
 			Budget: dto.DropdownSimple{
 				ID:    budget.ID,
 				Title: strconv.Itoa(budget.Year),

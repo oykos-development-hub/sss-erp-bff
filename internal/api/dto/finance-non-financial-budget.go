@@ -40,7 +40,7 @@ type NonFinancialBudgetResItem struct {
 type ActivityRequestResItem struct {
 	ID               int                           `json:"id"`
 	SubProgram       DropdownSimple                `json:"sub_program"`
-	OrganizationUnit DropdownSimple                `json:"organization_unit"`
+	OrganizationUnit structs.OrganizationUnits     `json:"organization_unit"`
 	Title            string                        `json:"title"`
 	Description      string                        `json:"description"`
 	Code             string                        `json:"code"`

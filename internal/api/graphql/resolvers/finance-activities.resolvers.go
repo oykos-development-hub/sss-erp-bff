@@ -90,7 +90,7 @@ func buildActivityResItem(r repository.MicroserviceRepositoryInterface, activity
 	if err != nil {
 		return nil, err
 	}
-	resItem.OrganizationUnit = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
+	resItem.OrganizationUnit = *organizationUnit
 
 	return resItem, nil
 }

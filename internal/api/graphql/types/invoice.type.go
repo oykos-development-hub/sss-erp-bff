@@ -275,5 +275,14 @@ var AdditionalExpensesType = graphql.NewObject(graphql.ObjectConfig{
 		"price": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"obligation_supplier": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"obligation_type": &graphql.Field{
+			Type: graphql.String,
+		},
+		"obligation_number": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })

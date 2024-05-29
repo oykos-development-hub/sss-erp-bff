@@ -1386,13 +1386,15 @@ func buildAdditionalExpenseItemList(ctx context.Context, r *Resolver, itemList [
 
 func buildAdditionalExpense(r *Resolver, item structs.AdditionalExpenses) (*dto.AdditionalExpensesResponse, error) {
 	response := dto.AdditionalExpensesResponse{
-		ID:          item.ID,
-		Title:       item.Title,
-		Price:       item.Price,
-		BankAccount: item.BankAccount,
-		Status:      item.Status,
-		CreatedAt:   item.CreatedAt,
-		UpdatedAt:   item.UpdatedAt,
+		ID:               item.ID,
+		Title:            item.Title,
+		Price:            item.Price,
+		BankAccount:      item.BankAccount,
+		Status:           item.Status,
+		ObligationType:   item.ObligationType,
+		ObligationNumber: item.ObligationNumber,
+		CreatedAt:        item.CreatedAt,
+		UpdatedAt:        item.UpdatedAt,
 	}
 
 	if item.AccountID != 0 {
@@ -1408,18 +1410,6 @@ func buildAdditionalExpense(r *Resolver, item structs.AdditionalExpenses) (*dto.
 		}
 	}
 
-	if item.InvoiceID != 0 {
-		invoice, err := r.Repo.GetInvoice(item.InvoiceID)
-		if err != nil {
-			return nil, err
-		}
-
-		response.Invoice = dto.DropdownSimple{
-			ID:    invoice.ID,
-			Title: invoice.InvoiceNumber,
-		}
-	}
-
 	if item.SubjectID != 0 {
 		supplier, err := r.Repo.GetSupplier(item.SubjectID)
 		if err != nil {
@@ -1427,6 +1417,18 @@ func buildAdditionalExpense(r *Resolver, item structs.AdditionalExpenses) (*dto.
 		}
 
 		response.Subject = dto.DropdownSimple{
+			ID:    supplier.ID,
+			Title: supplier.Title,
+		}
+	}
+
+	if item.ObligationSupplierID != 0 {
+		supplier, err := r.Repo.GetSupplier(item.ObligationSupplierID)
+		if err != nil {
+			return nil, err
+		}
+
+		response.ObligationSupplier = dto.DropdownSimple{
 			ID:    supplier.ID,
 			Title: supplier.Title,
 		}

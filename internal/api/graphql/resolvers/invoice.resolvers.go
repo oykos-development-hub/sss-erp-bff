@@ -677,6 +677,10 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		grossPrice = grossPrice - grossPrice*taxAuthorityCodebook.ReleasePercentage/100
 		helper := math.Round(grossPrice*100) / 100
 		grossPrice = float64(helper)
+	} else if taxAuthorityCodebook.ReleaseAmount != 0 {
+		grossPrice = grossPrice - taxAuthorityCodebook.ReleaseAmount
+		helper := math.Round(grossPrice*100) / 100
+		grossPrice = float64(helper)
 	}
 
 	var taxPrice float64
@@ -706,8 +710,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 				Title: taxSupplier.Title,
 			},
 		}
-
-		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		if additionalExpenseTax.Price > 0 {
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		}
 	}
 
 	if taxAuthorityCodebook.PreviousIncomePercentageLessThan700 != 0 || taxAuthorityCodebook.PreviousIncomePercentageLessThan1000 != 0 || taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000 != 0 {
@@ -774,7 +779,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		if additionalExpenseTax.Price > 0 {
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		}
 	}
 
 	subTaxPrice := float64(taxPrice) * float64(municipality.TaxPercentage/100)
@@ -795,7 +802,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		},
 	}
 
-	additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	if additionalExpenseTax.Price > 0 {
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	}
 
 	//fond rada
 	if taxAuthorityCodebook.LaborFund != 0 {
@@ -824,7 +833,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		if additionalExpenseTax.Price > 0 {
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		}
 	}
 
 	//pio
@@ -854,7 +865,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		if additionalExpenseTax.Price > 0 {
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		}
 	}
 
 	//pio na teret zaposlenog
@@ -884,7 +897,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		if additionalExpenseTax.Price > 0 {
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		}
 	}
 
 	//pio na teret poslodavca
@@ -914,7 +929,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		if additionalExpenseTax.Price > 0 {
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		}
 	}
 
 	//za nezaposlenost
@@ -944,7 +961,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		if additionalExpenseTax.Price > 0 {
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		}
 	}
 
 	//za nezaposlenost na teret poslodavca
@@ -974,7 +993,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		if additionalExpenseTax.Price > 0 {
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		}
 	}
 
 	//za nezaposlenost na teret zaposlenog
@@ -1004,7 +1025,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		if additionalExpenseTax.Price > 0 {
+			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+		}
 	}
 
 	for _, item := range additionalExpenses {
@@ -1033,7 +1056,9 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},*/
 	}
 
-	additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	if additionalExpenseTax.Price > 0 {
+		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	}
 
 	return additionalExpenses, nil
 }

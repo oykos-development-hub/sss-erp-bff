@@ -134,6 +134,9 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 	if item.ReleasePercentage != 0 {
 		response.ReleasePercentage = &item.ReleasePercentage
 	}
+	if item.ReleaseAmount != 0 {
+		response.ReleaseAmount = &item.ReleaseAmount
+	}
 	if item.PioPercentage != 0 {
 		response.PioPercentage = &item.PioPercentage
 	}

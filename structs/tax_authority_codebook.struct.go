@@ -10,6 +10,7 @@ type TaxAuthorityCodebook struct {
 	TaxPercentage                        float64   `json:"tax_percentage"`
 	TaxSupplierID                        int       `json:"tax_supplier_id"`
 	ReleasePercentage                    float64   `json:"release_percentage"`
+	ReleaseAmount                        float64   `json:"release_amount"`
 	PioPercentage                        float64   `json:"pio_percentage"`
 	PioSupplierID                        int       `json:"pio_supplier_id"`
 	PioPercentageEmployerPercentage      float64   `json:"pio_percentage_employer_percentage"`

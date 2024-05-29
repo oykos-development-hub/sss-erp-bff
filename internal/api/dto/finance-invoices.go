@@ -158,6 +158,7 @@ type TaxAuthorityCodebookResponse struct {
 	Active                               bool           `json:"active"`
 	TaxPercentage                        *float64       `json:"tax_percentage"`
 	TaxSupplier                          DropdownSimple `json:"tax_supplier"`
+	ReleaseAmount                        *float64       `json:"release_amount"`
 	ReleasePercentage                    *float64       `json:"release_percentage"`
 	PioPercentage                        *float64       `json:"pio_percentage"`
 	PioSupplier                          DropdownSimple `json:"pio_supplier"`

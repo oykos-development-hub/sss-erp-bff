@@ -15,6 +15,7 @@ type OrganizationUnits struct {
 	Icon           string   `json:"icon"`
 	FolderID       int      `json:"folder_id"`
 	BankAccounts   []string `json:"bank_accounts"`
+	Code           string   `json:"code"`
 	CreatedAt      string   `json:"created_at"`
 	UpdatedAt      string   `json:"updated_at"`
 }

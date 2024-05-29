@@ -46,6 +46,9 @@ var OrganizationUnitItemType = graphql.NewObject(graphql.ObjectConfig{
 		"city": &graphql.Field{
 			Type: graphql.String,
 		},
+		"code": &graphql.Field{
+			Type: graphql.String,
+		},
 		"folder_id": &graphql.Field{
 			Type: graphql.Int,
 		},

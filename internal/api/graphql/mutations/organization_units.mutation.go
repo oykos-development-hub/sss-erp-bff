@@ -41,6 +41,9 @@ var OrganizationUnitInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"icon": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"code": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"folder_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

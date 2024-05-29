@@ -20,6 +20,7 @@ type PaymentOrderResponse struct {
 	File             FileDropdownSimple         `json:"file"`
 	Items            []PaymentOrderItemResponse `json:"items"`
 	Amount           float64                    `json:"amount"`
+	AccountAmounts   []AccountAmounts           `json:"account_amounts"`
 	Status           string                     `json:"status"`
 	CreatedAt        time.Time                  `json:"created_at"`
 	UpdatedAt        time.Time                  `json:"updated_at"`

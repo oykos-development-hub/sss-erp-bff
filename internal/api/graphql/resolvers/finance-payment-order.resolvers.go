@@ -331,6 +331,23 @@ func buildPaymentOrder(item structs.PaymentOrder, r *Resolver) (*dto.PaymentOrde
 		response.Items = append(response.Items, *builtItem)
 	}
 
+	accountMap := make(map[string]float64)
+
+	for _, item := range response.Items {
+		if currentAmount, exists := accountMap[item.Account.Title]; exists {
+			accountMap[item.Account.Title] = currentAmount + float64(item.Amount)
+		} else {
+			accountMap[item.Account.Title] = float64(item.Amount)
+		}
+	}
+
+	for title, amount := range accountMap {
+		response.AccountAmounts = append(response.AccountAmounts, dto.AccountAmounts{
+			Account: title,
+			Amount:  amount,
+		})
+	}
+
 	return &response, nil
 }
 

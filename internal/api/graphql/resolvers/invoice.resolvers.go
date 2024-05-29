@@ -434,11 +434,15 @@ func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolvePara
 	}, nil
 }
 
-func calculateCoefficient(item structs.TaxAuthorityCodebook, subTax float64) float64 {
+func calculateCoefficient(item structs.TaxAuthorityCodebook, subTax float64, netPrice float64) float64 {
 	var coefficient float64
 
 	coefficient = 1
 	release := item.ReleasePercentage
+
+	if item.ReleaseAmount != 0 {
+		release = item.ReleaseAmount / netPrice
+	}
 
 	if release != 0 {
 		if item.TaxPercentage != 0 {
@@ -562,7 +566,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 		//konvertuje neto u bruto
 		if previousIncomeNetOK && taxAuthorityCodebook.TaxPercentage != 0 {
-			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage))
+			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage), previousIncomeNet)
 			previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.Coefficient
 			helper := math.Round(previousIncomeGross*100) / 100
 			previousIncomeGross = float64(helper)
@@ -601,7 +605,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		}
 
 		if taxAuthorityCodebook.TaxPercentage != 0 {
-			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage))
+			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage), netPrice)
 			grossPrice = netPrice / taxAuthorityCodebook.Coefficient
 			helper := math.Round(grossPrice*100) / 100
 			grossPrice = float64(helper)

@@ -863,7 +863,6 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				OrganizationUnitID:     invoice[0].OrganizationUnitID,
 				ActivityID:             invoice[0].ActivityID,
 				TaxAuthorityCodebookID: invoice[0].TaxAuthorityCodebookID,
-				ReceiptDate:            invoice[0].ReceiptDate,
 				DateOfPayment:          invoice[0].DateOfPayment,
 				DateOfStart:            invoice[0].DateOfStart,
 				SSSInvoiceReceiptDate:  invoice[0].SSSInvoiceReceiptDate,
@@ -886,6 +885,15 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 
 			if orderList.InvoiceNumber != nil {
 				newInvoice.InvoiceNumber = *orderList.InvoiceNumber
+			}
+
+			if orderList.DateSystem != nil {
+				invoiceDate, err := parseDate(*orderList.DateSystem)
+
+				if err == nil {
+					newInvoice.ReceiptDate = &invoiceDate
+				}
+
 			}
 
 			_, err = r.Repo.UpdateInvoice(&newInvoice)

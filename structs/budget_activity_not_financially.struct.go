@@ -13,6 +13,8 @@ type NonFinancialBudgetItem struct {
 	ContactWorkingPlace string `json:"contact_working_place"`
 	ContactPhone        string `json:"contact_phone"`
 	ContactEmail        string `json:"contact_email"`
+
+	Statement string `json:"statement"`
 }
 
 type BudgetActivityNotFinanciallyProgramItem struct {

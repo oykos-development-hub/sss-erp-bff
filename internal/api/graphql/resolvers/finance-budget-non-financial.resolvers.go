@@ -60,6 +60,7 @@ func (r *Resolver) buildNonFinancialBudgetDetails(ctx context.Context, request *
 	resItem.ContactWorkingPlace = nonFinancialBudget.ContactWorkingPlace
 	resItem.ContactPhone = nonFinancialBudget.ContactPhone
 	resItem.ContactEmail = nonFinancialBudget.ContactEmail
+	resItem.Statement = nonFinancialBudget.Statement
 
 	goalList, err := r.Repo.GetNonFinancialGoalList(&dto.GetNonFinancialGoalListInputMS{
 		ActivityID:           &activity.ID,

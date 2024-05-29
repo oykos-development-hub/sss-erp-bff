@@ -38,6 +38,9 @@ var NonFinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"contact_email": &graphql.Field{
 			Type: graphql.String,
 		},
+		"statement": &graphql.Field{
+			Type: graphql.String,
+		},
 		"activity": &graphql.Field{
 			Type: ActivityType,
 		},

@@ -35,6 +35,9 @@ var NonFinancialBudgetInsertMutation = graphql.NewInputObject(graphql.InputObjec
 		"contact_email": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"statement": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
 		"goals": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(NonFinancialGoalInsertMutation),
 		},

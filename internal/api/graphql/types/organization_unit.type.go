@@ -73,6 +73,9 @@ var OrganizationUnitParentType = graphql.NewObject(graphql.ObjectConfig{
 		"abbreviation": &graphql.Field{
 			Type: graphql.String,
 		},
+		"code": &graphql.Field{
+			Type: graphql.String,
+		},
 		"pib": &graphql.Field{
 			Type: graphql.String,
 		},

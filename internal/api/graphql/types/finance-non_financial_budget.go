@@ -87,7 +87,7 @@ var ActivityType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"organization_unit": &graphql.Field{
-			Type: DropdownItemType,
+			Type: OrganizationUnitParentType,
 		},
 		"goals": &graphql.Field{
 			Type: graphql.NewList(ActivityGoalType),

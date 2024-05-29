@@ -685,6 +685,10 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		grossPrice = grossPrice - taxAuthorityCodebook.ReleaseAmount
 		helper := math.Round(grossPrice*100) / 100
 		grossPrice = float64(helper)
+
+		if grossPrice < 0 {
+			grossPrice = 0
+		}
 	}
 
 	var taxPrice float64

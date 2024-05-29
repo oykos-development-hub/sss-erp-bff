@@ -36,6 +36,7 @@ type OrganizationUnitsOverviewResponse struct {
 	UpdatedAt      string                       `json:"updated_at"`
 	BankAccounts   []string                     `json:"bank_accounts"`
 	Children       *[]structs.OrganizationUnits `json:"children"`
+	Code           string                       `json:"code"`
 }
 
 type OrganizationUnitsSectorResponse struct {

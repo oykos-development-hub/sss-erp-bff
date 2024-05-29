@@ -249,26 +249,6 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			}
 		}
 
-		var orderArticles []structs.OrderArticleInsertItem
-
-		for _, article := range data.Articles {
-			orderArticles = append(orderArticles, structs.OrderArticleInsertItem{
-				Amount:        article.Amount,
-				Title:         article.Title,
-				Description:   article.Description,
-				NetPrice:      float32(article.NetPrice),
-				VatPercentage: article.VatPercentage,
-			})
-		}
-
-		err = r.Repo.CreateOrderListProcurementArticles(order.ID, structs.OrderListInsertItem{
-			ID:       order.ID,
-			Articles: orderArticles,
-		})
-		if err != nil {
-			return errors.HandleAPIError(err)
-		}
-
 	}
 
 	articles, err := r.Repo.GetInvoiceArticleList(item.ID)
@@ -308,6 +288,26 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				return errors.HandleAPIError(err)
 			}
 		}
+	}
+
+	var orderArticles []structs.OrderArticleInsertItem
+
+	for _, article := range data.Articles {
+		orderArticles = append(orderArticles, structs.OrderArticleInsertItem{
+			Amount:        article.Amount,
+			Title:         article.Title,
+			Description:   article.Description,
+			NetPrice:      float32(article.NetPrice),
+			VatPercentage: article.VatPercentage,
+		})
+	}
+
+	err = r.Repo.CreateOrderListProcurementArticles(orderID, structs.OrderListInsertItem{
+		ID:       orderID,
+		Articles: orderArticles,
+	})
+	if err != nil {
+		return errors.HandleAPIError(err)
 	}
 
 	responseItem, err := buildInvoiceResponseItem(params.Context, r, *item)

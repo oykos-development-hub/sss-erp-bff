@@ -75,7 +75,7 @@ var EnforcedPaymentType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.DateTime,
 		},
 		"id_of_statement": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"return_date": &graphql.Field{
 			Type: graphql.String,

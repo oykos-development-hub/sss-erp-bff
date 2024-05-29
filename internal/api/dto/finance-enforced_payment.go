@@ -15,7 +15,7 @@ type EnforcedPaymentResponse struct {
 	ReturnFile       FileDropdownSimple            `json:"return_file"`
 	ReturnDate       *time.Time                    `json:"return_date"`
 	ReturnAmount     *float64                      `json:"return_amount"`
-	IDOfStatement    *string                       `json:"id_of_statement"`
+	IDOfStatement    *int                          `json:"id_of_statement"`
 	SAPID            *string                       `json:"sap_id"`
 	Description      string                        `json:"description"`
 	DateOfSAP        *time.Time                    `json:"date_of_sap"`

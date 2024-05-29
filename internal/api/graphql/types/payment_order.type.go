@@ -72,7 +72,7 @@ var PaymentOrderType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.DateTime,
 		},
 		"id_of_statement": &graphql.Field{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"sap_id": &graphql.Field{
 			Type: graphql.String,

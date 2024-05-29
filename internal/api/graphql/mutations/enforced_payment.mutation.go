@@ -27,7 +27,7 @@ var EnforcedPaymentMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.String,
 		},
 		"id_of_statement": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"sap_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

@@ -372,6 +372,7 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 					Description:   article.Description,
 					InvoiceID:     insertedItem.ID,
 					AccountID:     item.Account.ID,
+					Amount:        article.Amount,
 				}
 
 				_, err = r.Repo.CreateInvoiceArticle(&invoiceArticle)

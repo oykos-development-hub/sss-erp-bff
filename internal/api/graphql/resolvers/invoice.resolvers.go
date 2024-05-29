@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"strconv"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -113,6 +112,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 
 	var item *structs.Invoice
 
+	var orderID int
 	if data.OrganizationUnitID == 0 {
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
@@ -154,25 +154,6 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				return errors.HandleAPIError(err)
 			}
 
-			for _, article := range data.Articles {
-				year := strconv.Itoa(time.Now().Year())
-				newArticle := structs.OrderProcurementArticleItem{
-					OrderID:       order.ID,
-					Year:          year,
-					Title:         article.Title,
-					Description:   article.Description,
-					Amount:        article.Amount,
-					NetPrice:      float32(article.NetPrice),
-					VatPercentage: article.VatPercentage,
-				}
-
-				_, err := r.Repo.CreateOrderProcurementArticle(&newArticle)
-
-				if err != nil {
-					return errors.HandleAPIError(err)
-				}
-			}
-
 			data.OrderID = order.ID
 
 		}
@@ -184,7 +165,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 	} else {
 
 		invoice, err := r.Repo.GetInvoice(data.ID)
-
+		orderID = invoice.OrderID
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -213,14 +194,14 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		}
 	}
 
-	if item.OrderID != 0 {
-		order, err := r.Repo.GetOrderListByID(item.OrderID)
+	if orderID != 0 {
+		order, err := r.Repo.GetOrderListByID(orderID)
 
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 
-		_, err = r.Repo.UpdateOrderListItem(item.OrderID, &structs.OrderListItem{
+		_, err = r.Repo.UpdateOrderListItem(orderID, &structs.OrderListItem{
 			ID:                    order.ID,
 			DateOrder:             order.DateOrder,
 			TotalPrice:            order.TotalPrice,

@@ -2146,10 +2146,11 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 		}
 
 		rowindex := 0
+		var title string
 
 		for rows.Next() {
 			rowindex++
-			if rowindex < 11 {
+			if rowindex < 2 {
 				continue
 			}
 
@@ -2169,11 +2170,13 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 						additionalSalaryExpense.Type = "suspensions"
 					}
 				case 2:
-					if value != "" && additionalSalaryExpense.Type == "suspensions" {
-						additionalSalaryExpense.Title = value
+					if rowindex == 2 && value != "" {
+						title = value
 					}
 				case 4:
 					additionalSalaryExpense.BankAccount = value
+				case 5:
+					additionalSalaryExpense.IdentificatorNumber = value
 				case 11:
 					noThousands := strings.ReplaceAll(value, ".", "")
 
@@ -2194,7 +2197,8 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 
 				}
 			}
-			if additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
+			if additionalSalaryExpense.Type != "" {
+				additionalSalaryExpense.Title = title
 				additionalSalaryExpense.OrganizationUnitID = organizationUnitID
 				additionalSalaryExpense.Status = "Kreiran"
 				response.Data = append(response.Data, additionalSalaryExpense)

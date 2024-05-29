@@ -137,6 +137,9 @@ var SalaryAdditionalExpenses = graphql.NewObject(graphql.ObjectConfig{
 		"type": &graphql.Field{
 			Type: graphql.String,
 		},
+		"identificator_number": &graphql.Field{
+			Type: graphql.String,
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.DateTime,
 		},

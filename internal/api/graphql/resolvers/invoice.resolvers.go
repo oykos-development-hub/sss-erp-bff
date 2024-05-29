@@ -250,6 +250,44 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
+
+		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
+			OrderID: &order.ID,
+		}
+
+		articles, err := r.Repo.GetOrderProcurementArticles(&getOrderProcurementArticleInput)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, article := range articles.Data {
+			err := r.Repo.DeleteInvoiceArticle(article.ID)
+			if err != nil {
+				return errors.HandleAPIError(err)
+
+			}
+		}
+
+		var orderArticles []structs.OrderArticleInsertItem
+
+		for _, article := range data.Articles {
+			orderArticles = append(orderArticles, structs.OrderArticleInsertItem{
+				Amount:        article.Amount,
+				Title:         article.Title,
+				Description:   article.Description,
+				NetPrice:      float32(article.NetPrice),
+				VatPercentage: article.VatPercentage,
+			})
+		}
+
+		err = r.Repo.CreateOrderListProcurementArticles(order.ID, structs.OrderListInsertItem{
+			ID:       order.ID,
+			Articles: orderArticles,
+		})
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
 	}
 
 	articles, err := r.Repo.GetInvoiceArticleList(item.ID)

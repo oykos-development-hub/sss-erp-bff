@@ -261,7 +261,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		}
 
 		for _, article := range articles.Data {
-			err := r.Repo.DeleteInvoiceArticle(article.ID)
+			err := r.Repo.DeleteOrderProcurementArticle(article.ID)
 			if err != nil {
 				return errors.HandleAPIError(err)
 

@@ -70,3 +70,11 @@ func (repo *MicroserviceRepository) PayPaymentOrder(input structs.PaymentOrder) 
 	}
 	return nil
 }
+
+func (repo *MicroserviceRepository) CancelPaymentOrder(id int) error {
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.CancelPaymentOrder+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}

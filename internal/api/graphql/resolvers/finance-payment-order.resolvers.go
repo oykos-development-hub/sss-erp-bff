@@ -242,6 +242,23 @@ func (r *Resolver) PayOrderResolver(params graphql.ResolveParams) (interface{}, 
 	}, nil
 }
 
+func (r *Resolver) CancelOrderResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+
+	err := r.Repo.CancelPaymentOrder(itemID)
+	if err != nil {
+		fmt.Printf("Canceling the order failed because this error - %s.\n", err)
+		return dto.ResponseSingle{
+			Status: "failed",
+		}, nil
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You paid this item!",
+	}, nil
+}
+
 func buildPaymentOrder(item structs.PaymentOrder, r *Resolver) (*dto.PaymentOrderResponse, error) {
 	response := dto.PaymentOrderResponse{
 		ID:              item.ID,

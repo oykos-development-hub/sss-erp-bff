@@ -107,3 +107,16 @@ func (f *Field) PayOrderField() *graphql.Field {
 		Resolve: f.Resolvers.PayOrderResolver,
 	}
 }
+
+func (f *Field) CancelOrderField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FineDeleteType,
+		Description: "Delete fixed deposit will",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.CancelOrderResolver,
+	}
+}

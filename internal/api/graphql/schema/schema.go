@@ -304,6 +304,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"getReturnedEnforcedPaymentsForAccounting":                   fields.GetReturnedEnforcedPaymentsForAccounting(),
 			"paymentOrder_Overview":                                      fields.PaymentOrderOverviewField(),
 			"payPaymentOrder":                                            fields.PayOrderField(),
+			"cancelPaymentOrder":                                         fields.CancelOrderField(),
 			"enforcedPayment_Overview":                                   fields.EnforcedPaymentOverviewField(),
 			"returnEnforcedPayment":                                      fields.ReturnEnforcedPaymentField(),
 			"modelsOfAccounting_Overview":                                fields.ModelsOfAccountingOverviewField(),

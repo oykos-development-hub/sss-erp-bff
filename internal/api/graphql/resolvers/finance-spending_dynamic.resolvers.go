@@ -13,6 +13,33 @@ import (
 )
 
 func (r *Resolver) SpendingDynamicInsert(params graphql.ResolveParams) (interface{}, error) {
+	budgetID := params.Args["budget_id"].(int)
+	unitID := params.Args["unit_id"].(int)
+
+	loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok {
+		return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
+	}
+
+	if unitID == 0 {
+		unitID = *loggedInOrganizationUnitID
+	}
+
+	if budgetID == 0 {
+		currentYear := time.Now().Year()
+		//TODO: after planning budget is done on FE, add status filter Done
+		budget, err := r.Repo.GetBudgetList(&dto.GetBudgetListInputMS{
+			Year: &currentYear,
+		})
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting budget for current year"))
+		}
+		if len(budget) != 1 {
+			return errors.HandleAPPError(errors.NewBadRequestError("Budget for current year not found"))
+		}
+		budgetID = budget[0].ID
+	}
+
 	var data []structs.SpendingDynamicInsert
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
@@ -21,7 +48,7 @@ func (r *Resolver) SpendingDynamicInsert(params graphql.ResolveParams) (interfac
 		return errors.HandleAPIError(err)
 	}
 
-	items, err := r.Repo.CreateSpendingDynamic(params.Context, data)
+	items, err := r.Repo.CreateSpendingDynamic(params.Context, budgetID, unitID, data)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

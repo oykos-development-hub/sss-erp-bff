@@ -40,7 +40,7 @@ func (repo *MicroserviceRepository) GetSpendingDynamicActual(BudgetID, unitID, a
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateSpendingDynamic(ctx context.Context, spendingDynamicList []structs.SpendingDynamicInsert) ([]dto.SpendingDynamicDTO, error) {
+func (repo *MicroserviceRepository) CreateSpendingDynamic(ctx context.Context, budgetID, unitID int, spendingDynamicList []structs.SpendingDynamicInsert) ([]dto.SpendingDynamicDTO, error) {
 	loggedInProfile, _ := ctx.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
 
 	spendingDynamicListToInsert := make([]structs.SpendingDynamicInsert, len(spendingDynamicList))
@@ -50,7 +50,7 @@ func (repo *MicroserviceRepository) CreateSpendingDynamic(ctx context.Context, s
 	}
 
 	res := dto.GetSpendingDynamicListResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.SpendingDynamicInsert, spendingDynamicListToInsert, &res)
+	_, err := makeAPIRequest("POST", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingDynamicInsert, budgetID, unitID), spendingDynamicListToInsert, &res)
 	if err != nil {
 		return res.Data, err
 	}

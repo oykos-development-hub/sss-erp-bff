@@ -191,8 +191,6 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		Amount:          item.Amount,
 		AmountForLawyer: item.AmountForLawyer,
 		AmountForAgent:  item.AmountForAgent,
-		AmountForBank:   item.AmountForBank,
-		ExecutionNumber: item.ExecutionNumber,
 		Status:          item.Status,
 		Description:     item.Description,
 		CreatedAt:       item.CreatedAt,
@@ -227,21 +225,6 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		}
 
 		response.Supplier = dropdown
-	}
-
-	if item.AgentID != 0 {
-		value, err := r.Repo.GetSupplier(item.AgentID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
-
-		response.Agent = dropdown
 	}
 
 	if item.FileID != nil && *item.FileID != 0 {

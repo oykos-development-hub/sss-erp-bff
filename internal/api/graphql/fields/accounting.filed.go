@@ -21,12 +21,6 @@ func (f *Field) GetObligationsForAccounting() *graphql.Field {
 			"type": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
-			"date_of_start": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"date_of_end": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
 		},
 		Resolve: f.Resolvers.GetObligationsForAccountingResolver,
 	}
@@ -41,12 +35,6 @@ func (f *Field) GetPaymentOrdersForAccounting() *graphql.Field {
 				Type: graphql.NewNonNull(graphql.Int),
 			},
 			"search": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"date_of_start": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"date_of_end": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
 		},
@@ -65,12 +53,6 @@ func (f *Field) GetEnforcedPaymentsForAccounting() *graphql.Field {
 			"search": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
-			"date_of_start": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"date_of_end": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
 		},
 		Resolve: f.Resolvers.GetEnforcedPaymentsForAccountingResolver,
 	}
@@ -85,12 +67,6 @@ func (f *Field) GetReturnedEnforcedPaymentsForAccounting() *graphql.Field {
 				Type: graphql.NewNonNull(graphql.Int),
 			},
 			"search": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"date_of_start": &graphql.ArgumentConfig{
-				Type: graphql.String,
-			},
-			"date_of_end": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
 		},
@@ -183,9 +159,6 @@ func (f *Field) AnalyticalCardOverviewField() *graphql.Field {
 			},
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
-			},
-			"account_id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
 			},
 		},
 		Resolve: f.Resolvers.AnalyticalCardOverviewResolver,

@@ -340,7 +340,7 @@ type MicroserviceRepositoryInterface interface {
 	GetSpendingDynamic(budgetID, unitID int, input *dto.GetSpendingDynamicHistoryInput) ([]dto.SpendingDynamicDTO, error)
 	GetSpendingDynamicHistory(budgetID, unitID int) ([]dto.SpendingDynamicHistoryDTO, error)
 	GetSpendingDynamicActual(budgetID, unitID, accountID int) (decimal.NullDecimal, error)
-	CreateSpendingDynamic(ctx context.Context, spendingDynamic []structs.SpendingDynamicInsert) ([]dto.SpendingDynamicDTO, error)
+	CreateSpendingDynamic(ctx context.Context, budgetID, unitID int, spendingDynamic []structs.SpendingDynamicInsert) ([]dto.SpendingDynamicDTO, error)
 
 	CreateSpendingRelease(ctx context.Context, spendingRelease *structs.SpendingReleaseInsert) (*structs.SpendingRelease, error)
 

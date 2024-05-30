@@ -280,6 +280,14 @@ func (f *Field) SpendingDynamicInsertField() *graphql.Field {
 			"data": &graphql.ArgumentConfig{
 				Type: graphql.NewList(mutations.SpendingDynamicMutation),
 			},
+			"budget_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
+			"unit_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
 		},
 		Resolve: f.Resolvers.SpendingDynamicInsert,
 	}
@@ -295,5 +303,22 @@ func (f *Field) SpendingReleaseInsertField() *graphql.Field {
 			},
 		},
 		Resolve: f.Resolvers.SpendingReleaseInsert,
+	}
+}
+
+func (f *Field) SpendingReleaseOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.SpendingReleaseOverviewType,
+		Description: "Spending release list",
+		Args: graphql.FieldConfigArgument{
+			"year": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
+			"month": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+		},
+		Resolve: f.Resolvers.SpendingDynamicOverview,
 	}
 }

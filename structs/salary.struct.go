@@ -24,18 +24,17 @@ type Salary struct {
 }
 
 type SalaryAdditionalExpense struct {
-	ID                  int       `json:"id"`
-	Title               string    `json:"title"`
-	SalaryID            int       `json:"salary_id"`
-	AccountID           int       `json:"account_id"`
-	DebtorID            int       `json:"debtor_id"`
-	IdentificatorNumber string    `json:"identificator_number"`
-	Amount              float64   `json:"amount"`
-	SubjectID           int       `json:"subject_id"`
-	BankAccount         string    `json:"bank_account"`
-	Status              string    `json:"status"`
-	OrganizationUnitID  int       `json:"organization_unit_id"`
-	Type                string    `json:"type"`
-	CreatedAt           time.Time `json:"created_at"`
-	UpdatedAt           time.Time `json:"updated_at"`
+	ID                 int       `json:"id"`
+	Title              string    `json:"title"`
+	SalaryID           int       `json:"salary_id"`
+	AccountID          int       `json:"account_id"`
+	DebtorID           int       `json:"debtor_id"`
+	Amount             float64   `json:"amount"`
+	SubjectID          int       `json:"subject_id"`
+	BankAccount        string    `json:"bank_account"`
+	Status             string    `json:"status"`
+	OrganizationUnitID int       `json:"organization_unit_id"`
+	Type               string    `json:"type"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }

@@ -156,26 +156,6 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 
 			data.OrderID = order.ID
 
-			var orderArticles []structs.OrderArticleInsertItem
-
-			for _, article := range data.Articles {
-				orderArticles = append(orderArticles, structs.OrderArticleInsertItem{
-					Amount:        article.Amount,
-					Title:         article.Title,
-					Description:   article.Description,
-					NetPrice:      float32(article.NetPrice),
-					VatPercentage: article.VatPercentage,
-				})
-			}
-
-			err = r.Repo.CreateOrderListProcurementArticles(orderID, structs.OrderListInsertItem{
-				ID:       orderID,
-				Articles: orderArticles,
-			})
-			if err != nil {
-				return errors.HandleAPIError(err)
-			}
-
 		}
 
 		item, err = r.Repo.CreateInvoice(&data)
@@ -195,8 +175,8 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			return errors.HandleAPIError(err)
 		}
 
-		if invoice.OrderID != 0 {
-			order, err := r.Repo.GetOrderListByID(invoice.OrderID)
+		if invoice.DateOfInvoice == nil && data.DateOfInvoice != nil && invoice.InvoiceNumber == "" && data.InvoiceNumber != "" && data.OrderID != 0 {
+			order, err := r.Repo.GetOrderListByID(data.OrderID)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -252,8 +232,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			return errors.HandleAPIError(err)
 		}
 
-		//nije dobro brisanje artikala zbog javnih nabavki i racunanja preostalih kolicina
-		/*getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
+		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
 			OrderID: &order.ID,
 		}
 
@@ -268,7 +247,27 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				return errors.HandleAPIError(err)
 
 			}
-		}*/
+		}
+
+		var orderArticles []structs.OrderArticleInsertItem
+
+		for _, article := range data.Articles {
+			orderArticles = append(orderArticles, structs.OrderArticleInsertItem{
+				Amount:        article.Amount,
+				Title:         article.Title,
+				Description:   article.Description,
+				NetPrice:      float32(article.NetPrice),
+				VatPercentage: article.VatPercentage,
+			})
+		}
+
+		err = r.Repo.CreateOrderListProcurementArticles(order.ID, structs.OrderListInsertItem{
+			ID:       order.ID,
+			Articles: orderArticles,
+		})
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
 
 	}
 
@@ -435,15 +434,11 @@ func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolvePara
 	}, nil
 }
 
-func calculateCoefficient(item structs.TaxAuthorityCodebook, subTax float64, netPrice float64) float64 {
+func calculateCoefficient(item structs.TaxAuthorityCodebook, subTax float64) float64 {
 	var coefficient float64
 
 	coefficient = 1
 	release := item.ReleasePercentage
-
-	if item.ReleaseAmount != 0 {
-		release = item.ReleaseAmount / netPrice
-	}
 
 	if release != 0 {
 		if item.TaxPercentage != 0 {
@@ -567,7 +562,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 		//konvertuje neto u bruto
 		if previousIncomeNetOK && taxAuthorityCodebook.TaxPercentage != 0 {
-			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage), previousIncomeNet)
+			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage))
 			previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.Coefficient
 			helper := math.Round(previousIncomeGross*100) / 100
 			previousIncomeGross = float64(helper)
@@ -606,7 +601,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		}
 
 		if taxAuthorityCodebook.TaxPercentage != 0 {
-			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage), netPrice)
+			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage))
 			grossPrice = netPrice / taxAuthorityCodebook.Coefficient
 			helper := math.Round(grossPrice*100) / 100
 			grossPrice = float64(helper)
@@ -686,10 +681,6 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		grossPrice = grossPrice - taxAuthorityCodebook.ReleaseAmount
 		helper := math.Round(grossPrice*100) / 100
 		grossPrice = float64(helper)
-
-		if grossPrice < 0 {
-			grossPrice = 0
-		}
 	}
 
 	var taxPrice float64

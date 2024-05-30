@@ -54,3 +54,21 @@ var SpendingReleaseItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var SpendingReleaseOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "SpendingReleaseOverview",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(SpendingReleaseItemType),
+		},
+	},
+})

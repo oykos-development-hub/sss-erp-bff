@@ -260,12 +260,6 @@ var AccountingEntryItemType = graphql.NewObject(graphql.ObjectConfig{
 		"account": &graphql.Field{
 			Type: DropdownItemType,
 		},
-		"entry_number": &graphql.Field{
-			Type: graphql.String,
-		},
-		"entry_date": &graphql.Field{
-			Type: graphql.String,
-		},
 		"date": &graphql.Field{
 			Type: graphql.String,
 		},

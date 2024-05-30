@@ -8,8 +8,6 @@ import (
 
 type SpendingDynamicInsert struct {
 	ID        int             `json:"id"`
-	BudgetID  int             `json:"budget_id"`
-	UnitID    int             `json:"unit_id"`
 	Username  string          `json:"username"`
 	AccountID int             `json:"account_id"`
 	January   decimal.Decimal `json:"january"`

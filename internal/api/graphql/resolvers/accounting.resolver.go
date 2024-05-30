@@ -27,6 +27,24 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 		input.Search = &value
 	}
 
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStart = &dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEnd = &dateOfEnd
+	}
+
 	items, total, err := r.Repo.GetAllObligationsForAccounting(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
@@ -73,6 +91,24 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 
 	if value, ok := params.Args["search"].(string); ok && value != "" {
 		input.Search = &value
+	}
+
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStart = &dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEnd = &dateOfEnd
 	}
 
 	items, total, err := r.Repo.GetAllPaymentOrdersForAccounting(input)
@@ -123,6 +159,24 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 		input.Search = &value
 	}
 
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStart = &dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEnd = &dateOfEnd
+	}
+
 	items, total, err := r.Repo.GetAllEnforcedPaymentsForAccounting(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
@@ -169,6 +223,24 @@ func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graph
 
 	if value, ok := params.Args["search"].(string); ok && value != "" {
 		input.Search = &value
+	}
+
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStart = &dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEnd = &dateOfEnd
 	}
 
 	items, total, err := r.Repo.GetAllReturnedEnforcedPaymentsForAccounting(input)

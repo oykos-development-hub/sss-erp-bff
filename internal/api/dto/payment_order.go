@@ -39,12 +39,14 @@ type PaymentOrderFilter struct {
 }
 
 type ObligationsFilter struct {
-	Page               *int    `json:"page"`
-	Size               *int    `json:"size"`
-	OrganizationUnitID int     `json:"organization_unit_id"`
-	SupplierID         int     `json:"supplier_id"`
-	Search             *string `json:"search"`
-	Type               *string `json:"type"`
+	Page               *int       `json:"page"`
+	Size               *int       `json:"size"`
+	OrganizationUnitID int        `json:"organization_unit_id"`
+	SupplierID         int        `json:"supplier_id"`
+	Search             *string    `json:"search"`
+	Type               *string    `json:"type"`
+	DateOfStart        *time.Time `json:"date_of_start"`
+	DateOfEnd          *time.Time `json:"date_of_end"`
 }
 
 type Obligation struct {

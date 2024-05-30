@@ -220,7 +220,7 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 						Title: account.Data[0].Title,
 					},
 					TotalPrice:  amount,
-					RemainPrice: remainAccountMap[accountID],
+					RemainPrice: math.Round(remainAccountMap[accountID]/100) * 100,
 				})
 			} else {
 				for m := 0; m < 10000; m++ {
@@ -240,7 +240,7 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 								Title: account.Data[0].Title,
 							},
 							TotalPrice:  amount,
-							RemainPrice: remainAccountMap[accountID],
+							RemainPrice: math.Round(remainAccountMap[accountID]/100) * 100,
 						})
 						break
 					}

@@ -678,6 +678,8 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		ID:           item.ID,
 		Title:        item.Title,
 		EntryID:      item.EntryID,
+		EntryNumber:  item.EntryNumber,
+		EntryDate:    item.EntryDate,
 		CreditAmount: item.CreditAmount,
 		DebitAmount:  item.DebitAmount,
 		Type:         item.Type,

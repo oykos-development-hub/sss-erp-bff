@@ -523,8 +523,22 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 			return apierrors.HandleAPIError(err)
 		}
 
-		for _, account := range accounts.Data {
+		if len(accounts.Data) > 0 {
 			input.AccountID = append(input.AccountID, account.ID)
+			for i := accounts.Data[0].Version - 1; i > 0; i-- {
+				currAccount, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+					SerialNumber: &account.SerialNumber,
+					Version:      &i,
+				})
+
+				if err != nil {
+					return apierrors.HandleAPIError(err)
+				}
+
+				if len(currAccount.Data) > 0 {
+					input.AccountID = append(input.AccountID, currAccount.Data[0].ID)
+				}
+			}
 		}
 	}
 

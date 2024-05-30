@@ -184,6 +184,9 @@ func (f *Field) AnalyticalCardOverviewField() *graphql.Field {
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
 			},
+			"account_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 		},
 		Resolve: f.Resolvers.AnalyticalCardOverviewResolver,
 	}

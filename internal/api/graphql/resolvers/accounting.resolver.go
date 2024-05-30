@@ -508,6 +508,26 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		input.DateOfEndBooking = &dateOfEnd
 	}
 
+	if value, ok := params.Args["account_id"].(int); ok && value != 0 {
+		account, err := r.Repo.GetAccountItemByID(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+			SerialNumber: &account.SerialNumber,
+		})
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		for _, account := range accounts.Data {
+			input.AccountID = append(input.AccountID, account.ID)
+		}
+	}
+
 	items, err := r.Repo.GetAnalyticalCard(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)

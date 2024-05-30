@@ -144,6 +144,7 @@ type GetAccountingEntryListResponseMS struct {
 }
 
 type AnalyticalCardFilter struct {
+	AccountID          []int      `json:"account_id"`
 	SupplierID         *int       `json:"supplier_id"`
 	OrganizationUnitID int        `json:"organization_unit_id"`
 	DateOfStart        *time.Time `json:"date_of_start"`

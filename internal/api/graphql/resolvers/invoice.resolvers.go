@@ -195,8 +195,8 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			return errors.HandleAPIError(err)
 		}
 
-		if invoice.DateOfInvoice == nil && data.DateOfInvoice != nil && invoice.InvoiceNumber == "" && data.InvoiceNumber != "" && data.OrderID != 0 {
-			order, err := r.Repo.GetOrderListByID(data.OrderID)
+		if invoice.OrderID != 0 {
+			order, err := r.Repo.GetOrderListByID(invoice.OrderID)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}

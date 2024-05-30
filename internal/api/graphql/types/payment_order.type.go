@@ -194,8 +194,5 @@ var InvoiceItemsType = graphql.NewObject(graphql.ObjectConfig{
 		"remain_price": &graphql.Field{
 			Type: graphql.Float,
 		},
-		"title": &graphql.Field{
-			Type: graphql.String,
-		},
 	},
 })

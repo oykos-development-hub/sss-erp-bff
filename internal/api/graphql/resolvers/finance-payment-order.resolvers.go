@@ -192,6 +192,7 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 				return nil, err
 			}
 
+			//prolazak kroz sve account_id-eve i ako je verzija razlicita sabiramo ih
 			if currentAmount, exists := accountMap[account.SerialNumber]; exists {
 				accountMap[account.SerialNumber] = currentAmount + items[i].InvoiceItems[j].TotalPrice
 				remainAccountMap[account.SerialNumber] = accountMap[account.SerialNumber]
@@ -210,9 +211,14 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 				return nil, err
 			}
 
+			//pronalazak najsvjezije verzije konta sa datim serijskim brojem, ako ne postoji, onda trazimo najstariji postojeci
 			if len(account.Data) > 0 {
 				invoiceItems = append(invoiceItems, dto.InvoiceItems{
-					AccountID:   account.Data[0].ID,
+					AccountID: account.Data[0].ID,
+					Account: dto.DropdownSimple{
+						ID:    account.Data[0].ID,
+						Title: account.Data[0].Title,
+					},
 					TotalPrice:  amount,
 					RemainPrice: remainAccountMap[accountID],
 				})
@@ -228,7 +234,11 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 
 					if len(account.Data) > 0 {
 						invoiceItems = append(invoiceItems, dto.InvoiceItems{
-							AccountID:   account.Data[0].ID,
+							AccountID: account.Data[0].ID,
+							Account: dto.DropdownSimple{
+								ID:    account.Data[0].ID,
+								Title: account.Data[0].Title,
+							},
 							TotalPrice:  amount,
 							RemainPrice: remainAccountMap[accountID],
 						})

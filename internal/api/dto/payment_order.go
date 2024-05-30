@@ -64,9 +64,10 @@ type Obligation struct {
 }
 
 type InvoiceItems struct {
-	AccountID   int     `json:"account_id"`
-	TotalPrice  float64 `json:"total_price"`
-	RemainPrice float64 `json:"remain_price"`
+	AccountID   int            `json:"account_id"`
+	Account     DropdownSimple `json:"account"`
+	TotalPrice  float64        `json:"total_price"`
+	RemainPrice float64        `json:"remain_price"`
 }
 
 type GetObligationsResponseMS struct {

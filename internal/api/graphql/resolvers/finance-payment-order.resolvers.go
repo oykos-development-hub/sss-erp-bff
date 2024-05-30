@@ -180,18 +180,65 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 	}
 
 	for i := 0; i < len(items); i++ {
+		items[i].RemainPrice = math.Round(items[i].RemainPrice*100) / 100
 
-		if items[i].InvoiceID != nil && *items[i].InvoiceID != 0 {
-			invoiceItems, err := buildInvoiceItemsForPaymentOrder(*items[i].InvoiceID, r)
+		accountMap := make(map[string]float64)
+		remainAccountMap := make(map[string]float64)
+
+		for j := 0; j < len(items[i].InvoiceItems); j++ {
+			account, err := r.Repo.GetAccountItemByID(items[i].InvoiceItems[j].AccountID)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return nil, err
 			}
 
-			items[i].InvoiceItems = invoiceItems
+			if currentAmount, exists := accountMap[account.SerialNumber]; exists {
+				accountMap[account.SerialNumber] = currentAmount + items[i].InvoiceItems[j].TotalPrice
+				remainAccountMap[account.SerialNumber] = accountMap[account.SerialNumber]
+			} else {
+				accountMap[account.SerialNumber] = items[i].InvoiceItems[j].TotalPrice
+				remainAccountMap[account.SerialNumber] = accountMap[account.SerialNumber]
+			}
 		}
 
-		items[i].RemainPrice = math.Round(items[i].RemainPrice*100) / 100
+		var invoiceItems []dto.InvoiceItems
+
+		for accountID, amount := range accountMap {
+			account, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{SerialNumber: &accountID})
+
+			if err != nil {
+				return nil, err
+			}
+
+			if len(account.Data) > 0 {
+				invoiceItems = append(invoiceItems, dto.InvoiceItems{
+					AccountID:   account.Data[0].ID,
+					TotalPrice:  amount,
+					RemainPrice: remainAccountMap[accountID],
+				})
+			} else {
+				for m := 0; m < 10000; m++ {
+					account, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+						SerialNumber: &accountID,
+						Version:      &m})
+
+					if err != nil {
+						return nil, err
+					}
+
+					if len(account.Data) > 0 {
+						invoiceItems = append(invoiceItems, dto.InvoiceItems{
+							AccountID:   account.Data[0].ID,
+							TotalPrice:  amount,
+							RemainPrice: remainAccountMap[accountID],
+						})
+						break
+					}
+				}
+			}
+		}
+
+		items[i].InvoiceItems = invoiceItems
 	}
 
 	message := "Here's the list you asked for!"
@@ -381,8 +428,4 @@ func buildPaymentOrderItem(item structs.PaymentOrderItems, r *Resolver) (*dto.Pa
 	}
 
 	return &response, nil
-}
-
-func buildInvoiceItemsForPaymentOrder(invoiceID int, r *Resolver) ([]dto.Obligation, error) {
-	return nil, nil
 }

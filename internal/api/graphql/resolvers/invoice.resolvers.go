@@ -156,6 +156,26 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 
 			data.OrderID = order.ID
 
+			var orderArticles []structs.OrderArticleInsertItem
+
+			for _, article := range data.Articles {
+				orderArticles = append(orderArticles, structs.OrderArticleInsertItem{
+					Amount:        article.Amount,
+					Title:         article.Title,
+					Description:   article.Description,
+					NetPrice:      float32(article.NetPrice),
+					VatPercentage: article.VatPercentage,
+				})
+			}
+
+			err = r.Repo.CreateOrderListProcurementArticles(orderID, structs.OrderListInsertItem{
+				ID:       orderID,
+				Articles: orderArticles,
+			})
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
 		}
 
 		item, err = r.Repo.CreateInvoice(&data)
@@ -232,7 +252,8 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			return errors.HandleAPIError(err)
 		}
 
-		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
+		//nije dobro brisanje artikala zbog javnih nabavki i racunanja preostalih kolicina
+		/*getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
 			OrderID: &order.ID,
 		}
 
@@ -247,7 +268,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				return errors.HandleAPIError(err)
 
 			}
-		}
+		}*/
 
 	}
 
@@ -288,26 +309,6 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				return errors.HandleAPIError(err)
 			}
 		}
-	}
-
-	var orderArticles []structs.OrderArticleInsertItem
-
-	for _, article := range data.Articles {
-		orderArticles = append(orderArticles, structs.OrderArticleInsertItem{
-			Amount:        article.Amount,
-			Title:         article.Title,
-			Description:   article.Description,
-			NetPrice:      float32(article.NetPrice),
-			VatPercentage: article.VatPercentage,
-		})
-	}
-
-	err = r.Repo.CreateOrderListProcurementArticles(orderID, structs.OrderListInsertItem{
-		ID:       orderID,
-		Articles: orderArticles,
-	})
-	if err != nil {
-		return errors.HandleAPIError(err)
 	}
 
 	responseItem, err := buildInvoiceResponseItem(params.Context, r, *item)

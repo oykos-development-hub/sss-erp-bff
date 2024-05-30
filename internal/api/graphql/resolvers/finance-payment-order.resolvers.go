@@ -195,10 +195,10 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 			//prolazak kroz sve account_id-eve i ako je verzija razlicita sabiramo ih
 			if currentAmount, exists := accountMap[account.SerialNumber]; exists {
 				accountMap[account.SerialNumber] = currentAmount + items[i].InvoiceItems[j].TotalPrice
-				remainAccountMap[account.SerialNumber] = accountMap[account.SerialNumber]
+				remainAccountMap[account.SerialNumber] += items[i].InvoiceItems[j].RemainPrice
 			} else {
 				accountMap[account.SerialNumber] = items[i].InvoiceItems[j].TotalPrice
-				remainAccountMap[account.SerialNumber] = accountMap[account.SerialNumber]
+				remainAccountMap[account.SerialNumber] += items[i].InvoiceItems[j].RemainPrice
 			}
 		}
 

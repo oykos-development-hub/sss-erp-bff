@@ -297,6 +297,18 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 
 	if itemID != 0 {
 		listInsertItem.Status = "Updated"
+
+		orderList, err := r.Repo.GetOrderListByID(itemID)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		listInsertItem.DateSystem = orderList.DateSystem
+		listInsertItem.InvoiceDate = orderList.InvoiceDate
+		listInsertItem.InvoiceNumber = orderList.InvoiceNumber
+		listInsertItem.ReceiveFile = orderList.ReceiveFile
+
 		res, err := r.Repo.UpdateOrderListItem(itemID, listInsertItem)
 		if err != nil {
 			return apierrors.HandleAPIError(err)

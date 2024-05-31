@@ -201,13 +201,14 @@ func buildSalary(item structs.Salary, r *Resolver) (*dto.SalaryResponse, error) 
 
 func buildSalaryAdditionalExpense(item structs.SalaryAdditionalExpense, r *Resolver) (*dto.SalaryAdditionalExpensesResponse, error) {
 	response := dto.SalaryAdditionalExpensesResponse{
-		ID:          item.ID,
-		SalaryID:    item.SalaryID,
-		Amount:      item.Amount,
-		BankAccount: item.BankAccount,
-		Status:      item.Status,
-		Type:        item.Type,
-		Title:       item.Title,
+		ID:                  item.ID,
+		SalaryID:            item.SalaryID,
+		Amount:              item.Amount,
+		BankAccount:         item.BankAccount,
+		Status:              item.Status,
+		IdentificatorNumber: item.IdentificatorNumber,
+		Type:                item.Type,
+		Title:               item.Title,
 	}
 
 	if item.OrganizationUnitID != 0 {

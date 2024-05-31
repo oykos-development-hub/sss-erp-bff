@@ -20,6 +20,9 @@ type EnforcedPayment struct {
 	Amount             float64                `json:"amount"`
 	AmountForLawyer    float64                `json:"amount_for_lawyer"`
 	AmountForAgent     float64                `json:"amount_for_agent"`
+	AmountForBank      float64                `json:"amount_for_bank"`
+	AgentID            int                    `json:"agent_id"`
+	ExecutionNumber    string                 `json:"execution_number"`
 	Description        string                 `json:"description"`
 	Status             string                 `json:"status"`
 	CreatedAt          time.Time              `json:"created_at"`

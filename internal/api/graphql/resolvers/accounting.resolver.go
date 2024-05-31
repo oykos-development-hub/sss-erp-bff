@@ -27,6 +27,24 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 		input.Search = &value
 	}
 
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStart = &dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEnd = &dateOfEnd
+	}
+
 	items, total, err := r.Repo.GetAllObligationsForAccounting(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
@@ -73,6 +91,24 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 
 	if value, ok := params.Args["search"].(string); ok && value != "" {
 		input.Search = &value
+	}
+
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStart = &dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEnd = &dateOfEnd
 	}
 
 	items, total, err := r.Repo.GetAllPaymentOrdersForAccounting(input)
@@ -123,6 +159,24 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 		input.Search = &value
 	}
 
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStart = &dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEnd = &dateOfEnd
+	}
+
 	items, total, err := r.Repo.GetAllEnforcedPaymentsForAccounting(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
@@ -169,6 +223,24 @@ func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graph
 
 	if value, ok := params.Args["search"].(string); ok && value != "" {
 		input.Search = &value
+	}
+
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStart = &dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEnd = &dateOfEnd
 	}
 
 	items, total, err := r.Repo.GetAllReturnedEnforcedPaymentsForAccounting(input)
@@ -436,6 +508,40 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		input.DateOfEndBooking = &dateOfEnd
 	}
 
+	if value, ok := params.Args["account_id"].(int); ok && value != 0 {
+		account, err := r.Repo.GetAccountItemByID(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+			SerialNumber: &account.SerialNumber,
+		})
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+
+		if len(accounts.Data) > 0 {
+			input.AccountID = append(input.AccountID, account.ID)
+			for i := accounts.Data[0].Version - 1; i > 0; i-- {
+				currAccount, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+					SerialNumber: &account.SerialNumber,
+					Version:      &i,
+				})
+
+				if err != nil {
+					return apierrors.HandleAPIError(err)
+				}
+
+				if len(currAccount.Data) > 0 {
+					input.AccountID = append(input.AccountID, currAccount.Data[0].ID)
+				}
+			}
+		}
+	}
+
 	items, err := r.Repo.GetAnalyticalCard(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
@@ -606,6 +712,8 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		ID:           item.ID,
 		Title:        item.Title,
 		EntryID:      item.EntryID,
+		EntryNumber:  item.EntryNumber,
+		EntryDate:    item.EntryDate,
 		CreditAmount: item.CreditAmount,
 		DebitAmount:  item.DebitAmount,
 		Type:         item.Type,

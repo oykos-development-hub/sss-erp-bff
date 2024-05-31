@@ -89,6 +89,9 @@ var PaymentOrderType = graphql.NewObject(graphql.ObjectConfig{
 		"items": &graphql.Field{
 			Type: graphql.NewList(PaymentOrderItemsType),
 		},
+		"account_amounts": &graphql.Field{
+			Type: graphql.NewList(AccountAmountsType),
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.DateTime,
 		},
@@ -172,6 +175,24 @@ var ObligationsType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"type": &graphql.Field{
 			Type: graphql.String,
+		},
+		"invoice_items": &graphql.Field{
+			Type: graphql.NewList(InvoiceItemsType),
+		},
+	},
+})
+
+var InvoiceItemsType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "InvoiceItemsType",
+	Fields: graphql.Fields{
+		"account": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"total_price": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"remain_price": &graphql.Field{
+			Type: graphql.Float,
 		},
 	},
 })

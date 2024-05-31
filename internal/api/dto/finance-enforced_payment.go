@@ -24,6 +24,9 @@ type EnforcedPaymentResponse struct {
 	Amount           float64                       `json:"amount"`
 	AmountForLawyer  float64                       `json:"amount_for_lawyer"`
 	AmountForAgent   float64                       `json:"amount_for_agent"`
+	AmountForBank    float64                       `json:"amount_for_bank"`
+	Agent            DropdownSimple                `json:"agent"`
+	ExecutionNumber  string                        `json:"execution_number"`
 	Status           string                        `json:"status"`
 	CreatedAt        time.Time                     `json:"created_at"`
 	UpdatedAt        time.Time                     `json:"updated_at"`

@@ -2146,10 +2146,11 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 		}
 
 		rowindex := 0
+		var title string
 
 		for rows.Next() {
 			rowindex++
-			if rowindex < 11 {
+			if rowindex < 2 {
 				continue
 			}
 
@@ -2164,22 +2165,26 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 			for cellIndex, cellValue := range cols {
 				value := cellValue
 				switch cellIndex {
+				case 0:
+					if rowindex == 2 && value != "" {
+						title = value
+					}
 				case 1:
 					if value != "" && value != "Zaposleni" {
 						additionalSalaryExpense.Type = "suspensions"
 					}
-				case 2:
-					if value != "" && additionalSalaryExpense.Type == "suspensions" {
-						additionalSalaryExpense.Title = value
-					}
-				case 4:
+				case 5:
 					additionalSalaryExpense.BankAccount = value
+				case 4:
+					additionalSalaryExpense.IdentificatorNumber = value
 				case 11:
 					noThousands := strings.ReplaceAll(value, ".", "")
 
-					normalized := strings.ReplaceAll(noThousands, ",", ".")
+					normalized := strings.ReplaceAll(noThousands, ",", "")
 
 					price, err := strconv.ParseFloat(normalized, 32)
+
+					price = price / 100
 
 					if err != nil && value != "" && additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" && value != "Iznos rate" {
 						responseMessage := ValidationResponse{
@@ -2194,7 +2199,8 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 
 				}
 			}
-			if additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" {
+			if additionalSalaryExpense.Type != "" && rowindex > 10 {
+				additionalSalaryExpense.Title = title
 				additionalSalaryExpense.OrganizationUnitID = organizationUnitID
 				additionalSalaryExpense.Status = "Kreiran"
 				response.Data = append(response.Data, additionalSalaryExpense)

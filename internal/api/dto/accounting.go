@@ -110,6 +110,8 @@ type AccountingEntryItemResponse struct {
 	ID                    int            `json:"id"`
 	Title                 string         `json:"title"`
 	EntryID               int            `json:"entry_id"`
+	EntryNumber           string         `json:"entry_number"`
+	EntryDate             time.Time      `json:"entry_date"`
 	Account               DropdownSimple `json:"account"`
 	CreditAmount          float64        `json:"credit_amount"`
 	DebitAmount           float64        `json:"debit_amount"`
@@ -142,6 +144,7 @@ type GetAccountingEntryListResponseMS struct {
 }
 
 type AnalyticalCardFilter struct {
+	AccountID          []int      `json:"account_id"`
 	SupplierID         *int       `json:"supplier_id"`
 	OrganizationUnitID int        `json:"organization_unit_id"`
 	DateOfStart        *time.Time `json:"date_of_start"`

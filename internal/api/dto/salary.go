@@ -62,17 +62,18 @@ type SalaryResponse struct {
 }
 
 type SalaryAdditionalExpensesResponse struct {
-	ID               int            `json:"id"`
-	SalaryID         int            `json:"salary_id"`
-	Account          DropdownSimple `json:"account"`
-	Debtor           DropdownSimple `json:"debtor"`
-	Amount           float64        `json:"amount"`
-	Subject          DropdownSimple `json:"subject"`
-	BankAccount      string         `json:"bank_account"`
-	Status           string         `json:"status"`
-	Title            string         `json:"title"`
-	OrganizationUnit DropdownSimple `json:"organization_unit"`
-	Type             string         `json:"type"`
-	CreatedAt        time.Time      `json:"created_at"`
-	UpdatedAt        time.Time      `json:"updated_at"`
+	ID                  int            `json:"id"`
+	SalaryID            int            `json:"salary_id"`
+	Account             DropdownSimple `json:"account"`
+	Debtor              DropdownSimple `json:"debtor"`
+	Amount              float64        `json:"amount"`
+	Subject             DropdownSimple `json:"subject"`
+	BankAccount         string         `json:"bank_account"`
+	Status              string         `json:"status"`
+	Title               string         `json:"title"`
+	OrganizationUnit    DropdownSimple `json:"organization_unit"`
+	IdentificatorNumber string         `json:"identificator_number"`
+	Type                string         `json:"type"`
+	CreatedAt           time.Time      `json:"created_at"`
+	UpdatedAt           time.Time      `json:"updated_at"`
 }

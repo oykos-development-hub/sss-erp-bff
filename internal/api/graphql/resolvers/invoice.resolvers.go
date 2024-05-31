@@ -185,7 +185,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 	} else {
 
 		invoice, err := r.Repo.GetInvoice(data.ID)
-		orderID = invoice.OrderID
+		//orderID = invoice.OrderID
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -201,8 +201,11 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				return errors.HandleAPIError(err)
 			}
 
-			invoiceDate := data.DateOfInvoice.Format("2006-01-02T15:04:05Z")
-			order.InvoiceDate = &invoiceDate
+			var invoiceDate string
+			if data.DateOfInvoice != nil {
+				invoiceDate = data.DateOfInvoice.Format("2006-01-02T15:04:05Z")
+				order.InvoiceDate = &invoiceDate
+			}
 			order.InvoiceNumber = &data.InvoiceNumber
 			order.ReceiveFile = []int{data.ProFormaInvoiceFileID}
 
@@ -214,7 +217,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		}
 	}
 
-	if orderID != 0 {
+	/*if orderID != 0 {
 		order, err := r.Repo.GetOrderListByID(orderID)
 
 		if err != nil {
@@ -268,9 +271,9 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				return errors.HandleAPIError(err)
 
 			}
-		}*/
+		}
 
-	}
+	}*/
 
 	articles, err := r.Repo.GetInvoiceArticleList(item.ID)
 

@@ -280,35 +280,12 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 
 	itemID := data.ID
 
-	var orderList *structs.OrderListItem
-
-	if itemID != 0 {
-		orderList, err = r.Repo.GetOrderListByID(itemID)
-
-		if err != nil {
-			return apierrors.HandleAPIError(err)
-		}
-	}
-
 	listInsertItem, err := buildOrderListInsertItem(params.Context, r.Repo, &data)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
 
 	if itemID != 0 {
-		listInsertItem.Status = "Updated"
-
-		orderList, err := r.Repo.GetOrderListByID(itemID)
-
-		if err != nil {
-			return apierrors.HandleAPIError(err)
-		}
-
-		listInsertItem.DateSystem = orderList.DateSystem
-		listInsertItem.InvoiceDate = orderList.InvoiceDate
-		listInsertItem.InvoiceNumber = orderList.InvoiceNumber
-		listInsertItem.ReceiveFile = orderList.ReceiveFile
-
 		res, err := r.Repo.UpdateOrderListItem(itemID, listInsertItem)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
@@ -354,78 +331,93 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 		response.Item = item
 	}
 
-	if data.PassedToFinance && !orderList.PassedToFinance {
+	return response, nil
+}
 
-		err := r.Repo.SendOrderListToFinance(data.ID)
+func (r *Resolver) PassOrderListToFinance(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(int)
 
-		if err != nil {
-			return apierrors.HandleAPIError(err)
-		}
+	orderListBE, err := r.Repo.GetOrderListByID(id)
 
-		var proFormaInvoiceDatePtr *time.Time
-		if item.ProFormaInvoiceDate != nil {
-			proFormaInvoiceDate, _ := parseDate(*item.ProFormaInvoiceDate)
-			proFormaInvoiceDatePtr = &proFormaInvoiceDate
-		}
-
-		var receiptDatePtr *time.Time
-		if item.DateSystem != nil {
-			receiptDate, _ := parseDate(*item.DateSystem)
-			receiptDatePtr = &receiptDate
-		}
-
-		var invoiceDatePtr *time.Time
-		if item.InvoiceDate != nil {
-			invoiceDate, _ := parseDate(*item.InvoiceDate)
-			invoiceDatePtr = &invoiceDate
-		}
-
-		invoice := structs.Invoice{
-			ProFormaInvoiceNumber: item.ProFormaInvoiceNumber,
-			ProFormaInvoiceDate:   proFormaInvoiceDatePtr,
-			Status:                "Nepotpun",
-			Type:                  "invoices",
-			SupplierID:            item.SupplierID,
-			OrderID:               item.ID,
-			OrganizationUnitID:    item.OrganizationUnitID,
-			FileID:                item.OrderFile.ID,
-			Registred:             false,
-			InvoiceNumber:         item.InvoiceNumber,
-			ReceiptDate:           receiptDatePtr,
-			DateOfInvoice:         invoiceDatePtr,
-		}
-
-		if len(item.ReceiveFile) > 0 {
-			invoice.ProFormaInvoiceFileID = item.ReceiveFile[0].ID
-		}
-
-		insertedItem, err := r.Repo.CreateInvoice(&invoice)
-		if err != nil {
-			return apierrors.HandleAPIError(err)
-		}
-
-		for _, article := range *item.Articles {
-			vatPercentage, _ := strconv.Atoi(article.VatPercentage)
-
-			invoiceArticle := structs.InvoiceArticles{
-				Title:         article.Title,
-				NetPrice:      float64(article.NetPrice),
-				VatPercentage: vatPercentage,
-				Description:   article.Description,
-				InvoiceID:     insertedItem.ID,
-				Amount:        article.Amount,
-			}
-
-			_, err = r.Repo.CreateInvoiceArticle(&invoiceArticle)
-
-			if err != nil {
-				return apierrors.HandleAPIError(err)
-			}
-		}
-
+	if err != nil {
+		return apierrors.HandleAPIError(err)
 	}
 
-	return response, nil
+	orderList, err := buildOrderListResponseItem(params.Context, r.Repo, orderListBE)
+
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	err = r.Repo.SendOrderListToFinance(id)
+
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	var proFormaInvoiceDatePtr *time.Time
+	if orderList.ProFormaInvoiceDate != nil {
+		proFormaInvoiceDate, _ := parseDate(*orderList.ProFormaInvoiceDate)
+		proFormaInvoiceDatePtr = &proFormaInvoiceDate
+	}
+
+	var receiptDatePtr *time.Time
+	if orderList.DateSystem != nil {
+		receiptDate, _ := parseDate(*orderList.DateSystem)
+		receiptDatePtr = &receiptDate
+	}
+
+	var invoiceDatePtr *time.Time
+	if orderList.InvoiceDate != nil {
+		invoiceDate, _ := parseDate(*orderList.InvoiceDate)
+		invoiceDatePtr = &invoiceDate
+	}
+
+	invoice := structs.Invoice{
+		ProFormaInvoiceNumber: orderList.ProFormaInvoiceNumber,
+		ProFormaInvoiceDate:   proFormaInvoiceDatePtr,
+		Status:                "Nepotpun",
+		Type:                  "invoices",
+		SupplierID:            orderList.SupplierID,
+		OrderID:               orderList.ID,
+		OrganizationUnitID:    orderList.OrganizationUnitID,
+		FileID:                orderList.OrderFile.ID,
+		Registred:             false,
+		InvoiceNumber:         orderList.InvoiceNumber,
+		ReceiptDate:           receiptDatePtr,
+		DateOfInvoice:         invoiceDatePtr,
+	}
+
+	if len(orderList.ReceiveFile) > 0 {
+		invoice.ProFormaInvoiceFileID = orderList.ReceiveFile[0].ID
+	}
+
+	insertedItem, err := r.Repo.CreateInvoice(&invoice)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	for _, article := range *orderList.Articles {
+		vatPercentage, _ := strconv.Atoi(article.VatPercentage)
+
+		invoiceArticle := structs.InvoiceArticles{
+			Title:         article.Title,
+			NetPrice:      float64(article.NetPrice),
+			VatPercentage: vatPercentage,
+			Description:   article.Description,
+			InvoiceID:     insertedItem.ID,
+			Amount:        article.Amount,
+		}
+
+		_, err = r.Repo.CreateInvoiceArticle(&invoiceArticle)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+	}
+	return dto.Response{
+		Status: "success",
+	}, nil
 }
 
 func (r *Resolver) OrderProcurementAvailableResolver(params graphql.ResolveParams) (interface{}, error) {

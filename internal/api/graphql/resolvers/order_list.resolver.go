@@ -313,7 +313,7 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 			}
 		}
 
-		item, err := buildOrderListResponseItem(params.Context, r.Repo, res)
+		item, err = buildOrderListResponseItem(params.Context, r.Repo, res)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -1164,6 +1164,8 @@ func buildOrderListResponseItem(context context.Context, r repository.Microservi
 				NetPrice:      article.NetPrice,
 				VatPercentage: strconv.Itoa(article.VatPercentage),
 			})
+			totalNeto += article.NetPrice * float32(article.Amount)
+			totalBruto += (article.NetPrice + article.NetPrice*float32(article.VatPercentage/100)) * float32(article.Amount)
 		}
 	}
 

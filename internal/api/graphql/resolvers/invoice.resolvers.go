@@ -112,6 +112,19 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 
 	var item *structs.Invoice
 
+	isCreated := true
+	for _, article := range data.Articles {
+		if article.AccountID == 0 {
+			isCreated = false
+		}
+	}
+
+	if isCreated {
+		data.Status = "Kreiran"
+	} else {
+		data.Status = "Nepotpun"
+	}
+
 	var orderID int
 	if data.OrganizationUnitID == 0 {
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)

@@ -14,6 +14,7 @@ type PaymentOrderResponse struct {
 	DateOfOrder      *time.Time                 `json:"date_of_order"`
 	IDOfStatement    *int                       `json:"id_of_statement"`
 	SAPID            *string                    `json:"sap_id"`
+	Registred        bool                       `json:"registred"`
 	SourceOfFunding  string                     `json:"source_of_funding"`
 	Description      string                     `json:"description"`
 	DateOfSAP        *time.Time                 `json:"date_of_sap"`

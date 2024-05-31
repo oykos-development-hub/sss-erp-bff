@@ -12,6 +12,7 @@ type PaymentOrder struct {
 	SAPID              *string             `json:"sap_id"`
 	SourceOfFunding    string              `json:"source_of_funding"`
 	DateOfSAP          *time.Time          `json:"date_of_sap"`
+	Registred          bool                `json:"registred"`
 	DateOfOrder        *time.Time          `json:"date_of_order"`
 	FileID             *int                `json:"file_id"`
 	Items              []PaymentOrderItems `json:"items"`

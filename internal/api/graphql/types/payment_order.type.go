@@ -80,6 +80,9 @@ var PaymentOrderType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"registred": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"description": &graphql.Field{
 			Type: graphql.String,
 		},

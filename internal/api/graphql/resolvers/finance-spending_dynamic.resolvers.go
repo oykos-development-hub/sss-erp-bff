@@ -207,9 +207,9 @@ func buildSpendingDynamicTree(accounts []*structs.AccountItem, spendingData []dt
 
 	for _, account := range accountTree[0] {
 		root := &dto.SpendingDynamicDTO{
-			ID:                  account.ID,
 			AccountID:           account.ID,
 			AccountSerialNumber: account.SerialNumber,
+			AccountTitle:        account.Title,
 		}
 
 		if data, exists := spendingMap[account.ID]; exists {
@@ -229,6 +229,7 @@ func buildTreeRecursively(accountID int, parent *dto.SpendingDynamicDTO, account
 		child := &dto.SpendingDynamicDTO{
 			AccountID:           childAccount.ID,
 			AccountSerialNumber: childAccount.SerialNumber,
+			AccountTitle:        childAccount.Title,
 		}
 
 		if data, exists := spendingMap[childAccount.ID]; exists {

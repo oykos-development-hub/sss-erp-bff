@@ -58,6 +58,7 @@ type SpendingDynamicDTO struct {
 	TotalSavings        decimal.Decimal       `json:"total_savings"`
 	CreatedAt           time.Time             `json:"created_at"`
 	AccountSerialNumber string                `json:"account_serial_number"`
+	AccountTitle        string                `json:"account_title"`
 	Children            []*SpendingDynamicDTO `json:"children"`
 }
 

@@ -10,6 +10,7 @@ type GetAccountsFilter struct {
 	Version      *int    `json:"version"`
 	SerialNumber *string `json:"serial_number"`
 	Title        *string `json:"title"`
+	Leaf         bool    `json:"leaf"`
 }
 
 type AccountItemResponseItem struct {

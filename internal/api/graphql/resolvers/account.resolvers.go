@@ -50,6 +50,8 @@ func (r *Resolver) AccountOverviewResolver(params graphql.ResolveParams) (interf
 	if version, ok := params.Args["version"].(int); ok && version != 0 {
 		accountFilters.Version = &version
 	}
+	leaf := params.Args["leaf"].(bool)
+	accountFilters.Leaf = leaf
 
 	accounts, err := r.Repo.GetAccountItems(&accountFilters)
 	if err != nil {

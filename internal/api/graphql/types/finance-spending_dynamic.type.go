@@ -68,6 +68,9 @@ func initSpendingDynamicType() {
 				"account_serial_number": &graphql.Field{
 					Type: graphql.String,
 				},
+				"account_title": &graphql.Field{
+					Type: graphql.String,
+				},
 				"current_budget_id": &graphql.Field{
 					Type: graphql.Int,
 				},

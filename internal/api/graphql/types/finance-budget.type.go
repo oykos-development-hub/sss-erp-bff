@@ -25,6 +25,9 @@ var BudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"limits": &graphql.Field{
 			Type: graphql.NewList(BudgetLimitType),
 		},
+		"number_of_requests": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 

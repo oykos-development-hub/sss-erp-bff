@@ -117,12 +117,25 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 		}
 	}
 
+	generalRequestType := structs.RequestTypeGeneral
+	requests, err := r.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		BudgetID:    &budget.ID,
+		RequestType: &generalRequestType,
+		Statuses: []structs.BudgetRequestStatus{
+			structs.BudgetRequestFilledStatus,
+		},
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "get budget request list")
+	}
+
 	item := &dto.BudgetResponseItem{
-		ID:         budget.ID,
-		Year:       budget.Year,
-		BudgetType: budget.BudgetType,
-		Status:     status,
-		Limits:     limits,
+		ID:                          budget.ID,
+		Year:                        budget.Year,
+		BudgetType:                  budget.BudgetType,
+		Status:                      status,
+		Limits:                      limits,
+		NumberOfRequestsForOfficial: len(requests),
 	}
 
 	return item, nil

@@ -69,12 +69,13 @@ func GetBudgetStatus(s structs.BudgetStatus) BudgetStatus {
 }
 
 type BudgetResponseItem struct {
-	ID         int                            `json:"id"`
-	Year       int                            `json:"year"`
-	Source     int                            `json:"source"`
-	BudgetType int                            `json:"budget_type"`
-	Status     DropdownSimple                 `json:"status"`
-	Limits     []structs.FinancialBudgetLimit `json:"limits"`
+	ID                          int                            `json:"id"`
+	Year                        int                            `json:"year"`
+	Source                      int                            `json:"source"`
+	BudgetType                  int                            `json:"budget_type"`
+	Status                      DropdownSimple                 `json:"status"`
+	Limits                      []structs.FinancialBudgetLimit `json:"limits"`
+	NumberOfRequestsForOfficial int                            `json:"number_of_requests"`
 }
 
 type GetBudgetResponseMS struct {
@@ -101,11 +102,12 @@ type GetBudgetRequestListResponseMS struct {
 }
 
 type GetBudgetRequestListInputMS struct {
-	OrganizationUnitID *int                  `json:"organization_unit_id"`
-	BudgetID           *int                  `json:"budget_id"`
-	RequestType        *structs.RequestType  `json:"request_type"`
-	RequestTypes       []structs.RequestType `json:"request_types"`
-	ParentID           *int                  `json:"parent_id"`
+	OrganizationUnitID *int                          `json:"organization_unit_id"`
+	BudgetID           *int                          `json:"budget_id"`
+	RequestType        *structs.RequestType          `json:"request_type"`
+	RequestTypes       []structs.RequestType         `json:"request_types"`
+	Statuses           []structs.BudgetRequestStatus `json:"statuses"`
+	ParentID           *int                          `json:"parent_id"`
 }
 
 type RequestType string

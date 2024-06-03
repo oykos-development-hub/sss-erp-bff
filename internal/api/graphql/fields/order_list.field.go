@@ -52,6 +52,20 @@ func (f *Field) OrderListOverviewField() *graphql.Field {
 		Resolve: f.Resolvers.OrderListOverviewResolver,
 	}
 }
+
+func (f *Field) PassOrderListToFinance() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FineDeleteType,
+		Description: "Returns a data of Order List items",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.PassOrderListToFinance,
+	}
+}
+
 func (f *Field) OrderListInsertField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.OrderListInsertType,

@@ -57,6 +57,10 @@ func (f *Field) AccountOverviewField() *graphql.Field {
 			"version": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"leaf": &graphql.ArgumentConfig{
+				Type:         graphql.Boolean,
+				DefaultValue: false,
+			},
 		},
 		Resolve: f.Resolvers.AccountOverviewResolver,
 	}

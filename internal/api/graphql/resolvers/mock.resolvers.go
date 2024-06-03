@@ -21,7 +21,9 @@ func (r *Resolver) CurrentBudgetMockResolver(params graphql.ResolveParams) (inte
 		return errors.HandleAPIError(err)
 	}
 
-	accounts, err := r.Repo.GetAccountItems(nil)
+	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+		Leaf: true,
+	})
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

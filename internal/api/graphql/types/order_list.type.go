@@ -55,6 +55,15 @@ var OrderListItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_system": &graphql.Field{
 			Type: graphql.String,
 		},
+		"delivery_date": &graphql.Field{
+			Type: graphql.String,
+		},
+		"delivery_number": &graphql.Field{
+			Type: graphql.String,
+		},
+		"delivery_file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
 		"description": &graphql.Field{
 			Type: graphql.String,
 		},

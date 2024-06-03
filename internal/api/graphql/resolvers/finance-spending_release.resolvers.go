@@ -20,6 +20,30 @@ func (r *Resolver) SpendingReleaseInsert(params graphql.ResolveParams) (interfac
 		return errors.HandleAPIError(err)
 	}
 
+	loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok {
+		return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
+	}
+
+	if data.UnitID == 0 {
+		data.UnitID = *loggedInOrganizationUnitID
+	}
+
+	if data.BudgetID == 0 {
+		currentYear := time.Now().Year()
+		//TODO: after planning budget is done on FE, add status filter Done
+		budget, err := r.Repo.GetBudgetList(&dto.GetBudgetListInputMS{
+			Year: &currentYear,
+		})
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting budget for current year"))
+		}
+		if len(budget) != 1 {
+			return errors.HandleAPPError(errors.NewBadRequestError("Budget for current year not found"))
+		}
+		data.BudgetID = budget[0].ID
+	}
+
 	item, err := r.Repo.CreateSpendingRelease(params.Context, &data)
 	if err != nil {
 		return errors.HandleAPIError(err)

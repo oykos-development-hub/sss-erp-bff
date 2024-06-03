@@ -6,10 +6,10 @@ var SpendingReleaseMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "SpendingReleaseMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"budget_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Int),
+			Type: graphql.Int,
 		},
 		"account_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Int),

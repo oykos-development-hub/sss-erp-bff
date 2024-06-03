@@ -122,7 +122,7 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 		BudgetID:    &budget.ID,
 		RequestType: &generalRequestType,
 		Statuses: []structs.BudgetRequestStatus{
-			structs.BudgetRequestFilledStatus,
+			structs.BudgetRequestSentOnReviewStatus,
 		},
 	})
 	if err != nil {

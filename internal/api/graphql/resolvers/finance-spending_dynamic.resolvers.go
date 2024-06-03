@@ -212,23 +212,6 @@ func buildSpendingDynamicTree(accounts []*structs.AccountItem, spendingData []dt
 			AccountTitle:        account.Title,
 		}
 
-		if data, exists := spendingMap[account.ID]; exists {
-			root.January = data.January
-			root.February = data.January
-			root.March = data.January
-			root.April = data.January
-			root.May = data.January
-			root.June = data.January
-			root.July = data.January
-			root.August = data.January
-			root.September = data.January
-			root.October = data.January
-			root.November = data.January
-			root.December = data.January
-			root.Actual = data.Actual
-			root.TotalSavings = data.TotalSavings
-		}
-
 		buildTreeRecursively(account.ID, root, accountTree, spendingMap)
 		calculateSums(root)
 		roots = append(roots, root)
@@ -247,17 +230,17 @@ func buildTreeRecursively(accountID int, parent *dto.SpendingDynamicDTO, account
 
 		if data, exists := spendingMap[childAccount.ID]; exists {
 			child.January = data.January
-			child.February = data.January
-			child.March = data.January
-			child.April = data.January
-			child.May = data.January
-			child.June = data.January
-			child.July = data.January
-			child.August = data.January
-			child.September = data.January
-			child.October = data.January
-			child.November = data.January
-			child.December = data.January
+			child.February = data.February
+			child.March = data.March
+			child.April = data.April
+			child.May = data.May
+			child.June = data.June
+			child.July = data.July
+			child.August = data.August
+			child.September = data.September
+			child.October = data.October
+			child.November = data.November
+			child.December = data.December
 			child.Actual = data.Actual
 			child.TotalSavings = data.TotalSavings
 		}

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 
 	"github.com/graphql-go/graphql"
+	"github.com/shopspring/decimal"
 )
 
 func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -128,55 +129,55 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 		IncludeSubtax:  item.IncludeSubtax,
 	}
 
-	if item.TaxPercentage != 0 {
+	if item.TaxPercentage.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.TaxPercentage = &item.TaxPercentage
 	}
-	if item.ReleasePercentage != 0 {
+	if item.ReleasePercentage.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.ReleasePercentage = &item.ReleasePercentage
 	}
-	if item.ReleaseAmount != 0 {
+	if item.ReleaseAmount.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.ReleaseAmount = &item.ReleaseAmount
 	}
-	if item.PioPercentage != 0 {
+	if item.PioPercentage.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.PioPercentage = &item.PioPercentage
 	}
-	if item.PioPercentageEmployerPercentage != 0 {
+	if item.PioPercentageEmployerPercentage.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.PioPercentageEmployerPercentage = &item.PioPercentageEmployerPercentage
 	}
-	if item.PioPercentageEmployeePercentage != 0 {
+	if item.PioPercentageEmployeePercentage.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.PioPercentageEmployeePercentage = &item.PioPercentageEmployeePercentage
 	}
-	if item.UnemploymentPercentage != 0 {
+	if item.UnemploymentPercentage.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.UnemploymentPercentage = &item.UnemploymentPercentage
 	}
-	if item.UnemploymentEmployerPercentage != 0 {
+	if item.UnemploymentEmployerPercentage.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.UnemploymentEmployerPercentage = &item.UnemploymentEmployerPercentage
 	}
-	if item.UnemploymentEmployeePercentage != 0 {
+	if item.UnemploymentEmployeePercentage.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.UnemploymentEmployeePercentage = &item.UnemploymentEmployeePercentage
 	}
-	if item.LaborFund != 0 {
+	if item.LaborFund.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.LaborFund = &item.LaborFund
 	}
-	if item.PreviousIncomePercentageLessThan700 != 0 {
+	if item.PreviousIncomePercentageLessThan700.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.PreviousIncomePercentageLessThan700 = &item.PreviousIncomePercentageLessThan700
 	}
-	if item.PreviousIncomePercentageLessThan1000 != 0 {
+	if item.PreviousIncomePercentageLessThan1000.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.PreviousIncomePercentageLessThan1000 = &item.PreviousIncomePercentageLessThan1000
 	}
-	if item.PreviousIncomePercentageMoreThan1000 != 0 {
+	if item.PreviousIncomePercentageMoreThan1000.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.PreviousIncomePercentageMoreThan1000 = &item.PreviousIncomePercentageMoreThan1000
 	}
-	if item.Coefficient != 0 {
+	if item.Coefficient.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.Coefficient = &item.Coefficient
 	}
-	if item.CoefficientLess700 != 0 {
+	if item.CoefficientLess700.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.CoefficientLess700 = &item.CoefficientLess700
 	}
-	if item.CoefficientLess1000 != 0 {
+	if item.CoefficientLess1000.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.CoefficientLess1000 = &item.CoefficientLess1000
 	}
-	if item.CoefficientMore1000 != 0 {
+	if item.CoefficientMore1000.Cmp(decimal.NewFromInt(0)) != 0 {
 		response.CoefficientMore1000 = &item.CoefficientMore1000
 	}
 

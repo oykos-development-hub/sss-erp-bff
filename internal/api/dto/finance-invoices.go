@@ -3,6 +3,8 @@ package dto
 import (
 	"bff/structs"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type InvoiceResponseItem struct {
@@ -21,9 +23,9 @@ type InvoiceResponseItem struct {
 	Municipality                  DropdownSimple               `json:"municipality"`
 	SupplierTitle                 string                       `json:"supplier_title"`
 	Status                        string                       `json:"status"`
-	GrossPrice                    float64                      `json:"gross_price"`
-	NetPrice                      float64                      `json:"net_price"`
-	VATPrice                      float64                      `json:"vat_price"`
+	GrossPrice                    decimal.Decimal              `json:"gross_price"`
+	NetPrice                      decimal.Decimal              `json:"net_price"`
+	VATPrice                      decimal.Decimal              `json:"vat_price"`
 	Supplier                      DropdownSimple               `json:"supplier"`
 	TaxAuthorityCodebook          DropdownSimple               `json:"tax_authority_codebook"`
 	Activity                      DropdownSimple               `json:"activity"`
@@ -50,22 +52,22 @@ type InvoiceResponseItem struct {
 }
 
 type AccountAmounts struct {
-	Account string  `json:"account"`
-	Amount  float64 `json:"amount"`
+	Account string          `json:"account"`
+	Amount  decimal.Decimal `json:"amount"`
 }
 
 type InvoiceArticleResponse struct {
-	ID            int            `json:"id"`
-	Title         string         `json:"title"`
-	NetPrice      float64        `json:"net_price"`
-	VatPrice      float64        `json:"vat_price"`
-	VatPercentage int            `json:"vat_percentage"`
-	Description   string         `json:"description"`
-	Amount        int            `json:"amount"`
-	Account       DropdownSimple `json:"account"`
-	CostAccount   DropdownSimple `json:"cost_account"`
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
+	ID            int             `json:"id"`
+	Title         string          `json:"title"`
+	NetPrice      decimal.Decimal `json:"net_price"`
+	VatPrice      decimal.Decimal `json:"vat_price"`
+	VatPercentage int             `json:"vat_percentage"`
+	Description   string          `json:"description"`
+	Amount        int             `json:"amount"`
+	Account       DropdownSimple  `json:"account"`
+	CostAccount   DropdownSimple  `json:"cost_account"`
+	CreatedAt     time.Time       `json:"created_at"`
+	UpdatedAt     time.Time       `json:"updated_at"`
 }
 
 type AdditionalExpensesTitles string
@@ -77,7 +79,7 @@ type AdditionalExpensesResponse struct {
 	ObligationNumber   string                           `json:"obligation_number"`
 	ObligationSupplier DropdownSimple                   `json:"obligation_supplier"`
 	Account            DropdownSimple                   `json:"account"`
-	Price              float32                          `json:"price"`
+	Price              decimal.Decimal                  `json:"price"`
 	Subject            DropdownSimple                   `json:"subject"`
 	BankAccount        string                           `json:"bank_account"`
 	Invoice            DropdownSimple                   `json:"invoice"`
@@ -153,39 +155,39 @@ type GetTaxAuthorityCodebookResponseMS struct {
 }
 
 type TaxAuthorityCodebookResponse struct {
-	ID                                   int            `json:"id"`
-	Title                                string         `json:"title"`
-	Code                                 string         `json:"code"`
-	Active                               bool           `json:"active"`
-	TaxPercentage                        *float64       `json:"tax_percentage"`
-	TaxSupplier                          DropdownSimple `json:"tax_supplier"`
-	ReleaseAmount                        *float64       `json:"release_amount"`
-	ReleasePercentage                    *float64       `json:"release_percentage"`
-	PioPercentage                        *float64       `json:"pio_percentage"`
-	PioSupplier                          DropdownSimple `json:"pio_supplier"`
-	PioPercentageEmployerPercentage      *float64       `json:"pio_percentage_employer_percentage"`
-	PioEmployerSupplier                  DropdownSimple `json:"pio_employer_supplier"`
-	PioPercentageEmployeePercentage      *float64       `json:"pio_percentage_employee_percentage"`
-	PioEmployeeSupplier                  DropdownSimple `json:"pio_employee_supplier"`
-	UnemploymentPercentage               *float64       `json:"unemployment_percentage"`
-	UnemploymentSupplier                 DropdownSimple `json:"unemployment_supplier"`
-	UnemploymentEmployerPercentage       *float64       `json:"unemployment_employer_percentage"`
-	UnemploymentEmployerSupplier         DropdownSimple `json:"unemployment_employer_supplier"`
-	UnemploymentEmployeePercentage       *float64       `json:"unemployment_employee_percentage"`
-	UnemploymentEmployeeSupplier         DropdownSimple `json:"unemployment_employee_supplier"`
-	LaborFund                            *float64       `json:"labor_fund"`
-	LaborFundSupplier                    DropdownSimple `json:"labor_fund_supplier"`
-	PreviousIncomePercentageLessThan700  *float64       `json:"previous_income_percentage_less_than_700"`
-	PreviousIncomePercentageLessThan1000 *float64       `json:"previous_income_percentage_less_than_1000"`
-	PreviousIncomePercentageMoreThan1000 *float64       `json:"previous_income_percentage_more_than_1000"`
-	Coefficient                          *float64       `json:"coefficient"`
-	CoefficientLess700                   *float64       `json:"coefficient_less_700"`
-	CoefficientLess1000                  *float64       `json:"coefficient_less_1000"`
-	CoefficientMore1000                  *float64       `json:"coefficient_more_1000"`
-	AmountLess700                        float64        `json:"amount_less_700"`
-	AmountLess1000                       float64        `json:"amount_less_1000"`
-	AmountMore1000                       float64        `json:"amount_more_1000"`
-	IncludeSubtax                        bool           `json:"include_subtax"`
-	CreatedAt                            time.Time      `json:"created_at"`
-	UpdatedAt                            time.Time      `json:"updated_at"`
+	ID                                   int              `json:"id"`
+	Title                                string           `json:"title"`
+	Code                                 string           `json:"code"`
+	Active                               bool             `json:"active"`
+	TaxPercentage                        *decimal.Decimal `json:"tax_percentage"`
+	TaxSupplier                          DropdownSimple   `json:"tax_supplier"`
+	ReleaseAmount                        *decimal.Decimal `json:"release_amount"`
+	ReleasePercentage                    *decimal.Decimal `json:"release_percentage"`
+	PioPercentage                        *decimal.Decimal `json:"pio_percentage"`
+	PioSupplier                          DropdownSimple   `json:"pio_supplier"`
+	PioPercentageEmployerPercentage      *decimal.Decimal `json:"pio_percentage_employer_percentage"`
+	PioEmployerSupplier                  DropdownSimple   `json:"pio_employer_supplier"`
+	PioPercentageEmployeePercentage      *decimal.Decimal `json:"pio_percentage_employee_percentage"`
+	PioEmployeeSupplier                  DropdownSimple   `json:"pio_employee_supplier"`
+	UnemploymentPercentage               *decimal.Decimal `json:"unemployment_percentage"`
+	UnemploymentSupplier                 DropdownSimple   `json:"unemployment_supplier"`
+	UnemploymentEmployerPercentage       *decimal.Decimal `json:"unemployment_employer_percentage"`
+	UnemploymentEmployerSupplier         DropdownSimple   `json:"unemployment_employer_supplier"`
+	UnemploymentEmployeePercentage       *decimal.Decimal `json:"unemployment_employee_percentage"`
+	UnemploymentEmployeeSupplier         DropdownSimple   `json:"unemployment_employee_supplier"`
+	LaborFund                            *decimal.Decimal `json:"labor_fund"`
+	LaborFundSupplier                    DropdownSimple   `json:"labor_fund_supplier"`
+	PreviousIncomePercentageLessThan700  *decimal.Decimal `json:"previous_income_percentage_less_than_700"`
+	PreviousIncomePercentageLessThan1000 *decimal.Decimal `json:"previous_income_percentage_less_than_1000"`
+	PreviousIncomePercentageMoreThan1000 *decimal.Decimal `json:"previous_income_percentage_more_than_1000"`
+	Coefficient                          *decimal.Decimal `json:"coefficient"`
+	CoefficientLess700                   *decimal.Decimal `json:"coefficient_less_700"`
+	CoefficientLess1000                  *decimal.Decimal `json:"coefficient_less_1000"`
+	CoefficientMore1000                  *decimal.Decimal `json:"coefficient_more_1000"`
+	AmountLess700                        decimal.Decimal  `json:"amount_less_700"`
+	AmountLess1000                       decimal.Decimal  `json:"amount_less_1000"`
+	AmountMore1000                       decimal.Decimal  `json:"amount_more_1000"`
+	IncludeSubtax                        bool             `json:"include_subtax"`
+	CreatedAt                            time.Time        `json:"created_at"`
+	UpdatedAt                            time.Time        `json:"updated_at"`
 }

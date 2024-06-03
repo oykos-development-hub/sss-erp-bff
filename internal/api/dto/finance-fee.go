@@ -3,6 +3,8 @@ package dto
 import (
 	"bff/structs"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type FeeType string
@@ -35,7 +37,7 @@ type FeeResponseItem struct {
 	Subject                string               `json:"subject"`
 	JMBG                   string               `json:"jmbg"`
 	Residence              string               `json:"residence"`
-	Amount                 float64              `json:"amount"`
+	Amount                 decimal.Decimal      `json:"amount"`
 	PaymentReferenceNumber string               `json:"payment_reference_number"`
 	DebitReferenceNumber   string               `json:"debit_reference_number"`
 	ExecutionDate          time.Time            `json:"execution_date"`

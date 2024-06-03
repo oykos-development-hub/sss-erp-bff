@@ -1,6 +1,10 @@
 package structs
 
-import "time"
+import (
+	"time"
+
+	"github.com/shopspring/decimal"
+)
 
 type Invoice struct {
 	ID                            int                  `json:"id"`
@@ -18,9 +22,9 @@ type Invoice struct {
 	SourceOfFunding               string               `json:"source_of_funding"`
 	MunicipalityID                int                  `json:"municipality_id"`
 	Supplier                      string               `json:"supplier"`
-	GrossPrice                    float64              `json:"gross_price"`
-	VATPrice                      float64              `json:"vat_price"`
-	NetPrice                      float64              `json:"net_price"`
+	GrossPrice                    decimal.Decimal      `json:"gross_price"`
+	VATPrice                      decimal.Decimal      `json:"vat_price"`
+	NetPrice                      decimal.Decimal      `json:"net_price"`
 	SupplierID                    int                  `json:"supplier_id"`
 	OrderID                       int                  `json:"order_id"`
 	OrganizationUnitID            int                  `json:"organization_unit_id"`
@@ -45,18 +49,18 @@ type Invoice struct {
 }
 
 type InvoiceArticles struct {
-	ID            int       `json:"id"`
-	Title         string    `json:"title"`
-	NetPrice      float64   `json:"net_price"`
-	VatPrice      float64   `json:"vat_price"`
-	VatPercentage int       `json:"vat_percentage"`
-	Description   string    `json:"description"`
-	InvoiceID     int       `json:"invoice_id"`
-	Amount        int       `json:"amount"`
-	AccountID     int       `json:"account_id"`
-	CostAccountID int       `json:"cost_account_id"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	ID            int             `json:"id"`
+	Title         string          `json:"title"`
+	NetPrice      decimal.Decimal `json:"net_price"`
+	VatPrice      decimal.Decimal `json:"vat_price"`
+	VatPercentage int             `json:"vat_percentage"`
+	Description   string          `json:"description"`
+	InvoiceID     int             `json:"invoice_id"`
+	Amount        int             `json:"amount"`
+	AccountID     int             `json:"account_id"`
+	CostAccountID int             `json:"cost_account_id"`
+	CreatedAt     time.Time       `json:"created_at"`
+	UpdatedAt     time.Time       `json:"updated_at"`
 }
 
 type AdditionalExpenseStatus string
@@ -91,7 +95,7 @@ type AdditionalExpenses struct {
 	ObligationNumber     string                   `json:"obligation_number"`
 	ObligationSupplierID int                      `json:"obligation_supplier_id"`
 	AccountID            int                      `json:"account_id"`
-	Price                float32                  `json:"price"`
+	Price                decimal.Decimal          `json:"price"`
 	SubjectID            int                      `json:"subject_id"`
 	BankAccount          string                   `json:"bank_account"`
 	InvoiceID            int                      `json:"invoice_id"`

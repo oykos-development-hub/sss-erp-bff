@@ -1,6 +1,10 @@
 package structs
 
-import "time"
+import (
+	"time"
+
+	"github.com/shopspring/decimal"
+)
 
 type ProcedureCostType int
 
@@ -25,7 +29,7 @@ type ProcedureCost struct {
 	Subject                 string                `json:"subject"`
 	JMBG                    string                `json:"jmbg"`
 	Residence               string                `json:"residence"`
-	Amount                  float64               `json:"amount"`
+	Amount                  decimal.Decimal       `json:"amount"`
 	PaymentReferenceNumber  string                `json:"payment_reference_number"`
 	DebitReferenceNumber    string                `json:"debit_reference_number"`
 	AccountID               int                   `json:"account_id"`
@@ -33,7 +37,7 @@ type ProcedureCost struct {
 	PaymentDeadlineDate     time.Time             `json:"payment_deadline_date"`
 	Description             string                `json:"description"`
 	Status                  ProcedureCostStatus   `json:"status"`
-	CourtCosts              *float64              `json:"court_costs"`
+	CourtCosts              *decimal.Decimal      `json:"court_costs"`
 	CourtAccountID          *int                  `json:"court_account_id"`
 	ProcedureCostDetailsDTO *ProcedureCostDetails `json:"procedure_cost_details"`
 	File                    []int                 `json:"file"`
@@ -42,11 +46,11 @@ type ProcedureCost struct {
 }
 
 type ProcedureCostDetails struct {
-	AllPaymentAmount           float64   `json:"all_payments_amount"`
-	AmountGracePeriod          float64   `json:"amount_grace_period"`
-	AmountGracePeriodDueDate   time.Time `json:"amount_grace_period_due_date"`
-	AmountGracePeriodAvailable bool      `json:"amount_grace_period_available"`
-	LeftToPayAmount            float64   `json:"left_to_pay_amount"`
-	CourtCostsPaid             float64   `json:"court_costs_paid"`
-	CourtCostsLeftToPayAmount  float64   `json:"court_costs_left_to_pay_amount"`
+	AllPaymentAmount           decimal.Decimal `json:"all_payments_amount"`
+	AmountGracePeriod          decimal.Decimal `json:"amount_grace_period"`
+	AmountGracePeriodDueDate   time.Time       `json:"amount_grace_period_due_date"`
+	AmountGracePeriodAvailable bool            `json:"amount_grace_period_available"`
+	LeftToPayAmount            decimal.Decimal `json:"left_to_pay_amount"`
+	CourtCostsPaid             decimal.Decimal `json:"court_costs_paid"`
+	CourtCostsLeftToPayAmount  decimal.Decimal `json:"court_costs_left_to_pay_amount"`
 }

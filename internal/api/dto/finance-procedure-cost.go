@@ -3,6 +3,8 @@ package dto
 import (
 	"bff/structs"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type ProcedureCostType string
@@ -28,7 +30,7 @@ type ProcedureCostResponseItem struct {
 	Subject                 string                        `json:"subject"`
 	JMBG                    string                        `json:"jmbg"`
 	Residence               string                        `json:"residence"`
-	Amount                  float64                       `json:"amount"`
+	Amount                  decimal.Decimal               `json:"amount"`
 	PaymentReferenceNumber  string                        `json:"payment_reference_number"`
 	DebitReferenceNumber    string                        `json:"debit_reference_number"`
 	Account                 DropdownSimple                `json:"account"`
@@ -36,7 +38,7 @@ type ProcedureCostResponseItem struct {
 	PaymentDeadlineDate     time.Time                     `json:"payment_deadline_date"`
 	Description             string                        `json:"description"`
 	Status                  DropdownSimple                `json:"status"`
-	CourtCosts              *float64                      `json:"court_costs"`
+	CourtCosts              *decimal.Decimal              `json:"court_costs"`
 	CourtAccount            *DropdownSimple               `json:"court_account"`
 	ProcedureCostDetailsDTO *structs.ProcedureCostDetails `json:"procedure_cost_details"`
 	File                    []FileDropdownSimple          `json:"file"`

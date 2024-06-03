@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 func (h *Handler) ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Request) {
@@ -2094,12 +2096,12 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 						}
 						response.Validation = append(response.Validation, responseMessage)
 					} else {
-						additionalSalaryExpense.Amount = price
+						additionalSalaryExpense.Amount = decimal.NewFromFloat32(float32(price))
 					}
 
 				}
 			}
-			if additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" && additionalSalaryExpense.Amount > 0 {
+			if additionalSalaryExpense.Type != "" && additionalSalaryExpense.Title != "" && additionalSalaryExpense.Amount.Cmp(decimal.NewFromInt(0)) > 0 {
 				additionalSalaryExpense.OrganizationUnitID = organizationUnitID
 				additionalSalaryExpense.Status = "Kreiran"
 				response.Data = append(response.Data, additionalSalaryExpense)
@@ -2194,7 +2196,7 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 						}
 						response.Validation = append(response.Validation, responseMessage)
 					} else {
-						additionalSalaryExpense.Amount = price
+						additionalSalaryExpense.Amount = decimal.NewFromFloat(price)
 					}
 
 				}

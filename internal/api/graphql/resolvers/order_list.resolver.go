@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/graphql-go/graphql"
+	"github.com/shopspring/decimal"
 )
 
 // processContractArticle refactored to only take context and contractArticle, and return an OrderArticleItem.
@@ -402,7 +403,7 @@ func (r *Resolver) PassOrderListToFinance(params graphql.ResolveParams) (interfa
 
 		invoiceArticle := structs.InvoiceArticles{
 			Title:         article.Title,
-			NetPrice:      float64(article.NetPrice),
+			NetPrice:      decimal.NewFromFloat32(article.NetPrice),
 			VatPercentage: vatPercentage,
 			Description:   article.Description,
 			InvoiceID:     insertedItem.ID,

@@ -7,9 +7,9 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"math"
 
 	"github.com/graphql-go/graphql"
+	"github.com/shopspring/decimal"
 )
 
 func (r *Resolver) PaymentOrderOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -180,10 +180,10 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 	}
 
 	for i := 0; i < len(items); i++ {
-		items[i].RemainPrice = math.Round(items[i].RemainPrice*100) / 100
+		items[i].RemainPrice = items[i].RemainPrice.Round(2)
 
-		accountMap := make(map[string]float64)
-		remainAccountMap := make(map[string]float64)
+		accountMap := make(map[string]decimal.Decimal)
+		remainAccountMap := make(map[string]decimal.Decimal)
 
 		for j := 0; j < len(items[i].InvoiceItems); j++ {
 			account, err := r.Repo.GetAccountItemByID(items[i].InvoiceItems[j].AccountID)
@@ -194,11 +194,11 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 
 			//prolazak kroz sve account_id-eve i ako je verzija razlicita sabiramo ih
 			if currentAmount, exists := accountMap[account.SerialNumber]; exists {
-				accountMap[account.SerialNumber] = currentAmount + items[i].InvoiceItems[j].TotalPrice
-				remainAccountMap[account.SerialNumber] += items[i].InvoiceItems[j].RemainPrice
+				accountMap[account.SerialNumber] = currentAmount.Add(items[i].InvoiceItems[j].TotalPrice)
+				remainAccountMap[account.SerialNumber] = remainAccountMap[account.SerialNumber].Add(items[i].InvoiceItems[j].RemainPrice)
 			} else {
 				accountMap[account.SerialNumber] = items[i].InvoiceItems[j].TotalPrice
-				remainAccountMap[account.SerialNumber] += items[i].InvoiceItems[j].RemainPrice
+				remainAccountMap[account.SerialNumber] = remainAccountMap[account.SerialNumber].Add(items[i].InvoiceItems[j].RemainPrice)
 			}
 		}
 
@@ -220,7 +220,7 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 						Title: account.Data[0].Title,
 					},
 					TotalPrice:  amount,
-					RemainPrice: math.Round(remainAccountMap[accountID]*100) / 100,
+					RemainPrice: remainAccountMap[accountID].Round(2),
 				})
 			} else {
 				for m := 0; m < 10000; m++ {
@@ -240,7 +240,7 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 								Title: account.Data[0].Title,
 							},
 							TotalPrice:  amount,
-							RemainPrice: math.Round(remainAccountMap[accountID]*100) / 100,
+							RemainPrice: remainAccountMap[accountID].Round(2),
 						})
 						break
 					}
@@ -389,13 +389,13 @@ func buildPaymentOrder(item structs.PaymentOrder, r *Resolver) (*dto.PaymentOrde
 		response.Items = append(response.Items, *builtItem)
 	}
 
-	accountMap := make(map[string]float64)
+	accountMap := make(map[string]decimal.Decimal)
 
 	for _, item := range response.Items {
 		if currentAmount, exists := accountMap[item.Account.Title]; exists {
-			accountMap[item.Account.Title] = currentAmount + float64(item.Amount)
+			accountMap[item.Account.Title] = currentAmount.Add(item.Amount)
 		} else {
-			accountMap[item.Account.Title] = float64(item.Amount)
+			accountMap[item.Account.Title] = decimal.Decimal(item.Amount)
 		}
 	}
 

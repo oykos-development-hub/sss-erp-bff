@@ -3,6 +3,8 @@ package dto
 import (
 	"bff/structs"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type SalaryParams struct {
@@ -52,28 +54,28 @@ type SalaryResponse struct {
 	Status                   string                             `json:"status"`
 	OrganizationUnit         DropdownSimple                     `json:"organization_unit"`
 	SalaryAdditionalExpenses []SalaryAdditionalExpensesResponse `json:"salary_additional_expenses"`
-	GrossPrice               float64                            `json:"gross_price"`
+	GrossPrice               decimal.Decimal                    `json:"gross_price"`
 	NumberOfEmployees        int                                `json:"number_of_employees"`
-	VatPrice                 float64                            `json:"vat_price"`
-	NetPrice                 float64                            `json:"net_price"`
-	ObligationsPrice         float64                            `json:"obligations_price"`
+	VatPrice                 decimal.Decimal                    `json:"vat_price"`
+	NetPrice                 decimal.Decimal                    `json:"net_price"`
+	ObligationsPrice         decimal.Decimal                    `json:"obligations_price"`
 	CreatedAt                time.Time                          `json:"created_at"`
 	UpdatedAt                time.Time                          `json:"updated_at"`
 }
 
 type SalaryAdditionalExpensesResponse struct {
-	ID                  int            `json:"id"`
-	SalaryID            int            `json:"salary_id"`
-	Account             DropdownSimple `json:"account"`
-	Debtor              DropdownSimple `json:"debtor"`
-	Amount              float64        `json:"amount"`
-	Subject             DropdownSimple `json:"subject"`
-	BankAccount         string         `json:"bank_account"`
-	Status              string         `json:"status"`
-	Title               string         `json:"title"`
-	OrganizationUnit    DropdownSimple `json:"organization_unit"`
-	IdentificatorNumber string         `json:"identificator_number"`
-	Type                string         `json:"type"`
-	CreatedAt           time.Time      `json:"created_at"`
-	UpdatedAt           time.Time      `json:"updated_at"`
+	ID                  int             `json:"id"`
+	SalaryID            int             `json:"salary_id"`
+	Account             DropdownSimple  `json:"account"`
+	Debtor              DropdownSimple  `json:"debtor"`
+	Amount              decimal.Decimal `json:"amount"`
+	Subject             DropdownSimple  `json:"subject"`
+	BankAccount         string          `json:"bank_account"`
+	Status              string          `json:"status"`
+	Title               string          `json:"title"`
+	OrganizationUnit    DropdownSimple  `json:"organization_unit"`
+	IdentificatorNumber string          `json:"identificator_number"`
+	Type                string          `json:"type"`
+	CreatedAt           time.Time       `json:"created_at"`
+	UpdatedAt           time.Time       `json:"updated_at"`
 }

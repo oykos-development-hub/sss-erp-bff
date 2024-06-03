@@ -3,6 +3,8 @@ package dto
 import (
 	"bff/structs"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type PaymentOrderResponse struct {
@@ -20,7 +22,7 @@ type PaymentOrderResponse struct {
 	DateOfSAP        *time.Time                 `json:"date_of_sap"`
 	File             FileDropdownSimple         `json:"file"`
 	Items            []PaymentOrderItemResponse `json:"items"`
-	Amount           float64                    `json:"amount"`
+	Amount           decimal.Decimal            `json:"amount"`
 	AccountAmounts   []AccountAmounts           `json:"account_amounts"`
 	Status           string                     `json:"status"`
 	CreatedAt        time.Time                  `json:"created_at"`
@@ -51,24 +53,24 @@ type ObligationsFilter struct {
 }
 
 type Obligation struct {
-	InvoiceID                 *int           `json:"invoice_id"`
-	AdditionalExpenseID       *int           `json:"additional_expense_id"`
-	SalaryAdditionalExpenseID *int           `json:"salary_additional_expense_id"`
-	SourceAccount             string         `json:"source_account"`
-	InvoiceItems              []InvoiceItems `json:"invoice_items"`
-	Type                      string         `json:"type"`
-	Title                     string         `json:"title"`
-	TotalPrice                float64        `json:"total_price"`
-	RemainPrice               float64        `json:"remain_price"`
-	Status                    string         `json:"status"`
-	CreatedAt                 time.Time      `json:"created_at"`
+	InvoiceID                 *int            `json:"invoice_id"`
+	AdditionalExpenseID       *int            `json:"additional_expense_id"`
+	SalaryAdditionalExpenseID *int            `json:"salary_additional_expense_id"`
+	SourceAccount             string          `json:"source_account"`
+	InvoiceItems              []InvoiceItems  `json:"invoice_items"`
+	Type                      string          `json:"type"`
+	Title                     string          `json:"title"`
+	TotalPrice                decimal.Decimal `json:"total_price"`
+	RemainPrice               decimal.Decimal `json:"remain_price"`
+	Status                    string          `json:"status"`
+	CreatedAt                 time.Time       `json:"created_at"`
 }
 
 type InvoiceItems struct {
-	AccountID   int            `json:"account_id"`
-	Account     DropdownSimple `json:"account"`
-	TotalPrice  float64        `json:"total_price"`
-	RemainPrice float64        `json:"remain_price"`
+	AccountID   int             `json:"account_id"`
+	Account     DropdownSimple  `json:"account"`
+	TotalPrice  decimal.Decimal `json:"total_price"`
+	RemainPrice decimal.Decimal `json:"remain_price"`
 }
 
 type GetObligationsResponseMS struct {
@@ -103,15 +105,15 @@ type GetPaymentAdditionalExpensesListResponseMS struct {
 }
 
 type PaymentOrderItemResponse struct {
-	ID                        int            `json:"id"`
-	PaymentOrderID            int            `json:"payment_order_id"`
-	InvoiceID                 *int           `json:"invoice_id"`
-	AdditionalExpenseID       *int           `json:"additional_expense"`
-	SalaryAdditionalExpenseID *int           `json:"salary_additional_expense"`
-	Type                      string         `json:"type"`
-	Account                   DropdownSimple `json:"account"`
-	Amount                    float64        `json:"amount"`
-	Title                     string         `json:"title"`
-	CreatedAt                 time.Time      `json:"created_at"`
-	UpdatedAt                 time.Time      `json:"updated_at"`
+	ID                        int             `json:"id"`
+	PaymentOrderID            int             `json:"payment_order_id"`
+	InvoiceID                 *int            `json:"invoice_id"`
+	AdditionalExpenseID       *int            `json:"additional_expense"`
+	SalaryAdditionalExpenseID *int            `json:"salary_additional_expense"`
+	Type                      string          `json:"type"`
+	Account                   DropdownSimple  `json:"account"`
+	Amount                    decimal.Decimal `json:"amount"`
+	Title                     string          `json:"title"`
+	CreatedAt                 time.Time       `json:"created_at"`
+	UpdatedAt                 time.Time       `json:"updated_at"`
 }

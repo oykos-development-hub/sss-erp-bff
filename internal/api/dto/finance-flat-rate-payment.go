@@ -3,6 +3,8 @@ package dto
 import (
 	"bff/structs"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type FlatRatePaymentMethod string
@@ -22,18 +24,18 @@ const (
 )
 
 type FlatRatePaymentResponseItem struct {
-	ID                     int            `json:"id,omitempty"`
-	FlatRateID             int            `json:"flat_rate_id"`
-	PaymentMethod          DropdownSimple `json:"payment_method"`
-	Amount                 float64        `json:"amount"`
-	PaymentDate            time.Time      `json:"payment_date"`
-	PaymentDueDate         time.Time      `json:"payment_due_date"`
-	ReceiptNumber          string         `json:"receipt_number"`
-	PaymentReferenceNumber string         `json:"payment_reference_number"`
-	DebitReferenceNumber   string         `json:"debit_reference_number"`
-	Status                 DropdownSimple `json:"status"`
-	CreatedAt              time.Time      `json:"created_at,omitempty"`
-	UpdatedAt              time.Time      `json:"updated_at"`
+	ID                     int             `json:"id,omitempty"`
+	FlatRateID             int             `json:"flat_rate_id"`
+	PaymentMethod          DropdownSimple  `json:"payment_method"`
+	Amount                 decimal.Decimal `json:"amount"`
+	PaymentDate            time.Time       `json:"payment_date"`
+	PaymentDueDate         time.Time       `json:"payment_due_date"`
+	ReceiptNumber          string          `json:"receipt_number"`
+	PaymentReferenceNumber string          `json:"payment_reference_number"`
+	DebitReferenceNumber   string          `json:"debit_reference_number"`
+	Status                 DropdownSimple  `json:"status"`
+	CreatedAt              time.Time       `json:"created_at,omitempty"`
+	UpdatedAt              time.Time       `json:"updated_at"`
 }
 
 type GetFlatRatePaymentResponseMS struct {

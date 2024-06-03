@@ -65,6 +65,7 @@ type FinanceMS struct {
 	SpendingDynamicGetHistory                string
 	SpendingDynamicActual                    string
 	SpendingDynamicInsert                    string
+	SpendingReleaseInsert                    string
 	CurrentBudget                            string
 	Program                                  string
 	Activity                                 string
@@ -370,6 +371,7 @@ func LoadDefaultConfig() (*Config, error) {
 				SpendingDynamicGetHistory:                financeBase + "/budgets/%d/units/%d/spending-dynamics/history",
 				SpendingDynamicActual:                    financeBase + "/budgets/%d/units/%d/accounts/%d/actual",
 				SpendingDynamicInsert:                    financeBase + "/budgets/%d/units/%d/spending-dynamics",
+				SpendingReleaseInsert:                    financeBase + "/spending-releases",
 				CurrentBudget:                            financeBase + "/current-budgets",
 				FinancialBudget:                          financeBase + "/financial-budgets",
 				FilledFinancialBudget:                    financeBase + "/filled-financial-budgets",

@@ -8,7 +8,7 @@ import (
 
 func (repo *MicroserviceRepository) CreateSpendingRelease(ctx context.Context, spendingRelease *structs.SpendingReleaseInsert) (*structs.SpendingRelease, error) {
 	res := dto.GetSpendingReleaseResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.SpendingDynamicInsert, spendingRelease, &res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.SpendingReleaseInsert, spendingRelease, &res)
 	if err != nil {
 		return nil, err
 	}

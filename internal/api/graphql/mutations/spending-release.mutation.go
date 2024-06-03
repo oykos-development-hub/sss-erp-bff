@@ -15,7 +15,7 @@ var SpendingReleaseMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 			Type: graphql.NewNonNull(graphql.Int),
 		},
 		"month": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
+			Type: graphql.Int,
 		},
 		"value": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,

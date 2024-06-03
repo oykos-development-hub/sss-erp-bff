@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/graphql-go/graphql"
-	"github.com/shopspring/decimal"
 )
 
 func (r *Resolver) EnforcedPaymentOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -146,7 +145,7 @@ func (r *Resolver) ReturnEnforcedPaymentResolver(params graphql.ResolveParams) (
 	itemID := params.Args["id"].(int)
 	returnFileID := params.Args["return_file_id"].(int)
 	returnDateString := params.Args["return_date"].(string)
-	returnAmount := params.Args["return_amount"].(decimal.Decimal)
+	returnAmount := params.Args["return_amount"].(float64)
 
 	returnDate, err := parseDate(returnDateString)
 

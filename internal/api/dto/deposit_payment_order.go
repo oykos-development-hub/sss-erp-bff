@@ -3,8 +3,6 @@ package dto
 import (
 	"bff/structs"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 type DepositPaymentOrderResponse struct {
@@ -13,7 +11,7 @@ type DepositPaymentOrderResponse struct {
 	CaseNumber                  string                                     `json:"case_number"`
 	Supplier                    DropdownSimple                             `json:"supplier"`
 	SubjectType                 DropdownSimple                             `json:"subject_type"`
-	NetAmount                   decimal.Decimal                            `json:"net_amount"`
+	NetAmount                   float64                                    `json:"net_amount"`
 	BankAccount                 string                                     `json:"bank_account"`
 	SourceBankAccount           string                                     `json:"source_bank_account"`
 	DateOfPayment               time.Time                                  `json:"date_of_payment"`
@@ -68,17 +66,17 @@ type GetDepositPaymentAdditionalExpensesListResponseMS struct {
 }
 
 type DepositPaymentAdditionalExpensesResponse struct {
-	ID                int             `json:"id"`
-	Title             string          `json:"title"`
-	CaseNumber        string          `json:"case_number"`
-	Account           DropdownSimple  `json:"account"`
-	Price             decimal.Decimal `json:"price"`
-	Subject           DropdownSimple  `json:"subject"`
-	BankAccount       string          `json:"bank_account"`
-	PaymentOrder      DropdownSimple  `json:"payment_order"`
-	OrganizationUnit  DropdownSimple  `json:"organization_unit"`
-	SourceBankAccount string          `json:"source_bank_account"`
-	Status            string          `json:"status"`
-	CreatedAt         time.Time       `json:"created_at"`
-	UpdatedAt         time.Time       `json:"updated_at"`
+	ID                int            `json:"id"`
+	Title             string         `json:"title"`
+	CaseNumber        string         `json:"case_number"`
+	Account           DropdownSimple `json:"account"`
+	Price             float32        `json:"price"`
+	Subject           DropdownSimple `json:"subject"`
+	BankAccount       string         `json:"bank_account"`
+	PaymentOrder      DropdownSimple `json:"payment_order"`
+	OrganizationUnit  DropdownSimple `json:"organization_unit"`
+	SourceBankAccount string         `json:"source_bank_account"`
+	Status            string         `json:"status"`
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
 }

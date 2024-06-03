@@ -1,10 +1,6 @@
 package structs
 
-import (
-	"time"
-
-	"github.com/shopspring/decimal"
-)
+import "time"
 
 type FixedDeposit struct {
 	ID                   int                    `json:"id"`
@@ -63,39 +59,39 @@ type FixedDepositWillDispatch struct {
 }
 
 type FixedDepositItem struct {
-	ID                 int             `json:"id"`
-	DepositID          int             `json:"deposit_id"`
-	CategoryID         int             `json:"category_id"`
-	TypeID             int             `json:"type_id"`
-	Unit               string          `json:"unit"`
-	Currency           string          `json:"currency"`
-	Amount             decimal.Decimal `json:"amount"`
-	SerialNumber       string          `json:"serial_number"`
-	DateOfConfiscation *time.Time      `json:"date_of_confiscation"`
-	CaseNumber         string          `json:"case_number"`
-	JudgeID            int             `json:"judge_id"`
-	FileID             int             `json:"file_id"`
-	CreatedAt          time.Time       `json:"created_at"`
-	UpdatedAt          time.Time       `json:"updated_at"`
+	ID                 int        `json:"id"`
+	DepositID          int        `json:"deposit_id"`
+	CategoryID         int        `json:"category_id"`
+	TypeID             int        `json:"type_id"`
+	Unit               string     `json:"unit"`
+	Currency           string     `json:"currency"`
+	Amount             float32    `json:"amount"`
+	SerialNumber       string     `json:"serial_number"`
+	DateOfConfiscation *time.Time `json:"date_of_confiscation"`
+	CaseNumber         string     `json:"case_number"`
+	JudgeID            int        `json:"judge_id"`
+	FileID             int        `json:"file_id"`
+	CreatedAt          time.Time  `json:"created_at"`
+	UpdatedAt          time.Time  `json:"updated_at"`
 }
 
 type FixedDepositDispatch struct {
-	ID           int             `json:"id"`
-	DepositID    int             `json:"deposit_id"`
-	CategoryID   int             `json:"category_id"`
-	TypeID       int             `json:"type_id"`
-	Unit         string          `json:"unit"`
-	Currency     string          `json:"currency"`
-	Amount       decimal.Decimal `json:"amount"`
-	SerialNumber string          `json:"serial_number"`
-	DateOfAction *time.Time      `json:"date_of_action"`
-	Subject      string          `json:"subject"`
-	Action       string          `json:"action"`
-	CaseNumber   string          `json:"case_number"`
-	JudgeID      int             `json:"judge_id"`
-	FileID       int             `json:"file_id"`
-	CreatedAt    time.Time       `json:"created_at"`
-	UpdatedAt    time.Time       `json:"updated_at"`
+	ID           int        `json:"id"`
+	DepositID    int        `json:"deposit_id"`
+	CategoryID   int        `json:"category_id"`
+	TypeID       int        `json:"type_id"`
+	Unit         string     `json:"unit"`
+	Currency     string     `json:"currency"`
+	Amount       float32    `json:"amount"`
+	SerialNumber string     `json:"serial_number"`
+	DateOfAction *time.Time `json:"date_of_action"`
+	Subject      string     `json:"subject"`
+	Action       string     `json:"action"`
+	CaseNumber   string     `json:"case_number"`
+	JudgeID      int        `json:"judge_id"`
+	FileID       int        `json:"file_id"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
 }
 
 type FixedDepositJudge struct {

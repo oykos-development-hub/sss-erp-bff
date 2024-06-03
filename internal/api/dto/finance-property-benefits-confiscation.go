@@ -3,8 +3,6 @@ package dto
 import (
 	"bff/structs"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 type PropBenConfType string
@@ -30,7 +28,7 @@ type PropBenConfResponseItem struct {
 	Subject                string                      `json:"subject"`
 	JMBG                   string                      `json:"jmbg"`
 	Residence              string                      `json:"residence"`
-	Amount                 decimal.Decimal             `json:"amount"`
+	Amount                 float64                     `json:"amount"`
 	PaymentReferenceNumber string                      `json:"payment_reference_number"`
 	DebitReferenceNumber   string                      `json:"debit_reference_number"`
 	Account                DropdownSimple              `json:"account"`
@@ -38,7 +36,7 @@ type PropBenConfResponseItem struct {
 	PaymentDeadlineDate    time.Time                   `json:"payment_deadline_date"`
 	Description            string                      `json:"description"`
 	Status                 DropdownSimple              `json:"status"`
-	CourtCosts             *decimal.Decimal            `json:"court_costs"`
+	CourtCosts             *float64                    `json:"court_costs"`
 	CourtAccount           *DropdownSimple             `json:"court_account"`
 	PropBenConfDetailsDTO  *structs.PropBenConfDetails `json:"property_benefits_confiscation_details"`
 	File                   []FileDropdownSimple        `json:"file"`

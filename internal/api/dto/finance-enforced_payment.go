@@ -3,8 +3,6 @@ package dto
 import (
 	"bff/structs"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 type EnforcedPaymentResponse struct {
@@ -16,17 +14,17 @@ type EnforcedPaymentResponse struct {
 	DateOfOrder      *time.Time                    `json:"date_of_order"`
 	ReturnFile       FileDropdownSimple            `json:"return_file"`
 	ReturnDate       *time.Time                    `json:"return_date"`
-	ReturnAmount     *decimal.Decimal              `json:"return_amount"`
+	ReturnAmount     *float64                      `json:"return_amount"`
 	IDOfStatement    *int                          `json:"id_of_statement"`
 	SAPID            *string                       `json:"sap_id"`
 	Description      string                        `json:"description"`
 	DateOfSAP        *time.Time                    `json:"date_of_sap"`
 	File             FileDropdownSimple            `json:"file"`
 	Items            []EnforcedPaymentItemResponse `json:"items"`
-	Amount           decimal.Decimal               `json:"amount"`
-	AmountForLawyer  decimal.Decimal               `json:"amount_for_lawyer"`
-	AmountForAgent   decimal.Decimal               `json:"amount_for_agent"`
-	AmountForBank    decimal.Decimal               `json:"amount_for_bank"`
+	Amount           float64                       `json:"amount"`
+	AmountForLawyer  float64                       `json:"amount_for_lawyer"`
+	AmountForAgent   float64                       `json:"amount_for_agent"`
+	AmountForBank    float64                       `json:"amount_for_bank"`
 	Agent            DropdownSimple                `json:"agent"`
 	ExecutionNumber  string                        `json:"execution_number"`
 	Status           string                        `json:"status"`
@@ -56,12 +54,12 @@ type GetEnforcedPaymentListResponseMS struct {
 }
 
 type EnforcedPaymentItemResponse struct {
-	ID             int             `json:"id"`
-	PaymentOrderID int             `json:"payment_order_id"`
-	InvoiceID      *int            `json:"invoice_id"`
-	Account        DropdownSimple  `json:"account"`
-	Amount         decimal.Decimal `json:"amount"`
-	Title          string          `json:"title"`
-	CreatedAt      time.Time       `json:"created_at"`
-	UpdatedAt      time.Time       `json:"updated_at"`
+	ID             int            `json:"id"`
+	PaymentOrderID int            `json:"payment_order_id"`
+	InvoiceID      *int           `json:"invoice_id"`
+	Account        DropdownSimple `json:"account"`
+	Amount         float64        `json:"amount"`
+	Title          string         `json:"title"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
 }

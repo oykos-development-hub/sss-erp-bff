@@ -2,9 +2,9 @@ package errors
 
 import (
 	"bff/internal/api/dto"
+	"bff/log"
 	"errors"
 	"fmt"
-	"log"
 )
 
 var (
@@ -19,7 +19,7 @@ type AppError struct {
 }
 
 func HandleAPPError(err error) (dto.Response, error) {
-	log.Println(err.Error())
+	log.Logger.Println(err.Error())
 
 	var appError *AppError
 	if errors.As(err, &appError) {

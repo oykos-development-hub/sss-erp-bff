@@ -8,10 +8,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/graphql-go/graphql"
-	"github.com/shopspring/decimal"
 )
 
 func (r *Resolver) InvoiceOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -172,14 +172,11 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			var orderArticles []structs.OrderArticleInsertItem
 
 			for _, article := range data.Articles {
-
-				float32Value := float32(article.NetPrice.InexactFloat64())
-
 				orderArticles = append(orderArticles, structs.OrderArticleInsertItem{
 					Amount:        article.Amount,
 					Title:         article.Title,
 					Description:   article.Description,
-					NetPrice:      float32Value,
+					NetPrice:      float32(article.NetPrice),
 					VatPercentage: article.VatPercentage,
 				})
 			}
@@ -454,101 +451,86 @@ func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolvePara
 	}, nil
 }
 
-func calculateCoefficient(item structs.TaxAuthorityCodebook, subTax decimal.Decimal, netPrice decimal.Decimal) decimal.Decimal {
-	var coefficient decimal.Decimal
+func calculateCoefficient(item structs.TaxAuthorityCodebook, subTax float64, netPrice float64) float64 {
+	var coefficient float64
 
-	coefficient = decimal.NewFromInt(1)
+	coefficient = 1
 	release := item.ReleasePercentage
 
-	if item.ReleaseAmount.Cmp(decimal.NewFromInt(0)) != 0 {
-		release = item.ReleaseAmount.Div(netPrice)
+	if item.ReleaseAmount != 0 {
+		release = item.ReleaseAmount / netPrice
 	}
 
-	zero := decimal.NewFromInt(0)
-	hundred := decimal.NewFromInt(100)
-
-	if release.Cmp(zero) != 0 {
-		if item.TaxPercentage.Cmp(zero) != 0 {
-			coefficient = coefficient.Sub(
-				decimal.NewFromFloat(1).Sub(release.Div(hundred)).Mul(item.TaxPercentage.Div(hundred)),
-			)
-			if subTax.Cmp(zero) != 0 {
-				coefficient = coefficient.Sub(
-					decimal.NewFromFloat(1).Sub(release.Div(hundred)).Mul(item.TaxPercentage.Div(hundred)).Mul(subTax.Div(hundred)),
-				)
+	if release != 0 {
+		if item.TaxPercentage != 0 {
+			coefficient -= (1 - release/100) * (item.TaxPercentage / 100)
+			if subTax != 0 {
+				coefficient -= (1 - release/100) * (item.TaxPercentage / 100) * (subTax / 100)
 			}
 		}
-		if item.PioPercentage.Cmp(zero) != 0 {
-			coefficient = coefficient.Sub(
-				decimal.NewFromFloat(1).Sub(release.Div(hundred)).Mul(item.PioPercentage.Div(hundred)),
-			)
+		if item.PioPercentage != 0 {
+			coefficient -= (1 - release/100) * (item.PioPercentage / 100)
 		}
 	} else {
-		if item.TaxPercentage.Cmp(zero) != 0 {
-			coefficient = coefficient.Sub(
-				decimal.NewFromFloat(1).Sub(item.TaxPercentage.Div(hundred)),
-			)
-			if subTax.Cmp(zero) != 0 {
-				coefficient = coefficient.Sub(
-					decimal.NewFromFloat(1).Sub(item.TaxPercentage.Div(hundred).Mul(subTax.Div(hundred))),
-				)
+		if item.TaxPercentage != 0 {
+			coefficient -= 1 - (item.TaxPercentage / 100)
+			if subTax != 0 {
+				coefficient -= 1 - (item.TaxPercentage/100)*(subTax/100)
 			}
 		}
-		if item.PioPercentage.Cmp(zero) != 0 {
-			coefficient = coefficient.Sub(
-				decimal.NewFromFloat(1).Sub(item.PioPercentage.Div(hundred)),
-			)
+		if item.PioPercentage != 0 {
+			coefficient -= 1 - (item.PioPercentage / 100)
 		}
 	}
 
 	return coefficient
 }
 
-func calculateCoefficientLess700(item structs.TaxAuthorityCodebook, previousIncomeGross decimal.Decimal, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (decimal.Decimal, decimal.Decimal, error) {
+func calculateCoefficientLess700(item structs.TaxAuthorityCodebook, previousIncomeGross float64, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (float64, float64, error) {
 
-	additionalExpenses, err := calculateAdditionalExpenses(item, decimal.NewFromInt(700), previousIncomeGross, r, organizationUnit, municipality)
+	additionalExpenses, err := calculateAdditionalExpenses(item, float64(700), previousIncomeGross, r, organizationUnit, municipality)
 
 	if err != nil {
-		return decimal.NewFromInt(0), decimal.NewFromInt(0), err
+		return float64(0), float64(0), err
 	}
 
 	maxNetAmount := additionalExpenses[len(additionalExpenses)-1].Price
 
-	coefficient := maxNetAmount.Div(decimal.NewFromInt(700))
+	coefficient := maxNetAmount / 700
 
-	return decimal.Decimal(coefficient), decimal.Decimal(maxNetAmount), nil
+	return float64(coefficient), float64(maxNetAmount), nil
 }
 
-func calculateCoefficientLess1000(item structs.TaxAuthorityCodebook, previousIncomeGross decimal.Decimal, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (decimal.Decimal, decimal.Decimal, error) {
+func calculateCoefficientLess1000(item structs.TaxAuthorityCodebook, previousIncomeGross float64, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (float64, float64, error) {
 
-	additionalExpenses, err := calculateAdditionalExpenses(item, decimal.NewFromInt(1000), previousIncomeGross, r, organizationUnit, municipality)
+	additionalExpenses, err := calculateAdditionalExpenses(item, float64(1000), previousIncomeGross, r, organizationUnit, municipality)
 
 	if err != nil {
-		return decimal.NewFromInt(0), decimal.NewFromInt(0), err
+		return float64(0), float64(0), err
 	}
 
 	maxNetAmount := additionalExpenses[len(additionalExpenses)-1].Price
 	//if item.IncludeSubtax {
-	maxNetAmount = maxNetAmount.Add(additionalExpenses[1].Price)
+	maxNetAmount += additionalExpenses[1].Price
 	//}
 
 	_, amount, err := calculateCoefficientLess700(item, previousIncomeGross, r, organizationUnit, municipality)
 
 	if err != nil {
-		return decimal.NewFromInt(0), decimal.NewFromInt(0), err
+		return float64(0), float64(0), err
 	}
 
-	coefficient := maxNetAmount.Sub(amount).Div(decimal.NewFromFloat(300))
+	coefficient := (maxNetAmount - float32(amount)) / 300
 
-	return decimal.Decimal(coefficient), decimal.Decimal(maxNetAmount), nil
+	return float64(coefficient), float64(maxNetAmount), nil
 }
 
-func calculateCoefficientMore1000(item structs.TaxAuthorityCodebook, previousIncomeGross decimal.Decimal, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (decimal.Decimal, decimal.Decimal, error) {
+func calculateCoefficientMore1000(item structs.TaxAuthorityCodebook, previousIncomeGross float64, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (float64, float64, error) {
 
-	coefficient := item.PreviousIncomePercentageMoreThan1000.Add(item.PioPercentage).Add(item.PioPercentageEmployerPercentage).Add(
-		item.UnemploymentEmployeePercentage).Add(item.UnemploymentPercentage)
+	coefficient := item.PreviousIncomePercentageMoreThan1000 + item.PioPercentage + item.PioPercentageEmployerPercentage +
+		item.UnemploymentEmployeePercentage + item.UnemploymentPercentage
 
-	return decimal.NewFromInt(1).Sub(coefficient.Div(decimal.NewFromInt(100))), decimal.NewFromInt(0), nil
+	return float64(1 - coefficient/100), float64(0), nil
 }
 
 func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -579,20 +561,20 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		return errors.HandleAPIError(err)
 	}
 
-	previousIncomeGross, previousIncomeGrossOK := params.Args["previous_income_gross"].(decimal.Decimal)
-	previousIncomeNet, previousIncomeNetOK := params.Args["previous_income_net"].(decimal.Decimal)
+	previousIncomeGross, previousIncomeGrossOK := params.Args["previous_income_gross"].(float64)
+	previousIncomeNet, previousIncomeNetOK := params.Args["previous_income_net"].(float64)
 
-	taxAuthorityCodebook.CoefficientLess700, taxAuthorityCodebook.AmountLess700, err = calculateCoefficientLess700(*taxAuthorityCodebook, decimal.NewFromInt(0), r, organizationUnit, *municipality)
+	taxAuthorityCodebook.CoefficientLess700, taxAuthorityCodebook.AmountLess700, err = calculateCoefficientLess700(*taxAuthorityCodebook, 0, r, organizationUnit, *municipality)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
-	taxAuthorityCodebook.CoefficientLess1000, taxAuthorityCodebook.AmountLess1000, err = calculateCoefficientLess1000(*taxAuthorityCodebook, decimal.NewFromInt(0), r, organizationUnit, *municipality)
+	taxAuthorityCodebook.CoefficientLess1000, taxAuthorityCodebook.AmountLess1000, err = calculateCoefficientLess1000(*taxAuthorityCodebook, 0, r, organizationUnit, *municipality)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
-	taxAuthorityCodebook.CoefficientMore1000, taxAuthorityCodebook.AmountMore1000, err = calculateCoefficientMore1000(*taxAuthorityCodebook, decimal.NewFromInt(0), r, organizationUnit, *municipality)
+	taxAuthorityCodebook.CoefficientMore1000, taxAuthorityCodebook.AmountMore1000, err = calculateCoefficientMore1000(*taxAuthorityCodebook, 0, r, organizationUnit, *municipality)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -600,37 +582,38 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	if !previousIncomeGrossOK {
 
 		//konvertuje neto u bruto
-		if previousIncomeNetOK && taxAuthorityCodebook.TaxPercentage.Cmp(decimal.NewFromInt(0)) != 0 {
-			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, decimal.NewFromFloat32(municipality.TaxPercentage), previousIncomeNet)
-			previousIncomeGross := previousIncomeNet.Div(taxAuthorityCodebook.Coefficient)
-			helper := previousIncomeGross.Round(2)
-			previousIncomeGross = helper
+		if previousIncomeNetOK && taxAuthorityCodebook.TaxPercentage != 0 {
+			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage), previousIncomeNet)
+			previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.Coefficient
+			helper := math.Round(previousIncomeGross*100) / 100
+			previousIncomeGross = float64(helper)
 
-		} else if previousIncomeNetOK && taxAuthorityCodebook.TaxPercentage.Cmp(decimal.NewFromInt(0)) == 0 {
-			if previousIncomeNet.Cmp(taxAuthorityCodebook.AmountLess700) < 0 {
-				previousIncomeGross := previousIncomeNet.Div(taxAuthorityCodebook.CoefficientLess700)
-				helper := previousIncomeGross.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-				previousIncomeGross = helper
-			} else if previousIncomeNet.Cmp(taxAuthorityCodebook.AmountLess1000) > 0 {
-				previousIncomeGross := taxAuthorityCodebook.AmountLess700.Div(taxAuthorityCodebook.CoefficientLess700).Add(
-					taxAuthorityCodebook.AmountLess1000.Sub(taxAuthorityCodebook.AmountLess700).Div(taxAuthorityCodebook.CoefficientLess1000)).Add(
-					previousIncomeNet.Sub(taxAuthorityCodebook.AmountLess1000).Div(taxAuthorityCodebook.CoefficientMore1000))
-				helper := previousIncomeGross.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-				previousIncomeGross = helper
+		} else if previousIncomeNetOK && taxAuthorityCodebook.TaxPercentage == 0 {
+
+			if previousIncomeNet < taxAuthorityCodebook.AmountLess700 {
+				previousIncomeGross = previousIncomeNet / taxAuthorityCodebook.CoefficientLess700
+				helper := math.Round(previousIncomeGross*100) / 100
+				previousIncomeGross = float64(helper)
+			} else if previousIncomeNet > taxAuthorityCodebook.AmountLess1000 {
+				previousIncomeGross = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
+					(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
+					(previousIncomeNet-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
+				helper := math.Round(previousIncomeGross*100) / 100
+				previousIncomeGross = float64(helper)
 			} else {
-				previousIncomeGross := taxAuthorityCodebook.AmountLess700.Div(taxAuthorityCodebook.CoefficientLess700).Add(
-					previousIncomeNet.Sub(taxAuthorityCodebook.AmountLess700).Div(taxAuthorityCodebook.CoefficientLess1000))
-				helper := previousIncomeGross.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-				previousIncomeGross = helper
+				previousIncomeGross = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
+					(previousIncomeNet-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000)
+				helper := math.Round(previousIncomeGross*100) / 100
+				previousIncomeGross = float64(helper)
 			}
 		}
 
 	}
 
-	grossPrice, grossPriceOK := params.Args["gross_price"].(decimal.Decimal)
+	grossPrice, grossPriceOK := params.Args["gross_price"].(float64)
 
 	if !grossPriceOK {
-		netPrice, netPriceOK := params.Args["net_price"].(decimal.Decimal)
+		netPrice, netPriceOK := params.Args["net_price"].(float64)
 
 		//konvertuje neto u bruto
 		if !netPriceOK {
@@ -638,53 +621,50 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 			return errors.HandleAPIError(err)
 		}
 
-		if taxAuthorityCodebook.TaxPercentage.Cmp(decimal.NewFromInt(0)) != 0 {
-			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, decimal.NewFromFloat32(municipality.TaxPercentage), netPrice)
-			grossPrice := netPrice.Div(taxAuthorityCodebook.Coefficient)
-			helper := grossPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-			grossPrice = helper
-
-			fmt.Println("Gross Price:", grossPrice)
+		if taxAuthorityCodebook.TaxPercentage != 0 {
+			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage), netPrice)
+			grossPrice = netPrice / taxAuthorityCodebook.Coefficient
+			helper := math.Round(grossPrice*100) / 100
+			grossPrice = float64(helper)
 		} else if previousIncomeNetOK {
 			if !previousIncomeGrossOK {
-				sumNetPrice := previousIncomeNet.Add(netPrice)
+				sumNetPrice := previousIncomeNet + netPrice
 
-				// konvertuje neto u bruto
-				if sumNetPrice.Cmp(taxAuthorityCodebook.AmountLess700) < 0 {
-					sumNetPrice = sumNetPrice.Div(taxAuthorityCodebook.CoefficientLess700)
-					helper := sumNetPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-					sumNetPrice = helper
-				} else if sumNetPrice.Cmp(taxAuthorityCodebook.AmountLess1000) > 0 {
-					sumNetPrice = taxAuthorityCodebook.AmountLess700.Div(taxAuthorityCodebook.CoefficientLess700).
-						Add(taxAuthorityCodebook.AmountLess1000.Sub(taxAuthorityCodebook.AmountLess700).Div(taxAuthorityCodebook.CoefficientLess1000)).
-						Add(sumNetPrice.Sub(taxAuthorityCodebook.AmountLess1000).Div(taxAuthorityCodebook.CoefficientMore1000))
-					helper := sumNetPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-					sumNetPrice = helper
+				//konvertuje neto u bruto
+				if sumNetPrice < taxAuthorityCodebook.AmountLess700 {
+					sumNetPrice = sumNetPrice / taxAuthorityCodebook.CoefficientLess700
+					helper := math.Round(sumNetPrice*100) / 100
+					sumNetPrice = float64(helper)
+				} else if sumNetPrice > taxAuthorityCodebook.AmountLess1000 {
+					sumNetPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
+						(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
+						(sumNetPrice-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
+					helper := math.Round(sumNetPrice*100) / 100
+					sumNetPrice = float64(helper)
 				} else {
-					sumNetPrice = taxAuthorityCodebook.AmountLess700.Div(taxAuthorityCodebook.CoefficientLess700).
-						Add(sumNetPrice.Sub(taxAuthorityCodebook.AmountLess700).Div(taxAuthorityCodebook.CoefficientLess1000))
-					helper := sumNetPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-					sumNetPrice = helper
+					sumNetPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
+						(sumNetPrice-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000)
+					helper := math.Round(sumNetPrice*100) / 100
+					sumNetPrice = float64(helper)
 				}
-				grossPrice = sumNetPrice.Sub(previousIncomeGross)
+				grossPrice = sumNetPrice - previousIncomeGross
+			}
+		} else {
+			if netPrice < taxAuthorityCodebook.AmountLess700 {
+				grossPrice = netPrice / taxAuthorityCodebook.CoefficientLess700
+				helper := math.Round(grossPrice*100) / 100
+				grossPrice = float64(helper)
+			} else if netPrice > taxAuthorityCodebook.AmountLess1000 {
+				grossPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
+					(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
+					(netPrice-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
+				helper := math.Round(grossPrice*100) / 100
+				grossPrice = float64(helper)
 			} else {
-				if netPrice.Cmp(taxAuthorityCodebook.AmountLess700) < 0 {
-					grossPrice := netPrice.Div(taxAuthorityCodebook.CoefficientLess700)
-					helper := grossPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-					grossPrice = helper
-				} else if netPrice.Cmp(taxAuthorityCodebook.AmountLess1000) > 0 {
-					grossPrice := taxAuthorityCodebook.AmountLess700.Div(taxAuthorityCodebook.CoefficientLess700).
-						Add(taxAuthorityCodebook.AmountLess1000.Sub(taxAuthorityCodebook.AmountLess700).Div(taxAuthorityCodebook.CoefficientLess1000)).
-						Add(netPrice.Sub(taxAuthorityCodebook.AmountLess1000).Div(taxAuthorityCodebook.CoefficientMore1000))
-					helper := grossPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-					grossPrice = helper
-				} else {
-					grossPrice := taxAuthorityCodebook.AmountLess700.Div(taxAuthorityCodebook.CoefficientLess700).
-						Add(netPrice.Sub(taxAuthorityCodebook.AmountLess700).Div(taxAuthorityCodebook.CoefficientLess1000))
-					helper := grossPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-					grossPrice = helper
-				}
-
+				grossPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
+					(netPrice-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000)
+				helper := math.Round(grossPrice*100) / 100
+				grossPrice = float64(helper)
 			}
 		}
 
@@ -693,7 +673,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	additionalExpenses, err := calculateAdditionalExpenses(*taxAuthorityCodebook, grossPrice, previousIncomeGross, r, organizationUnit, *municipality)
 
 	if taxAuthorityCodebook.IncludeSubtax {
-		additionalExpenses[len(additionalExpenses)-1].Price = additionalExpenses[len(additionalExpenses)-1].Price.Add(additionalExpenses[1].Price)
+		additionalExpenses[len(additionalExpenses)-1].Price += additionalExpenses[1].Price
 	}
 
 	if err != nil {
@@ -708,32 +688,33 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	}, nil
 }
 
-func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebook, grossPrice decimal.Decimal, previousIncomeGross decimal.Decimal, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) ([]dto.AdditionalExpensesResponse, error) {
+func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebook, grossPrice float64, previousIncomeGross float64, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) ([]dto.AdditionalExpensesResponse, error) {
 	var additionalExpenses []dto.AdditionalExpensesResponse
 
 	nonReleasedGrossPrice := grossPrice
 
 	//oslobodjenje
-	if taxAuthorityCodebook.ReleasePercentage.Cmp(decimal.NewFromInt(0)) != 0 {
-		grossPrice = grossPrice.Sub(grossPrice.Mul(taxAuthorityCodebook.ReleasePercentage).Div(decimal.NewFromInt(100)))
-		helper := grossPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-		grossPrice = helper
-	} else if taxAuthorityCodebook.ReleaseAmount.Cmp(decimal.NewFromInt(0)) != 0 {
-		grossPrice = grossPrice.Sub(taxAuthorityCodebook.ReleaseAmount)
-		helper := grossPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-		grossPrice = helper
+	if taxAuthorityCodebook.ReleasePercentage != 0 {
+		grossPrice = grossPrice - grossPrice*taxAuthorityCodebook.ReleasePercentage/100
+		helper := math.Round(grossPrice*100) / 100
+		grossPrice = float64(helper)
+	} else if taxAuthorityCodebook.ReleaseAmount != 0 {
+		grossPrice = grossPrice - taxAuthorityCodebook.ReleaseAmount
+		helper := math.Round(grossPrice*100) / 100
+		grossPrice = float64(helper)
 
-		if grossPrice.Cmp(decimal.NewFromInt(0)) < 0 {
-			grossPrice = decimal.NewFromInt(0)
+		if grossPrice < 0 {
+			grossPrice = 0
 		}
 	}
 
-	var taxPrice decimal.Decimal
+	var taxPrice float64
 	//porez
-	if taxAuthorityCodebook.TaxPercentage.Cmp(decimal.NewFromInt(0)) != 0 {
-		taxPrice := grossPrice.Mul(taxAuthorityCodebook.TaxPercentage).Div(decimal.NewFromInt(100))
-		helper := taxPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-		taxPrice = helper
+	if taxAuthorityCodebook.TaxPercentage != 0 {
+
+		taxPrice = grossPrice * taxAuthorityCodebook.TaxPercentage / 100
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
 
@@ -743,7 +724,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ObligationTaxTitle,
-			Price:  decimal.Decimal(taxPrice),
+			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -754,12 +735,12 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 				Title: taxSupplier.Title,
 			},
 		}
-		if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+		if additionalExpenseTax.Price > 0 {
 			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 		}
 	}
 
-	if taxAuthorityCodebook.PreviousIncomePercentageLessThan700.Cmp(decimal.NewFromInt(0)) != 0 || taxAuthorityCodebook.PreviousIncomePercentageLessThan1000.Cmp(decimal.NewFromInt(0)) != 0 || taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000.Cmp(decimal.NewFromInt(0)) != 0 {
+	if taxAuthorityCodebook.PreviousIncomePercentageLessThan700 != 0 || taxAuthorityCodebook.PreviousIncomePercentageLessThan1000 != 0 || taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000 != 0 {
 
 		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
 
@@ -768,57 +749,50 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		}
 
 		remainGross := grossPrice
-		helpGross := grossPrice.Add(previousIncomeGross)
+		helpGross := grossPrice + previousIncomeGross
 
-		firstGross := helpGross.Sub(decimal.NewFromInt(1000))
+		firstGross := helpGross - 1000
 
-		if firstGross.Cmp(decimal.NewFromInt(0)) > 0 {
-			taxPrice := firstGross.Mul(taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000).Div(decimal.NewFromInt(100))
-			remainGross = remainGross.Sub(firstGross)
-			helper := taxPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-			taxPrice = helper
+		if firstGross > 0 {
+			taxPrice = firstGross * taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000 / 100
+			remainGross -= firstGross
+			helper := math.Round(taxPrice*100) / 100
+			taxPrice = float64(helper)
 		}
 
-		secondGross := remainGross.Sub(decimal.NewFromInt(700)).Add(previousIncomeGross)
+		secondGross := remainGross - 700 + previousIncomeGross
 
-		if firstGross.Cmp(decimal.NewFromInt(0)) > 0 {
-			taxPrice := firstGross.Mul(taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000).Div(decimal.NewFromInt(100))
-			remainGross = remainGross.Sub(firstGross)
-			helper := taxPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-			taxPrice = helper
-		}
-
-		if secondGross.Cmp(decimal.NewFromInt(0)) < 0 {
-			secondGross = decimal.NewFromInt(0)
+		if secondGross < 0 {
+			secondGross = 0
 		} else {
-			remainGross = remainGross.Sub(secondGross)
+			remainGross -= secondGross
 		}
 
-		taxPrice = taxPrice.Add(secondGross.Mul(taxAuthorityCodebook.PreviousIncomePercentageLessThan1000).Div(decimal.NewFromInt(100)))
+		taxPrice += secondGross * taxAuthorityCodebook.PreviousIncomePercentageLessThan1000 / 100
 
-		helper := taxPrice.Mul(decimal.NewFromInt(100)).Round(0).Div(decimal.NewFromInt(100))
-		taxPrice = helper
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
-		taxPrice = taxPrice.Add(remainGross.Mul(taxAuthorityCodebook.PreviousIncomePercentageLessThan700).Div(decimal.NewFromInt(100)))
+		taxPrice += remainGross * taxAuthorityCodebook.PreviousIncomePercentageLessThan700 / 100
 
-		if previousIncomeGross.Cmp(decimal.NewFromInt(0)) > 0 {
-			additionalExpensesForTax, err := calculateAdditionalExpenses(taxAuthorityCodebook, previousIncomeGross, decimal.NewFromInt(0), r, organizationUnit, municipality)
+		if previousIncomeGross != 0 {
+			additionalExpensesForTax, err := calculateAdditionalExpenses(taxAuthorityCodebook, previousIncomeGross, 0, r, organizationUnit, municipality)
 
 			if err != nil {
 				return nil, err
 			}
 
 			if len(additionalExpensesForTax) > 0 {
-				taxPrice = taxPrice.Sub(additionalExpensesForTax[0].Price)
+				taxPrice -= float64(additionalExpensesForTax[0].Price)
 			}
 		}
 
-		helper = taxPrice.Round(2)
-		taxPrice = decimal.Decimal(helper)
+		helper = math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ObligationTaxTitle,
-			Price:  decimal.Decimal(taxPrice),
+			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -830,17 +804,18 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+		if additionalExpenseTax.Price > 0 {
 			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 		}
 	}
 
-	subTaxPrice := decimal.Decimal(taxPrice).Mul(decimal.NewFromFloat32(municipality.TaxPercentage / 100))
-	subTaxPrice = subTaxPrice.Round(2)
+	subTaxPrice := float64(taxPrice) * float64(municipality.TaxPercentage/100)
+	helper := math.Round(subTaxPrice*100) / 100
+	subTaxPrice = float64(helper)
 
 	additionalExpenseTax := dto.AdditionalExpensesResponse{
 		Title:  structs.ObligationSubTaxTitle,
-		Price:  decimal.Decimal(subTaxPrice),
+		Price:  float32(subTaxPrice),
 		Status: string(structs.AdditionalExpenseStatusCreated),
 		OrganizationUnit: dto.DropdownSimple{
 			ID:    organizationUnit.ID,
@@ -852,15 +827,16 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		},
 	}
 
-	if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+	if additionalExpenseTax.Price > 0 {
 		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 	}
 
 	//fond rada
-	if taxAuthorityCodebook.LaborFund.Cmp(decimal.NewFromInt(0)) > 0 {
-		taxPrice := grossPrice.Mul(taxAuthorityCodebook.LaborFund).Div(decimal.NewFromInt(100))
+	if taxAuthorityCodebook.LaborFund != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.LaborFund / 100
 
-		taxPrice = taxPrice.Round(2)
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.LaborFundSupplierID)
 
@@ -870,7 +846,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.LaborFundTitle,
-			Price:  decimal.Decimal(taxPrice),
+			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -882,16 +858,17 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+		if additionalExpenseTax.Price > 0 {
 			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 		}
 	}
 
 	//pio
-	if taxAuthorityCodebook.PioPercentage.Cmp(decimal.NewFromInt(0)) > 0 {
-		taxPrice := grossPrice.Mul(taxAuthorityCodebook.PioPercentage).Div(decimal.NewFromInt(100))
+	if taxAuthorityCodebook.PioPercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentage / 100
 
-		taxPrice = taxPrice.Round(2)
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
@@ -901,7 +878,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForPIOTitle,
-			Price:  decimal.Decimal(taxPrice),
+			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -913,16 +890,17 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+		if additionalExpenseTax.Price > 0 {
 			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 		}
 	}
 
 	//pio na teret zaposlenog
-	if taxAuthorityCodebook.PioPercentageEmployeePercentage.Cmp(decimal.NewFromInt(0)) > 0 {
-		taxPrice := grossPrice.Mul(taxAuthorityCodebook.PioPercentageEmployerPercentage).Div(decimal.NewFromInt(100))
+	if taxAuthorityCodebook.PioPercentageEmployeePercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployerPercentage / 100
 
-		taxPrice = taxPrice.Round(2)
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
@@ -932,7 +910,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForPIOEmployeeTitle,
-			Price:  decimal.Decimal(taxPrice),
+			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -944,16 +922,17 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+		if additionalExpenseTax.Price > 0 {
 			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 		}
 	}
 
 	//pio na teret poslodavca
-	if taxAuthorityCodebook.PioPercentageEmployerPercentage.Cmp(decimal.NewFromInt(0)) > 0 {
-		taxPrice := grossPrice.Mul(taxAuthorityCodebook.PioPercentageEmployeePercentage).Div(decimal.NewFromInt(100))
+	if taxAuthorityCodebook.PioPercentageEmployerPercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployeePercentage / 100
 
-		taxPrice = taxPrice.Round(2)
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
@@ -963,7 +942,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForPIOEmployerTitle,
-			Price:  decimal.Decimal(taxPrice),
+			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -975,16 +954,17 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+		if additionalExpenseTax.Price > 0 {
 			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 		}
 	}
 
 	//za nezaposlenost
-	if taxAuthorityCodebook.UnemploymentPercentage.Cmp(decimal.NewFromInt(0)) > 0 {
-		taxPrice := grossPrice.Mul(taxAuthorityCodebook.UnemploymentPercentage).Div(decimal.NewFromInt(100))
+	if taxAuthorityCodebook.UnemploymentPercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentPercentage / 100
 
-		taxPrice = taxPrice.Round(2)
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
@@ -994,7 +974,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForUnemploymentTitle,
-			Price:  decimal.Decimal(taxPrice),
+			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -1006,16 +986,17 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+		if additionalExpenseTax.Price > 0 {
 			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 		}
 	}
 
 	//za nezaposlenost na teret poslodavca
-	if taxAuthorityCodebook.UnemploymentEmployerPercentage.Cmp(decimal.NewFromInt(0)) > 0 {
-		taxPrice := grossPrice.Mul(taxAuthorityCodebook.UnemploymentEmployerPercentage).Div(decimal.NewFromInt(100))
+	if taxAuthorityCodebook.UnemploymentEmployerPercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentEmployerPercentage / 100
 
-		taxPrice = taxPrice.Round(2)
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
@@ -1025,7 +1006,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForUnemploymentEmployerTitle,
-			Price:  decimal.Decimal(taxPrice),
+			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -1037,16 +1018,17 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+		if additionalExpenseTax.Price > 0 {
 			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 		}
 	}
 
 	//za nezaposlenost na teret zaposlenog
-	if taxAuthorityCodebook.UnemploymentEmployeePercentage.Cmp(decimal.NewFromInt(0)) > 0 {
-		taxPrice := grossPrice.Mul(taxAuthorityCodebook.UnemploymentEmployeePercentage).Div(decimal.NewFromInt(100))
+	if taxAuthorityCodebook.UnemploymentEmployeePercentage != 0 {
+		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentEmployeePercentage / 100
 
-		taxPrice = taxPrice.Round(100)
+		helper := math.Round(taxPrice*100) / 100
+		taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
@@ -1056,7 +1038,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForUnemploymentEmployeeTitle,
-			Price:  decimal.Decimal(taxPrice),
+			Price:  float32(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -1068,7 +1050,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},
 		}
 
-		if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+		if additionalExpenseTax.Price > 0 {
 			additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 		}
 	}
@@ -1078,15 +1060,15 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		if /*(item.Title == "Prirez" && !taxAuthorityCodebook.IncludeSubtax) ||*/
 		(item.Title == structs.ContributionForUnemploymentEmployerTitle) || (item.Title == structs.ContributionForPIOEmployerTitle) ||
 			(item.Title == structs.LaborFundTitle) {
-			nonReleasedGrossPrice = nonReleasedGrossPrice.Sub(decimal.NewFromInt(0))
+			nonReleasedGrossPrice -= 0
 		} else {
-			nonReleasedGrossPrice = nonReleasedGrossPrice.Sub(item.Price)
+			nonReleasedGrossPrice -= float64(item.Price)
 		}
 	}
 
 	additionalExpenseTax = dto.AdditionalExpensesResponse{
 		Title:  structs.NetTitle,
-		Price:  decimal.Decimal(nonReleasedGrossPrice),
+		Price:  float32(nonReleasedGrossPrice),
 		Status: string(structs.AdditionalExpenseStatusCreated),
 		OrganizationUnit: dto.DropdownSimple{
 			ID:    organizationUnit.ID,
@@ -1099,7 +1081,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			},*/
 	}
 
-	if additionalExpenseTax.Price.Cmp(decimal.NewFromInt(0)) > 0 {
+	if additionalExpenseTax.Price > 0 {
 		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
 	}
 
@@ -1126,33 +1108,32 @@ func buildInvoiceResponseItemList(ctx context.Context, r *Resolver, itemList []s
 func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.Invoice) (*dto.InvoiceResponseItem, error) {
 
 	response := dto.InvoiceResponseItem{
-		ID:                            invoice.ID,
-		PassedToInventory:             invoice.PassedToInventory,
-		PassedToAccounting:            invoice.PassedToAccounting,
-		IsInvoice:                     invoice.IsInvoice,
-		Issuer:                        invoice.Issuer,
-		InvoiceNumber:                 invoice.InvoiceNumber,
-		Type:                          invoice.Type,
-		SupplierTitle:                 invoice.Supplier,
-		DateOfStart:                   invoice.DateOfStart,
-		Status:                        invoice.Status,
-		GrossPrice:                    invoice.GrossPrice,
-		VATPrice:                      invoice.VATPrice,
-		NetPrice:                      invoice.NetPrice,
-		OrderID:                       invoice.OrderID,
-		ProFormaInvoiceDate:           invoice.ProFormaInvoiceDate,
-		ProFormaInvoiceNumber:         invoice.ProFormaInvoiceNumber,
-		DateOfInvoice:                 invoice.DateOfInvoice,
-		ReceiptDate:                   invoice.ReceiptDate,
-		DateOfPayment:                 invoice.DateOfPayment,
-		SSSInvoiceReceiptDate:         invoice.SSSInvoiceReceiptDate,
-		SSSProFormaInvoiceReceiptDate: invoice.SSSProFormaInvoiceReceiptDate,
-		BankAccount:                   invoice.BankAccount,
-		Description:                   invoice.Description,
-		SourceOfFunding:               invoice.SourceOfFunding,
-		Registred:                     invoice.Registred,
-		CreatedAt:                     invoice.CreatedAt,
-		UpdatedAt:                     invoice.UpdatedAt,
+		ID:                    invoice.ID,
+		PassedToInventory:     invoice.PassedToInventory,
+		PassedToAccounting:    invoice.PassedToAccounting,
+		IsInvoice:             invoice.IsInvoice,
+		Issuer:                invoice.Issuer,
+		InvoiceNumber:         invoice.InvoiceNumber,
+		Type:                  invoice.Type,
+		SupplierTitle:         invoice.Supplier,
+		DateOfStart:           invoice.DateOfStart,
+		Status:                invoice.Status,
+		GrossPrice:            invoice.GrossPrice,
+		VATPrice:              invoice.VATPrice,
+		NetPrice:              invoice.NetPrice,
+		OrderID:               invoice.OrderID,
+		ProFormaInvoiceDate:   invoice.ProFormaInvoiceDate,
+		ProFormaInvoiceNumber: invoice.ProFormaInvoiceNumber,
+		DateOfInvoice:         invoice.DateOfInvoice,
+		ReceiptDate:           invoice.ReceiptDate,
+		DateOfPayment:         invoice.DateOfPayment,
+		SSSInvoiceReceiptDate: invoice.SSSInvoiceReceiptDate,
+		BankAccount:           invoice.BankAccount,
+		Description:           invoice.Description,
+		SourceOfFunding:       invoice.SourceOfFunding,
+		Registred:             invoice.Registred,
+		CreatedAt:             invoice.CreatedAt,
+		UpdatedAt:             invoice.UpdatedAt,
 	}
 
 	var defaultTime time.Time
@@ -1344,8 +1325,8 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 
 	if len(articles) > 0 {
 
-		response.NetPrice = decimal.NewFromInt(0)
-		response.VATPrice = decimal.NewFromInt(0)
+		response.NetPrice = 0
+		response.VATPrice = 0
 
 		for _, article := range articles {
 			singleArticle, err := buildInvoiceArtice(r, article)
@@ -1355,22 +1336,17 @@ func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.
 			}
 
 			response.Articles = append(response.Articles, *singleArticle)
-
-			amountDecimal := decimal.NewFromInt(int64(singleArticle.Amount))
-			response.NetPrice = response.NetPrice.Add(singleArticle.NetPrice.Mul(amountDecimal))
-			response.VATPrice = response.VATPrice.Add(singleArticle.VatPrice.Mul(amountDecimal))
+			response.NetPrice += singleArticle.NetPrice * float64(singleArticle.Amount)
+			response.VATPrice += singleArticle.VatPrice * float64(singleArticle.Amount)
 		}
 
-		accountMap := make(map[string]decimal.Decimal)
+		accountMap := make(map[string]float64)
 
 		for _, item := range response.Articles {
-			amountDecimal := decimal.NewFromInt(int64(item.Amount))
-			vatPercentageDecimal := decimal.NewFromInt(int64(item.VatPercentage))
-			netPriceWithVAT := item.NetPrice.Add(item.NetPrice.Mul(vatPercentageDecimal).Div(decimal.NewFromInt(100)))
 			if currentAmount, exists := accountMap[item.Account.Title]; exists {
-				accountMap[item.Account.Title] = currentAmount.Add(amountDecimal.Mul(netPriceWithVAT))
+				accountMap[item.Account.Title] = currentAmount + float64(float64(item.Amount)*(item.NetPrice+item.NetPrice*float64(item.VatPercentage)/100))
 			} else {
-				accountMap[item.Account.Title] = amountDecimal.Mul(netPriceWithVAT)
+				accountMap[item.Account.Title] = float64(float64(item.Amount) * (item.NetPrice + item.NetPrice*float64(item.VatPercentage)/100))
 			}
 		}
 
@@ -1436,7 +1412,7 @@ func buildInvoiceArtice(r *Resolver, article structs.InvoiceArticles) (*dto.Invo
 		response.CostAccount = accountDropdown
 	}
 
-	response.VatPrice = response.NetPrice.Mul(decimal.NewFromInt32(int32(response.VatPercentage))).Div(decimal.NewFromInt(100))
+	response.VatPrice = response.NetPrice * float64(response.VatPercentage) / 100
 
 	return &response, nil
 }

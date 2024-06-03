@@ -77,9 +77,6 @@ var InvoiceMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"sss_invoice_receipt_date": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"sss_pro_forma_invoice_receipt_date": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},

@@ -7,6 +7,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+	"math"
 
 	"github.com/graphql-go/graphql"
 )
@@ -61,11 +62,10 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 			items[i].Supplier.Title = supplier.Title
 		}
 
-		//test
 		//id ne znaci nista, znaci samo kolegama sa fe, jer imaju felericnu tabelu
 		items[i].ID = i + 1
 
-		items[i].Price = items[i].Price.Round(2)
+		items[i].Price = math.Round(items[i].Price*100) / 100
 	}
 
 	message := "Here's the list you asked for!"
@@ -130,7 +130,7 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 			//zbog fronta dodato
 			items[i].ID = i + 1
 
-			items[i].Price = items[i].Price.Round(2)
+			items[i].Price = math.Round(items[i].Price*100) / 100
 		}
 	}
 
@@ -196,7 +196,7 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 			//zbog fronta dodato
 			items[i].ID = i + 1
 
-			items[i].Price = items[i].Price.Round(2)
+			items[i].Price = math.Round(items[i].Price*100) / 100
 		}
 	}
 
@@ -262,7 +262,7 @@ func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graph
 			//zbog fronta dodato
 			items[i].ID = i + 1
 
-			items[i].Price = items[i].Price.Round(2)
+			items[i].Price = math.Round(items[i].Price*100) / 100
 		}
 	}
 

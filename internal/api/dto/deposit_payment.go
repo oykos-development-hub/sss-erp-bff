@@ -3,8 +3,6 @@ package dto
 import (
 	"bff/structs"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 type DepositPaymentResponse struct {
@@ -16,7 +14,7 @@ type DepositPaymentResponse struct {
 	NumberOfBankStatement     string             `json:"number_of_bank_statement"`
 	DateOfBankStatement       string             `json:"date_of_bank_statement"`
 	Account                   DropdownSimple     `json:"account"`
-	Amount                    decimal.Decimal    `json:"amount"`
+	Amount                    float64            `json:"amount"`
 	MainBankAccount           bool               `json:"main_bank_account"`
 	CurrentBankAccount        string             `json:"current_bank_account"`
 	Status                    string             `json:"status"`

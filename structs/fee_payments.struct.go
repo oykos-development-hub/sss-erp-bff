@@ -1,10 +1,6 @@
 package structs
 
-import (
-	"time"
-
-	"github.com/shopspring/decimal"
-)
+import "time"
 
 type FeePaymentMethod int
 
@@ -25,7 +21,7 @@ type FeePayment struct {
 	ID                     int              `json:"id,omitempty"`
 	FeeID                  int              `json:"fee_id"`
 	PaymentMethod          FeePaymentMethod `json:"payment_method"`
-	Amount                 decimal.Decimal  `json:"amount"`
+	Amount                 float64          `json:"amount"`
 	PaymentDate            time.Time        `json:"payment_date"`
 	PaymentDueDate         time.Time        `json:"payment_due_date"`
 	ReceiptNumber          string           `json:"receipt_number"`

@@ -128,9 +128,6 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 		"sss_invoice_receipt_date": &graphql.Field{
 			Type: graphql.String,
 		},
-		"sss_pro_forma_invoice_receipt_date": &graphql.Field{
-			Type: graphql.String,
-		},
 		"date_of_payment": &graphql.Field{
 			Type: graphql.String,
 		},

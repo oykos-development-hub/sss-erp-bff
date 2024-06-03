@@ -1,10 +1,6 @@
 package structs
 
-import (
-	"time"
-
-	"github.com/shopspring/decimal"
-)
+import "time"
 
 type PaymentOrder struct {
 	ID                 int                 `json:"id"`
@@ -20,7 +16,7 @@ type PaymentOrder struct {
 	DateOfOrder        *time.Time          `json:"date_of_order"`
 	FileID             *int                `json:"file_id"`
 	Items              []PaymentOrderItems `json:"items"`
-	Amount             decimal.Decimal     `json:"amount"`
+	Amount             float64             `json:"amount"`
 	Description        string              `json:"description"`
 	Status             string              `json:"status"`
 	CreatedAt          time.Time           `json:"created_at"`
@@ -28,15 +24,15 @@ type PaymentOrder struct {
 }
 
 type PaymentOrderItems struct {
-	ID                        int             `json:"id"`
-	PaymentOrderID            int             `json:"payment_order_id"`
-	InvoiceID                 *int            `json:"invoice_id"`
-	AdditionalExpenseID       *int            `json:"additional_expense_id"`
-	SalaryAdditionalExpenseID *int            `json:"salary_additional_expense_id"`
-	Type                      string          `json:"type"`
-	AccountID                 int             `json:"account_id"`
-	Amount                    decimal.Decimal `json:"amount"`
-	Title                     string          `json:"title"`
-	CreatedAt                 time.Time       `json:"created_at"`
-	UpdatedAt                 time.Time       `json:"updated_at"`
+	ID                        int       `json:"id"`
+	PaymentOrderID            int       `json:"payment_order_id"`
+	InvoiceID                 *int      `json:"invoice_id"`
+	AdditionalExpenseID       *int      `json:"additional_expense_id"`
+	SalaryAdditionalExpenseID *int      `json:"salary_additional_expense_id"`
+	Type                      string    `json:"type"`
+	AccountID                 int       `json:"account_id"`
+	Amount                    float64   `json:"amount"`
+	Title                     string    `json:"title"`
+	CreatedAt                 time.Time `json:"created_at"`
+	UpdatedAt                 time.Time `json:"updated_at"`
 }

@@ -1,9 +1,6 @@
 package dto
 
-import (
-	"bff/structs"
-	"time"
-)
+import "bff/structs"
 
 type GetOrderListsResponseMS struct {
 	Data  []structs.OrderListItem `json:"data"`
@@ -52,9 +49,6 @@ type OrderListOverviewResponse struct {
 	IsProFormaInvoice     bool                                   `json:"is_pro_forma_invoice"`
 	ProFormaInvoiceDate   *string                                `json:"pro_forma_invoice_date"`
 	ProFormaInvoiceNumber string                                 `json:"pro_forma_invoice_number"`
-	DeliveryDate          *time.Time                             `json:"delivery_date"`
-	DeliveryNumber        string                                 `json:"delivery_number"`
-	DeliveryFile          *FileDropdownSimple                    `json:"delivery_file"`
 	Account               *DropdownSimple                        `json:"account"`
 	GroupOfArticles       *DropdownSimple                        `json:"group_of_articles"`
 	PublicProcurement     *DropdownSimple                        `json:"public_procurement"`

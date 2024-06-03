@@ -61,6 +61,7 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 			items[i].Supplier.Title = supplier.Title
 		}
 
+		//test
 		//id ne znaci nista, znaci samo kolegama sa fe, jer imaju felericnu tabelu
 		items[i].ID = i + 1
 

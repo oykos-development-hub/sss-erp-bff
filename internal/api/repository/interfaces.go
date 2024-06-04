@@ -513,4 +513,6 @@ type MicroserviceRepositoryInterface interface {
 	DeleteExternalReallocation(id int) error
 	GetExternalReallocationByID(id int) (*structs.ExternalReallocation, error)
 	GetExternalReallocationList(input dto.ExternalReallocationFilter) ([]structs.ExternalReallocation, int, error)
+	AcceptOUExternalReallocation(item *structs.ExternalReallocation) (*structs.ExternalReallocation, error)
+	RejectOUExternalReallocation(id int) error
 }

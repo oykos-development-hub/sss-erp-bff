@@ -181,6 +181,8 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"internalReallocations_Delete":                    fields.InternalReallocationDeleteField(),
 			"externalReallocations_Insert":                    fields.ExternalReallocationInsertField(),
 			"externalReallocations_Delete":                    fields.ExternalReallocationDeleteField(),
+			"externalReallocationsOU_Accept":                  fields.ExternalReallocationOUAcceptField(),
+			"externalReallocationsOU_Reject":                  fields.ExternalReallocationOURejectField(),
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{

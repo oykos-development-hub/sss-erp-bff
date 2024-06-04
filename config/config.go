@@ -120,6 +120,8 @@ type FinanceMS struct {
 	AnalyticalCard                           string
 	InternalReallocation                     string
 	ExternalReallocation                     string
+	AcceptOUExternalReallocation             string
+	RejectOUExternalReallocation             string
 }
 
 type ProcurementMS struct {

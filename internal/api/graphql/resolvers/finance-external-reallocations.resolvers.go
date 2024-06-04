@@ -154,6 +154,76 @@ func (r *Resolver) ExternalReallocationDeleteResolver(params graphql.ResolvePara
 	}, nil
 }
 
+func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data structs.ExternalReallocation
+	response := dto.ResponseSingle{
+		Status:  "success",
+		Message: "You created this item!",
+	}
+
+	dataBytes, err := json.Marshal(params.Args["data"])
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+	err = json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	if data.DestinationOrganizationUnitID == 0 {
+
+		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if !ok || organizationUnitID == nil {
+			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		}
+
+		data.DestinationOrganizationUnitID = *organizationUnitID
+
+	}
+
+	if data.AcceptedBy == 0 {
+		userProfileID, ok := params.Context.Value(config.LoggedInProfileKey).(*int)
+		if !ok || userProfileID == nil {
+			return apierrors.HandleAPIError(fmt.Errorf("error during checking user profile id"))
+		}
+
+		data.AcceptedBy = *userProfileID
+	}
+
+	var item *structs.ExternalReallocation
+
+	item, err = r.Repo.AcceptOUExternalReallocation(&data)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	singleItem, err := buildExternalReallocation(*item, r)
+	if err != nil {
+		return apierrors.HandleAPIError(err)
+	}
+
+	response.Item = *singleItem
+
+	return response, nil
+}
+
+func (r *Resolver) ExternalReallocationOURejectResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+
+	err := r.Repo.RejectOUExternalReallocation(itemID)
+	if err != nil {
+		fmt.Printf("Reject external reallocation failed because of this error - %s.\n", err)
+		return dto.ResponseSingle{
+			Status: "failed",
+		}, nil
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You reject this item!",
+	}, nil
+}
+
 func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (*dto.ExternalReallocationResponse, error) {
 
 	response := dto.ExternalReallocationResponse{

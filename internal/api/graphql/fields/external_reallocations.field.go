@@ -69,3 +69,29 @@ func (f *Field) ExternalReallocationDeleteField() *graphql.Field {
 		Resolve: f.Resolvers.ExternalReallocationDeleteResolver,
 	}
 }
+
+func (f *Field) ExternalReallocationOUAcceptField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.ExternalReallocationInsertType,
+		Description: "Creates new or alter existing fixed deposit will",
+		Args: graphql.FieldConfigArgument{
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(mutations.ExternalReallocationMutation),
+			},
+		},
+		Resolve: f.Resolvers.ExternalReallocationOUAcceptResolver,
+	}
+}
+
+func (f *Field) ExternalReallocationOURejectField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FineDeleteType,
+		Description: "Creates new or alter existing fixed deposit will",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.ExternalReallocationOUAcceptResolver,
+	}
+}

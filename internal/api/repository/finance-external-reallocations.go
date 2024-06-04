@@ -43,3 +43,21 @@ func (repo *MicroserviceRepository) DeleteExternalReallocation(id int) error {
 
 	return nil
 }
+
+func (repo *MicroserviceRepository) AcceptOUExternalReallocation(item *structs.ExternalReallocation) (*structs.ExternalReallocation, error) {
+	res := &dto.GetExternalReallocationSingleResponseMS{}
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.AcceptOUExternalReallocation, item, res)
+	if err != nil {
+		return nil, err
+	}
+	return res.Data, nil
+}
+
+func (repo *MicroserviceRepository) RejectOUExternalReallocation(id int) error {
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.RejectOUExternalReallocation+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

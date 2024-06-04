@@ -119,6 +119,7 @@ type FinanceMS struct {
 	AccountingEntry                          string
 	AnalyticalCard                           string
 	InternalReallocation                     string
+	ExternalReallocation                     string
 }
 
 type ProcurementMS struct {
@@ -426,6 +427,7 @@ func LoadDefaultConfig() (*Config, error) {
 				AccountingEntry:                          financeBase + "/accounting-entries",
 				AnalyticalCard:                           financeBase + "/analytical-card",
 				InternalReallocation:                     financeBase + "/internal-reallocations",
+				ExternalReallocation:                     financeBase + "/external-reallocations",
 			},
 		},
 		Frontend: FrontendConfig{

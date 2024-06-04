@@ -179,6 +179,8 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"accountingEntry_Delete":                          fields.AccountingEntryDeleteField(),
 			"internalReallocations_Insert":                    fields.InternalReallocationInsertField(),
 			"internalReallocations_Delete":                    fields.InternalReallocationDeleteField(),
+			"externalReallocations_Insert":                    fields.ExternalReallocationInsertField(),
+			"externalReallocations_Delete":                    fields.ExternalReallocationDeleteField(),
 		},
 	})
 	query := graphql.NewObject(graphql.ObjectConfig{
@@ -314,6 +316,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"accountingEntry_Overview":                                   fields.AccountingEntryOverviewField(),
 			"analyticalCard_Overview":                                    fields.AnalyticalCardOverviewField(),
 			"internalReallocations_Overview":                             fields.InternalReallocationOverviewField(),
+			"externalReallocations_Overview":                             fields.ExternalReallocationOverviewField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

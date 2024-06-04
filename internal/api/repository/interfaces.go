@@ -508,4 +508,9 @@ type MicroserviceRepositoryInterface interface {
 	DeleteInternalReallocation(id int) error
 	GetInternalReallocationByID(id int) (*structs.InternalReallocation, error)
 	GetInternalReallocationList(input dto.InternalReallocationFilter) ([]structs.InternalReallocation, int, error)
+
+	CreateExternalReallocation(item *structs.ExternalReallocation) (*structs.ExternalReallocation, error)
+	DeleteExternalReallocation(id int) error
+	GetExternalReallocationByID(id int) (*structs.ExternalReallocation, error)
+	GetExternalReallocationList(input dto.ExternalReallocationFilter) ([]structs.ExternalReallocation, int, error)
 }

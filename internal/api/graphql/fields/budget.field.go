@@ -309,16 +309,24 @@ func (f *Field) SpendingReleaseInsertField() *graphql.Field {
 func (f *Field) SpendingReleaseOverviewField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.SpendingReleaseOverviewType,
-		Description: "Spending release list",
+		Description: "Spending release overview",
 		Args: graphql.FieldConfigArgument{
-			"year": &graphql.ArgumentConfig{
+			"budget_id": &graphql.ArgumentConfig{
 				Type:         graphql.Int,
 				DefaultValue: 0,
 			},
+			"unit_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
+			"year": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
 			"month": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type:         graphql.Int,
+				DefaultValue: 0,
 			},
 		},
-		Resolve: f.Resolvers.SpendingDynamicOverview,
+		Resolve: f.Resolvers.SpendingReleaseOverview,
 	}
 }

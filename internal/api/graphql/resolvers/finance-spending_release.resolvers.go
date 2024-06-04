@@ -6,6 +6,7 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
+	goerrors "errors"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -57,42 +58,55 @@ func (r *Resolver) SpendingReleaseInsert(params graphql.ResolveParams) (interfac
 }
 
 func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interface{}, error) {
+	budgetID := params.Args["budget_id"].(int)
+	unitID := params.Args["unit_id"].(int)
+	month := params.Args["month"].(int)
+	year := params.Args["year"].(int)
+
 	loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok {
 		return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
 	}
 
-	input := &dto.GetSpendingReleaseListInput{}
-
-	if unitID, ok := params.Args["unit_id"].(int); ok && unitID != 0 {
-		input.UnitID = unitID
-	} else {
-		input.UnitID = *loggedInOrganizationUnitID
+	if unitID == 0 {
+		unitID = *loggedInOrganizationUnitID
 	}
 
-	if year, ok := params.Args["year"].(int); ok && year != 0 {
-		input.Year = &year
-	} else {
-		year = time.Now().Year()
+	if budgetID == 0 {
+		currentYear := time.Now().Year()
+		//TODO: after planning budget is done on FE, add status filter Done
+		budget, err := r.Repo.GetBudgetList(&dto.GetBudgetListInputMS{
+			Year: &currentYear,
+		})
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting budget for current year"))
+		}
+		if len(budget) != 1 {
+			return errors.HandleAPPError(errors.NewBadRequestError("Budget for current year not found"))
+		}
+		budgetID = budget[0].ID
 	}
 
-	if month, ok := params.Args["month"].(int); ok && month != 0 {
-		input.Year = &month
+	input := &dto.SpendingReleaseOverviewFilterDTO{
+		Year:     year,
+		BudgetID: budgetID,
+		UnitID:   unitID,
+		Month:    month,
 	}
 
-	// spendingReleaseList, err := r.Repo.GetSpendingReleaseList(input)
-	// if err != nil {
-	// 	var apiErr *errors.APIError
-	// 	if goerrors.As(err, &apiErr) {
-	// 		if apiErr.StatusCode != 404 {
-	// 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
-	// 		}
-	// 	}
-	// }
+	spendingReleaseOverview, err := r.Repo.GetSpendingReleaseOverview(params.Context, input)
+	if err != nil {
+		var apiErr *errors.APIError
+		if goerrors.As(err, &apiErr) {
+			if apiErr.StatusCode != 404 {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
+			}
+		}
+	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the data you asked for!",
-		// Items:   spendingReleaseList,
+		Items:   spendingReleaseOverview,
 	}, nil
 }

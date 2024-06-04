@@ -343,7 +343,7 @@ type MicroserviceRepositoryInterface interface {
 	CreateSpendingDynamic(ctx context.Context, budgetID, unitID int, spendingDynamic []structs.SpendingDynamicInsert) ([]dto.SpendingDynamicDTO, error)
 
 	CreateSpendingRelease(ctx context.Context, spendingRelease *structs.SpendingReleaseInsert) (*structs.SpendingRelease, error)
-
+	GetSpendingReleaseOverview(ctx context.Context, input *dto.SpendingReleaseOverviewFilterDTO) ([]dto.SpendingReleaseOverviewItem, error)
 	CreateCurrentBudget(ctx context.Context, currentBudget *structs.CurrentBudget) (*structs.CurrentBudget, error)
 
 	CreateInvoice(item *structs.Invoice) (*structs.Invoice, error)

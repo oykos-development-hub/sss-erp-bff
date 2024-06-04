@@ -503,4 +503,9 @@ type MicroserviceRepositoryInterface interface {
 	GetAccountingEntryList(input dto.AccountingEntryFilter) ([]structs.AccountingEntry, int, error)
 
 	GetAnalyticalCard(input dto.AnalyticalCardFilter) ([]structs.AnalyticalCard, error)
+
+	CreateInternalReallocation(item *structs.InternalReallocation) (*structs.InternalReallocation, error)
+	DeleteInternalReallocation(id int) error
+	GetInternalReallocationByID(id int) (*structs.InternalReallocation, error)
+	GetInternalReallocationList(input dto.InternalReallocationFilter) ([]structs.InternalReallocation, int, error)
 }

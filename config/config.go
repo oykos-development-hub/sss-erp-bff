@@ -118,6 +118,7 @@ type FinanceMS struct {
 	BuildAccountingOrderForObligations       string
 	AccountingEntry                          string
 	AnalyticalCard                           string
+	InternalReallocation                     string
 }
 
 type ProcurementMS struct {
@@ -424,6 +425,7 @@ func LoadDefaultConfig() (*Config, error) {
 				BuildAccountingOrderForObligations:       financeBase + "/build-accounting-order-for-obligations",
 				AccountingEntry:                          financeBase + "/accounting-entries",
 				AnalyticalCard:                           financeBase + "/analytical-card",
+				InternalReallocation:                     financeBase + "/internal-reallocations",
 			},
 		},
 		Frontend: FrontendConfig{

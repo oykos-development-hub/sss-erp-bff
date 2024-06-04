@@ -28,7 +28,7 @@ func (f *Field) ExternalReallocationOverviewField() *graphql.Field {
 				Type: graphql.Int,
 			},
 			"status": &graphql.ArgumentConfig{
-				Type: graphql.Int,
+				Type: graphql.String,
 			},
 			"year": &graphql.ArgumentConfig{
 				Type: graphql.Int,

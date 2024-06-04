@@ -430,6 +430,8 @@ func LoadDefaultConfig() (*Config, error) {
 				AnalyticalCard:                           financeBase + "/analytical-card",
 				InternalReallocation:                     financeBase + "/internal-reallocations",
 				ExternalReallocation:                     financeBase + "/external-reallocations",
+				AcceptOUExternalReallocation:             financeBase + "/accept-ou-external-reallocations",
+				RejectOUExternalReallocation:             financeBase + "/reject-ou-external-reallocations",
 			},
 		},
 		Frontend: FrontendConfig{

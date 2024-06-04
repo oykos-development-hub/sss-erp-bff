@@ -14,7 +14,7 @@ var InternalReallocationMutation = graphql.NewInputObject(graphql.InputObjectCon
 		"date_of_request": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"request_by": &graphql.InputObjectFieldConfig{
+		"requested_by": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{

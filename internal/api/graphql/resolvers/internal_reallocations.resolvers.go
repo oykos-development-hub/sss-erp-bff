@@ -7,6 +7,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/graphql-go/graphql"
 )
@@ -49,7 +50,7 @@ func (r *Resolver) InternalReallocationOverviewResolver(params graphql.ResolvePa
 		input.Year = &value
 	}
 
-	if value, ok := params.Args["request_by"].(int); ok && value != 0 {
+	if value, ok := params.Args["requested_by"].(int); ok && value != 0 {
 		input.RequestedBy = &value
 	}
 
@@ -205,6 +206,21 @@ func buildInternalReallocation(item structs.InternalReallocation, r *Resolver) (
 		}
 
 		response.File = dropdown
+	}
+
+	if item.BudgetID != 0 {
+		value, err := r.Repo.GetBudget(item.BudgetID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: strconv.Itoa(value.Year),
+		}
+
+		response.Budget = dropdown
 	}
 
 	for _, orderItem := range item.Items {

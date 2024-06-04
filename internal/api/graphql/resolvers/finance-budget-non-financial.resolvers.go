@@ -105,7 +105,7 @@ func buildGoalRequestResItem(r repository.MicroserviceRepositoryInterface, goal 
 		return nil, err
 	}
 
-	indicatorResItemList, err := buildActivityGoalIndicatorRequestResItemList(r, indicators)
+	indicatorResItemList, err := buildActivityGoalIndicatorRequestResItemList(indicators)
 	if err != nil {
 		return nil, err
 	}
@@ -115,9 +115,9 @@ func buildGoalRequestResItem(r repository.MicroserviceRepositoryInterface, goal 
 	return resItem, nil
 }
 
-func buildActivityGoalIndicatorRequestResItemList(r repository.MicroserviceRepositoryInterface, indicators []structs.NonFinancialGoalIndicatorItem) (goalsRequestResItemList []*dto.BudgetActivityGoalIndicatorResItem, err error) {
+func buildActivityGoalIndicatorRequestResItemList(indicators []structs.NonFinancialGoalIndicatorItem) (goalsRequestResItemList []*dto.BudgetActivityGoalIndicatorResItem, err error) {
 	for _, indicator := range indicators {
-		goalIndicatorRequestResItem, err := buildGoalIndicatorRequestResItem(r, indicator)
+		goalIndicatorRequestResItem, err := buildGoalIndicatorRequestResItem(indicator)
 		if err != nil {
 			return nil, err
 		}
@@ -127,7 +127,7 @@ func buildActivityGoalIndicatorRequestResItemList(r repository.MicroserviceRepos
 	return
 }
 
-func buildGoalIndicatorRequestResItem(r repository.MicroserviceRepositoryInterface, indicator structs.NonFinancialGoalIndicatorItem) (*dto.BudgetActivityGoalIndicatorResItem, error) {
+func buildGoalIndicatorRequestResItem(indicator structs.NonFinancialGoalIndicatorItem) (*dto.BudgetActivityGoalIndicatorResItem, error) {
 	resItem := &dto.BudgetActivityGoalIndicatorResItem{
 		ID:                       indicator.ID,
 		PerformanceIndicatorCode: indicator.PerformanceIndicatorCode,
@@ -417,7 +417,7 @@ func (r *Resolver) NonFinancialGoalIndicatorInsertResolver(params graphql.Resolv
 			return errors.HandleAPIError(err)
 		}
 
-		resItem, err := buildGoalIndicatorRequestResItem(r.Repo, *item)
+		resItem, err := buildGoalIndicatorRequestResItem(*item)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -430,7 +430,7 @@ func (r *Resolver) NonFinancialGoalIndicatorInsertResolver(params graphql.Resolv
 			return errors.HandleAPIError(err)
 		}
 
-		resItem, err := buildGoalIndicatorRequestResItem(r.Repo, *item)
+		resItem, err := buildGoalIndicatorRequestResItem(*item)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}

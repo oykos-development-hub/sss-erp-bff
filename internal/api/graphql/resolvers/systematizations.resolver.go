@@ -189,9 +189,6 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 			}
 		}
 	}
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
 
 	if systematization.Active == 2 {
 		if len(systematizationsActiveResponse.Data) > 0 {

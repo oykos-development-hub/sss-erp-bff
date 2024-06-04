@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
-	"context"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -20,7 +19,7 @@ func (r *Resolver) InvoiceOverviewResolver(params graphql.ResolveParams) (interf
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-		invoiceResItem, err := buildInvoiceResponseItem(params.Context, r, *invoice)
+		invoiceResItem, err := buildInvoiceResponseItem(r, *invoice)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -75,7 +74,7 @@ func (r *Resolver) InvoiceOverviewResolver(params graphql.ResolveParams) (interf
 		return errors.HandleAPIError(err)
 	}
 
-	invoiceResItem, err := buildInvoiceResponseItemList(params.Context, r, invoices)
+	invoiceResItem, err := buildInvoiceResponseItemList(r, invoices)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -327,7 +326,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		}
 	}
 
-	responseItem, err := buildInvoiceResponseItem(params.Context, r, *item)
+	responseItem, err := buildInvoiceResponseItem(r, *item)
 
 	if err != nil {
 		return errors.HandleAPIError(err)
@@ -438,7 +437,7 @@ func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolvePara
 		return errors.HandleAPIError(err)
 	}
 
-	builedAdditionalExpenses, err := buildAdditionalExpenseItemList(params.Context, r, additionalExpenses)
+	builedAdditionalExpenses, err := buildAdditionalExpenseItemList(r, additionalExpenses)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -525,7 +524,7 @@ func calculateCoefficientLess1000(item structs.TaxAuthorityCodebook, previousInc
 	return float64(coefficient), float64(maxNetAmount), nil
 }
 
-func calculateCoefficientMore1000(item structs.TaxAuthorityCodebook, previousIncomeGross float64, r *Resolver, organizationUnit *structs.OrganizationUnits, municipality structs.Suppliers) (float64, float64, error) {
+func calculateCoefficientMore1000(item structs.TaxAuthorityCodebook) (float64, float64, error) {
 
 	coefficient := item.PreviousIncomePercentageMoreThan1000 + item.PioPercentage + item.PioPercentageEmployerPercentage +
 		item.UnemploymentEmployeePercentage + item.UnemploymentPercentage
@@ -574,7 +573,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		return errors.HandleAPIError(err)
 	}
 
-	taxAuthorityCodebook.CoefficientMore1000, taxAuthorityCodebook.AmountMore1000, err = calculateCoefficientMore1000(*taxAuthorityCodebook, 0, r, organizationUnit, *municipality)
+	taxAuthorityCodebook.CoefficientMore1000, taxAuthorityCodebook.AmountMore1000, err = calculateCoefficientMore1000(*taxAuthorityCodebook)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -1088,11 +1087,11 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	return additionalExpenses, nil
 }
 
-func buildInvoiceResponseItemList(ctx context.Context, r *Resolver, itemList []structs.Invoice) ([]*dto.InvoiceResponseItem, error) {
+func buildInvoiceResponseItemList(r *Resolver, itemList []structs.Invoice) ([]*dto.InvoiceResponseItem, error) {
 	var items []*dto.InvoiceResponseItem
 
 	for _, item := range itemList {
-		singleItem, err := buildInvoiceResponseItem(ctx, r, item)
+		singleItem, err := buildInvoiceResponseItem(r, item)
 
 		if err != nil {
 			return nil, err
@@ -1105,7 +1104,7 @@ func buildInvoiceResponseItemList(ctx context.Context, r *Resolver, itemList []s
 	return items, nil
 }
 
-func buildInvoiceResponseItem(ctx context.Context, r *Resolver, invoice structs.Invoice) (*dto.InvoiceResponseItem, error) {
+func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.InvoiceResponseItem, error) {
 
 	response := dto.InvoiceResponseItem{
 		ID:                            invoice.ID,
@@ -1418,7 +1417,7 @@ func buildInvoiceArtice(r *Resolver, article structs.InvoiceArticles) (*dto.Invo
 	return &response, nil
 }
 
-func buildAdditionalExpenseItemList(ctx context.Context, r *Resolver, itemList []structs.AdditionalExpenses) ([]*dto.AdditionalExpensesResponse, error) {
+func buildAdditionalExpenseItemList(r *Resolver, itemList []structs.AdditionalExpenses) ([]*dto.AdditionalExpensesResponse, error) {
 	var items []*dto.AdditionalExpensesResponse
 
 	for _, item := range itemList {

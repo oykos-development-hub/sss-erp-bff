@@ -308,7 +308,7 @@ func (r *Resolver) InvoicesForInventoryOverview(params graphql.ResolveParams) (i
 
 	for _, invoice := range invoices {
 
-		invoiceResponse, _ := buildInvoiceResponseItem(params.Context, r, invoice)
+		invoiceResponse, _ := buildInvoiceResponseItem(r, invoice)
 		var invoiceArticles []structs.InvoiceArticles
 		for _, article := range invoiceResponse.Articles {
 			data, err := r.Repo.GetAllInventoryItem(dto.InventoryItemFilter{
@@ -781,7 +781,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			if dispatchRes.Type == "created" {
 				continue
 			}
-			dispatch, _ := buildInventoryDispatchResponse(r, dispatchRes, organizationUnitID)
+			dispatch, _ := buildInventoryDispatchResponse(r, dispatchRes)
 			movements = append(movements, dispatch)
 		}
 	}

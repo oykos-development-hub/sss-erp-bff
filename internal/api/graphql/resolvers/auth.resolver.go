@@ -38,9 +38,6 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
-	if err != nil {
-		return apierrors.HandleAPIError(err)
-	}
 
 	userProfile, err := r.Repo.GetUserProfileByUserAccountID(loginRes.Data.ID)
 	if err != nil {

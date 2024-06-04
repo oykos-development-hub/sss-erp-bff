@@ -23,7 +23,7 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
-		budgetResItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget, nil)
+		budgetResItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -69,7 +69,7 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 
 func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceRepositoryInterface, budgetList []structs.Budget) (budgetResItemList []*dto.BudgetResponseItem, err error) {
 	for _, budget := range budgetList {
-		budgetResponseItem, err := buildBudgetResponseItem(ctx, r, budget, nil)
+		budgetResponseItem, err := buildBudgetResponseItem(ctx, r, budget)
 		if err != nil {
 			return nil, err
 		}
@@ -81,7 +81,7 @@ func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceR
 	return
 }
 
-func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget, organizationUnitID *int) (*dto.BudgetResponseItem, error) {
+func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget) (*dto.BudgetResponseItem, error) {
 	limits, err := r.GetBudgetLimits(budget.ID)
 	if err != nil {
 		return nil, err
@@ -189,7 +189,7 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 			}
 		}
 
-		resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget, nil)
+		resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -241,7 +241,7 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 		}
 	}
 
-	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget, nil)
+	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -343,7 +343,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		return errors.HandleAPIError(err)
 	}
 
-	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *updatedBudget, nil)
+	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *updatedBudget)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -649,7 +649,7 @@ func (r *Resolver) BudgetDetailsResolver(params graphql.ResolveParams) (interfac
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
-	budgetResItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget, nil)
+	budgetResItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

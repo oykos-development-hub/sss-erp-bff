@@ -209,7 +209,7 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 		item.DateOrder = movement.DateOrder
 		item.Description = movement.Description
 
-		officeItem, _ := r.Repo.GetDropdownSettingByID(movement.OfficeID)
+		officeItem, err := r.Repo.GetDropdownSettingByID(movement.OfficeID)
 
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -218,7 +218,7 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 		item.Office.Title = officeItem.Title
 		item.Office.ID = officeItem.ID
 
-		userItem, _ := r.Repo.GetUserProfileByID(movement.RecipientUserID)
+		userItem, err := r.Repo.GetUserProfileByID(movement.RecipientUserID)
 
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -397,7 +397,7 @@ func buildMovementDetailsResponse(r repository.MicroserviceRepositoryInterface, 
 	item.DateOrder = movement.DateOrder
 	item.Description = movement.Description
 
-	officeItem, _ := r.GetDropdownSettingByID(movement.OfficeID)
+	officeItem, err := r.GetDropdownSettingByID(movement.OfficeID)
 
 	if err != nil {
 		return nil, err
@@ -406,7 +406,7 @@ func buildMovementDetailsResponse(r repository.MicroserviceRepositoryInterface, 
 	item.Office.Title = officeItem.Title
 	item.Office.ID = officeItem.ID
 
-	userItem, _ := r.GetUserProfileByID(movement.RecipientUserID)
+	userItem, err := r.GetUserProfileByID(movement.RecipientUserID)
 
 	if err != nil {
 		return nil, err

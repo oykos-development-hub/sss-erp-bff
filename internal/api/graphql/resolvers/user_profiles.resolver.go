@@ -1131,7 +1131,7 @@ func buildUserProfileBasicResponse(
 		jobPositionInOrganizationUnitID int
 	)
 
-	employeesInOrganizationUnit, _ := r.GetEmployeesInOrganizationUnitsByProfileID(profile.ID)
+	employeesInOrganizationUnit, err := r.GetEmployeesInOrganizationUnitsByProfileID(profile.ID)
 	if err != nil {
 		if apiErr, ok := err.(*errors.APIError); ok && apiErr.StatusCode != 404 {
 			return nil, err

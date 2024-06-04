@@ -64,7 +64,7 @@ func (r *Resolver) BasicInventoryDispatchOverviewResolver(params graphql.Resolve
 	}
 
 	for _, item := range data.Data {
-		resItem, err := buildInventoryDispatchResponse(r.Repo, item, *organizationUnitID)
+		resItem, err := buildInventoryDispatchResponse(r.Repo, item)
 		items = append(items, resItem)
 
 		if err != nil {
@@ -105,7 +105,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 			return apierrors.HandleAPIError(err)
 		}
 		response.Message = "You updated this item!"
-		items, err = buildInventoryDispatchResponse(r.Repo, itemRes, *organizationUnitID)
+		items, err = buildInventoryDispatchResponse(r.Repo, itemRes)
 
 		if err != nil {
 			return apierrors.HandleAPIError(err)
@@ -136,7 +136,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 			}
 
 			response.Message = "You created this item!"
-			items, err = buildInventoryDispatchResponse(r.Repo, itemRes, *organizationUnitID)
+			items, err = buildInventoryDispatchResponse(r.Repo, itemRes)
 
 			if err != nil {
 				return apierrors.HandleAPIError(err)
@@ -343,7 +343,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 		DispatchID: &dispatch.ID,
 	}
 
-	itemDispatchList, _ := r.Repo.GetMyInventoryDispatchesItems(&filter)
+	itemDispatchList, err := r.Repo.GetMyInventoryDispatchesItems(&filter)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -395,7 +395,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 }
 
-func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterface, item *structs.BasicInventoryDispatchItem, organizationUnitID int) (*dto.InventoryDispatchResponse, error) {
+func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterface, item *structs.BasicInventoryDispatchItem) (*dto.InventoryDispatchResponse, error) {
 	settings, err := repo.GetDropdownSettingByID(item.OfficeID)
 	if err != nil {
 		if apiErr, ok := err.(*apierrors.APIError); ok && apiErr.StatusCode != 404 {

@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/dto"
 	apierrors "bff/internal/api/errors"
 	"bff/structs"
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -354,7 +353,7 @@ func (r *Resolver) DepositPaymentAdditionalExpensesOverviewResolver(params graph
 		return apierrors.HandleAPIError(err)
 	}
 
-	builtAdditionalExpenses, err := buildDepositPaymentAdditionalExpenseItemList(params.Context, r, additionalExpenses)
+	builtAdditionalExpenses, err := buildDepositPaymentAdditionalExpenseItemList(r, additionalExpenses)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -367,7 +366,7 @@ func (r *Resolver) DepositPaymentAdditionalExpensesOverviewResolver(params graph
 	}, nil
 }
 
-func buildDepositPaymentAdditionalExpenseItemList(ctx context.Context, r *Resolver, itemList []structs.DepositPaymentAdditionalExpenses) ([]*dto.DepositPaymentAdditionalExpensesResponse, error) {
+func buildDepositPaymentAdditionalExpenseItemList(r *Resolver, itemList []structs.DepositPaymentAdditionalExpenses) ([]*dto.DepositPaymentAdditionalExpensesResponse, error) {
 	var items []*dto.DepositPaymentAdditionalExpensesResponse
 
 	for _, item := range itemList {

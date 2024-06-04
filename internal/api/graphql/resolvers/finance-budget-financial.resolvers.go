@@ -99,7 +99,7 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 		}
 	}
 
-	currentFinancialRequestResList, err := buildFilledRequestData(r.Repo, accounts.Data, filledAccounts)
+	currentFinancialRequestResList, err := buildFilledRequestData(accounts.Data, filledAccounts)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
 	}
@@ -124,7 +124,7 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 			return nil, errors.Wrap(err, "buildFilledRequestData")
 		}
 	}
-	donationFinancialRequestResList, err := buildFilledRequestData(r.Repo, accounts.Data, filledAccounts)
+	donationFinancialRequestResList, err := buildFilledRequestData(accounts.Data, filledAccounts)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
 	}
@@ -163,7 +163,7 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 	return financialBudgetOveriew, nil
 }
 
-func buildFilledRequestData(r repository.MicroserviceRepositoryInterface, accounts []*structs.AccountItem, filledAccounts []structs.FilledFinanceBudget) (dto.AccountWithFilledFinanceBudgetResponseList, error) {
+func buildFilledRequestData(accounts []*structs.AccountItem, filledAccounts []structs.FilledFinanceBudget) (dto.AccountWithFilledFinanceBudgetResponseList, error) {
 	var filledAccountResItemList dto.AccountWithFilledFinanceBudgetResponseList
 
 	for _, account := range accounts {

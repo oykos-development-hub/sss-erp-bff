@@ -89,9 +89,6 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 
 			}
 		}
-		if err != nil {
-			return dto.ErrorResponse(err), nil
-		}
 
 		for _, organizationUnit := range organizationUnits.Data {
 			organizationUnitItem, err := buildOrganizationUnitOverviewResponse(r.Repo, &organizationUnit)
@@ -169,7 +166,7 @@ func (r *Resolver) OrganizationUnitInsertResolver(params graphql.ResolveParams) 
 func (r *Resolver) OrganizationUnitOrderResolver(params graphql.ResolveParams) (interface{}, error) {
 	var data []structs.OrganizationUnits
 	var organizationUnitResponse []dto.GetOrganizationUnitResponseMS
-	var err error
+
 	dataBytes, _ := json.Marshal(params.Args["data"])
 
 	_ = json.Unmarshal(dataBytes, &data)
@@ -180,10 +177,6 @@ func (r *Resolver) OrganizationUnitOrderResolver(params graphql.ResolveParams) (
 			return errors.HandleAPIError(err)
 		}
 		organizationUnitResponse = append(organizationUnitResponse, *organizationUnit)
-	}
-
-	if err != nil {
-		return errors.HandleAPIError(err)
 	}
 
 	return dto.Response{

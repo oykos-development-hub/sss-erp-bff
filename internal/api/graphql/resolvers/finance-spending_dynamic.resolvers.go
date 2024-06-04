@@ -163,15 +163,6 @@ func (r *Resolver) SpendingDynamicHistoryOverview(params graphql.ResolveParams) 
 	}, nil
 }
 
-func buildAccountMap(accounts []*structs.AccountItem) map[int]*structs.AccountItem {
-	accountMap := make(map[int]*structs.AccountItem)
-	for _, account := range accounts {
-		account := account // capture range variable
-		accountMap[account.ID] = account
-	}
-	return accountMap
-}
-
 func buildAccountTree(accounts []*structs.AccountItem) map[int][]*structs.AccountItem {
 	sort.Slice(accounts, func(i, j int) bool {
 		return accounts[i].SerialNumber < accounts[j].SerialNumber
@@ -189,7 +180,7 @@ func buildAccountTree(accounts []*structs.AccountItem) map[int][]*structs.Accoun
 	return accountTree
 }
 
-func populateSpendingData(accounts map[int]*structs.AccountItem, spendingData []dto.SpendingDynamicDTO) map[int]*dto.SpendingDynamicDTO {
+func populateSpendingData(spendingData []dto.SpendingDynamicDTO) map[int]*dto.SpendingDynamicDTO {
 	spendingMap := make(map[int]*dto.SpendingDynamicDTO)
 	for _, data := range spendingData {
 		data := data // capture range variable
@@ -199,9 +190,8 @@ func populateSpendingData(accounts map[int]*structs.AccountItem, spendingData []
 }
 
 func buildSpendingDynamicTree(accounts []*structs.AccountItem, spendingData []dto.SpendingDynamicDTO) []*dto.SpendingDynamicDTO {
-	accountMap := buildAccountMap(accounts)
 	accountTree := buildAccountTree(accounts)
-	spendingMap := populateSpendingData(accountMap, spendingData)
+	spendingMap := populateSpendingData(spendingData)
 
 	var roots []*dto.SpendingDynamicDTO
 

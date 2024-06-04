@@ -47,9 +47,6 @@ var ExternalReallocationMutation = graphql.NewInputObject(graphql.InputObjectCon
 		"sss_file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"organization_unit_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
-		},
 		"items": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(ExternalReallocationItemMutation),
 		},

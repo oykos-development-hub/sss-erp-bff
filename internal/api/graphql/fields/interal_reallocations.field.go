@@ -27,7 +27,7 @@ func (f *Field) InternalReallocationOverviewField() *graphql.Field {
 			"year": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
-			"requested_by": &graphql.ArgumentConfig{
+			"request_by": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
 			"budget_id": &graphql.ArgumentConfig{

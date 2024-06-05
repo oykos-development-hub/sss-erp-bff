@@ -92,6 +92,6 @@ func (f *Field) ExternalReallocationOURejectField() *graphql.Field {
 				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},
-		Resolve: f.Resolvers.ExternalReallocationOUAcceptResolver,
+		Resolve: f.Resolvers.ExternalReallocationOURejectResolver,
 	}
 }

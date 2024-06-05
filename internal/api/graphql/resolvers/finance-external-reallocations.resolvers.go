@@ -170,17 +170,6 @@ func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolvePa
 		return apierrors.HandleAPIError(err)
 	}
 
-	if data.DestinationOrganizationUnitID == 0 {
-
-		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-		if !ok || organizationUnitID == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
-		}
-
-		data.DestinationOrganizationUnitID = *organizationUnitID
-
-	}
-
 	if data.AcceptedBy == 0 {
 		userProfileID, ok := params.Context.Value(config.LoggedInProfileKey).(*int)
 		if !ok || userProfileID == nil {

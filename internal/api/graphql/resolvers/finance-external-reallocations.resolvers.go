@@ -213,6 +213,40 @@ func (r *Resolver) ExternalReallocationOURejectResolver(params graphql.ResolvePa
 	}, nil
 }
 
+func (r *Resolver) ExternalReallocationSSSAcceptResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+
+	err := r.Repo.AcceptSSSExternalReallocation(itemID)
+	if err != nil {
+		fmt.Printf("Accept external reallocation failed because of this error - %s.\n", err)
+		return dto.ResponseSingle{
+			Status: "failed",
+		}, nil
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You accept this item!",
+	}, nil
+}
+
+func (r *Resolver) ExternalReallocationSSSRejectResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+
+	err := r.Repo.RejectSSSExternalReallocation(itemID)
+	if err != nil {
+		fmt.Printf("Reject external reallocation failed because of this error - %s.\n", err)
+		return dto.ResponseSingle{
+			Status: "failed",
+		}, nil
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You reject this item!",
+	}, nil
+}
+
 func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (*dto.ExternalReallocationResponse, error) {
 
 	response := dto.ExternalReallocationResponse{

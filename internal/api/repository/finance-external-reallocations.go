@@ -61,3 +61,21 @@ func (repo *MicroserviceRepository) RejectOUExternalReallocation(id int) error {
 
 	return nil
 }
+
+func (repo *MicroserviceRepository) AcceptSSSExternalReallocation(id int) error {
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.AcceptSSSExternalReallocation+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *MicroserviceRepository) RejectSSSExternalReallocation(id int) error {
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.RejectSSSExternalReallocation+"/"+strconv.Itoa(id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

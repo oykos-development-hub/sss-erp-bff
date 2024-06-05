@@ -123,6 +123,8 @@ type FinanceMS struct {
 	ExternalReallocation                     string
 	AcceptOUExternalReallocation             string
 	RejectOUExternalReallocation             string
+	AcceptSSSExternalReallocation            string
+	RejectSSSExternalReallocation            string
 }
 
 type ProcurementMS struct {
@@ -434,6 +436,8 @@ func LoadDefaultConfig() (*Config, error) {
 				ExternalReallocation:                     financeBase + "/external-reallocations",
 				AcceptOUExternalReallocation:             financeBase + "/accept-ou-external-reallocations",
 				RejectOUExternalReallocation:             financeBase + "/reject-ou-external-reallocations",
+				AcceptSSSExternalReallocation:            financeBase + "/accept-sss-external-reallocations",
+				RejectSSSExternalReallocation:            financeBase + "/reject-sss-external-reallocations",
 			},
 		},
 		Frontend: FrontendConfig{

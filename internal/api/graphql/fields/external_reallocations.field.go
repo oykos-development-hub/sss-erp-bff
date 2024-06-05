@@ -95,3 +95,29 @@ func (f *Field) ExternalReallocationOURejectField() *graphql.Field {
 		Resolve: f.Resolvers.ExternalReallocationOURejectResolver,
 	}
 }
+
+func (f *Field) ExternalReallocationSSSAcceptField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FineDeleteType,
+		Description: "Creates new or alter existing fixed deposit will",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.ExternalReallocationSSSAcceptResolver,
+	}
+}
+
+func (f *Field) ExternalReallocationSSSRejectField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.FineDeleteType,
+		Description: "Creates new or alter existing fixed deposit will",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.ExternalReallocationSSSRejectResolver,
+	}
+}

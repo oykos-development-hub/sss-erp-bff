@@ -252,6 +252,7 @@ type BudgetRequestOfficialOverview struct {
 	Unit        DropdownOUSimple `json:"unit"`
 	Status      string           `json:"status"`
 	ReceiveDate *time.Time       `json:"receive_date"`
+	Total       decimal.Decimal  `json:"total"`
 }
 
 type BudgetRequestsDetails struct {

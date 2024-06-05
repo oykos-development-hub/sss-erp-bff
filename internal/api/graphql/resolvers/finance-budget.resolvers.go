@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/graphql-go/graphql"
+	"github.com/shopspring/decimal"
 )
 
 func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -683,6 +684,8 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 	budgetID := params.Args["budget_id"].(int)
 
 	generalReqType := structs.RequestTypeGeneral
+	financialReqType := structs.RequestTypeCurrentFinancial
+
 	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
 		BudgetID:    &budgetID,
 		RequestType: &generalReqType,
@@ -704,6 +707,25 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: unit not found"))
 		}
+
+		financialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+			BudgetID:           &budgetID,
+			OrganizationUnitID: &request.OrganizationUnitID,
+			RequestType:        &financialReqType,
+		})
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: current financial req not found"))
+		}
+
+		filledData, err := r.Repo.GetFilledFinancialBudgetList(financialRequest.ID)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: filled data for financial req not found"))
+		}
+		total := decimal.Zero
+		for _, data := range filledData {
+			total = total.Add(data.CurrentYear)
+		}
+
 		unitRequestsList = append(unitRequestsList, dto.BudgetRequestOfficialOverview{
 			Unit: dto.DropdownOUSimple{
 				ID:    unit.ID,
@@ -711,6 +733,7 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 			},
 			Status:      string(dto.RequestStatusForOfficial(request.Status)),
 			ReceiveDate: receiveDate,
+			Total:       total,
 		})
 	}
 

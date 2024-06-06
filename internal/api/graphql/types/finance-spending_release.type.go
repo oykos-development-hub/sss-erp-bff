@@ -87,3 +87,18 @@ var SpendingReleaseOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var SpendingReleaseDeleteType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "SpendingReleaseDelete",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})

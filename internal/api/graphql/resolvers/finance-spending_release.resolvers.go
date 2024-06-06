@@ -113,3 +113,17 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 		Items:   spendingReleaseOverview,
 	}, nil
 }
+
+func (r *Resolver) SpendingReleaseDelete(params graphql.ResolveParams) (interface{}, error) {
+	id := params.Args["id"].(int)
+
+	err := r.Repo.DeleteSpendingRelease(params.Context, id)
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Deleted!",
+	}, nil
+}

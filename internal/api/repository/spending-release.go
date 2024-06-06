@@ -26,3 +26,12 @@ func (repo *MicroserviceRepository) GetSpendingReleaseOverview(ctx context.Conte
 
 	return res.Data, nil
 }
+
+func (repo *MicroserviceRepository) DeleteSpendingRelease(ctx context.Context, id int) error {
+	_, err := makeAPIRequest("DELETE", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingReleaseDelete, id), nil, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

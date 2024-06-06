@@ -13,24 +13,19 @@ import (
 )
 
 func (r *Resolver) SpendingReleaseInsert(params graphql.ResolveParams) (interface{}, error) {
-	var data structs.SpendingReleaseInsert
-
-	dataBytes, _ := json.Marshal(params.Args["data"])
-	err := json.Unmarshal(dataBytes, &data)
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
+	budgetID := params.Args["budget_id"].(int)
+	unitID := params.Args["unit_id"].(int)
 
 	loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok {
 		return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
 	}
 
-	if data.UnitID == 0 {
-		data.UnitID = *loggedInOrganizationUnitID
+	if unitID == 0 {
+		unitID = *loggedInOrganizationUnitID
 	}
 
-	if data.BudgetID == 0 {
+	if budgetID == 0 {
 		currentYear := time.Now().Year()
 		//TODO: after planning budget is done on FE, add status filter Done
 		budget, err := r.Repo.GetBudgetList(&dto.GetBudgetListInputMS{
@@ -42,18 +37,26 @@ func (r *Resolver) SpendingReleaseInsert(params graphql.ResolveParams) (interfac
 		if len(budget) != 1 {
 			return errors.HandleAPPError(errors.NewBadRequestError("Budget for current year not found"))
 		}
-		data.BudgetID = budget[0].ID
+		budgetID = budget[0].ID
 	}
 
-	item, err := r.Repo.CreateSpendingRelease(params.Context, &data)
+	var data []structs.SpendingReleaseInsert
+
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
-	return dto.ResponseSingle{
+	items, err := r.Repo.CreateSpendingRelease(params.Context, data, budgetID, unitID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	return dto.Response{
 		Status:  "success",
 		Message: "You created this item!",
-		Item:    item,
+		Items:   items,
 	}, nil
 }
 

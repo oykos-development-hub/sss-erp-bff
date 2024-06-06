@@ -10,6 +10,10 @@ type GetSpendingReleaseResponseMS struct {
 	Data structs.SpendingRelease `json:"data"`
 }
 
+type GetSpendingReleaseListResponseMS struct {
+	Data []structs.SpendingRelease `json:"data"`
+}
+
 type GetSpendingReleaseListInput struct {
 	Year      *int `json:"year"`
 	Month     *int `json:"month"`

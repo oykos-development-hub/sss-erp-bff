@@ -4,8 +4,8 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-var SpendingReleaseType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "SpendingReleaseType",
+var SpendingReleaseListType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "SpendingReleaseListType",
 	Fields: graphql.Fields{
 		"status": &graphql.Field{
 			Type: graphql.String,
@@ -16,8 +16,8 @@ var SpendingReleaseType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"item": &graphql.Field{
-			Type: SpendingReleaseItemType,
+		"items": &graphql.Field{
+			Type: graphql.NewList(SpendingReleaseItemType),
 		},
 	},
 })

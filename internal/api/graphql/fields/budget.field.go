@@ -295,11 +295,19 @@ func (f *Field) SpendingDynamicInsertField() *graphql.Field {
 
 func (f *Field) SpendingReleaseInsertField() *graphql.Field {
 	return &graphql.Field{
-		Type:        types.SpendingReleaseType,
-		Description: "Creates new spending release",
+		Type:        types.SpendingReleaseListType,
+		Description: "Creates new spending releases",
 		Args: graphql.FieldConfigArgument{
 			"data": &graphql.ArgumentConfig{
-				Type: mutations.SpendingReleaseMutation,
+				Type: graphql.NewList(mutations.SpendingReleaseMutation),
+			},
+			"budget_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
+			"unit_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
 			},
 		},
 		Resolve: f.Resolvers.SpendingReleaseInsert,

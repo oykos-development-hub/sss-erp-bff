@@ -7,8 +7,6 @@ import (
 )
 
 type SpendingReleaseInsert struct {
-	BudgetID  int             `json:"budget_id"`
-	UnitID    int             `json:"unit_id"`
 	AccountID int             `json:"account_id"`
 	Month     int             `json:"month"`
 	Value     decimal.Decimal `json:"value"`

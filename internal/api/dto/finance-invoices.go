@@ -50,6 +50,7 @@ type InvoiceResponseItem struct {
 }
 
 type AccountAmounts struct {
+	ID      int     `json:"id"`
 	Account string  `json:"account"`
 	Amount  float64 `json:"amount"`
 }

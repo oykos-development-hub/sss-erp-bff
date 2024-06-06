@@ -1350,11 +1350,15 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 			}
 		}
 
+		accountAmountID := 0
+
 		for title, amount := range accountMap {
 			response.AccountAmounts = append(response.AccountAmounts, dto.AccountAmounts{
+				ID:      accountAmountID,
 				Account: title,
 				Amount:  amount,
 			})
+			accountAmountID++
 		}
 
 	}

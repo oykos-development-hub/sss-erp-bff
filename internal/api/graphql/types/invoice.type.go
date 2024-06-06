@@ -164,6 +164,9 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 var AccountAmountsType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "AccountAmountsType",
 	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"account": &graphql.Field{
 			Type: graphql.String,
 		},

@@ -399,11 +399,14 @@ func buildPaymentOrder(item structs.PaymentOrder, r *Resolver) (*dto.PaymentOrde
 		}
 	}
 
+	accountAmountID := 0
 	for title, amount := range accountMap {
 		response.AccountAmounts = append(response.AccountAmounts, dto.AccountAmounts{
+			ID:      accountAmountID,
 			Account: title,
 			Amount:  amount,
 		})
+		accountAmountID++
 	}
 
 	return &response, nil

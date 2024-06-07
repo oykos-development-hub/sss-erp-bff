@@ -399,6 +399,7 @@ func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (int
 
 func (r *Resolver) BudgetRequestRejectResolver(params graphql.ResolveParams) (interface{}, error) {
 	requestID := params.Args["request_id"].(int)
+
 	request, err := r.Repo.GetBudgetRequest(requestID)
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestRejectResolver"))
@@ -411,6 +412,12 @@ func (r *Resolver) BudgetRequestRejectResolver(params graphql.ResolveParams) (in
 			dto.GetRequestType(structs.RequestTypeNonFinancial),
 			dto.GetRequestType(request.RequestType),
 		))
+	}
+
+	request.Comment = params.Args["request_id"].(string)
+	_, err = r.Repo.UpdateBudgetRequest(request)
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestRejectResolver: update budget request"))
 	}
 
 	switch request.RequestType {

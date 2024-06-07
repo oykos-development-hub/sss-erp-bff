@@ -414,7 +414,7 @@ func (r *Resolver) BudgetRequestRejectResolver(params graphql.ResolveParams) (in
 		))
 	}
 
-	request.Comment = params.Args["request_id"].(string)
+	request.Comment = params.Args["comment"].(string)
 	_, err = r.Repo.UpdateBudgetRequest(request)
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestRejectResolver: update budget request"))

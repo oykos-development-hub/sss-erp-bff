@@ -76,6 +76,8 @@ func (r *Resolver) buildNonFinancialBudgetDetails(ctx context.Context, request *
 
 	resItem.ActivityRequest.Goals = goalResItemList
 
+	resItem.OfficialComment = request.Comment
+
 	return resItem, nil
 }
 

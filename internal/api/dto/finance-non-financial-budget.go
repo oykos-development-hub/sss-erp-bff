@@ -35,6 +35,8 @@ type NonFinancialBudgetResItem struct {
 	ContactEmail        string `json:"contact_email"`
 
 	Statement string `json:"statement"`
+
+	OfficialComment string `json:"official_comment"`
 }
 
 type ActivityRequestResItem struct {

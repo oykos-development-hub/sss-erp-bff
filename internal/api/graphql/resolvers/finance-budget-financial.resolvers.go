@@ -119,6 +119,7 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 		if err != nil {
 			return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
 		}
+
 		filledAccounts, err = r.Repo.GetFilledFinancialBudgetList(donationFinancialBudgetRequest.ID)
 		if err != nil {
 			return nil, errors.Wrap(err, "buildFilledRequestData")

@@ -748,10 +748,12 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 
 	for _, request := range requests {
 		var receiveDate *time.Time
+
 		if request.Status == structs.BudgetRequestSentOnReviewStatus {
 			receiveDate = &request.UpdatedAt
 			totalOnReview++
 		}
+
 		unit, err := r.Repo.GetOrganizationUnitByID(request.OrganizationUnitID)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: unit not found"))

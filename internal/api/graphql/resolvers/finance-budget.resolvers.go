@@ -474,6 +474,22 @@ func (r *Resolver) rejectFinancialRequest(request *structs.BudgetRequest) error 
 		}
 	}
 
+	reqTypeNonFinancial := structs.RequestTypeNonFinancial
+	nonFinancialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &request.OrganizationUnitID,
+		BudgetID:           &request.BudgetID,
+		RequestType:        &reqTypeNonFinancial,
+	})
+	if err != nil {
+		return errors.Wrap(err, "rejectFinancialRequest: error getting financial budget requests")
+	}
+
+	nonFinancialRequest.Status = structs.BudgetRequestFilledStatus
+	_, err = r.Repo.UpdateBudgetRequest(nonFinancialRequest)
+	if err != nil {
+		return errors.Wrap(err, "rejectFinancialRequest: error updating non financial request")
+	}
+
 	return nil
 }
 
@@ -481,7 +497,28 @@ func (r *Resolver) rejectNonFinancialRequest(request *structs.BudgetRequest) err
 	request.Status = structs.BudgetRequestRejectedStatus
 	_, err := r.Repo.UpdateBudgetRequest(request)
 	if err != nil {
-		return errors.Wrap(err, "acceptFinancialRequest: error updating non-financial request")
+		return errors.Wrap(err, "rejectNonFinancialRequest: error updating non-financial request")
+	}
+
+	financialRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+		OrganizationUnitID: &request.OrganizationUnitID,
+		BudgetID:           &request.BudgetID,
+		RequestTypes: []structs.RequestType{
+			structs.RequestTypeCurrentFinancial,
+			structs.RequestTypeDonationFinancial,
+			structs.RequestTypeFinancial,
+		},
+	})
+	if err != nil {
+		return errors.Wrap(err, "rejectNonFinancialRequest: error getting financial budget requests")
+	}
+
+	for _, req := range financialRequests {
+		req.Status = structs.BudgetRequestFilledStatus
+		_, err := r.Repo.UpdateBudgetRequest(&req)
+		if err != nil {
+			return errors.Wrap(err, "rejectNonFinancialRequest: error updating financial request")
+		}
 	}
 
 	return nil

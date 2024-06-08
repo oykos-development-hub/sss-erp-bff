@@ -596,6 +596,7 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
 	}
+
 	allGeneralAccepted := true
 	for _, req := range generalBudgets {
 		if req.Status != structs.BudgetRequestAcceptedStatus {
@@ -603,6 +604,7 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 			break
 		}
 	}
+
 	if allGeneralAccepted {
 		budget, err := r.Repo.GetBudget(request.BudgetID)
 		if err != nil {

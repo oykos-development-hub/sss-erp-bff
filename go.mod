@@ -11,10 +11,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 )
 
-require (
-	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
-	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8 // direct
-)
+require github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 
 require (
 	github.com/gorilla/websocket v1.5.1 // direct

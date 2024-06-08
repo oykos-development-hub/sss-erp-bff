@@ -352,8 +352,14 @@ func (f *Field) SpendingReleaseGetField() *graphql.Field {
 				Type:         graphql.Int,
 				DefaultValue: 0,
 			},
+			"month": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"year": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
 		},
-		Resolve: f.Resolvers.SpendingDynamicOverview,
+		Resolve: f.Resolvers.SpendingReleaseGet,
 	}
 }
 

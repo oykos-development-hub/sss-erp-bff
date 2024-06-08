@@ -176,16 +176,7 @@ func initSpendingReleaseType() {
 				"current_budget_id": &graphql.Field{
 					Type: graphql.Int,
 				},
-				"actual": &graphql.Field{
-					Type: graphql.String,
-				},
-				"username": &graphql.Field{
-					Type: graphql.String,
-				},
 				"value": &graphql.Field{
-					Type: graphql.String,
-				},
-				"total_savings": &graphql.Field{
 					Type: graphql.String,
 				},
 				"created_at": &graphql.Field{

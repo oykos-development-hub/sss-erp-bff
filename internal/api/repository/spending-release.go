@@ -27,6 +27,16 @@ func (repo *MicroserviceRepository) GetSpendingReleaseOverview(ctx context.Conte
 	return res.Data, nil
 }
 
+func (repo *MicroserviceRepository) GetSpendingReleaseList(ctx context.Context, input *dto.GetSpendingReleaseListInput) ([]structs.SpendingRelease, error) {
+	res := dto.GetSpendingReleaseListResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.SpendingReleaseOverview, input, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
 func (repo *MicroserviceRepository) DeleteSpendingRelease(ctx context.Context, id int) error {
 	_, err := makeAPIRequest("DELETE", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingReleaseDelete, id), nil, nil)
 	if err != nil {

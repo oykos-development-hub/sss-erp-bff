@@ -16,10 +16,10 @@ type GetSpendingReleaseListResponseMS struct {
 }
 
 type GetSpendingReleaseListInput struct {
-	Year      *int `json:"year"`
-	Month     *int `json:"month"`
-	UnitID    int  `json:"unit_id"`
-	AccountID int  `json:"account_id"`
+	Year     int `json:"year"`
+	Month    int `json:"month"`
+	UnitID   int `json:"unit_id"`
+	BudgetID int `json:"budget_id"`
 }
 
 type SpendingReleaseOverviewFilterDTO struct {
@@ -49,5 +49,6 @@ type SpendingReleaseDTO struct {
 	Value               decimal.Decimal       `json:"value"`
 	AccountSerialNumber string                `json:"account_serial_number"`
 	AccountTitle        string                `json:"account_title"`
-	Children            []*SpendingDynamicDTO `json:"children"`
+	CreatedAt           time.Time             `json:"created_at"`
+	Children            []*SpendingReleaseDTO `json:"children"`
 }

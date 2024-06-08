@@ -579,7 +579,9 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver: error getting parent financial request"))
 		}
+
 		generalRequest.Status = structs.BudgetRequestAcceptedStatus
+
 		_, err = r.Repo.UpdateBudgetRequest(generalRequest)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver: error updating parent budget request"))

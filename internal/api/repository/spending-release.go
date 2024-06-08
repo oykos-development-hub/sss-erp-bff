@@ -29,7 +29,7 @@ func (repo *MicroserviceRepository) GetSpendingReleaseOverview(ctx context.Conte
 
 func (repo *MicroserviceRepository) GetSpendingReleaseList(ctx context.Context, input *dto.GetSpendingReleaseListInput) ([]structs.SpendingRelease, error) {
 	res := dto.GetSpendingReleaseListResponseMS{}
-	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.SpendingReleaseOverview, input, &res)
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.SpendingReleaseList, input, &res)
 	if err != nil {
 		return nil, err
 	}

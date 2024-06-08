@@ -10,9 +10,10 @@ import (
 	"encoding/json"
 	goerrors "errors"
 	"fmt"
-	"slices"
 	"strconv"
 	"time"
+
+	"golang.org/x/exp/slices"
 
 	"github.com/graphql-go/graphql"
 	"github.com/shopspring/decimal"

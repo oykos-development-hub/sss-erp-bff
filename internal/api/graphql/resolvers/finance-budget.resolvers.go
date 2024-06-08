@@ -786,7 +786,13 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: filled data for financial req not found"))
 			}
 
+			financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
+			if err != nil {
+				return errors.HandleAPIError(err)
+			}
+
 			topMostAccounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+				Version: &financialBudget.AccountVersion,
 				TopMost: true,
 			})
 			if err != nil {
@@ -800,8 +806,14 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 
 			total := decimal.Zero
 			for _, data := range filledData {
+				if data.CurrentYear.GreaterThan(decimal.NewFromInt(0)) {
+					inexactFloat := data.CurrentYear.InexactFloat64()
+					fmt.Println(inexactFloat)
+				}
 				if slices.Contains(topMostAccountIDList, data.AccountID) {
-					total = total.Add(data.CurrentYear)
+					if data.CurrentYear.GreaterThan(decimal.Zero) {
+						total = total.Add(data.CurrentYear)
+					}
 				}
 			}
 

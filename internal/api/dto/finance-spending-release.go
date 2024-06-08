@@ -2,6 +2,7 @@ package dto
 
 import (
 	"bff/structs"
+	"time"
 
 	"github.com/shopspring/decimal"
 )
@@ -33,7 +34,20 @@ type GetSpendingReleaseOverviewResponseMS struct {
 }
 
 type SpendingReleaseOverviewItem struct {
-	Month int             `json:"month"`
-	Year  int             `json:"year"`
-	Value decimal.Decimal `json:"value"`
+	Month     int             `json:"month"`
+	Year      int             `json:"year"`
+	CreatedAt time.Time       `json:"created_at"`
+	Value     decimal.Decimal `json:"value"`
+}
+
+type SpendingReleaseDTO struct {
+	ID                  int                   `json:"id"`
+	AccountID           int                   `json:"account_id"`
+	BudgetID            int                   `json:"budget_id"`
+	UnitID              int                   `json:"unit_id"`
+	CurrentBudgetID     int                   `json:"current_budget_id"`
+	Value               decimal.Decimal       `json:"value"`
+	AccountSerialNumber string                `json:"account_serial_number"`
+	AccountTitle        string                `json:"account_title"`
+	Children            []*SpendingDynamicDTO `json:"children"`
 }

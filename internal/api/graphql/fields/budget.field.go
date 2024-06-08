@@ -339,6 +339,24 @@ func (f *Field) SpendingReleaseOverviewField() *graphql.Field {
 	}
 }
 
+func (f *Field) SpendingReleaseGetField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.GetSpendingReleaseGetType(),
+		Description: "Spending release list",
+		Args: graphql.FieldConfigArgument{
+			"budget_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
+			"unit_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
+		},
+		Resolve: f.Resolvers.SpendingDynamicOverview,
+	}
+}
+
 func (f *Field) SpendingReleaseDeleteField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.SpendingReleaseDeleteType,

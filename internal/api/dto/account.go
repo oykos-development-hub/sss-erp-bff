@@ -11,6 +11,7 @@ type GetAccountsFilter struct {
 	SerialNumber *string `json:"serial_number"`
 	Title        *string `json:"title"`
 	Leaf         bool    `json:"leaf"`
+	TopMost      bool    `json:"top_most"`
 }
 
 type AccountItemResponseItem struct {

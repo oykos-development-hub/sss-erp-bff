@@ -786,9 +786,23 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: filled data for financial req not found"))
 			}
 
+			topMostAccounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+				TopMost: true,
+			})
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "repo get account items"))
+			}
+
+			topMostAccountIDList := make([]int, 0, topMostAccounts.Total)
+			for _, account := range topMostAccounts.Data {
+				topMostAccountIDList = append(topMostAccountIDList, account.ID)
+			}
+
 			total := decimal.Zero
 			for _, data := range filledData {
-				total = total.Add(data.CurrentYear)
+				if slices.Contains(topMostAccountIDList, data.AccountID) {
+					total = total.Add(data.CurrentYear)
+				}
 			}
 
 			resItem.Total = total

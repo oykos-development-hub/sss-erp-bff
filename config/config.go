@@ -68,6 +68,7 @@ type FinanceMS struct {
 	SpendingReleaseInsert                    string
 	SpendingReleaseDelete                    string
 	SpendingReleaseOverview                  string
+	SpendingReleaseList                      string
 	CurrentBudget                            string
 	Program                                  string
 	Activity                                 string
@@ -382,6 +383,7 @@ func LoadDefaultConfig() (*Config, error) {
 				SpendingReleaseInsert:                    financeBase + "/budgets/%d/units/%d/spending-releases",
 				SpendingReleaseDelete:                    financeBase + "spending-releases/%d",
 				SpendingReleaseOverview:                  financeBase + "/spending-releases/overview",
+				SpendingReleaseList:                      financeBase + "/spending-releases",
 				CurrentBudget:                            financeBase + "/current-budgets",
 				FinancialBudget:                          financeBase + "/financial-budgets",
 				FilledFinancialBudget:                    financeBase + "/filled-financial-budgets",

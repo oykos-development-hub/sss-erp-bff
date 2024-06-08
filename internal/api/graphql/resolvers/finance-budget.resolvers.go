@@ -13,8 +13,6 @@ import (
 	"strconv"
 	"time"
 
-	"golang.org/x/exp/slices"
-
 	"github.com/graphql-go/graphql"
 	"github.com/shopspring/decimal"
 )
@@ -773,12 +771,10 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 			ReceiveDate: receiveDate,
 		}
 
-		if slices.Contains([]structs.BudgetRequestStatus{
-			structs.BudgetRequestSentOnReviewStatus,
-			structs.BudgetRequestAcceptedStatus,
-			structs.BudgetRequestWaitingForActual,
-			structs.BudgetRequestCompletedActualStatus,
-		}, request.Status) {
+		if request.Status == structs.BudgetRequestSentOnReviewStatus ||
+			request.Status == structs.BudgetRequestAcceptedStatus ||
+			request.Status == structs.BudgetRequestWaitingForActual ||
+			request.Status == structs.BudgetRequestCompletedActualStatus {
 			financialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
 				BudgetID:           &budgetID,
 				OrganizationUnitID: &request.OrganizationUnitID,
@@ -786,11 +782,6 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 			})
 			if err != nil {
 				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: current financial req not found"))
-			}
-
-			filledData, err := r.Repo.GetFilledFinancialBudgetList(financialRequest.ID)
-			if err != nil {
-				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: filled data for financial req not found"))
 			}
 
 			financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
@@ -811,11 +802,17 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 				topMostAccountIDList = append(topMostAccountIDList, account.ID)
 			}
 
+			filledData, err := r.Repo.GetFilledFinancialBudgetList(&dto.FilledFinancialBudgetInputMS{
+				BudgetRequestID: financialRequest.ID,
+				Accounts:        topMostAccountIDList,
+			})
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: filled data for financial req not found"))
+			}
+
 			total := decimal.Zero
 			for _, data := range filledData {
-				if slices.Contains(topMostAccountIDList, data.AccountID) && data.CurrentYear.GreaterThan(decimal.Zero) {
-					total = total.Add(data.CurrentYear)
-				}
+				total = total.Add(data.CurrentYear)
 			}
 
 			resItem.Total = total

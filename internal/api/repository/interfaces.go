@@ -292,7 +292,7 @@ type MicroserviceRepositoryInterface interface {
 	CreateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
 	GetFinancialBudgetByBudgetID(budgetID int) (*structs.FinancialBudget, error)
 	GetFinancialBudgetByID(id int) (*structs.FinancialBudget, error)
-	GetFilledFinancialBudgetList(requestID int) ([]structs.FilledFinanceBudget, error)
+	GetFilledFinancialBudgetList(input *dto.FilledFinancialBudgetInputMS) ([]structs.FilledFinanceBudget, error)
 
 	GetBudgetLimits(budgetID int) ([]structs.FinancialBudgetLimit, error)
 	GetBudgetUnitLimit(budgetID, unitID int) (int, error)

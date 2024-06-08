@@ -93,7 +93,7 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 		if err != nil {
 			return nil, errors.Wrap(err, "GetFinancialBudgetDetails: error getting current financial budget request")
 		}
-		filledAccounts, err = r.Repo.GetFilledFinancialBudgetList(currentFinancialBudgetRequest.ID)
+		filledAccounts, err = r.Repo.GetFilledFinancialBudgetList(&dto.FilledFinancialBudgetInputMS{BudgetRequestID: currentFinancialBudgetRequest.ID})
 		if err != nil {
 			return nil, errors.Wrap(err, "buildFilledRequestData")
 		}
@@ -120,7 +120,7 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 			return nil, errors.Wrap(err, "GetFinancialBudgetDetails")
 		}
 
-		filledAccounts, err = r.Repo.GetFilledFinancialBudgetList(donationFinancialBudgetRequest.ID)
+		filledAccounts, err = r.Repo.GetFilledFinancialBudgetList(&dto.FilledFinancialBudgetInputMS{BudgetRequestID: donationFinancialBudgetRequest.ID})
 		if err != nil {
 			return nil, errors.Wrap(err, "buildFilledRequestData")
 		}
@@ -225,7 +225,7 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 	}
 
 	for _, request := range financialBudgetRequests {
-		filledRequestData, err := r.Repo.GetFilledFinancialBudgetList(request.ID)
+		filledRequestData, err := r.Repo.GetFilledFinancialBudgetList(&dto.FilledFinancialBudgetInputMS{BudgetRequestID: request.ID})
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}

@@ -212,7 +212,8 @@ type AccountWithFilledFinanceBudget struct {
 }
 
 type FilledFinancialBudgetInputMS struct {
-	BudgetRequestID int `json:"budget_request_id"`
+	BudgetRequestID int   `json:"budget_request_id"`
+	Accounts        []int `json:"accounts"`
 }
 
 func (a *AccountWithFilledFinanceBudgetResponseList) CreateTree() []*AccountWithFilledFinanceBudget {

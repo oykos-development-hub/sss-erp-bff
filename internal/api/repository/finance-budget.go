@@ -143,10 +143,7 @@ func (repo *MicroserviceRepository) GetBudgetUnitLimit(budgetID, unitID int) (in
 	return res.Data[0].Limit, nil
 }
 
-func (repo *MicroserviceRepository) GetFilledFinancialBudgetList(requestID int) ([]structs.FilledFinanceBudget, error) {
-	input := &dto.FilledFinancialBudgetInputMS{
-		BudgetRequestID: requestID,
-	}
+func (repo *MicroserviceRepository) GetFilledFinancialBudgetList(input *dto.FilledFinancialBudgetInputMS) ([]structs.FilledFinanceBudget, error) {
 	res := &dto.GetFilledFinancialBudgetResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FilledFinancialBudget, input, res)
 	if err != nil {

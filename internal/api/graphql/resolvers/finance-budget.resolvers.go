@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	goerrors "errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"time"
 
@@ -752,33 +753,44 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: unit not found"))
 		}
 
-		financialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
-			BudgetID:           &budgetID,
-			OrganizationUnitID: &request.OrganizationUnitID,
-			RequestType:        &financialReqType,
-		})
-		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: current financial req not found"))
-		}
-
-		filledData, err := r.Repo.GetFilledFinancialBudgetList(financialRequest.ID)
-		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: filled data for financial req not found"))
-		}
-		total := decimal.Zero
-		for _, data := range filledData {
-			total = total.Add(data.CurrentYear)
-		}
-
-		unitRequestsList = append(unitRequestsList, dto.BudgetRequestOfficialOverview{
+		resItem := dto.BudgetRequestOfficialOverview{
 			Unit: dto.DropdownOUSimple{
 				ID:    unit.ID,
 				Title: unit.Title,
 			},
 			Status:      string(dto.RequestStatusForOfficial(request.Status)),
 			ReceiveDate: receiveDate,
-			Total:       total,
-		})
+		}
+
+		if slices.Contains([]structs.BudgetRequestStatus{
+			structs.BudgetRequestSentOnReviewStatus,
+			structs.BudgetRequestAcceptedStatus,
+			structs.BudgetRequestWaitingForActual,
+			structs.BudgetRequestCompletedActualStatus,
+		}, request.Status) {
+			financialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+				BudgetID:           &budgetID,
+				OrganizationUnitID: &request.OrganizationUnitID,
+				RequestType:        &financialReqType,
+			})
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: current financial req not found"))
+			}
+
+			filledData, err := r.Repo.GetFilledFinancialBudgetList(financialRequest.ID)
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestsOfficialResolver: filled data for financial req not found"))
+			}
+
+			total := decimal.Zero
+			for _, data := range filledData {
+				total = total.Add(data.CurrentYear)
+			}
+
+			resItem.Total = total
+		}
+
+		unitRequestsList = append(unitRequestsList, resItem)
 	}
 
 	return dto.Response{

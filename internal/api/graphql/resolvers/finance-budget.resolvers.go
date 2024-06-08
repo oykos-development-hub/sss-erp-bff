@@ -485,10 +485,12 @@ func (r *Resolver) rejectFinancialRequest(request *structs.BudgetRequest) error 
 		return errors.Wrap(err, "rejectFinancialRequest: error getting financial budget requests")
 	}
 
-	nonFinancialRequest.Status = structs.BudgetRequestFilledStatus
-	_, err = r.Repo.UpdateBudgetRequest(nonFinancialRequest)
-	if err != nil {
-		return errors.Wrap(err, "rejectFinancialRequest: error updating non financial request")
+	if nonFinancialRequest.Status != structs.BudgetRequestRejectedStatus {
+		nonFinancialRequest.Status = structs.BudgetRequestFilledStatus
+		_, err = r.Repo.UpdateBudgetRequest(nonFinancialRequest)
+		if err != nil {
+			return errors.Wrap(err, "rejectFinancialRequest: error updating non financial request")
+		}
 	}
 
 	return nil
@@ -515,10 +517,12 @@ func (r *Resolver) rejectNonFinancialRequest(request *structs.BudgetRequest) err
 	}
 
 	for _, req := range financialRequests {
-		req.Status = structs.BudgetRequestFilledStatus
-		_, err := r.Repo.UpdateBudgetRequest(&req)
-		if err != nil {
-			return errors.Wrap(err, "rejectNonFinancialRequest: error updating financial request")
+		if req.Status != structs.BudgetRequestRejectedStatus {
+			req.Status = structs.BudgetRequestFilledStatus
+			_, err := r.Repo.UpdateBudgetRequest(&req)
+			if err != nil {
+				return errors.Wrap(err, "rejectNonFinancialRequest: error updating financial request")
+			}
 		}
 	}
 

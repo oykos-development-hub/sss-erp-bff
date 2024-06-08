@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	goerrors "errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"time"
 
@@ -771,10 +772,12 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 			ReceiveDate: receiveDate,
 		}
 
-		if request.Status == structs.BudgetRequestSentOnReviewStatus ||
-			request.Status == structs.BudgetRequestAcceptedStatus ||
-			request.Status == structs.BudgetRequestWaitingForActual ||
-			request.Status == structs.BudgetRequestCompletedActualStatus {
+		if slices.Contains([]structs.BudgetRequestStatus{
+			structs.BudgetRequestSentOnReviewStatus,
+			structs.BudgetRequestAcceptedStatus,
+			structs.BudgetRequestWaitingForActual,
+			structs.BudgetRequestCompletedActualStatus,
+		}, request.Status) {
 			financialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
 				BudgetID:           &budgetID,
 				OrganizationUnitID: &request.OrganizationUnitID,

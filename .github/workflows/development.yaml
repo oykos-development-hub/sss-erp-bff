@@ -34,7 +34,7 @@ jobs:
                 tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz
                 export PATH=$PATH:/usr/local/go/bin
                 source ~/.bashrc
-                rm go1.20.linux-amd64.tar.gz
+                rm go1.22.4.linux-amd64.tar.gz
               fi
               export PATH="/usr/local/go/bin:$PATH"
               go mod tidy

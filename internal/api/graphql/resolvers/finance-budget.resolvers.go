@@ -806,14 +806,8 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 
 			total := decimal.Zero
 			for _, data := range filledData {
-				if data.CurrentYear.GreaterThan(decimal.NewFromInt(0)) {
-					inexactFloat := data.CurrentYear.InexactFloat64()
-					fmt.Println(inexactFloat)
-				}
-				if slices.Contains(topMostAccountIDList, data.AccountID) {
-					if data.CurrentYear.GreaterThan(decimal.Zero) {
-						total = total.Add(data.CurrentYear)
-					}
+				if slices.Contains(topMostAccountIDList, data.AccountID) && data.CurrentYear.GreaterThan(decimal.Zero) {
+					total = total.Add(data.CurrentYear)
 				}
 			}
 

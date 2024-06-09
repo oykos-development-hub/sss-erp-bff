@@ -50,5 +50,6 @@ type SpendingReleaseDTO struct {
 	AccountSerialNumber string                `json:"account_serial_number"`
 	AccountTitle        string                `json:"account_title"`
 	CreatedAt           time.Time             `json:"created_at"`
+	Username            string                `json:"username"`
 	Children            []*SpendingReleaseDTO `json:"children"`
 }

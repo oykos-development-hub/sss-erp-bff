@@ -202,6 +202,7 @@ func populateSpendingReleaseData(spendingData []structs.SpendingRelease) map[int
 			CurrentBudgetID: data.CurrentBudgetID,
 			Value:           data.Value,
 			CreatedAt:       data.CreatedAt,
+			Username:        data.Username,
 		}
 	}
 	return spendingMap
@@ -240,6 +241,8 @@ func buildSpendingReleaseTreeRecursively(accountID int, parent *dto.SpendingRele
 			child.CurrentBudgetID = data.CurrentBudgetID
 			child.UnitID = data.UnitID
 			child.BudgetID = data.BudgetID
+			child.CreatedAt = data.CreatedAt
+			child.Username = data.Username
 		}
 
 		buildSpendingReleaseTreeRecursively(childAccount.ID, child, accountTree, spendingMap)

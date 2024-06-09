@@ -10,6 +10,7 @@ type SpendingReleaseInsert struct {
 	AccountID int             `json:"account_id"`
 	Month     int             `json:"month"`
 	Value     decimal.Decimal `json:"value"`
+	Username  string          `json:"username"`
 }
 
 type SpendingRelease struct {
@@ -22,4 +23,5 @@ type SpendingRelease struct {
 	Month           int             `json:"month"`
 	Year            int             `json:"year"`
 	CreatedAt       time.Time       `json:"created_at"`
+	Username        string          `json:"username"`
 }

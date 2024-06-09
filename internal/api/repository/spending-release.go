@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
 	"context"
@@ -8,8 +9,16 @@ import (
 )
 
 func (repo *MicroserviceRepository) CreateSpendingRelease(ctx context.Context, spendingReleaseList []structs.SpendingReleaseInsert, budgetID, unitID int) ([]structs.SpendingRelease, error) {
+	loggedInProfile, _ := ctx.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
+
+	spendingReleaseListToInsert := make([]structs.SpendingReleaseInsert, len(spendingReleaseList))
+	for i, spendingRelease := range spendingReleaseList {
+		spendingRelease.Username = loggedInProfile.GetFullName()
+		spendingReleaseListToInsert[i] = spendingRelease
+	}
+
 	res := dto.GetSpendingReleaseListResponseMS{}
-	_, err := makeAPIRequest("POST", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingReleaseInsert, budgetID, unitID), spendingReleaseList, &res)
+	_, err := makeAPIRequest("POST", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingReleaseInsert, budgetID, unitID), spendingReleaseListToInsert, &res)
 	if err != nil {
 		return nil, err
 	}

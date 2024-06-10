@@ -128,7 +128,10 @@ func (f *Field) AccountingEntryOverviewField() *graphql.Field {
 			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
-			"type": &graphql.ArgumentConfig{
+			"date_of_start": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"date_of_end": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
 		},

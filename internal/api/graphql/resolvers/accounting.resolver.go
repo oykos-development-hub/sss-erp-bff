@@ -376,6 +376,24 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		input.Type = &value
 	}
 
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		dateOfStart, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfStart = &dateOfStart
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		dateOfEnd, err := parseDate(value)
+
+		if err != nil {
+			return apierrors.HandleAPIError(err)
+		}
+		input.DateOfEnd = &dateOfEnd
+	}
+
 	items, total, err := r.Repo.GetAccountingEntryList(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)

@@ -167,6 +167,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			}
 
 			data.OrderID = order.ID
+			orderID = order.ID
 
 			var orderArticles []structs.OrderArticleInsertItem
 

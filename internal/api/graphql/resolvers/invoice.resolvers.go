@@ -1262,7 +1262,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 	}
 
 	if invoice.TypeOfDecision != 0 {
-		setting, err := r.Repo.GetSupplier(invoice.TypeOfDecision)
+		setting, err := r.Repo.GetDropdownSettingByID(invoice.TypeOfDecision)
 		if err != nil {
 			return nil, err
 		}

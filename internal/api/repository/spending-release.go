@@ -46,8 +46,8 @@ func (repo *MicroserviceRepository) GetSpendingReleaseList(ctx context.Context, 
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteSpendingRelease(ctx context.Context, id int) error {
-	_, err := makeAPIRequest("DELETE", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingReleaseDelete, id), nil, nil)
+func (repo *MicroserviceRepository) DeleteSpendingRelease(ctx context.Context, input *dto.DeleteSpendingReleaseInput) error {
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.SpendingReleaseDelete, input, nil, nil)
 	if err != nil {
 		return err
 	}

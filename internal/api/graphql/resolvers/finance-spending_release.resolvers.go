@@ -115,9 +115,40 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 }
 
 func (r *Resolver) SpendingReleaseDelete(params graphql.ResolveParams) (interface{}, error) {
-	id := params.Args["id"].(int)
+	unitID := params.Args["unit_id"].(int)
 
-	err := r.Repo.DeleteSpendingRelease(params.Context, id)
+	input := &dto.DeleteSpendingReleaseInput{
+		Month: int(time.Now().Month()),
+	}
+
+	loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok {
+		return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
+	}
+
+	if unitID == 0 {
+		unitID = *loggedInOrganizationUnitID
+	}
+
+	input.UnitID = unitID
+
+	currentYear := time.Now().Year()
+
+	//TODO: after planning budget is done on FE, add status filter Done
+	budget, err := r.Repo.GetBudgetList(&dto.GetBudgetListInputMS{
+		Year: &currentYear,
+	})
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting budget for current year"))
+	}
+
+	if len(budget) != 1 {
+		return errors.HandleAPPError(errors.NewBadRequestError("Budget for current year not found"))
+	}
+
+	input.BudgetID = budget[0].ID
+
+	err = r.Repo.DeleteSpendingRelease(params.Context, input)
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
 	}
@@ -176,12 +207,22 @@ func (r *Resolver) SpendingReleaseGet(params graphql.ResolveParams) (interface{}
 		}
 	}
 
+	spendingDynamic, err := r.Repo.GetSpendingDynamic(budgetID, unitID, nil)
+	if err != nil {
+		var apiErr *errors.APIError
+		if goerrors.As(err, &apiErr) {
+			if apiErr.StatusCode != 404 {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
+			}
+		}
+	}
+
 	accounts, err := r.Repo.GetAccountItems(nil)
 	if err != nil {
 		return nil, err
 	}
 
-	tree := buildSpendingReleaseTree(accounts.Data, spendingReleases)
+	tree := buildSpendingReleaseTree(month, accounts.Data, spendingReleases, spendingDynamic)
 
 	return dto.Response{
 		Status:  "success",
@@ -208,9 +249,10 @@ func populateSpendingReleaseData(spendingData []structs.SpendingRelease) map[int
 	return spendingMap
 }
 
-func buildSpendingReleaseTree(accounts []*structs.AccountItem, spendingData []structs.SpendingRelease) []*dto.SpendingReleaseDTO {
+func buildSpendingReleaseTree(month int, accounts []*structs.AccountItem, spendingData []structs.SpendingRelease, dynamicData []dto.SpendingDynamicDTO) []*dto.SpendingReleaseDTO {
 	accountTree := buildAccountTree(accounts)
 	spendingMap := populateSpendingReleaseData(spendingData)
+	spendingDynamicMap := populateSpendingData(dynamicData)
 
 	var roots []*dto.SpendingReleaseDTO
 
@@ -221,14 +263,15 @@ func buildSpendingReleaseTree(accounts []*structs.AccountItem, spendingData []st
 			AccountTitle:        account.Title,
 		}
 
-		buildSpendingReleaseTreeRecursively(account.ID, root, accountTree, spendingMap)
+		buildSpendingReleaseTreeRecursively(month, account.ID, root, accountTree, spendingMap, spendingDynamicMap)
+		calculateReleaseSums(root)
 		roots = append(roots, root)
 	}
 
 	return roots
 }
 
-func buildSpendingReleaseTreeRecursively(accountID int, parent *dto.SpendingReleaseDTO, accountTree map[int][]*structs.AccountItem, spendingMap map[int]*dto.SpendingReleaseDTO) {
+func buildSpendingReleaseTreeRecursively(month, accountID int, parent *dto.SpendingReleaseDTO, accountTree map[int][]*structs.AccountItem, spendingMap map[int]*dto.SpendingReleaseDTO, dynamicMap map[int]*dto.SpendingDynamicDTO) {
 	for _, childAccount := range accountTree[accountID] {
 		child := &dto.SpendingReleaseDTO{
 			AccountID:           childAccount.ID,
@@ -244,8 +287,45 @@ func buildSpendingReleaseTreeRecursively(accountID int, parent *dto.SpendingRele
 			child.CreatedAt = data.CreatedAt
 			child.Username = data.Username
 		}
+		if data, exists := dynamicMap[childAccount.ID]; exists {
+			switch month {
+			case int(time.January):
+				child.Planned = data.January.Value
+			case int(time.February):
+				child.Planned = data.February.Value
+			case int(time.March):
+				child.Planned = data.March.Value
+			case int(time.April):
+				child.Planned = data.April.Value
+			case int(time.May):
+				child.Planned = data.May.Value
+			case int(time.June):
+				child.Planned = data.June.Value
+			case int(time.July):
+				child.Planned = data.July.Value
+			case int(time.August):
+				child.Planned = data.August.Value
+			case int(time.September):
+				child.Planned = data.September.Value
+			case int(time.October):
+				child.Planned = data.October.Value
+			case int(time.November):
+				child.Planned = data.November.Value
+			case int(time.December):
+				child.Planned = data.December.Value
+			}
+		}
 
-		buildSpendingReleaseTreeRecursively(childAccount.ID, child, accountTree, spendingMap)
+		buildSpendingReleaseTreeRecursively(month, childAccount.ID, child, accountTree, spendingMap, dynamicMap)
 		parent.Children = append(parent.Children, child)
+	}
+}
+
+func calculateReleaseSums(node *dto.SpendingReleaseDTO) {
+	for _, child := range node.Children {
+		calculateReleaseSums(child)
+		node.Value = node.Value.Add(child.Value)
+		node.Planned = node.Planned.Add(child.Planned)
+
 	}
 }

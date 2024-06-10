@@ -22,6 +22,12 @@ type GetSpendingReleaseListInput struct {
 	BudgetID int `json:"budget_id"`
 }
 
+type DeleteSpendingReleaseInput struct {
+	Month    int `json:"month"`
+	UnitID   int `json:"unit_id"`
+	BudgetID int `json:"budget_id"`
+}
+
 type SpendingReleaseOverviewFilterDTO struct {
 	Month    int `json:"month"`
 	Year     int `json:"year" validate:"required"`
@@ -51,5 +57,6 @@ type SpendingReleaseDTO struct {
 	AccountTitle        string                `json:"account_title"`
 	CreatedAt           time.Time             `json:"created_at"`
 	Username            string                `json:"username"`
+	Planned             decimal.Decimal       `json:"planned"`
 	Children            []*SpendingReleaseDTO `json:"children"`
 }

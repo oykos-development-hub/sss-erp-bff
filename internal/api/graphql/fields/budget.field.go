@@ -368,8 +368,9 @@ func (f *Field) SpendingReleaseDeleteField() *graphql.Field {
 		Type:        types.SpendingReleaseDeleteType,
 		Description: "Delete spending release",
 		Args: graphql.FieldConfigArgument{
-			"id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
+			"unit_id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
 			},
 		},
 		Resolve: f.Resolvers.SpendingReleaseDelete,

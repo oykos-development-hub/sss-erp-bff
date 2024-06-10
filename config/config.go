@@ -381,7 +381,7 @@ func LoadDefaultConfig() (*Config, error) {
 				SpendingDynamicActual:                    financeBase + "/budgets/%d/units/%d/accounts/%d/actual",
 				SpendingDynamicInsert:                    financeBase + "/budgets/%d/units/%d/spending-dynamics",
 				SpendingReleaseInsert:                    financeBase + "/budgets/%d/units/%d/spending-releases",
-				SpendingReleaseDelete:                    financeBase + "spending-releases/%d",
+				SpendingReleaseDelete:                    financeBase + "/spending-releases",
 				SpendingReleaseOverview:                  financeBase + "/spending-releases/overview",
 				SpendingReleaseList:                      financeBase + "/spending-releases",
 				CurrentBudget:                            financeBase + "/current-budgets",

@@ -182,6 +182,12 @@ func initSpendingReleaseType() {
 				"created_at": &graphql.Field{
 					Type: graphql.String,
 				},
+				"month": &graphql.Field{
+					Type: graphql.Int,
+				},
+				"planned": &graphql.Field{
+					Type: graphql.String,
+				},
 				"children": &graphql.Field{
 					Type: graphql.NewList(spendingReleaseType),
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {

@@ -20,7 +20,8 @@ func (repo *MicroserviceRepository) GetUserAccounts(input *dto.GetUserAccountLis
 
 func (repo *MicroserviceRepository) UpdateUserAccount(ctx context.Context, userID int, user structs.UserAccounts) (*structs.UserAccounts, error) {
 	header := make(map[string]string)
-	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
 
 	res := &dto.GetUserAccountResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res, header)
@@ -43,7 +44,8 @@ func (repo *MicroserviceRepository) GetUserAccountByID(id int) (*structs.UserAcc
 
 func (repo *MicroserviceRepository) CreateUserAccount(ctx context.Context, user structs.UserAccounts) (*structs.UserAccounts, error) {
 	header := make(map[string]string)
-	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
 
 	res := &dto.GetUserAccountResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.UserAccounts, user, res, header)
@@ -62,7 +64,8 @@ func (repo *MicroserviceRepository) DeactivateUserAccount(ctx context.Context, u
 	}
 
 	header := make(map[string]string)
-	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res, header)
 	if err != nil {
 		return nil, err
@@ -73,7 +76,8 @@ func (repo *MicroserviceRepository) DeactivateUserAccount(ctx context.Context, u
 
 func (repo *MicroserviceRepository) DeleteUserAccount(ctx context.Context, id int) error {
 	header := make(map[string]string)
-	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {

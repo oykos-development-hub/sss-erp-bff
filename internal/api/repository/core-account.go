@@ -12,7 +12,8 @@ import (
 func (repo *MicroserviceRepository) DeleteAccount(ctx context.Context, id int) error {
 
 	header := make(map[string]string)
-	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.Account+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
@@ -57,7 +58,9 @@ func (repo *MicroserviceRepository) CreateAccountItemList(ctx context.Context, a
 	res := &dto.InsertAccountItemListResponseMS{}
 
 	header := make(map[string]string)
-	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Account, accountItemList, res, header)
 	if err != nil {
@@ -70,7 +73,8 @@ func (repo *MicroserviceRepository) UpdateAccountItem(ctx context.Context, id in
 	res := &dto.GetAccountItemResponseMS{}
 
 	header := make(map[string]string)
-	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Account+"/"+strconv.Itoa(id), accountItem, res, header)
 	if err != nil {

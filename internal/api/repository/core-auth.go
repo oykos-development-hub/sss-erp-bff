@@ -93,7 +93,8 @@ func (repo *MicroserviceRepository) GetRoleList() ([]structs.Roles, error) {
 
 func (repo *MicroserviceRepository) UpdateRole(ctx context.Context, id int, data structs.Roles) (*structs.Roles, error) {
 	header := make(map[string]string)
-	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
 
 	res := &dto.GetRoleResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Roles+"/"+strconv.Itoa(id), data, res, header)
@@ -108,7 +109,8 @@ func (repo *MicroserviceRepository) CreateRole(ctx context.Context, data structs
 	res := &dto.GetRoleResponseMS{}
 
 	header := make(map[string]string)
-	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Roles, data, res, header)
 	if err != nil {

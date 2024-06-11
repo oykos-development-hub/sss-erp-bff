@@ -150,7 +150,7 @@ func (r *Resolver) PublicProcurementPlanItemInsertResolver(params graphql.Resolv
 	itemID := data.ID
 
 	if itemID != 0 {
-		res, err := r.Repo.UpdateProcurementItem(itemID, &data)
+		res, err := r.Repo.UpdateProcurementItem(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -159,7 +159,7 @@ func (r *Resolver) PublicProcurementPlanItemInsertResolver(params graphql.Resolv
 		response.Message = "You updated this item!"
 		response.Item = resItem
 	} else {
-		res, err := r.Repo.CreateProcurementItem(&data)
+		res, err := r.Repo.CreateProcurementItem(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -177,7 +177,7 @@ func (r *Resolver) PublicProcurementPlanItemInsertResolver(params graphql.Resolv
 func (r *Resolver) PublicProcurementPlanItemDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteProcurementItem(itemID)
+	err := r.Repo.DeleteProcurementItem(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

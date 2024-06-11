@@ -46,13 +46,13 @@ type MicroserviceRepositoryInterface interface {
 	CreateOrderProcurementArticle(orderProcurementArticleItem *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error)
 	CreateOrganizationUnits(ctx context.Context, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error)
 	CreateProcurementArticle(article *structs.PublicProcurementArticle) (*structs.PublicProcurementArticle, error)
-	CreateProcurementContract(resolution *structs.PublicProcurementContract) (*structs.PublicProcurementContract, error)
+	CreateProcurementContract(ctx context.Context, resolution *structs.PublicProcurementContract) (*structs.PublicProcurementContract, error)
 	CreateProcurementContractArticle(article *structs.PublicProcurementContractArticle) (*structs.PublicProcurementContractArticle, error)
 	CreateProcurementContractArticleOverage(articleOverage *structs.PublicProcurementContractArticleOverage) (*structs.PublicProcurementContractArticleOverage, error)
-	CreateProcurementItem(item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error)
+	CreateProcurementItem(ctx context.Context, item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error)
 	CreateProcurementOUArticle(article *structs.PublicProcurementOrganizationUnitArticle) (*structs.PublicProcurementOrganizationUnitArticle, error)
 	CreateProcurementOULimit(limit *structs.PublicProcurementLimit) (*structs.PublicProcurementLimit, error)
-	CreateProcurementPlan(resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error)
+	CreateProcurementPlan(ctx context.Context, resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error)
 	CreateResolution(ctx context.Context, resolution *structs.Resolution) (*structs.Resolution, error)
 	CreateRevision(ctx context.Context, revision *structs.Revision) (*structs.Revision, error)
 	CreateRevisionOrgUnit(plan *dto.RevisionOrgUnit) error
@@ -96,10 +96,10 @@ type MicroserviceRepositoryInterface interface {
 	DeleteOrderProcurementArticle(id int) error
 	DeleteOrganizationUnits(ctx context.Context, id int) error
 	DeleteProcurementArticle(id int) error
-	DeleteProcurementContract(id int) error
+	DeleteProcurementContract(ctx context.Context, id int) error
 	DeleteProcurementContractArticleOverage(id int) error
-	DeleteProcurementItem(id int) error
-	DeleteProcurementPlan(id int) error
+	DeleteProcurementItem(ctx context.Context, id int) error
+	DeleteProcurementPlan(ctx context.Context, id int) error
 	DeleteResolution(ctx context.Context, id int) error
 	DeleteRevision(ctx context.Context, id int) error
 	DeleteRevisionOrgUnit(id int) error
@@ -253,13 +253,13 @@ type MicroserviceRepositoryInterface interface {
 	UpdateOrderProcurementArticle(item *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error)
 	UpdateOrganizationUnits(ctx context.Context, id int, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error)
 	UpdateProcurementArticle(id int, article *structs.PublicProcurementArticle) (*structs.PublicProcurementArticle, error)
-	UpdateProcurementContract(id int, resolution *structs.PublicProcurementContract) (*structs.PublicProcurementContract, error)
+	UpdateProcurementContract(ctx context.Context, id int, resolution *structs.PublicProcurementContract) (*structs.PublicProcurementContract, error)
 	UpdateProcurementContractArticle(id int, article *structs.PublicProcurementContractArticle) (*structs.PublicProcurementContractArticle, error)
 	UpdateProcurementContractArticleOverage(id int, articleOverage *structs.PublicProcurementContractArticleOverage) (*structs.PublicProcurementContractArticleOverage, error)
-	UpdateProcurementItem(id int, item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error)
+	UpdateProcurementItem(ctx context.Context, id int, item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error)
 	UpdateProcurementOUArticle(id int, article *structs.PublicProcurementOrganizationUnitArticle) (*structs.PublicProcurementOrganizationUnitArticle, error)
 	UpdateProcurementOULimit(id int, limit *structs.PublicProcurementLimit) (*structs.PublicProcurementLimit, error)
-	UpdateProcurementPlan(id int, resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error)
+	UpdateProcurementPlan(ctx context.Context, id int, resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error)
 	UpdateResolution(ctx context.Context, id int, resolution *structs.Resolution) (*structs.Resolution, error)
 	UpdateRevision(ctx context.Context, id int, revision *structs.Revision) (*structs.Revision, error)
 	UpdateRevisionPlan(ctx context.Context, id int, plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error)

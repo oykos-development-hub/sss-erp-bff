@@ -65,6 +65,7 @@ func (repo *MicroserviceRepository) DeleteJobPositions(ctx context.Context, id i
 
 	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	header["UserID"] = strconv.Itoa(account.ID)
+
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobPositions+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err

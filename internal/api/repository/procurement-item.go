@@ -1,14 +1,22 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateProcurementItem(item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error) {
+func (repo *MicroserviceRepository) CreateProcurementItem(ctx context.Context, item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error) {
 	res := &dto.GetProcurementItemResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.Items, item, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.Items, item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -16,9 +24,15 @@ func (repo *MicroserviceRepository) CreateProcurementItem(item *structs.PublicPr
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateProcurementItem(id int, item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error) {
+func (repo *MicroserviceRepository) UpdateProcurementItem(ctx context.Context, id int, item *structs.PublicProcurementItem) (*structs.PublicProcurementItem, error) {
 	res := &dto.GetProcurementItemResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.Items+"/"+strconv.Itoa(id), item, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.Items+"/"+strconv.Itoa(id), item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -26,8 +40,14 @@ func (repo *MicroserviceRepository) UpdateProcurementItem(id int, item *structs.
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteProcurementItem(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.Items+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteProcurementItem(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.Items+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

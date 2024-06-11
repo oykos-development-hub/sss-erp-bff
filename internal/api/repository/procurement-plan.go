@@ -1,14 +1,22 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateProcurementPlan(resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error) {
+func (repo *MicroserviceRepository) CreateProcurementPlan(ctx context.Context, resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error) {
 	res := &dto.GetProcurementPlanResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.Plans, resolution, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.Plans, resolution, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -16,9 +24,15 @@ func (repo *MicroserviceRepository) CreateProcurementPlan(resolution *structs.Pu
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateProcurementPlan(id int, resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error) {
+func (repo *MicroserviceRepository) UpdateProcurementPlan(ctx context.Context, id int, resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error) {
 	res := &dto.GetProcurementPlanResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.Plans+"/"+strconv.Itoa(id), resolution, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.Plans+"/"+strconv.Itoa(id), resolution, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -26,8 +40,14 @@ func (repo *MicroserviceRepository) UpdateProcurementPlan(id int, resolution *st
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteProcurementPlan(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.Plans+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteProcurementPlan(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.Plans+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

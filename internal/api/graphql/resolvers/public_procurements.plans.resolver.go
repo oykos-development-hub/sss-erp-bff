@@ -202,7 +202,7 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 			}
 		}
 
-		res, err := r.Repo.UpdateProcurementPlan(itemID, &data)
+		res, err := r.Repo.UpdateProcurementPlan(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -214,7 +214,7 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 		response.Message = "You updated this item!"
 		response.Item = item
 	} else {
-		res, err := r.Repo.CreateProcurementPlan(&data)
+		res, err := r.Repo.CreateProcurementPlan(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -473,7 +473,7 @@ func checkArticlesStatusFlags(articles []*structs.PublicProcurementOrganizationU
 func (r *Resolver) PublicProcurementPlanDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteProcurementPlan(itemID)
+	err := r.Repo.DeleteProcurementPlan(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting procurement plan failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

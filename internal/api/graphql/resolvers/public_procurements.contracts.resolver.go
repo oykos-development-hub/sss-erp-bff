@@ -119,7 +119,7 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 	itemID := data.ID
 
 	if itemID != 0 {
-		res, err := r.Repo.UpdateProcurementContract(itemID, &data)
+		res, err := r.Repo.UpdateProcurementContract(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -131,7 +131,7 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 		response.Message = "You updated this item!"
 		response.Item = item
 	} else {
-		res, err := r.Repo.CreateProcurementContract(&data)
+		res, err := r.Repo.CreateProcurementContract(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -252,7 +252,7 @@ func calculateDaysUntilExpiry(expiryDateStr string) (int, error) {
 func (r *Resolver) PublicProcurementContractDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteProcurementContract(itemID)
+	err := r.Repo.DeleteProcurementContract(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting procurement contract failed because of this error - %s.\n", err)
 		return errors.ErrorResponse("Error deleting the id"), nil

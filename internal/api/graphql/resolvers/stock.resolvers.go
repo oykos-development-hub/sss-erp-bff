@@ -335,7 +335,7 @@ func (r *Resolver) OrderListAssetMovementResolver(params graphql.ResolveParams) 
 
 		data.OrganizationUnitID = *organizationUnitID
 
-		movement, err := r.Repo.CreateMovements(data)
+		movement, err := r.Repo.CreateMovements(params.Context, data)
 
 		if err != nil {
 			return errors.HandleAPIError(err)
@@ -373,7 +373,7 @@ func (r *Resolver) OrderListAssetMovementResolver(params graphql.ResolveParams) 
 			}
 		}
 	} else {
-		_, err := r.Repo.UpdateMovements(data)
+		_, err := r.Repo.UpdateMovements(params.Context, data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -502,7 +502,7 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 
 	}
 
-	err = r.Repo.DeleteMovement(id)
+	err = r.Repo.DeleteMovement(params.Context, id)
 
 	if err != nil {
 		return errors.HandleAPIError(err)

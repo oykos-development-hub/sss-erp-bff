@@ -286,7 +286,7 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 	}
 
 	if itemID != 0 {
-		res, err := r.Repo.UpdateOrderListItem(itemID, listInsertItem)
+		res, err := r.Repo.UpdateOrderListItem(params.Context, itemID, listInsertItem)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -312,7 +312,7 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 	} else {
 		listInsertItem.Status = "Created"
 		listInsertItem.IsUsed = false
-		res, err := r.Repo.CreateOrderListItem(listInsertItem)
+		res, err := r.Repo.CreateOrderListItem(params.Context, listInsertItem)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -349,7 +349,7 @@ func (r *Resolver) PassOrderListToFinance(params graphql.ResolveParams) (interfa
 		return apierrors.HandleAPIError(err)
 	}
 
-	err = r.Repo.SendOrderListToFinance(id)
+	err = r.Repo.SendOrderListToFinance(params.Context, id)
 
 	if err != nil {
 		return apierrors.HandleAPIError(err)
@@ -748,7 +748,7 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 		}
 	}
 
-	err = r.Repo.DeleteOrderList(itemID)
+	err = r.Repo.DeleteOrderList(params.Context, itemID)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -866,7 +866,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 		}
 	}
 
-	_, err = r.Repo.UpdateOrderListItem(data.OrderID, orderList)
+	_, err = r.Repo.UpdateOrderListItem(params.Context, data.OrderID, orderList)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -910,7 +910,7 @@ func (r *Resolver) OrderListReceiveDeleteResolver(params graphql.ResolveParams) 
 	orderList.MovementFile = nil
 	orderList.ReceiveFile = nil
 
-	_, err = r.Repo.UpdateOrderListItem(id, orderList)
+	_, err = r.Repo.UpdateOrderListItem(params.Context, id, orderList)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}

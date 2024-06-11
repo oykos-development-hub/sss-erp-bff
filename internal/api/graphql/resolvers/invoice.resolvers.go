@@ -160,7 +160,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				orderList.DateOrder = invoiceDate
 			}
 
-			order, err := r.Repo.CreateOrderListItem(orderList)
+			order, err := r.Repo.CreateOrderListItem(params.Context, orderList)
 
 			if err != nil {
 				return errors.HandleAPIError(err)
@@ -222,7 +222,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			order.InvoiceNumber = &data.InvoiceNumber
 			order.ReceiveFile = []int{data.ProFormaInvoiceFileID}
 
-			_, err = r.Repo.UpdateOrderListItem(order.ID, order)
+			_, err = r.Repo.UpdateOrderListItem(params.Context, order.ID, order)
 
 			if err != nil {
 				return errors.HandleAPIError(err)
@@ -360,7 +360,7 @@ func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interfac
 			return errors.HandleAPIError(err)
 		}
 
-		_, err = r.Repo.UpdateOrderListItem(item.OrderID, &structs.OrderListItem{
+		_, err = r.Repo.UpdateOrderListItem(params.Context, item.OrderID, &structs.OrderListItem{
 			ID:                  order.ID,
 			DateOrder:           order.DateOrder,
 			TotalPrice:          order.TotalPrice,
@@ -387,7 +387,7 @@ func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interfac
 			return errors.HandleAPIError(err)
 		}
 	} else if item.OrderID != 0 {
-		err = r.Repo.DeleteOrderList(item.OrderID)
+		err = r.Repo.DeleteOrderList(params.Context, item.OrderID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}

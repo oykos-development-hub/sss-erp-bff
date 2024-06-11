@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
@@ -36,9 +38,15 @@ func (repo *MicroserviceRepository) GetMovements(input *dto.MovementFilter) ([]s
 	return res.Data, &res.Total, nil
 }
 
-func (repo *MicroserviceRepository) CreateMovements(input structs.OrderAssetMovementItem) (*structs.Movement, error) {
+func (repo *MicroserviceRepository) CreateMovements(ctx context.Context, input structs.OrderAssetMovementItem) (*structs.Movement, error) {
 	res := &dto.GetSingleMovementResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.Movements, input, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.Movements, input, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -74,8 +82,14 @@ func (repo *MicroserviceRepository) CreateMovementArticle(input dto.MovementArti
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteMovement(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Accounting.Movements+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteMovement(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Accounting.Movements+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -83,9 +97,15 @@ func (repo *MicroserviceRepository) DeleteMovement(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) UpdateMovements(input structs.OrderAssetMovementItem) (*structs.Movement, error) {
+func (repo *MicroserviceRepository) UpdateMovements(ctx context.Context, input structs.OrderAssetMovementItem) (*structs.Movement, error) {
 	res := &dto.GetSingleMovementResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.Movements+"/"+strconv.Itoa(input.ID), input, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.Movements+"/"+strconv.Itoa(input.ID), input, res, header)
 	if err != nil {
 		return nil, err
 	}

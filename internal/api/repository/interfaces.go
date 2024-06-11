@@ -39,9 +39,9 @@ type MicroserviceRepositoryInterface interface {
 	CreateJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizationUnitItem) (*dto.JudgeResolutionsOrganizationUnitItem, error)
 	CreateJudgeResolutions(ctx context.Context, resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error)
 	CreateMovementArticle(input dto.MovementArticle) (*dto.MovementArticle, error)
-	CreateMovements(input structs.OrderAssetMovementItem) (*structs.Movement, error)
+	CreateMovements(ctx context.Context, input structs.OrderAssetMovementItem) (*structs.Movement, error)
 	CreateNotification(notification *structs.Notifications) (*structs.Notifications, error)
-	CreateOrderListItem(orderListItem *structs.OrderListItem) (*structs.OrderListItem, error)
+	CreateOrderListItem(ctx context.Context, orderListItem *structs.OrderListItem) (*structs.OrderListItem, error)
 	CreateOrderListProcurementArticles(orderListID int, data structs.OrderListInsertItem) error
 	CreateOrderProcurementArticle(orderProcurementArticleItem *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error)
 	CreateOrganizationUnits(ctx context.Context, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error)
@@ -90,9 +90,9 @@ type MicroserviceRepositoryInterface interface {
 	DeleteJobTenderType(id int) error
 	DeleteJudgeNorm(ctx context.Context, id int) error
 	DeleteJudgeResolution(ctx context.Context, id int) error
-	DeleteMovement(id int) error
+	DeleteMovement(ctx context.Context, id int) error
 	DeleteNotification(notificationID int) error
-	DeleteOrderList(id int) error
+	DeleteOrderList(ctx context.Context, id int) error
 	DeleteOrderProcurementArticle(id int) error
 	DeleteOrganizationUnits(ctx context.Context, id int) error
 	DeleteProcurementArticle(id int) error
@@ -222,7 +222,7 @@ type MicroserviceRepositoryInterface interface {
 	MarkNotificationRead(notificationID int) error
 	RefreshToken(cookie *http.Cookie) (*dto.RefreshTokenResponse, []*http.Cookie, error)
 	ResetPassword(input *dto.ResetPassword) error
-	SendOrderListToFinance(id int) error
+	SendOrderListToFinance(ctx context.Context, id int) error
 	SyncPermissions(roleID int, input []*structs.RolePermission) ([]structs.RolePermission, error)
 	UpdateAbsent(ctx context.Context, id int, absent *structs.Absent) (*structs.Absent, error)
 	UpdateAbsentType(id int, absent *structs.AbsentType) (*structs.AbsentType, error)
@@ -247,9 +247,9 @@ type MicroserviceRepositoryInterface interface {
 	UpdateJudgeResolutionItems(id int, item *structs.JudgeResolutionItems) (*structs.JudgeResolutionItems, error)
 	UpdateJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizationUnitItem) (*dto.JudgeResolutionsOrganizationUnitItem, error)
 	UpdateJudgeResolutions(ctx context.Context, id int, resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error)
-	UpdateMovements(input structs.OrderAssetMovementItem) (*structs.Movement, error)
+	UpdateMovements(ctx context.Context, input structs.OrderAssetMovementItem) (*structs.Movement, error)
 	UpdateNotification(notificationID int, notification *structs.Notifications) error
-	UpdateOrderListItem(id int, orderListItem *structs.OrderListItem) (*structs.OrderListItem, error)
+	UpdateOrderListItem(ctx context.Context, id int, orderListItem *structs.OrderListItem) (*structs.OrderListItem, error)
 	UpdateOrderProcurementArticle(item *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error)
 	UpdateOrganizationUnits(ctx context.Context, id int, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error)
 	UpdateProcurementArticle(id int, article *structs.PublicProcurementArticle) (*structs.PublicProcurementArticle, error)

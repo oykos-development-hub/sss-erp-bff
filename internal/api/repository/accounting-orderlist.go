@@ -1,15 +1,23 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 	"time"
 )
 
-func (repo *MicroserviceRepository) UpdateOrderListItem(id int, orderListItem *structs.OrderListItem) (*structs.OrderListItem, error) {
+func (repo *MicroserviceRepository) UpdateOrderListItem(ctx context.Context, id int, orderListItem *structs.OrderListItem) (*structs.OrderListItem, error) {
 	res := &dto.GetOrderListResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.OrderLists+"/"+strconv.Itoa(id), orderListItem, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.OrderLists+"/"+strconv.Itoa(id), orderListItem, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -17,8 +25,14 @@ func (repo *MicroserviceRepository) UpdateOrderListItem(id int, orderListItem *s
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) SendOrderListToFinance(id int) error {
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.OrderListSendToFinance+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) SendOrderListToFinance(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.OrderListSendToFinance+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -26,9 +40,15 @@ func (repo *MicroserviceRepository) SendOrderListToFinance(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateOrderListItem(orderListItem *structs.OrderListItem) (*structs.OrderListItem, error) {
+func (repo *MicroserviceRepository) CreateOrderListItem(ctx context.Context, orderListItem *structs.OrderListItem) (*structs.OrderListItem, error) {
 	res := &dto.GetOrderListResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.OrderLists, orderListItem, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.OrderLists, orderListItem, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +75,12 @@ func (repo *MicroserviceRepository) DeleteOrderProcurementArticle(id int) error 
 	return nil
 }
 
-func (repo *MicroserviceRepository) DeleteOrderList(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Accounting.OrderLists+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteOrderList(ctx context.Context, id int) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Accounting.OrderLists+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

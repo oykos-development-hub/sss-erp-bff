@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"net/http"
 	"strconv"
 )
@@ -89,9 +91,12 @@ func (repo *MicroserviceRepository) GetRoleList() ([]structs.Roles, error) {
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateRole(id int, data structs.Roles) (*structs.Roles, error) {
+func (repo *MicroserviceRepository) UpdateRole(ctx context.Context, id int, data structs.Roles) (*structs.Roles, error) {
+	header := make(map[string]string)
+	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+
 	res := &dto.GetRoleResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Roles+"/"+strconv.Itoa(id), data, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Roles+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -99,9 +104,13 @@ func (repo *MicroserviceRepository) UpdateRole(id int, data structs.Roles) (*str
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateRole(data structs.Roles) (*structs.Roles, error) {
+func (repo *MicroserviceRepository) CreateRole(ctx context.Context, data structs.Roles) (*structs.Roles, error) {
 	res := &dto.GetRoleResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Roles, data, res)
+
+	header := make(map[string]string)
+	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Roles, data, res, header)
 	if err != nil {
 		return nil, err
 	}

@@ -56,7 +56,7 @@ func (r *Resolver) RolesInsertResolver(params graphql.ResolveParams) (interface{
 	itemID := data.ID
 
 	if itemID != 0 {
-		roleRes, err := r.Repo.UpdateRole(itemID, data)
+		roleRes, err := r.Repo.UpdateRole(params.Context, itemID, data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -67,7 +67,7 @@ func (r *Resolver) RolesInsertResolver(params graphql.ResolveParams) (interface{
 			Item:    roleRes,
 		}, nil
 	}
-	roleRes, err := r.Repo.CreateRole(data)
+	roleRes, err := r.Repo.CreateRole(params.Context, data)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

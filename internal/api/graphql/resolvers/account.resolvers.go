@@ -125,7 +125,7 @@ func (r *Resolver) AccountInsertResolver(params graphql.ResolveParams) (interfac
 
 	_ = json.Unmarshal(dataBytes, &data)
 
-	res, err := r.Repo.CreateAccountItemList(data)
+	res, err := r.Repo.CreateAccountItemList(params.Context, data)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -142,7 +142,7 @@ func (r *Resolver) AccountInsertResolver(params graphql.ResolveParams) (interfac
 func (r *Resolver) AccountDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteAccount(itemID)
+	err := r.Repo.DeleteAccount(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

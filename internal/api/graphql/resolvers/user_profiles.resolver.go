@@ -307,7 +307,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 		userProfileData.ActiveContract = &inactive
 	}
 
-	userAccountRes, err = r.Repo.CreateUserAccount(userAccountData)
+	userAccountRes, err = r.Repo.CreateUserAccount(params.Context, userAccountData)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -315,7 +315,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 	userProfileData.UserAccountID = userAccountRes.ID
 	userProfileRes, err = r.Repo.CreateUserProfile(userProfileData)
 	if err != nil {
-		_ = r.Repo.DeleteUserAccount(userAccountRes.ID)
+		_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 		return errors.HandleAPIError(err)
 	}
 
@@ -323,7 +323,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 		activeContract.Contract.UserProfileID = userProfileRes.ID
 		_, err := r.Repo.CreateEmployeeContract(activeContract.Contract)
 		if err != nil {
-			_ = r.Repo.DeleteUserAccount(userAccountRes.ID)
+			_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 			_ = r.Repo.DeleteUserProfile(userProfileRes.ID)
 			return errors.HandleAPIError(err)
 		}
@@ -335,7 +335,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 			}
 			_, err = r.Repo.CreateEmployeesInOrganizationUnits(input)
 			if err != nil {
-				_ = r.Repo.DeleteUserAccount(userAccountRes.ID)
+				_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 				_ = r.Repo.DeleteUserProfile(userProfileRes.ID)
 				return errors.HandleAPIError(err)
 			}
@@ -358,7 +358,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 			}
 			_, err := r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
 			if err != nil {
-				_ = r.Repo.DeleteUserAccount(userAccountRes.ID)
+				_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 				_ = r.Repo.DeleteUserProfile(userProfileRes.ID)
 				return errors.HandleAPIError(err)
 			}

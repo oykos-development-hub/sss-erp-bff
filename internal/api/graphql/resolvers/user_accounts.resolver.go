@@ -86,7 +86,7 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 		dataBytes, _ := json.Marshal(params.Args["data"])
 		_ = json.Unmarshal(dataBytes, &dataUpdate)
 
-		userResponse, err := r.Repo.UpdateUserAccount(itemID, dataUpdate)
+		userResponse, err := r.Repo.UpdateUserAccount(params.Context, itemID, dataUpdate)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -108,7 +108,7 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 			Item:    userResponse,
 		}, nil
 	}
-	userResponse, err := r.Repo.CreateUserAccount(data)
+	userResponse, err := r.Repo.CreateUserAccount(params.Context, data)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -127,7 +127,7 @@ func (r *Resolver) UserAccountDeleteResolver(params graphql.ResolveParams) (inte
 	}
 	user, _ := r.Repo.GetUserAccountByID(id.(int))
 	user.Active = false
-	_, err := r.Repo.UpdateUserAccount(id.(int), *user)
+	_, err := r.Repo.UpdateUserAccount(params.Context, id.(int), *user)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
@@ -16,9 +18,12 @@ func (repo *MicroserviceRepository) GetUserAccounts(input *dto.GetUserAccountLis
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) UpdateUserAccount(userID int, user structs.UserAccounts) (*structs.UserAccounts, error) {
+func (repo *MicroserviceRepository) UpdateUserAccount(ctx context.Context, userID int, user structs.UserAccounts) (*structs.UserAccounts, error) {
+	header := make(map[string]string)
+	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+
 	res := &dto.GetUserAccountResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +41,12 @@ func (repo *MicroserviceRepository) GetUserAccountByID(id int) (*structs.UserAcc
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateUserAccount(user structs.UserAccounts) (*structs.UserAccounts, error) {
+func (repo *MicroserviceRepository) CreateUserAccount(ctx context.Context, user structs.UserAccounts) (*structs.UserAccounts, error) {
+	header := make(map[string]string)
+	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+
 	res := &dto.GetUserAccountResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.UserAccounts, user, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.UserAccounts, user, res, header)
 
 	if err != nil {
 		return nil, err
@@ -47,12 +55,15 @@ func (repo *MicroserviceRepository) CreateUserAccount(user structs.UserAccounts)
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeactivateUserAccount(userID int) (*structs.UserAccounts, error) {
+func (repo *MicroserviceRepository) DeactivateUserAccount(ctx context.Context, userID int) (*structs.UserAccounts, error) {
 	res := &dto.GetUserAccountResponseMS{}
 	user := dto.DeactivateUserAccount{
 		Active: false,
 	}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res)
+
+	header := make(map[string]string)
+	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +71,11 @@ func (repo *MicroserviceRepository) DeactivateUserAccount(userID int) (*structs.
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteUserAccount(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteUserAccount(ctx context.Context, id int) error {
+	header := make(map[string]string)
+	header["UserID"] = ctx.Value(config.LoggedInAccountKey).(string)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

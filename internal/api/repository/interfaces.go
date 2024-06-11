@@ -15,7 +15,7 @@ type MicroserviceRepositoryInterface interface {
 	CheckInsertInventoryData(input []structs.BasicInventoryInsertItem) ([]structs.BasicInventoryInsertValidator, error)
 	CreateAbsent(absent *structs.Absent) (*structs.Absent, error)
 	CreateAbsentType(absent *structs.AbsentType) (*structs.AbsentType, error)
-	CreateAccountItemList(accountItemList []structs.AccountItem) ([]*structs.AccountItem, error)
+	CreateAccountItemList(ctx context.Context, accountItemList []structs.AccountItem) ([]*structs.AccountItem, error)
 	CreateAssessments(data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error)
 	CreateDispatchItem(item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error)
 	CreateDispatchItemItem(item *structs.BasicInventoryDispatchItemsItem) (*structs.BasicInventoryDispatchItemsItem, error)
@@ -60,16 +60,16 @@ type MicroserviceRepositoryInterface interface {
 	CreateRevisionRevisor(plan *dto.RevisionRevisor) error
 	CreateRevisionTips(plan *structs.RevisionTips) (*structs.RevisionTips, error)
 	CreateRevisions(plan *structs.Revisions) (*structs.Revisions, error)
-	CreateRole(data structs.Roles) (*structs.Roles, error)
+	CreateRole(ctx context.Context, data structs.Roles) (*structs.Roles, error)
 	CreateStock(input dto.MovementArticle) error
 	CreateSupplier(supplier *structs.Suppliers) (*structs.Suppliers, error)
 	CreateSystematization(data *structs.Systematization) (*structs.Systematization, error)
-	CreateUserAccount(user structs.UserAccounts) (*structs.UserAccounts, error)
+	CreateUserAccount(ctx context.Context, user structs.UserAccounts) (*structs.UserAccounts, error)
 	CreateUserProfile(user structs.UserProfiles) (*structs.UserProfiles, error)
-	DeactivateUserAccount(userID int) (*structs.UserAccounts, error)
+	DeactivateUserAccount(ctx context.Context, userID int) (*structs.UserAccounts, error)
 	DeleteAbsent(id int) error
 	DeleteAbsentType(id int) error
-	DeleteAccount(id int) error
+	DeleteAccount(ctx context.Context, id int) error
 	DeleteAssessment(id int) error
 	DeleteDropdownSettings(id int) error
 	DeleteEmployeeContract(id int) error
@@ -110,7 +110,7 @@ type MicroserviceRepositoryInterface interface {
 	DeleteSalaryParams(id int) error
 	DeleteSupplier(id int) error
 	DeleteSystematization(id int) error
-	DeleteUserAccount(id int) error
+	DeleteUserAccount(ctx context.Context, id int) error
 	DeleteUserProfile(id int) error
 	FetchNotifications(userID int) ([]*structs.Notifications, error)
 	ForgotPassword(email string) error
@@ -226,7 +226,7 @@ type MicroserviceRepositoryInterface interface {
 	SyncPermissions(roleID int, input []*structs.RolePermission) ([]structs.RolePermission, error)
 	UpdateAbsent(id int, absent *structs.Absent) (*structs.Absent, error)
 	UpdateAbsentType(id int, absent *structs.AbsentType) (*structs.AbsentType, error)
-	UpdateAccountItem(id int, accountItem *structs.AccountItem) (*structs.AccountItem, error)
+	UpdateAccountItem(ctx context.Context, id int, accountItem *structs.AccountItem) (*structs.AccountItem, error)
 	UpdateAssessments(id int, data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error)
 	UpdateDispatchItem(id int, item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error)
 	UpdateDropdownSettings(id int, data *structs.SettingsDropdown) (*structs.SettingsDropdown, error)
@@ -265,11 +265,11 @@ type MicroserviceRepositoryInterface interface {
 	UpdateRevisionPlan(id int, plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error)
 	UpdateRevisionTips(id int, plan *structs.RevisionTips) (*structs.RevisionTips, error)
 	UpdateRevisions(id int, plan *structs.Revisions) (*structs.Revisions, error)
-	UpdateRole(id int, data structs.Roles) (*structs.Roles, error)
+	UpdateRole(ctx context.Context, id int, data structs.Roles) (*structs.Roles, error)
 	UpdateStock(input structs.StockArticle) error
 	UpdateSupplier(id int, supplier *structs.Suppliers) (*structs.Suppliers, error)
 	UpdateSystematization(id int, data *structs.Systematization) (*structs.Systematization, error)
-	UpdateUserAccount(userID int, user structs.UserAccounts) (*structs.UserAccounts, error)
+	UpdateUserAccount(ctx context.Context, userID int, user structs.UserAccounts) (*structs.UserAccounts, error)
 	UpdateUserProfile(userID int, user structs.UserProfiles) (*structs.UserProfiles, error)
 	ValidateMail(input *dto.ResetPasswordVerify) (*dto.ResetPasswordVerifyResponseMS, error)
 	ValidatePin(pin string, headers map[string]string) error

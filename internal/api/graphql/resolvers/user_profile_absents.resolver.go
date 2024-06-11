@@ -766,7 +766,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 		return errors.HandleAPIError(err)
 	}
 
-	_, err = r.Repo.DeactivateUserAccount(user.UserAccountID)
+	_, err = r.Repo.DeactivateUserAccount(params.Context, user.UserAccountID)
 
 	if err != nil {
 		return errors.HandleAPIError(err)

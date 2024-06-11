@@ -1,13 +1,19 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) DeleteOrganizationUnits(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.OrganizationUnits+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteOrganizationUnits(ctx context.Context, id int) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.OrganizationUnits+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -35,9 +41,13 @@ func (repo *MicroserviceRepository) GetOrganizationUnitByID(id int) (*structs.Or
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateOrganizationUnits(id int, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error) {
+func (repo *MicroserviceRepository) UpdateOrganizationUnits(ctx context.Context, id int, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error) {
 	res := &dto.GetOrganizationUnitResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.OrganizationUnits+"/"+strconv.Itoa(id), data, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.OrganizationUnits+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -45,9 +55,13 @@ func (repo *MicroserviceRepository) UpdateOrganizationUnits(id int, data *struct
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) CreateOrganizationUnits(data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error) {
+func (repo *MicroserviceRepository) CreateOrganizationUnits(ctx context.Context, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error) {
 	res := &dto.GetOrganizationUnitResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.OrganizationUnits, data, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.OrganizationUnits, data, res, header)
 	if err != nil {
 		return nil, err
 	}

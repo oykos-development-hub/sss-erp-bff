@@ -147,9 +147,9 @@ func (r *Resolver) OrganizationUnitInsertResolver(params graphql.ResolveParams) 
 
 	itemID := data.ID
 	if itemID != 0 {
-		organizationUnitResponse, err = r.Repo.UpdateOrganizationUnits(itemID, &data)
+		organizationUnitResponse, err = r.Repo.UpdateOrganizationUnits(params.Context, itemID, &data)
 	} else {
-		organizationUnitResponse, err = r.Repo.CreateOrganizationUnits(&data)
+		organizationUnitResponse, err = r.Repo.CreateOrganizationUnits(params.Context, &data)
 	}
 
 	if err != nil {
@@ -172,7 +172,7 @@ func (r *Resolver) OrganizationUnitOrderResolver(params graphql.ResolveParams) (
 	_ = json.Unmarshal(dataBytes, &data)
 
 	for _, item := range data {
-		organizationUnit, err := r.Repo.UpdateOrganizationUnits(item.ID, &item)
+		organizationUnit, err := r.Repo.UpdateOrganizationUnits(params.Context, item.ID, &item)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}

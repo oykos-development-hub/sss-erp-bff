@@ -1,14 +1,22 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) UpdateJudgeNorm(id int, norm *structs.JudgeNorms) (*structs.JudgeNorms, error) {
+func (repo *MicroserviceRepository) UpdateJudgeNorm(ctx context.Context, id int, norm *structs.JudgeNorms) (*structs.JudgeNorms, error) {
 	res := &dto.GetJudgeNormResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JudgeNorm+"/"+strconv.Itoa(id), norm, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JudgeNorm+"/"+strconv.Itoa(id), norm, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -16,9 +24,15 @@ func (repo *MicroserviceRepository) UpdateJudgeNorm(id int, norm *structs.JudgeN
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateJudgeNorm(norm *structs.JudgeNorms) (*structs.JudgeNorms, error) {
+func (repo *MicroserviceRepository) CreateJudgeNorm(ctx context.Context, norm *structs.JudgeNorms) (*structs.JudgeNorms, error) {
 	res := &dto.GetJudgeNormResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JudgeNorm, norm, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JudgeNorm, norm, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -26,8 +40,13 @@ func (repo *MicroserviceRepository) CreateJudgeNorm(norm *structs.JudgeNorms) (*
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteJudgeNorm(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JudgeNorm+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteJudgeNorm(ctx context.Context, id int) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JudgeNorm+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -65,9 +84,13 @@ func (repo *MicroserviceRepository) GetJudgeResolutionItemsList(input *dto.GetJu
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateJudgeResolutions(id int, resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error) {
+func (repo *MicroserviceRepository) UpdateJudgeResolutions(ctx context.Context, id int, resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error) {
 	res := &dto.GetJudgeResolutionResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JudgeResolutions+"/"+strconv.Itoa(id), resolution, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JudgeResolutions+"/"+strconv.Itoa(id), resolution, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +98,14 @@ func (repo *MicroserviceRepository) UpdateJudgeResolutions(id int, resolution *s
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateJudgeResolutions(resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error) {
+func (repo *MicroserviceRepository) CreateJudgeResolutions(ctx context.Context, resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error) {
 	res := &dto.GetJudgeResolutionResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JudgeResolutions, resolution, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JudgeResolutions, resolution, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -85,8 +113,12 @@ func (repo *MicroserviceRepository) CreateJudgeResolutions(resolution *structs.J
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteJudgeResolution(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JudgeResolutions+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteJudgeResolution(ctx context.Context, id int) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JudgeResolutions+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

@@ -110,12 +110,12 @@ func (r *Resolver) JobPositionInsertResolver(params graphql.ResolveParams) (inte
 
 	itemID := data.ID
 	if itemID != 0 {
-		jobPositionResponse, err = r.Repo.UpdateJobPositions(itemID, &data)
+		jobPositionResponse, err = r.Repo.UpdateJobPositions(params.Context, itemID, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		jobPositionResponse, err = r.Repo.CreateJobPositions(&data)
+		jobPositionResponse, err = r.Repo.CreateJobPositions(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -131,7 +131,7 @@ func (r *Resolver) JobPositionInsertResolver(params graphql.ResolveParams) (inte
 func (r *Resolver) JobPositionDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"]
 
-	err := r.Repo.DeleteJobPositions(itemID.(int))
+	err := r.Repo.DeleteJobPositions(params.Context, itemID.(int))
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}

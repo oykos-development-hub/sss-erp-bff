@@ -40,7 +40,7 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 
 	itemID := data.ID
 	if itemID != 0 {
-		resolution, err := r.Repo.UpdateResolution(itemID, &data)
+		resolution, err := r.Repo.UpdateResolution(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -51,7 +51,7 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 		response.Item = resolutionResItem
 		response.Message = "You updated this item!"
 	} else {
-		resolution, err := r.Repo.CreateResolution(&data)
+		resolution, err := r.Repo.CreateResolution(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -69,7 +69,7 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 func (r *Resolver) UserProfileResolutionDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteResolution(itemID)
+	err := r.Repo.DeleteResolution(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

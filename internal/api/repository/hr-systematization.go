@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
@@ -26,9 +28,13 @@ func (repo *MicroserviceRepository) GetSystematizations(input *dto.GetSystematiz
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) UpdateSystematization(id int, data *structs.Systematization) (*structs.Systematization, error) {
+func (repo *MicroserviceRepository) UpdateSystematization(ctx context.Context, id int, data *structs.Systematization) (*structs.Systematization, error) {
 	res := &dto.GetSystematizationResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Systematization+"/"+strconv.Itoa(id), data, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Systematization+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +42,13 @@ func (repo *MicroserviceRepository) UpdateSystematization(id int, data *structs.
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateSystematization(data *structs.Systematization) (*structs.Systematization, error) {
+func (repo *MicroserviceRepository) CreateSystematization(ctx context.Context, data *structs.Systematization) (*structs.Systematization, error) {
 	res := &dto.GetSystematizationResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Systematization, data, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Systematization, data, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +56,13 @@ func (repo *MicroserviceRepository) CreateSystematization(data *structs.Systemat
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteSystematization(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Systematization+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteSystematization(ctx context.Context, id int) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Systematization+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

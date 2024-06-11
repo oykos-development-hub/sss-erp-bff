@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
@@ -26,9 +28,15 @@ func (repo *MicroserviceRepository) GetJobPositions(input *dto.GetJobPositionsIn
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) UpdateJobPositions(id int, data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error) {
+func (repo *MicroserviceRepository) UpdateJobPositions(ctx context.Context, id int, data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error) {
 	res := &dto.GetJobPositionResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobPositions+"/"+strconv.Itoa(id), data, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobPositions+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +44,14 @@ func (repo *MicroserviceRepository) UpdateJobPositions(id int, data *structs.Job
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) CreateJobPositions(data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error) {
+func (repo *MicroserviceRepository) CreateJobPositions(ctx context.Context, data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error) {
 	res := &dto.GetJobPositionResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JobPositions, data, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JobPositions, data, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +59,13 @@ func (repo *MicroserviceRepository) CreateJobPositions(data *structs.JobPosition
 	return res, nil
 }
 
-func (repo *MicroserviceRepository) DeleteJobPositions(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobPositions+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteJobPositions(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobPositions+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

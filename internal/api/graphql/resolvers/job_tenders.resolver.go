@@ -251,7 +251,7 @@ func (r *Resolver) JobTenderInsertResolver(params graphql.ResolveParams) (interf
 
 	itemID := data.ID
 	if itemID != 0 {
-		res, err := r.Repo.UpdateJobTender(itemID, &data)
+		res, err := r.Repo.UpdateJobTender(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -262,7 +262,7 @@ func (r *Resolver) JobTenderInsertResolver(params graphql.ResolveParams) (interf
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
-		res, err := r.Repo.CreateJobTender(&data)
+		res, err := r.Repo.CreateJobTender(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -280,7 +280,7 @@ func (r *Resolver) JobTenderInsertResolver(params graphql.ResolveParams) (interf
 func (r *Resolver) JobTenderDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteJobTender(itemID)
+	err := r.Repo.DeleteJobTender(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -386,7 +386,7 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 	itemID := data.ID
 	if itemID != 0 {
 
-		res, err := r.Repo.UpdateJobTenderApplication(itemID, &data)
+		res, err := r.Repo.UpdateJobTenderApplication(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -399,7 +399,7 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
-		res, err := r.Repo.CreateJobTenderApplication(&data)
+		res, err := r.Repo.CreateJobTenderApplication(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}

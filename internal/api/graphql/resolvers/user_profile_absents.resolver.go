@@ -72,7 +72,7 @@ func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.Re
 	inputData.ResolutionPurpose = data.ResolutionPurpose
 
 	if inputData.ID != 0 {
-		resolution, err := r.Repo.UpdateResolution(inputData.ID, &inputData)
+		resolution, err := r.Repo.UpdateResolution(params.Context, inputData.ID, &inputData)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -83,7 +83,7 @@ func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.Re
 		response.Item = resolutionResItem
 		response.Message = "You updated this item!"
 	} else {
-		resolution, err := r.Repo.CreateResolution(&inputData)
+		resolution, err := r.Repo.CreateResolution(params.Context, &inputData)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -129,7 +129,7 @@ func (r *Resolver) UserProfileVacationResolutionsInsertResolver(params graphql.R
 		}
 
 		for _, resolution := range resolutions {
-			err = r.Repo.DeleteResolution(resolution.ID)
+			err = r.Repo.DeleteResolution(params.Context, resolution.ID)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -143,7 +143,7 @@ func (r *Resolver) UserProfileVacationResolutionsInsertResolver(params graphql.R
 		inputData.UserProfileID = vacation.UserProfileID
 		inputData.Value = strconv.Itoa(vacation.NumberOfDays)
 
-		resolution, err := r.Repo.CreateResolution(&inputData)
+		resolution, err := r.Repo.CreateResolution(params.Context, &inputData)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -508,14 +508,14 @@ func (r *Resolver) UserProfileAbsentInsertResolver(params graphql.ResolveParams)
 	}
 
 	if data.ID != 0 {
-		item, err = r.Repo.UpdateAbsent(data.ID, &data)
+		item, err = r.Repo.UpdateAbsent(params.Context, data.ID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 
 		response.Message = "You updated this item!"
 	} else {
-		item, err = r.Repo.CreateAbsent(&data)
+		item, err = r.Repo.CreateAbsent(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -566,7 +566,7 @@ func buildAbsentResponseItem(r repository.MicroserviceRepositoryInterface, absen
 func (r *Resolver) UserProfileAbsentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteAbsent(itemID)
+	err := r.Repo.DeleteAbsent(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -730,7 +730,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 			contract[0].JobPositionInOrganizationUnitID = 0
 			contract[0].OrganizationUnitDepartmentID = nil
 			contract[0].Active = false
-			_, err = r.Repo.UpdateEmployeeContract(contract[0].ID, contract[0])
+			_, err = r.Repo.UpdateEmployeeContract(params.Context, contract[0].ID, contract[0])
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -747,7 +747,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 	now := time.Now()
 	fileID := params.Args["file_id"].(int)
 
-	_, err = r.Repo.CreateResolution(&structs.Resolution{
+	_, err = r.Repo.CreateResolution(params.Context, &structs.Resolution{
 		UserProfileID:    userID,
 		ResolutionTypeID: terminateResolutionType.Data[0].ID,
 		IsAffect:         true,
@@ -760,7 +760,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 
 	active = false
 	user.ActiveContract = &active
-	_, err = r.Repo.UpdateUserProfile(user.ID, *user)
+	_, err = r.Repo.UpdateUserProfile(params.Context, user.ID, *user)
 
 	if err != nil {
 		return errors.HandleAPIError(err)

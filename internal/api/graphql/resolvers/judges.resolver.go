@@ -210,14 +210,14 @@ func (r *Resolver) JudgeNormInsertResolver(params graphql.ResolveParams) (interf
 
 	itemID := data.ID
 	if itemID != 0 {
-		res, err := r.Repo.UpdateJudgeNorm(itemID, &data)
+		res, err := r.Repo.UpdateJudgeNorm(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 		response.Item = res
 		response.Message = "You updated this item!"
 	} else {
-		res, err := r.Repo.CreateJudgeNorm(&data)
+		res, err := r.Repo.CreateJudgeNorm(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -231,7 +231,7 @@ func (r *Resolver) JudgeNormInsertResolver(params graphql.ResolveParams) (interf
 func (r *Resolver) JudgeNormDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteJudgeNorm(itemID)
+	err := r.Repo.DeleteJudgeNorm(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -655,7 +655,7 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 			SerialNumber: data.SerialNumber,
 			Active:       data.Active,
 		}
-		resolution, err = r.Repo.UpdateJudgeResolutions(itemID, &judgeResolution)
+		resolution, err = r.Repo.UpdateJudgeResolutions(params.Context, itemID, &judgeResolution)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -672,7 +672,7 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 			SerialNumber: data.SerialNumber,
 			Active:       true,
 		}
-		resolution, err = r.Repo.CreateJudgeResolutions(&judgeResolution)
+		resolution, err = r.Repo.CreateJudgeResolutions(params.Context, &judgeResolution)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -771,7 +771,7 @@ func insertOrUpdateResolutionItemList(r repository.MicroserviceRepositoryInterfa
 func (r *Resolver) JudgeResolutionDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteJudgeResolution(itemID)
+	err := r.Repo.DeleteJudgeResolution(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

@@ -344,7 +344,7 @@ func (r *Resolver) RevisionInsertResolver(params graphql.ResolveParams) (interfa
 
 	itemID := data.ID
 	if itemID != 0 {
-		res, err := r.Repo.UpdateRevision(itemID, &data)
+		res, err := r.Repo.UpdateRevision(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -355,7 +355,7 @@ func (r *Resolver) RevisionInsertResolver(params graphql.ResolveParams) (interfa
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
-		res, err := r.Repo.CreateRevision(&data)
+		res, err := r.Repo.CreateRevision(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -373,7 +373,7 @@ func (r *Resolver) RevisionInsertResolver(params graphql.ResolveParams) (interfa
 func (r *Resolver) RevisionDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteRevision(itemID)
+	err := r.Repo.DeleteRevision(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -454,7 +454,7 @@ func (r *Resolver) RevisionPlansDetailsResolver(params graphql.ResolveParams) (i
 func (r *Resolver) RevisionPlanDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteRevisionPlan(itemID)
+	err := r.Repo.DeleteRevisionPlan(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -476,7 +476,7 @@ func (r *Resolver) RevisionPlanInsertResolver(params graphql.ResolveParams) (int
 
 	itemID := data.ID
 	if itemID != 0 {
-		res, err := r.Repo.UpdateRevisionPlan(itemID, &data)
+		res, err := r.Repo.UpdateRevisionPlan(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -484,7 +484,7 @@ func (r *Resolver) RevisionPlanInsertResolver(params graphql.ResolveParams) (int
 		response.Item = res
 		response.Message = "You updated this item!"
 	} else {
-		res, err := r.Repo.CreateRevisionPlan(&data)
+		res, err := r.Repo.CreateRevisionPlan(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -848,7 +848,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 			}
 		}
 
-		res, err := r.Repo.UpdateRevisions(itemID, &data)
+		res, err := r.Repo.UpdateRevisions(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -860,7 +860,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
-		res, err := r.Repo.CreateRevisions(&data)
+		res, err := r.Repo.CreateRevisions(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -906,7 +906,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 func (r *Resolver) RevisionsDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteRevisions(itemID)
+	err := r.Repo.DeleteRevisions(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -1052,7 +1052,7 @@ func (r *Resolver) RevisionTipsInsertResolver(params graphql.ResolveParams) (int
 
 	itemID := data.ID
 	if itemID != 0 {
-		res, err := r.Repo.UpdateRevisionTips(itemID, &data)
+		res, err := r.Repo.UpdateRevisionTips(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -1063,7 +1063,7 @@ func (r *Resolver) RevisionTipsInsertResolver(params graphql.ResolveParams) (int
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
-		res, err := r.Repo.CreateRevisionTips(&data)
+		res, err := r.Repo.CreateRevisionTips(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -1081,7 +1081,7 @@ func (r *Resolver) RevisionTipsInsertResolver(params graphql.ResolveParams) (int
 func (r *Resolver) RevisionTipsDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteRevisionTips(itemID)
+	err := r.Repo.DeleteRevisionTips(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

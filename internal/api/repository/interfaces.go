@@ -13,38 +13,38 @@ type MicroserviceRepositoryInterface interface {
 	AddOnStock(stock []structs.StockArticle, article structs.OrderProcurementArticleItem, organizationUnitID int) error
 	AuthenticateUser(r *http.Request) (*structs.UserAccounts, error)
 	CheckInsertInventoryData(input []structs.BasicInventoryInsertItem) ([]structs.BasicInventoryInsertValidator, error)
-	CreateAbsent(absent *structs.Absent) (*structs.Absent, error)
+	CreateAbsent(ctx context.Context, absent *structs.Absent) (*structs.Absent, error)
 	CreateAbsentType(absent *structs.AbsentType) (*structs.AbsentType, error)
 	CreateAccountItemList(ctx context.Context, accountItemList []structs.AccountItem) ([]*structs.AccountItem, error)
 	CreateAssessments(data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error)
 	CreateDispatchItem(item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error)
 	CreateDispatchItemItem(item *structs.BasicInventoryDispatchItemsItem) (*structs.BasicInventoryDispatchItemsItem, error)
 	CreateDropdownSettings(data *structs.SettingsDropdown) (*structs.SettingsDropdown, error)
-	CreateEmployeeContract(contract *structs.Contracts) (*structs.Contracts, error)
+	CreateEmployeeContract(ctx context.Context, contract *structs.Contracts) (*structs.Contracts, error)
 	CreateEmployeeEducation(education *structs.Education) (*structs.Education, error)
-	CreateEmployeeEvaluation(evaluation *structs.Evaluation) (*structs.Evaluation, error)
+	CreateEmployeeEvaluation(ctx context.Context, evaluation *structs.Evaluation) (*structs.Evaluation, error)
 	CreateEmployeeFamilyMember(familyMember *structs.Family) (*structs.Family, error)
 	CreateEmployeeForeigner(foreigner *structs.Foreigners) (*structs.Foreigners, error)
-	CreateEmployeeSalaryParams(salaries *structs.SalaryParams) (*structs.SalaryParams, error)
+	CreateEmployeeSalaryParams(ctx context.Context, salaries *structs.SalaryParams) (*structs.SalaryParams, error)
 	CreateEmployeesInOrganizationUnits(data *structs.EmployeesInOrganizationUnits) (*structs.EmployeesInOrganizationUnits, error)
 	CreateExperience(contract *structs.Experience) (*structs.Experience, error)
 	CreateInventoryItem(item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error)
-	CreateJobPositions(data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error)
+	CreateJobPositions(ctx context.Context, data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error)
 	CreateJobPositionsInOrganizationUnits(data *structs.JobPositionsInOrganizationUnits) (*dto.GetJobPositionInOrganizationUnitsResponseMS, error)
-	CreateJobTender(jobTender *structs.JobTenders) (*structs.JobTenders, error)
-	CreateJobTenderApplication(jobTender *structs.JobTenderApplications) (*structs.JobTenderApplications, error)
+	CreateJobTender(ctx context.Context, jobTender *structs.JobTenders) (*structs.JobTenders, error)
+	CreateJobTenderApplication(ctx context.Context, jobTender *structs.JobTenderApplications) (*structs.JobTenderApplications, error)
 	CreateJobTenderType(jobTender *structs.JobTenderTypes) (*structs.JobTenderTypes, error)
-	CreateJudgeNorm(norm *structs.JudgeNorms) (*structs.JudgeNorms, error)
+	CreateJudgeNorm(ctx context.Context, norm *structs.JudgeNorms) (*structs.JudgeNorms, error)
 	CreateJudgeResolutionItems(item *structs.JudgeResolutionItems) (*structs.JudgeResolutionItems, error)
 	CreateJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizationUnitItem) (*dto.JudgeResolutionsOrganizationUnitItem, error)
-	CreateJudgeResolutions(resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error)
+	CreateJudgeResolutions(ctx context.Context, resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error)
 	CreateMovementArticle(input dto.MovementArticle) (*dto.MovementArticle, error)
 	CreateMovements(input structs.OrderAssetMovementItem) (*structs.Movement, error)
 	CreateNotification(notification *structs.Notifications) (*structs.Notifications, error)
 	CreateOrderListItem(orderListItem *structs.OrderListItem) (*structs.OrderListItem, error)
 	CreateOrderListProcurementArticles(orderListID int, data structs.OrderListInsertItem) error
 	CreateOrderProcurementArticle(orderProcurementArticleItem *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error)
-	CreateOrganizationUnits(data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error)
+	CreateOrganizationUnits(ctx context.Context, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error)
 	CreateProcurementArticle(article *structs.PublicProcurementArticle) (*structs.PublicProcurementArticle, error)
 	CreateProcurementContract(resolution *structs.PublicProcurementContract) (*structs.PublicProcurementContract, error)
 	CreateProcurementContractArticle(article *structs.PublicProcurementContractArticle) (*structs.PublicProcurementContractArticle, error)
@@ -53,65 +53,65 @@ type MicroserviceRepositoryInterface interface {
 	CreateProcurementOUArticle(article *structs.PublicProcurementOrganizationUnitArticle) (*structs.PublicProcurementOrganizationUnitArticle, error)
 	CreateProcurementOULimit(limit *structs.PublicProcurementLimit) (*structs.PublicProcurementLimit, error)
 	CreateProcurementPlan(resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error)
-	CreateResolution(resolution *structs.Resolution) (*structs.Resolution, error)
-	CreateRevision(revision *structs.Revision) (*structs.Revision, error)
+	CreateResolution(ctx context.Context, resolution *structs.Resolution) (*structs.Resolution, error)
+	CreateRevision(ctx context.Context, revision *structs.Revision) (*structs.Revision, error)
 	CreateRevisionOrgUnit(plan *dto.RevisionOrgUnit) error
-	CreateRevisionPlan(plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error)
+	CreateRevisionPlan(ctx context.Context, plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error)
 	CreateRevisionRevisor(plan *dto.RevisionRevisor) error
-	CreateRevisionTips(plan *structs.RevisionTips) (*structs.RevisionTips, error)
-	CreateRevisions(plan *structs.Revisions) (*structs.Revisions, error)
+	CreateRevisionTips(ctx context.Context, plan *structs.RevisionTips) (*structs.RevisionTips, error)
+	CreateRevisions(ctx context.Context, plan *structs.Revisions) (*structs.Revisions, error)
 	CreateRole(ctx context.Context, data structs.Roles) (*structs.Roles, error)
 	CreateStock(input dto.MovementArticle) error
 	CreateSupplier(supplier *structs.Suppliers) (*structs.Suppliers, error)
-	CreateSystematization(data *structs.Systematization) (*structs.Systematization, error)
+	CreateSystematization(ctx context.Context, data *structs.Systematization) (*structs.Systematization, error)
 	CreateUserAccount(ctx context.Context, user structs.UserAccounts) (*structs.UserAccounts, error)
-	CreateUserProfile(user structs.UserProfiles) (*structs.UserProfiles, error)
+	CreateUserProfile(ctx context.Context, user structs.UserProfiles) (*structs.UserProfiles, error)
 	DeactivateUserAccount(ctx context.Context, userID int) (*structs.UserAccounts, error)
-	DeleteAbsent(id int) error
+	DeleteAbsent(ctx context.Context, id int) error
 	DeleteAbsentType(id int) error
 	DeleteAccount(ctx context.Context, id int) error
 	DeleteAssessment(id int) error
 	DeleteDropdownSettings(id int) error
-	DeleteEmployeeContract(id int) error
+	DeleteEmployeeContract(ctx context.Context, id int) error
 	DeleteEmployeeEducation(id int) error
 	DeleteEmployeeFamilyMember(id int) error
 	DeleteEmployeeInOrganizationUnit(jobPositionInOrganizationUnitID int) error
 	DeleteEmployeeInOrganizationUnitByID(jobPositionInOrganizationUnitID int) error
-	DeleteEvaluation(id int) error
+	DeleteEvaluation(ctx context.Context, id int) error
 	DeleteExperience(id int) error
 	DeleteFile(id int) error
 	DeleteForeigner(id int) error
 	DeleteInventoryDispatch(id int) error
 	DeleteJJudgeResolutionOrganizationUnit(id int) error
-	DeleteJobPositions(id int) error
+	DeleteJobPositions(ctx context.Context, id int) error
 	DeleteJobPositionsInOrganizationUnits(id int) error
-	DeleteJobTender(id int) error
+	DeleteJobTender(ctx context.Context, id int) error
 	DeleteJobTenderApplication(id int) error
 	DeleteJobTenderType(id int) error
-	DeleteJudgeNorm(id int) error
-	DeleteJudgeResolution(id int) error
+	DeleteJudgeNorm(ctx context.Context, id int) error
+	DeleteJudgeResolution(ctx context.Context, id int) error
 	DeleteMovement(id int) error
 	DeleteNotification(notificationID int) error
 	DeleteOrderList(id int) error
 	DeleteOrderProcurementArticle(id int) error
-	DeleteOrganizationUnits(id int) error
+	DeleteOrganizationUnits(ctx context.Context, id int) error
 	DeleteProcurementArticle(id int) error
 	DeleteProcurementContract(id int) error
 	DeleteProcurementContractArticleOverage(id int) error
 	DeleteProcurementItem(id int) error
 	DeleteProcurementPlan(id int) error
-	DeleteResolution(id int) error
-	DeleteRevision(id int) error
+	DeleteResolution(ctx context.Context, id int) error
+	DeleteRevision(ctx context.Context, id int) error
 	DeleteRevisionOrgUnit(id int) error
-	DeleteRevisionPlan(id int) error
+	DeleteRevisionPlan(ctx context.Context, id int) error
 	DeleteRevisionRevisor(id int) error
-	DeleteRevisionTips(id int) error
-	DeleteRevisions(id int) error
-	DeleteSalaryParams(id int) error
+	DeleteRevisionTips(ctx context.Context, id int) error
+	DeleteRevisions(ctx context.Context, id int) error
+	DeleteSalaryParams(ctx context.Context, id int) error
 	DeleteSupplier(id int) error
-	DeleteSystematization(id int) error
+	DeleteSystematization(ctx context.Context, id int) error
 	DeleteUserAccount(ctx context.Context, id int) error
-	DeleteUserProfile(id int) error
+	DeleteUserProfile(ctx context.Context, id int) error
 	FetchNotifications(userID int) ([]*structs.Notifications, error)
 	ForgotPassword(email string) error
 	GetAbsentByID(absentID int) (*structs.Absent, error)
@@ -224,34 +224,34 @@ type MicroserviceRepositoryInterface interface {
 	ResetPassword(input *dto.ResetPassword) error
 	SendOrderListToFinance(id int) error
 	SyncPermissions(roleID int, input []*structs.RolePermission) ([]structs.RolePermission, error)
-	UpdateAbsent(id int, absent *structs.Absent) (*structs.Absent, error)
+	UpdateAbsent(ctx context.Context, id int, absent *structs.Absent) (*structs.Absent, error)
 	UpdateAbsentType(id int, absent *structs.AbsentType) (*structs.AbsentType, error)
 	UpdateAccountItem(ctx context.Context, id int, accountItem *structs.AccountItem) (*structs.AccountItem, error)
 	UpdateAssessments(id int, data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error)
 	UpdateDispatchItem(id int, item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error)
 	UpdateDropdownSettings(id int, data *structs.SettingsDropdown) (*structs.SettingsDropdown, error)
-	UpdateEmployeeContract(id int, contract *structs.Contracts) (*structs.Contracts, error)
+	UpdateEmployeeContract(ctx context.Context, id int, contract *structs.Contracts) (*structs.Contracts, error)
 	UpdateEmployeeEducation(id int, education *structs.Education) (*structs.Education, error)
-	UpdateEmployeeEvaluation(id int, evaluation *structs.Evaluation) (*structs.Evaluation, error)
+	UpdateEmployeeEvaluation(ctx context.Context, id int, evaluation *structs.Evaluation) (*structs.Evaluation, error)
 	UpdateEmployeeFamilyMember(id int, education *structs.Family) (*structs.Family, error)
 	UpdateEmployeeForeigner(id int, foreigner *structs.Foreigners) (*structs.Foreigners, error)
-	UpdateEmployeeSalaryParams(id int, salaries *structs.SalaryParams) (*structs.SalaryParams, error)
+	UpdateEmployeeSalaryParams(ctx context.Context, id int, salaries *structs.SalaryParams) (*structs.SalaryParams, error)
 	UpdateExperience(id int, contract *structs.Experience) (*structs.Experience, error)
 	UpdateInventoryItem(id int, item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error)
-	UpdateJobPositions(id int, data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error)
+	UpdateJobPositions(ctx context.Context, id int, data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error)
 	UpdateJobPositionsInOrganizationUnits(data *structs.JobPositionsInOrganizationUnits) (*dto.GetJobPositionInOrganizationUnitsResponseMS, error)
-	UpdateJobTender(id int, jobTender *structs.JobTenders) (*structs.JobTenders, error)
-	UpdateJobTenderApplication(id int, jobTender *structs.JobTenderApplications) (*structs.JobTenderApplications, error)
+	UpdateJobTender(ctx context.Context, id int, jobTender *structs.JobTenders) (*structs.JobTenders, error)
+	UpdateJobTenderApplication(ctx context.Context, id int, jobTender *structs.JobTenderApplications) (*structs.JobTenderApplications, error)
 	UpdateJobTenderType(id int, jobTender *structs.JobTenderTypes) (*structs.JobTenderTypes, error)
-	UpdateJudgeNorm(id int, norm *structs.JudgeNorms) (*structs.JudgeNorms, error)
+	UpdateJudgeNorm(ctx context.Context, id int, norm *structs.JudgeNorms) (*structs.JudgeNorms, error)
 	UpdateJudgeResolutionItems(id int, item *structs.JudgeResolutionItems) (*structs.JudgeResolutionItems, error)
 	UpdateJudgeResolutionOrganizationUnit(input *dto.JudgeResolutionsOrganizationUnitItem) (*dto.JudgeResolutionsOrganizationUnitItem, error)
-	UpdateJudgeResolutions(id int, resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error)
+	UpdateJudgeResolutions(ctx context.Context, id int, resolution *structs.JudgeResolutions) (*structs.JudgeResolutions, error)
 	UpdateMovements(input structs.OrderAssetMovementItem) (*structs.Movement, error)
 	UpdateNotification(notificationID int, notification *structs.Notifications) error
 	UpdateOrderListItem(id int, orderListItem *structs.OrderListItem) (*structs.OrderListItem, error)
 	UpdateOrderProcurementArticle(item *structs.OrderProcurementArticleItem) (*structs.OrderProcurementArticleItem, error)
-	UpdateOrganizationUnits(id int, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error)
+	UpdateOrganizationUnits(ctx context.Context, id int, data *structs.OrganizationUnits) (*dto.GetOrganizationUnitResponseMS, error)
 	UpdateProcurementArticle(id int, article *structs.PublicProcurementArticle) (*structs.PublicProcurementArticle, error)
 	UpdateProcurementContract(id int, resolution *structs.PublicProcurementContract) (*structs.PublicProcurementContract, error)
 	UpdateProcurementContractArticle(id int, article *structs.PublicProcurementContractArticle) (*structs.PublicProcurementContractArticle, error)
@@ -260,17 +260,17 @@ type MicroserviceRepositoryInterface interface {
 	UpdateProcurementOUArticle(id int, article *structs.PublicProcurementOrganizationUnitArticle) (*structs.PublicProcurementOrganizationUnitArticle, error)
 	UpdateProcurementOULimit(id int, limit *structs.PublicProcurementLimit) (*structs.PublicProcurementLimit, error)
 	UpdateProcurementPlan(id int, resolution *structs.PublicProcurementPlan) (*structs.PublicProcurementPlan, error)
-	UpdateResolution(id int, resolution *structs.Resolution) (*structs.Resolution, error)
-	UpdateRevision(id int, revision *structs.Revision) (*structs.Revision, error)
-	UpdateRevisionPlan(id int, plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error)
-	UpdateRevisionTips(id int, plan *structs.RevisionTips) (*structs.RevisionTips, error)
-	UpdateRevisions(id int, plan *structs.Revisions) (*structs.Revisions, error)
+	UpdateResolution(ctx context.Context, id int, resolution *structs.Resolution) (*structs.Resolution, error)
+	UpdateRevision(ctx context.Context, id int, revision *structs.Revision) (*structs.Revision, error)
+	UpdateRevisionPlan(ctx context.Context, id int, plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error)
+	UpdateRevisionTips(ctx context.Context, id int, plan *structs.RevisionTips) (*structs.RevisionTips, error)
+	UpdateRevisions(ctx context.Context, id int, plan *structs.Revisions) (*structs.Revisions, error)
 	UpdateRole(ctx context.Context, id int, data structs.Roles) (*structs.Roles, error)
 	UpdateStock(input structs.StockArticle) error
 	UpdateSupplier(id int, supplier *structs.Suppliers) (*structs.Suppliers, error)
-	UpdateSystematization(id int, data *structs.Systematization) (*structs.Systematization, error)
+	UpdateSystematization(ctx context.Context, id int, data *structs.Systematization) (*structs.Systematization, error)
 	UpdateUserAccount(ctx context.Context, userID int, user structs.UserAccounts) (*structs.UserAccounts, error)
-	UpdateUserProfile(userID int, user structs.UserProfiles) (*structs.UserProfiles, error)
+	UpdateUserProfile(ctx context.Context, userID int, user structs.UserProfiles) (*structs.UserProfiles, error)
 	ValidateMail(input *dto.ResetPasswordVerify) (*dto.ResetPasswordVerifyResponseMS, error)
 	ValidatePin(pin string, headers map[string]string) error
 

@@ -85,7 +85,7 @@ func (r *Resolver) UserProfileEvaluationInsertResolver(params graphql.ResolvePar
 
 	itemID := data.ID
 	if itemID != 0 {
-		item, err := r.Repo.UpdateEmployeeEvaluation(itemID, &data)
+		item, err := r.Repo.UpdateEmployeeEvaluation(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -96,7 +96,7 @@ func (r *Resolver) UserProfileEvaluationInsertResolver(params graphql.ResolvePar
 		response.Message = "You updated this item!"
 		response.Item = resItem
 	} else {
-		item, err := r.Repo.CreateEmployeeEvaluation(&data)
+		item, err := r.Repo.CreateEmployeeEvaluation(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -114,7 +114,7 @@ func (r *Resolver) UserProfileEvaluationInsertResolver(params graphql.ResolvePar
 func (r *Resolver) UserProfileEvaluationDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteEvaluation(itemID)
+	err := r.Repo.DeleteEvaluation(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

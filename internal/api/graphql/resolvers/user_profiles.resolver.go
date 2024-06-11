@@ -313,7 +313,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 	}
 
 	userProfileData.UserAccountID = userAccountRes.ID
-	userProfileRes, err = r.Repo.CreateUserProfile(userProfileData)
+	userProfileRes, err = r.Repo.CreateUserProfile(params.Context, userProfileData)
 	if err != nil {
 		_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 		return errors.HandleAPIError(err)
@@ -321,10 +321,10 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 
 	if activeContract.Contract != nil {
 		activeContract.Contract.UserProfileID = userProfileRes.ID
-		_, err := r.Repo.CreateEmployeeContract(activeContract.Contract)
+		_, err := r.Repo.CreateEmployeeContract(params.Context, activeContract.Contract)
 		if err != nil {
 			_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
-			_ = r.Repo.DeleteUserProfile(userProfileRes.ID)
+			_ = r.Repo.DeleteUserProfile(params.Context, userProfileRes.ID)
 			return errors.HandleAPIError(err)
 		}
 
@@ -336,7 +336,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 			_, err = r.Repo.CreateEmployeesInOrganizationUnits(input)
 			if err != nil {
 				_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
-				_ = r.Repo.DeleteUserProfile(userProfileRes.ID)
+				_ = r.Repo.DeleteUserProfile(params.Context, userProfileRes.ID)
 				return errors.HandleAPIError(err)
 			}
 		}
@@ -359,7 +359,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 			_, err := r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
 			if err != nil {
 				_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
-				_ = r.Repo.DeleteUserProfile(userProfileRes.ID)
+				_ = r.Repo.DeleteUserProfile(params.Context, userProfileRes.ID)
 				return errors.HandleAPIError(err)
 			}
 		}
@@ -400,12 +400,12 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 		userProfileData.ActiveContract = &active
 		activeContract.Contract.UserProfileID = userProfileData.ID
 		if activeContract.Contract.ID == 0 {
-			_, err = r.Repo.CreateEmployeeContract(activeContract.Contract)
+			_, err = r.Repo.CreateEmployeeContract(params.Context, activeContract.Contract)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
 		} else {
-			_, err = r.Repo.UpdateEmployeeContract(activeContract.Contract.ID, activeContract.Contract)
+			_, err = r.Repo.UpdateEmployeeContract(params.Context, activeContract.Contract.ID, activeContract.Contract)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -519,7 +519,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 	}
 
-	userProfileRes, err := r.Repo.UpdateUserProfile(userProfileData.ID, userProfileData)
+	userProfileRes, err := r.Repo.UpdateUserProfile(params.Context, userProfileData.ID, userProfileData)
 	if err != nil {
 		fmt.Printf("Creating the user profile failed because of this error - %s.\n", err)
 		return errors.ErrorResponse("Error creating the user profile data"), nil
@@ -555,7 +555,7 @@ func (r *Resolver) UserProfileContractInsertResolver(params graphql.ResolveParam
 
 	itemID := data.ID
 	if itemID != 0 {
-		item, err := r.Repo.UpdateEmployeeContract(itemID, &data)
+		item, err := r.Repo.UpdateEmployeeContract(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -566,7 +566,7 @@ func (r *Resolver) UserProfileContractInsertResolver(params graphql.ResolveParam
 		response.Message = "You updated this item!"
 		response.Item = contractResponseItem
 	} else {
-		item, err := r.Repo.CreateEmployeeContract(&data)
+		item, err := r.Repo.CreateEmployeeContract(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -585,7 +585,7 @@ func (r *Resolver) UserProfileContractInsertResolver(params graphql.ResolveParam
 func (r *Resolver) UserProfileContractDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"]
 
-	err := r.Repo.DeleteEmployeeContract(itemID.(int))
+	err := r.Repo.DeleteEmployeeContract(params.Context, itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

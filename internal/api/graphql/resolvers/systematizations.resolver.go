@@ -122,12 +122,12 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 
 	itemID := data.ID
 	if itemID != 0 {
-		systematization, err = r.Repo.UpdateSystematization(itemID, &data)
+		systematization, err = r.Repo.UpdateSystematization(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	} else {
-		systematization, err = r.Repo.CreateSystematization(&data)
+		systematization, err = r.Repo.CreateSystematization(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -195,7 +195,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 			for _, sys := range systematizationsActiveResponse.Data {
 				if sys.ID != systematization.ID {
 					sys.Active = 1
-					_, _ = r.Repo.UpdateSystematization(sys.ID, &sys)
+					_, _ = r.Repo.UpdateSystematization(params.Context, sys.ID, &sys)
 				}
 			}
 		}
@@ -217,7 +217,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 func (r *Resolver) SystematizationDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"]
 
-	err := r.Repo.DeleteSystematization(itemID.(int))
+	err := r.Repo.DeleteSystematization(params.Context, itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

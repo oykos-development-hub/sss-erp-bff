@@ -110,13 +110,13 @@ func (r *Resolver) UserProfileSalaryParamsInsertResolver(params graphql.ResolveP
 
 	itemID := data.ID
 	if itemID != 0 {
-		item, err = r.Repo.UpdateEmployeeSalaryParams(itemID, &data)
+		item, err = r.Repo.UpdateEmployeeSalaryParams(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 		response.Message = "You updated this item!"
 	} else {
-		item, err = r.Repo.CreateEmployeeSalaryParams(&data)
+		item, err = r.Repo.CreateEmployeeSalaryParams(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -135,7 +135,7 @@ func (r *Resolver) UserProfileSalaryParamsInsertResolver(params graphql.ResolveP
 
 func (r *Resolver) UserProfileSalaryParamsDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"]
-	err := r.Repo.DeleteSalaryParams(itemID.(int))
+	err := r.Repo.DeleteSalaryParams(params.Context, itemID.(int))
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

@@ -1,14 +1,21 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateRevision(revision *structs.Revision) (*structs.Revision, error) {
+func (repo *MicroserviceRepository) CreateRevision(ctx context.Context, revision *structs.Revision) (*structs.Revision, error) {
 	res := &dto.GetRevisionResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Revisions, revision, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Revisions, revision, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -26,9 +33,13 @@ func (repo *MicroserviceRepository) GetRevisors() ([]*structs.Revisor, error) {
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateRevision(id int, revision *structs.Revision) (*structs.Revision, error) {
+func (repo *MicroserviceRepository) UpdateRevision(ctx context.Context, id int, revision *structs.Revision) (*structs.Revision, error) {
 	res := &dto.GetRevisionResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Revisions+"/"+strconv.Itoa(id), revision, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Revisions+"/"+strconv.Itoa(id), revision, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +47,14 @@ func (repo *MicroserviceRepository) UpdateRevision(id int, revision *structs.Rev
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteRevision(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Revisions+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteRevision(ctx context.Context, id int) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Revisions+"/"+strconv.Itoa(id), nil, nil, header)
+
 	if err != nil {
 		return err
 	}
@@ -69,6 +86,7 @@ func (repo *MicroserviceRepository) GetRevisionList(input *dto.GetRevisionsInput
 
 func (repo *MicroserviceRepository) GetRevisionPlanList(input *dto.GetPlansInput) (*dto.GetRevisionPlanResponseMS, error) {
 	res := &dto.GetRevisionPlanResponseMS{}
+
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.RevisionPlan, input, res)
 	if err != nil {
 		return nil, err
@@ -87,8 +105,14 @@ func (repo *MicroserviceRepository) GetRevisionPlanByID(id int) (*dto.RevisionPl
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteRevisionPlan(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.RevisionPlan+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteRevisionPlan(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.RevisionPlan+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -96,9 +120,14 @@ func (repo *MicroserviceRepository) DeleteRevisionPlan(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateRevisionPlan(plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error) {
+func (repo *MicroserviceRepository) CreateRevisionPlan(ctx context.Context, plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error) {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
 	res := &dto.GetPlanResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.RevisionPlan, plan, res)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.RevisionPlan, plan, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -106,9 +135,13 @@ func (repo *MicroserviceRepository) CreateRevisionPlan(plan *dto.RevisionPlanIte
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateRevisionPlan(id int, plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error) {
+func (repo *MicroserviceRepository) UpdateRevisionPlan(ctx context.Context, id int, plan *dto.RevisionPlanItem) (*dto.RevisionPlanItem, error) {
 	res := &dto.GetPlanResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.RevisionPlan+"/"+strconv.Itoa(id), plan, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.RevisionPlan+"/"+strconv.Itoa(id), plan, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +153,7 @@ func (repo *MicroserviceRepository) UpdateRevisionPlan(id int, plan *dto.Revisio
 
 func (repo *MicroserviceRepository) GetRevisionsList(input *dto.GetRevisionFilter) (*dto.GetRevisionsResponseMS, error) {
 	res := &dto.GetRevisionsResponseMS{}
+
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.Revision, input, res)
 	if err != nil {
 		return nil, err
@@ -138,8 +172,12 @@ func (repo *MicroserviceRepository) GetRevisionsByID(id int) (*structs.Revisions
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteRevisions(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Revision+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteRevisions(ctx context.Context, id int) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Revision+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -147,9 +185,13 @@ func (repo *MicroserviceRepository) DeleteRevisions(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateRevisions(plan *structs.Revisions) (*structs.Revisions, error) {
+func (repo *MicroserviceRepository) CreateRevisions(ctx context.Context, plan *structs.Revisions) (*structs.Revisions, error) {
 	res := &dto.GetRevisionMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Revision, plan, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Revision, plan, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -157,9 +199,14 @@ func (repo *MicroserviceRepository) CreateRevisions(plan *structs.Revisions) (*s
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateRevisions(id int, plan *structs.Revisions) (*structs.Revisions, error) {
+func (repo *MicroserviceRepository) UpdateRevisions(ctx context.Context, id int, plan *structs.Revisions) (*structs.Revisions, error) {
 	res := &dto.GetRevisionMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Revision+"/"+strconv.Itoa(id), plan, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Revision+"/"+strconv.Itoa(id), plan, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -171,6 +218,7 @@ func (repo *MicroserviceRepository) UpdateRevisions(id int, plan *structs.Revisi
 
 func (repo *MicroserviceRepository) GetRevisionTipsList(input *dto.GetRevisionTipFilter) (*dto.GetRevisionTipsResponseMS, error) {
 	res := &dto.GetRevisionTipsResponseMS{}
+
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.RevisionTips, input, res)
 	if err != nil {
 		return nil, err
@@ -189,8 +237,12 @@ func (repo *MicroserviceRepository) GetRevisionTipByID(id int) (*structs.Revisio
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteRevisionTips(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.RevisionTips+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteRevisionTips(ctx context.Context, id int) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.RevisionTips+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -198,9 +250,13 @@ func (repo *MicroserviceRepository) DeleteRevisionTips(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateRevisionTips(plan *structs.RevisionTips) (*structs.RevisionTips, error) {
+func (repo *MicroserviceRepository) CreateRevisionTips(ctx context.Context, plan *structs.RevisionTips) (*structs.RevisionTips, error) {
 	res := &dto.GetRevisionTipMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.RevisionTips, plan, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.RevisionTips, plan, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -208,9 +264,13 @@ func (repo *MicroserviceRepository) CreateRevisionTips(plan *structs.RevisionTip
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateRevisionTips(id int, plan *structs.RevisionTips) (*structs.RevisionTips, error) {
+func (repo *MicroserviceRepository) UpdateRevisionTips(ctx context.Context, id int, plan *structs.RevisionTips) (*structs.RevisionTips, error) {
 	res := &dto.GetRevisionTipMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.RevisionTips+"/"+strconv.Itoa(id), plan, res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.RevisionTips+"/"+strconv.Itoa(id), plan, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -219,6 +279,7 @@ func (repo *MicroserviceRepository) UpdateRevisionTips(id int, plan *structs.Rev
 }
 
 func (repo *MicroserviceRepository) DeleteRevisionRevisor(id int) error {
+
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.RevisionRevisors+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
 		return err

@@ -69,7 +69,7 @@ type BasicInventoryInsertItem struct {
 	NetPrice                     float32                        `json:"net_price"`
 	GrossPrice                   float32                        `json:"gross_price"`
 	Description                  string                         `json:"description"`
-	DateOfPurchase               string                         `json:"date_of_purchase"`
+	DateOfPurchase               *string                        `json:"date_of_purchase"`
 	Source                       string                         `json:"source"`
 	SourceType                   string                         `json:"source_type"`
 	DonorTitle                   string                         `json:"donor_title"`

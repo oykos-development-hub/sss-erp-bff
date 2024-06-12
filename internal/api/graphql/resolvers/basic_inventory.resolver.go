@@ -480,7 +480,9 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 			}
 		}
 	} else {
-		dateOfAssessment = item.DateOfPurchase
+		if item.DateOfPurchase != nil {
+			dateOfAssessment = *item.DateOfPurchase
+		}
 	}
 
 	status := "Nezaduženo"

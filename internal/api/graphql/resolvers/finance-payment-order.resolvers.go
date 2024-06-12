@@ -120,12 +120,12 @@ func (r *Resolver) PaymentOrderInsertResolver(params graphql.ResolveParams) (int
 	var item *structs.PaymentOrder
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreatePaymentOrder(&data)
+		item, err = r.Repo.CreatePaymentOrder(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdatePaymentOrder(&data)
+		item, err = r.Repo.UpdatePaymentOrder(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -145,7 +145,7 @@ func (r *Resolver) PaymentOrderInsertResolver(params graphql.ResolveParams) (int
 func (r *Resolver) PaymentOrderDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeletePaymentOrder(itemID)
+	err := r.Repo.DeletePaymentOrder(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fixed deposit failed because of this error - %s.\n", err)
 		return dto.ResponseSingle{
@@ -285,7 +285,7 @@ func (r *Resolver) PayOrderResolver(params graphql.ResolveParams) (interface{}, 
 		DateOfSAP: &dateOfSAP,
 	}
 
-	err = r.Repo.PayPaymentOrder(paymentOrder)
+	err = r.Repo.PayPaymentOrder(params.Context, paymentOrder)
 	if err != nil {
 		fmt.Printf("Paying the order failed because this error - %s.\n", err)
 		return dto.ResponseSingle{
@@ -302,7 +302,7 @@ func (r *Resolver) PayOrderResolver(params graphql.ResolveParams) (interface{}, 
 func (r *Resolver) CancelOrderResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.CancelPaymentOrder(itemID)
+	err := r.Repo.CancelPaymentOrder(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Canceling the order failed because this error - %s.\n", err)
 		return dto.ResponseSingle{

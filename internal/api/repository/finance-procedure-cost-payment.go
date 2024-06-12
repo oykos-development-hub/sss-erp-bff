@@ -1,14 +1,21 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateProcedureCostPayment(item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error) {
+func (repo *MicroserviceRepository) CreateProcedureCostPayment(ctx context.Context, item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error) {
 	res := &dto.GetProcedureCostPaymentResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.ProcedureCostPayment, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.ProcedureCostPayment, item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +42,13 @@ func (repo *MicroserviceRepository) GetProcedureCostPaymentList(input *dto.GetPr
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) DeleteProcedureCostPayment(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.ProcedureCostPayment+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteProcedureCostPayment(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.ProcedureCostPayment+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -44,9 +56,14 @@ func (repo *MicroserviceRepository) DeleteProcedureCostPayment(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) UpdateProcedureCostPayment(item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error) {
+func (repo *MicroserviceRepository) UpdateProcedureCostPayment(ctx context.Context, item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error) {
 	res := &dto.GetProcedureCostPaymentResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ProcedureCostPayment+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ProcedureCostPayment+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}

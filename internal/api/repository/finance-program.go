@@ -1,31 +1,48 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateProgram(program *structs.ProgramItem) (*structs.ProgramItem, error) {
+func (repo *MicroserviceRepository) CreateProgram(ctx context.Context, program *structs.ProgramItem) (*structs.ProgramItem, error) {
 	res := &dto.GetFinanceProgramResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Program, program, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Program, program, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateProgram(id int, program *structs.ProgramItem) (*structs.ProgramItem, error) {
+func (repo *MicroserviceRepository) UpdateProgram(ctx context.Context, id int, program *structs.ProgramItem) (*structs.ProgramItem, error) {
 	res := &dto.GetFinanceProgramResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Program+"/"+strconv.Itoa(id), program, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Program+"/"+strconv.Itoa(id), program, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteProgram(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.Program+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteProgram(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.Program+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

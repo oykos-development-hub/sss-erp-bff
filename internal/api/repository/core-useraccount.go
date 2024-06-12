@@ -66,6 +66,7 @@ func (repo *MicroserviceRepository) DeactivateUserAccount(ctx context.Context, u
 	header := make(map[string]string)
 	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	header["UserID"] = strconv.Itoa(account.ID)
+
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res, header)
 	if err != nil {
 		return nil, err

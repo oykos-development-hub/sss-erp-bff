@@ -119,12 +119,12 @@ func (r *Resolver) EnforcedPaymentInsertResolver(params graphql.ResolveParams) (
 	var item *structs.EnforcedPayment
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreateEnforcedPayment(&data)
+		item, err = r.Repo.CreateEnforcedPayment(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateEnforcedPayment(&data)
+		item, err = r.Repo.UpdateEnforcedPayment(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -163,7 +163,7 @@ func (r *Resolver) ReturnEnforcedPaymentResolver(params graphql.ResolveParams) (
 		ReturnAmount: &returnAmount,
 	}
 
-	err = r.Repo.ReturnEnforcedPayment(EnforcedPayment)
+	err = r.Repo.ReturnEnforcedPayment(params.Context, EnforcedPayment)
 	if err != nil {
 		fmt.Printf("Returning the enforced payment failed because this error - %s.\n", err)
 		return dto.ResponseSingle{

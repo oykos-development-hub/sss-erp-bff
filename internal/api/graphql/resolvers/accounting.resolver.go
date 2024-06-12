@@ -447,7 +447,7 @@ func (r *Resolver) AccountingEntryInsertResolver(params graphql.ResolveParams) (
 
 	var item *structs.AccountingEntry
 
-	item, err = r.Repo.CreateAccountingEntry(&data)
+	item, err = r.Repo.CreateAccountingEntry(params.Context, &data)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -465,7 +465,7 @@ func (r *Resolver) AccountingEntryInsertResolver(params graphql.ResolveParams) (
 func (r *Resolver) AccountingEntryDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteAccountingEntry(itemID)
+	err := r.Repo.DeleteAccountingEntry(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting accounting entry failed because of this error - %s.\n", err)
 		return dto.ResponseSingle{

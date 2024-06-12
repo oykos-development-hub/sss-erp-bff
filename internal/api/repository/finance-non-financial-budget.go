@@ -1,32 +1,49 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateNonFinancialBudget(nonFinancialBudget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error) {
+func (repo *MicroserviceRepository) CreateNonFinancialBudget(ctx context.Context, nonFinancialBudget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error) {
 	res := &dto.GetNonFinancialBudgetResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.NonFinancialBudget, nonFinancialBudget, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.NonFinancialBudget, nonFinancialBudget, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateNonFinancialBudget(id int, nonFinancialBudget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error) {
+func (repo *MicroserviceRepository) UpdateNonFinancialBudget(ctx context.Context, id int, nonFinancialBudget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error) {
 	res := &dto.GetNonFinancialBudgetResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.NonFinancialBudget+"/"+strconv.Itoa(id), nonFinancialBudget, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.NonFinancialBudget+"/"+strconv.Itoa(id), nonFinancialBudget, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteNonFinancialBudget(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.NonFinancialBudget+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteNonFinancialBudget(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.NonFinancialBudget+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

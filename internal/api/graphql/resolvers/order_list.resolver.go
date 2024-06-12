@@ -392,7 +392,7 @@ func (r *Resolver) PassOrderListToFinance(params graphql.ResolveParams) (interfa
 		invoice.ProFormaInvoiceFileID = orderList.ReceiveFile[0].ID
 	}
 
-	insertedItem, err := r.Repo.CreateInvoice(&invoice)
+	insertedItem, err := r.Repo.CreateInvoice(params.Context, &invoice)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -741,7 +741,7 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 	}
 
 	if total > 0 {
-		err = r.Repo.DeleteInvoice(invoice[0].ID)
+		err = r.Repo.DeleteInvoice(params.Context, invoice[0].ID)
 
 		if err != nil {
 			return apierrors.HandleAPIError(err)

@@ -111,12 +111,12 @@ func (r *Resolver) SalaryInsertResolver(params graphql.ResolveParams) (interface
 	var item *structs.Salary
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreateSalary(&data)
+		item, err = r.Repo.CreateSalary(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateSalary(&data)
+		item, err = r.Repo.UpdateSalary(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -136,7 +136,7 @@ func (r *Resolver) SalaryInsertResolver(params graphql.ResolveParams) (interface
 func (r *Resolver) SalaryDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteSalary(itemID)
+	err := r.Repo.DeleteSalary(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fixed deposit failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

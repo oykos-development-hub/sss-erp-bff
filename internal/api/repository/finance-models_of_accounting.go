@@ -1,14 +1,21 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) UpdateModelsOfAccounting(item *structs.ModelsOfAccounting) (*structs.ModelsOfAccounting, error) {
+func (repo *MicroserviceRepository) UpdateModelsOfAccounting(ctx context.Context, item *structs.ModelsOfAccounting) (*structs.ModelsOfAccounting, error) {
 	res := &dto.GetModelsOfAccountingResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ModelsOfAccounting+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ModelsOfAccounting+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}

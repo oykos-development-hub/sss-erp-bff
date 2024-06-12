@@ -191,7 +191,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 
 		}
 
-		item, err = r.Repo.CreateInvoice(&data)
+		item, err = r.Repo.CreateInvoice(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -203,7 +203,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			return errors.HandleAPIError(err)
 		}
 
-		item, err = r.Repo.UpdateInvoice(&data)
+		item, err = r.Repo.UpdateInvoice(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -347,7 +347,7 @@ func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interfac
 		return errors.HandleAPIError(err)
 	}
 
-	err = r.Repo.DeleteInvoice(itemID)
+	err = r.Repo.DeleteInvoice(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting invoice item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

@@ -211,7 +211,7 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 
 	financialBudget.AccountVersion = latestVersion
 
-	_, err = r.Repo.UpdateFinancialBudget(financialBudget)
+	_, err = r.Repo.UpdateFinancialBudget(params.Context, financialBudget)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -251,7 +251,7 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 			}
 
 			if len(newAccount.Data) > 0 {
-				_, err := r.Repo.UpdateFilledFinancialBudget(filledData.ID, &structs.FilledFinanceBudget{
+				_, err := r.Repo.UpdateFilledFinancialBudget(params.Context, filledData.ID, &structs.FilledFinanceBudget{
 					BudgetRequestID: filledData.BudgetRequestID,
 					AccountID:       newAccount.Data[0].ID,
 					CurrentYear:     filledData.CurrentYear,
@@ -267,7 +267,7 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 		}
 		for id, delete := range filledDataForDelete {
 			if delete {
-				err := r.Repo.DeleteFilledFinancialBudgetData(id)
+				err := r.Repo.DeleteFilledFinancialBudgetData(params.Context, id)
 				if err != nil {
 					return errors.HandleAPIError(err)
 				}
@@ -325,7 +325,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 		itemID := data.ID
 		data.BudgetRequestID = requestID
 		if itemID != 0 {
-			item, err := r.Repo.UpdateFilledFinancialBudget(itemID, &data)
+			item, err := r.Repo.UpdateFilledFinancialBudget(params.Context, itemID, &data)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -337,7 +337,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 
 			resItemList = append(resItemList, *resItem)
 		} else {
-			item, err := r.Repo.FillFinancialBudget(&data)
+			item, err := r.Repo.FillFinancialBudget(params.Context, &data)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -353,7 +353,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 
 	request.Status = structs.BudgetRequestFilledStatus
 	request.Comment = params.Args["comment"].(string)
-	_, err = r.Repo.UpdateBudgetRequest(request)
+	_, err = r.Repo.UpdateBudgetRequest(params.Context, request)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -380,7 +380,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error getting parent financial request"))
 		}
 		financialRequest.Status = structs.BudgetRequestFilledStatus
-		_, err = r.Repo.UpdateBudgetRequest(financialRequest)
+		_, err = r.Repo.UpdateBudgetRequest(params.Context, financialRequest)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error updating parent budget request"))
 		}
@@ -405,7 +405,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 				return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error getting parent financial request"))
 			}
 			generalRequest.Status = structs.BudgetRequestFilledStatus
-			_, err = r.Repo.UpdateBudgetRequest(generalRequest)
+			_, err = r.Repo.UpdateBudgetRequest(params.Context, generalRequest)
 			if err != nil {
 				return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error updating parent budget request"))
 			}
@@ -445,7 +445,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 	var resItemList []dto.FilledFinancialBudgetResItem
 
 	for _, data := range items {
-		item, err := r.Repo.FillActualFinancialBudget(data.ID, data.Actual)
+		item, err := r.Repo.FillActualFinancialBudget(params.Context, data.ID, data.Actual)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver"))
 		}
@@ -458,7 +458,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 	}
 
 	request.Status = structs.BudgetRequestCompletedActualStatus
-	_, err = r.Repo.UpdateBudgetRequest(request)
+	_, err = r.Repo.UpdateBudgetRequest(params.Context, request)
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver"))
 	}
@@ -468,7 +468,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error getting parent financial request"))
 	}
 	financialRequest.Status = structs.BudgetRequestCompletedActualStatus
-	_, err = r.Repo.UpdateBudgetRequest(financialRequest)
+	_, err = r.Repo.UpdateBudgetRequest(params.Context, financialRequest)
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
 	}
@@ -478,7 +478,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error getting parent financial request"))
 	}
 	generalRequest.Status = structs.BudgetRequestCompletedActualStatus
-	_, err = r.Repo.UpdateBudgetRequest(generalRequest)
+	_, err = r.Repo.UpdateBudgetRequest(params.Context, generalRequest)
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillActualResolver: error updating parent budget request"))
 	}

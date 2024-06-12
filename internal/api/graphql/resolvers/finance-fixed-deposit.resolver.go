@@ -115,12 +115,12 @@ func (r *Resolver) FixedDepositInsertResolver(params graphql.ResolveParams) (int
 	var item *structs.FixedDeposit
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreateFixedDeposit(&data)
+		item, err = r.Repo.CreateFixedDeposit(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateFixedDeposit(&data)
+		item, err = r.Repo.UpdateFixedDeposit(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -140,7 +140,7 @@ func (r *Resolver) FixedDepositInsertResolver(params graphql.ResolveParams) (int
 func (r *Resolver) FixedDepositDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteFixedDeposit(itemID)
+	err := r.Repo.DeleteFixedDeposit(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fixed deposit failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil
@@ -169,12 +169,12 @@ func (r *Resolver) FixedDepositItemInsertResolver(params graphql.ResolveParams) 
 	}
 
 	if data.ID == 0 {
-		err = r.Repo.CreateFixedDepositItem(&data)
+		err = r.Repo.CreateFixedDepositItem(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		err = r.Repo.UpdateFixedDepositItem(&data)
+		err = r.Repo.UpdateFixedDepositItem(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -187,7 +187,7 @@ func (r *Resolver) FixedDepositItemInsertResolver(params graphql.ResolveParams) 
 func (r *Resolver) FixedDepositItemDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteFixedDepositItem(itemID)
+	err := r.Repo.DeleteFixedDepositItem(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fixed deposit item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil
@@ -216,12 +216,12 @@ func (r *Resolver) FixedDepositDispatchInsertResolver(params graphql.ResolvePara
 	}
 
 	if data.ID == 0 {
-		err = r.Repo.CreateFixedDepositDispatch(&data)
+		err = r.Repo.CreateFixedDepositDispatch(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		err = r.Repo.UpdateFixedDepositDispatch(&data)
+		err = r.Repo.UpdateFixedDepositDispatch(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -234,7 +234,7 @@ func (r *Resolver) FixedDepositDispatchInsertResolver(params graphql.ResolvePara
 func (r *Resolver) FixedDepositDispatchDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteFixedDepositDispatch(itemID)
+	err := r.Repo.DeleteFixedDepositDispatch(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fixed deposit dispatch item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil
@@ -389,12 +389,12 @@ func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) 
 
 	if data.ID == 0 {
 		data.Status = "Depozit"
-		item, err = r.Repo.CreateFixedDepositWill(&data)
+		item, err = r.Repo.CreateFixedDepositWill(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateFixedDepositWill(&data)
+		item, err = r.Repo.UpdateFixedDepositWill(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -414,7 +414,7 @@ func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) 
 func (r *Resolver) FixedDepositWillDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteFixedDepositWill(itemID)
+	err := r.Repo.DeleteFixedDepositWill(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fixed deposit will failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil
@@ -443,12 +443,12 @@ func (r *Resolver) FixedDepositWillDispatchInsertResolver(params graphql.Resolve
 	}
 
 	if data.ID == 0 {
-		err = r.Repo.CreateFixedDepositWillDispatch(&data)
+		err = r.Repo.CreateFixedDepositWillDispatch(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		err = r.Repo.UpdateFixedDepositWillDispatch(&data)
+		err = r.Repo.UpdateFixedDepositWillDispatch(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -461,7 +461,7 @@ func (r *Resolver) FixedDepositWillDispatchInsertResolver(params graphql.Resolve
 func (r *Resolver) FixedDepositWillDispatchDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteFixedDepositWillDispatch(itemID)
+	err := r.Repo.DeleteFixedDepositWillDispatch(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fixed deposit item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

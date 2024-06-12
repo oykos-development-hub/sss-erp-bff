@@ -175,12 +175,12 @@ func (r *Resolver) DepositPaymentInsertResolver(params graphql.ResolveParams) (i
 	var item *structs.DepositPayment
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreateDepositPayment(&data)
+		item, err = r.Repo.CreateDepositPayment(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateDepositPayment(&data)
+		item, err = r.Repo.UpdateDepositPayment(params.Context, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -232,7 +232,7 @@ func (r *Resolver) DepositCaseNumberResolver(params graphql.ResolveParams) (inte
 func (r *Resolver) DepositPaymentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteDepositPayment(itemID)
+	err := r.Repo.DeleteDepositPayment(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fixed deposit failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

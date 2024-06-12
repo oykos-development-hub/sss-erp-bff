@@ -1,24 +1,36 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateBudgetRequest(budgetItem *structs.BudgetRequest) (*structs.BudgetRequest, error) {
+func (repo *MicroserviceRepository) CreateBudgetRequest(ctx context.Context, budgetItem *structs.BudgetRequest) (*structs.BudgetRequest, error) {
 	res := &dto.GetBudgetRequestResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.BudgetRequest, budgetItem, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.BudgetRequest, budgetItem, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateBudgetRequest(item *structs.BudgetRequest) (*structs.BudgetRequest, error) {
+func (repo *MicroserviceRepository) UpdateBudgetRequest(ctx context.Context, item *structs.BudgetRequest) (*structs.BudgetRequest, error) {
 	res := &dto.GetBudgetRequestResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.BudgetRequest+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.BudgetRequest+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}

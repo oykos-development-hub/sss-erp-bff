@@ -76,7 +76,7 @@ func (r *Resolver) ModelsOfAccountingUpdateResolver(params graphql.ResolveParams
 
 	var item *structs.ModelsOfAccounting
 
-	item, err = r.Repo.UpdateModelsOfAccounting(&data)
+	item, err = r.Repo.UpdateModelsOfAccounting(params.Context, &data)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}

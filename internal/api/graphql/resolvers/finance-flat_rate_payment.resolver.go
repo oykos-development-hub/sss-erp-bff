@@ -29,12 +29,12 @@ func (r *Resolver) FlatRatePaymentInsertResolver(params graphql.ResolveParams) (
 	var item *structs.FlatRatePayment
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreateFlatRatePayment(&data)
+		item, err = r.Repo.CreateFlatRatePayment(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateFlatRatePayment(&data)
+		item, err = r.Repo.UpdateFlatRatePayment(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -103,7 +103,7 @@ func (r *Resolver) FlatRatePaymentOverviewResolver(params graphql.ResolveParams)
 func (r *Resolver) FlatRatePaymentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteFlatRatePayment(itemID)
+	err := r.Repo.DeleteFlatRatePayment(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting flatrate payment item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

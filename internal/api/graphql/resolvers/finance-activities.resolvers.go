@@ -110,7 +110,7 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 	itemID := data.ID
 
 	if itemID != 0 {
-		item, err := r.Repo.UpdateActivity(itemID, &data)
+		item, err := r.Repo.UpdateActivity(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -123,7 +123,7 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 		response.Message = "You updated this item!"
 		response.Item = resItem
 	} else {
-		item, err := r.Repo.CreateActivity(&data)
+		item, err := r.Repo.CreateActivity(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -143,7 +143,7 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 func (r *Resolver) ActivityDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteActivity(itemID)
+	err := r.Repo.DeleteActivity(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting activity item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

@@ -29,12 +29,12 @@ func (r *Resolver) FeePaymentInsertResolver(params graphql.ResolveParams) (inter
 	var item *structs.FeePayment
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreateFeePayment(&data)
+		item, err = r.Repo.CreateFeePayment(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateFeePayment(&data)
+		item, err = r.Repo.UpdateFeePayment(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -103,7 +103,7 @@ func (r *Resolver) FeePaymentOverviewResolver(params graphql.ResolveParams) (int
 func (r *Resolver) FeePaymentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteFeePayment(itemID)
+	err := r.Repo.DeleteFeePayment(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fee payment item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

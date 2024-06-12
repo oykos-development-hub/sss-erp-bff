@@ -1,31 +1,48 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateNonFinancialGoal(nonFinancialGoal *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error) {
+func (repo *MicroserviceRepository) CreateNonFinancialGoal(ctx context.Context, nonFinancialGoal *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error) {
 	res := &dto.GetNonFinancialGoalResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.NonFinancialGoal, nonFinancialGoal, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.NonFinancialGoal, nonFinancialGoal, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateNonFinancialGoal(id int, nonFinancialGoal *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error) {
+func (repo *MicroserviceRepository) UpdateNonFinancialGoal(ctx context.Context, id int, nonFinancialGoal *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error) {
 	res := &dto.GetNonFinancialGoalResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.NonFinancialGoal+"/"+strconv.Itoa(id), nonFinancialGoal, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.NonFinancialGoal+"/"+strconv.Itoa(id), nonFinancialGoal, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteNonFinancialGoal(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.NonFinancialGoal+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteNonFinancialGoal(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.NonFinancialGoal+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

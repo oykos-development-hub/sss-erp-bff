@@ -1,23 +1,35 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateFixedDeposit(item *structs.FixedDeposit) (*structs.FixedDeposit, error) {
+func (repo *MicroserviceRepository) CreateFixedDeposit(ctx context.Context, item *structs.FixedDeposit) (*structs.FixedDeposit, error) {
 	res := &dto.GetFixedDepositResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDeposit, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDeposit, item, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateFixedDeposit(item *structs.FixedDeposit) (*structs.FixedDeposit, error) {
+func (repo *MicroserviceRepository) UpdateFixedDeposit(ctx context.Context, item *structs.FixedDeposit) (*structs.FixedDeposit, error) {
 	res := &dto.GetFixedDepositResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDeposit+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDeposit+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +56,13 @@ func (repo *MicroserviceRepository) GetFixedDepositList(filter dto.FixedDepositF
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) DeleteFixedDeposit(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDeposit+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteFixedDeposit(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDeposit+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -53,20 +70,29 @@ func (repo *MicroserviceRepository) DeleteFixedDeposit(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateFixedDepositWill(item *structs.FixedDepositWill) (*structs.FixedDepositWill, error) {
+func (repo *MicroserviceRepository) CreateFixedDepositWill(ctx context.Context, item *structs.FixedDepositWill) (*structs.FixedDepositWill, error) {
 	res := &dto.GetFixedDepositWillResponseMS{}
 	item.Status = "Depozit"
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositWill, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositWill, item, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateFixedDepositWill(item *structs.FixedDepositWill) (*structs.FixedDepositWill, error) {
+func (repo *MicroserviceRepository) UpdateFixedDepositWill(ctx context.Context, item *structs.FixedDepositWill) (*structs.FixedDepositWill, error) {
 	res := &dto.GetFixedDepositWillResponseMS{}
 
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositWill+"/"+strconv.Itoa(item.ID), item, res)
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositWill+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +119,14 @@ func (repo *MicroserviceRepository) GetFixedDepositWillList(filter dto.FixedDepo
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) DeleteFixedDepositWill(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositWill+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteFixedDepositWill(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositWill+"/"+strconv.Itoa(id), nil, nil, header)
+
 	if err != nil {
 		return err
 	}
@@ -102,26 +134,41 @@ func (repo *MicroserviceRepository) DeleteFixedDepositWill(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateFixedDepositItem(item *structs.FixedDepositItem) error {
+func (repo *MicroserviceRepository) CreateFixedDepositItem(ctx context.Context, item *structs.FixedDepositItem) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
 	//res := &dto.GetFixedDepositItemResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositItem, item, nil)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositItem, item, nil, header)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (repo *MicroserviceRepository) UpdateFixedDepositItem(item *structs.FixedDepositItem) error {
+func (repo *MicroserviceRepository) UpdateFixedDepositItem(ctx context.Context, item *structs.FixedDepositItem) error {
 	//res := &dto.GetFixedDepositItemResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositItem+"/"+strconv.Itoa(item.ID), item, nil)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositItem+"/"+strconv.Itoa(item.ID), item, nil, header)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (repo *MicroserviceRepository) DeleteFixedDepositItem(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositItem+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteFixedDepositItem(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositItem+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -129,26 +176,41 @@ func (repo *MicroserviceRepository) DeleteFixedDepositItem(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateFixedDepositDispatch(item *structs.FixedDepositDispatch) error {
+func (repo *MicroserviceRepository) CreateFixedDepositDispatch(ctx context.Context, item *structs.FixedDepositDispatch) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
 	//res := &dto.GetFixedDepositItemResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositDispatch, item, nil)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositDispatch, item, nil, header)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (repo *MicroserviceRepository) UpdateFixedDepositDispatch(item *structs.FixedDepositDispatch) error {
+func (repo *MicroserviceRepository) UpdateFixedDepositDispatch(ctx context.Context, item *structs.FixedDepositDispatch) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
 	//res := &dto.GetFixedDepositItemResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositDispatch+"/"+strconv.Itoa(item.ID), item, nil)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositDispatch+"/"+strconv.Itoa(item.ID), item, nil, header)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (repo *MicroserviceRepository) DeleteFixedDepositDispatch(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositDispatch+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteFixedDepositDispatch(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositDispatch+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -157,6 +219,7 @@ func (repo *MicroserviceRepository) DeleteFixedDepositDispatch(id int) error {
 }
 
 func (repo *MicroserviceRepository) CreateFixedDepositJudge(item *structs.FixedDepositJudge) error {
+
 	//res := &dto.GetFixedDepositItemResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositJudge, item, nil)
 	if err != nil {
@@ -183,8 +246,12 @@ func (repo *MicroserviceRepository) DeleteFixedDepositJudge(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateFixedDepositWillDispatch(item *structs.FixedDepositWillDispatch) error {
+func (repo *MicroserviceRepository) CreateFixedDepositWillDispatch(ctx context.Context, item *structs.FixedDepositWillDispatch) error {
 	//res := &dto.GetFixedDepositItemResponseMS{}
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
 
 	will, err := repo.GetFixedDepositWillByID(item.WillID)
 
@@ -198,29 +265,39 @@ func (repo *MicroserviceRepository) CreateFixedDepositWillDispatch(item *structs
 		will.Status = "U radu"
 	}
 
-	_, err = repo.UpdateFixedDepositWill(will)
+	_, err = repo.UpdateFixedDepositWill(ctx, will)
 
 	if err != nil {
 		return nil
 	}
 
-	_, err = makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositWillDispatch, item, nil)
+	_, err = makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositWillDispatch, item, nil, header)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (repo *MicroserviceRepository) UpdateFixedDepositWillDispatch(item *structs.FixedDepositWillDispatch) error {
+func (repo *MicroserviceRepository) UpdateFixedDepositWillDispatch(ctx context.Context, item *structs.FixedDepositWillDispatch) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
 	//res := &dto.GetFixedDepositItemResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositWillDispatch+"/"+strconv.Itoa(item.ID), item, nil)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositWillDispatch+"/"+strconv.Itoa(item.ID), item, nil, header)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (repo *MicroserviceRepository) DeleteFixedDepositWillDispatch(id int) error {
+func (repo *MicroserviceRepository) DeleteFixedDepositWillDispatch(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
 	item, err := repo.GetFixedDepositWillDispatchByID(id)
 
 	if err != nil {
@@ -239,13 +316,13 @@ func (repo *MicroserviceRepository) DeleteFixedDepositWillDispatch(id int) error
 		will.Status = "U radu"
 	}
 
-	_, err = repo.UpdateFixedDepositWill(will)
+	_, err = repo.UpdateFixedDepositWill(ctx, will)
 
 	if err != nil {
 		return nil
 	}
 
-	_, err = makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositWillDispatch+"/"+strconv.Itoa(id), nil, nil)
+	_, err = makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositWillDispatch+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -254,6 +331,7 @@ func (repo *MicroserviceRepository) DeleteFixedDepositWillDispatch(id int) error
 }
 
 func (repo *MicroserviceRepository) GetFixedDepositWillDispatchByID(id int) (*structs.FixedDepositWillDispatch, error) {
+
 	res := &dto.GetFixedDepositWillDispatchResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FixedDepositWillDispatch+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {

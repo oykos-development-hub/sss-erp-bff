@@ -1,14 +1,21 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateInternalReallocation(item *structs.InternalReallocation) (*structs.InternalReallocation, error) {
+func (repo *MicroserviceRepository) CreateInternalReallocation(ctx context.Context, item *structs.InternalReallocation) (*structs.InternalReallocation, error) {
 	res := &dto.GetInternalReallocationSingleResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.InternalReallocation, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.InternalReallocation, item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +42,13 @@ func (repo *MicroserviceRepository) GetInternalReallocationList(filter dto.Inter
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) DeleteInternalReallocation(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.InternalReallocation+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteInternalReallocation(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.InternalReallocation+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

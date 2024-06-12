@@ -82,13 +82,13 @@ func (r *Resolver) TaxAuthorityCodebooksInsertResolver(params graphql.ResolvePar
 	if itemID != 0 {
 
 		if data.Code == "" && data.Title == "" {
-			err := r.Repo.DeactivateTaxAuthorityCodebook(itemID, data.Active)
+			err := r.Repo.DeactivateTaxAuthorityCodebook(params.Context, itemID, data.Active)
 
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
 		} else {
-			itemRes, err := r.Repo.UpdateTaxAuthorityCodebook(itemID, &data)
+			itemRes, err := r.Repo.UpdateTaxAuthorityCodebook(params.Context, itemID, &data)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -100,7 +100,7 @@ func (r *Resolver) TaxAuthorityCodebooksInsertResolver(params graphql.ResolvePar
 			response.Item = responseItem
 		}
 	} else {
-		itemRes, err := r.Repo.CreateTaxAuthorityCodebook(&data)
+		itemRes, err := r.Repo.CreateTaxAuthorityCodebook(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}

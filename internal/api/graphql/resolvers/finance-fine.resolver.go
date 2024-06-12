@@ -29,12 +29,12 @@ func (r *Resolver) FineInsertResolver(params graphql.ResolveParams) (interface{}
 	var item *structs.Fine
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreateFine(&data)
+		item, err = r.Repo.CreateFine(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateFine(&data)
+		item, err = r.Repo.UpdateFine(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -112,7 +112,7 @@ func (r *Resolver) FineOverviewResolver(params graphql.ResolveParams) (interface
 func (r *Resolver) FineDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteFine(itemID)
+	err := r.Repo.DeleteFine(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fine item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

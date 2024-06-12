@@ -1,23 +1,35 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateEnforcedPayment(item *structs.EnforcedPayment) (*structs.EnforcedPayment, error) {
+func (repo *MicroserviceRepository) CreateEnforcedPayment(ctx context.Context, item *structs.EnforcedPayment) (*structs.EnforcedPayment, error) {
 	res := &dto.GetEnforcedPaymentResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.EnforcedPayment, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.EnforcedPayment, item, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateEnforcedPayment(item *structs.EnforcedPayment) (*structs.EnforcedPayment, error) {
+func (repo *MicroserviceRepository) UpdateEnforcedPayment(ctx context.Context, item *structs.EnforcedPayment) (*structs.EnforcedPayment, error) {
 	res := &dto.GetEnforcedPaymentResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.EnforcedPayment+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.EnforcedPayment+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +56,13 @@ func (repo *MicroserviceRepository) GetEnforcedPaymentList(filter dto.EnforcedPa
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) ReturnEnforcedPayment(input structs.EnforcedPayment) error {
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ReturnEnforcedPayment+"/"+strconv.Itoa(input.ID), input, nil)
+func (repo *MicroserviceRepository) ReturnEnforcedPayment(ctx context.Context, input structs.EnforcedPayment) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ReturnEnforcedPayment+"/"+strconv.Itoa(input.ID), input, nil, header)
 	if err != nil {
 		return err
 	}

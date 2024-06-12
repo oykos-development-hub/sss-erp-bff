@@ -122,7 +122,7 @@ func (r *Resolver) ExternalReallocationInsertResolver(params graphql.ResolvePara
 
 	var item *structs.ExternalReallocation
 
-	item, err = r.Repo.CreateExternalReallocation(&data)
+	item, err = r.Repo.CreateExternalReallocation(params.Context, &data)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -140,7 +140,7 @@ func (r *Resolver) ExternalReallocationInsertResolver(params graphql.ResolvePara
 func (r *Resolver) ExternalReallocationDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteExternalReallocation(itemID)
+	err := r.Repo.DeleteExternalReallocation(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting internal reallocation failed because of this error - %s.\n", err)
 		return dto.ResponseSingle{
@@ -181,7 +181,7 @@ func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolvePa
 
 	var item *structs.ExternalReallocation
 
-	item, err = r.Repo.AcceptOUExternalReallocation(&data)
+	item, err = r.Repo.AcceptOUExternalReallocation(params.Context, &data)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -199,7 +199,7 @@ func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolvePa
 func (r *Resolver) ExternalReallocationOURejectResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.RejectOUExternalReallocation(itemID)
+	err := r.Repo.RejectOUExternalReallocation(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Reject external reallocation failed because of this error - %s.\n", err)
 		return dto.ResponseSingle{
@@ -216,7 +216,7 @@ func (r *Resolver) ExternalReallocationOURejectResolver(params graphql.ResolvePa
 func (r *Resolver) ExternalReallocationSSSAcceptResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.AcceptSSSExternalReallocation(itemID)
+	err := r.Repo.AcceptSSSExternalReallocation(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Accept external reallocation failed because of this error - %s.\n", err)
 		return dto.ResponseSingle{
@@ -233,7 +233,7 @@ func (r *Resolver) ExternalReallocationSSSAcceptResolver(params graphql.ResolveP
 func (r *Resolver) ExternalReallocationSSSRejectResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.RejectSSSExternalReallocation(itemID)
+	err := r.Repo.RejectSSSExternalReallocation(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Reject external reallocation failed because of this error - %s.\n", err)
 		return dto.ResponseSingle{

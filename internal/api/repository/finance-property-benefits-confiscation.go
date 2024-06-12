@@ -1,14 +1,21 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreatePropBenConf(item *structs.PropBenConf) (*structs.PropBenConf, error) {
+func (repo *MicroserviceRepository) CreatePropBenConf(ctx context.Context, item *structs.PropBenConf) (*structs.PropBenConf, error) {
 	res := &dto.GetPropBenConfResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.PropBenConf, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.PropBenConf, item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +42,13 @@ func (repo *MicroserviceRepository) GetPropBenConfList(input *dto.GetPropBenConf
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) DeletePropBenConf(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.PropBenConf+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeletePropBenConf(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.PropBenConf+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -44,9 +56,14 @@ func (repo *MicroserviceRepository) DeletePropBenConf(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) UpdatePropBenConf(item *structs.PropBenConf) (*structs.PropBenConf, error) {
+func (repo *MicroserviceRepository) UpdatePropBenConf(ctx context.Context, item *structs.PropBenConf) (*structs.PropBenConf, error) {
 	res := &dto.GetPropBenConfResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.PropBenConf+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.PropBenConf+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}

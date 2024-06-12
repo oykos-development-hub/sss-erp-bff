@@ -276,20 +276,20 @@ type MicroserviceRepositoryInterface interface {
 
 	GetLatestVersionOfAccounts() (int, error)
 
-	CreateBudget(budget *structs.Budget) (*structs.Budget, error)
-	UpdateBudget(budget *structs.Budget) (*structs.Budget, error)
+	CreateBudget(ctx context.Context, budget *structs.Budget) (*structs.Budget, error)
+	UpdateBudget(ctx context.Context, budget *structs.Budget) (*structs.Budget, error)
 	GetBudget(id int) (*structs.Budget, error)
 	GetBudgetList(input *dto.GetBudgetListInputMS) ([]structs.Budget, error)
-	DeleteBudget(id int) error
+	DeleteBudget(ctx context.Context, id int) error
 
-	CreateBudgetRequest(budget *structs.BudgetRequest) (*structs.BudgetRequest, error)
-	UpdateBudgetRequest(budget *structs.BudgetRequest) (*structs.BudgetRequest, error)
+	CreateBudgetRequest(ctx context.Context, budget *structs.BudgetRequest) (*structs.BudgetRequest, error)
+	UpdateBudgetRequest(ctx context.Context, budget *structs.BudgetRequest) (*structs.BudgetRequest, error)
 	GetBudgetRequest(id int) (*structs.BudgetRequest, error)
 	GetBudgetRequestList(input *dto.GetBudgetRequestListInputMS) ([]structs.BudgetRequest, error)
 	GetOneBudgetRequest(input *dto.GetBudgetRequestListInputMS) (*structs.BudgetRequest, error)
 
-	UpdateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
-	CreateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
+	UpdateFinancialBudget(ctx context.Context, financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
+	CreateFinancialBudget(ctx context.Context, financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error)
 	GetFinancialBudgetByBudgetID(budgetID int) (*structs.FinancialBudget, error)
 	GetFinancialBudgetByID(id int) (*structs.FinancialBudget, error)
 	GetFilledFinancialBudgetList(input *dto.FilledFinancialBudgetInputMS) ([]structs.FilledFinanceBudget, error)
@@ -300,39 +300,39 @@ type MicroserviceRepositoryInterface interface {
 	UpdateBudgetLimit(budgetLimit *structs.FinancialBudgetLimit) (*structs.FinancialBudgetLimit, error)
 	DeleteBudgetLimit(id int) error
 
-	UpdateNonFinancialBudget(id int, program *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
-	CreateNonFinancialBudget(budget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
-	FillFinancialBudget(budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
-	UpdateFilledFinancialBudget(id int, budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
-	FillActualFinancialBudget(id int, actual decimal.Decimal) (*structs.FilledFinanceBudget, error)
+	UpdateNonFinancialBudget(ctx context.Context, id int, program *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
+	CreateNonFinancialBudget(ctx context.Context, budget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
+	FillFinancialBudget(ctx context.Context, budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
+	UpdateFilledFinancialBudget(ctx context.Context, id int, budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
+	FillActualFinancialBudget(ctx context.Context, id int, actual decimal.Decimal) (*structs.FilledFinanceBudget, error)
 	GetFinancialFilledSummary(budgetID int, reqType structs.RequestType) ([]structs.FilledFinanceBudget, error)
-	DeleteFilledFinancialBudgetData(id int) error
-	DeleteNonFinancialBudget(id int) error
+	DeleteFilledFinancialBudgetData(ctx context.Context, id int) error
+	DeleteNonFinancialBudget(ctx context.Context, id int) error
 	GetNonFinancialBudget(id int) (*structs.NonFinancialBudgetItem, error)
 	GetNonFinancialBudgetList(input *dto.GetNonFinancialBudgetListInputMS) ([]structs.NonFinancialBudgetItem, error)
 	GetNonFinancialBudgetByRequestID(requestID int) (structs.NonFinancialBudgetItem, error)
 
-	UpdateNonFinancialGoal(id int, activity *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error)
-	CreateNonFinancialGoal(goal *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error)
-	DeleteNonFinancialGoal(id int) error
+	UpdateNonFinancialGoal(ctx context.Context, id int, activity *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error)
+	CreateNonFinancialGoal(ctx context.Context, goal *structs.NonFinancialGoalItem) (*structs.NonFinancialGoalItem, error)
+	DeleteNonFinancialGoal(ctx context.Context, id int) error
 	GetNonFinancialGoal(id int) (*structs.NonFinancialGoalItem, error)
 	GetNonFinancialGoalList(input *dto.GetNonFinancialGoalListInputMS) ([]structs.NonFinancialGoalItem, error)
 
-	UpdateNonFinancialGoalIndicator(id int, goalIndicator *structs.NonFinancialGoalIndicatorItem) (*structs.NonFinancialGoalIndicatorItem, error)
-	CreateNonFinancialGoalIndicator(goal *structs.NonFinancialGoalIndicatorItem) (*structs.NonFinancialGoalIndicatorItem, error)
-	DeleteNonFinancialGoalIndicator(id int) error
+	UpdateNonFinancialGoalIndicator(ctx context.Context, id int, goalIndicator *structs.NonFinancialGoalIndicatorItem) (*structs.NonFinancialGoalIndicatorItem, error)
+	CreateNonFinancialGoalIndicator(ctx context.Context, goal *structs.NonFinancialGoalIndicatorItem) (*structs.NonFinancialGoalIndicatorItem, error)
+	DeleteNonFinancialGoalIndicator(ctx context.Context, id int) error
 	GetNonFinancialGoalIndicator(id int) (*structs.NonFinancialGoalIndicatorItem, error)
 	GetNonFinancialGoalIndicatorList(input *dto.GetNonFinancialGoalIndicatorListInputMS) ([]structs.NonFinancialGoalIndicatorItem, error)
 
-	UpdateProgram(id int, program *structs.ProgramItem) (*structs.ProgramItem, error)
-	CreateProgram(program *structs.ProgramItem) (*structs.ProgramItem, error)
-	DeleteProgram(id int) error
+	UpdateProgram(ctx context.Context, id int, program *structs.ProgramItem) (*structs.ProgramItem, error)
+	CreateProgram(ctx context.Context, program *structs.ProgramItem) (*structs.ProgramItem, error)
+	DeleteProgram(ctx context.Context, id int) error
 	GetProgram(id int) (*structs.ProgramItem, error)
 	GetProgramList(input *dto.GetFinanceProgramListInputMS) ([]structs.ProgramItem, error)
 
-	UpdateActivity(id int, activity *structs.ActivitiesItem) (*structs.ActivitiesItem, error)
-	CreateActivity(activity *structs.ActivitiesItem) (*structs.ActivitiesItem, error)
-	DeleteActivity(id int) error
+	UpdateActivity(ctx context.Context, id int, activity *structs.ActivitiesItem) (*structs.ActivitiesItem, error)
+	CreateActivity(ctx context.Context, activity *structs.ActivitiesItem) (*structs.ActivitiesItem, error)
+	DeleteActivity(ctx context.Context, id int) error
 	GetActivity(id int) (*structs.ActivitiesItem, error)
 	GetActivityList(input *dto.GetFinanceActivityListInputMS) ([]structs.ActivitiesItem, error)
 	GetActivityByUnit(organizationUnitID int) (*structs.ActivitiesItem, error)
@@ -349,146 +349,146 @@ type MicroserviceRepositoryInterface interface {
 
 	CreateCurrentBudget(ctx context.Context, currentBudget *structs.CurrentBudget) (*structs.CurrentBudget, error)
 
-	CreateInvoice(item *structs.Invoice) (*structs.Invoice, error)
-	UpdateInvoice(item *structs.Invoice) (*structs.Invoice, error)
+	CreateInvoice(ctx context.Context, item *structs.Invoice) (*structs.Invoice, error)
+	UpdateInvoice(ctx context.Context, item *structs.Invoice) (*structs.Invoice, error)
 	GetInvoice(id int) (*structs.Invoice, error)
 	GetInvoiceList(input *dto.GetInvoiceListInputMS) ([]structs.Invoice, int, error)
 	GetInvoiceArticleList(id int) ([]structs.InvoiceArticles, error)
 	GetAdditionalExpenses(input *dto.AdditionalExpensesListInputMS) ([]structs.AdditionalExpenses, int, error)
-	DeleteInvoice(id int) error
+	DeleteInvoice(ctx context.Context, id int) error
 	DeleteInvoiceArticle(id int) error
 	CreateInvoiceArticle(article *structs.InvoiceArticles) (*structs.InvoiceArticles, error)
 	UpdateInvoiceArticle(item *structs.InvoiceArticles) (*structs.InvoiceArticles, error)
 
 	GetTaxAuthorityCodebookByID(id int) (*structs.TaxAuthorityCodebook, error)
 	GetTaxAuthorityCodebooks(input dto.TaxAuthorityCodebookFilter) (*dto.GetTaxAuthorityCodebooksResponseMS, error)
-	CreateTaxAuthorityCodebook(item *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error)
-	UpdateTaxAuthorityCodebook(id int, data *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error)
-	DeactivateTaxAuthorityCodebook(id int, active bool) error
-	DeleteTaxAuthorityCodebook(id int) error
+	CreateTaxAuthorityCodebook(ctx context.Context, item *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error)
+	UpdateTaxAuthorityCodebook(ctx context.Context, id int, data *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error)
+	DeactivateTaxAuthorityCodebook(ctx context.Context, id int, active bool) error
+	DeleteTaxAuthorityCodebook(ctx context.Context, id int) error
 
-	CreateFee(item *structs.Fee) (*structs.Fee, error)
+	CreateFee(ctx context.Context, item *structs.Fee) (*structs.Fee, error)
 	GetFee(id int) (*structs.Fee, error)
 	GetFeeList(input *dto.GetFeeListInputMS) ([]structs.Fee, int, error)
-	DeleteFee(id int) error
-	UpdateFee(item *structs.Fee) (*structs.Fee, error)
+	DeleteFee(ctx context.Context, id int) error
+	UpdateFee(ctx context.Context, item *structs.Fee) (*structs.Fee, error)
 
-	CreateFeePayment(item *structs.FeePayment) (*structs.FeePayment, error)
+	CreateFeePayment(ctx context.Context, item *structs.FeePayment) (*structs.FeePayment, error)
 	GetFeePayment(id int) (*structs.FeePayment, error)
 	GetFeePaymentList(input *dto.GetFeePaymentListInputMS) ([]structs.FeePayment, int, error)
-	DeleteFeePayment(id int) error
-	UpdateFeePayment(item *structs.FeePayment) (*structs.FeePayment, error)
+	DeleteFeePayment(ctx context.Context, id int) error
+	UpdateFeePayment(ctx context.Context, item *structs.FeePayment) (*structs.FeePayment, error)
 
-	CreateFine(item *structs.Fine) (*structs.Fine, error)
+	CreateFine(ctx context.Context, item *structs.Fine) (*structs.Fine, error)
 	GetFine(id int) (*structs.Fine, error)
 	GetFineList(input *dto.GetFineListInputMS) ([]structs.Fine, int, error)
-	DeleteFine(id int) error
-	UpdateFine(item *structs.Fine) (*structs.Fine, error)
+	DeleteFine(ctx context.Context, id int) error
+	UpdateFine(ctx context.Context, item *structs.Fine) (*structs.Fine, error)
 
-	CreateFinePayment(item *structs.FinePayment) (*structs.FinePayment, error)
+	CreateFinePayment(ctx context.Context, item *structs.FinePayment) (*structs.FinePayment, error)
 	GetFinePayment(id int) (*structs.FinePayment, error)
 	GetFinePaymentList(input *dto.GetFinePaymentListInputMS) ([]structs.FinePayment, int, error)
-	DeleteFinePayment(id int) error
-	UpdateFinePayment(item *structs.FinePayment) (*structs.FinePayment, error)
+	DeleteFinePayment(ctx context.Context, id int) error
+	UpdateFinePayment(ctx context.Context, item *structs.FinePayment) (*structs.FinePayment, error)
 
-	CreateProcedureCost(item *structs.ProcedureCost) (*structs.ProcedureCost, error)
+	CreateProcedureCost(ctx context.Context, item *structs.ProcedureCost) (*structs.ProcedureCost, error)
 	GetProcedureCost(id int) (*structs.ProcedureCost, error)
 	GetProcedureCostList(input *dto.GetProcedureCostListInputMS) ([]structs.ProcedureCost, int, error)
-	DeleteProcedureCost(id int) error
-	UpdateProcedureCost(item *structs.ProcedureCost) (*structs.ProcedureCost, error)
+	DeleteProcedureCost(ctx context.Context, id int) error
+	UpdateProcedureCost(ctx context.Context, item *structs.ProcedureCost) (*structs.ProcedureCost, error)
 
-	CreateProcedureCostPayment(item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error)
+	CreateProcedureCostPayment(ctx context.Context, item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error)
 	GetProcedureCostPayment(id int) (*structs.ProcedureCostPayment, error)
 	GetProcedureCostPaymentList(input *dto.GetProcedureCostPaymentListInputMS) ([]structs.ProcedureCostPayment, int, error)
-	DeleteProcedureCostPayment(id int) error
-	UpdateProcedureCostPayment(item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error)
+	DeleteProcedureCostPayment(ctx context.Context, id int) error
+	UpdateProcedureCostPayment(ctx context.Context, item *structs.ProcedureCostPayment) (*structs.ProcedureCostPayment, error)
 
-	CreateFlatRate(item *structs.FlatRate) (*structs.FlatRate, error)
+	CreateFlatRate(ctx context.Context, item *structs.FlatRate) (*structs.FlatRate, error)
 	GetFlatRate(id int) (*structs.FlatRate, error)
 	GetFlatRateList(input *dto.GetFlatRateListInputMS) ([]structs.FlatRate, int, error)
-	DeleteFlatRate(id int) error
-	UpdateFlatRate(item *structs.FlatRate) (*structs.FlatRate, error)
+	DeleteFlatRate(ctx context.Context, id int) error
+	UpdateFlatRate(ctx context.Context, item *structs.FlatRate) (*structs.FlatRate, error)
 
-	CreateFlatRatePayment(item *structs.FlatRatePayment) (*structs.FlatRatePayment, error)
+	CreateFlatRatePayment(ctx context.Context, item *structs.FlatRatePayment) (*structs.FlatRatePayment, error)
 	GetFlatRatePayment(id int) (*structs.FlatRatePayment, error)
 	GetFlatRatePaymentList(input *dto.GetFlatRatePaymentListInputMS) ([]structs.FlatRatePayment, int, error)
-	DeleteFlatRatePayment(id int) error
-	UpdateFlatRatePayment(item *structs.FlatRatePayment) (*structs.FlatRatePayment, error)
+	DeleteFlatRatePayment(ctx context.Context, id int) error
+	UpdateFlatRatePayment(ctx context.Context, item *structs.FlatRatePayment) (*structs.FlatRatePayment, error)
 
-	CreatePropBenConf(item *structs.PropBenConf) (*structs.PropBenConf, error)
+	CreatePropBenConf(ctx context.Context, item *structs.PropBenConf) (*structs.PropBenConf, error)
 	GetPropBenConf(id int) (*structs.PropBenConf, error)
 	GetPropBenConfList(input *dto.GetPropBenConfListInputMS) ([]structs.PropBenConf, int, error)
-	DeletePropBenConf(id int) error
-	UpdatePropBenConf(item *structs.PropBenConf) (*structs.PropBenConf, error)
+	DeletePropBenConf(ctx context.Context, id int) error
+	UpdatePropBenConf(ctx context.Context, item *structs.PropBenConf) (*structs.PropBenConf, error)
 
-	CreatePropBenConfPayment(item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error)
+	CreatePropBenConfPayment(ctx context.Context, item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error)
 	GetPropBenConfPayment(id int) (*structs.PropBenConfPayment, error)
 	GetPropBenConfPaymentList(input *dto.GetPropBenConfPaymentListInputMS) ([]structs.PropBenConfPayment, int, error)
-	DeletePropBenConfPayment(id int) error
-	UpdatePropBenConfPayment(item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error)
+	DeletePropBenConfPayment(ctx context.Context, id int) error
+	UpdatePropBenConfPayment(ctx context.Context, item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error)
 
-	CreateFixedDeposit(item *structs.FixedDeposit) (*structs.FixedDeposit, error)
-	DeleteFixedDeposit(id int) error
-	UpdateFixedDeposit(item *structs.FixedDeposit) (*structs.FixedDeposit, error)
+	CreateFixedDeposit(ctx context.Context, item *structs.FixedDeposit) (*structs.FixedDeposit, error)
+	DeleteFixedDeposit(ctx context.Context, id int) error
+	UpdateFixedDeposit(ctx context.Context, item *structs.FixedDeposit) (*structs.FixedDeposit, error)
 	GetFixedDepositByID(id int) (*structs.FixedDeposit, error)
 	GetFixedDepositList(input dto.FixedDepositFilter) ([]structs.FixedDeposit, int, error)
 
-	CreateFixedDepositWill(item *structs.FixedDepositWill) (*structs.FixedDepositWill, error)
-	DeleteFixedDepositWill(id int) error
-	UpdateFixedDepositWill(item *structs.FixedDepositWill) (*structs.FixedDepositWill, error)
+	CreateFixedDepositWill(ctx context.Context, item *structs.FixedDepositWill) (*structs.FixedDepositWill, error)
+	DeleteFixedDepositWill(ctx context.Context, id int) error
+	UpdateFixedDepositWill(ctx context.Context, item *structs.FixedDepositWill) (*structs.FixedDepositWill, error)
 	GetFixedDepositWillByID(id int) (*structs.FixedDepositWill, error)
 	GetFixedDepositWillList(input dto.FixedDepositWillFilter) ([]structs.FixedDepositWill, int, error)
 
-	CreateFixedDepositItem(item *structs.FixedDepositItem) error
-	UpdateFixedDepositItem(item *structs.FixedDepositItem) error
-	DeleteFixedDepositItem(id int) error
-	CreateFixedDepositDispatch(item *structs.FixedDepositDispatch) error
-	UpdateFixedDepositDispatch(item *structs.FixedDepositDispatch) error
-	DeleteFixedDepositDispatch(id int) error
+	CreateFixedDepositItem(ctx context.Context, item *structs.FixedDepositItem) error
+	UpdateFixedDepositItem(ctx context.Context, item *structs.FixedDepositItem) error
+	DeleteFixedDepositItem(ctx context.Context, id int) error
+	CreateFixedDepositDispatch(ctx context.Context, item *structs.FixedDepositDispatch) error
+	UpdateFixedDepositDispatch(ctx context.Context, item *structs.FixedDepositDispatch) error
+	DeleteFixedDepositDispatch(ctx context.Context, id int) error
 	CreateFixedDepositJudge(item *structs.FixedDepositJudge) error
 	UpdateFixedDepositJudge(item *structs.FixedDepositJudge) error
 	DeleteFixedDepositJudge(id int) error
-	CreateFixedDepositWillDispatch(item *structs.FixedDepositWillDispatch) error
-	UpdateFixedDepositWillDispatch(item *structs.FixedDepositWillDispatch) error
-	DeleteFixedDepositWillDispatch(id int) error
+	CreateFixedDepositWillDispatch(ctx context.Context, item *structs.FixedDepositWillDispatch) error
+	UpdateFixedDepositWillDispatch(ctx context.Context, item *structs.FixedDepositWillDispatch) error
+	DeleteFixedDepositWillDispatch(ctx context.Context, id int) error
 
-	CreateSalary(item *structs.Salary) (*structs.Salary, error)
-	DeleteSalary(id int) error
-	UpdateSalary(item *structs.Salary) (*structs.Salary, error)
+	CreateSalary(ctx context.Context, item *structs.Salary) (*structs.Salary, error)
+	DeleteSalary(ctx context.Context, id int) error
+	UpdateSalary(ctx context.Context, item *structs.Salary) (*structs.Salary, error)
 	GetSalaryByID(id int) (*structs.Salary, error)
 	GetSalaryList(input dto.SalaryFilter) ([]structs.Salary, int, error)
 
-	CreateDepositPayment(item *structs.DepositPayment) (*structs.DepositPayment, error)
-	DeleteDepositPayment(id int) error
-	UpdateDepositPayment(item *structs.DepositPayment) (*structs.DepositPayment, error)
+	CreateDepositPayment(ctx context.Context, item *structs.DepositPayment) (*structs.DepositPayment, error)
+	DeleteDepositPayment(ctx context.Context, id int) error
+	UpdateDepositPayment(ctx context.Context, item *structs.DepositPayment) (*structs.DepositPayment, error)
 	GetDepositPaymentByID(id int) (*structs.DepositPayment, error)
 	GetDepositPaymentList(input dto.DepositPaymentFilter) ([]structs.DepositPayment, int, error)
 	GetInitialState(input dto.DepositInitialStateFilter) ([]structs.DepositPayment, error)
 	GetDepositPaymentCaseNumber(caseNumber string, bankAccount string) (*structs.DepositPayment, error)
 	GetCaseNumber(organizationUnitID int, bankAccount string) ([]structs.DepositPayment, error)
 
-	CreateDepositPaymentOrder(item *structs.DepositPaymentOrder) (*structs.DepositPaymentOrder, error)
-	DeleteDepositPaymentOrder(id int) error
-	UpdateDepositPaymentOrder(item *structs.DepositPaymentOrder) (*structs.DepositPaymentOrder, error)
+	CreateDepositPaymentOrder(ctx context.Context, item *structs.DepositPaymentOrder) (*structs.DepositPaymentOrder, error)
+	DeleteDepositPaymentOrder(ctx context.Context, id int) error
+	UpdateDepositPaymentOrder(ctx context.Context, item *structs.DepositPaymentOrder) (*structs.DepositPaymentOrder, error)
 	GetDepositPaymentOrderByID(id int) (*structs.DepositPaymentOrder, error)
 	GetDepositPaymentOrderList(input dto.DepositPaymentOrderFilter) ([]structs.DepositPaymentOrder, int, error)
 	GetDepositPaymentAdditionalExpenses(input *dto.DepositPaymentAdditionalExpensesListInputMS) ([]structs.DepositPaymentAdditionalExpenses, int, error)
-	PayDepositPaymentOrder(input structs.DepositPaymentOrder) error
+	PayDepositPaymentOrder(ctx context.Context, input structs.DepositPaymentOrder) error
 
-	CreatePaymentOrder(item *structs.PaymentOrder) (*structs.PaymentOrder, error)
-	DeletePaymentOrder(id int) error
-	UpdatePaymentOrder(item *structs.PaymentOrder) (*structs.PaymentOrder, error)
+	CreatePaymentOrder(ctx context.Context, item *structs.PaymentOrder) (*structs.PaymentOrder, error)
+	DeletePaymentOrder(ctx context.Context, id int) error
+	UpdatePaymentOrder(ctx context.Context, item *structs.PaymentOrder) (*structs.PaymentOrder, error)
 	GetPaymentOrderByID(id int) (*structs.PaymentOrder, error)
 	GetPaymentOrderList(input dto.PaymentOrderFilter) ([]structs.PaymentOrder, int, error)
 	GetAllObligations(input dto.ObligationsFilter) ([]dto.Obligation, int, error)
-	PayPaymentOrder(input structs.PaymentOrder) error
-	CancelPaymentOrder(id int) error
+	PayPaymentOrder(ctx context.Context, input structs.PaymentOrder) error
+	CancelPaymentOrder(ctx context.Context, id int) error
 
-	CreateEnforcedPayment(item *structs.EnforcedPayment) (*structs.EnforcedPayment, error)
-	UpdateEnforcedPayment(item *structs.EnforcedPayment) (*structs.EnforcedPayment, error)
+	CreateEnforcedPayment(ctx context.Context, item *structs.EnforcedPayment) (*structs.EnforcedPayment, error)
+	UpdateEnforcedPayment(ctx context.Context, item *structs.EnforcedPayment) (*structs.EnforcedPayment, error)
 	GetEnforcedPaymentByID(id int) (*structs.EnforcedPayment, error)
 	GetEnforcedPaymentList(input dto.EnforcedPaymentFilter) ([]structs.EnforcedPayment, int, error)
-	ReturnEnforcedPayment(input structs.EnforcedPayment) error
+	ReturnEnforcedPayment(ctx context.Context, input structs.EnforcedPayment) error
 
 	GetAllObligationsForAccounting(input dto.ObligationsFilter) ([]dto.ObligationForAccounting, int, error)
 	GetAllPaymentOrdersForAccounting(input dto.ObligationsFilter) ([]dto.PaymentOrdersForAccounting, int, error)
@@ -496,28 +496,28 @@ type MicroserviceRepositoryInterface interface {
 	GetAllReturnedEnforcedPaymentsForAccounting(input dto.ObligationsFilter) ([]dto.PaymentOrdersForAccounting, int, error)
 	BuildAccountingOrderForObligations(data structs.AccountingOrderForObligationsData) (*dto.AccountingOrderForObligations, error)
 
-	UpdateModelsOfAccounting(item *structs.ModelsOfAccounting) (*structs.ModelsOfAccounting, error)
+	UpdateModelsOfAccounting(ctx context.Context, item *structs.ModelsOfAccounting) (*structs.ModelsOfAccounting, error)
 	GetModelsOfAccountingByID(id int) (*structs.ModelsOfAccounting, error)
 	GetModelsOfAccountingList(input dto.ModelsOfAccountingFilter) ([]structs.ModelsOfAccounting, int, error)
 
-	CreateAccountingEntry(item *structs.AccountingEntry) (*structs.AccountingEntry, error)
-	DeleteAccountingEntry(id int) error
+	CreateAccountingEntry(ctx context.Context, item *structs.AccountingEntry) (*structs.AccountingEntry, error)
+	DeleteAccountingEntry(ctx context.Context, id int) error
 	GetAccountingEntryByID(id int) (*structs.AccountingEntry, error)
 	GetAccountingEntryList(input dto.AccountingEntryFilter) ([]structs.AccountingEntry, int, error)
 
 	GetAnalyticalCard(input dto.AnalyticalCardFilter) ([]structs.AnalyticalCard, error)
 
-	CreateInternalReallocation(item *structs.InternalReallocation) (*structs.InternalReallocation, error)
-	DeleteInternalReallocation(id int) error
+	CreateInternalReallocation(ctx context.Context, item *structs.InternalReallocation) (*structs.InternalReallocation, error)
+	DeleteInternalReallocation(ctx context.Context, id int) error
 	GetInternalReallocationByID(id int) (*structs.InternalReallocation, error)
 	GetInternalReallocationList(input dto.InternalReallocationFilter) ([]structs.InternalReallocation, int, error)
 
-	CreateExternalReallocation(item *structs.ExternalReallocation) (*structs.ExternalReallocation, error)
-	DeleteExternalReallocation(id int) error
+	CreateExternalReallocation(ctx context.Context, item *structs.ExternalReallocation) (*structs.ExternalReallocation, error)
+	DeleteExternalReallocation(ctx context.Context, id int) error
 	GetExternalReallocationByID(id int) (*structs.ExternalReallocation, error)
 	GetExternalReallocationList(input dto.ExternalReallocationFilter) ([]structs.ExternalReallocation, int, error)
-	AcceptOUExternalReallocation(item *structs.ExternalReallocation) (*structs.ExternalReallocation, error)
-	RejectOUExternalReallocation(id int) error
-	AcceptSSSExternalReallocation(id int) error
-	RejectSSSExternalReallocation(id int) error
+	AcceptOUExternalReallocation(ctx context.Context, item *structs.ExternalReallocation) (*structs.ExternalReallocation, error)
+	RejectOUExternalReallocation(ctx context.Context, id int) error
+	AcceptSSSExternalReallocation(ctx context.Context, id int) error
+	RejectSSSExternalReallocation(ctx context.Context, id int) error
 }

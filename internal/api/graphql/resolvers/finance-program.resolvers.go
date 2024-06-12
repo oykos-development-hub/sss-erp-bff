@@ -162,7 +162,7 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 	itemID := data.ID
 
 	if itemID != 0 {
-		item, err := r.Repo.UpdateProgram(itemID, &data)
+		item, err := r.Repo.UpdateProgram(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -175,7 +175,7 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 		response.Message = "You updated this item!"
 		response.Item = resItem
 	} else {
-		item, err := r.Repo.CreateProgram(&data)
+		item, err := r.Repo.CreateProgram(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -195,7 +195,7 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 func (r *Resolver) ProgramDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteProgram(itemID)
+	err := r.Repo.DeleteProgram(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting program item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

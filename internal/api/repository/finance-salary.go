@@ -1,23 +1,35 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateSalary(item *structs.Salary) (*structs.Salary, error) {
+func (repo *MicroserviceRepository) CreateSalary(ctx context.Context, item *structs.Salary) (*structs.Salary, error) {
 	res := &dto.GetSalaryResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Salary, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Salary, item, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateSalary(item *structs.Salary) (*structs.Salary, error) {
+func (repo *MicroserviceRepository) UpdateSalary(ctx context.Context, item *structs.Salary) (*structs.Salary, error) {
 	res := &dto.GetSalaryResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Salary+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Salary+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +56,13 @@ func (repo *MicroserviceRepository) GetSalaryList(filter dto.SalaryFilter) ([]st
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) DeleteSalary(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.Salary+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteSalary(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.Salary+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

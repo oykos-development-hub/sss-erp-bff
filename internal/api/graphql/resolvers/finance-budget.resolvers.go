@@ -165,7 +165,7 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 			BudgetType: data.BudgetType,
 			Status:     structs.BudgetCreatedStatus,
 		}
-		budget, err := r.Repo.CreateBudget(&budgetToCreate)
+		budget, err := r.Repo.CreateBudget(params.Context, &budgetToCreate)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -175,7 +175,7 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 			return errors.HandleAPIError(err)
 		}
 
-		_, err = r.Repo.CreateFinancialBudget(&structs.FinancialBudget{
+		_, err = r.Repo.CreateFinancialBudget(params.Context, &structs.FinancialBudget{
 			AccountVersion: accountLatestVersion,
 			BudgetID:       budget.ID,
 		})
@@ -285,7 +285,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.RequestTypeGeneral,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		generalRequest, err := r.Repo.CreateBudgetRequest(generalRequestToCreate)
+		generalRequest, err := r.Repo.CreateBudgetRequest(params.Context, generalRequestToCreate)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetSendResolver: error creating general request type"))
 		}
@@ -297,7 +297,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.RequestTypeNonFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		_, err = r.Repo.CreateBudgetRequest(nonFinancialRequestToCreate)
+		_, err = r.Repo.CreateBudgetRequest(params.Context, nonFinancialRequestToCreate)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -309,7 +309,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.RequestTypeFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		financialRequest, err := r.Repo.CreateBudgetRequest(financialRequestToCreate)
+		financialRequest, err := r.Repo.CreateBudgetRequest(params.Context, financialRequestToCreate)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetSendResolver: error creating financial request type"))
 		}
@@ -321,7 +321,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.RequestTypeCurrentFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		_, err = r.Repo.CreateBudgetRequest(currentFinancialRequestToCreate)
+		_, err = r.Repo.CreateBudgetRequest(params.Context, currentFinancialRequestToCreate)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -333,14 +333,14 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.RequestTypeDonationFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		_, err = r.Repo.CreateBudgetRequest(donationFinancialRequestToCreate)
+		_, err = r.Repo.CreateBudgetRequest(params.Context, donationFinancialRequestToCreate)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	}
 
 	budget.Status = structs.BudgetSentStatus
-	updatedBudget, err := r.Repo.UpdateBudget(budget)
+	updatedBudget, err := r.Repo.UpdateBudget(params.Context, budget)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
@@ -386,7 +386,7 @@ func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (int
 
 	for _, request := range requests {
 		request.Status = structs.BudgetRequestSentOnReviewStatus
-		_, err := r.Repo.UpdateBudgetRequest(&request)
+		_, err := r.Repo.UpdateBudgetRequest(params.Context, &request)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -416,19 +416,19 @@ func (r *Resolver) BudgetRequestRejectResolver(params graphql.ResolveParams) (in
 	}
 
 	request.Comment = params.Args["comment"].(string)
-	_, err = r.Repo.UpdateBudgetRequest(request)
+	_, err = r.Repo.UpdateBudgetRequest(params.Context, request)
 	if err != nil {
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestRejectResolver: update budget request"))
 	}
 
 	switch request.RequestType {
 	case structs.RequestTypeFinancial:
-		err := r.rejectFinancialRequest(request)
+		err := r.rejectFinancialRequest(params.Context, request)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestRejectResolver"))
 		}
 	case structs.RequestTypeNonFinancial:
-		err := r.rejectNonFinancialRequest(request)
+		err := r.rejectNonFinancialRequest(params.Context, request)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestRejectResolver"))
 		}
@@ -442,7 +442,7 @@ func (r *Resolver) BudgetRequestRejectResolver(params graphql.ResolveParams) (in
 	}
 
 	generalRequest.Status = structs.BudgetRequestRejectedStatus
-	_, err = r.Repo.UpdateBudgetRequest(generalRequest)
+	_, err = r.Repo.UpdateBudgetRequest(params.Context, generalRequest)
 	if err != nil {
 		return errors.HandleAPPError(errors.Wrap(err, "BudgetRequestAcceptResolver"))
 	}
@@ -453,7 +453,7 @@ func (r *Resolver) BudgetRequestRejectResolver(params graphql.ResolveParams) (in
 	}, nil
 }
 
-func (r *Resolver) rejectFinancialRequest(request *structs.BudgetRequest) error {
+func (r *Resolver) rejectFinancialRequest(ctx context.Context, request *structs.BudgetRequest) error {
 	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
 		OrganizationUnitID: &request.OrganizationUnitID,
 		BudgetID:           &request.BudgetID,
@@ -469,7 +469,7 @@ func (r *Resolver) rejectFinancialRequest(request *structs.BudgetRequest) error 
 
 	for _, req := range requests {
 		req.Status = structs.BudgetRequestRejectedStatus
-		_, err := r.Repo.UpdateBudgetRequest(&req)
+		_, err := r.Repo.UpdateBudgetRequest(ctx, &req)
 		if err != nil {
 			return errors.Wrap(err, "rejectFinancialRequest: error updating financial request")
 		}
@@ -487,7 +487,7 @@ func (r *Resolver) rejectFinancialRequest(request *structs.BudgetRequest) error 
 
 	if nonFinancialRequest.Status != structs.BudgetRequestRejectedStatus {
 		nonFinancialRequest.Status = structs.BudgetRequestFilledStatus
-		_, err = r.Repo.UpdateBudgetRequest(nonFinancialRequest)
+		_, err = r.Repo.UpdateBudgetRequest(ctx, nonFinancialRequest)
 		if err != nil {
 			return errors.Wrap(err, "rejectFinancialRequest: error updating non financial request")
 		}
@@ -496,9 +496,9 @@ func (r *Resolver) rejectFinancialRequest(request *structs.BudgetRequest) error 
 	return nil
 }
 
-func (r *Resolver) rejectNonFinancialRequest(request *structs.BudgetRequest) error {
+func (r *Resolver) rejectNonFinancialRequest(ctx context.Context, request *structs.BudgetRequest) error {
 	request.Status = structs.BudgetRequestRejectedStatus
-	_, err := r.Repo.UpdateBudgetRequest(request)
+	_, err := r.Repo.UpdateBudgetRequest(ctx, request)
 	if err != nil {
 		return errors.Wrap(err, "rejectNonFinancialRequest: error updating non-financial request")
 	}
@@ -519,7 +519,7 @@ func (r *Resolver) rejectNonFinancialRequest(request *structs.BudgetRequest) err
 	for _, req := range financialRequests {
 		if req.Status != structs.BudgetRequestRejectedStatus {
 			req.Status = structs.BudgetRequestFilledStatus
-			_, err := r.Repo.UpdateBudgetRequest(&req)
+			_, err := r.Repo.UpdateBudgetRequest(ctx, &req)
 			if err != nil {
 				return errors.Wrap(err, "rejectNonFinancialRequest: error updating financial request")
 			}
@@ -547,12 +547,12 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 
 	switch request.RequestType {
 	case structs.RequestTypeFinancial:
-		err := r.acceptFinancialRequest(request)
+		err := r.acceptFinancialRequest(params.Context, request)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
 		}
 	case structs.RequestTypeNonFinancial:
-		err := r.acceptNonFinancialRequest(request)
+		err := r.acceptNonFinancialRequest(params.Context, request)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
 		}
@@ -582,7 +582,7 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 
 		generalRequest.Status = structs.BudgetRequestAcceptedStatus
 
-		_, err = r.Repo.UpdateBudgetRequest(generalRequest)
+		_, err = r.Repo.UpdateBudgetRequest(params.Context, generalRequest)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver: error updating parent budget request"))
 		}
@@ -612,7 +612,7 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 		}
 
 		budget.Status = structs.BudgetAcceptedStatus
-		_, err = r.Repo.UpdateBudget(budget)
+		_, err = r.Repo.UpdateBudget(params.Context, budget)
 		if err != nil {
 			return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
 		}
@@ -633,7 +633,7 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 
 		for _, req := range financialRequests {
 			req.Status = structs.BudgetRequestWaitingForActual
-			_, err = r.Repo.UpdateBudgetRequest(&req)
+			_, err = r.Repo.UpdateBudgetRequest(params.Context, &req)
 			if err != nil {
 				return errors.HandleAPPError(errors.WrapInternalServerError(err, "BudgetRequestAcceptResolver"))
 			}
@@ -646,7 +646,7 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 	}, nil
 }
 
-func (r *Resolver) acceptFinancialRequest(request *structs.BudgetRequest) error {
+func (r *Resolver) acceptFinancialRequest(ctx context.Context, request *structs.BudgetRequest) error {
 	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
 		OrganizationUnitID: &request.OrganizationUnitID,
 		BudgetID:           &request.BudgetID,
@@ -662,7 +662,7 @@ func (r *Resolver) acceptFinancialRequest(request *structs.BudgetRequest) error 
 
 	for _, req := range requests {
 		req.Status = structs.BudgetRequestAcceptedStatus
-		_, err := r.Repo.UpdateBudgetRequest(&req)
+		_, err := r.Repo.UpdateBudgetRequest(ctx, &req)
 		if err != nil {
 			return errors.Wrap(err, "acceptFinancialRequest: error updating financial request")
 		}
@@ -671,9 +671,9 @@ func (r *Resolver) acceptFinancialRequest(request *structs.BudgetRequest) error 
 	return nil
 }
 
-func (r *Resolver) acceptNonFinancialRequest(request *structs.BudgetRequest) error {
+func (r *Resolver) acceptNonFinancialRequest(ctx context.Context, request *structs.BudgetRequest) error {
 	request.Status = structs.BudgetRequestAcceptedStatus
-	_, err := r.Repo.UpdateBudgetRequest(request)
+	_, err := r.Repo.UpdateBudgetRequest(ctx, request)
 	if err != nil {
 		return errors.Wrap(err, "acceptFinancialRequest: error updating non-financial request")
 	}
@@ -684,7 +684,7 @@ func (r *Resolver) acceptNonFinancialRequest(request *structs.BudgetRequest) err
 func (r *Resolver) BudgetDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteBudget(itemID)
+	err := r.Repo.DeleteBudget(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting budget item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

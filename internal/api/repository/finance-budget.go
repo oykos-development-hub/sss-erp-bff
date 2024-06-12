@@ -1,27 +1,39 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
+	"context"
 	"fmt"
 	"strconv"
 
 	"github.com/shopspring/decimal"
 )
 
-func (repo *MicroserviceRepository) CreateBudget(budgetItem *structs.Budget) (*structs.Budget, error) {
+func (repo *MicroserviceRepository) CreateBudget(ctx context.Context, budgetItem *structs.Budget) (*structs.Budget, error) {
 	res := &dto.GetBudgetResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Budget, budgetItem, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Budget, budgetItem, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateBudget(item *structs.Budget) (*structs.Budget, error) {
+func (repo *MicroserviceRepository) UpdateBudget(ctx context.Context, item *structs.Budget) (*structs.Budget, error) {
 	res := &dto.GetBudgetResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +60,13 @@ func (repo *MicroserviceRepository) GetBudget(id int) (*structs.Budget, error) {
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteBudget(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteBudget(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -57,18 +74,28 @@ func (repo *MicroserviceRepository) DeleteBudget(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error) {
+func (repo *MicroserviceRepository) CreateFinancialBudget(ctx context.Context, financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error) {
 	res := &dto.GetFinancialBudgetResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FinancialBudget, financialBudget, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FinancialBudget, financialBudget, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateFinancialBudget(financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error) {
+func (repo *MicroserviceRepository) UpdateFinancialBudget(ctx context.Context, financialBudget *structs.FinancialBudget) (*structs.FinancialBudget, error) {
 	res := &dto.GetFinancialBudgetResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FinancialBudget+"/"+strconv.Itoa(financialBudget.ID), financialBudget, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FinancialBudget+"/"+strconv.Itoa(financialBudget.ID), financialBudget, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +114,7 @@ func (repo *MicroserviceRepository) GetFinancialBudgetByBudgetID(id int) (*struc
 
 func (repo *MicroserviceRepository) CreateBudgetLimit(budgetLimit *structs.FinancialBudgetLimit) (*structs.FinancialBudgetLimit, error) {
 	res := &dto.GetFinancialBudgetLimitResponseMS{}
+
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FinancialBudgetLimit, budgetLimit, res)
 	if err != nil {
 		return nil, err
@@ -163,36 +191,56 @@ func (repo *MicroserviceRepository) GetFinancialBudgetByID(id int) (*structs.Fin
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) FillFinancialBudget(data *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error) {
+func (repo *MicroserviceRepository) FillFinancialBudget(ctx context.Context, data *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error) {
 	res := &dto.GetFilledFinancialBudgetResponseItemMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FilledFinancialBudget, data, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FilledFinancialBudget, data, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateFilledFinancialBudget(id int, data *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error) {
+func (repo *MicroserviceRepository) UpdateFilledFinancialBudget(ctx context.Context, id int, data *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error) {
 	res := &dto.GetFilledFinancialBudgetResponseItemMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id), data, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
 		return nil, err
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) FillActualFinancialBudget(id int, actual decimal.Decimal) (*structs.FilledFinanceBudget, error) {
+func (repo *MicroserviceRepository) FillActualFinancialBudget(ctx context.Context, id int, actual decimal.Decimal) (*structs.FilledFinanceBudget, error) {
 	data := &dto.FillActualFinanceBudgetInput{Actual: actual}
 	res := &dto.GetFilledFinancialBudgetResponseItemMS{}
-	_, err := makeAPIRequest("PATCH", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id)+"/actual", data, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PATCH", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id)+"/actual", data, res, header)
 	if err != nil {
 		return nil, errors.WrapMicroserviceError(err, "FillActualFinancialBudget")
 	}
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteFilledFinancialBudgetData(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteFilledFinancialBudgetData(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

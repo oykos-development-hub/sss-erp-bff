@@ -29,12 +29,12 @@ func (r *Resolver) PropBenConfInsertResolver(params graphql.ResolveParams) (inte
 	var item *structs.PropBenConf
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreatePropBenConf(&data)
+		item, err = r.Repo.CreatePropBenConf(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdatePropBenConf(&data)
+		item, err = r.Repo.UpdatePropBenConf(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -109,7 +109,7 @@ func (r *Resolver) PropBenConfOverviewResolver(params graphql.ResolveParams) (in
 func (r *Resolver) PropBenConfDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeletePropBenConf(itemID)
+	err := r.Repo.DeletePropBenConf(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting property benefit confiscation item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

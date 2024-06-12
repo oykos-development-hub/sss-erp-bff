@@ -1,13 +1,16 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
 func (repo *MicroserviceRepository) GetAllObligationsForAccounting(input dto.ObligationsFilter) ([]dto.ObligationForAccounting, int, error) {
 	res := &dto.GetObligationsForAccountingResponseMS{}
+
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetObligationsForAccounting, input, res)
 	if err != nil {
 		return nil, 0, err
@@ -56,9 +59,14 @@ func (repo *MicroserviceRepository) BuildAccountingOrderForObligations(data stru
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateAccountingEntry(item *structs.AccountingEntry) (*structs.AccountingEntry, error) {
+func (repo *MicroserviceRepository) CreateAccountingEntry(ctx context.Context, item *structs.AccountingEntry) (*structs.AccountingEntry, error) {
 	res := &dto.GetAccountingEntryResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.AccountingEntry, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.AccountingEntry, item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -85,8 +93,13 @@ func (repo *MicroserviceRepository) GetAccountingEntryList(filter dto.Accounting
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) DeleteAccountingEntry(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.AccountingEntry+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteAccountingEntry(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.AccountingEntry+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}

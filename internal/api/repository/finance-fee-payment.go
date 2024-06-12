@@ -1,14 +1,21 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateFeePayment(item *structs.FeePayment) (*structs.FeePayment, error) {
+func (repo *MicroserviceRepository) CreateFeePayment(ctx context.Context, item *structs.FeePayment) (*structs.FeePayment, error) {
 	res := &dto.GetFeePaymentResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FeePayment, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FeePayment, item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +42,13 @@ func (repo *MicroserviceRepository) GetFeePaymentList(input *dto.GetFeePaymentLi
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) DeleteFeePayment(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FeePayment+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteFeePayment(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FeePayment+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -44,9 +56,14 @@ func (repo *MicroserviceRepository) DeleteFeePayment(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) UpdateFeePayment(item *structs.FeePayment) (*structs.FeePayment, error) {
+func (repo *MicroserviceRepository) UpdateFeePayment(ctx context.Context, item *structs.FeePayment) (*structs.FeePayment, error) {
 	res := &dto.GetFeePaymentResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FeePayment+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FeePayment+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}

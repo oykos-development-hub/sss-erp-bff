@@ -29,12 +29,12 @@ func (r *Resolver) ProcedureCostInsertResolver(params graphql.ResolveParams) (in
 	var item *structs.ProcedureCost
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreateProcedureCost(&data)
+		item, err = r.Repo.CreateProcedureCost(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateProcedureCost(&data)
+		item, err = r.Repo.UpdateProcedureCost(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -109,7 +109,7 @@ func (r *Resolver) ProcedureCostOverviewResolver(params graphql.ResolveParams) (
 func (r *Resolver) ProcedureCostDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteProcedureCost(itemID)
+	err := r.Repo.DeleteProcedureCost(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting procedure cost item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

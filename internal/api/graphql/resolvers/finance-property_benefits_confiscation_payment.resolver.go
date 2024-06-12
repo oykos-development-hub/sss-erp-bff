@@ -29,12 +29,12 @@ func (r *Resolver) PropBenConfPaymentInsertResolver(params graphql.ResolveParams
 	var item *structs.PropBenConfPayment
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreatePropBenConfPayment(&data)
+		item, err = r.Repo.CreatePropBenConfPayment(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdatePropBenConfPayment(&data)
+		item, err = r.Repo.UpdatePropBenConfPayment(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -103,7 +103,7 @@ func (r *Resolver) PropBenConfPaymentOverviewResolver(params graphql.ResolvePara
 func (r *Resolver) PropBenConfPaymentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeletePropBenConfPayment(itemID)
+	err := r.Repo.DeletePropBenConfPayment(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting property benefit confiscation payment item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

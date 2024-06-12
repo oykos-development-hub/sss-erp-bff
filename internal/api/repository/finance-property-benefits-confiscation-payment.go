@@ -1,14 +1,21 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreatePropBenConfPayment(item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error) {
+func (repo *MicroserviceRepository) CreatePropBenConfPayment(ctx context.Context, item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error) {
 	res := &dto.GetPropBenConfPaymentResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.PropBenConfPayment, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.PropBenConfPayment, item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -17,6 +24,7 @@ func (repo *MicroserviceRepository) CreatePropBenConfPayment(item *structs.PropB
 
 func (repo *MicroserviceRepository) GetPropBenConfPayment(id int) (*structs.PropBenConfPayment, error) {
 	res := &dto.GetPropBenConfPaymentResponseMS{}
+
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.PropBenConfPayment+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
 		return nil, err
@@ -35,8 +43,13 @@ func (repo *MicroserviceRepository) GetPropBenConfPaymentList(input *dto.GetProp
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) DeletePropBenConfPayment(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.PropBenConfPayment+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeletePropBenConfPayment(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.PropBenConfPayment+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -44,9 +57,14 @@ func (repo *MicroserviceRepository) DeletePropBenConfPayment(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) UpdatePropBenConfPayment(item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error) {
+func (repo *MicroserviceRepository) UpdatePropBenConfPayment(ctx context.Context, item *structs.PropBenConfPayment) (*structs.PropBenConfPayment, error) {
 	res := &dto.GetPropBenConfPaymentResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.PropBenConfPayment+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.PropBenConfPayment+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}

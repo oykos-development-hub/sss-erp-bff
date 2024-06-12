@@ -1,14 +1,21 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateTaxAuthorityCodebook(data *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error) {
+func (repo *MicroserviceRepository) CreateTaxAuthorityCodebook(ctx context.Context, data *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error) {
 	res := &dto.GetTaxAuthorityCodebookResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.TaxAuthorityCodebook, data, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.TaxAuthorityCodebook, data, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -16,8 +23,13 @@ func (repo *MicroserviceRepository) CreateTaxAuthorityCodebook(data *structs.Tax
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteTaxAuthorityCodebook(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.TaxAuthorityCodebook+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteTaxAuthorityCodebook(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.TaxAuthorityCodebook+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -25,9 +37,14 @@ func (repo *MicroserviceRepository) DeleteTaxAuthorityCodebook(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) UpdateTaxAuthorityCodebook(id int, data *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error) {
+func (repo *MicroserviceRepository) UpdateTaxAuthorityCodebook(ctx context.Context, id int, data *structs.TaxAuthorityCodebook) (*structs.TaxAuthorityCodebook, error) {
 	res := &dto.GetTaxAuthorityCodebookResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.TaxAuthorityCodebook+"/"+strconv.Itoa(id), data, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.TaxAuthorityCodebook+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -35,11 +52,16 @@ func (repo *MicroserviceRepository) UpdateTaxAuthorityCodebook(id int, data *str
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeactivateTaxAuthorityCodebook(id int, active bool) error {
+func (repo *MicroserviceRepository) DeactivateTaxAuthorityCodebook(ctx context.Context, id int, active bool) error {
 	data := structs.TaxAuthorityCodebook{
 		Active: active,
 	}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.DeactivateTaxAuthorityCodebook+"/"+strconv.Itoa(id), data, nil)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.DeactivateTaxAuthorityCodebook+"/"+strconv.Itoa(id), data, nil, header)
 	if err != nil {
 		return err
 	}

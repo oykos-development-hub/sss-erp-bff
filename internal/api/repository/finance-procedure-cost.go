@@ -1,14 +1,21 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
+	"context"
 	"strconv"
 )
 
-func (repo *MicroserviceRepository) CreateProcedureCost(item *structs.ProcedureCost) (*structs.ProcedureCost, error) {
+func (repo *MicroserviceRepository) CreateProcedureCost(ctx context.Context, item *structs.ProcedureCost) (*structs.ProcedureCost, error) {
 	res := &dto.GetProcedureCostResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.ProcedureCost, item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.ProcedureCost, item, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +42,13 @@ func (repo *MicroserviceRepository) GetProcedureCostList(input *dto.GetProcedure
 	return res.Data, res.Total, nil
 }
 
-func (repo *MicroserviceRepository) DeleteProcedureCost(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.ProcedureCost+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteProcedureCost(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.ProcedureCost+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -44,9 +56,14 @@ func (repo *MicroserviceRepository) DeleteProcedureCost(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) UpdateProcedureCost(item *structs.ProcedureCost) (*structs.ProcedureCost, error) {
+func (repo *MicroserviceRepository) UpdateProcedureCost(ctx context.Context, item *structs.ProcedureCost) (*structs.ProcedureCost, error) {
 	res := &dto.GetProcedureCostResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ProcedureCost+"/"+strconv.Itoa(item.ID), item, res)
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ProcedureCost+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
 		return nil, err
 	}

@@ -120,7 +120,7 @@ func (r *Resolver) InternalReallocationInsertResolver(params graphql.ResolvePara
 
 	var item *structs.InternalReallocation
 
-	item, err = r.Repo.CreateInternalReallocation(&data)
+	item, err = r.Repo.CreateInternalReallocation(params.Context, &data)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -138,7 +138,7 @@ func (r *Resolver) InternalReallocationInsertResolver(params graphql.ResolvePara
 func (r *Resolver) InternalReallocationDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteInternalReallocation(itemID)
+	err := r.Repo.DeleteInternalReallocation(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting internal reallocation failed because of this error - %s.\n", err)
 		return dto.ResponseSingle{

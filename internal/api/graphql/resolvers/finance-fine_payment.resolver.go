@@ -29,12 +29,12 @@ func (r *Resolver) FinePaymentInsertResolver(params graphql.ResolveParams) (inte
 	var item *structs.FinePayment
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreateFinePayment(&data)
+		item, err = r.Repo.CreateFinePayment(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateFinePayment(&data)
+		item, err = r.Repo.UpdateFinePayment(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -104,7 +104,7 @@ func (r *Resolver) FinePaymentOverviewResolver(params graphql.ResolveParams) (in
 func (r *Resolver) FinePaymentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteFinePayment(itemID)
+	err := r.Repo.DeleteFinePayment(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fine payment item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

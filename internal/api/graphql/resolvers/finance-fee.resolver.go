@@ -29,12 +29,12 @@ func (r *Resolver) FeeInsertResolver(params graphql.ResolveParams) (interface{},
 	var item *structs.Fee
 
 	if data.ID == 0 {
-		item, err = r.Repo.CreateFee(&data)
+		item, err = r.Repo.CreateFee(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	} else {
-		item, err = r.Repo.UpdateFee(&data)
+		item, err = r.Repo.UpdateFee(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -112,7 +112,7 @@ func (r *Resolver) FeeOverviewResolver(params graphql.ResolveParams) (interface{
 func (r *Resolver) FeeDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteFee(itemID)
+	err := r.Repo.DeleteFee(params.Context, itemID)
 	if err != nil {
 		fmt.Printf("Deleting fee item failed because of this error - %s.\n", err)
 		return fmt.Errorf("error deleting the id"), nil

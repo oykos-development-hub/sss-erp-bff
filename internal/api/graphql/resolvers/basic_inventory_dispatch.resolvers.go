@@ -100,7 +100,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 	}
 
 	if data.ID != 0 {
-		itemRes, err := r.Repo.UpdateDispatchItem(data.ID, &data)
+		itemRes, err := r.Repo.UpdateDispatchItem(params.Context, data.ID, &data)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}
@@ -112,7 +112,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 		}
 	} else {
 		if data.Type != "convert" {
-			itemRes, err := r.Repo.CreateDispatchItem(&data)
+			itemRes, err := r.Repo.CreateDispatchItem(params.Context, &data)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
@@ -156,7 +156,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 				FileID:                   data.FileID,
 			}
 
-			_, err := r.Repo.CreateDispatchItem(&input)
+			_, err := r.Repo.CreateDispatchItem(params.Context, &input)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
@@ -171,7 +171,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 				item.IsExternalDonation = false
 				item.DonationFiles = append(item.DonationFiles, data.DonationFiles...)
 
-				_, err = r.Repo.UpdateInventoryItem(itemID, item)
+				_, err = r.Repo.UpdateInventoryItem(params.Context, itemID, item)
 
 				if err != nil {
 					return apierrors.HandleAPIError(err)
@@ -310,7 +310,7 @@ func (r *Resolver) BasicInventoryDispatchDeleteResolver(params graphql.ResolvePa
 		}
 	}
 
-	err = r.Repo.DeleteInventoryDispatch(itemID)
+	err = r.Repo.DeleteInventoryDispatch(params.Context, itemID)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -359,7 +359,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 			item.TargetOrganizationUnitID = dispatch.TargetOrganizationUnitID
 
 			if item.TargetOrganizationUnitID != 0 {
-				_, err = r.Repo.UpdateInventoryItem(item.ID, item)
+				_, err = r.Repo.UpdateInventoryItem(params.Context, item.ID, item)
 				if err != nil {
 					return apierrors.HandleAPIError(err)
 				}
@@ -369,7 +369,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 		if dispatch.Type == "return-revers" {
 			item.TargetOrganizationUnitID = 0
 
-			_, err = r.Repo.UpdateInventoryItem(item.ID, item)
+			_, err = r.Repo.UpdateInventoryItem(params.Context, item.ID, item)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
@@ -378,7 +378,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 	}
 	//currentDate := time.Now()
 	//dispatch.Date = currentDate.Format("2006-01-02T15:04:05.999999Z07:00")
-	_, err = r.Repo.UpdateDispatchItem(dispatch.ID, dispatch)
+	_, err = r.Repo.UpdateDispatchItem(params.Context, dispatch.ID, dispatch)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}

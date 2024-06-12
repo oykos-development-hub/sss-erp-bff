@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
+	"context"
 	"fmt"
 	"strconv"
 )
@@ -31,10 +33,15 @@ func (repo *MicroserviceRepository) GetMyInventoryDispatchesItems(filter *dto.Di
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error) {
+func (repo *MicroserviceRepository) CreateDispatchItem(ctx context.Context, item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error) {
 	res := dto.GetBasicInventoryDispatch{}
 
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Dispatch, item, &res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Dispatch, item, &res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +89,7 @@ func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInvent
 				inventory.TargetUserProfileID = targetUserProfileID
 				inventory.OfficeID = OfficeID
 
-				_, err = repo.UpdateInventoryItem(inventory.ID, inventory)
+				_, err = repo.UpdateInventoryItem(ctx, inventory.ID, inventory)
 				if err != nil {
 					return nil, err
 				}
@@ -110,7 +117,7 @@ func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInvent
 				inventory.TargetUserProfileID = 0
 				inventory.OfficeID = office.Data[0].ID
 
-				_, err = repo.UpdateInventoryItem(inventory.ID, inventory)
+				_, err = repo.UpdateInventoryItem(ctx, inventory.ID, inventory)
 				if err != nil {
 					return nil, err
 				}
@@ -126,10 +133,15 @@ func (repo *MicroserviceRepository) CreateDispatchItem(item *structs.BasicInvent
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateDispatchItem(id int, item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error) {
+func (repo *MicroserviceRepository) UpdateDispatchItem(ctx context.Context, id int, item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error) {
 	dispatch := dto.GetBasicInventoryDispatch{}
 
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(id), item, &dispatch)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(id), item, &dispatch, header)
 	if err != nil {
 		return nil, err
 	}
@@ -165,8 +177,14 @@ func (repo *MicroserviceRepository) UpdateDispatchItem(id int, item *structs.Bas
 	return dispatch.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteInventoryDispatch(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteInventoryDispatch(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -204,9 +222,15 @@ func (repo *MicroserviceRepository) GetDispatchItemByID(id int) (*structs.BasicI
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateAssessments(data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error) {
+func (repo *MicroserviceRepository) CreateAssessments(ctx context.Context, data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error) {
 	res := &dto.AssessmentResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Assessments, data, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Assessments, data, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -214,9 +238,15 @@ func (repo *MicroserviceRepository) CreateAssessments(data *structs.BasicInvento
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateAssessments(id int, data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error) {
+func (repo *MicroserviceRepository) UpdateAssessments(ctx context.Context, id int, data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error) {
 	res := &dto.AssessmentResponseMS{}
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Assessments+"/"+strconv.Itoa(id), data, res)
+
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Assessments+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -224,8 +254,13 @@ func (repo *MicroserviceRepository) UpdateAssessments(id int, data *structs.Basi
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) DeleteAssessment(id int) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.Assessments+"/"+strconv.Itoa(id), nil, nil)
+func (repo *MicroserviceRepository) DeleteAssessment(ctx context.Context, id int) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.Assessments+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return err
 	}
@@ -233,10 +268,15 @@ func (repo *MicroserviceRepository) DeleteAssessment(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) CreateInventoryItem(item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error) {
+func (repo *MicroserviceRepository) CreateInventoryItem(ctx context.Context, item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error) {
 	res := dto.GetBasicInventoryInsertItem{}
 
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Item, item, &res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Item, item, &res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -252,11 +292,16 @@ func (repo *MicroserviceRepository) CreateInventoryItem(item *structs.BasicInven
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) UpdateInventoryItem(id int, item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error) {
+func (repo *MicroserviceRepository) UpdateInventoryItem(ctx context.Context, id int, item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error) {
 	res := dto.GetBasicInventoryInsertItem{}
 	res1 := dto.GetBasicInventoryInsertItem{}
 
-	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Item+"/"+strconv.Itoa(id), item, &res)
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Item+"/"+strconv.Itoa(id), item, &res, header)
 	if err != nil {
 		return nil, err
 	}

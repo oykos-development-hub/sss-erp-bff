@@ -16,8 +16,8 @@ type MicroserviceRepositoryInterface interface {
 	CreateAbsent(ctx context.Context, absent *structs.Absent) (*structs.Absent, error)
 	CreateAbsentType(absent *structs.AbsentType) (*structs.AbsentType, error)
 	CreateAccountItemList(ctx context.Context, accountItemList []structs.AccountItem) ([]*structs.AccountItem, error)
-	CreateAssessments(data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error)
-	CreateDispatchItem(item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error)
+	CreateAssessments(ctx context.Context, data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error)
+	CreateDispatchItem(ctx context.Context, item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error)
 	CreateDispatchItemItem(item *structs.BasicInventoryDispatchItemsItem) (*structs.BasicInventoryDispatchItemsItem, error)
 	CreateDropdownSettings(data *structs.SettingsDropdown) (*structs.SettingsDropdown, error)
 	CreateEmployeeContract(ctx context.Context, contract *structs.Contracts) (*structs.Contracts, error)
@@ -28,7 +28,7 @@ type MicroserviceRepositoryInterface interface {
 	CreateEmployeeSalaryParams(ctx context.Context, salaries *structs.SalaryParams) (*structs.SalaryParams, error)
 	CreateEmployeesInOrganizationUnits(data *structs.EmployeesInOrganizationUnits) (*structs.EmployeesInOrganizationUnits, error)
 	CreateExperience(contract *structs.Experience) (*structs.Experience, error)
-	CreateInventoryItem(item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error)
+	CreateInventoryItem(ctx context.Context, item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error)
 	CreateJobPositions(ctx context.Context, data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error)
 	CreateJobPositionsInOrganizationUnits(data *structs.JobPositionsInOrganizationUnits) (*dto.GetJobPositionInOrganizationUnitsResponseMS, error)
 	CreateJobTender(ctx context.Context, jobTender *structs.JobTenders) (*structs.JobTenders, error)
@@ -70,7 +70,7 @@ type MicroserviceRepositoryInterface interface {
 	DeleteAbsent(ctx context.Context, id int) error
 	DeleteAbsentType(id int) error
 	DeleteAccount(ctx context.Context, id int) error
-	DeleteAssessment(id int) error
+	DeleteAssessment(ctx context.Context, id int) error
 	DeleteDropdownSettings(id int) error
 	DeleteEmployeeContract(ctx context.Context, id int) error
 	DeleteEmployeeEducation(id int) error
@@ -81,7 +81,7 @@ type MicroserviceRepositoryInterface interface {
 	DeleteExperience(id int) error
 	DeleteFile(id int) error
 	DeleteForeigner(id int) error
-	DeleteInventoryDispatch(id int) error
+	DeleteInventoryDispatch(ctx context.Context, id int) error
 	DeleteJJudgeResolutionOrganizationUnit(id int) error
 	DeleteJobPositions(ctx context.Context, id int) error
 	DeleteJobPositionsInOrganizationUnits(id int) error
@@ -227,8 +227,8 @@ type MicroserviceRepositoryInterface interface {
 	UpdateAbsent(ctx context.Context, id int, absent *structs.Absent) (*structs.Absent, error)
 	UpdateAbsentType(id int, absent *structs.AbsentType) (*structs.AbsentType, error)
 	UpdateAccountItem(ctx context.Context, id int, accountItem *structs.AccountItem) (*structs.AccountItem, error)
-	UpdateAssessments(id int, data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error)
-	UpdateDispatchItem(id int, item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error)
+	UpdateAssessments(ctx context.Context, id int, data *structs.BasicInventoryAssessmentsTypesItem) (*structs.BasicInventoryAssessmentsTypesItem, error)
+	UpdateDispatchItem(ctx context.Context, id int, item *structs.BasicInventoryDispatchItem) (*structs.BasicInventoryDispatchItem, error)
 	UpdateDropdownSettings(id int, data *structs.SettingsDropdown) (*structs.SettingsDropdown, error)
 	UpdateEmployeeContract(ctx context.Context, id int, contract *structs.Contracts) (*structs.Contracts, error)
 	UpdateEmployeeEducation(id int, education *structs.Education) (*structs.Education, error)
@@ -237,7 +237,7 @@ type MicroserviceRepositoryInterface interface {
 	UpdateEmployeeForeigner(id int, foreigner *structs.Foreigners) (*structs.Foreigners, error)
 	UpdateEmployeeSalaryParams(ctx context.Context, id int, salaries *structs.SalaryParams) (*structs.SalaryParams, error)
 	UpdateExperience(id int, contract *structs.Experience) (*structs.Experience, error)
-	UpdateInventoryItem(id int, item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error)
+	UpdateInventoryItem(ctx context.Context, id int, item *structs.BasicInventoryInsertItem) (*structs.BasicInventoryInsertItem, error)
 	UpdateJobPositions(ctx context.Context, id int, data *structs.JobPositions) (*dto.GetJobPositionResponseMS, error)
 	UpdateJobPositionsInOrganizationUnits(data *structs.JobPositionsInOrganizationUnits) (*dto.GetJobPositionInOrganizationUnitsResponseMS, error)
 	UpdateJobTender(ctx context.Context, id int, jobTender *structs.JobTenders) (*structs.JobTenders, error)

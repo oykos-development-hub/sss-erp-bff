@@ -23,12 +23,12 @@ func (r *Resolver) BasicInventoryAssessmentsInsertResolver(params graphql.Resolv
 
 	itemID := data.ID
 	if itemID != 0 {
-		assessmentResponse, err = r.Repo.UpdateAssessments(itemID, &data)
+		assessmentResponse, err = r.Repo.UpdateAssessments(params.Context, itemID, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
 	} else {
-		assessmentResponse, err = r.Repo.CreateAssessments(&data)
+		assessmentResponse, err = r.Repo.CreateAssessments(params.Context, &data)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
@@ -57,7 +57,7 @@ func (r *Resolver) BasicEXCLInventoryAssessmentsInsertResolver(params graphql.Re
 	_ = json.Unmarshal(dataBytes, &dataArr)
 	if len(dataArr) > 0 {
 		for _, data := range dataArr {
-			assessmentResponse, err = r.Repo.CreateAssessments(&data)
+			assessmentResponse, err = r.Repo.CreateAssessments(params.Context, &data)
 			if err != nil {
 				return errors.HandleAPIError(err)
 			}
@@ -85,7 +85,7 @@ func (r *Resolver) BasicEXCLInventoryAssessmentsInsertResolver(params graphql.Re
 func (r *Resolver) BasicInventoryAssessmentDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
 	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteAssessment(itemID)
+	err := r.Repo.DeleteAssessment(params.Context, itemID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}

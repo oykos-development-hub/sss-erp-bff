@@ -175,7 +175,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 		item.OrganizationUnitID = *organizationUnitID
 		if item.ID != 0 {
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
-			itemRes, err := r.Repo.UpdateInventoryItem(item.ID, &item)
+			itemRes, err := r.Repo.UpdateInventoryItem(params.Context, item.ID, &item)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
@@ -191,7 +191,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 		} else {
 			item.ArticleID = item.ContractArticleID
 			item.OrganizationUnitID = *organizationUnitID
-			itemRes, err := r.Repo.CreateInventoryItem(&item)
+			itemRes, err := r.Repo.CreateInventoryItem(params.Context, &item)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
@@ -245,7 +245,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 				Type:                 "financial",
 			}
 
-			_, err = r.Repo.CreateAssessments(&assessment)
+			_, err = r.Repo.CreateAssessments(params.Context, &assessment)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
@@ -259,7 +259,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 				OfficeID:                 item.OfficeID,
 			}
 
-			_, err = r.Repo.CreateDispatchItem(&dispatch)
+			_, err = r.Repo.CreateDispatchItem(params.Context, &dispatch)
 			if err != nil {
 				return apierrors.HandleAPIError(err)
 			}
@@ -368,7 +368,7 @@ func (r *Resolver) BasicInventoryDeactivateResolver(params graphql.ResolveParams
 			item.DeactivationFileID = fileID
 		}
 
-		_, err = r.Repo.UpdateInventoryItem(id, item)
+		_, err = r.Repo.UpdateInventoryItem(params.Context, id, item)
 		if err != nil {
 			return apierrors.HandleAPIError(err)
 		}

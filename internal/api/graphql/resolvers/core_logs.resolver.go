@@ -65,7 +65,7 @@ func (r *Resolver) LogsOverviewResolver(params graphql.ResolveParams) (interface
 		input.Entity = &value
 	}
 
-	items, err := r.Repo.GetLogs(input)
+	items, total, err := r.Repo.GetLogs(input)
 	if err != nil {
 		return apierrors.HandleAPIError(err)
 	}
@@ -84,6 +84,7 @@ func (r *Resolver) LogsOverviewResolver(params graphql.ResolveParams) (interface
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
+		Total:   int(total),
 		Items:   resItems,
 	}, nil
 }

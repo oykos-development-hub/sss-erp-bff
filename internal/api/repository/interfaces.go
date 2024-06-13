@@ -525,5 +525,5 @@ type MicroserviceRepositoryInterface interface {
 	RejectSSSExternalReallocation(ctx context.Context, id int) error
 
 	GetLog(entity config.Module, id int) (*structs.Logs, error)
-	GetLogs(filter dto.LogFilterDTO) ([]structs.Logs, error)
+	GetLogs(filter dto.LogFilterDTO) ([]structs.Logs, int, error)
 }

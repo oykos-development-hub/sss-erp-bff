@@ -32,7 +32,8 @@ type LogFilterDTO struct {
 }
 
 type GetLogResponseListMS struct {
-	Data []structs.Logs `json:"data"`
+	Data  []structs.Logs `json:"data"`
+	Total int            `json:"total"`
 }
 
 type GetLogResponseMS struct {

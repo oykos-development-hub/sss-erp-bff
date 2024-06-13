@@ -454,7 +454,7 @@ func LoadDefaultConfig() (*Config, error) {
 				RejectOUExternalReallocation:             financeBase + "/reject-ou-external-reallocations",
 				AcceptSSSExternalReallocation:            financeBase + "/accept-sss-external-reallocations",
 				RejectSSSExternalReallocation:            financeBase + "/reject-sss-external-reallocations",
-				GetCurrentBudgetByOrganizationUnit:       financeBase + "/get-acctual-current-budget",
+				GetCurrentBudgetByOrganizationUnit:       financeBase + "/get-actual-current-budget",
 				Logs:                                     financeBase + "/logs",
 			},
 		},

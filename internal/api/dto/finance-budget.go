@@ -284,8 +284,8 @@ type CurrentBudgetResponse struct {
 	BudgetID       int             `json:"budget_id"`
 	UnitID         int             `json:"unit_id"`
 	Account        DropdownSimple  `json:"account"`
-	InititalActual decimal.Decimal `json:"actual"`
-	Actual         decimal.Decimal `json:"spending_dynamic_id"`
+	InititalActual decimal.Decimal `json:"initial_actual"`
+	Actual         decimal.Decimal `json:"actual"`
 	Balance        decimal.Decimal `json:"balance"`
 	CreatedAt      time.Time       `json:"created_at"`
 }

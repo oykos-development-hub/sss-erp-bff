@@ -601,13 +601,13 @@ var CurrentBudgetAccountType = graphql.NewObject(graphql.ObjectConfig{
 			Type: DropdownItemType,
 		},
 		"actual": &graphql.Field{
-			Type: graphql.String,
+			Type: decimalType,
 		},
 		"balance": &graphql.Field{
-			Type: graphql.String,
+			Type: decimalType,
 		},
 		"initial_actual": &graphql.Field{
-			Type: graphql.String,
+			Type: decimalType,
 		},
 	},
 })

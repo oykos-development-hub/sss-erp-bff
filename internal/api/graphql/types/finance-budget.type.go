@@ -48,7 +48,9 @@ var BudgetLimitType = graphql.NewObject(graphql.ObjectConfig{
 
 var (
 	accountWithFilledDataType          *graphql.Object
+	currentBudgetAccountDataType       *graphql.Object
 	onceInitalizeAccountWithFilledData sync.Once
+	onceInitalizeCurrentBudgetAccounts sync.Once
 )
 
 func GetAccountWithFilledDataType() *graphql.Object {
@@ -84,6 +86,47 @@ var FilledAccountData = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+func GetCurrentBudgetAccounts() *graphql.Object {
+	onceInitalizeCurrentBudgetAccounts.Do(func() {
+		initCurrentBudgetAccounts()
+	})
+	return currentBudgetAccountDataType
+}
+
+func initCurrentBudgetAccounts() {
+	currentBudgetAccountDataType = graphql.NewObject(graphql.ObjectConfig{
+		Name: "CurrentBudgetAccounts",
+		Fields: graphql.FieldsThunk(func() graphql.Fields {
+			return graphql.Fields{
+				"id": &graphql.Field{
+					Type: graphql.Int,
+				},
+				"parent_id": &graphql.Field{
+					Type: graphql.Int,
+				},
+				"serial_number": &graphql.Field{
+					Type: graphql.String,
+				},
+				"title": &graphql.Field{
+					Type: graphql.String,
+				},
+				"filled_data": &graphql.Field{
+					Type: CurrentBudgetAccountType,
+				},
+				"children": &graphql.Field{
+					Type: graphql.NewList(currentBudgetAccountDataType),
+					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+						if accountItem, ok := p.Source.(*dto.CurrentBudgetAccounts); ok {
+							return accountItem.Children, nil
+						}
+						return nil, nil
+					},
+				},
+			}
+		}),
+	})
+}
 
 func initAccountWithFilledDataType() {
 	accountWithFilledDataType = graphql.NewObject(graphql.ObjectConfig{
@@ -246,7 +289,7 @@ var CurrentBudgetOverviewType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"items": &graphql.Field{
-			Type: graphql.NewList(CurrentBudgetType),
+			Type: CurrentBudgetType,
 		},
 	},
 })
@@ -535,6 +578,18 @@ var FinancialBudgetSummaryType = graphql.NewObject(graphql.ObjectConfig{
 
 var CurrentBudgetType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "CurrentBudgetType",
+	Fields: graphql.Fields{
+		"current_accounts": &graphql.Field{
+			Type: graphql.NewList(GetCurrentBudgetAccounts()),
+		},
+		"budget_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+	},
+})
+
+var CurrentBudgetAccountType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "CurrentBudgetAccountType",
 	Fields: graphql.Fields{
 		"id": &graphql.Field{
 			Type: graphql.Int,

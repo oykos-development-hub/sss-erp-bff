@@ -32,12 +32,12 @@ func (r *Resolver) CurrentBudgetMockResolver(params graphql.ResolveParams) (inte
 		for _, unit := range units.Data {
 			for _, account := range accounts.Data {
 				_, err := r.Repo.CreateCurrentBudget(params.Context, &structs.CurrentBudget{
-					BudgetID:       budget.ID,
-					UnitID:         unit.ID,
-					AccountID:      account.ID,
-					InititalActual: decimal.NewFromFloat(1200),
-					Actual:         decimal.NewFromFloat(1200),
-					Balance:        decimal.Zero,
+					BudgetID:      budget.ID,
+					UnitID:        unit.ID,
+					AccountID:     account.ID,
+					InitialActual: decimal.NewFromFloat(1200),
+					Actual:        decimal.NewFromFloat(1200),
+					Balance:       decimal.Zero,
 				})
 				if err != nil {
 					return errors.HandleAPIError(err)

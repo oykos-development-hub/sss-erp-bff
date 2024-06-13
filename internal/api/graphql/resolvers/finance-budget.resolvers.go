@@ -907,51 +907,85 @@ func (r *Resolver) FinancialBudgetSummary(params graphql.ResolveParams) (interfa
 func (r *Resolver) CurrentBudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
 	organizationUnitID, _ := params.Args["organization_unit_id"].(int)
 
-	var items []dto.CurrentBudgetResponse
+	var items []*dto.CurrentBudgetAccounts
 
-	budget, err := r.Repo.GetCurrentBudgetByOrganizationUnit(organizationUnitID)
+	currentBudgetItems, err := r.Repo.GetCurrentBudgetByOrganizationUnit(organizationUnitID)
 	if err != nil {
 		return errors.HandleAPIError(err)
 	}
 
-	for _, item := range budget {
-		budgetResItem, err := buildCurrentBudgetResponseItem(r.Repo, item)
+	accountVersion := 0
+
+	if len(currentBudgetItems) > 0 && currentBudgetItems[0].AccountID != 0 {
+		accountID, err := r.Repo.GetAccountItemByID(currentBudgetItems[0].AccountID)
 		if err != nil {
 			return errors.HandleAPIError(err)
 		}
+		accountVersion = accountID.Version
+	}
 
-		items = append(items, *budgetResItem)
+	if accountVersion != 0 {
+		items, err = buildCurrentBudget(r, accountVersion, currentBudgetItems)
+
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+	}
+
+	response := dto.CurrentBudgetAccountsResponse{
+		CurrentAccounts: items,
 	}
 
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",
-		Items:   items,
+		Items:   response,
 	}, nil
 }
 
-func buildCurrentBudgetResponseItem(r repository.MicroserviceRepositoryInterface, budget structs.CurrentBudget) (*dto.CurrentBudgetResponse, error) {
+func buildCurrentBudget(r *Resolver, accountVersion int, currentBudgetItems []structs.CurrentBudget) ([]*dto.CurrentBudgetAccounts, error) {
 
-	response := dto.CurrentBudgetResponse{
-		BudgetID:       budget.BudgetID,
-		InititalActual: budget.InititalActual,
-		Actual:         budget.Actual,
-		Balance:        budget.Balance,
+	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+		Version: &accountVersion,
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
-	if budget.AccountID != 0 {
-		account, err := r.GetAccountItemByID(budget.AccountID)
+	accountMap := make(map[int]*dto.CurrentBudgetAccounts)
 
-		if err != nil {
-			return nil, err
+	// Inicijalizacija mape konta
+	for _, account := range accounts.Data {
+		accountMap[account.ID] = &dto.CurrentBudgetAccounts{
+			ID:           account.ID,
+			Title:        account.Title,
+			ParentID:     account.ParentID,
+			SerialNumber: account.SerialNumber,
+			Children:     []*dto.CurrentBudgetAccounts{},
 		}
-
-		response.Account = dto.DropdownSimple{
-			ID:    account.ID,
-			Title: account.SerialNumber + " - " + account.Title,
-		}
-
 	}
 
-	return &response, nil
+	// Popunjavanje mape
+	for _, budget := range currentBudgetItems {
+		if accountNode, exists := accountMap[budget.AccountID]; exists {
+			accountNode.FilledFinanceBudget = dto.CurrentBudgetResponse{
+				InititalActual: budget.InitialActual,
+				Actual:         budget.Actual,
+				Balance:        budget.Balance,
+			}
+		}
+	}
+
+	// Kreiranje stabla
+	var rootNodes []*dto.CurrentBudgetAccounts
+	for _, account := range accounts.Data {
+		if account.ParentID == nil {
+			rootNodes = append(rootNodes, accountMap[account.ID])
+		} else if parentAccount, exists := accountMap[*account.ParentID]; exists {
+			parentAccount.Children = append(parentAccount.Children, accountMap[account.ID])
+		}
+	}
+
+	return rootNodes, nil
 }

@@ -211,6 +211,20 @@ type AccountWithFilledFinanceBudget struct {
 	FilledFinanceBudget *structs.FilledFinanceBudget      `json:"filled_data"`
 }
 
+type CurrentBudgetAccounts struct {
+	ID                  int                      `json:"id"`
+	Title               string                   `json:"title"`
+	ParentID            *int                     `json:"parent_id"`
+	SerialNumber        string                   `json:"serial_number"`
+	Children            []*CurrentBudgetAccounts `json:"children"`
+	FilledFinanceBudget CurrentBudgetResponse    `json:"filled_data"`
+}
+
+type CurrentBudgetAccountsResponse struct {
+	CurrentAccounts []*CurrentBudgetAccounts `json:"current_accounts"`
+	BudgetID        int                      `json:"budget_id"`
+}
+
 type FilledFinancialBudgetInputMS struct {
 	BudgetRequestID int   `json:"budget_request_id"`
 	Accounts        []int `json:"accounts"`

@@ -520,11 +520,11 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 				}
 
 				_, err = r.Repo.CreateCurrentBudget(params.Context, &structs.CurrentBudget{
-					BudgetID:       req.BudgetID,
-					UnitID:         req.OrganizationUnitID,
-					AccountID:      account.ID,
-					InititalActual: actual.Decimal,
-					Actual:         actual.Decimal,
+					BudgetID:      req.BudgetID,
+					UnitID:        req.OrganizationUnitID,
+					AccountID:     account.ID,
+					InitialActual: actual.Decimal,
+					Actual:        actual.Decimal,
 				})
 				if err != nil {
 					return errors.HandleAPPError(errors.WrapInternalServerError(err, "create current budgets"))

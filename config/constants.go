@@ -1,6 +1,7 @@
 package config
 
 type ContextKey string
+type Module string
 
 const (
 	HTTPResponseWriterKey ContextKey = "httpResponseWriter"
@@ -40,4 +41,11 @@ const (
 	TitlePaymentOrder          string = "Nalozi za plaćanje"
 	TitleEnforcedPayment       string = "Prinudna naplate"
 	TitleReturnEnforcedPayment string = "Povraćaji prinudne naplate"
+
+	ModuleCore         Module = "CORE"
+	ModuleHR           Module = "HR"
+	ModuleInventory    Module = "INVENTORY"
+	ModuleAccounting   Module = "ACCOUNTING"
+	ModuleProcurements Module = "PROCUREMENTS"
+	ModuleFinance      Module = "FINANCE"
 )

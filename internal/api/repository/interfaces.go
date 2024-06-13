@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/structs"
 	"context"
@@ -522,4 +523,7 @@ type MicroserviceRepositoryInterface interface {
 	RejectOUExternalReallocation(ctx context.Context, id int) error
 	AcceptSSSExternalReallocation(ctx context.Context, id int) error
 	RejectSSSExternalReallocation(ctx context.Context, id int) error
+
+	GetLog(entity config.Module, id int) (*structs.Logs, error)
+	GetLogs(filter dto.LogFilterDTO) ([]structs.Logs, error)
 }

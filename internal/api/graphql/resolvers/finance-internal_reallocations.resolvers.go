@@ -110,12 +110,12 @@ func (r *Resolver) InternalReallocationInsertResolver(params graphql.ResolvePara
 	}
 
 	if data.RequestedBy == 0 {
-		userProfileID, ok := params.Context.Value(config.LoggedInProfileKey).(*int)
-		if !ok || userProfileID == nil {
+		userProfile, ok := params.Context.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
+		if !ok || userProfile == nil {
 			return apierrors.HandleAPIError(fmt.Errorf("error during checking user profile id"))
 		}
 
-		data.RequestedBy = *userProfileID
+		data.RequestedBy = userProfile.ID
 	}
 
 	var item *structs.InternalReallocation

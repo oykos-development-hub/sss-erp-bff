@@ -128,6 +128,7 @@ type FinanceMS struct {
 	AcceptSSSExternalReallocation            string
 	RejectSSSExternalReallocation            string
 	GetCurrentBudgetByOrganizationUnit       string
+	Logs                                     string
 }
 
 type ProcurementMS struct {
@@ -140,6 +141,7 @@ type ProcurementMS struct {
 	ContractArticle         string
 	ContractArticleOverage  string
 	OrganizationUnitArticle string
+	Logs                    string
 }
 
 type CoreMS struct {
@@ -159,6 +161,7 @@ type CoreMS struct {
 	ForgotPassword string
 	ValidateMail   string
 	ResetPassword  string
+	Logs           string
 }
 
 type HrMS struct {
@@ -196,6 +199,7 @@ type HrMS struct {
 	Revisors                        string
 	RevisionRevisors                string
 	RevisionOrgUnit                 string
+	Logs                            string
 }
 
 type AccountingMS struct {
@@ -207,6 +211,7 @@ type AccountingMS struct {
 	MovementReport           string
 	MovementArticles         string
 	Stock                    string
+	Logs                     string
 }
 
 type InventoryMS struct {
@@ -218,6 +223,7 @@ type InventoryMS struct {
 	DispatchItems  string
 	ItemsInOrgUnit string
 	ItemsReport    string
+	Logs           string
 }
 
 type FilesMS struct {
@@ -316,6 +322,7 @@ func LoadDefaultConfig() (*Config, error) {
 				Revisors:                        hrBase + "/get-revisors",
 				RevisionRevisors:                hrBase + "/revision-revisors",
 				RevisionOrgUnit:                 hrBase + "/revisions-in-organization-units",
+				Logs:                            hrBase + "/logs",
 			},
 			Core: CoreMS{
 				Base:           coreBase,
@@ -334,6 +341,7 @@ func LoadDefaultConfig() (*Config, error) {
 				ForgotPassword: coreBase + "/users/password/forgot",
 				ValidateMail:   coreBase + "/users/password/validate-email",
 				ResetPassword:  coreBase + "/users/password/reset",
+				Logs:           coreBase + "/logs",
 			},
 			Procurements: ProcurementMS{
 				Base:                    procurementsBase,
@@ -345,6 +353,7 @@ func LoadDefaultConfig() (*Config, error) {
 				OULimits:                procurementsBase + "/organization-unit-plan-limits",
 				OrganizationUnitArticle: procurementsBase + "/organization-unit-articles",
 				ContractArticleOverage:  procurementsBase + "/contract-article-overages",
+				Logs:                    procurementsBase + "/logs",
 			},
 			Inventory: InventoryMS{
 				Base:           inventoryBase,
@@ -355,6 +364,7 @@ func LoadDefaultConfig() (*Config, error) {
 				DispatchItems:  inventoryBase + "/dispatch-items",
 				ItemsInOrgUnit: inventoryBase + "/items-in-organization-unit",
 				ItemsReport:    inventoryBase + "/items-for-item-list-report",
+				Logs:           inventoryBase + "/logs",
 			},
 			Files: FilesMS{
 				Base:                filesBase,
@@ -372,6 +382,7 @@ func LoadDefaultConfig() (*Config, error) {
 				MovementReport:           accountingBase + "/movements-report",
 				MovementArticles:         accountingBase + "/movement-articles",
 				Stock:                    accountingBase + "/stocks",
+				Logs:                     accountingBase + "/logs",
 			},
 			Finance: FinanceMS{
 				Base:                                     financeBase,
@@ -444,6 +455,7 @@ func LoadDefaultConfig() (*Config, error) {
 				AcceptSSSExternalReallocation:            financeBase + "/accept-sss-external-reallocations",
 				RejectSSSExternalReallocation:            financeBase + "/reject-sss-external-reallocations",
 				GetCurrentBudgetByOrganizationUnit:       financeBase + "/get-acctual-current-budget",
+				Logs:                                     financeBase + "/logs",
 			},
 		},
 		Frontend: FrontendConfig{

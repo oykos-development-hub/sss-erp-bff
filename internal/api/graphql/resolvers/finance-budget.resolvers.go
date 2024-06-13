@@ -905,7 +905,7 @@ func (r *Resolver) FinancialBudgetSummary(params graphql.ResolveParams) (interfa
 }
 
 func (r *Resolver) CurrentBudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
-	organizationUnitID, _ := params.Args["id"].(int)
+	organizationUnitID, _ := params.Args["organization_unit_id"].(int)
 
 	var items []dto.CurrentBudgetResponse
 

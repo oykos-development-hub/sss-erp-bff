@@ -233,6 +233,24 @@ var BudgetOverviewType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var CurrentBudgetOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "CurrentBudgetOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(CurrentBudgetType),
+		},
+	},
+})
+
 var FinancialBudgetOverviewType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "FinancialBudgetOverview",
 	Fields: graphql.Fields{
@@ -511,6 +529,30 @@ var FinancialBudgetSummaryType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"item": &graphql.Field{
 			Type: FinancialBudgetType,
+		},
+	},
+})
+
+var CurrentBudgetType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "CurrentBudgetType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"budget_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"account": &graphql.Field{
+			Type: DropdownItemType,
+		},
+		"actual": &graphql.Field{
+			Type: graphql.String,
+		},
+		"balance": &graphql.Field{
+			Type: graphql.String,
+		},
+		"initial_actual": &graphql.Field{
+			Type: graphql.String,
 		},
 	},
 })

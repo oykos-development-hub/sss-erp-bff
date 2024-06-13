@@ -282,6 +282,8 @@ type MicroserviceRepositoryInterface interface {
 	GetBudgetList(input *dto.GetBudgetListInputMS) ([]structs.Budget, error)
 	DeleteBudget(ctx context.Context, id int) error
 
+	GetCurrentBudgetByOrganizationUnit(organizationUnitID int) ([]structs.CurrentBudget, error)
+
 	CreateBudgetRequest(ctx context.Context, budget *structs.BudgetRequest) (*structs.BudgetRequest, error)
 	UpdateBudgetRequest(ctx context.Context, budget *structs.BudgetRequest) (*structs.BudgetRequest, error)
 	GetBudgetRequest(id int) (*structs.BudgetRequest, error)

@@ -7,3 +7,7 @@ import (
 type GetCurrentBudgetResponseMS struct {
 	Data *structs.CurrentBudget `json:"data"`
 }
+
+type GetCurrentBudgetListResponseMS struct {
+	Data []structs.CurrentBudget `json:"data"`
+}

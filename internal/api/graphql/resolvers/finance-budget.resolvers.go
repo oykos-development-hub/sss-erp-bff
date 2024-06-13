@@ -903,3 +903,55 @@ func (r *Resolver) FinancialBudgetSummary(params graphql.ResolveParams) (interfa
 		Item:    financialDetails,
 	}, nil
 }
+
+func (r *Resolver) CurrentBudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	organizationUnitID, _ := params.Args["id"].(int)
+
+	var items []dto.CurrentBudgetResponse
+
+	budget, err := r.Repo.GetCurrentBudgetByOrganizationUnit(organizationUnitID)
+	if err != nil {
+		return errors.HandleAPIError(err)
+	}
+
+	for _, item := range budget {
+		budgetResItem, err := buildCurrentBudgetResponseItem(r.Repo, item)
+		if err != nil {
+			return errors.HandleAPIError(err)
+		}
+
+		items = append(items, *budgetResItem)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Items:   items,
+	}, nil
+}
+
+func buildCurrentBudgetResponseItem(r repository.MicroserviceRepositoryInterface, budget structs.CurrentBudget) (*dto.CurrentBudgetResponse, error) {
+
+	response := dto.CurrentBudgetResponse{
+		BudgetID:       budget.BudgetID,
+		InititalActual: budget.InititalActual,
+		Actual:         budget.Actual,
+		Balance:        budget.Balance,
+	}
+
+	if budget.AccountID != 0 {
+		account, err := r.GetAccountItemByID(budget.AccountID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		response.Account = dto.DropdownSimple{
+			ID:    account.ID,
+			Title: account.SerialNumber + " - " + account.Title,
+		}
+
+	}
+
+	return &response, nil
+}

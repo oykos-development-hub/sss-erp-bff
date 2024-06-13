@@ -127,6 +127,7 @@ type FinanceMS struct {
 	RejectOUExternalReallocation             string
 	AcceptSSSExternalReallocation            string
 	RejectSSSExternalReallocation            string
+	GetCurrentBudgetByOrganizationUnit       string
 }
 
 type ProcurementMS struct {
@@ -442,6 +443,7 @@ func LoadDefaultConfig() (*Config, error) {
 				RejectOUExternalReallocation:             financeBase + "/reject-ou-external-reallocations",
 				AcceptSSSExternalReallocation:            financeBase + "/accept-sss-external-reallocations",
 				RejectSSSExternalReallocation:            financeBase + "/reject-sss-external-reallocations",
+				GetCurrentBudgetByOrganizationUnit:       financeBase + "/get-acctual-current-budget",
 			},
 		},
 		Frontend: FrontendConfig{

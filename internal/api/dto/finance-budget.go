@@ -264,3 +264,14 @@ type BudgetRequestsDetails struct {
 	NonFinancialBudgetDetails *NonFinancialBudgetResItem       `json:"non_financial"`
 	Limit                     int                              `json:"limits"`
 }
+
+type CurrentBudgetResponse struct {
+	ID             int             `json:"id"`
+	BudgetID       int             `json:"budget_id"`
+	UnitID         int             `json:"unit_id"`
+	Account        DropdownSimple  `json:"account"`
+	InititalActual decimal.Decimal `json:"actual"`
+	Actual         decimal.Decimal `json:"spending_dynamic_id"`
+	Balance        decimal.Decimal `json:"balance"`
+	CreatedAt      time.Time       `json:"created_at"`
+}

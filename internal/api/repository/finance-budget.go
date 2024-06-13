@@ -257,3 +257,13 @@ func (repo *MicroserviceRepository) GetFinancialFilledSummary(budgetID int, reqT
 
 	return res.Data, nil
 }
+
+func (repo *MicroserviceRepository) GetCurrentBudgetByOrganizationUnit(organizationUnitID int) ([]structs.CurrentBudget, error) {
+	res := &dto.GetCurrentBudgetListResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetCurrentBudgetByOrganizationUnit+"/"+strconv.Itoa(organizationUnitID), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}

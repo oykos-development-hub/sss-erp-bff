@@ -154,6 +154,19 @@ func (f *Field) BudgetOverviewField() *graphql.Field {
 	}
 }
 
+func (f *Field) CurrentBudgetOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.CurrentBudgetOverviewType,
+		Description: "Returns a data of current Budget items",
+		Args: graphql.FieldConfigArgument{
+			"current_budget_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.CurrentBudgetOverviewResolver,
+	}
+}
+
 func (f *Field) FilledFinancialBudgetOverview() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.AccountWithFilledDataOverviewType,

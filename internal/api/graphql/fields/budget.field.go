@@ -159,7 +159,7 @@ func (f *Field) CurrentBudgetOverviewField() *graphql.Field {
 		Type:        types.CurrentBudgetOverviewType,
 		Description: "Returns a data of current Budget items",
 		Args: graphql.FieldConfigArgument{
-			"current_budget_id": &graphql.ArgumentConfig{
+			"organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.NewNonNull(graphql.Int),
 			},
 		},

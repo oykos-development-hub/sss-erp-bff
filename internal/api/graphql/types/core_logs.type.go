@@ -41,6 +41,9 @@ var LogsType = graphql.NewObject(graphql.ObjectConfig{
 		"item_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"changed_at": &graphql.Field{
+			Type: graphql.String,
+		},
 		"old_state": &graphql.Field{
 			Type: JSON,
 		},

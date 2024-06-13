@@ -10,7 +10,9 @@ import (
 )
 
 func (r *Resolver) LogsOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
-	module, _ := params.Args["module"].(config.Module)
+	moduleStr, _ := params.Args["module"].(string)
+
+	module := config.Module(moduleStr)
 
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		log, err := r.Repo.GetLog(module, id)

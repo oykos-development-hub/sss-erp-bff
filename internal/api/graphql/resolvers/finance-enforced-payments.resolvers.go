@@ -121,10 +121,14 @@ func (r *Resolver) EnforcedPaymentInsertResolver(params graphql.ResolveParams) (
 	if data.ID == 0 {
 		item, err = r.Repo.CreateEnforcedPayment(params.Context, &data)
 		if err != nil {
-			return dto.ResponseSingle{
-				Status:  "failed",
-				Message: err.Error(),
-			}, nil
+			if err.Error() == "API error: 500 - insufficient funds" {
+				return dto.ResponseSingle{
+					Status:  "failed",
+					Message: "insufficient funds",
+				}, nil
+			}
+			return apierrors.HandleAPIError(err)
+
 		}
 	} else {
 		item, err = r.Repo.UpdateEnforcedPayment(params.Context, &data)

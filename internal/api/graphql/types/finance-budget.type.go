@@ -585,6 +585,9 @@ var CurrentBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"budget_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"version": &graphql.Field{
+			Type: graphql.Int,
+		},
 	},
 })
 

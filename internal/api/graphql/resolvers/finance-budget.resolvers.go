@@ -934,6 +934,7 @@ func (r *Resolver) CurrentBudgetOverviewResolver(params graphql.ResolveParams) (
 
 	response := dto.CurrentBudgetAccountsResponse{
 		CurrentAccounts: items,
+		Version:         accountVersion,
 	}
 
 	if len(items) > 0 && items[0].FilledFinanceBudget.BudgetID != 0 {

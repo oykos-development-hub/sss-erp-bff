@@ -14,6 +14,7 @@ type InternalReallocation struct {
 	RequestedBy        int                        `json:"requested_by"`
 	FileID             int                        `json:"file_id"`
 	BudgetID           int                        `json:"budget_id"`
+	Sum                decimal.Decimal            `json:"sum"`
 	Items              []InternalReallocationItem `json:"items"`
 	CreatedAt          time.Time                  `json:"created_at"`
 	UpdatedAt          time.Time                  `json:"updated_at"`

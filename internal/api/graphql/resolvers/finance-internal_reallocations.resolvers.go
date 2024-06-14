@@ -158,6 +158,7 @@ func buildInternalReallocation(item structs.InternalReallocation, r *Resolver) (
 		ID:            item.ID,
 		Title:         item.Title,
 		DateOfRequest: item.DateOfRequest,
+		Sum:           item.Sum,
 		CreatedAt:     item.CreatedAt,
 		UpdatedAt:     item.UpdatedAt,
 	}

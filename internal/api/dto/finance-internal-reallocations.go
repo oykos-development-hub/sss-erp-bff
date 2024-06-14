@@ -15,6 +15,7 @@ type InternalReallocationResponse struct {
 	RequestedBy      DropdownSimple                     `json:"requested_by"`
 	File             FileDropdownSimple                 `json:"file"`
 	Budget           DropdownSimple                     `json:"budget"`
+	Sum              decimal.Decimal                    `json:"sum"`
 	Items            []InternalReallocationItemResponse `json:"items"`
 	CreatedAt        time.Time                          `json:"created_at"`
 	UpdatedAt        time.Time                          `json:"updated_at"`

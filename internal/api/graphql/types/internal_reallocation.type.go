@@ -53,6 +53,9 @@ var InternalReallocationType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_request": &graphql.Field{
 			Type: graphql.String,
 		},
+		"sum": &graphql.Field{
+			Type: decimalType,
+		},
 		"requested_by": &graphql.Field{
 			Type: DropdownItemType,
 		},

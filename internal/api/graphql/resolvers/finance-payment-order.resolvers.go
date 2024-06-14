@@ -287,9 +287,11 @@ func (r *Resolver) PayOrderResolver(params graphql.ResolveParams) (interface{}, 
 
 	err = r.Repo.PayPaymentOrder(params.Context, paymentOrder)
 	if err != nil {
+
 		fmt.Printf("Paying the order failed because this error - %s.\n", err)
 		return dto.ResponseSingle{
-			Status: "failed",
+			Status:  "failed",
+			Message: err.Error(),
 		}, nil
 	}
 

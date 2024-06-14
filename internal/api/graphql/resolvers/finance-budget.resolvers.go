@@ -936,6 +936,10 @@ func (r *Resolver) CurrentBudgetOverviewResolver(params graphql.ResolveParams) (
 		CurrentAccounts: items,
 	}
 
+	if len(items) > 0 && items[0].FilledFinanceBudget.BudgetID != 0 {
+		response.BudgetID = items[0].FilledFinanceBudget.BudgetID
+	}
+
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",

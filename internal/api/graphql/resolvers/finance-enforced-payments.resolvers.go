@@ -244,6 +244,21 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		response.Agent = dropdown
 	}
 
+	if item.AccountIDForExpenses != 0 {
+		value, err := r.Repo.GetAccountItemByID(item.AccountIDForExpenses)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: value.Title,
+		}
+
+		response.AccountForExpenses = dropdown
+	}
+
 	if item.FileID != nil && *item.FileID != 0 {
 		file, err := r.Repo.GetFileByID(*item.FileID)
 

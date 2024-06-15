@@ -99,7 +99,7 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 		// Read the body to a string
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			response, _ := errors.HandleAPIError(fmt.Errorf("unauthorized"))
+			response, _ := errors.HandleAPIError(fmt.Errorf("unauthorized: read body"))
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK) // This is important as you want to return a 200 status code
 			_ = json.NewEncoder(w).Encode(response)
@@ -126,7 +126,7 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 		// Extract the token value from the header
 		token, err := extractTokenFromHeader(authHeader)
 		if err != nil {
-			response, _ := errors.HandleAPIError(fmt.Errorf("unauthorized"))
+			response, _ := errors.HandleAPIError(fmt.Errorf("unauthorized: extract token from header"))
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK) // This is important as you want to return a 200 status code
 			_ = json.NewEncoder(w).Encode(response)
@@ -137,7 +137,7 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 		// Attempt to retrieve the logged-in user's account using the extracted token
 		loggedInAccount, err := m.Repo.GetLoggedInUser(token)
 		if err != nil {
-			response, _ := errors.HandleAPIError(fmt.Errorf("unauthorized"))
+			response, _ := errors.HandleAPIError(fmt.Errorf("unauthorized: get user from token"))
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK) // This is important as you want to return a 200 status code
 			_ = json.NewEncoder(w).Encode(response)

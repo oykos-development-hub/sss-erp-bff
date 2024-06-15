@@ -104,9 +104,16 @@ func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interf
 		}
 	}
 
-	accounts, err := r.Repo.GetAccountItems(nil)
+	financeBudgetDetails, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
 	if err != nil {
-		return nil, err
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "get financial budget by budget id"))
+	}
+
+	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+		Version: &financeBudgetDetails.AccountVersion,
+	})
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "get account items"))
 	}
 
 	tree := buildSpendingDynamicTree(accounts.Data, spendingDynamic)

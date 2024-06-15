@@ -12,7 +12,6 @@ func (repo *MicroserviceRepository) CreateCurrentBudget(ctx context.Context, cur
 	res := dto.GetCurrentBudgetResponseMS{}
 
 	header := make(map[string]string)
-
 	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	header["UserID"] = strconv.Itoa(account.ID)
 

@@ -6,6 +6,7 @@ import (
 	"bff/structs"
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/shopspring/decimal"
 )
@@ -41,6 +42,10 @@ func (repo *MicroserviceRepository) GetSpendingDynamicActual(BudgetID, unitID, a
 }
 
 func (repo *MicroserviceRepository) CreateSpendingDynamic(ctx context.Context, budgetID, unitID int, spendingDynamicList []structs.SpendingDynamicInsert) ([]dto.SpendingDynamicDTO, error) {
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
 	loggedInProfile, _ := ctx.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
 
 	spendingDynamicListToInsert := make([]structs.SpendingDynamicInsert, len(spendingDynamicList))
@@ -50,7 +55,7 @@ func (repo *MicroserviceRepository) CreateSpendingDynamic(ctx context.Context, b
 	}
 
 	res := dto.GetSpendingDynamicListResponseMS{}
-	_, err := makeAPIRequest("POST", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingDynamicInsert, budgetID, unitID), spendingDynamicListToInsert, &res)
+	_, err := makeAPIRequest("POST", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingDynamicInsert, budgetID, unitID), spendingDynamicListToInsert, &res, header)
 	if err != nil {
 		return res.Data, err
 	}

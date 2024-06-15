@@ -6,9 +6,14 @@ import (
 	"bff/structs"
 	"context"
 	"fmt"
+	"strconv"
 )
 
 func (repo *MicroserviceRepository) CreateSpendingRelease(ctx context.Context, spendingReleaseList []structs.SpendingReleaseInsert, budgetID, unitID int) ([]structs.SpendingRelease, error) {
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
 	loggedInProfile, _ := ctx.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
 
 	spendingReleaseListToInsert := make([]structs.SpendingReleaseInsert, len(spendingReleaseList))
@@ -18,7 +23,7 @@ func (repo *MicroserviceRepository) CreateSpendingRelease(ctx context.Context, s
 	}
 
 	res := dto.GetSpendingReleaseListResponseMS{}
-	_, err := makeAPIRequest("POST", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingReleaseInsert, budgetID, unitID), spendingReleaseListToInsert, &res)
+	_, err := makeAPIRequest("POST", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingReleaseInsert, budgetID, unitID), spendingReleaseListToInsert, &res, header)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +52,11 @@ func (repo *MicroserviceRepository) GetSpendingReleaseList(ctx context.Context, 
 }
 
 func (repo *MicroserviceRepository) DeleteSpendingRelease(ctx context.Context, input *dto.DeleteSpendingReleaseInput) error {
-	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.SpendingReleaseDelete, input, nil, nil)
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.SpendingReleaseDelete, input, nil, nil, header)
 	if err != nil {
 		return err
 	}

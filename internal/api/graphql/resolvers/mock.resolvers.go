@@ -21,14 +21,20 @@ func (r *Resolver) CurrentBudgetMockResolver(params graphql.ResolveParams) (inte
 		return errors.HandleAPIError(err)
 	}
 
-	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
-		Leaf: true,
-	})
-	if err != nil {
-		return errors.HandleAPIError(err)
-	}
-
 	for _, budget := range budgets {
+		financeBudgetDetails, err := r.Repo.GetFinancialBudgetByBudgetID(budget.ID)
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "get financial budget by budget id"))
+		}
+
+		accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+			Leaf:    true,
+			Version: &financeBudgetDetails.AccountVersion,
+		})
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "get account items"))
+		}
+
 		for _, unit := range units.Data {
 			for _, account := range accounts.Data {
 				_, err := r.Repo.CreateCurrentBudget(params.Context, &structs.CurrentBudget{

@@ -662,6 +662,11 @@ func (r *Resolver) acceptFinancialRequest(ctx context.Context, request *structs.
 
 	for _, req := range requests {
 		req.Status = structs.BudgetRequestAcceptedStatus
+
+		if req.RequestType == structs.RequestTypeFinancial {
+			req.Comment = ""
+		}
+
 		_, err := r.Repo.UpdateBudgetRequest(ctx, &req)
 		if err != nil {
 			return errors.Wrap(err, "acceptFinancialRequest: error updating financial request")
@@ -673,6 +678,7 @@ func (r *Resolver) acceptFinancialRequest(ctx context.Context, request *structs.
 
 func (r *Resolver) acceptNonFinancialRequest(ctx context.Context, request *structs.BudgetRequest) error {
 	request.Status = structs.BudgetRequestAcceptedStatus
+	request.Comment = ""
 	_, err := r.Repo.UpdateBudgetRequest(ctx, request)
 	if err != nil {
 		return errors.Wrap(err, "acceptFinancialRequest: error updating non-financial request")

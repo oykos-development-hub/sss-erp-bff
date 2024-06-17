@@ -526,4 +526,11 @@ type MicroserviceRepositoryInterface interface {
 
 	GetLog(entity config.Module, id int) (*structs.Logs, error)
 	GetLogs(filter dto.LogFilterDTO) ([]structs.Logs, int, error)
+
+	CreateTemplate(ctx context.Context, item *structs.Template) error
+	DeleteTemplate(ctx context.Context, id int) error
+	UpdateTemplate(ctx context.Context, item *structs.Template) error
+	UpdateTemplateItem(ctx context.Context, item *structs.Template) error
+	GetTemplateByID(id int) (*structs.Template, error)
+	GetTemplateList(input dto.TemplateFilter) ([]structs.Template, error)
 }

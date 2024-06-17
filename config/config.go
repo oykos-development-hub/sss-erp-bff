@@ -162,6 +162,8 @@ type CoreMS struct {
 	ValidateMail   string
 	ResetPassword  string
 	Logs           string
+	Templates      string
+	TemplateItems  string
 }
 
 type HrMS struct {
@@ -342,6 +344,8 @@ func LoadDefaultConfig() (*Config, error) {
 				ValidateMail:   coreBase + "/users/password/validate-email",
 				ResetPassword:  coreBase + "/users/password/reset",
 				Logs:           coreBase + "/logs",
+				Templates:      coreBase + "/templates",
+				TemplateItems:  coreBase + "/template-items",
 			},
 			Procurements: ProcurementMS{
 				Base:                    procurementsBase,

@@ -1,0 +1,110 @@
+package repository
+
+import (
+	"bff/config"
+	"bff/internal/api/dto"
+	"bff/structs"
+	"context"
+	"strconv"
+)
+
+func (repo *MicroserviceRepository) CreateTemplate(ctx context.Context, item *structs.Template) error {
+	res := &dto.GetTemplateResponseMS{}
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Templates, item, res, header)
+
+	if err != nil {
+		return err
+	}
+
+	isParent := true
+
+	organizationUnits, err := repo.GetOrganizationUnits(&dto.GetOrganizationUnitsInput{
+		IsParent: &isParent,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	templateID := res.Data.ID
+
+	for _, orgUnit := range organizationUnits.Data {
+		newItem := structs.Template{
+			OrganizationUnitID: orgUnit.ID,
+			TemplateID:         templateID,
+			FileID:             item.FileID,
+		}
+
+		_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.TemplateItems, newItem, res, header)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (repo *MicroserviceRepository) UpdateTemplate(ctx context.Context, item *structs.Template) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Templates+"/"+strconv.Itoa(item.ID), item, nil, header)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *MicroserviceRepository) UpdateTemplateItem(ctx context.Context, item *structs.Template) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.TemplateItems+"/"+strconv.Itoa(item.ID), item, nil, header)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *MicroserviceRepository) GetTemplateList(input dto.TemplateFilter) ([]structs.Template, error) {
+	res := &dto.GetTemplateResponseListMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.TemplateItems, input, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Data, nil
+}
+
+func (repo *MicroserviceRepository) GetTemplateByID(id int) (*structs.Template, error) {
+	res := &dto.GetTemplateResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Templates+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Data, nil
+}
+
+func (repo *MicroserviceRepository) DeleteTemplate(ctx context.Context, id int) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.Templates+"/"+strconv.Itoa(id), nil, nil, header)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -123,7 +123,7 @@ func (r *Resolver) SpendingReleaseDelete(params graphql.ResolveParams) (interfac
 
 	loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok {
-		return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
+		return errors.HandleAPPError(errors.NewBadRequestError("get logged in unit from context"))
 	}
 
 	if unitID == 0 {
@@ -139,18 +139,18 @@ func (r *Resolver) SpendingReleaseDelete(params graphql.ResolveParams) (interfac
 		Year: &currentYear,
 	})
 	if err != nil {
-		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting budget for current year"))
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "repo get budget list"))
 	}
 
 	if len(budget) != 1 {
-		return errors.HandleAPPError(errors.NewBadRequestError("Budget for current year not found"))
+		return errors.HandleAPPError(errors.NewBadRequestError("budget for current year not found"))
 	}
 
 	input.BudgetID = budget[0].ID
 
 	err = r.Repo.DeleteSpendingRelease(params.Context, input)
 	if err != nil {
-		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "repo delete spending release"))
 	}
 
 	return dto.Response{

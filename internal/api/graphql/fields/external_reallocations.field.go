@@ -27,6 +27,9 @@ func (f *Field) ExternalReallocationOverviewField() *graphql.Field {
 			"destination_organization_unit_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 			"status": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},

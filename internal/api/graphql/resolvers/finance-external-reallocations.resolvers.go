@@ -3,7 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	errors "bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -16,11 +16,11 @@ func (r *Resolver) ExternalReallocationOverviewResolver(params graphql.ResolvePa
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		ExternalReallocation, err := r.Repo.GetExternalReallocationByID(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		res, err := buildExternalReallocation(*ExternalReallocation, r)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -48,6 +48,10 @@ func (r *Resolver) ExternalReallocationOverviewResolver(params graphql.ResolvePa
 		input.DestinationOrganizationUnitID = &value
 	}
 
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = &value
+	}
+
 	if value, ok := params.Args["status"].(string); ok && value != "" {
 		input.Status = &value
 	}
@@ -62,7 +66,7 @@ func (r *Resolver) ExternalReallocationOverviewResolver(params graphql.ResolvePa
 
 	items, total, err := r.Repo.GetExternalReallocationList(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.ExternalReallocationResponse
@@ -70,7 +74,7 @@ func (r *Resolver) ExternalReallocationOverviewResolver(params graphql.ResolvePa
 		resItem, err := buildExternalReallocation(item, r)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -93,18 +97,18 @@ func (r *Resolver) ExternalReallocationInsertResolver(params graphql.ResolvePara
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.SourceOrganizationUnitID == 0 {
 
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.SourceOrganizationUnitID = *organizationUnitID
@@ -114,7 +118,7 @@ func (r *Resolver) ExternalReallocationInsertResolver(params graphql.ResolvePara
 	if data.RequestedBy == 0 {
 		userProfile, ok := params.Context.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
 		if !ok || userProfile == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("error during checking user profile id"))
+			return errors.HandleAPPError(fmt.Errorf("error during checking user profile id"))
 		}
 
 		data.RequestedBy = userProfile.ID
@@ -124,12 +128,12 @@ func (r *Resolver) ExternalReallocationInsertResolver(params graphql.ResolvePara
 
 	item, err = r.Repo.CreateExternalReallocation(params.Context, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	singleItem, err := buildExternalReallocation(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -142,10 +146,7 @@ func (r *Resolver) ExternalReallocationDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteExternalReallocation(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting internal reallocation failed because of this error - %s.\n", err)
-		return dto.ResponseSingle{
-			Status: "failed",
-		}, nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -163,17 +164,17 @@ func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolvePa
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.AcceptedBy == 0 {
 		userProfile, ok := params.Context.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
 		if !ok || userProfile == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("error during checking user profile id"))
+			return errors.HandleAPPError(fmt.Errorf("error during checking user profile id"))
 		}
 
 		data.AcceptedBy = userProfile.ID
@@ -183,12 +184,12 @@ func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolvePa
 
 	item, err = r.Repo.AcceptOUExternalReallocation(params.Context, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	singleItem, err := buildExternalReallocation(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -201,10 +202,7 @@ func (r *Resolver) ExternalReallocationOURejectResolver(params graphql.ResolvePa
 
 	err := r.Repo.RejectOUExternalReallocation(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Reject external reallocation failed because of this error - %s.\n", err)
-		return dto.ResponseSingle{
-			Status: "failed",
-		}, nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -218,10 +216,7 @@ func (r *Resolver) ExternalReallocationSSSAcceptResolver(params graphql.ResolveP
 
 	err := r.Repo.AcceptSSSExternalReallocation(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Accept external reallocation failed because of this error - %s.\n", err)
-		return dto.ResponseSingle{
-			Status: "failed",
-		}, nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -235,10 +230,7 @@ func (r *Resolver) ExternalReallocationSSSRejectResolver(params graphql.ResolveP
 
 	err := r.Repo.RejectSSSExternalReallocation(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Reject external reallocation failed because of this error - %s.\n", err)
-		return dto.ResponseSingle{
-			Status: "failed",
-		}, nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -264,7 +256,7 @@ func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetOrganizationUnitByID(item.SourceOrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -279,7 +271,7 @@ func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetOrganizationUnitByID(item.DestinationOrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -294,7 +286,7 @@ func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetUserProfileByID(item.RequestedBy)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -309,7 +301,7 @@ func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetUserProfileByID(item.AcceptedBy)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -324,7 +316,7 @@ func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		dropdown := dto.FileDropdownSimple{
@@ -340,7 +332,7 @@ func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetFileByID(item.DestinationOrgUnitFileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		dropdown := dto.FileDropdownSimple{
@@ -356,7 +348,7 @@ func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetFileByID(item.SSSFileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		dropdown := dto.FileDropdownSimple{
@@ -372,7 +364,7 @@ func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetBudget(item.BudgetID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get budget")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -387,7 +379,7 @@ func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (
 		builtItem, err := buildExternalReallocationItem(orderItem, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo build external reallocation item")
 		}
 
 		response.Items = append(response.Items, *builtItem)
@@ -406,7 +398,7 @@ func buildExternalReallocationItem(item structs.ExternalReallocationItem, r *Res
 		value, err := r.Repo.GetAccountItemByID(item.SourceAccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -421,7 +413,7 @@ func buildExternalReallocationItem(item structs.ExternalReallocationItem, r *Res
 		value, err := r.Repo.GetAccountItemByID(item.DestinationAccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		dropdown := dto.DropdownSimple{

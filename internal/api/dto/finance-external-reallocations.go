@@ -52,6 +52,7 @@ type ExternalReallocationFilter struct {
 	SortByTitle                   *string `json:"sort_by_title"`
 	SourceOrganizationUnitID      *int    `json:"source_organization_unit_id"`
 	DestinationOrganizationUnitID *int    `json:"destination_organization_unit_id"`
+	OrganizationUnitID            *int    `json:"organization_unit_id"`
 	Status                        *string `json:"status"`
 	RequestedBy                   *int    `json:"requested_by"`
 	BudgetID                      *int    `json:"budget_id"`

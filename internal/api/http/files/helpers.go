@@ -1,9 +1,9 @@
 package files
 
 import (
+	"bff/internal/api/errors"
 	"bff/log"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,14 +17,14 @@ func MarshalAndWriteJSON(w http.ResponseWriter, obj interface{}) error {
 	jsonResponse, err := json.Marshal(obj)
 	if err != nil {
 		http.Error(w, "Error during JSON marshaling", http.StatusInternalServerError)
-		return err
+		return errors.Wrap(err, "json marshal")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(jsonResponse)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "w write")
 	}
 
 	return nil
@@ -35,19 +35,19 @@ func openExcelFile(r *http.Request) (*excelize.File, error) {
 
 	err := r.ParseMultipartForm(maxFileSize)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "r parse multipart form")
 	}
 
 	file, _, err := r.FormFile("file")
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "r form file")
 	}
 	defer file.Close()
 
 	xlsFile, err := excelize.OpenReader(file)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "excelize open reade")
 	}
 
 	return xlsFile, nil
@@ -65,7 +65,7 @@ func handleError(w http.ResponseWriter, err error, statusCode int) {
 func makeBackendRequest(method, url string, body io.Reader, contentType string) (*http.Response, int, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "http new request")
 	}
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
@@ -74,22 +74,22 @@ func makeBackendRequest(method, url string, body io.Reader, contentType string) 
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "http client do")
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		decoder := json.NewDecoder(resp.Body)
 		var errorStruct errorResponse
 		if err := decoder.Decode(&errorStruct); err != nil {
-			return nil, resp.StatusCode, err
+			return nil, resp.StatusCode, errors.Wrap(err, "decoder decode")
 		}
 
 		if errorStruct.Message != "" {
-			return nil, resp.StatusCode, errors.New(errorStruct.Message)
+			return nil, resp.StatusCode, errors.Wrap(errors.New(errorStruct.Message), "http client do")
 		}
 
 		resp.Body.Close()
-		return nil, resp.StatusCode, fmt.Errorf("backend returned non-OK status: %d", resp.StatusCode)
+		return nil, resp.StatusCode, errors.Wrap(fmt.Errorf("backend returned non-OK status: %d", resp.StatusCode), "http client do")
 	}
 
 	return resp, 0, nil
@@ -104,7 +104,7 @@ func ConvertDateFormat(dateString string) (string, error) {
 	// Parsiranje originalnog datuma
 	t, err := time.Parse("01-02-06", dateString)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "time parse")
 	}
 
 	// Formatiranje u ISO 8601 format
@@ -162,5 +162,5 @@ func parseDate(dateString string) (time.Time, error) {
 		return startDate.Add(daysDuration), nil
 	}
 
-	return date, fmt.Errorf("date format is not valid: %s", dateString)
+	return date, errors.Wrap(fmt.Errorf("date format is not valid: %s", dateString), "time parse")
 }

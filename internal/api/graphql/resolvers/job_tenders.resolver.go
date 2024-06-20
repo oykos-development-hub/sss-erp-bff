@@ -26,7 +26,7 @@ func (r *Resolver) JobTenderResolver(params graphql.ResolveParams) (interface{},
 	if id != nil && id != 0 {
 		jobTender, err := r.Repo.GetJobTender(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resItem, _ := buildJobTenderResponse(r.Repo, jobTender)
 
@@ -40,7 +40,7 @@ func (r *Resolver) JobTenderResolver(params graphql.ResolveParams) (interface{},
 	}
 	jobTenders, err := r.Repo.GetJobTenderList()
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	total = len(jobTenders)
 
@@ -48,7 +48,7 @@ func (r *Resolver) JobTenderResolver(params graphql.ResolveParams) (interface{},
 
 		resItem, err := buildJobTenderResponse(r.Repo, jobTender)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if active != nil && active.(bool) != resItem.Active {
@@ -96,7 +96,7 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 		res, err := r.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		file.ID = res.ID
@@ -106,7 +106,7 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 
 	tenderType, err := r.GetTenderType(item.TypeID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get tender type")
 	}
 
 	res := dto.JobTenderResponseItem{
@@ -129,7 +129,7 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 	if item.OrganizationUnitID != 0 {
 		organizationUnit, err = r.GetOrganizationUnitByID(item.OrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		res.OrganizationUnit = *organizationUnit
 	}
@@ -194,7 +194,7 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 		evaluation, err := r.GetDropdownSettingByID(item.Evaluation)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 
 		res.Evaluation = &dto.DropdownSimple{
@@ -206,7 +206,7 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 	if item.UserProfileID != nil {
 		userProfile, err := r.GetUserProfileByID(*item.UserProfileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 		userProfileDropdownItem := &dto.DropdownSimple{
 			ID:    userProfile.ID,
@@ -222,7 +222,7 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 
 	jobTender, err := r.GetJobTender(item.JobTenderID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get job tender")
 	}
 
 	jobTenderResponseItem, _ := buildJobTenderResponse(r, jobTender)
@@ -253,22 +253,22 @@ func (r *Resolver) JobTenderInsertResolver(params graphql.ResolveParams) (interf
 	if itemID != 0 {
 		res, err := r.Repo.UpdateJobTender(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildJobTenderResponse(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
 		res, err := r.Repo.CreateJobTender(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildJobTenderResponse(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = item
 		response.Message = "You created this item!"
@@ -282,7 +282,7 @@ func (r *Resolver) JobTenderDeleteResolver(params graphql.ResolveParams) (interf
 
 	err := r.Repo.DeleteJobTender(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -302,7 +302,7 @@ func (r *Resolver) JobTenderApplicationsResolver(params graphql.ResolveParams) (
 	if id != nil && id != 0 {
 		tenderApplication, err := r.Repo.GetTenderApplication(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resItem, _ := buildJobTenderApplicationResponse(r.Repo, tenderApplication)
 		items = append(items, *resItem)
@@ -329,14 +329,14 @@ func (r *Resolver) JobTenderApplicationsResolver(params graphql.ResolveParams) (
 
 	tenderApplications, err := r.Repo.GetTenderApplicationList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	total := len(tenderApplications.Data)
 	for _, jobTender := range tenderApplications.Data {
 		resItem, err := buildJobTenderApplicationResponse(r.Repo, jobTender)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if filerTenderTypeID, ok := params.Args["type_id"].(int); ok && filerTenderTypeID != 0 && resItem.JobTender.Type.ID != filerTenderTypeID {
@@ -372,7 +372,7 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 	if data.UserProfileID != nil {
 		userProfile, err := r.Repo.GetUserProfileByID(*data.UserProfileID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		data.FirstName = userProfile.FirstName
 		data.LastName = userProfile.LastName
@@ -388,12 +388,12 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 
 		res, err := r.Repo.UpdateJobTenderApplication(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		item, err := buildJobTenderApplicationResponse(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Item = item
@@ -401,12 +401,12 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 	} else {
 		res, err := r.Repo.CreateJobTenderApplication(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		item, err := buildJobTenderApplicationResponse(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Item = item
@@ -421,7 +421,7 @@ func (r *Resolver) JobTenderApplicationDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteJobTenderApplication(itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

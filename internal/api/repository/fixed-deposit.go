@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateFixedDeposit(ctx context.Context, item
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDeposit, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -31,7 +32,7 @@ func (repo *MicroserviceRepository) UpdateFixedDeposit(ctx context.Context, item
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDeposit+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -40,7 +41,7 @@ func (repo *MicroserviceRepository) GetFixedDepositByID(id int) (*structs.FixedD
 	res := &dto.GetFixedDepositResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FixedDeposit+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) GetFixedDepositList(filter dto.FixedDepositF
 	res := &dto.GetFixedDepositListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FixedDeposit, filter, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -64,7 +65,7 @@ func (repo *MicroserviceRepository) DeleteFixedDeposit(ctx context.Context, id i
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDeposit+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -80,7 +81,7 @@ func (repo *MicroserviceRepository) CreateFixedDepositWill(ctx context.Context, 
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositWill, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -94,7 +95,7 @@ func (repo *MicroserviceRepository) UpdateFixedDepositWill(ctx context.Context, 
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositWill+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -103,7 +104,7 @@ func (repo *MicroserviceRepository) GetFixedDepositWillByID(id int) (*structs.Fi
 	res := &dto.GetFixedDepositWillResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FixedDepositWill+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -113,7 +114,7 @@ func (repo *MicroserviceRepository) GetFixedDepositWillList(filter dto.FixedDepo
 	res := &dto.GetFixedDepositWillListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FixedDepositWill, filter, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -128,7 +129,7 @@ func (repo *MicroserviceRepository) DeleteFixedDepositWill(ctx context.Context, 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositWill+"/"+strconv.Itoa(id), nil, nil, header)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -143,7 +144,7 @@ func (repo *MicroserviceRepository) CreateFixedDepositItem(ctx context.Context, 
 	//res := &dto.GetFixedDepositItemResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositItem, item, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -157,7 +158,7 @@ func (repo *MicroserviceRepository) UpdateFixedDepositItem(ctx context.Context, 
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositItem+"/"+strconv.Itoa(item.ID), item, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -170,7 +171,7 @@ func (repo *MicroserviceRepository) DeleteFixedDepositItem(ctx context.Context, 
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositItem+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -185,7 +186,7 @@ func (repo *MicroserviceRepository) CreateFixedDepositDispatch(ctx context.Conte
 	//res := &dto.GetFixedDepositItemResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositDispatch, item, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -199,7 +200,7 @@ func (repo *MicroserviceRepository) UpdateFixedDepositDispatch(ctx context.Conte
 	//res := &dto.GetFixedDepositItemResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositDispatch+"/"+strconv.Itoa(item.ID), item, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -212,7 +213,7 @@ func (repo *MicroserviceRepository) DeleteFixedDepositDispatch(ctx context.Conte
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositDispatch+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -223,7 +224,7 @@ func (repo *MicroserviceRepository) CreateFixedDepositJudge(item *structs.FixedD
 	//res := &dto.GetFixedDepositItemResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositJudge, item, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -232,7 +233,7 @@ func (repo *MicroserviceRepository) UpdateFixedDepositJudge(item *structs.FixedD
 	//res := &dto.GetFixedDepositItemResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositJudge+"/"+strconv.Itoa(item.ID), item, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -240,7 +241,7 @@ func (repo *MicroserviceRepository) UpdateFixedDepositJudge(item *structs.FixedD
 func (repo *MicroserviceRepository) DeleteFixedDepositJudge(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositJudge+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -256,7 +257,7 @@ func (repo *MicroserviceRepository) CreateFixedDepositWillDispatch(ctx context.C
 	will, err := repo.GetFixedDepositWillByID(item.WillID)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	if will.Status == "U radu" {
@@ -273,7 +274,7 @@ func (repo *MicroserviceRepository) CreateFixedDepositWillDispatch(ctx context.C
 
 	_, err = makeAPIRequest("POST", repo.Config.Microservices.Finance.FixedDepositWillDispatch, item, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -287,7 +288,7 @@ func (repo *MicroserviceRepository) UpdateFixedDepositWillDispatch(ctx context.C
 	//res := &dto.GetFixedDepositItemResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FixedDepositWillDispatch+"/"+strconv.Itoa(item.ID), item, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -301,13 +302,13 @@ func (repo *MicroserviceRepository) DeleteFixedDepositWillDispatch(ctx context.C
 	item, err := repo.GetFixedDepositWillDispatchByID(id)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	will, err := repo.GetFixedDepositWillByID(item.WillID)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	if will.Status == "U radu" {
@@ -324,7 +325,7 @@ func (repo *MicroserviceRepository) DeleteFixedDepositWillDispatch(ctx context.C
 
 	_, err = makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FixedDepositWillDispatch+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -335,7 +336,7 @@ func (repo *MicroserviceRepository) GetFixedDepositWillDispatchByID(id int) (*st
 	res := &dto.GetFixedDepositWillDispatchResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FixedDepositWillDispatch+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil

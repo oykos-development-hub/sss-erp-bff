@@ -29,7 +29,7 @@ func (r *Resolver) TemplateResolver(params graphql.ResolveParams) (interface{}, 
 
 	res, err := r.Repo.GetTemplateList(input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var responseItems []dto.TemplatesResponse
@@ -37,7 +37,7 @@ func (r *Resolver) TemplateResolver(params graphql.ResolveParams) (interface{}, 
 	for _, item := range res {
 		responseItem, err := r.buildTemplateResponse(item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		responseItems = append(responseItems, *responseItem)
@@ -62,7 +62,7 @@ func (r *Resolver) TemplateInsertResolver(params graphql.ResolveParams) (interfa
 
 	err := r.Repo.CreateTemplate(params.Context, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	response.Message = "You created this item!"
 
@@ -82,7 +82,7 @@ func (r *Resolver) TemplateUpdateResolver(params graphql.ResolveParams) (interfa
 
 	err := r.Repo.UpdateTemplate(params.Context, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	response.Message = "You updated this item!"
 
@@ -102,7 +102,7 @@ func (r *Resolver) TemplateItemUpdateResolver(params graphql.ResolveParams) (int
 
 	err := r.Repo.UpdateTemplateItem(params.Context, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	response.Message = "You updated this item!"
 
@@ -115,7 +115,7 @@ func (r *Resolver) TemplateDeleteResolver(params graphql.ResolveParams) (interfa
 
 	err := r.Repo.DeleteTemplate(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -133,7 +133,7 @@ func (r *Resolver) buildTemplateResponse(item structs.Template) (*dto.TemplatesR
 		dropdown, err := r.Repo.GetTemplateByID(item.TemplateID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get template by id")
 		}
 
 		responseItem.Template = dto.DropdownSimple{
@@ -146,7 +146,7 @@ func (r *Resolver) buildTemplateResponse(item structs.Template) (*dto.TemplatesR
 		dropdown, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		responseItem.OrganizationUnit = dto.DropdownSimple{
@@ -159,7 +159,7 @@ func (r *Resolver) buildTemplateResponse(item structs.Template) (*dto.TemplatesR
 		dropdown, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		responseItem.File = dto.FileDropdownSimple{

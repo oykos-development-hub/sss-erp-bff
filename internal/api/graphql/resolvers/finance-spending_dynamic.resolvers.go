@@ -46,12 +46,12 @@ func (r *Resolver) SpendingDynamicInsert(params graphql.ResolveParams) (interfac
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	items, err := r.Repo.CreateSpendingDynamic(params.Context, budgetID, unitID, data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{

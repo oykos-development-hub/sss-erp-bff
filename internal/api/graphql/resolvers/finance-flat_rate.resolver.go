@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -19,11 +18,11 @@ func (r *Resolver) FlatRateInsertResolver(params graphql.ResolveParams) (interfa
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var item *structs.FlatRate
@@ -31,19 +30,19 @@ func (r *Resolver) FlatRateInsertResolver(params graphql.ResolveParams) (interfa
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFlatRate(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFlatRate(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
 
 	singleItem, err := buildFlatRateResponseItem(*item, r)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -55,11 +54,11 @@ func (r *Resolver) FlatRateOverviewResolver(params graphql.ResolveParams) (inter
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		flatrate, err := r.Repo.GetFlatRate(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		flatrateResItem, err := buildFlatRateResponseItem(*flatrate, r)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -93,12 +92,12 @@ func (r *Resolver) FlatRateOverviewResolver(params graphql.ResolveParams) (inter
 
 	flatrates, total, err := r.Repo.GetFlatRateList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	flatrateResItem, err := buildFlatRateResponseItemList(flatrates, r)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -114,8 +113,7 @@ func (r *Resolver) FlatRateDeleteResolver(params graphql.ResolveParams) (interfa
 
 	err := r.Repo.DeleteFlatRate(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting flatrate item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -190,7 +188,7 @@ func buildFlatRateResponseItem(flatrate structs.FlatRate, r *Resolver) (*dto.Fla
 			file, err := r.Repo.GetFileByID(fileID)
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get file by id")
 			}
 
 			FileDropdown := dto.FileDropdownSimple{
@@ -206,7 +204,7 @@ func buildFlatRateResponseItem(flatrate structs.FlatRate, r *Resolver) (*dto.Fla
 		account, err := r.Repo.GetAccountItemByID(flatrate.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		accountDropdown := dto.DropdownSimple{
@@ -220,7 +218,7 @@ func buildFlatRateResponseItem(flatrate structs.FlatRate, r *Resolver) (*dto.Fla
 		courtAccount, err := r.Repo.GetAccountItemByID(*flatrate.CourtAccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		courtAccountDropdown := &dto.DropdownSimple{
@@ -240,7 +238,7 @@ func buildFlatRateResponseItemList(itemList []structs.FlatRate, r *Resolver) ([]
 		singleItem, err := buildFlatRateResponseItem(item, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build flat rate response item")
 		}
 
 		items = append(items, singleItem)

@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"fmt"
@@ -18,7 +19,7 @@ func (repo *MicroserviceRepository) CreateActivity(ctx context.Context, activity
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Activity, activity, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -32,7 +33,7 @@ func (repo *MicroserviceRepository) UpdateActivity(ctx context.Context, id int, 
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Activity+"/"+strconv.Itoa(id), activity, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -45,7 +46,7 @@ func (repo *MicroserviceRepository) DeleteActivity(ctx context.Context, id int) 
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.Activity+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -55,7 +56,7 @@ func (repo *MicroserviceRepository) GetActivityList(input *dto.GetFinanceActivit
 	res := &dto.GetFinanceActivityListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Activity, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -66,7 +67,7 @@ func (repo *MicroserviceRepository) GetActivityByUnit(unitID int) (*structs.Acti
 	input := dto.GetFinanceActivityListInputMS{OrganizationUnitID: &unitID}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Activity, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	if len(res.Data) == 0 {
@@ -80,7 +81,7 @@ func (repo *MicroserviceRepository) GetActivity(id int) (*structs.ActivitiesItem
 	res := &dto.GetFinanceActivityResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Activity+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil

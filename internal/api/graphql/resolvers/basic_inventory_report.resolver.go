@@ -21,13 +21,13 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 		}
 		classTypesData, err := r.Repo.GetDropdownSettings(&input)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return apierrors.HandleAPPError(err)
 		}
 		classTypes = classTypesData.Data
 	} else {
 		classType, err := r.Repo.GetDropdownSettingByID(classTypeID)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return apierrors.HandleAPPError(err)
 		}
 		classTypes = append(classTypes, *classType)
 	}
@@ -53,7 +53,7 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 		basicInventoryData, err := r.Repo.GetAllInventoryItem(filter)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return apierrors.HandleAPPError(err)
 		}
 		var (
 			sumClassGrossPrice         float32
@@ -130,7 +130,7 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 	items, err := r.Repo.GetAllInventoryItemForReport(filter)
 
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	for i := 0; i < len(items); i++ {
@@ -139,7 +139,7 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 			realEstate, err := r.Repo.GetMyInventoryRealEstate(items[i].ID)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return apierrors.HandleAPPError(err)
 			}
 
 			items[i].Title = realEstate.TypeID
@@ -148,7 +148,7 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 		if items[i].OfficeID != 0 {
 			office, err := r.Repo.GetDropdownSettingByID(items[i].OfficeID)
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return apierrors.HandleAPPError(err)
 			}
 			items[i].Office = office.Title
 		} else {

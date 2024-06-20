@@ -3,7 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -15,11 +15,11 @@ func (r *Resolver) DepositPaymentOrderOverviewResolver(params graphql.ResolvePar
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		DepositPaymentOrder, err := r.Repo.GetDepositPaymentOrderByID(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		res, err := buildDepositPaymentOrder(*DepositPaymentOrder, r)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -59,7 +59,7 @@ func (r *Resolver) DepositPaymentOrderOverviewResolver(params graphql.ResolvePar
 
 	items, total, err := r.Repo.GetDepositPaymentOrderList(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.DepositPaymentOrderResponse
@@ -67,7 +67,7 @@ func (r *Resolver) DepositPaymentOrderOverviewResolver(params graphql.ResolvePar
 		resItem, err := buildDepositPaymentOrder(item, r)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -90,18 +90,18 @@ func (r *Resolver) DepositPaymentOrderInsertResolver(params graphql.ResolveParam
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.OrganizationUnitID == 0 {
 
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.OrganizationUnitID = *organizationUnitID
@@ -113,19 +113,19 @@ func (r *Resolver) DepositPaymentOrderInsertResolver(params graphql.ResolveParam
 	if data.ID == 0 {
 		item, err = r.Repo.CreateDepositPaymentOrder(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateDepositPaymentOrder(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
 
 	singleItem, err := buildDepositPaymentOrder(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -201,7 +201,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		supplier, err := r.Repo.GetSupplier(*item.MunicipalityID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		supplierDropdown := dto.DropdownSimple{
@@ -216,7 +216,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		TaxAuthorityCodebook, err := r.Repo.GetTaxAuthorityCodebookByID(*item.TaxAuthorityCodebookID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get tax authority codebook by id")
 		}
 
 		OUDropdown := dto.DropdownSimple{
@@ -231,7 +231,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -246,7 +246,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		value, err := r.Repo.GetSupplier(item.SupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -261,7 +261,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		value, err := r.Repo.GetSupplier(item.SubjectTypeID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -276,7 +276,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		builtItem, err := buildDepositPaymentAdditionalExpense(r, additionalExpense)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build deposit payment additional expense")
 		}
 
 		response.AdditionalExpenses = append(response.AdditionalExpenses, *builtItem)
@@ -286,7 +286,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		builtItem, err := buildDepositPaymentAdditionalExpense(r, additionalExpense)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build deposit payment additional expense")
 		}
 
 		response.AdditionalExpensesForPaying = append(response.AdditionalExpensesForPaying, *builtItem)
@@ -296,7 +296,7 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 		file, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 		fileDropdown := dto.FileDropdownSimple{
 			ID:   file.ID,
@@ -350,12 +350,12 @@ func (r *Resolver) DepositPaymentAdditionalExpensesOverviewResolver(params graph
 
 	additionalExpenses, total, err := r.Repo.GetDepositPaymentAdditionalExpenses(&input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	builtAdditionalExpenses, err := buildDepositPaymentAdditionalExpenseItemList(r, additionalExpenses)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -373,7 +373,7 @@ func buildDepositPaymentAdditionalExpenseItemList(r *Resolver, itemList []struct
 		singleItem, err := buildDepositPaymentAdditionalExpense(r, item)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build deposit payment additional expense")
 		}
 
 		items = append(items, singleItem)
@@ -400,7 +400,7 @@ func buildDepositPaymentAdditionalExpense(r *Resolver, item structs.DepositPayme
 		account, err := r.Repo.GetAccountItemByID(item.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		response.Account = dto.DropdownSimple{
@@ -412,7 +412,7 @@ func buildDepositPaymentAdditionalExpense(r *Resolver, item structs.DepositPayme
 	if item.PaymentOrderID != 0 {
 		invoice, err := r.Repo.GetDepositPaymentOrderByID(item.PaymentOrderID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get deposit payment order by id")
 		}
 
 		response.PaymentOrder = dto.DropdownSimple{
@@ -424,7 +424,7 @@ func buildDepositPaymentAdditionalExpense(r *Resolver, item structs.DepositPayme
 	if item.SubjectID != 0 {
 		supplier, err := r.Repo.GetSupplier(item.SubjectID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		response.Subject = dto.DropdownSimple{
@@ -436,7 +436,7 @@ func buildDepositPaymentAdditionalExpense(r *Resolver, item structs.DepositPayme
 	if item.OrganizationUnitID != 0 {
 		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		response.OrganizationUnit = dto.DropdownSimple{

@@ -22,7 +22,7 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 	articles, err := r.Repo.GetProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{ContractID: &contractID})
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for _, article := range articles.Data {
@@ -30,7 +30,7 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 			ArticleID: &article.PublicProcurementArticleID})
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		amount := 0
 		for _, articleInOrgUnit := range articlesInOrgUnit {
@@ -43,12 +43,12 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 
 		amount = amount - inventors.Total
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		articleData, err := r.Repo.GetProcurementArticle(article.PublicProcurementArticleID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		articleOverages, err := r.Repo.GetProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
@@ -56,7 +56,7 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 		})
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		var total int
@@ -126,20 +126,20 @@ func (r *Resolver) PublicProcurementContractArticlesOverviewResolver(params grap
 
 	contractsRes, err := r.Repo.GetProcurementContractArticlesList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	total = contractsRes.Total
 
 	contract, err := r.Repo.GetProcurementContract(*input.ContractID)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	procurement, err := r.Repo.GetProcurementItem(contract.PublicProcurementID)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for _, contractArticle := range contractsRes.Data {
@@ -149,7 +149,7 @@ func (r *Resolver) PublicProcurementContractArticlesOverviewResolver(params grap
 		}
 		resItem, err := buildProcurementContractArticlesResponseItem(ctx, r.Repo, contractArticle)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		filter := dto.GetProcurementOrganizationUnitArticleListInputDTO{
@@ -163,7 +163,7 @@ func (r *Resolver) PublicProcurementContractArticlesOverviewResolver(params grap
 		orgUnitArticles, err := r.Repo.GetOrganizationUnitArticlesList(filter)
 
 		if err != nil {
-			return nil, err
+			return errors.HandleAPPError(err)
 		}
 
 		amount := 0
@@ -199,7 +199,7 @@ func (r *Resolver) PublicProcurementContractArticleInsertResolver(params graphql
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var items []*dto.ProcurementContractArticlesResponseItem
@@ -209,11 +209,11 @@ func (r *Resolver) PublicProcurementContractArticleInsertResolver(params graphql
 		if itemID != 0 {
 			res, err := r.Repo.UpdateProcurementContractArticle(itemID, &data)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			item, err := buildProcurementContractArticlesResponseItem(params.Context, r.Repo, res)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			response.Message = "You updated this item!"
@@ -221,11 +221,11 @@ func (r *Resolver) PublicProcurementContractArticleInsertResolver(params graphql
 		} else {
 			res, err := r.Repo.CreateProcurementContractArticle(&data)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			item, err := buildProcurementContractArticlesResponseItem(params.Context, r.Repo, res)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			response.Message = "You created this item!"
@@ -246,7 +246,7 @@ func (r *Resolver) PublicProcurementContractArticleOverageInsertResolver(params 
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
@@ -254,7 +254,7 @@ func (r *Resolver) PublicProcurementContractArticleOverageInsertResolver(params 
 	if itemID != 0 {
 		res, err := r.Repo.UpdateProcurementContractArticleOverage(itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -262,7 +262,7 @@ func (r *Resolver) PublicProcurementContractArticleOverageInsertResolver(params 
 	} else {
 		res, err := r.Repo.CreateProcurementContractArticleOverage(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -277,7 +277,7 @@ func (r *Resolver) PublicProcurementContractArticleOverageDeleteResolver(params 
 
 	err := r.Repo.DeleteProcurementContractArticleOverage(itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -291,15 +291,15 @@ func buildProcurementContractArticlesResponseItem(context context.Context, r rep
 
 	article, err := r.GetProcurementArticle(item.PublicProcurementArticleID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get procurement article")
 	}
 	articleResItem, err := buildProcurementArticleResponseItem(context, r, article, organizationUnitID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "build procurement article response item")
 	}
 	contract, err := r.GetProcurementContract(item.PublicProcurementContractID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get procurement contract")
 	}
 
 	overageInput := dto.GetProcurementContractArticleOverageInput{ContractArticleID: &item.ID}
@@ -308,7 +308,7 @@ func buildProcurementContractArticlesResponseItem(context context.Context, r rep
 	}
 	overageList, err := r.GetProcurementContractArticleOverageList(&overageInput)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get procurement contract article overage list")
 	}
 
 	overageTotal := 0
@@ -319,7 +319,7 @@ func buildProcurementContractArticlesResponseItem(context context.Context, r rep
 	vatPercentage, err := strconv.ParseFloat(article.VatPercentage, 64)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "strconv parse float")
 	}
 
 	grossPrice := item.NetValue + item.NetValue*float32(vatPercentage)/100

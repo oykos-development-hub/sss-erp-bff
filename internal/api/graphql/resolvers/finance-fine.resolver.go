@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -19,11 +18,11 @@ func (r *Resolver) FineInsertResolver(params graphql.ResolveParams) (interface{}
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var item *structs.Fine
@@ -31,19 +30,19 @@ func (r *Resolver) FineInsertResolver(params graphql.ResolveParams) (interface{}
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFine(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFine(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
 
 	singleItem, err := buildFineResponseItem(*item, r)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -55,11 +54,11 @@ func (r *Resolver) FineOverviewResolver(params graphql.ResolveParams) (interface
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		fine, err := r.Repo.GetFine(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		fineResItem, err := buildFineResponseItem(*fine, r)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -93,12 +92,12 @@ func (r *Resolver) FineOverviewResolver(params graphql.ResolveParams) (interface
 
 	fines, total, err := r.Repo.GetFineList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	fineResItem, err := buildFineResponseItemList(fines, r)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -114,8 +113,7 @@ func (r *Resolver) FineDeleteResolver(params graphql.ResolveParams) (interface{}
 
 	err := r.Repo.DeleteFine(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting fine item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -191,7 +189,7 @@ func buildFineResponseItem(fine structs.Fine, r *Resolver) (*dto.FineResponseIte
 			file, err := r.Repo.GetFileByID(fileID)
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get file by id")
 			}
 
 			FileDropdown := dto.FileDropdownSimple{
@@ -207,7 +205,7 @@ func buildFineResponseItem(fine structs.Fine, r *Resolver) (*dto.FineResponseIte
 		account, err := r.Repo.GetAccountItemByID(fine.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		accountDropdown := dto.DropdownSimple{
@@ -221,7 +219,7 @@ func buildFineResponseItem(fine structs.Fine, r *Resolver) (*dto.FineResponseIte
 		courtAccount, err := r.Repo.GetAccountItemByID(*fine.CourtAccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		courtAccountDropdown := &dto.DropdownSimple{
@@ -241,7 +239,7 @@ func buildFineResponseItemList(itemList []structs.Fine, r *Resolver) ([]*dto.Fin
 		singleItem, err := buildFineResponseItem(item, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build fine response item")
 		}
 
 		items = append(items, singleItem)

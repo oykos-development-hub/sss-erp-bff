@@ -3,7 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -15,11 +15,11 @@ func (r *Resolver) EnforcedPaymentOverviewResolver(params graphql.ResolveParams)
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		EnforcedPayment, err := r.Repo.GetEnforcedPaymentByID(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		res, err := buildEnforcedPayment(*EnforcedPayment, r)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -67,7 +67,7 @@ func (r *Resolver) EnforcedPaymentOverviewResolver(params graphql.ResolveParams)
 
 	items, total, err := r.Repo.GetEnforcedPaymentList(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.EnforcedPaymentResponse
@@ -75,7 +75,7 @@ func (r *Resolver) EnforcedPaymentOverviewResolver(params graphql.ResolveParams)
 		resItem, err := buildEnforcedPayment(item, r)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -98,18 +98,18 @@ func (r *Resolver) EnforcedPaymentInsertResolver(params graphql.ResolveParams) (
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.OrganizationUnitID == 0 {
 
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.OrganizationUnitID = *organizationUnitID
@@ -127,20 +127,20 @@ func (r *Resolver) EnforcedPaymentInsertResolver(params graphql.ResolveParams) (
 					Message: "insufficient funds",
 				}, nil
 			}
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 
 		}
 	} else {
 		item, err = r.Repo.UpdateEnforcedPayment(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
 
 	singleItem, err := buildEnforcedPayment(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -210,7 +210,7 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -225,7 +225,7 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		value, err := r.Repo.GetSupplier(item.SupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -240,7 +240,7 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		value, err := r.Repo.GetSupplier(item.AgentID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -255,7 +255,7 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		value, err := r.Repo.GetAccountItemByID(item.AccountIDForExpenses)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -270,7 +270,7 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		file, err := r.Repo.GetFileByID(*item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 		fileDropdown := dto.FileDropdownSimple{
 			ID:   file.ID,
@@ -285,7 +285,7 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		file, err := r.Repo.GetFileByID(*item.ReturnFileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 		fileDropdown := dto.FileDropdownSimple{
 			ID:   file.ID,
@@ -300,7 +300,7 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		builtItem, err := buildEnforcedPaymentItem(orderItem, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build enforced payment item")
 		}
 
 		response.Items = append(response.Items, *builtItem)
@@ -324,7 +324,7 @@ func buildEnforcedPaymentItem(item structs.EnforcedPaymentItems, r *Resolver) (*
 		value, err := r.Repo.GetAccountItemByID(item.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		dropdown := dto.DropdownSimple{

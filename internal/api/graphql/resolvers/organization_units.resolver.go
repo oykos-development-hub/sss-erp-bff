@@ -28,12 +28,12 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 	if id != nil && id != 0 {
 		organizationUnit, err := r.Repo.GetOrganizationUnitByID(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		organizationUnitItem, err := buildOrganizationUnitOverviewResponse(r.Repo, organizationUnit)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		items = []dto.OrganizationUnitsOverviewResponse{*organizationUnitItem}
@@ -58,7 +58,7 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 
 		organizationUnits, err := r.Repo.GetOrganizationUnits(&input)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		loggedInAccount := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
@@ -71,7 +71,7 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 			active := true
 			resolution, err := r.Repo.GetJudgeResolutionList(&dto.GetJudgeResolutionListInputMS{Active: &active})
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			if len(resolution.Data) > 0 {
@@ -79,7 +79,7 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 				for _, item := range organizationUnits.Data {
 					_, numberOfPresidents, _, _, err := calculateEmployeeStats(r.Repo, item.ID, resolution.Data[0].ID)
 					if err != nil {
-						return errors.HandleAPIError(err)
+						return errors.HandleAPPError(err)
 					}
 
 					if numberOfPresidents == 1 {
@@ -93,7 +93,7 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 		for _, organizationUnit := range organizationUnits.Data {
 			organizationUnitItem, err := buildOrganizationUnitOverviewResponse(r.Repo, &organizationUnit)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			if !disableFilters {
@@ -153,7 +153,7 @@ func (r *Resolver) OrganizationUnitInsertResolver(params graphql.ResolveParams) 
 	}
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -174,7 +174,7 @@ func (r *Resolver) OrganizationUnitOrderResolver(params graphql.ResolveParams) (
 	for _, item := range data {
 		organizationUnit, err := r.Repo.UpdateOrganizationUnits(params.Context, item.ID, &item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		organizationUnitResponse = append(organizationUnitResponse, *organizationUnit)
 	}
@@ -192,7 +192,7 @@ func (r *Resolver) OrganizationUnitDeleteResolver(params graphql.ResolveParams) 
 
 	err := r.Repo.DeleteOrganizationUnits(itemID.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}*/
 
 	return map[string]interface{}{
@@ -211,7 +211,7 @@ func buildOrganizationUnitOverviewResponse(
 
 	organizationUnitsChildrenResponse, err := r.GetOrganizationUnits(&input)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get organization units")
 	}
 
 	return &dto.OrganizationUnitsOverviewResponse{

@@ -19,7 +19,7 @@ func buildRevisionDetailsItemResponse(r repository.MicroserviceRepositoryInterfa
 	if revision.RevisorUserProfileID != nil {
 		userProfile, err := r.GetUserProfileByID(*revision.RevisorUserProfileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 		revisorUserProfileDropdown.Title = userProfile.FirstName + " " + userProfile.LastName
 		revisorUserProfileDropdown.ID = userProfile.ID
@@ -32,7 +32,7 @@ func buildRevisionDetailsItemResponse(r repository.MicroserviceRepositoryInterfa
 	if revision.ResponsibleUserProfileID != nil {
 		userProfile, err := r.GetUserProfileByID(*revision.ResponsibleUserProfileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 		responsibleUserProfile.Title = userProfile.FirstName + " " + userProfile.LastName
 		responsibleUserProfile.ID = userProfile.ID
@@ -43,7 +43,7 @@ func buildRevisionDetailsItemResponse(r repository.MicroserviceRepositoryInterfa
 	if revision.ImplementationUserProfileID != nil {
 		userProfile, err := r.GetUserProfileByID(*revision.ImplementationUserProfileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 		implementationUserProfile.Title = userProfile.FirstName + " " + userProfile.LastName
 		implementationUserProfile.ID = userProfile.ID
@@ -57,14 +57,14 @@ func buildRevisionDetailsItemResponse(r repository.MicroserviceRepositoryInterfa
 	if revision.RevisionTypeID != nil {
 		revisionType, err = r.GetDropdownSettingByID(*revision.RevisionTypeID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 	}
 
 	if revision.InternalOrganizationUnitID != nil {
 		organizationUnit, err := r.GetOrganizationUnitByID(*revision.InternalOrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		revisionOrganizationUnit.Value = "internal"
 		revisionOrganizationUnit.ID = organizationUnit.ID
@@ -73,7 +73,7 @@ func buildRevisionDetailsItemResponse(r repository.MicroserviceRepositoryInterfa
 		if revision.ExternalOrganizationUnitID != nil {
 			organizationUnit, err := r.GetDropdownSettingByID(*revision.ExternalOrganizationUnitID)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get dropdown setting by id")
 			}
 			revisionOrganizationUnit.Value = "external"
 			revisionOrganizationUnit.ID = organizationUnit.ID
@@ -113,7 +113,7 @@ func buildRevisionDetailsItemResponse(r repository.MicroserviceRepositoryInterfa
 	if revision.TipsFileID != nil && *revision.TipsFileID != 0 {
 		file, err := r.GetFileByID(*revision.TipsFileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 		revisionItem.TipsFileID.ID = file.ID
 		revisionItem.TipsFileID.Name = file.Name
@@ -131,7 +131,7 @@ func buildRevisionOverviewItemResponse(r repository.MicroserviceRepositoryInterf
 	if revision.RevisorUserProfileID != nil {
 		userProfile, err := r.GetUserProfileByID(*revision.RevisorUserProfileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 		userProfileDropdown.Title = userProfile.FirstName + " " + userProfile.LastName
 		userProfileDropdown.ID = userProfile.ID
@@ -146,7 +146,7 @@ func buildRevisionOverviewItemResponse(r repository.MicroserviceRepositoryInterf
 	if revision.RevisionTypeID != nil {
 		revisionType, err = r.GetDropdownSettingByID(*revision.RevisionTypeID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 	}
 
@@ -154,7 +154,7 @@ func buildRevisionOverviewItemResponse(r repository.MicroserviceRepositoryInterf
 	if revision.InternalOrganizationUnitID != nil {
 		organizationUnit, err := r.GetOrganizationUnitByID(*revision.InternalOrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		organizationUnitDropdown.ID = organizationUnit.ID
 		organizationUnitDropdown.Title = organizationUnit.Title
@@ -162,7 +162,7 @@ func buildRevisionOverviewItemResponse(r repository.MicroserviceRepositoryInterf
 		if revision.ExternalOrganizationUnitID != nil {
 			organizationUnit, err := r.GetDropdownSettingByID(*revision.ExternalOrganizationUnitID)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get dropdown setting by id")
 			}
 			organizationUnitDropdown.ID = organizationUnit.ID
 			organizationUnitDropdown.Title = organizationUnit.Title
@@ -201,11 +201,11 @@ func (r *Resolver) RevisionsOverviewResolver(params graphql.ResolveParams) (inte
 	if id != nil && id.(int) > 0 {
 		revision, err := r.Repo.GetRevisionByID(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionOverviewItemResponse(r.Repo, revision)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Items = append(response.Items, *item)
 		response.Total = 1
@@ -238,13 +238,13 @@ func (r *Resolver) RevisionsOverviewResolver(params graphql.ResolveParams) (inte
 
 		revisions, err := r.Repo.GetRevisionList(&input)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		for _, revision := range revisions.Data {
 			item, err := buildRevisionOverviewItemResponse(r.Repo, revision)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			response.Items = append(response.Items, *item)
 		}
@@ -253,7 +253,7 @@ func (r *Resolver) RevisionsOverviewResolver(params graphql.ResolveParams) (inte
 
 	revisorDropdownList, err := getRevisorListDropdown(r.Repo)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Revisors = revisorDropdownList
@@ -279,11 +279,11 @@ func (r *Resolver) RevisionResolver(params graphql.ResolveParams) (interface{}, 
 	if id != nil && id.(int) > 0 {
 		revision, err := r.Repo.GetRevisionByID(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionDetailsItemResponse(r.Repo, revision)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		return dto.Response{
 			Status:  "success",
@@ -295,14 +295,14 @@ func (r *Resolver) RevisionResolver(params graphql.ResolveParams) (interface{}, 
 
 	revisions, err := r.Repo.GetRevisionList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	items := make([]dto.RevisionDetailsItem, 0, len(revisions.Data))
 	for _, revision := range revisions.Data {
 		item, err := buildRevisionDetailsItemResponse(r.Repo, revision)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		items = append(items, *item)
 	}
@@ -320,11 +320,11 @@ func (r *Resolver) RevisionDetailsResolver(params graphql.ResolveParams) (interf
 
 	revision, err := r.Repo.GetRevisionByID(id)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	item, err := buildRevisionDetailsItemResponse(r.Repo, revision)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	return dto.ResponseSingle{
 		Status:  "success",
@@ -346,22 +346,22 @@ func (r *Resolver) RevisionInsertResolver(params graphql.ResolveParams) (interfa
 	if itemID != 0 {
 		res, err := r.Repo.UpdateRevision(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionDetailsItemResponse(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
 		res, err := r.Repo.CreateRevision(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionDetailsItemResponse(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = item
 		response.Message = "You created this item!"
@@ -375,7 +375,7 @@ func (r *Resolver) RevisionDeleteResolver(params graphql.ResolveParams) (interfa
 
 	err := r.Repo.DeleteRevision(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -387,7 +387,7 @@ func (r *Resolver) RevisionDeleteResolver(params graphql.ResolveParams) (interfa
 func getRevisorListDropdown(r repository.MicroserviceRepositoryInterface) ([]*structs.SettingsDropdown, error) {
 	revisors, err := r.GetRevisors()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get revisors")
 	}
 
 	var revisorDropdownOptions []*structs.SettingsDropdown
@@ -427,7 +427,7 @@ func (r *Resolver) RevisionPlansOverviewResolver(params graphql.ResolveParams) (
 
 	revisions, err := r.Repo.GetRevisionPlanList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Items = revisions.Data
@@ -441,7 +441,7 @@ func (r *Resolver) RevisionPlansDetailsResolver(params graphql.ResolveParams) (i
 
 	revision, err := r.Repo.GetRevisionPlanByID(id)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -456,7 +456,7 @@ func (r *Resolver) RevisionPlanDeleteResolver(params graphql.ResolveParams) (int
 
 	err := r.Repo.DeleteRevisionPlan(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -478,7 +478,7 @@ func (r *Resolver) RevisionPlanInsertResolver(params graphql.ResolveParams) (int
 	if itemID != 0 {
 		res, err := r.Repo.UpdateRevisionPlan(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Item = res
@@ -486,7 +486,7 @@ func (r *Resolver) RevisionPlanInsertResolver(params graphql.ResolveParams) (int
 	} else {
 		res, err := r.Repo.CreateRevisionPlan(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Item = res
@@ -502,7 +502,7 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 
 	revisiontype, err := r.GetDropdownSettingByID(revision.RevisionType)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get dropdown setting by id")
 	}
 
 	revisionType := dto.DropdownSimple{
@@ -519,13 +519,13 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 	revisors, err := r.GetRevisionRevisorList(&input)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get revision revisor list")
 	}
 
 	for _, revisorID := range revisors {
 		revisor, err := r.GetUserProfileByID(revisorID.RevisorID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		revisorSingleDropdown := dto.DropdownSimple{
@@ -547,13 +547,13 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 		revisions, err := r.GetRevisionOrgUnitList(&filt)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get revision org unit list")
 		}
 
 		for _, revision := range revisions {
 			orgUnit, err := r.GetOrganizationUnitByID(revision.OrganizationUnitID)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get organization unit by id")
 			}
 
 			orgUnitDropdown := dto.DropdownSimple{
@@ -568,7 +568,7 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 	if revision.ExternalRevisionsubject != nil {
 		organizationUnit, err := r.GetDropdownSettingByID(*revision.ExternalRevisionsubject)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 		externalUnitDropdown.ID = organizationUnit.ID
 		externalUnitDropdown.Title = organizationUnit.Title
@@ -580,7 +580,7 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 		res, err := r.GetFileByID(*revision.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		file.ID = res.ID
@@ -608,7 +608,7 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 		res, err := r.GetFileByID(*revision.TipsFileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		file.ID = res.ID
@@ -656,7 +656,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 
 	revisions, err := r.Repo.GetRevisionsList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var revisionsOrgUnit []*dto.RevisionOrgUnit
@@ -670,7 +670,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 
 		revisionsOrgUnit, err = r.Repo.GetRevisionOrgUnitList(&filter)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		revisionOrgUnit = true
 	}
@@ -686,7 +686,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 
 		revisionsRevisor, err = r.Repo.GetRevisionRevisorList(&filter)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		revisionRevisor = true
 	}
@@ -732,7 +732,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 
 		item, err := buildRevisionItemResponse(r.Repo, revision)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Items = append(response.Items, *item)
 	}
@@ -740,7 +740,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 
 	revisorDropdownList, err := getRevisorListDropdown(r.Repo)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Revisors = revisorDropdownList
@@ -753,16 +753,16 @@ func (r *Resolver) RevisionDetailResolver(params graphql.ResolveParams) (interfa
 
 	revision, err := r.Repo.GetRevisionsByID(id)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	item, err := buildRevisionItemResponse(r.Repo, revision)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	revisorDropdownList, err := getRevisorListDropdown(r.Repo)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.RevisionsDetailsResponse{
@@ -792,14 +792,14 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 		revisors, err := r.Repo.GetRevisionRevisorList(&input)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		for _, revisor := range revisors {
 			err := r.Repo.DeleteRevisionRevisor(revisor.ID)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 
@@ -812,7 +812,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 			err := r.Repo.CreateRevisionRevisor(&inp)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 
@@ -824,14 +824,14 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 			revisions, err := r.Repo.GetRevisionOrgUnitList(&filt)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			for _, revision := range revisions {
 				err = r.Repo.DeleteRevisionOrgUnit(revision.ID)
 
 				if err != nil {
-					return errors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 			}
 
@@ -843,26 +843,26 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 
 				err := r.Repo.CreateRevisionOrgUnit(&dataRevision)
 				if err != nil {
-					return errors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 			}
 		}
 
 		res, err := r.Repo.UpdateRevisions(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		item, err := buildRevisionItemResponse(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
 		res, err := r.Repo.CreateRevisions(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		for _, revisor := range data.Revisor {
@@ -874,7 +874,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 			err := r.Repo.CreateRevisionRevisor(&inp)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 
@@ -887,14 +887,14 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 
 				err := r.Repo.CreateRevisionOrgUnit(&dataRevision)
 				if err != nil {
-					return errors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 			}
 		}
 
 		item, err := buildRevisionItemResponse(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = item
 	}
@@ -908,7 +908,7 @@ func (r *Resolver) RevisionsDeleteResolver(params graphql.ResolveParams) (interf
 
 	err := r.Repo.DeleteRevisions(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -926,7 +926,7 @@ func buildRevisionTipItemResponse(r repository.MicroserviceRepositoryInterface, 
 	if revision.UserProfileID != nil {
 		revisor, err := r.GetUserProfileByID(*revision.UserProfileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		revisorDropdown = structs.SettingsDropdown{
@@ -941,7 +941,7 @@ func buildRevisionTipItemResponse(r repository.MicroserviceRepositoryInterface, 
 		res, err := r.GetFileByID(*revision.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		file.ID = res.ID
@@ -1001,13 +1001,13 @@ func (r *Resolver) RevisionTipsOverviewResolver(params graphql.ResolveParams) (i
 
 	revisions, err := r.Repo.GetRevisionTipsList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for _, revision := range revisions.Data {
 		item, err := buildRevisionTipItemResponse(r.Repo, revision)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Items = append(response.Items, *item)
 	}
@@ -1015,7 +1015,7 @@ func (r *Resolver) RevisionTipsOverviewResolver(params graphql.ResolveParams) (i
 
 	revisorDropdownList, err := getRevisorListDropdown(r.Repo)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Revisors = revisorDropdownList
@@ -1028,11 +1028,11 @@ func (r *Resolver) RevisionTipsDetailsResolver(params graphql.ResolveParams) (in
 
 	revision, err := r.Repo.GetRevisionTipByID(id)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	item, err := buildRevisionTipItemResponse(r.Repo, revision)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	return dto.ResponseSingle{
 		Status:  "success",
@@ -1054,22 +1054,22 @@ func (r *Resolver) RevisionTipsInsertResolver(params graphql.ResolveParams) (int
 	if itemID != 0 {
 		res, err := r.Repo.UpdateRevisionTips(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionTipItemResponse(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {
 		res, err := r.Repo.CreateRevisionTips(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionTipItemResponse(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = item
 		response.Message = "You created this item!"
@@ -1083,7 +1083,7 @@ func (r *Resolver) RevisionTipsDeleteResolver(params graphql.ResolveParams) (int
 
 	err := r.Repo.DeleteRevisionTips(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

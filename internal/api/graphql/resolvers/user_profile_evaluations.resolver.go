@@ -6,7 +6,6 @@ import (
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -16,12 +15,12 @@ func (r *Resolver) UserProfileEvaluationResolver(params graphql.ResolveParams) (
 
 	userEvaluationList, err := r.Repo.GetEmployeeEvaluations(profileID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	userEvaluationResponseList, err := buildEvaluationResponseItemList(r.Repo, userEvaluationList)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -47,12 +46,12 @@ func (r *Resolver) JudgeEvaluationReportResolver(params graphql.ResolveParams) (
 	var evaluationResItemList []*dto.JudgeEvaluationReportResponseItem
 	evaluationList, err := r.Repo.GetEvaluationList(&filter)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	for _, item := range evaluationList {
 		evaluationResItem, err := buildJudgeEvaluationReportResponseItem(r.Repo, item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		if organizationUnitIDinput, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitIDinput != 0 {
 			if evaluationResItem.UnitID != organizationUnitIDinput {
@@ -79,30 +78,29 @@ func (r *Resolver) UserProfileEvaluationInsertResolver(params graphql.ResolvePar
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return errors.ErrorResponse("Error updating settings data"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
 	if itemID != 0 {
 		item, err := r.Repo.UpdateEmployeeEvaluation(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildEvaluationResponseItem(r.Repo, item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = resItem
 	} else {
 		item, err := r.Repo.CreateEmployeeEvaluation(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildEvaluationResponseItem(r.Repo, item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 		response.Item = resItem
@@ -116,7 +114,7 @@ func (r *Resolver) UserProfileEvaluationDeleteResolver(params graphql.ResolvePar
 
 	err := r.Repo.DeleteEvaluation(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -129,7 +127,7 @@ func buildEvaluationResponseItemList(repo repository.MicroserviceRepositoryInter
 	for _, item := range items {
 		resItem, err := buildEvaluationResponseItem(repo, item)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build evaluation response item")
 		}
 		resItemList = append(resItemList, resItem)
 	}
@@ -139,7 +137,7 @@ func buildEvaluationResponseItemList(repo repository.MicroserviceRepositoryInter
 func buildJudgeEvaluationReportResponseItem(repo repository.MicroserviceRepositoryInterface, item *structs.Evaluation) (*dto.JudgeEvaluationReportResponseItem, error) {
 	userProfile, err := repo.GetUserProfileByID(item.UserProfileID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get user profile by id")
 	}
 
 	filter := dto.JudgeResolutionsOrganizationUnitInput{
@@ -148,13 +146,13 @@ func buildJudgeEvaluationReportResponseItem(repo repository.MicroserviceReposito
 	judge, _, err := repo.GetJudgeResolutionOrganizationUnit(&filter)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get judge resolution organization unit")
 	}
 
 	orgUnit, err := repo.GetOrganizationUnitByID(judge[0].OrganizationUnitID)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get organization unit by id")
 	}
 
 	res := dto.JudgeEvaluationReportResponseItem{
@@ -179,7 +177,7 @@ func buildEvaluationResponseItem(repo repository.MicroserviceRepositoryInterface
 		file, err := repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		fileDropdown.ID = file.ID
@@ -192,7 +190,7 @@ func buildEvaluationResponseItem(repo repository.MicroserviceRepositoryInterface
 
 	evaluationType, err := repo.GetDropdownSettingByID(item.EvaluationTypeID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get dropdown setting by id")
 	}
 
 	evaluationTypeDropdown := dto.DropdownSimple{

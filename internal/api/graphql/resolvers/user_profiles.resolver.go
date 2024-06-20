@@ -8,7 +8,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
@@ -32,11 +31,11 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 	if id != nil && id != 0 {
 		user, err := r.Repo.GetUserProfileByID(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildUserProfileOverviewResponse(r.Repo, user)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		items = []dto.UserProfileOverviewResponse{*resItem}
 		total = 1
@@ -44,7 +43,7 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 		input := dto.GetUserProfilesInput{}
 		profiles, err := r.Repo.GetUserProfiles(&input)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		loggedInAccount := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
@@ -53,7 +52,7 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 		for _, userProfile := range profiles {
 			resItem, err := buildUserProfileOverviewResponse(r.Repo, userProfile)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			if isActiveOk &&
@@ -84,7 +83,7 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 
 	paginatedItems, err := shared.Paginate(items, page, size)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -101,11 +100,11 @@ func (r *Resolver) UserProfileContractsResolver(params graphql.ResolveParams) (i
 
 	contracts, err := r.Repo.GetEmployeeContracts(id.(int), nil)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	contractResponseItems, err := buildContractResponseItemList(r.Repo, contracts)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	return dto.Response{
 		Status:  "success",
@@ -126,12 +125,12 @@ func buildUserProfileOverviewResponse(
 	)
 	account, err := r.GetUserAccountByID(profile.UserAccountID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get user account by id")
 	}
 
 	role, err := r.GetRole(account.RoleID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get role")
 	}
 
 	employeesInOrganizationUnit, _ := r.GetEmployeesInOrganizationUnitsByProfileID(profile.ID)
@@ -139,21 +138,25 @@ func buildUserProfileOverviewResponse(
 	if employeesInOrganizationUnit != nil {
 		jobPositionInOrganizationUnit, err := r.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get job positions in organization units by id")
 		}
 
 		jobPosition, err := r.GetJobPositionByID(jobPositionInOrganizationUnit.JobPositionID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get job position by id")
 		}
 		jobPositionDropdown.ID = jobPosition.ID
 		jobPositionDropdown.Title = jobPosition.Title
 
-		systematization, _ := r.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
+		systematization, err := r.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get systematization by id")
+		}
 
 		organizationUnit, err := r.GetOrganizationUnitByID(systematization.OrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		organizationUnitDropdown.ID = organizationUnit.ID
 		organizationUnitDropdown.Title = organizationUnit.Title
@@ -162,13 +165,13 @@ func buildUserProfileOverviewResponse(
 	contract, err := r.GetEmployeeContracts(profile.ID, nil)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get employee contract")
 	}
 
 	if len(contract) > 0 {
 		orgUnit, err := r.GetOrganizationUnitByID(contract[0].OrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		organizationUnitDropdown.ID = orgUnit.ID
 		organizationUnitDropdown.Title = orgUnit.Title
@@ -176,7 +179,7 @@ func buildUserProfileOverviewResponse(
 		if contract[0].OrganizationUnitDepartmentID != nil {
 			department, err := r.GetOrganizationUnitByID(*contract[0].OrganizationUnitDepartmentID)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get organization unit by id")
 			}
 			departmentDropdown.ID = department.ID
 			departmentDropdown.Title = department.Title
@@ -197,7 +200,7 @@ func buildUserProfileOverviewResponse(
 		})
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get judge resolution organization unit")
 		}
 
 		if len(judgeResolutionOrganizationUnit) > 0 {
@@ -213,13 +216,13 @@ func buildUserProfileOverviewResponse(
 		judge, _, err := r.GetJudgeResolutionOrganizationUnit(&filter)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get judge resolution organization unit")
 		}
 
 		orgUnit, err := r.GetOrganizationUnitByID(judge[0].OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		organizationUnitDropdown.ID = orgUnit.ID
@@ -254,12 +257,12 @@ func (r *Resolver) UserProfileBasicResolver(params graphql.ResolveParams) (inter
 
 	profile, err := r.Repo.GetUserProfileByID(profileID.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	res, err := buildUserProfileBasicResponse(r.Repo, profile)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -284,18 +287,15 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 
 	err = json.Unmarshal(dataBytes, &userAccountData)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &userProfileData)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &activeContract)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	active := true
@@ -309,14 +309,14 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 
 	userAccountRes, err = r.Repo.CreateUserAccount(params.Context, userAccountData)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	userProfileData.UserAccountID = userAccountRes.ID
 	userProfileRes, err = r.Repo.CreateUserProfile(params.Context, userProfileData)
 	if err != nil {
 		_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if activeContract.Contract != nil {
@@ -325,7 +325,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 		if err != nil {
 			_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 			_ = r.Repo.DeleteUserProfile(params.Context, userProfileRes.ID)
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if activeContract.Contract.JobPositionInOrganizationUnitID > 0 {
@@ -337,7 +337,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 			if err != nil {
 				_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 				_ = r.Repo.DeleteUserProfile(params.Context, userProfileRes.ID)
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 
@@ -360,14 +360,14 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 			if err != nil {
 				_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 				_ = r.Repo.DeleteUserProfile(params.Context, userProfileRes.ID)
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 	}
 
 	res, err := buildUserProfileBasicResponse(r.Repo, userProfileRes)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -386,12 +386,12 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 	err = json.Unmarshal(dataBytes, &userProfileData)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	err = json.Unmarshal(dataBytes, &activeContract)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	active := true
@@ -402,12 +402,12 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 		if activeContract.Contract.ID == 0 {
 			_, err = r.Repo.CreateEmployeeContract(params.Context, activeContract.Contract)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		} else {
 			_, err = r.Repo.UpdateEmployeeContract(params.Context, activeContract.Contract.ID, activeContract.Contract)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 		if activeContract.Contract.JobPositionInOrganizationUnitID > -1 {
@@ -419,7 +419,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 			systematizationsResponse, err := r.Repo.GetSystematizations(&inputSys)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			if len(systematizationsResponse.Data) > 0 {
 				for _, systematization := range systematizationsResponse.Data {
@@ -428,7 +428,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 					}
 					jobPositionsInOrganizationUnits, err := r.Repo.GetJobPositionsInOrganizationUnits(&inputJpbPos)
 					if err != nil {
-						return errors.HandleAPIError(err)
+						return errors.HandleAPPError(err)
 					}
 					if len(jobPositionsInOrganizationUnits.Data) > 0 {
 						for _, job := range jobPositionsInOrganizationUnits.Data {
@@ -446,7 +446,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 										} else {
 											err := r.Repo.DeleteEmployeeInOrganizationUnit(emp.ID)
 											if err != nil {
-												return errors.HandleAPIError(err)
+												return errors.HandleAPPError(err)
 											}
 										}
 									}
@@ -464,7 +464,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 				}
 				_, err = r.Repo.CreateEmployeesInOrganizationUnits(input)
 				if err != nil {
-					return errors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 			}
 		}
@@ -495,12 +495,12 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 				}
 				_, err := r.Repo.UpdateJudgeResolutionOrganizationUnit(&inputUpdate)
 				if err != nil {
-					return errors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 			} else {
 				err := r.Repo.DeleteJJudgeResolutionOrganizationUnit(judgeResolutionOrganizationUnit[0].ID)
 				if err != nil {
-					return errors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 			}
 		}
@@ -513,7 +513,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 			}
 			_, err := r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 
@@ -521,13 +521,12 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 	userProfileRes, err := r.Repo.UpdateUserProfile(params.Context, userProfileData.ID, userProfileData)
 	if err != nil {
-		fmt.Printf("Creating the user profile failed because of this error - %s.\n", err)
-		return errors.ErrorResponse("Error creating the user profile data"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	res, err := buildUserProfileBasicResponse(r.Repo, userProfileRes)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -549,30 +548,29 @@ func (r *Resolver) UserProfileContractInsertResolver(params graphql.ResolveParam
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return errors.ErrorResponse("Error updating user profile contract data"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
 	if itemID != 0 {
 		item, err := r.Repo.UpdateEmployeeContract(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		contractResponseItem, err := buildContractResponseItem(r.Repo, *item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = contractResponseItem
 	} else {
 		item, err := r.Repo.CreateEmployeeContract(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		contractResponseItem, err := buildContractResponseItem(r.Repo, *item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -587,7 +585,7 @@ func (r *Resolver) UserProfileContractDeleteResolver(params graphql.ResolveParam
 
 	err := r.Repo.DeleteEmployeeContract(params.Context, itemID.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -599,7 +597,7 @@ func (r *Resolver) UserProfileContractDeleteResolver(params graphql.ResolveParam
 func buildEducationResItem(r repository.MicroserviceRepositoryInterface, education structs.Education) (*dto.Education, error) {
 	educationType, err := r.GetDropdownSettingByID(education.TypeID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get dropdown setting by id")
 	}
 
 	educationResItem := &dto.Education{
@@ -623,7 +621,7 @@ func buildEducationResItem(r repository.MicroserviceRepositoryInterface, educati
 	if education.FileID != 0 {
 		file, err := r.GetFileByID(education.FileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 		educationResItem.File = dto.FileDropdownSimple{
 			ID:   file.ID,
@@ -639,7 +637,7 @@ func buildEducationResItemList(r repository.MicroserviceRepositoryInterface, edu
 	for _, education := range educations {
 		educationResItem, err := buildEducationResItem(r, education)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build education res item")
 		}
 		educationResItemList = append(educationResItemList, educationResItem)
 	}
@@ -655,7 +653,7 @@ func (r *Resolver) UserProfileEducationResolver(params graphql.ResolveParams) (i
 		Entity: educationType,
 	})
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for _, educationType := range educationTypes.Data {
@@ -664,11 +662,11 @@ func (r *Resolver) UserProfileEducationResolver(params graphql.ResolveParams) (i
 			TypeID:        &educationType.ID,
 		})
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		educationResItemList, err := buildEducationResItemList(r.Repo, educations)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		responseItemList = append(responseItemList, educationResItemList...)
 	}
@@ -697,20 +695,20 @@ func (r *Resolver) UserProfileEducationInsertResolver(params graphql.ResolvePara
 	if itemID != 0 {
 		employeeEducation, err = r.Repo.UpdateEmployeeEducation(itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 	} else {
 		employeeEducation, err = r.Repo.CreateEmployeeEducation(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 	}
 
 	responseItem, err := buildEducationResItem(r.Repo, *employeeEducation)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	response.Item = responseItem
 
@@ -722,7 +720,7 @@ func (r *Resolver) UserProfileEducationDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteEmployeeEducation(itemID.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -736,11 +734,11 @@ func (r *Resolver) UserProfileExperienceResolver(params graphql.ResolveParams) (
 
 	experiences, err := r.Repo.GetEmployeeExperiences(userProfileID.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	experienceResponseItemList, err := buildExprienceResponseItemList(r.Repo, experiences)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -762,30 +760,29 @@ func (r *Resolver) UserProfileExperienceInsertResolver(params graphql.ResolvePar
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return errors.ErrorResponse("Error updating experience data"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
 	if itemID != 0 {
 		item, err := r.Repo.UpdateExperience(itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildExprienceResponseItem(r.Repo, item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = resItem
 	} else {
 		item, err := r.Repo.CreateExperience(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildExprienceResponseItem(r.Repo, item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 		response.Item = resItem
@@ -806,19 +803,18 @@ func (r *Resolver) UserProfileExperiencesInsertResolver(params graphql.ResolvePa
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return errors.ErrorResponse("Error updating experience data"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	var responseItems []*dto.ExperienceResponseItem
 	for _, item := range data {
 		item, err := r.Repo.CreateExperience(&item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildExprienceResponseItem(r.Repo, item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 		responseItems = append(responseItems, resItem)
@@ -833,7 +829,7 @@ func buildExprienceResponseItemList(repo repository.MicroserviceRepositoryInterf
 	for _, item := range items {
 		resItem, err := buildExprienceResponseItem(repo, item)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build exprience response item")
 		}
 		resItemList = append(resItemList, resItem)
 	}
@@ -847,7 +843,7 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		file, err := repo.GetFileByID(item.ReferenceFileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		fileDropdown.ID = file.ID
@@ -914,7 +910,7 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		organizationUnit, err := repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organziation unit by id")
 		}
 
 		res.OrganizationUnitTitle = organizationUnit.Title
@@ -928,7 +924,7 @@ func (r *Resolver) UserProfileExperienceDeleteResolver(params graphql.ResolvePar
 
 	err := r.Repo.DeleteExperience(itemID.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -942,7 +938,7 @@ func (r *Resolver) UserProfileFamilyResolver(params graphql.ResolveParams) (inte
 
 	familyMembers, err := r.Repo.GetEmployeeFamilyMembers(userProfileID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -965,14 +961,14 @@ func (r *Resolver) UserProfileFamilyInsertResolver(params graphql.ResolveParams)
 	if itemID != 0 {
 		res, err := r.Repo.UpdateEmployeeFamilyMember(itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = res
 		response.Message = "You updated this item!"
 	} else {
 		res, err := r.Repo.CreateEmployeeFamilyMember(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = res
 		response.Message = "You created this item!"
@@ -986,7 +982,7 @@ func (r *Resolver) UserProfileFamilyDeleteResolver(params graphql.ResolveParams)
 
 	err := r.Repo.DeleteEmployeeFamilyMember(itemID.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -999,7 +995,7 @@ func buildContractResponseItemList(r repository.MicroserviceRepositoryInterface,
 	for _, contract := range contracts {
 		contractResItem, err := buildContractResponseItem(r, *contract)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build contract response item")
 		}
 		contractResponseItemList = append(contractResponseItemList, contractResItem)
 	}
@@ -1013,7 +1009,7 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 		res, err := r.GetFileByID(*contract.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		file.ID = res.ID
@@ -1044,19 +1040,19 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 
 	contractType, err := r.GetDropdownSettingByID(contract.ContractTypeID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get dropdown setting by id")
 	}
 	responseContract.ContractType = dto.DropdownSimple{ID: contractType.ID, Title: contractType.Title}
 
 	userProfile, err := r.GetUserProfileByID(contract.UserProfileID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get user profile by id")
 	}
 	responseContract.UserProfile = dto.DropdownSimple{ID: userProfile.ID, Title: userProfile.GetFullName()}
 
 	organizationUnit, err := r.GetOrganizationUnitByID(contract.OrganizationUnitID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get organization unit by id")
 	}
 	responseContract.OrganizationUnit = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
 
@@ -1064,7 +1060,7 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 		if contract.OrganizationUnitDepartmentID != nil {
 			department, err := r.GetOrganizationUnitByID(*contract.OrganizationUnitDepartmentID)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get organization unit by id")
 			}
 			responseContract.Department = &dto.DropdownSimple{ID: department.ID, Title: department.Title}
 		}
@@ -1076,7 +1072,7 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 
 		systematizationsResponse, err := r.GetSystematizations(&inputSys)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get systematizations")
 		}
 		var jobPositionInOU structs.JobPositionsInOrganizationUnits
 		if len(systematizationsResponse.Data) > 0 {
@@ -1087,7 +1083,7 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 				}
 				jobPositionsInOrganizationUnits, err := r.GetJobPositionsInOrganizationUnits(&inputJpbPos)
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "repo get job positions in organization units")
 				}
 				if len(jobPositionsInOrganizationUnits.Data) > 0 {
 					for _, job := range jobPositionsInOrganizationUnits.Data {
@@ -1106,7 +1102,7 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 		if jobPositionInOU.JobPositionID > 0 {
 			jobPosition, err := r.GetJobPositionByID(jobPositionInOU.JobPositionID)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get job position by id")
 			}
 			responseContract.JobPositionInOrganizationUnit = dto.DropdownSimple{ID: jobPositionInOU.ID, Title: jobPosition.Title}
 		}
@@ -1122,7 +1118,7 @@ func buildUserProfileBasicResponse(
 	account, err := r.GetUserAccountByID(profile.UserAccountID)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get user account by id")
 	}
 
 	var (
@@ -1134,25 +1130,25 @@ func buildUserProfileBasicResponse(
 	employeesInOrganizationUnit, err := r.GetEmployeesInOrganizationUnitsByProfileID(profile.ID)
 	if err != nil {
 		if apiErr, ok := err.(*errors.APIError); ok && apiErr.StatusCode != 404 {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get employees in organizatin units by profile id")
 		}
 	}
 
 	if employeesInOrganizationUnit != nil {
 		jobPositionInOrganizationUnit, err := r.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get job positions in organization units by id")
 		}
 		jobPositionInOrganizationUnitID = jobPositionInOrganizationUnit.ID
 
 		jobPosition, err = r.GetJobPositionByID(jobPositionInOrganizationUnit.JobPositionID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get job positions by id")
 		}
 
 		organizationUnit, err = r.GetOrganizationUnitByID(jobPositionInOrganizationUnit.ParentOrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 	}
 
@@ -1196,13 +1192,13 @@ func buildUserProfileBasicResponse(
 	active := true
 	contracts, err := r.GetEmployeeContracts(profile.ID, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get employee contracts")
 	}
 	if len(contracts) > 0 {
 
 		contractResponseItem, err := buildContractResponseItem(r, *contracts[0])
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build contract response item")
 		}
 		userProfileResItem.Contract = contractResponseItem
 
@@ -1222,7 +1218,7 @@ func buildUserProfileBasicResponse(
 					UserProfileID: &profile.ID,
 				})
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "repo get judge resoluton organization unit")
 				}
 
 				if len(judgeResolutionOrganizationUnit) > 0 {
@@ -1232,7 +1228,7 @@ func buildUserProfileBasicResponse(
 					}
 					organizationUnitID, err := r.GetOrganizationUnitByID(judgeResolutionOrganizationUnit[0].OrganizationUnitID)
 					if err != nil {
-						return nil, err
+						return nil, errors.Wrap(err, "repo get organization unit by id")
 					}
 
 					userProfileResItem.OrganizationUnit = organizationUnitID
@@ -1249,13 +1245,13 @@ func buildUserProfileBasicResponse(
 	evaluations, err := r.GetEmployeeEvaluations(userProfileResItem.ID)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get employee evaluations")
 	}
 
 	if len(evaluations) > 0 {
 		evaluation, err := r.GetDropdownSettingByID(evaluations[0].EvaluationTypeID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 		userProfileResItem.Evaluation.ID = evaluation.ID
 		userProfileResItem.Evaluation.Title = evaluation.Title

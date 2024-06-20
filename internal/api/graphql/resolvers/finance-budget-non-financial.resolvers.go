@@ -20,11 +20,11 @@ func (r *Resolver) buildNonFinancialBudgetDetails(ctx context.Context, request *
 
 	activity, err := r.Repo.GetActivityByUnit(request.OrganizationUnitID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get activity by unit")
 	}
 	activityResItem, err := buildActivityResItem(r.Repo, *activity)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "build activity res item")
 	}
 
 	activityRequest := &dto.ActivityRequestResItem{
@@ -46,7 +46,7 @@ func (r *Resolver) buildNonFinancialBudgetDetails(ctx context.Context, request *
 				return resItem, nil
 			}
 
-			return nil, errors.Wrap(err, "GetNonFinancialBudgetDetails")
+			return nil, errors.Wrap(err, "repo get non financial budget by request id")
 		}
 	}
 
@@ -67,11 +67,11 @@ func (r *Resolver) buildNonFinancialBudgetDetails(ctx context.Context, request *
 		NonFinancialBudgetID: &nonFinancialBudget.ID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get non financial goal list")
 	}
 	goalResItemList, err := buildActivityGoalRequestResItemList(r.Repo, goalList)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "rbuild activity goal request res item list")
 	}
 
 	resItem.ActivityRequest.Goals = goalResItemList
@@ -85,7 +85,7 @@ func buildActivityGoalRequestResItemList(r repository.MicroserviceRepositoryInte
 	for _, goal := range goals {
 		goalRequestResItem, err := buildGoalRequestResItem(r, goal)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build goal request res item")
 		}
 		goalsRequestResItemList = append(goalsRequestResItemList, goalRequestResItem)
 	}
@@ -104,12 +104,12 @@ func buildGoalRequestResItem(r repository.MicroserviceRepositoryInterface, goal 
 		GoalID: &goal.ID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get non financial goal indicator list")
 	}
 
 	indicatorResItemList, err := buildActivityGoalIndicatorRequestResItemList(indicators)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "build activity goal indicator request res item list")
 	}
 
 	resItem.Indicators = indicatorResItemList
@@ -121,7 +121,7 @@ func buildActivityGoalIndicatorRequestResItemList(indicators []structs.NonFinanc
 	for _, indicator := range indicators {
 		goalIndicatorRequestResItem, err := buildGoalIndicatorRequestResItem(indicator)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build goal indicator request res item")
 		}
 		goalsRequestResItemList = append(goalsRequestResItemList, goalIndicatorRequestResItem)
 	}
@@ -163,30 +163,30 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	_, err = r.upsertNonFinancialBudget(params.Context, data)
 	if err != nil {
-		return nil, err
+		return errors.HandleAPPError(err)
 	}
 
 	request, err := r.Repo.GetBudgetRequest(data.RequestID)
 	if err != nil {
-		return errors.HandleAPPError(errors.Wrap(err, "NonFinancialBudgetInsertResolver"))
+		return errors.HandleAPPError(err)
 	}
 
 	request.Status = structs.BudgetRequestFilledStatus
 	_, err = r.Repo.UpdateBudgetRequest(params.Context, request)
 	if err != nil {
-		return errors.HandleAPPError(errors.Wrap(err, "NonFinancialBudgetInsertResolver"))
+		return errors.HandleAPPError(err)
 	}
 
 	financialAndNonFinancialRequests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
 		ParentID: request.ParentID,
 	})
 	if err != nil {
-		return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error updating parent budget request"))
+		return errors.HandleAPPError(err)
 	}
 
 	allFilled := true
@@ -199,18 +199,18 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 	if allFilled {
 		generalRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
 		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error getting parent financial request"))
+			return errors.HandleAPPError(err)
 		}
 		generalRequest.Status = structs.BudgetRequestFilledStatus
 		_, err = r.Repo.UpdateBudgetRequest(params.Context, generalRequest)
 		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "FinancialBudgetFillResolver: error updating parent budget request"))
+			return errors.HandleAPPError(err)
 		}
 	}
 
 	resItem, err := r.buildNonFinancialBudgetDetails(params.Context, request)
 	if err != nil {
-		return errors.HandleAPPError(errors.Wrap(err, "NonFinancialBudgetInsertResolver"))
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = resItem
@@ -226,20 +226,17 @@ func (r *Resolver) upsertNonFinancialBudget(ctx context.Context, data dto.Create
 	if data.ID != 0 {
 		item, err = r.Repo.UpdateNonFinancialBudget(ctx, data.ID, &data.NonFinancialBudgetItem)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo update non financial budget")
 		}
 	} else {
 		item, err = r.Repo.CreateNonFinancialBudget(ctx, &data.NonFinancialBudgetItem)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo create non financial budget")
 		}
 	}
 
 	if err := r.upsertNonFinancialGoals(ctx, data.Goals, item.ID); err != nil {
-		return nil, err
-	}
-	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo upsert non financial goals ")
 	}
 
 	return item, nil
@@ -251,7 +248,7 @@ func (r *Resolver) upsertNonFinancialGoals(ctx context.Context, goalsData []dto.
 
 	goals, err := r.Repo.GetNonFinancialGoalList(&dto.GetNonFinancialGoalListInputMS{NonFinancialBudgetID: &budgetID})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "repo get non financial goal list")
 	}
 	for _, goal := range goals {
 		goalsToDelete[goal.ID] = true
@@ -264,24 +261,24 @@ func (r *Resolver) upsertNonFinancialGoals(ctx context.Context, goalsData []dto.
 		if insertGoalItem.ID != 0 {
 			updatedGoal, err := r.Repo.UpdateNonFinancialGoal(ctx, insertGoalItem.ID, &insertGoalItem)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo update non financial goal")
 			}
 
 			err = r.updateIndicators(ctx, updatedGoal.ID, goal.Indicators)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo update indicators")
 			}
 
 			goalsToDelete[goal.ID] = false
 		} else {
 			createdGoal, err := r.Repo.CreateNonFinancialGoal(ctx, &insertGoalItem)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo create non financial goals")
 			}
 
 			err = r.createIndicators(ctx, createdGoal.ID, goal.Indicators)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo create indicators")
 			}
 		}
 	}
@@ -290,7 +287,7 @@ func (r *Resolver) upsertNonFinancialGoals(ctx context.Context, goalsData []dto.
 		if delete {
 			err := r.Repo.DeleteNonFinancialGoal(ctx, id)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo delete non financial goal")
 			}
 		}
 	}
@@ -303,7 +300,7 @@ func (r *Resolver) updateIndicators(ctx context.Context, goalID int, indicators 
 
 	existingIndicators, err := r.Repo.GetNonFinancialGoalIndicatorList(&dto.GetNonFinancialGoalIndicatorListInputMS{GoalID: &goalID})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "repo get non financial goal indicator list")
 	}
 
 	for _, indicator := range existingIndicators {
@@ -316,14 +313,14 @@ func (r *Resolver) updateIndicators(ctx context.Context, goalID int, indicators 
 		if indicator.ID != 0 {
 			_, err := r.Repo.UpdateNonFinancialGoalIndicator(ctx, indicator.ID, &indicator)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo update non financial goal indicator")
 			}
 
 			indicatorsToDelete[indicator.ID] = false
 		} else {
 			_, err := r.Repo.CreateNonFinancialGoalIndicator(ctx, &indicator)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo create non financial goal indicator")
 			}
 		}
 	}
@@ -332,7 +329,7 @@ func (r *Resolver) updateIndicators(ctx context.Context, goalID int, indicators 
 		if delete {
 			err := r.Repo.DeleteNonFinancialGoalIndicator(ctx, id)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo delete non finanical goal indicator")
 			}
 		}
 	}
@@ -346,7 +343,7 @@ func (r *Resolver) createIndicators(ctx context.Context, goalID int, indicators 
 
 		_, err := r.Repo.CreateNonFinancialGoalIndicator(ctx, &indicator)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "repo create non financial goal indicator")
 		}
 
 	}
@@ -363,7 +360,7 @@ func (r *Resolver) NonFinancialGoalInsertResolver(params graphql.ResolveParams) 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
@@ -371,12 +368,12 @@ func (r *Resolver) NonFinancialGoalInsertResolver(params graphql.ResolveParams) 
 	if itemID != 0 {
 		item, err := r.Repo.UpdateNonFinancialGoal(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildGoalRequestResItem(r.Repo, *item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -384,12 +381,12 @@ func (r *Resolver) NonFinancialGoalInsertResolver(params graphql.ResolveParams) 
 	} else {
 		item, err := r.Repo.CreateNonFinancialGoal(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildGoalRequestResItem(r.Repo, *item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -408,7 +405,7 @@ func (r *Resolver) NonFinancialGoalIndicatorInsertResolver(params graphql.Resolv
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
@@ -416,12 +413,12 @@ func (r *Resolver) NonFinancialGoalIndicatorInsertResolver(params graphql.Resolv
 	if itemID != 0 {
 		item, err := r.Repo.UpdateNonFinancialGoalIndicator(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildGoalIndicatorRequestResItem(*item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -429,12 +426,12 @@ func (r *Resolver) NonFinancialGoalIndicatorInsertResolver(params graphql.Resolv
 	} else {
 		item, err := r.Repo.CreateNonFinancialGoalIndicator(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildGoalIndicatorRequestResItem(*item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"

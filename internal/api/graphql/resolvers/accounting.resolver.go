@@ -3,7 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -31,7 +31,7 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
 	}
@@ -40,14 +40,14 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
 	}
 
 	items, total, err := r.Repo.GetAllObligationsForAccounting(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for i := 0; i < len(items); i++ {
@@ -55,7 +55,7 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			items[i].Supplier.ID = supplier.ID
@@ -97,7 +97,7 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
 	}
@@ -106,14 +106,14 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
 	}
 
 	items, total, err := r.Repo.GetAllPaymentOrdersForAccounting(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for i := 0; i < len(items); i++ {
@@ -121,7 +121,7 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			items[i].Supplier.ID = supplier.ID
@@ -163,7 +163,7 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
 	}
@@ -172,14 +172,14 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
 	}
 
 	items, total, err := r.Repo.GetAllEnforcedPaymentsForAccounting(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for i := 0; i < len(items); i++ {
@@ -187,7 +187,7 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			items[i].Supplier.ID = supplier.ID
@@ -229,7 +229,7 @@ func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graph
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
 	}
@@ -238,14 +238,14 @@ func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graph
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
 	}
 
 	items, total, err := r.Repo.GetAllReturnedEnforcedPaymentsForAccounting(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for i := 0; i < len(items); i++ {
@@ -253,7 +253,7 @@ func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graph
 			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			items[i].Supplier.ID = supplier.ID
@@ -289,16 +289,16 @@ func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.Res
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	items, err := r.Repo.BuildAccountingOrderForObligations(data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	responseData := dto.AccountingOrderForObligationsResponse{
@@ -310,7 +310,7 @@ func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.Res
 	orgUnit, err := r.Repo.GetOrganizationUnitByID(data.OrganizationUnitID)
 
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	dropdown := dto.DropdownSimple{
@@ -327,7 +327,7 @@ func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.Res
 		builtItem.ID = id + 1
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		responseData.Items = append(responseData.Items, *builtItem)
@@ -342,11 +342,11 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		AccountingEntry, err := r.Repo.GetAccountingEntryByID(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		res, err := buildAccountingEntry(*AccountingEntry, r)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -380,7 +380,7 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
 	}
@@ -389,14 +389,14 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
 	}
 
 	items, total, err := r.Repo.GetAccountingEntryList(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.AccountingEntryResponse
@@ -404,7 +404,7 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		resItem, err := buildAccountingEntry(item, r)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -427,18 +427,18 @@ func (r *Resolver) AccountingEntryInsertResolver(params graphql.ResolveParams) (
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.OrganizationUnitID == 0 {
 
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.OrganizationUnitID = *organizationUnitID
@@ -449,12 +449,12 @@ func (r *Resolver) AccountingEntryInsertResolver(params graphql.ResolveParams) (
 
 	item, err = r.Repo.CreateAccountingEntry(params.Context, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	singleItem, err := buildAccountingEntry(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -494,7 +494,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
 	}
@@ -503,7 +503,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
 	}
@@ -512,7 +512,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfStartBooking = &dateOfStart
 	}
@@ -521,7 +521,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		input.DateOfEndBooking = &dateOfEnd
 	}
@@ -530,7 +530,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		account, err := r.Repo.GetAccountItemByID(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
@@ -538,7 +538,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		})
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if len(accounts.Data) > 0 {
@@ -550,7 +550,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 				})
 
 				if err != nil {
-					return apierrors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 
 				if len(currAccount.Data) > 0 {
@@ -562,7 +562,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 
 	items, err := r.Repo.GetAnalyticalCard(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for i := 0; i < len(items); i++ {
@@ -579,13 +579,13 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 
 	response, err := buildAnalyticalCardResponse(items, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	orgUnitID, err := r.Repo.GetOrganizationUnitByID(input.OrganizationUnitID)
 
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for i := 0; i < len(response); i++ {
@@ -619,7 +619,7 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 		value, err := r.Repo.GetAccountItemByID(item.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -634,7 +634,7 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 		value, err := r.Repo.GetSupplier(item.SupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier item by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -700,7 +700,7 @@ func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.Accou
 		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		dropdown := dto.OrganizationUnitsOverviewResponse{
@@ -716,7 +716,7 @@ func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.Accou
 		builtItem, err := buildAccountingEntryItem(orderItem, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "building accounting entry item")
 		}
 
 		response.Items = append(response.Items, *builtItem)
@@ -744,7 +744,7 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		value, err := r.Repo.GetAccountItemByID(item.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -759,7 +759,7 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		value, err := r.Repo.GetSalaryByID(*item.SalaryID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get salary by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -774,7 +774,7 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		value, err := r.Repo.GetInvoice(*item.InvoiceID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get invoice")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -789,7 +789,7 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		value, err := r.Repo.GetPaymentOrderByID(*item.PaymentOrderID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get payment order by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -804,7 +804,7 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		value, err := r.Repo.GetEnforcedPaymentByID(*item.EnforcedPaymentID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get enforced payment by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -819,7 +819,7 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		value, err := r.Repo.GetEnforcedPaymentByID(*item.ReturnEnforcedPaymentID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get enforced payment by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -834,7 +834,7 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 		value, err := r.Repo.GetSupplier(item.SupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -856,7 +856,7 @@ func buildAnalyticalCardResponse(items []structs.AnalyticalCard, r *Resolver) ([
 			supplier, err := r.Repo.GetSupplier(item.SupplierID)
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get supplier")
 			}
 
 			responseItem := dto.AnalyticalCardDTO{
@@ -877,7 +877,7 @@ func buildAnalyticalCardResponse(items []structs.AnalyticalCard, r *Resolver) ([
 				dateOfBooking, err := parseDate(entryItem.DateOfBooking)
 
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "parse date")
 				}
 
 				year := dateOfBooking.Year()

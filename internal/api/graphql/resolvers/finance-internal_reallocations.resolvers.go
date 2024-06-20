@@ -3,7 +3,8 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
+
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -16,11 +17,11 @@ func (r *Resolver) InternalReallocationOverviewResolver(params graphql.ResolvePa
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		InternalReallocation, err := r.Repo.GetInternalReallocationByID(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		res, err := buildInternalReallocation(*InternalReallocation, r)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -60,7 +61,7 @@ func (r *Resolver) InternalReallocationOverviewResolver(params graphql.ResolvePa
 
 	items, total, err := r.Repo.GetInternalReallocationList(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.InternalReallocationResponse
@@ -68,7 +69,7 @@ func (r *Resolver) InternalReallocationOverviewResolver(params graphql.ResolvePa
 		resItem, err := buildInternalReallocation(item, r)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -91,18 +92,18 @@ func (r *Resolver) InternalReallocationInsertResolver(params graphql.ResolvePara
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.OrganizationUnitID == 0 {
 
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.OrganizationUnitID = *organizationUnitID
@@ -112,7 +113,7 @@ func (r *Resolver) InternalReallocationInsertResolver(params graphql.ResolvePara
 	if data.RequestedBy == 0 {
 		userProfile, ok := params.Context.Value(config.LoggedInProfileKey).(*structs.UserProfiles)
 		if !ok || userProfile == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("error during checking user profile id"))
+			return errors.HandleAPPError(fmt.Errorf("error during checking user profile id"))
 		}
 
 		data.RequestedBy = userProfile.ID
@@ -122,12 +123,12 @@ func (r *Resolver) InternalReallocationInsertResolver(params graphql.ResolvePara
 
 	item, err = r.Repo.CreateInternalReallocation(params.Context, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	singleItem, err := buildInternalReallocation(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -140,10 +141,7 @@ func (r *Resolver) InternalReallocationDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteInternalReallocation(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting internal reallocation failed because of this error - %s.\n", err)
-		return dto.ResponseSingle{
-			Status: "failed",
-		}, nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -167,7 +165,7 @@ func buildInternalReallocation(item structs.InternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -182,7 +180,7 @@ func buildInternalReallocation(item structs.InternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetUserProfileByID(item.RequestedBy)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -197,7 +195,7 @@ func buildInternalReallocation(item structs.InternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		dropdown := dto.FileDropdownSimple{
@@ -213,7 +211,7 @@ func buildInternalReallocation(item structs.InternalReallocation, r *Resolver) (
 		value, err := r.Repo.GetBudget(item.BudgetID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get budget")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -228,7 +226,7 @@ func buildInternalReallocation(item structs.InternalReallocation, r *Resolver) (
 		builtItem, err := buildInternalReallocationItem(orderItem, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build internal reallocation item")
 		}
 
 		response.Items = append(response.Items, *builtItem)
@@ -247,7 +245,7 @@ func buildInternalReallocationItem(item structs.InternalReallocationItem, r *Res
 		value, err := r.Repo.GetAccountItemByID(item.SourceAccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -262,7 +260,7 @@ func buildInternalReallocationItem(item structs.InternalReallocationItem, r *Res
 		value, err := r.Repo.GetAccountItemByID(item.DestinationAccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		dropdown := dto.DropdownSimple{

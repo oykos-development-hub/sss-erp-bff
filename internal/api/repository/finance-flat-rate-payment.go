@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateFlatRatePayment(ctx context.Context, i
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FlatRatePayment, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -26,7 +27,7 @@ func (repo *MicroserviceRepository) GetFlatRatePayment(id int) (*structs.FlatRat
 	res := &dto.GetFlatRatePaymentResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FlatRatePayment+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -36,7 +37,7 @@ func (repo *MicroserviceRepository) GetFlatRatePaymentList(input *dto.GetFlatRat
 	res := &dto.GetFlatRatePaymentListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FlatRatePayment, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) DeleteFlatRatePayment(ctx context.Context, i
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FlatRatePayment+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -65,7 +66,7 @@ func (repo *MicroserviceRepository) UpdateFlatRatePayment(ctx context.Context, i
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FlatRatePayment+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }

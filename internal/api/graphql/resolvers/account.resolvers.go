@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"unicode"
 
 	"github.com/graphql-go/graphql"
@@ -25,7 +24,7 @@ func buildAccountItemResponseItemList(accountItems []*structs.AccountItem) ([]*d
 	for _, item := range accountItems {
 		resItem, err := buildAccountItemResponseItem(item)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build account item response item")
 		}
 		responseItems = append(responseItems, resItem)
 	}
@@ -55,17 +54,17 @@ func (r *Resolver) AccountOverviewResolver(params graphql.ResolveParams) (interf
 
 	accounts, err := r.Repo.GetAccountItems(&accountFilters)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	accountResItemlist, err := buildAccountItemResponseItemList(accounts.Data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if tree, ok := params.Args["tree"].(bool); ok && tree {
 		accountResItemlist, err = CreateTree(accountResItemlist)
 		if err != nil {
-			fmt.Printf("Fetching Account failed because of this error - %s.\n", err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -127,11 +126,11 @@ func (r *Resolver) AccountInsertResolver(params graphql.ResolveParams) (interfac
 
 	res, err := r.Repo.CreateAccountItemList(params.Context, data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	items, err := buildAccountItemResponseItemList(res)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	response.Items = items
 	response.Message = "You created a new version of account items!"
@@ -144,7 +143,7 @@ func (r *Resolver) AccountDeleteResolver(params graphql.ResolveParams) (interfac
 
 	err := r.Repo.DeleteAccount(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

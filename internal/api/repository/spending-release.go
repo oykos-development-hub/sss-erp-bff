@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"fmt"
@@ -25,7 +26,7 @@ func (repo *MicroserviceRepository) CreateSpendingRelease(ctx context.Context, s
 	res := dto.GetSpendingReleaseListResponseMS{}
 	_, err := makeAPIRequest("POST", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingReleaseInsert, budgetID, unitID), spendingReleaseListToInsert, &res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -35,7 +36,7 @@ func (repo *MicroserviceRepository) GetSpendingReleaseOverview(ctx context.Conte
 	res := dto.GetSpendingReleaseOverviewResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.SpendingReleaseOverview, input, &res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -45,7 +46,7 @@ func (repo *MicroserviceRepository) GetSpendingReleaseList(ctx context.Context, 
 	res := dto.GetSpendingReleaseListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.SpendingReleaseList, input, &res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -58,7 +59,7 @@ func (repo *MicroserviceRepository) DeleteSpendingRelease(ctx context.Context, i
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.SpendingReleaseDelete, input, nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil

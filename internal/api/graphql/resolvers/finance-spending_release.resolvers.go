@@ -45,12 +45,12 @@ func (r *Resolver) SpendingReleaseInsert(params graphql.ResolveParams) (interfac
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	items, err := r.Repo.CreateSpendingRelease(params.Context, data, budgetID, unitID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{

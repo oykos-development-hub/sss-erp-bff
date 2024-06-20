@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateExternalReallocation(ctx context.Conte
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.ExternalReallocation, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return res.Data, nil
 }
@@ -26,7 +27,7 @@ func (repo *MicroserviceRepository) GetExternalReallocationByID(id int) (*struct
 	res := &dto.GetExternalReallocationSingleResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.ExternalReallocation+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -36,7 +37,7 @@ func (repo *MicroserviceRepository) GetExternalReallocationList(filter dto.Exter
 	res := &dto.GetExternalReallocationResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.ExternalReallocation, filter, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) DeleteExternalReallocation(ctx context.Conte
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.ExternalReallocation+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -65,7 +66,7 @@ func (repo *MicroserviceRepository) AcceptOUExternalReallocation(ctx context.Con
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.AcceptOUExternalReallocation, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return res.Data, nil
 }
@@ -78,7 +79,7 @@ func (repo *MicroserviceRepository) RejectOUExternalReallocation(ctx context.Con
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.RejectOUExternalReallocation+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -92,7 +93,7 @@ func (repo *MicroserviceRepository) AcceptSSSExternalReallocation(ctx context.Co
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.AcceptSSSExternalReallocation+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -106,7 +107,7 @@ func (repo *MicroserviceRepository) RejectSSSExternalReallocation(ctx context.Co
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.RejectSSSExternalReallocation+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil

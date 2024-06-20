@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
 
@@ -13,11 +13,11 @@ func (r *Resolver) ModelsOfAccountingOverviewResolver(params graphql.ResolvePara
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		ModelsOfAccounting, err := r.Repo.GetModelsOfAccountingByID(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		res, err := buildModelsOfAccounting(*ModelsOfAccounting, r)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -36,7 +36,7 @@ func (r *Resolver) ModelsOfAccountingOverviewResolver(params graphql.ResolvePara
 
 	items, total, err := r.Repo.GetModelsOfAccountingList(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.ModelsOfAccountingResponse
@@ -44,7 +44,7 @@ func (r *Resolver) ModelsOfAccountingOverviewResolver(params graphql.ResolvePara
 		resItem, err := buildModelsOfAccounting(item, r)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -67,23 +67,23 @@ func (r *Resolver) ModelsOfAccountingUpdateResolver(params graphql.ResolveParams
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var item *structs.ModelsOfAccounting
 
 	item, err = r.Repo.UpdateModelsOfAccounting(params.Context, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	singleItem, err := buildModelsOfAccounting(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -111,7 +111,7 @@ func buildModelsOfAccounting(item structs.ModelsOfAccounting, r *Resolver) (*dto
 			account, err := r.Repo.GetAccountItemByID(orderItem.DebitAccountID)
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get account item by id")
 			}
 
 			builtAccount := dto.AccountItemResponseItem{
@@ -127,7 +127,7 @@ func buildModelsOfAccounting(item structs.ModelsOfAccounting, r *Resolver) (*dto
 			account, err := r.Repo.GetAccountItemByID(orderItem.CreditAccountID)
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get account item by id")
 			}
 
 			builtAccount := dto.AccountItemResponseItem{

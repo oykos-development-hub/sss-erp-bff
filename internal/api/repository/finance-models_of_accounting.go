@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) UpdateModelsOfAccounting(ctx context.Context
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ModelsOfAccounting+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -26,7 +27,7 @@ func (repo *MicroserviceRepository) GetModelsOfAccountingByID(id int) (*structs.
 	res := &dto.GetModelsOfAccountingResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.ModelsOfAccounting+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -36,7 +37,7 @@ func (repo *MicroserviceRepository) GetModelsOfAccountingList(filter dto.ModelsO
 	res := &dto.GetModelsOfAccountingListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.ModelsOfAccounting, filter, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil

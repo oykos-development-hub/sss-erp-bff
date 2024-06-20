@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -15,7 +14,7 @@ func (r *Resolver) UserProfileForeignerResolver(params graphql.ResolveParams) (i
 
 	UserProfilesData, err := r.Repo.GetEmployeeForeigners(profileID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -37,22 +36,21 @@ func (r *Resolver) UserProfileForeignerInsertResolver(params graphql.ResolvePara
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return errors.ErrorResponse("Error updating settings data"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
 	if itemID != 0 {
 		item, err := r.Repo.UpdateEmployeeForeigner(itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = item
 	} else {
 		item, err := r.Repo.CreateEmployeeForeigner(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 		response.Item = item
@@ -66,7 +64,7 @@ func (r *Resolver) UserProfileForeignerDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteForeigner(itemID.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{

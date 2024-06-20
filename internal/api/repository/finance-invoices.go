@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateInvoice(ctx context.Context, item *str
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Invoice, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -31,7 +32,7 @@ func (repo *MicroserviceRepository) UpdateInvoice(ctx context.Context, item *str
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Invoice+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -40,7 +41,7 @@ func (repo *MicroserviceRepository) GetInvoiceList(input *dto.GetInvoiceListInpu
 	res := &dto.GetInvoiceListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Invoice, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) GetInvoice(id int) (*structs.Invoice, error)
 	res := &dto.GetInvoiceResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Invoice+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -64,7 +65,7 @@ func (repo *MicroserviceRepository) DeleteInvoice(ctx context.Context, id int) e
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.Invoice+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -73,7 +74,7 @@ func (repo *MicroserviceRepository) DeleteInvoice(ctx context.Context, id int) e
 func (repo *MicroserviceRepository) DeleteInvoiceArticle(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.InvoiceArticle+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -88,7 +89,7 @@ func (repo *MicroserviceRepository) GetInvoiceArticleList(id int) ([]structs.Inv
 
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.InvoiceArticle, filter, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -98,7 +99,7 @@ func (repo *MicroserviceRepository) CreateInvoiceArticle(article *structs.Invoic
 	res := &dto.GetInvoiceArticleResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.InvoiceArticle, article, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -107,7 +108,7 @@ func (repo *MicroserviceRepository) UpdateInvoiceArticle(article *structs.Invoic
 	res := &dto.GetInvoiceArticleResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.InvoiceArticle+"/"+strconv.Itoa(article.ID), article, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -116,7 +117,7 @@ func (repo *MicroserviceRepository) GetAdditionalExpenses(input *dto.AdditionalE
 	res := &dto.GetAdditionalExpensesListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.AdditionalExpenses, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil

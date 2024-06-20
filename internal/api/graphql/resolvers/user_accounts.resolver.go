@@ -24,11 +24,11 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 	if id != nil && id != 0 {
 		user, err := r.Repo.GetUserAccountByID(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		role, err := r.Repo.GetRole(user.RoleID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		user.Role = *role
 		items = []structs.UserAccounts{*user}
@@ -52,12 +52,12 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 
 		res, err := r.Repo.GetUserAccounts(&input)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		for _, user := range res.Data {
 			role, err := r.Repo.GetRole(user.RoleID)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			user.Role = *role
 		}
@@ -88,14 +88,14 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 
 		userResponse, err := r.Repo.UpdateUserAccount(params.Context, itemID, dataUpdate)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if userResponse.RoleID != 0 {
 			role, err := r.Repo.GetRole(userResponse.RoleID)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			userResponse.Role.ID = role.ID
@@ -110,7 +110,7 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 	}
 	userResponse, err := r.Repo.CreateUserAccount(params.Context, data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -129,7 +129,7 @@ func (r *Resolver) UserAccountDeleteResolver(params graphql.ResolveParams) (inte
 	user.Active = false
 	_, err := r.Repo.UpdateUserAccount(params.Context, id.(int), *user)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

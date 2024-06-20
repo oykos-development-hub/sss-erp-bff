@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateDepositPayment(ctx context.Context, it
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.DepositPayment, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -31,7 +32,7 @@ func (repo *MicroserviceRepository) UpdateDepositPayment(ctx context.Context, it
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.DepositPayment+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -40,7 +41,7 @@ func (repo *MicroserviceRepository) GetDepositPaymentByID(id int) (*structs.Depo
 	res := &dto.GetDepositPaymentResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.DepositPayment+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) GetDepositPaymentList(filter dto.DepositPaym
 	res := &dto.GetDepositPaymentListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.DepositPayment, filter, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -60,7 +61,7 @@ func (repo *MicroserviceRepository) GetInitialState(filter dto.DepositInitialSta
 	res := &dto.GetDepositPaymentListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetInitialState, filter, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -74,7 +75,7 @@ func (repo *MicroserviceRepository) GetDepositPaymentCaseNumber(caseNumber strin
 	}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.DepositPaymentCaseNumber, filter, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -88,7 +89,7 @@ func (repo *MicroserviceRepository) DeleteDepositPayment(ctx context.Context, id
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.DepositPayment+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -102,7 +103,7 @@ func (repo *MicroserviceRepository) GetCaseNumber(organizationUnitID int, bankAc
 	}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetDepositPaymentCaseNumber, filter, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil

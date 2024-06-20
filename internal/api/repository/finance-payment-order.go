@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreatePaymentOrder(ctx context.Context, item
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.PaymentOrder, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -31,7 +32,7 @@ func (repo *MicroserviceRepository) UpdatePaymentOrder(ctx context.Context, item
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.PaymentOrder+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -40,7 +41,7 @@ func (repo *MicroserviceRepository) GetPaymentOrderByID(id int) (*structs.Paymen
 	res := &dto.GetPaymentOrderResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.PaymentOrder+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) GetPaymentOrderList(filter dto.PaymentOrderF
 	res := &dto.GetPaymentOrderListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.PaymentOrder, filter, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -60,7 +61,7 @@ func (repo *MicroserviceRepository) GetAllObligations(input dto.ObligationsFilte
 	res := &dto.GetObligationsResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetObligation, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -74,7 +75,7 @@ func (repo *MicroserviceRepository) DeletePaymentOrder(ctx context.Context, id i
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.PaymentOrder+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -88,7 +89,7 @@ func (repo *MicroserviceRepository) PayPaymentOrder(ctx context.Context, input s
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.PayPaymentOrder+"/"+strconv.Itoa(input.ID), input, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -101,7 +102,7 @@ func (repo *MicroserviceRepository) CancelPaymentOrder(ctx context.Context, id i
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.CancelPaymentOrder+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }

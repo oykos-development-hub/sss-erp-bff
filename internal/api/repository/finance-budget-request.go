@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) CreateBudgetRequest(ctx context.Context, bud
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.BudgetRequest, budgetItem, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -32,7 +32,7 @@ func (repo *MicroserviceRepository) UpdateBudgetRequest(ctx context.Context, ite
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.BudgetRequest+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -65,7 +65,7 @@ func (repo *MicroserviceRepository) GetBudgetRequest(id int) (*structs.BudgetReq
 	res := &dto.GetBudgetRequestResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.BudgetRequest+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil

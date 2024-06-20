@@ -55,7 +55,7 @@ func (r *Resolver) PublicProcurementPlansOverviewResolver(params graphql.Resolve
 
 	plans, err := r.Repo.GetProcurementPlanList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for _, plan := range plans {
@@ -69,10 +69,10 @@ func (r *Resolver) PublicProcurementPlansOverviewResolver(params graphql.Resolve
 		resItem, err := buildProcurementPlanResponseItem(params.Context, r.Repo, plan, contract, &dto.GetProcurementItemListInputMS{})
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		if resItem == nil {
-			fmt.Printf("user does not have access to this plan id: %d", plan.ID)
+			//fmt.Printf("user does not have access to this plan id: %d", plan.ID)
 			continue
 		}
 		if status != nil && dto.PlanStatus(status.(string)) != resItem.Status {
@@ -84,7 +84,7 @@ func (r *Resolver) PublicProcurementPlansOverviewResolver(params graphql.Resolve
 
 	paginatedItems, err := shared.Paginate(items, page, size)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -100,7 +100,7 @@ func (r *Resolver) PublicProcurementPlanDetailsResolver(params graphql.ResolvePa
 
 	plan, err := r.Repo.GetProcurementPlan(id)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	sortByTitle := params.Args["sort_by_title"]
@@ -132,10 +132,10 @@ func (r *Resolver) PublicProcurementPlanDetailsResolver(params graphql.ResolvePa
 
 	resItem, err := buildProcurementPlanResponseItem(params.Context, r.Repo, plan, nil, &input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	if resItem == nil {
-		return errors.HandleAPIError(fmt.Errorf("user does not have access to this plan id: %d", plan.ID))
+		return errors.HandleAPPError(fmt.Errorf("user does not have access to this plan id: %d", plan.ID))
 	}
 	return dto.ResponseSingle{
 		Status:  "success",
@@ -157,7 +157,7 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
@@ -165,7 +165,7 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 	if itemID != 0 {
 		oldPlan, err := r.Repo.GetProcurementPlan(itemID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if oldPlan.DateOfPublishing == nil && data.DateOfPublishing != nil {
@@ -175,7 +175,7 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 				RoleID: &managerRole,
 			})
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			plan, _ := r.Repo.GetProcurementPlan(data.ID)
 			planData := dto.ProcurementPlanNotification{
@@ -197,18 +197,18 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 					IsRead:      false,
 				})
 				if err != nil {
-					return errors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 			}
 		}
 
 		res, err := r.Repo.UpdateProcurementPlan(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementPlanResponseItem(params.Context, r.Repo, res, nil, &dto.GetProcurementItemListInputMS{})
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -216,11 +216,11 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 	} else {
 		res, err := r.Repo.CreateProcurementPlan(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementPlanResponseItem(params.Context, r.Repo, res, nil, &dto.GetProcurementItemListInputMS{})
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -235,7 +235,7 @@ func buildProcurementPlanResponseItem(context context.Context, r repository.Micr
 	filter.PlanID = &plan.ID
 	rawItems, err := r.GetProcurementItemList(filter)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get procurement item list")
 	}
 
 	contYes := true
@@ -253,7 +253,7 @@ func buildProcurementPlanResponseItem(context context.Context, r repository.Micr
 
 			contract, err := r.GetProcurementContractsList(&filter)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get procurement contracts list")
 			}
 
 			if len(contract.Data) == 0 {
@@ -267,7 +267,7 @@ func buildProcurementPlanResponseItem(context context.Context, r repository.Micr
 
 			contract, err := r.GetProcurementContractsList(&filter)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get procurement contracts list")
 			}
 
 			if len(contract.Data) != 0 {
@@ -277,7 +277,7 @@ func buildProcurementPlanResponseItem(context context.Context, r repository.Micr
 
 		resItem, err := buildProcurementItemResponseItem(context, r, item, nil, &dto.GetProcurementArticleListInputMS{})
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build procurement item response item")
 		}
 		totalNet += resItem.TotalNet
 		totalGross += resItem.TotalGross
@@ -287,7 +287,7 @@ func buildProcurementPlanResponseItem(context context.Context, r repository.Micr
 
 	status, err := BuildStatus(context, r, plan)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "build status")
 	}
 
 	if status == dto.PlanStatusNotAccessible {
@@ -316,7 +316,7 @@ func buildProcurementPlanResponseItem(context context.Context, r repository.Micr
 	if plan.PreBudgetID != nil {
 		plan, err := r.GetProcurementPlan(*plan.PreBudgetID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get procurement plan")
 		}
 		res.PreBudgetPlan = &dto.DropdownSimple{
 			ID:    plan.ID,
@@ -335,7 +335,7 @@ func buildProcurementPlanResponseItem(context context.Context, r repository.Micr
 
 			oUArticles, err := r.GetProcurementOUArticleList(&dto.GetProcurementOrganizationUnitArticleListInputDTO{ArticleID: &firstArticle.ID})
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get procurement ou article list")
 			}
 
 			for _, ouArticle := range oUArticles {
@@ -378,7 +378,7 @@ func BuildStatus(context context.Context, r repository.MicroserviceRepositoryInt
 
 	conversionTargetPlans, err := r.GetProcurementPlanList(&dto.GetProcurementPlansInput{TargetBudgetID: &plan.ID})
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "repo get procurement plan list")
 	}
 
 	if len(conversionTargetPlans) > 0 {
@@ -394,7 +394,7 @@ func BuildStatus(context context.Context, r repository.MicroserviceRepositoryInt
 
 		ouArticleList, err := GetOrganizationUnitArticles(r, plan.ID, *organizationUnitID)
 		if err != nil {
-			return "", err
+			return "", errors.Wrap(err, "repo get organization unit articles")
 		}
 
 		isSentOnRevision, isRejected, isAccepted = checkArticlesStatusFlags(ouArticleList)
@@ -475,8 +475,7 @@ func (r *Resolver) PublicProcurementPlanDeleteResolver(params graphql.ResolvePar
 
 	err := r.Repo.DeleteProcurementPlan(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting procurement plan failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -489,7 +488,7 @@ func (r *Resolver) PublicProcurementPlanPDFResolver(params graphql.ResolveParams
 	planID := params.Args["plan_id"].(int)
 	plan, err := r.Repo.GetProcurementPlan(planID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	planResItem, _ := buildProcurementPlanResponseItem(params.Context, r.Repo, plan, nil, &dto.GetProcurementItemListInputMS{})
 
@@ -498,7 +497,7 @@ func (r *Resolver) PublicProcurementPlanPDFResolver(params graphql.ResolveParams
 
 	t, err := time.Parse(dateCurrentLayout, *planResItem.DateOfPublishing)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var planPDFResponse dto.PlanPDFResponse

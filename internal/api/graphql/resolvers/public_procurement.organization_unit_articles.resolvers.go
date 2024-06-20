@@ -18,7 +18,7 @@ func buildProcurementOUArticleResponseItemList(context context.Context, r reposi
 	for _, article := range articles {
 		resItem, err := buildProcurementOUArticleResponseItem(context, r, article)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build procurement ou article response item")
 		}
 		items = append(items, resItem)
 	}
@@ -40,12 +40,12 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticlesOverviewResolver(par
 
 	articles, err := r.Repo.GetProcurementOUArticleList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	items, err := buildProcurementOUArticleResponseItemList(params.Context, r.Repo, articles)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	filteredItems := make([]*dto.ProcurementOrganizationUnitArticleResponseItem, 0)
 
@@ -61,7 +61,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticlesOverviewResolver(par
 	if page != nil && page.(int) > 0 && size != nil && size.(int) > 0 {
 		paginatedItems, err := shared.Paginate(filteredItems, page.(int), size.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		filteredItems = paginatedItems.([]*dto.ProcurementOrganizationUnitArticleResponseItem)
 	}
@@ -84,7 +84,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	article, _ := r.Repo.GetProcurementArticle(data.PublicProcurementArticleID)
@@ -95,7 +95,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 	if itemID != 0 {
 		oldRequest, err := r.Repo.GetOrganizationUnitArticleByID(itemID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		var notificationContent string
@@ -110,12 +110,12 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 			employees, err := GetEmployeesOfOrganizationUnit(r.Repo, data.OrganizationUnitID)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			for _, employee := range employees {
 				employeeAccount, err := r.Repo.GetUserAccountByID(employee.UserAccountID)
 				if err != nil {
-					return errors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 				if employeeAccount.RoleID == structs.UserRoleManagerOJ {
 					plan, _ := r.Repo.GetProcurementPlan(procurement.PlanID)
@@ -136,7 +136,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 						Path:        fmt.Sprintf("/procurements/plans/%d", procurement.PlanID),
 					})
 					if err != nil {
-						return errors.HandleAPIError(err)
+						return errors.HandleAPPError(err)
 					}
 				}
 			}
@@ -144,11 +144,11 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 
 		res, err := r.Repo.UpdateProcurementOUArticle(itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementOUArticleResponseItem(params.Context, r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -156,11 +156,11 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 	} else {
 		res, err := r.Repo.CreateProcurementOUArticle(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementOUArticleResponseItem(params.Context, r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -175,12 +175,12 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
-		return errors.HandleAPIError(fmt.Errorf("manager has no organization unit assigned"))
+		return errors.HandleAPPError(fmt.Errorf("manager has no organization unit assigned"))
 	}
 
 	ouArticleList, err := GetOrganizationUnitArticles(r.Repo, planID, *organizationUnitID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	isRejected := false
@@ -192,7 +192,7 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 		ouArticle.Status = structs.ArticleStatusRevision
 		_, err = r.Repo.UpdateProcurementOUArticle(ouArticle.ID, ouArticle)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
@@ -200,7 +200,7 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 	unitID := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	unit, err := r.Repo.GetOrganizationUnitByID(*unitID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	oficialOfProcurementsRole := structs.UserRoleOfficialForPublicProcurements
@@ -208,7 +208,7 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 		RoleID: &oficialOfProcurementsRole,
 	})
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for _, targetUser := range targetUsers.Data {
@@ -237,7 +237,7 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 			Data:        dataJSON,
 		})
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
@@ -269,7 +269,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticlesDetailsResolver(para
 
 	response, err := buildProcurementOUArticleDetailsResponseItem(params.Context, r.Repo, planID, organizationUnitID.(int), procurementID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -289,23 +289,23 @@ func buildProcurementOUArticleDetailsResponseItem(context context.Context, r rep
 	if procurementID != nil {
 		item, err := r.GetProcurementItem(*procurementID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get procurement itme")
 		}
 		plan, _ = r.GetProcurementPlan(item.PlanID)
 		items = append(items, item)
 	} else {
 		plan, err = r.GetProcurementPlan(*planID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get procurement plan")
 		}
 		items, err = r.GetProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &plan.ID})
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get procurement item list")
 		}
 	}
 	planStatus, err := BuildStatus(context, r, plan)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "build status")
 	}
 
 	for _, item := range items {
@@ -329,12 +329,12 @@ func buildProcurementOUArticleDetailsResponseItem(context context.Context, r rep
 		}
 		organizationUnitArticleList, err := GetOrganizationUnitArticles(r, plan.ID, unitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit articles")
 		}
 		for _, ouArticle := range organizationUnitArticleList {
 			resItem, err := buildProcurementOUArticleResponseItem(context, r, ouArticle)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "build procurement ou article response item")
 			}
 			if resItem.Article.PublicProcurement.ID != item.ID {
 				continue
@@ -350,16 +350,16 @@ func buildProcurementOUArticleDetailsResponseItem(context context.Context, r rep
 func buildProcurementOUArticleResponseItem(context context.Context, r repository.MicroserviceRepositoryInterface, item *structs.PublicProcurementOrganizationUnitArticle) (*dto.ProcurementOrganizationUnitArticleResponseItem, error) {
 	article, err := r.GetProcurementArticle(item.PublicProcurementArticleID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get procurement article")
 	}
 	articleResItem, err := buildProcurementArticleResponseItem(context, r, article, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "build procurement article response item")
 	}
 
 	organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get organization unit by id")
 	}
 	organizationUnitDropdown := dto.DropdownSimple{
 		ID:    organizationUnit.ID,
@@ -386,17 +386,17 @@ func GetOrganizationUnitArticles(r repository.MicroserviceRepositoryInterface, p
 
 	organizationUnit, err := r.GetOrganizationUnitByID(unitID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get organization unit by id")
 	}
 	procurements, err := r.GetProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &planID})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get procurement item list")
 	}
 
 	for _, procurement := range procurements {
 		relatedArticles, err := r.GetProcurementArticlesList(&dto.GetProcurementArticleListInputMS{ItemID: &procurement.ID})
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get procurement articles list")
 		}
 
 		for _, article := range relatedArticles {
@@ -407,7 +407,7 @@ func GetOrganizationUnitArticles(r repository.MicroserviceRepositoryInterface, p
 				},
 			)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get procurement ou article list")
 			}
 			ouArticleList = append(ouArticleList, ouArticles...)
 		}

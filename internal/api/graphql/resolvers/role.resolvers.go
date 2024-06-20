@@ -14,12 +14,12 @@ func (r *Resolver) RoleDetailsResolver(params graphql.ResolveParams) (interface{
 
 	role, err := r.Repo.GetRole(structs.UserRole(roleID))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	users, err := r.Repo.GetUserAccounts(&dto.GetUserAccountListInput{RoleID: (*structs.UserRole)(&roleID)})
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	responseItem := dto.RoleDetails{
@@ -37,7 +37,7 @@ func (r *Resolver) RoleDetailsResolver(params graphql.ResolveParams) (interface{
 func (r *Resolver) RoleOverviewResolver(_ graphql.ResolveParams) (interface{}, error) {
 	roleList, err := r.Repo.GetRoleList()
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -58,7 +58,7 @@ func (r *Resolver) RolesInsertResolver(params graphql.ResolveParams) (interface{
 	if itemID != 0 {
 		roleRes, err := r.Repo.UpdateRole(params.Context, itemID, data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.ResponseSingle{
@@ -69,7 +69,7 @@ func (r *Resolver) RolesInsertResolver(params graphql.ResolveParams) (interface{
 	}
 	roleRes, err := r.Repo.CreateRole(params.Context, data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

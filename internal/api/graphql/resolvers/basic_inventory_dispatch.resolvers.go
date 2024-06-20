@@ -3,7 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
 	"bff/internal/api/repository"
 	"bff/internal/api/websockets/notifications"
 	"bff/structs"
@@ -55,12 +55,12 @@ func (r *Resolver) BasicInventoryDispatchOverviewResolver(params graphql.Resolve
 	data, err := r.Repo.GetAllInventoryDispatches(filter)
 
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
-		return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	for _, item := range data.Data {
@@ -68,7 +68,7 @@ func (r *Resolver) BasicInventoryDispatchOverviewResolver(params graphql.Resolve
 		items = append(items, resItem)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
@@ -91,47 +91,47 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
-		return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	if data.ID != 0 {
 		itemRes, err := r.Repo.UpdateDispatchItem(params.Context, data.ID, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 		items, err = buildInventoryDispatchResponse(r.Repo, itemRes)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		if data.Type != "convert" {
 			itemRes, err := r.Repo.CreateDispatchItem(params.Context, &data)
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			if itemRes.Type == "return-revers" {
 				// return revers is always one by one item.
 				item, err := r.Repo.GetInventoryItem(data.InventoryID[0])
 				if err != nil {
-					return apierrors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 				err = sendInventoryReturnReversDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitID, item.OrganizationUnitID, item.ID)
 				if err != nil {
-					return apierrors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 
 			} else if itemRes.Type == "revers" {
 				err = sendInventoryDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitID, itemRes.TargetOrganizationUnitID)
 				if err != nil {
-					return apierrors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 			}
 
@@ -139,12 +139,12 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 			items, err = buildInventoryDispatchResponse(r.Repo, itemRes)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		} else {
 			organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 			if !ok || organizationUnitID == nil {
-				return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+				return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 			}
 
 			input := structs.BasicInventoryDispatchItem{
@@ -158,14 +158,14 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 
 			_, err := r.Repo.CreateDispatchItem(params.Context, &input)
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			for _, itemID := range data.InventoryID {
 				item, err := r.Repo.GetInventoryItem(itemID)
 
 				if err != nil {
-					return apierrors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 
 				item.IsExternalDonation = false
@@ -174,7 +174,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 				_, err = r.Repo.UpdateInventoryItem(params.Context, itemID, item)
 
 				if err != nil {
-					return apierrors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 			}
 		}
@@ -210,7 +210,7 @@ func sendInventoryReturnReversDispatchNotification(
 				IsRead:      false,
 			})
 			if err != nil {
-				return err
+				return errors.Wrap(err, "notification service create notification")
 			}
 		}
 	}
@@ -243,7 +243,7 @@ func sendInventoryDispatchNotification(
 				IsRead:      false,
 			})
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo notification service create notification")
 			}
 		}
 	}
@@ -285,7 +285,7 @@ func createInventoryDispatchApprovalnotification(
 				IsRead:      false,
 			})
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo notification service create notification")
 			}
 		}
 	}
@@ -299,25 +299,25 @@ func (r *Resolver) BasicInventoryDispatchDeleteResolver(params graphql.ResolvePa
 	dispatch, err := r.Repo.GetDispatchItemByID(itemID)
 
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if dispatch.FileID != 0 {
 		err := r.Repo.DeleteFile(dispatch.FileID)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
 	err = r.Repo.DeleteInventoryDispatch(params.Context, itemID)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitID, dispatch.TargetOrganizationUnitID, false)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -333,7 +333,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 	dispatch, err := r.Repo.GetDispatchItemByID(id)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	dispatch.IsAccepted = true
@@ -345,7 +345,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 	itemDispatchList, err := r.Repo.GetMyInventoryDispatchesItems(&filter)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for _, itemDispatch := range itemDispatchList {
@@ -353,7 +353,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 		item, err := r.Repo.GetInventoryItem(itemDispatch.InventoryID)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		if dispatch.Type == "revers" {
 			item.TargetOrganizationUnitID = dispatch.TargetOrganizationUnitID
@@ -361,7 +361,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 			if item.TargetOrganizationUnitID != 0 {
 				_, err = r.Repo.UpdateInventoryItem(params.Context, item.ID, item)
 				if err != nil {
-					return apierrors.HandleAPIError(err)
+					return errors.HandleAPPError(err)
 				}
 			}
 		}
@@ -371,7 +371,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 			_, err = r.Repo.UpdateInventoryItem(params.Context, item.ID, item)
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 
@@ -380,12 +380,12 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 	//dispatch.Date = currentDate.Format("2006-01-02T15:04:05.999999Z07:00")
 	_, err = r.Repo.UpdateDispatchItem(params.Context, dispatch.ID, dispatch)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitID, dispatch.TargetOrganizationUnitID, true)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -398,8 +398,8 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterface, item *structs.BasicInventoryDispatchItem) (*dto.InventoryDispatchResponse, error) {
 	settings, err := repo.GetDropdownSettingByID(item.OfficeID)
 	if err != nil {
-		if apiErr, ok := err.(*apierrors.APIError); ok && apiErr.StatusCode != 404 {
-			return nil, err
+		if apiErr, ok := err.(*errors.APIError); ok && apiErr.StatusCode != 404 {
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 	}
 
@@ -460,7 +460,7 @@ func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterf
 		for i := 0; i < len(dispatchItems); i++ {
 			itemInventory, err := repo.GetInventoryItem(dispatchItems[i].InventoryID)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get inventory item")
 			}
 
 			itemArr := dto.BasicInventoryResponseItem{
@@ -482,7 +482,7 @@ func buildInventoryDispatchResponse(repo repository.MicroserviceRepositoryInterf
 		file, err := repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		fileDropdown.ID = file.ID

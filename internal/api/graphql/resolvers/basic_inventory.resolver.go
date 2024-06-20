@@ -3,7 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
@@ -79,7 +79,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	} else {
 		organizationUnitIDFromParams, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitIDFromParams == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 		organizationUnitID = organizationUnitIDFromParams
 	}
@@ -88,7 +88,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	basicInventoryData, err := r.Repo.GetAllInventoryItem(filter)
 
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for _, item := range basicInventoryData.Data {
@@ -96,7 +96,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 
 		items = append(items, resItem)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
@@ -113,19 +113,19 @@ func (r *Resolver) BasicInventoryDetailsResolver(params graphql.ResolveParams) (
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
-		return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	Item, err := r.Repo.GetInventoryItem(id)
 
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	items, err := buildInventoryItemResponse(r.Repo, Item, *organizationUnitID)
 
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -147,19 +147,19 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
-		return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	responseItem, err := r.Repo.CheckInsertInventoryData(data)
 
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if len(responseItem) > 0 {
@@ -177,14 +177,14 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
 			itemRes, err := r.Repo.UpdateInventoryItem(params.Context, item.ID, &item)
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			response.Message = "You updated this item/s!"
 
 			items, err := buildInventoryItemResponse(r.Repo, itemRes, 0)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			responseItemList = append(responseItemList, items)
@@ -193,7 +193,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 			item.OrganizationUnitID = *organizationUnitID
 			itemRes, err := r.Repo.CreateInventoryItem(params.Context, &item)
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			if item.ContractID > 0 && item.ContractArticleID > 0 {
 				articles, _ := r.Repo.GetProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
@@ -207,7 +207,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 					article.UsedArticles++
 					_, err := r.Repo.UpdateProcurementContractArticle(article.ID, article)
 					if err != nil {
-						return apierrors.HandleAPIError(err)
+						return errors.HandleAPPError(err)
 					}
 				}
 			}
@@ -215,13 +215,13 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 			depreciationType, err := r.Repo.GetDropdownSettingByID(item.DepreciationTypeID)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			value, err := strconv.Atoi(depreciationType.Value)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			var estimatedDuration int
@@ -247,7 +247,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 
 			_, err = r.Repo.CreateAssessments(params.Context, &assessment)
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			dispatch := structs.BasicInventoryDispatchItem{
@@ -261,14 +261,14 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 
 			_, err = r.Repo.CreateDispatchItem(params.Context, &dispatch)
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			response.Message = "You created this item/s!"
 			items, err := buildInventoryItemResponse(r.Repo, itemRes, 0)
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			responseItemList = append(responseItemList, items)
 		}
@@ -289,7 +289,7 @@ func (r *Resolver) InvoicesForInventoryOverview(params graphql.ResolveParams) (i
 	if !ok {
 		organizationUnitIDPtr, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitIDPtr == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		organizationUnitID = *organizationUnitIDPtr
@@ -301,7 +301,7 @@ func (r *Resolver) InvoicesForInventoryOverview(params graphql.ResolveParams) (i
 	})
 
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var invoicesResponse []structs.Invoice
@@ -316,7 +316,7 @@ func (r *Resolver) InvoicesForInventoryOverview(params graphql.ResolveParams) (i
 			})
 
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			if article.Amount-data.Total > 0 {
@@ -353,7 +353,7 @@ func (r *Resolver) BasicInventoryDeactivateResolver(params graphql.ResolveParams
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		item, err := r.Repo.GetInventoryItem(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item.Active = false
 		item.OfficeID = 0
@@ -370,7 +370,7 @@ func (r *Resolver) BasicInventoryDeactivateResolver(params graphql.ResolveParams
 
 		_, err = r.Repo.UpdateInventoryItem(params.Context, id, item)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You Deactivate this item!"
 	}
@@ -384,7 +384,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	if item.ClassTypeID != 0 {
 		settings, err := r.GetDropdownSettingByID(item.ClassTypeID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 
 		if settings != nil {
@@ -420,7 +420,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	if item.OfficeID != 0 {
 		settings, err := r.GetDropdownSettingByID(item.OfficeID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 
 		if settings != nil {
@@ -434,14 +434,14 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		depreciationTypeDropDown, err := r.GetDropdownSettingByID(item.DepreciationTypeID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 		settingDropdownDepreciationTypeID.ID = depreciationTypeDropDown.ID
 		settingDropdownDepreciationTypeID.Title = depreciationTypeDropDown.Title
 		value, err := strconv.Atoi(depreciationTypeDropDown.Value)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "strconv atoi")
 		}
 
 		if value != 0 {
@@ -469,7 +469,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 					estimatedDuration = assessmentResponse.EstimatedDuration
 					date, err := time.Parse(time.RFC3339, dateOfAssessment)
 					if err != nil {
-						return nil, err
+						return nil, errors.Wrap(err, "time parse")
 					}
 					newDate := date.AddDate(estimatedDuration, 0, 0)
 					dateOfEndOfAssessment = newDate.Format(config.ISO8601Format)
@@ -492,7 +492,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 		if len(itemInventoryList) > 0 {
 			dispatchRes, err := r.GetDispatchItemByID(itemInventoryList[0].DispatchID)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get dispatch item by id")
 			}
 			if dispatchRes.Type == "revers" && !dispatchRes.IsAccepted {
 				status = "Poslato"
@@ -517,7 +517,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	if item.Type == "immovable" {
 		realEstate, err := r.GetMyInventoryRealEstate(item.ID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get my inventory real estate")
 		}
 
 		realEstateStruct = &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{
@@ -541,7 +541,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	if item.OrganizationUnitID != 0 {
 		organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		if organizationUnit != nil {
 			organizationUnitDropdown = dto.DropdownOUSimple{
@@ -557,7 +557,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	if item.TargetOrganizationUnitID != 0 {
 		targetOrganizationUnit, err := r.GetOrganizationUnitByID(item.TargetOrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		if targetOrganizationUnit != nil {
 			targetOrganizationUnitDropdown = dto.DropdownOUSimple{
@@ -611,7 +611,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	if item.ClassTypeID != 0 {
 		settings, err := r.GetDropdownSettingByID(item.ClassTypeID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 
 		if settings != nil {
@@ -623,7 +623,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	if item.SupplierID != 0 {
 		suppliers, err := r.GetSupplier(item.SupplierID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		if suppliers != nil {
@@ -635,7 +635,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	if item.DonorID != 0 {
 		donor, err := r.GetSupplier(item.DonorID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		if donor != nil {
@@ -647,7 +647,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	if item.OfficeID != 0 {
 		settings, err := r.GetDropdownSettingByID(item.OfficeID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 
 		if settings != nil {
@@ -659,7 +659,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	if item.TargetUserProfileID != 0 {
 		user, err := r.GetUserProfileByID(item.TargetUserProfileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 		if user != nil {
 			targetUserDropdown = dto.DropdownSimple{ID: user.ID, Title: user.FirstName + " " + user.LastName}
@@ -671,7 +671,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
 		currentOrganizationUnit = organizationUnit
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		if organizationUnit != nil {
 			organizationUnitDropdown = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
@@ -683,7 +683,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		targetOrganizationUnit, err := r.GetOrganizationUnitByID(item.TargetOrganizationUnitID)
 		currentOrganizationUnit = targetOrganizationUnit
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		if targetOrganizationUnit != nil {
 			targetOrganizationUnitDropdown = dto.DropdownSimple{ID: targetOrganizationUnit.ID, Title: targetOrganizationUnit.Title}
@@ -692,7 +692,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	realEstate, err := r.GetMyInventoryRealEstate(item.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get my inventory real estate")
 	}
 
 	realEstateStruct := &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{}
@@ -764,7 +764,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		for i, move := range itemInventoryList {
 			dispatchRes, err := r.GetDispatchItemByID(move.DispatchID)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get dispatch item by id")
 			}
 
 			if i == 0 {
@@ -846,7 +846,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		file, err := r.GetFileByID(item.DeactivationFileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		fileDropdown := dto.FileDropdownSimple{
@@ -870,7 +870,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		file, err := r.GetFileByID(fileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		donationFiles = append(donationFiles, dto.FileDropdownSimple{

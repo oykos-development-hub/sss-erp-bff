@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateEnforcedPayment(ctx context.Context, i
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.EnforcedPayment, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -31,7 +32,7 @@ func (repo *MicroserviceRepository) UpdateEnforcedPayment(ctx context.Context, i
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.EnforcedPayment+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -40,7 +41,7 @@ func (repo *MicroserviceRepository) GetEnforcedPaymentByID(id int) (*structs.Enf
 	res := &dto.GetEnforcedPaymentResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.EnforcedPayment+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) GetEnforcedPaymentList(filter dto.EnforcedPa
 	res := &dto.GetEnforcedPaymentListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.EnforcedPayment, filter, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -64,7 +65,7 @@ func (repo *MicroserviceRepository) ReturnEnforcedPayment(ctx context.Context, i
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ReturnEnforcedPayment+"/"+strconv.Itoa(input.ID), input, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }

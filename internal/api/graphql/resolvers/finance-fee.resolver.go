@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -19,11 +18,11 @@ func (r *Resolver) FeeInsertResolver(params graphql.ResolveParams) (interface{},
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var item *structs.Fee
@@ -31,19 +30,19 @@ func (r *Resolver) FeeInsertResolver(params graphql.ResolveParams) (interface{},
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFee(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFee(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
 
 	singleItem, err := buildFeeResponseItem(*item, r)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -55,11 +54,11 @@ func (r *Resolver) FeeOverviewResolver(params graphql.ResolveParams) (interface{
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		fee, err := r.Repo.GetFee(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		feeResItem, err := buildFeeResponseItem(*fee, r)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -93,12 +92,12 @@ func (r *Resolver) FeeOverviewResolver(params graphql.ResolveParams) (interface{
 
 	fees, total, err := r.Repo.GetFeeList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	feeResItem, err := buildFeeResponseItemList(fees, r)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -114,8 +113,7 @@ func (r *Resolver) FeeDeleteResolver(params graphql.ResolveParams) (interface{},
 
 	err := r.Repo.DeleteFee(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting fee item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -217,7 +215,7 @@ func buildFeeResponseItem(fee structs.Fee, r *Resolver) (*dto.FeeResponseItem, e
 		courtAccount, err := r.Repo.GetAccountItemByID(*fee.CourtAccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		courtAccountDropdown := &dto.DropdownSimple{
@@ -237,7 +235,7 @@ func buildFeeResponseItemList(itemList []structs.Fee, r *Resolver) ([]*dto.FeeRe
 		singleItem, err := buildFeeResponseItem(item, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build fee response item")
 		}
 
 		items = append(items, singleItem)

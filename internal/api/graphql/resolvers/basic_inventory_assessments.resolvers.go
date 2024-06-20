@@ -25,19 +25,19 @@ func (r *Resolver) BasicInventoryAssessmentsInsertResolver(params graphql.Resolv
 	if itemID != 0 {
 		assessmentResponse, err = r.Repo.UpdateAssessments(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		assessmentResponse, err = r.Repo.CreateAssessments(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
 	items, err := BuildAssessmentResponse(r.Repo, assessmentResponse)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -59,12 +59,12 @@ func (r *Resolver) BasicEXCLInventoryAssessmentsInsertResolver(params graphql.Re
 		for _, data := range dataArr {
 			assessmentResponse, err = r.Repo.CreateAssessments(params.Context, &data)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			item, err := BuildAssessmentResponse(r.Repo, assessmentResponse)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			items = append(items, *item)
@@ -72,7 +72,7 @@ func (r *Resolver) BasicEXCLInventoryAssessmentsInsertResolver(params graphql.Re
 	}
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -87,7 +87,7 @@ func (r *Resolver) BasicInventoryAssessmentDeleteResolver(params graphql.Resolve
 
 	err := r.Repo.DeleteAssessment(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -102,7 +102,7 @@ func BuildAssessmentResponse(
 ) (*dto.BasicInventoryResponseAssessment, error) {
 	settings, err := r.GetDropdownSettingByID(item.DepreciationTypeID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get dropdown setting by id")
 	}
 
 	settingDropdownDepreciationTypeID := dto.DropdownSimple{}
@@ -115,7 +115,7 @@ func BuildAssessmentResponse(
 	if item.UserProfileID != 0 {
 		user, err := r.GetUserProfileByID(item.UserProfileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 		userDropdown.ID = user.ID
 		userDropdown.Title = user.FirstName + " " + user.LastName

@@ -24,7 +24,7 @@ func (r *Resolver) OverallSpendingResolver(params graphql.ResolveParams) (interf
 	articles, err := r.Repo.GetMovementArticleList(data)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var response []dto.ArticleReport

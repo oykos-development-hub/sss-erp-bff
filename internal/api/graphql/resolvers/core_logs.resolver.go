@@ -3,7 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
 	"bff/structs"
 
 	"github.com/graphql-go/graphql"
@@ -18,13 +18,13 @@ func (r *Resolver) LogsOverviewResolver(params graphql.ResolveParams) (interface
 		log, err := r.Repo.GetLog(module, id)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		responseItem, err := buildLogItem(r, *log)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -67,7 +67,7 @@ func (r *Resolver) LogsOverviewResolver(params graphql.ResolveParams) (interface
 
 	items, total, err := r.Repo.GetLogs(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.LogResponse
@@ -75,7 +75,7 @@ func (r *Resolver) LogsOverviewResolver(params graphql.ResolveParams) (interface
 		resItem, err := buildLogItem(r, item)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -104,7 +104,7 @@ func buildLogItem(r *Resolver, log structs.Logs) (*dto.LogResponse, error) {
 		user, err := r.Repo.GetUserAccountByID(log.UserID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user account by id")
 		}
 
 		response.User = dto.DropdownSimple{
@@ -115,7 +115,7 @@ func buildLogItem(r *Resolver, log structs.Logs) (*dto.LogResponse, error) {
 		userProfile, err := r.Repo.GetUserProfileByUserAccountID(log.UserID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by user account id")
 		}
 
 		response.UserProfile = dto.DropdownSimple{

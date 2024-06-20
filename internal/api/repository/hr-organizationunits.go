@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -15,7 +16,7 @@ func (repo *MicroserviceRepository) DeleteOrganizationUnits(ctx context.Context,
 	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.OrganizationUnits+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -25,7 +26,7 @@ func (repo *MicroserviceRepository) GetOrganizationUnits(input *dto.GetOrganizat
 	res := &dto.GetOrganizationUnitsResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.OrganizationUnits, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -35,7 +36,7 @@ func (repo *MicroserviceRepository) GetOrganizationUnitByID(id int) (*structs.Or
 	res := &dto.GetOrganizationUnitResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.OrganizationUnits+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -49,7 +50,7 @@ func (repo *MicroserviceRepository) UpdateOrganizationUnits(ctx context.Context,
 	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.OrganizationUnits+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -63,7 +64,7 @@ func (repo *MicroserviceRepository) CreateOrganizationUnits(ctx context.Context,
 	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.OrganizationUnits, data, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -72,7 +73,7 @@ func (repo *MicroserviceRepository) CreateOrganizationUnits(ctx context.Context,
 func (repo *MicroserviceRepository) GetOrganizationUnitIDByUserProfile(id int) (*int, error) {
 	employeesInOrganizationUnit, err := repo.GetEmployeesInOrganizationUnitsByProfileID(id)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	if employeesInOrganizationUnit == nil {
@@ -81,12 +82,12 @@ func (repo *MicroserviceRepository) GetOrganizationUnitIDByUserProfile(id int) (
 
 	jobPositionInOrganizationUnit, err := repo.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	systematization, err := repo.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &systematization.OrganizationUnitID, nil

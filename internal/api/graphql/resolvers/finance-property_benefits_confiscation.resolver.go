@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -19,11 +18,11 @@ func (r *Resolver) PropBenConfInsertResolver(params graphql.ResolveParams) (inte
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var item *structs.PropBenConf
@@ -31,17 +30,17 @@ func (r *Resolver) PropBenConfInsertResolver(params graphql.ResolveParams) (inte
 	if data.ID == 0 {
 		item, err = r.Repo.CreatePropBenConf(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdatePropBenConf(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 	propBenConfResItem, err := buildPropBenConfResponseItem(*item, r)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	response.Item = propBenConfResItem
 
@@ -52,11 +51,11 @@ func (r *Resolver) PropBenConfOverviewResolver(params graphql.ResolveParams) (in
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		PropBenConf, err := r.Repo.GetPropBenConf(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		PropBenConfResItem, err := buildPropBenConfResponseItem(*PropBenConf, r)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -90,12 +89,12 @@ func (r *Resolver) PropBenConfOverviewResolver(params graphql.ResolveParams) (in
 
 	PropBenConfs, total, err := r.Repo.GetPropBenConfList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	PropBenConfResItem, err := buildPropBenConfResponseItemList(PropBenConfs, r)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -111,8 +110,7 @@ func (r *Resolver) PropBenConfDeleteResolver(params graphql.ResolveParams) (inte
 
 	err := r.Repo.DeletePropBenConf(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting property benefit confiscation item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -188,7 +186,7 @@ func buildPropBenConfResponseItem(PropBenConf structs.PropBenConf, r *Resolver) 
 			file, err := r.Repo.GetFileByID(fileID)
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo get file by id")
 			}
 
 			FileDropdown := dto.FileDropdownSimple{
@@ -204,7 +202,7 @@ func buildPropBenConfResponseItem(PropBenConf structs.PropBenConf, r *Resolver) 
 		account, err := r.Repo.GetAccountItemByID(PropBenConf.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		accountDropdown := dto.DropdownSimple{
@@ -218,7 +216,7 @@ func buildPropBenConfResponseItem(PropBenConf structs.PropBenConf, r *Resolver) 
 		courtAccount, err := r.Repo.GetAccountItemByID(*PropBenConf.CourtAccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		courtAccountDropdown := &dto.DropdownSimple{
@@ -238,7 +236,7 @@ func buildPropBenConfResponseItemList(itemList []structs.PropBenConf, r *Resolve
 		singleItem, err := buildPropBenConfResponseItem(item, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build prop ben conf response item")
 		}
 
 		items = append(items, singleItem)

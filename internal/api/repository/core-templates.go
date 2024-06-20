@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateTemplate(ctx context.Context, item *st
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Templates, item, res, header)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	isParent := true
@@ -27,7 +28,7 @@ func (repo *MicroserviceRepository) CreateTemplate(ctx context.Context, item *st
 	})
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	templateID := res.Data.ID
@@ -57,7 +58,7 @@ func (repo *MicroserviceRepository) UpdateTemplate(ctx context.Context, item *st
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Templates+"/"+strconv.Itoa(item.ID), item, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -70,7 +71,7 @@ func (repo *MicroserviceRepository) UpdateTemplateItem(ctx context.Context, item
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.TemplateItems+"/"+strconv.Itoa(item.ID), item, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -79,7 +80,7 @@ func (repo *MicroserviceRepository) GetTemplateList(input dto.TemplateFilter) ([
 	res := &dto.GetTemplateResponseListMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.TemplateItems, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -89,7 +90,7 @@ func (repo *MicroserviceRepository) GetTemplateByID(id int) (*structs.Template, 
 	res := &dto.GetTemplateResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Templates+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -103,7 +104,7 @@ func (repo *MicroserviceRepository) DeleteTemplate(ctx context.Context, id int) 
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.Templates+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil

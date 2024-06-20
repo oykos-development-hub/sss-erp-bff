@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -19,11 +18,11 @@ func (r *Resolver) ProcedureCostPaymentInsertResolver(params graphql.ResolvePara
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var item *structs.ProcedureCostPayment
@@ -31,17 +30,17 @@ func (r *Resolver) ProcedureCostPaymentInsertResolver(params graphql.ResolvePara
 	if data.ID == 0 {
 		item, err = r.Repo.CreateProcedureCostPayment(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateProcedureCostPayment(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 	procedurecostPaymentResItem, err := buildProcedureCostPaymentResponseItem(*item)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = procedurecostPaymentResItem
@@ -53,11 +52,11 @@ func (r *Resolver) ProcedureCostPaymentOverviewResolver(params graphql.ResolvePa
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		procedurecostPayment, err := r.Repo.GetProcedureCostPayment(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		procedurecostPaymentResItem, err := buildProcedureCostPaymentResponseItem(*procedurecostPayment)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -83,12 +82,12 @@ func (r *Resolver) ProcedureCostPaymentOverviewResolver(params graphql.ResolvePa
 
 	procedurecostPayments, total, err := r.Repo.GetProcedureCostPaymentList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	procedurecostResItem, err := buildProcedureCostPaymentResponseItemList(procedurecostPayments)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -104,8 +103,7 @@ func (r *Resolver) ProcedureCostPaymentDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteProcedureCostPayment(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting procedure cost payment item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -186,7 +184,7 @@ func buildProcedureCostPaymentResponseItemList(itemList []structs.ProcedureCostP
 		singleItem, err := buildProcedureCostPaymentResponseItem(item)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build procedure cost payment response item")
 		}
 
 		items = append(items, singleItem)

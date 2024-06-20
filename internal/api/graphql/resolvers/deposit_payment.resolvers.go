@@ -3,7 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -15,11 +15,11 @@ func (r *Resolver) DepositPaymentOverviewResolver(params graphql.ResolveParams) 
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		DepositPayment, err := r.Repo.GetDepositPaymentByID(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		res, err := buildDepositPayment(*DepositPayment, r)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -55,7 +55,7 @@ func (r *Resolver) DepositPaymentOverviewResolver(params graphql.ResolveParams) 
 
 	items, total, err := r.Repo.GetDepositPaymentList(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.DepositPaymentResponse
@@ -63,7 +63,7 @@ func (r *Resolver) DepositPaymentOverviewResolver(params graphql.ResolveParams) 
 		resItem, err := buildDepositPayment(item, r)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -84,7 +84,7 @@ func (r *Resolver) GetInitialStateOverviewResolver(params graphql.ResolveParams)
 		date, err := parseDate(value)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		input.Date = date
@@ -110,27 +110,27 @@ func (r *Resolver) GetInitialStateOverviewResolver(params graphql.ResolveParams)
 	if input.TransitionalBankAccount != nil && input.OrganizationUnitID != nil {
 		items, err = r.Repo.GetInitialState(input)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, items...)
 	} else if input.BankAccount != nil {
 		items, err = r.Repo.GetInitialState(input)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, items...)
 	} else if input.OrganizationUnitID != nil && input.BankAccount == nil {
 		orgUnit, err := r.Repo.GetOrganizationUnitByID(*input.OrganizationUnitID)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		for _, bankAccount := range orgUnit.BankAccounts {
 			input.BankAccount = &bankAccount
 			items, err = r.Repo.GetInitialState(input)
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			resItems = append(resItems, items...)
@@ -154,18 +154,18 @@ func (r *Resolver) DepositPaymentInsertResolver(params graphql.ResolveParams) (i
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.OrganizationUnitID == 0 {
 
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.OrganizationUnitID = *organizationUnitID
@@ -177,19 +177,19 @@ func (r *Resolver) DepositPaymentInsertResolver(params graphql.ResolveParams) (i
 	if data.ID == 0 {
 		item, err = r.Repo.CreateDepositPayment(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateDepositPayment(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
 
 	singleItem, err := buildDepositPayment(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -203,7 +203,7 @@ func (r *Resolver) DepositPaymentCaseNumberResolver(params graphql.ResolveParams
 
 	res, err := r.Repo.GetDepositPaymentCaseNumber(caseNumber, bankAccount)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -219,7 +219,7 @@ func (r *Resolver) DepositCaseNumberResolver(params graphql.ResolveParams) (inte
 
 	res, err := r.Repo.GetCaseNumber(organizationUnitID, bankAccount)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -265,7 +265,7 @@ func buildDepositPayment(item structs.DepositPayment, r *Resolver) (*dto.Deposit
 		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -280,7 +280,7 @@ func buildDepositPayment(item structs.DepositPayment, r *Resolver) (*dto.Deposit
 		value, err := r.Repo.GetAccountItemByID(item.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		dropdown := dto.DropdownSimple{
@@ -295,7 +295,7 @@ func buildDepositPayment(item structs.DepositPayment, r *Resolver) (*dto.Deposit
 		file, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 		fileDropdown := dto.FileDropdownSimple{
 			ID:   file.ID,

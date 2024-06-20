@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -19,11 +18,11 @@ func (r *Resolver) FlatRatePaymentInsertResolver(params graphql.ResolveParams) (
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var item *structs.FlatRatePayment
@@ -31,18 +30,18 @@ func (r *Resolver) FlatRatePaymentInsertResolver(params graphql.ResolveParams) (
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFlatRatePayment(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFlatRatePayment(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
 	flatrateResItem, err := buildFlatRatePaymentResponseItem(*item)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = flatrateResItem
@@ -54,11 +53,11 @@ func (r *Resolver) FlatRatePaymentOverviewResolver(params graphql.ResolveParams)
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		flatratePayment, err := r.Repo.GetFlatRatePayment(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		flatratePaymentResItem, err := buildFlatRatePaymentResponseItem(*flatratePayment)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -84,12 +83,12 @@ func (r *Resolver) FlatRatePaymentOverviewResolver(params graphql.ResolveParams)
 
 	flatratePayments, total, err := r.Repo.GetFlatRatePaymentList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	flatrateResItem, err := buildFlatRatePaymentResponseItemList(flatratePayments)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -105,8 +104,7 @@ func (r *Resolver) FlatRatePaymentDeleteResolver(params graphql.ResolveParams) (
 
 	err := r.Repo.DeleteFlatRatePayment(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting flatrate payment item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -188,7 +186,7 @@ func buildFlatRatePaymentResponseItemList(itemList []structs.FlatRatePayment) ([
 		singleItem, err := buildFlatRatePaymentResponseItem(item)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build flat rate payment response item")
 		}
 
 		items = append(items, singleItem)

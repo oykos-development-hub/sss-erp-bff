@@ -15,11 +15,11 @@ func (r *Resolver) UserProfileResolutionResolver(params graphql.ResolveParams) (
 
 	resolutions, err := r.Repo.GetEmployeeResolutions(userProfileID, nil)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	resolutonResItemList, err := buildResolutionResponseItemList(r.Repo, resolutions)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -42,22 +42,22 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 	if itemID != 0 {
 		resolution, err := r.Repo.UpdateResolution(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resolutionResItem, err := buildResolutionResItem(r.Repo, resolution)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = resolutionResItem
 		response.Message = "You updated this item!"
 	} else {
 		resolution, err := r.Repo.CreateResolution(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resolutionResItem, err := buildResolutionResItem(r.Repo, resolution)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = resolutionResItem
 		response.Message = "You created this item!"
@@ -71,7 +71,7 @@ func (r *Resolver) UserProfileResolutionDeleteResolver(params graphql.ResolvePar
 
 	err := r.Repo.DeleteResolution(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -85,7 +85,7 @@ func buildResolutionResponseItemList(r repository.MicroserviceRepositoryInterfac
 
 		resItem, err := buildResolutionResItem(r, item)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build resolution res item")
 		}
 		resItemList = append(resItemList, resItem)
 	}
@@ -96,11 +96,11 @@ func buildResolutionResItem(r repository.MicroserviceRepositoryInterface, item *
 
 	userProfile, err := r.GetUserProfileByID(item.UserProfileID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get user profile by id")
 	}
 	resolutionType, err := r.GetDropdownSettingByID(item.ResolutionTypeID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get dropdown setting by id")
 	}
 
 	var file dto.FileDropdownSimple
@@ -109,7 +109,7 @@ func buildResolutionResItem(r repository.MicroserviceRepositoryInterface, item *
 		res, err := r.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		file.ID = res.ID

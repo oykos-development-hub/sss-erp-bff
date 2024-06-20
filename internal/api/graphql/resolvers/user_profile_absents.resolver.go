@@ -19,11 +19,11 @@ func (r *Resolver) UserProfileVacationResolver(params graphql.ResolveParams) (in
 
 	resolutions, err := r.Repo.GetEmployeeResolutions(userProfileID, nil)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	vacationResItemList, err := buildVacationResponseItemList(r.Repo, resolutions)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -37,7 +37,7 @@ func buildVacationResponseItemList(r repository.MicroserviceRepositoryInterface,
 	for _, item := range items {
 		resItem, err := buildVacationResItem(r, item)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build vacation res item")
 		}
 		if resItem != nil {
 			resItemList = append(resItemList, resItem)
@@ -59,7 +59,7 @@ func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.Re
 
 	vacationType, err := r.Repo.GetDropdownSettings(&dto.GetSettingsInput{Value: &vacationTypeValue, Entity: config.ResolutionTypes})
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	dateOfEnd := time.Date(data.Year, time.December, 31, 23, 59, 59, 999999999, time.UTC).Format("2006-01-02T15:04:05Z")
 	inputData.ResolutionTypeID = vacationType.Data[0].ID
@@ -74,22 +74,22 @@ func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.Re
 	if inputData.ID != 0 {
 		resolution, err := r.Repo.UpdateResolution(params.Context, inputData.ID, &inputData)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resolutionResItem, err := buildVacationResItem(r.Repo, resolution)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = resolutionResItem
 		response.Message = "You updated this item!"
 	} else {
 		resolution, err := r.Repo.CreateResolution(params.Context, &inputData)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resolutionResItem, err := buildVacationResItem(r.Repo, resolution)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = resolutionResItem
 		response.Message = "You created this item!"
@@ -111,7 +111,7 @@ func (r *Resolver) UserProfileVacationResolutionsInsertResolver(params graphql.R
 
 	vacationType, err := r.Repo.GetDropdownSettings(&dto.GetSettingsInput{Value: &vacationTypeValue, Entity: config.ResolutionTypes})
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	var vacations []dto.Vacation
 
@@ -125,13 +125,13 @@ func (r *Resolver) UserProfileVacationResolutionsInsertResolver(params graphql.R
 			To:   &dateYearEnd,
 		})
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		for _, resolution := range resolutions {
 			err = r.Repo.DeleteResolution(params.Context, resolution.ID)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 
@@ -145,11 +145,11 @@ func (r *Resolver) UserProfileVacationResolutionsInsertResolver(params graphql.R
 
 		resolution, err := r.Repo.CreateResolution(params.Context, &inputData)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resolutionResItem, err := buildVacationResItem(r.Repo, resolution)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		vacations = append(vacations, *resolutionResItem)
 	}
@@ -162,11 +162,11 @@ func (r *Resolver) UserProfileVacationResolutionsInsertResolver(params graphql.R
 func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *structs.Resolution) (*dto.Vacation, error) {
 	userProfile, err := r.GetUserProfileByID(item.UserProfileID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get user profile by id")
 	}
 	resolutionType, err := r.GetDropdownSettingByID(item.ResolutionTypeID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get dropdown setting by id")
 	}
 
 	if resolutionType.Value != config.VacationTypeValueResolutionType {
@@ -182,7 +182,7 @@ func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *st
 		res, err := r.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		file.ID = res.ID
@@ -220,7 +220,7 @@ func (r *Resolver) UserProfileAbsentResolver(params graphql.ResolveParams) (inte
 	// year ago
 	sumDaysOfCurrentYear, availableDaysOfCurrentYear, availableDaysOfPreviousYear, err := GetNumberOfCurrentAndPreviousYearAvailableDays(r.Repo, profileID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	// get all absents in a period of current year
@@ -229,13 +229,13 @@ func (r *Resolver) UserProfileAbsentResolver(params graphql.ResolveParams) (inte
 	endOfYear := time.Date(currentYear, time.December, 31, 23, 59, 59, 999999999, time.UTC)
 	absents, err := r.Repo.GetEmployeeAbsents(profileID, &dto.EmployeeAbsentsInput{From: &startOfYear, To: &endOfYear})
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for _, absent := range absents {
 		absentType, err := r.Repo.GetAbsentTypeByID(absent.AbsentTypeID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		absent.AbsentType = *absentType
 
@@ -266,21 +266,21 @@ func (r *Resolver) UserProfileAbsentResolver(params graphql.ResolveParams) (inte
 		if absent.TargetOrganizationUnitID != nil {
 			organizationUnit, err := r.Repo.GetOrganizationUnitByID(*absent.TargetOrganizationUnitID)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			absent.TargetOrganizationUnit = organizationUnit
 		}
 
 		absentType, err := r.Repo.GetAbsentTypeByID(absent.AbsentTypeID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if absent.FileID > 0 {
 			res, err := r.Repo.GetFileByID(absent.FileID)
 
 			if err != nil {
-				return nil, err
+				return errors.HandleAPPError(err)
 			}
 
 			absent.File.ID = res.ID
@@ -338,13 +338,13 @@ func GetNumberOfCurrentAndPreviousYearAvailableDays(r repository.MicroserviceRep
 	pastVacationDays := 0
 	resolutions, err := r.GetEmployeeResolutions(profileID, &dto.EmployeeResolutionListInput{From: &startDatePreviousYear, To: &endDateCurrentYear})
 	if err != nil {
-		fmt.Println("error getting employee resolution - " + err.Error())
+		return 0, 0, 0, errors.Wrap(err, "repo get employee resolutions")
 	}
 
 	for _, resolution := range resolutions {
 		resolutionType, err := r.GetDropdownSettingByID(resolution.ResolutionTypeID)
 		if err != nil {
-			return 0, 0, 0, err
+			return 0, 0, 0, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 		resolution.ResolutionType = resolutionType
 	}
@@ -367,7 +367,7 @@ func GetNumberOfCurrentAndPreviousYearAvailableDays(r repository.MicroserviceRep
 
 	usedDays, err := calculateUsedDays(r, profileID)
 	if err != nil {
-		return 0, 0, 0, err
+		return 0, 0, 0, errors.Wrap(err, "calcuate used days")
 	}
 
 	// pastVacationDays -= usedDaysPreviousYear
@@ -394,7 +394,7 @@ func calculateUsedDays(r repository.MicroserviceRepositoryInterface, profileID i
 		To:   &endOfYear,
 	})
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "repo get employee absents")
 	}
 
 	for _, absent := range absents {
@@ -403,7 +403,7 @@ func calculateUsedDays(r repository.MicroserviceRepositoryInterface, profileID i
 
 		absentType, err := r.GetAbsentTypeByID(absent.AbsentTypeID)
 		if err != nil {
-			return 0, err
+			return 0, errors.Wrap(err, "repo get absent type by id")
 		}
 
 		if absentType.AccountingDaysOff {
@@ -472,52 +472,51 @@ func (r *Resolver) UserProfileAbsentInsertResolver(params graphql.ResolveParams)
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return errors.ErrorResponse("Bad request: user profile absent data"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	absentType, err := r.Repo.GetAbsentTypeByID(data.AbsentTypeID)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if absentType.Title == "Godišnji odmor" {
 		_, currYearDays, pastYearDays, err := GetNumberOfCurrentAndPreviousYearAvailableDays(r.Repo, data.UserProfileID)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		dateOfStart, err := time.Parse("2006-01-02T15:04:05.000Z", data.DateOfStart)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		dateOfEnd, err := time.Parse("2006-01-02T15:04:05.000Z", data.DateOfEnd)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		newUsedData := countWorkingDaysBetweenDates(dateOfStart, dateOfEnd)
 
 		if newUsedData > (currYearDays + pastYearDays) {
 			err = fmt.Errorf("limit is reached")
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
 	if data.ID != 0 {
 		item, err = r.Repo.UpdateAbsent(params.Context, data.ID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You updated this item!"
 	} else {
 		item, err = r.Repo.CreateAbsent(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -525,7 +524,7 @@ func (r *Resolver) UserProfileAbsentInsertResolver(params graphql.ResolveParams)
 
 	resItem, err := buildAbsentResponseItem(r.Repo, *item)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = resItem
@@ -536,14 +535,14 @@ func (r *Resolver) UserProfileAbsentInsertResolver(params graphql.ResolveParams)
 func buildAbsentResponseItem(r repository.MicroserviceRepositoryInterface, absent structs.Absent) (*structs.Absent, error) {
 	absentType, err := r.GetAbsentTypeByID(absent.AbsentTypeID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get absent type by id")
 	}
 	absent.AbsentType = *absentType
 
 	if absent.TargetOrganizationUnitID != nil {
 		organizationUnit, err := r.GetOrganizationUnitByID(*absent.TargetOrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		absent.TargetOrganizationUnit = organizationUnit
 	}
@@ -552,7 +551,7 @@ func buildAbsentResponseItem(r repository.MicroserviceRepositoryInterface, absen
 		res, err := r.GetFileByID(absent.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		absent.File.ID = res.ID
@@ -568,7 +567,7 @@ func (r *Resolver) UserProfileAbsentDeleteResolver(params graphql.ResolveParams)
 
 	err := r.Repo.DeleteAbsent(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -583,13 +582,13 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 	user, err := r.Repo.GetUserProfileByID(userID)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	userResponse, err := buildUserProfileOverviewResponse(r.Repo, user)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	active := true
 
@@ -601,7 +600,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 		resolution, err := r.Repo.GetJudgeResolutionList(&input)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		filter := dto.JudgeResolutionsOrganizationUnitInput{
@@ -611,17 +610,17 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 
 		judge, _, err := r.Repo.GetJudgeResolutionOrganizationUnit(&filter)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		err = r.Repo.DeleteJJudgeResolutionOrganizationUnit(judge[0].ID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		contract, err := r.Repo.GetEmployeeContracts(userID, nil)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		now := time.Now()
 		format := config.ISO8601Format
@@ -662,24 +661,24 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 		}
 		_, err = r.Repo.CreateExperience(&experience)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	} else {
 		contract, err := r.Repo.GetEmployeeContracts(userID, nil)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		employeeInOrgUnit, err := r.Repo.GetEmployeesInOrganizationUnitsByProfileID(userID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if employeeInOrgUnit != nil {
 			err = r.Repo.DeleteEmployeeInOrganizationUnitByID(employeeInOrgUnit.ID)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			now := time.Now()
@@ -725,14 +724,14 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 			}
 			_, err = r.Repo.CreateExperience(&experience)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			contract[0].JobPositionInOrganizationUnitID = 0
 			contract[0].OrganizationUnitDepartmentID = nil
 			contract[0].Active = false
 			_, err = r.Repo.UpdateEmployeeContract(params.Context, contract[0].ID, contract[0])
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 	}
@@ -741,7 +740,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 
 	terminateResolutionType, err := r.Repo.GetDropdownSettings(&dto.GetSettingsInput{Value: &terminateResolutionTypeValue, Entity: config.ResolutionTypes})
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	now := time.Now()
@@ -755,7 +754,7 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 		FileID:           fileID,
 	})
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	active = false
@@ -763,13 +762,13 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 	_, err = r.Repo.UpdateUserProfile(params.Context, user.ID, *user)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	_, err = r.Repo.DeactivateUserAccount(params.Context, user.UserAccountID)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -792,7 +791,7 @@ func (r *Resolver) GetVacationReportData(params graphql.ResolveParams) (interfac
 	if reportType == AnnualLeaveReport {
 		data, err := getDataForUsedAnnualLeaveDaysForEmployees(r.Repo, organizationUnitID, employeeID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -801,7 +800,7 @@ func (r *Resolver) GetVacationReportData(params graphql.ResolveParams) (interfac
 			Items:   data,
 		}, nil
 	}
-	return errors.HandleAPIError(fmt.Errorf("unsupported type %d", reportType))
+	return errors.HandleAPPError(fmt.Errorf("unsupported type %d", reportType))
 }
 
 func getDataForUsedAnnualLeaveDaysForEmployees(repo repository.MicroserviceRepositoryInterface, organizationUnitID int, employeeID int) ([]dto.VacationReportResItem, error) {
@@ -810,19 +809,19 @@ func getDataForUsedAnnualLeaveDaysForEmployees(repo repository.MicroserviceRepos
 
 	organizationUnit, err := repo.GetOrganizationUnitByID(organizationUnitID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get organization unit by id")
 	}
 
 	if employeeID > 0 {
 		employee, err := repo.GetUserProfileByID(employeeID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 		employees = append(employees, employee)
 	} else {
 		employees, err = GetEmployeesOfOrganizationUnit(repo, organizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get employees of organization unit")
 		}
 	}
 
@@ -830,7 +829,7 @@ func getDataForUsedAnnualLeaveDaysForEmployees(repo repository.MicroserviceRepos
 	for _, employee := range employees {
 		sumDaysOfCurrentYear, availableDaysOfCurrentYear, _, err := GetNumberOfCurrentAndPreviousYearAvailableDays(repo, employee.ID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "get number of current and previous year avaliable days")
 		}
 
 		resItem := dto.VacationReportResItem{

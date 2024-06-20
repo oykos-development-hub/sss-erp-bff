@@ -6,7 +6,6 @@ import (
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -69,7 +68,7 @@ func (r *Resolver) PublicProcurementContractsOverviewResolver(params graphql.Res
 	if id != nil && id.(int) > 0 {
 		contract, err := r.Repo.GetProcurementContract(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resItem, _ := buildProcurementContractResponseItem(r.Repo, contract)
 		items = append(items, *resItem)
@@ -82,14 +81,14 @@ func (r *Resolver) PublicProcurementContractsOverviewResolver(params graphql.Res
 	}
 	contractsRes, err := r.Repo.GetProcurementContractsList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	total = contractsRes.Total
 
 	for _, contract := range contractsRes.Data {
 		resItem, err := buildProcurementContractResponseItem(r.Repo, contract)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		items = append(items, *resItem)
 	}
@@ -113,7 +112,7 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
@@ -121,11 +120,11 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 	if itemID != 0 {
 		res, err := r.Repo.UpdateProcurementContract(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementContractResponseItem(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -133,7 +132,7 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 	} else {
 		res, err := r.Repo.CreateProcurementContract(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		articles, err := r.Repo.GetProcurementArticlesList(&dto.GetProcurementArticleListInputMS{
@@ -141,7 +140,7 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 		})
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		for _, article := range articles {
@@ -157,14 +156,14 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 			_, err := r.Repo.CreateProcurementContractArticle(&item)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 		}
 
 		item, err := buildProcurementContractResponseItem(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -177,12 +176,12 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 func buildProcurementContractResponseItem(r repository.MicroserviceRepositoryInterface, item *structs.PublicProcurementContract) (*dto.ProcurementContractResponseItem, error) {
 	publicProcurementItem, err := r.GetProcurementItem(item.PublicProcurementID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get procurement item")
 	}
 
 	supplier, err := r.GetSupplier(item.SupplierID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get supplier")
 	}
 
 	var files []dto.FileDropdownSimple
@@ -190,7 +189,7 @@ func buildProcurementContractResponseItem(r repository.MicroserviceRepositoryInt
 	for _, id := range item.File {
 		file, err := r.GetFileByID(id)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		fileDropDown := dto.FileDropdownSimple{
@@ -204,7 +203,7 @@ func buildProcurementContractResponseItem(r repository.MicroserviceRepositoryInt
 
 	daysUntilExpiry, err := calculateDaysUntilExpiry(*item.DateOfExpiry)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "calculate days until expiry")
 	}
 
 	res := dto.ProcurementContractResponseItem{
@@ -237,7 +236,7 @@ func calculateDaysUntilExpiry(expiryDateStr string) (int, error) {
 	// Parse the expiry date
 	expiryDate, err := time.Parse(time.RFC3339, expiryDateStr)
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "time parse")
 	}
 
 	// Get the current date (ignoring time of day)
@@ -254,8 +253,7 @@ func (r *Resolver) PublicProcurementContractDeleteResolver(params graphql.Resolv
 
 	err := r.Repo.DeleteProcurementContract(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting procurement contract failed because of this error - %s.\n", err)
-		return errors.ErrorResponse("Error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

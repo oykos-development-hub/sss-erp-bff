@@ -7,7 +7,6 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -81,7 +80,7 @@ func (r *Resolver) ProgramOverviewResolver(params graphql.ResolveParams) (interf
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		program, err := r.Repo.GetProgram(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -102,12 +101,12 @@ func (r *Resolver) ProgramOverviewResolver(params graphql.ResolveParams) (interf
 
 	programs, err := r.Repo.GetProgramList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	programResItem, err := buildProgramResItemList(r.Repo, programs)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -122,7 +121,7 @@ func buildProgramResItemList(r repository.MicroserviceRepositoryInterface, progr
 	for _, program := range programs {
 		program, err := buildProgramResItem(r, program)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build program res item")
 		}
 		programResItemList = append(programResItemList, program)
 	}
@@ -140,7 +139,7 @@ func buildProgramResItem(r repository.MicroserviceRepositoryInterface, program s
 	if program.ParentID != nil {
 		subProgram, err := r.GetProgram(*program.ParentID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get prorgam")
 		}
 		resItem.Parent = &dto.DropdownSimple{ID: subProgram.ID, Title: subProgram.Title}
 	}
@@ -156,7 +155,7 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
@@ -164,12 +163,12 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 	if itemID != 0 {
 		item, err := r.Repo.UpdateProgram(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildProgramResItem(r.Repo, *item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -177,12 +176,12 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 	} else {
 		item, err := r.Repo.CreateProgram(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildProgramResItem(r.Repo, *item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -197,8 +196,7 @@ func (r *Resolver) ProgramDeleteResolver(params graphql.ResolveParams) (interfac
 
 	err := r.Repo.DeleteProgram(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting program item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

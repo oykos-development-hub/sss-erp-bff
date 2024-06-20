@@ -18,7 +18,7 @@ func (repo *MicroserviceRepository) CreateNonFinancialBudget(ctx context.Context
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.NonFinancialBudget, nonFinancialBudget, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -32,7 +32,7 @@ func (repo *MicroserviceRepository) UpdateNonFinancialBudget(ctx context.Context
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.NonFinancialBudget+"/"+strconv.Itoa(id), nonFinancialBudget, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -45,7 +45,7 @@ func (repo *MicroserviceRepository) DeleteNonFinancialBudget(ctx context.Context
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.NonFinancialBudget+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -55,7 +55,7 @@ func (repo *MicroserviceRepository) GetNonFinancialBudgetList(input *dto.GetNonF
 	res := &dto.GetNonFinancialBudgetListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.NonFinancialBudget, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -71,11 +71,11 @@ func (repo *MicroserviceRepository) GetNonFinancialBudgetByRequestID(requestID i
 	}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.NonFinancialBudget, input, resList)
 	if err != nil {
-		return response, errors.WrapInternalServerError(err, "repo.GetNonFinancialBudgetByRequestID")
+		return response, errors.WrapInternalServerError(err, "make api request")
 	}
 
 	if len(resList.Data) == 0 {
-		return response, errors.WrapNotFoundError(errors.ErrNonFinancialBudgetNotFound, "repo.GetNonFinancialBudgetByRequestID")
+		return response, errors.WrapNotFoundError(errors.ErrNonFinancialBudgetNotFound, "make api request")
 	}
 
 	return resList.Data[0], nil
@@ -85,7 +85,7 @@ func (repo *MicroserviceRepository) GetNonFinancialBudget(id int) (*structs.NonF
 	res := &dto.GetNonFinancialBudgetResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.NonFinancialBudget+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil

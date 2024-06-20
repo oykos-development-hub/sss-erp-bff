@@ -3,7 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -15,11 +15,11 @@ func (r *Resolver) SalaryOverviewResolver(params graphql.ResolveParams) (interfa
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		Salary, err := r.Repo.GetSalaryByID(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		res, err := buildSalary(*Salary, r)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -59,7 +59,7 @@ func (r *Resolver) SalaryOverviewResolver(params graphql.ResolveParams) (interfa
 
 	items, total, err := r.Repo.GetSalaryList(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.SalaryResponse
@@ -67,7 +67,7 @@ func (r *Resolver) SalaryOverviewResolver(params graphql.ResolveParams) (interfa
 		resItem, err := buildSalary(item, r)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -90,18 +90,18 @@ func (r *Resolver) SalaryInsertResolver(params graphql.ResolveParams) (interface
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.OrganizationUnitID == 0 {
 
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.OrganizationUnitID = *organizationUnitID
@@ -113,19 +113,19 @@ func (r *Resolver) SalaryInsertResolver(params graphql.ResolveParams) (interface
 	if data.ID == 0 {
 		item, err = r.Repo.CreateSalary(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateSalary(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
 
 	singleItem, err := buildSalary(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -138,8 +138,7 @@ func (r *Resolver) SalaryDeleteResolver(params graphql.ResolveParams) (interface
 
 	err := r.Repo.DeleteSalary(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting fixed deposit failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -169,7 +168,7 @@ func buildSalary(item structs.Salary, r *Resolver) (*dto.SalaryResponse, error) 
 	if item.ActivityID != 0 {
 		activity, err := r.Repo.GetActivity(item.ActivityID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get activity")
 		}
 
 		response.Activity.ID = activity.ID
@@ -179,7 +178,7 @@ func buildSalary(item structs.Salary, r *Resolver) (*dto.SalaryResponse, error) 
 	if item.OrganizationUnitID != 0 {
 		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		response.OrganizationUnit.ID = orgUnit.ID
@@ -190,7 +189,7 @@ func buildSalary(item structs.Salary, r *Resolver) (*dto.SalaryResponse, error) 
 		data, err := buildSalaryAdditionalExpense(additionalExpense, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build salary additional expense")
 		}
 
 		response.SalaryAdditionalExpenses = append(response.SalaryAdditionalExpenses, *data)
@@ -214,7 +213,7 @@ func buildSalaryAdditionalExpense(item structs.SalaryAdditionalExpense, r *Resol
 	if item.OrganizationUnitID != 0 {
 		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		response.OrganizationUnit.ID = orgUnit.ID
@@ -224,7 +223,7 @@ func buildSalaryAdditionalExpense(item structs.SalaryAdditionalExpense, r *Resol
 	if item.AccountID != 0 {
 		account, err := r.Repo.GetAccountItemByID(item.AccountID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		response.Account.ID = account.ID
@@ -235,7 +234,7 @@ func buildSalaryAdditionalExpense(item structs.SalaryAdditionalExpense, r *Resol
 		subject, err := r.Repo.GetSupplier(item.SubjectID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		response.Subject.ID = subject.ID
@@ -245,7 +244,7 @@ func buildSalaryAdditionalExpense(item structs.SalaryAdditionalExpense, r *Resol
 	if item.DebtorID != 0 {
 		debtor, err := r.Repo.GetUserProfileByID(item.DebtorID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		response.Debtor.ID = debtor.ID

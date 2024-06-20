@@ -24,7 +24,7 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 
 	loginRes, cookies, err := r.Repo.LoginUser(email, password)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	roleID := int(loginRes.Data.RoleID)
@@ -36,12 +36,12 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 
 	permissions, err := r.Repo.GetPermissionList(roleID)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	userProfile, err := r.Repo.GetUserProfileByUserAccountID(loginRes.Data.ID)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	isActive := true
@@ -54,7 +54,7 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 	if userProfile.EngagementTypeID != nil {
 		engagement, err = r.Repo.GetDropdownSettingByID(*userProfile.EngagementTypeID)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return apierrors.HandleAPPError(err)
 		}
 	}
 
@@ -73,13 +73,13 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 		isParent := true
 		organizationUnits, err := r.Repo.GetOrganizationUnits(&dto.GetOrganizationUnitsInput{IsParent: &isParent})
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return apierrors.HandleAPPError(err)
 		}
 
 		for _, organizationUnit := range organizationUnits.Data {
 			organizationUnitItem, err := buildOrganizationUnitOverviewResponse(r.Repo, &organizationUnit)
 			if err != nil {
-				return apierrors.HandleAPIError(err)
+				return apierrors.HandleAPPError(err)
 			}
 			organizationUnitList = append(organizationUnitList, *organizationUnitItem)
 		}
@@ -87,7 +87,7 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 
 	supplierListRes, err := r.Repo.GetSupplierList(nil)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	return dto.LoginResponse{
@@ -120,7 +120,7 @@ func (r *Resolver) ForgotPasswordResolver(p graphql.ResolveParams) (interface{},
 
 	err := r.Repo.ForgotPassword(email)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -140,7 +140,7 @@ func (r *Resolver) UserValidateMailResolver(p graphql.ResolveParams) (interface{
 
 	res, err := r.Repo.ValidateMail(&input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -161,7 +161,7 @@ func (r *Resolver) UserResetPasswordResolver(p graphql.ResolveParams) (interface
 
 	err := r.Repo.ResetPassword(&input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -173,17 +173,17 @@ func (r *Resolver) UserResetPasswordResolver(p graphql.ResolveParams) (interface
 func (r *Resolver) RefreshTokenResolver(p graphql.ResolveParams) (interface{}, error) {
 	request, ok := p.Context.Value(config.Requestkey).(*http.Request)
 	if !ok {
-		return apierrors.HandleAPIError(errors.New("could not get request from context"))
+		return apierrors.HandleAPPError(errors.New("could not get request from context"))
 	}
 
 	refreshCookie, err := request.Cookie("refresh_token")
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	refreshRes, cookies, err := r.Repo.RefreshToken(refreshCookie)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	httpResponseWriter := p.Context.Value((config.HTTPResponseWriterKey)).(http.ResponseWriter)
@@ -204,7 +204,7 @@ func (r *Resolver) LogoutResolver(p graphql.ResolveParams) (interface{}, error) 
 
 	err := r.Repo.Logout(authToken)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	r.NotificationsService.Wsmanager.RemoveClientByUserID(user.ID)

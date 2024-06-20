@@ -3,7 +3,7 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/dto"
-	apierrors "bff/internal/api/errors"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
 	"fmt"
@@ -15,11 +15,11 @@ func (r *Resolver) FixedDepositOverviewResolver(params graphql.ResolveParams) (i
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		fixedDeposit, err := r.Repo.GetFixedDepositByID(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		res, err := buildFixedDeposit(*fixedDeposit, r)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -63,7 +63,7 @@ func (r *Resolver) FixedDepositOverviewResolver(params graphql.ResolveParams) (i
 
 	items, total, err := r.Repo.GetFixedDepositList(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.FixedDepositResponse
@@ -71,7 +71,7 @@ func (r *Resolver) FixedDepositOverviewResolver(params graphql.ResolveParams) (i
 		resItem, err := buildFixedDeposit(item, r)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -94,18 +94,18 @@ func (r *Resolver) FixedDepositInsertResolver(params graphql.ResolveParams) (int
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.OrganizationUnitID == 0 {
 
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.OrganizationUnitID = *organizationUnitID
@@ -117,19 +117,19 @@ func (r *Resolver) FixedDepositInsertResolver(params graphql.ResolveParams) (int
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFixedDeposit(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFixedDeposit(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
 
 	singleItem, err := buildFixedDeposit(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -142,8 +142,7 @@ func (r *Resolver) FixedDepositDeleteResolver(params graphql.ResolveParams) (int
 
 	err := r.Repo.DeleteFixedDeposit(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting fixed deposit failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -161,22 +160,22 @@ func (r *Resolver) FixedDepositItemInsertResolver(params graphql.ResolveParams) 
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositItem(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositItem(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
@@ -189,8 +188,7 @@ func (r *Resolver) FixedDepositItemDeleteResolver(params graphql.ResolveParams) 
 
 	err := r.Repo.DeleteFixedDepositItem(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting fixed deposit item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -208,22 +206,22 @@ func (r *Resolver) FixedDepositDispatchInsertResolver(params graphql.ResolvePara
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositDispatch(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositDispatch(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
@@ -236,8 +234,7 @@ func (r *Resolver) FixedDepositDispatchDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteFixedDepositDispatch(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting fixed deposit dispatch item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -255,22 +252,22 @@ func (r *Resolver) FixedDepositJudgeInsertResolver(params graphql.ResolveParams)
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositJudge(&data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositJudge(&data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
@@ -283,8 +280,7 @@ func (r *Resolver) FixedDepositJudgeDeleteResolver(params graphql.ResolveParams)
 
 	err := r.Repo.DeleteFixedDepositJudge(itemID)
 	if err != nil {
-		fmt.Printf("Deleting fixed deposit judge item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -297,11 +293,11 @@ func (r *Resolver) FixedDepositWillOverviewResolver(params graphql.ResolveParams
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		fixedDeposit, err := r.Repo.GetFixedDepositWillByID(id)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		res, err := buildFixedDepositWill(*fixedDeposit, r)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -337,7 +333,7 @@ func (r *Resolver) FixedDepositWillOverviewResolver(params graphql.ResolveParams
 
 	items, total, err := r.Repo.GetFixedDepositWillList(input)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var resItems []dto.FixedDepositWillResponse
@@ -345,7 +341,7 @@ func (r *Resolver) FixedDepositWillOverviewResolver(params graphql.ResolveParams
 		resItem, err := buildFixedDepositWill(item, r)
 
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItems = append(resItems, *resItem)
@@ -368,18 +364,18 @@ func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) 
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.OrganizationUnitID == 0 {
 
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return apierrors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.OrganizationUnitID = *organizationUnitID
@@ -391,19 +387,19 @@ func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) 
 		data.Status = "Depozit"
 		item, err = r.Repo.CreateFixedDepositWill(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFixedDepositWill(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
 
 	singleItem, err := buildFixedDepositWill(*item, r)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *singleItem
@@ -416,8 +412,7 @@ func (r *Resolver) FixedDepositWillDeleteResolver(params graphql.ResolveParams) 
 
 	err := r.Repo.DeleteFixedDepositWill(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting fixed deposit will failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -435,22 +430,22 @@ func (r *Resolver) FixedDepositWillDispatchInsertResolver(params graphql.Resolve
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return apierrors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositWillDispatch(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositWillDispatch(params.Context, &data)
 		if err != nil {
-			return apierrors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
@@ -463,8 +458,7 @@ func (r *Resolver) FixedDepositWillDispatchDeleteResolver(params graphql.Resolve
 
 	err := r.Repo.DeleteFixedDepositWillDispatch(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting fixed deposit item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -493,7 +487,7 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		response.OrganizationUnit.ID = orgUnit.ID
@@ -504,7 +498,7 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		response.Judge.ID = judge.ID
@@ -515,7 +509,7 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 		account, err := r.Repo.GetAccountItemByID(item.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		response.Account.ID = account.ID
@@ -526,7 +520,7 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 		file, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		response.File.ID = file.ID
@@ -538,7 +532,7 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 		builtItem, err := buildFixedDepositItem(itemFixed, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build fixed deposit item")
 		}
 
 		response.Items = append(response.Items, *builtItem)
@@ -548,7 +542,7 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 		builtDispatch, err := buildFixedDepositDispatches(dispatch, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build fixed deposit dispatches")
 		}
 
 		response.Dispatches = append(response.Dispatches, *builtDispatch)
@@ -558,7 +552,7 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 		builtJudge, err := buildFixedDepositJudges(judge, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build fixed deposit judges")
 		}
 
 		response.Judges = append(response.Judges, *builtJudge)
@@ -587,7 +581,7 @@ func buildFixedDepositWill(item structs.FixedDepositWill, r *Resolver) (*dto.Fix
 		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		response.OrganizationUnit.ID = orgUnit.ID
@@ -598,7 +592,7 @@ func buildFixedDepositWill(item structs.FixedDepositWill, r *Resolver) (*dto.Fix
 		file, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		response.File.ID = file.ID
@@ -610,7 +604,7 @@ func buildFixedDepositWill(item structs.FixedDepositWill, r *Resolver) (*dto.Fix
 		builtDispatch, err := buildFixedDepositWillDispatches(dispatch, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build fixed deposit will dispatches")
 		}
 
 		response.Dispatches = append(response.Dispatches, *builtDispatch)
@@ -620,7 +614,7 @@ func buildFixedDepositWill(item structs.FixedDepositWill, r *Resolver) (*dto.Fix
 		builtJudge, err := buildFixedDepositJudges(judge, r)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build fixed deposit judges")
 		}
 
 		response.Judges = append(response.Judges, *builtJudge)
@@ -647,7 +641,7 @@ func buildFixedDepositItem(item structs.FixedDepositItem, r *Resolver) (*dto.Fix
 		setting, err := r.Repo.GetDropdownSettingByID(item.CategoryID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 
 		response.Category.ID = setting.ID
@@ -658,7 +652,7 @@ func buildFixedDepositItem(item structs.FixedDepositItem, r *Resolver) (*dto.Fix
 		setting, err := r.Repo.GetDropdownSettingByID(item.TypeID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 
 		response.Type.ID = setting.ID
@@ -669,7 +663,7 @@ func buildFixedDepositItem(item structs.FixedDepositItem, r *Resolver) (*dto.Fix
 		file, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		response.File.ID = file.ID
@@ -681,7 +675,7 @@ func buildFixedDepositItem(item structs.FixedDepositItem, r *Resolver) (*dto.Fix
 		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		response.Judge.ID = judge.ID
@@ -711,7 +705,7 @@ func buildFixedDepositDispatches(item structs.FixedDepositDispatch, r *Resolver)
 		setting, err := r.Repo.GetDropdownSettingByID(item.CategoryID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 
 		response.Category.ID = setting.ID
@@ -722,7 +716,7 @@ func buildFixedDepositDispatches(item structs.FixedDepositDispatch, r *Resolver)
 		setting, err := r.Repo.GetDropdownSettingByID(item.TypeID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 
 		response.Type.ID = setting.ID
@@ -733,7 +727,7 @@ func buildFixedDepositDispatches(item structs.FixedDepositDispatch, r *Resolver)
 		file, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		response.File.ID = file.ID
@@ -745,7 +739,7 @@ func buildFixedDepositDispatches(item structs.FixedDepositDispatch, r *Resolver)
 		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		response.Judge.ID = judge.ID
@@ -770,7 +764,7 @@ func buildFixedDepositWillDispatches(item structs.FixedDepositWillDispatch, r *R
 		file, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		response.File.ID = file.ID
@@ -782,7 +776,7 @@ func buildFixedDepositWillDispatches(item structs.FixedDepositWillDispatch, r *R
 		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		response.Judge.ID = judge.ID
@@ -807,7 +801,7 @@ func buildFixedDepositJudges(item structs.FixedDepositJudge, r *Resolver) (*dto.
 		file, err := r.Repo.GetFileByID(item.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		response.File.ID = file.ID
@@ -819,7 +813,7 @@ func buildFixedDepositJudges(item structs.FixedDepositJudge, r *Resolver) (*dto.
 		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		response.Judge.ID = judge.ID

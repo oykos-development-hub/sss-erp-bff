@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateNonFinancialGoalIndicator(ctx context.
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.NonFinancialGoalIndicator, nonFinancialGoalIndicator, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -31,7 +32,7 @@ func (repo *MicroserviceRepository) UpdateNonFinancialGoalIndicator(ctx context.
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.NonFinancialGoalIndicator+"/"+strconv.Itoa(id), nonFinancialGoalIndicator, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -44,7 +45,7 @@ func (repo *MicroserviceRepository) DeleteNonFinancialGoalIndicator(ctx context.
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.NonFinancialGoalIndicator+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -54,7 +55,7 @@ func (repo *MicroserviceRepository) GetNonFinancialGoalIndicatorList(input *dto.
 	res := &dto.GetNonFinancialGoalIndicatorListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.NonFinancialGoalIndicator, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -64,7 +65,7 @@ func (repo *MicroserviceRepository) GetNonFinancialGoalIndicator(id int) (*struc
 	res := &dto.GetNonFinancialGoalIndicatorResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.NonFinancialGoalIndicator+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil

@@ -18,12 +18,12 @@ func (r *Resolver) PublicProcurementPlanItemLimitsResolver(params graphql.Resolv
 	}
 	limits, err := r.Repo.GetProcurementOULimitList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	for _, limit := range limits {
 		resItem, err := buildProcurementOULimitResponseItem(r.Repo, limit)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		items = append(items, resItem)
 	}
@@ -46,7 +46,7 @@ func (r *Resolver) PublicProcurementPlanItemLimitInsertResolver(params graphql.R
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
@@ -54,11 +54,11 @@ func (r *Resolver) PublicProcurementPlanItemLimitInsertResolver(params graphql.R
 	if itemID != 0 {
 		res, err := r.Repo.UpdateProcurementOULimit(itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementOULimitResponseItem(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -66,11 +66,11 @@ func (r *Resolver) PublicProcurementPlanItemLimitInsertResolver(params graphql.R
 	} else {
 		res, err := r.Repo.CreateProcurementOULimit(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementOULimitResponseItem(r.Repo, res)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"
@@ -83,7 +83,7 @@ func (r *Resolver) PublicProcurementPlanItemLimitInsertResolver(params graphql.R
 func buildProcurementOULimitResponseItem(r repository.MicroserviceRepositoryInterface, limit *structs.PublicProcurementLimit) (*dto.ProcurementOULimitResponseItem, error) {
 	item, err := r.GetProcurementItem(limit.PublicProcurementID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get procurement item")
 	}
 	itemDropdown := dto.DropdownSimple{
 		ID:    item.ID,
@@ -92,7 +92,7 @@ func buildProcurementOULimitResponseItem(r repository.MicroserviceRepositoryInte
 
 	organization, err := r.GetOrganizationUnitByID(limit.OrganizationUnitID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get organization unit by id")
 	}
 	organizationDropdown := dto.DropdownSimple{
 		ID:    organization.ID,

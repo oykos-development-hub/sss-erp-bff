@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"strconv"
 )
@@ -11,7 +12,7 @@ func (repo *MicroserviceRepository) CreateDropdownSettings(data *structs.Setting
 	res := &dto.GetDropdownTypeResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Settings, data, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -20,7 +21,7 @@ func (repo *MicroserviceRepository) CreateDropdownSettings(data *structs.Setting
 func (repo *MicroserviceRepository) DeleteDropdownSettings(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.Settings+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -30,7 +31,7 @@ func (repo *MicroserviceRepository) UpdateDropdownSettings(id int, data *structs
 	res := &dto.GetDropdownTypeResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Settings+"/"+strconv.Itoa(id), data, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -40,7 +41,7 @@ func (repo *MicroserviceRepository) GetDropdownSettings(input *dto.GetSettingsIn
 	res := &dto.GetDropdownTypesResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Settings, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) GetDropdownSettingByID(id int) (*structs.Set
 	res := &dto.GetDropdownTypeResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Settings+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -61,7 +62,7 @@ func (repo *MicroserviceRepository) GetOfficeDropdownSettings(input *dto.GetOffi
 	input.Entity = config.OfficeTypes
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Settings, &input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil

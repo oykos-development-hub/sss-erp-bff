@@ -2,11 +2,11 @@ package files
 
 import (
 	"bff/config"
+	"bff/internal/api/errors"
 	"bff/internal/api/middleware"
 	"bff/internal/api/repository"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -228,13 +228,13 @@ func (h *Handler) GetFileData(fileID string) (*SingleFileResponse, int, error) {
 	response, status, err := makeBackendRequest(http.MethodGet, backendURL, nil, "")
 
 	if err != nil {
-		return nil, status, err
+		return nil, status, errors.Wrap(err, "make backend request")
 	}
 
 	var fileData SingleFileResponse
 	decoder := json.NewDecoder(response.Body)
 	if err := decoder.Decode(&fileData); err != nil {
-		return nil, status, err
+		return nil, status, errors.Wrap(err, "decoder decode")
 	}
 
 	return &fileData, status, nil

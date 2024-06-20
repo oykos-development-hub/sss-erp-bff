@@ -12,12 +12,12 @@ import (
 func makeAPIRequest(method, url string, data interface{}, response interface{}, headers ...map[string]string) ([]*http.Cookie, error) {
 	reqBytes, err := json.Marshal(data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request body: %w", err)
+		return nil, errors.Wrap(err, "json marshal")
 	}
 
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(reqBytes))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
+		return nil, errors.Wrap(err, "http new request")
 	}
 	req.Header.Set("Content-Type", "application/json")
 
@@ -31,13 +31,13 @@ func makeAPIRequest(method, url string, data interface{}, response interface{}, 
 	client := http.DefaultClient
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to make HTTP request: %w", err)
+		return nil, errors.Wrap(err, "client do")
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
+		return nil, errors.Wrap(err, "io read all")
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -50,14 +50,13 @@ func makeAPIRequest(method, url string, data interface{}, response interface{}, 
 			apiError.Message = "Unexpected error"
 		}
 
-		return nil, apiError
+		return nil, errors.Wrap(apiError, "backend error")
 	}
 
 	if len(body) > 0 && response != nil {
 		err = json.Unmarshal(body, response)
 		if err != nil {
-			fmt.Println(string(body))
-			return nil, fmt.Errorf("failed to parse HTTP response: %w", err)
+			return nil, errors.Wrap(err, "json unmarshal")
 		}
 	}
 

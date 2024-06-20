@@ -23,7 +23,7 @@ func (r *Resolver) PublicProcurementPlanItemArticleInsertResolver(params graphql
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var items []*dto.ProcurementArticleResponseItem
@@ -33,22 +33,22 @@ func (r *Resolver) PublicProcurementPlanItemArticleInsertResolver(params graphql
 		if itemID != 0 {
 			res, err := r.Repo.UpdateProcurementArticle(itemID, &item)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			item, err := buildProcurementArticleResponseItem(params.Context, r.Repo, res, nil)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			items = append(items, item)
 		} else {
 			res, err := r.Repo.CreateProcurementArticle(&item)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			item, err := buildProcurementArticleResponseItem(params.Context, r.Repo, res, nil)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			items = append(items, item)
 			response.Message = "You created this item!"
@@ -63,7 +63,7 @@ func (r *Resolver) PublicProcurementPlanItemArticleDeleteResolver(params graphql
 
 	err := r.Repo.DeleteProcurementArticle(itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -78,7 +78,7 @@ func buildProcurementArticleResponseItem(context context.Context, r repository.M
 	}
 	procurement, err := r.GetProcurementItem(item.PublicProcurementID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get procurement item")
 	}
 	procurementDropdown := dto.DropdownSimple{ID: procurement.ID, Title: procurement.Title}
 

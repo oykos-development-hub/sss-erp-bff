@@ -21,7 +21,7 @@ func (repo *MicroserviceRepository) CreateBudget(ctx context.Context, budgetItem
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Budget, budgetItem, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -35,7 +35,7 @@ func (repo *MicroserviceRepository) UpdateBudget(ctx context.Context, item *stru
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -44,7 +44,7 @@ func (repo *MicroserviceRepository) GetBudgetList(input *dto.GetBudgetListInputM
 	res := &dto.GetBudgetListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Budget, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -54,7 +54,7 @@ func (repo *MicroserviceRepository) GetBudget(id int) (*structs.Budget, error) {
 	res := &dto.GetBudgetResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -68,7 +68,7 @@ func (repo *MicroserviceRepository) DeleteBudget(ctx context.Context, id int) er
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -83,7 +83,7 @@ func (repo *MicroserviceRepository) CreateFinancialBudget(ctx context.Context, f
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FinancialBudget, financialBudget, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -97,7 +97,7 @@ func (repo *MicroserviceRepository) UpdateFinancialBudget(ctx context.Context, f
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FinancialBudget+"/"+strconv.Itoa(financialBudget.ID), financialBudget, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -106,7 +106,7 @@ func (repo *MicroserviceRepository) GetFinancialBudgetByBudgetID(id int) (*struc
 	res := &dto.GetFinancialBudgetResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(id)+"/financial", nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -117,7 +117,7 @@ func (repo *MicroserviceRepository) CreateBudgetLimit(budgetLimit *structs.Finan
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FinancialBudgetLimit, budgetLimit, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -126,7 +126,7 @@ func (repo *MicroserviceRepository) UpdateBudgetLimit(budgetLimit *structs.Finan
 	res := &dto.GetFinancialBudgetLimitResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FinancialBudgetLimit+"/"+strconv.Itoa(budgetLimit.ID), budgetLimit, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -134,7 +134,7 @@ func (repo *MicroserviceRepository) UpdateBudgetLimit(budgetLimit *structs.Finan
 func (repo *MicroserviceRepository) DeleteBudgetLimit(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FinancialBudgetLimit+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -147,7 +147,7 @@ func (repo *MicroserviceRepository) GetBudgetLimits(budgetID int) ([]structs.Fin
 	res := &dto.GetFinancialBudgetLimitListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FinancialBudgetLimit, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -161,7 +161,7 @@ func (repo *MicroserviceRepository) GetBudgetUnitLimit(budgetID, unitID int) (in
 	res := &dto.GetFinancialBudgetLimitListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FinancialBudgetLimit, input, res)
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "make api request")
 	}
 
 	if len(res.Data) != 1 {
@@ -185,7 +185,7 @@ func (repo *MicroserviceRepository) GetFinancialBudgetByID(id int) (*structs.Fin
 	res := &dto.GetFinancialBudgetResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.FinancialBudget+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -200,7 +200,7 @@ func (repo *MicroserviceRepository) FillFinancialBudget(ctx context.Context, dat
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FilledFinancialBudget, data, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -214,7 +214,7 @@ func (repo *MicroserviceRepository) UpdateFilledFinancialBudget(ctx context.Cont
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -242,7 +242,7 @@ func (repo *MicroserviceRepository) DeleteFilledFinancialBudgetData(ctx context.
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -252,7 +252,7 @@ func (repo *MicroserviceRepository) GetFinancialFilledSummary(budgetID int, reqT
 	res := &dto.GetFilledFinancialBudgetResponseMS{}
 	_, err := makeAPIRequest("GET", fmt.Sprintf("%s/%d/filled-financial-summary/%d", repo.Config.Microservices.Finance.Budget, budgetID, reqType), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -262,7 +262,7 @@ func (repo *MicroserviceRepository) GetCurrentBudgetByOrganizationUnit(organizat
 	res := &dto.GetCurrentBudgetListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetCurrentBudgetByOrganizationUnit+"/"+strconv.Itoa(organizationUnitID), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil

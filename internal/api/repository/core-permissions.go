@@ -2,6 +2,7 @@ package repository
 
 import (
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"strconv"
 )
@@ -10,7 +11,7 @@ func (repo *MicroserviceRepository) SyncPermissions(roleID int, input []*structs
 	res := &dto.GetInsertRolesPermissionListResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Roles+"/"+strconv.Itoa(roleID)+"/permissions/sync", input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -20,7 +21,7 @@ func (repo *MicroserviceRepository) GetPermissionList(roleID int) ([]structs.Per
 	res := &dto.GetPermissionListForRoleResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Roles+"/"+strconv.Itoa(roleID)+"/permissions", nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil

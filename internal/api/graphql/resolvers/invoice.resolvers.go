@@ -17,11 +17,11 @@ func (r *Resolver) InvoiceOverviewResolver(params graphql.ResolveParams) (interf
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		invoice, err := r.Repo.GetInvoice(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		invoiceResItem, err := buildInvoiceResponseItem(r, *invoice)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -71,12 +71,12 @@ func (r *Resolver) InvoiceOverviewResolver(params graphql.ResolveParams) (interf
 
 	invoices, total, err := r.Repo.GetInvoiceList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	invoiceResItem, err := buildInvoiceResponseItemList(r, invoices)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	var message string
 	if total == 0 {
@@ -102,11 +102,11 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var item *structs.Invoice
@@ -128,7 +128,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 	if data.OrganizationUnitID == 0 {
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.OrganizationUnitID = *organizationUnitID
@@ -163,7 +163,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			order, err := r.Repo.CreateOrderListItem(params.Context, orderList)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			data.OrderID = order.ID
@@ -186,32 +186,32 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				Articles: orderArticles,
 			})
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 		}
 
 		item, err = r.Repo.CreateInvoice(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 
 		invoice, err := r.Repo.GetInvoice(data.ID)
 		//orderID = invoice.OrderID
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		item, err = r.Repo.UpdateInvoice(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if invoice.OrderID != 0 {
 			order, err := r.Repo.GetOrderListByID(invoice.OrderID)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			var invoiceDate string
@@ -225,7 +225,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			_, err = r.Repo.UpdateOrderListItem(params.Context, order.ID, order)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 	}
@@ -234,7 +234,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		order, err := r.Repo.GetOrderListByID(orderID)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		_, err = r.Repo.UpdateOrderListItem(orderID, &structs.OrderListItem{
@@ -265,7 +265,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		})
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		//nije dobro brisanje artikala zbog javnih nabavki i racunanja preostalih kolicina
@@ -281,7 +281,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		for _, article := range articles.Data {
 			err := r.Repo.DeleteOrderProcurementArticle(article.ID)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 
 			}
 		}
@@ -291,7 +291,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 	articles, err := r.Repo.GetInvoiceArticleList(item.ID)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	articlesForDelete := make(map[int]bool)
@@ -306,14 +306,14 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 			_, err := r.Repo.UpdateInvoiceArticle(&article)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			articlesForDelete[article.ID] = false
 		} else {
 			_, err := r.Repo.CreateInvoiceArticle(&article)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 	}
@@ -322,7 +322,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 		if delete {
 			err := r.Repo.DeleteInvoiceArticle(id)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 	}
@@ -330,7 +330,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 	responseItem, err := buildInvoiceResponseItem(r, *item)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = *responseItem
@@ -344,20 +344,19 @@ func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interfac
 	item, err := r.Repo.GetInvoice(itemID)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	err = r.Repo.DeleteInvoice(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting invoice item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	if item.OrderID != 0 && item.InvoiceNumber != "" {
 		order, err := r.Repo.GetOrderListByID(item.OrderID)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		_, err = r.Repo.UpdateOrderListItem(params.Context, item.OrderID, &structs.OrderListItem{
@@ -384,12 +383,12 @@ func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interfac
 		})
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else if item.OrderID != 0 {
 		err = r.Repo.DeleteOrderList(params.Context, item.OrderID)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
@@ -435,12 +434,12 @@ func (r *Resolver) AdditionalExpensesOverviewResolver(params graphql.ResolvePara
 
 	additionalExpenses, total, err := r.Repo.GetAdditionalExpenses(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	builedAdditionalExpenses, err := buildAdditionalExpenseItemList(r, additionalExpenses)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -491,7 +490,7 @@ func calculateCoefficientLess700(item structs.TaxAuthorityCodebook, previousInco
 	additionalExpenses, err := calculateAdditionalExpenses(item, float64(700), previousIncomeGross, r, organizationUnit, municipality)
 
 	if err != nil {
-		return float64(0), float64(0), err
+		return float64(0), float64(0), errors.Wrap(err, "calculate additional expenses")
 	}
 
 	maxNetAmount := additionalExpenses[len(additionalExpenses)-1].Price
@@ -506,7 +505,7 @@ func calculateCoefficientLess1000(item structs.TaxAuthorityCodebook, previousInc
 	additionalExpenses, err := calculateAdditionalExpenses(item, float64(1000), previousIncomeGross, r, organizationUnit, municipality)
 
 	if err != nil {
-		return float64(0), float64(0), err
+		return float64(0), float64(0), errors.Wrap(err, "calculate additional expenses")
 	}
 
 	maxNetAmount := additionalExpenses[len(additionalExpenses)-1].Price
@@ -518,7 +517,7 @@ func calculateCoefficientLess1000(item structs.TaxAuthorityCodebook, previousInc
 	_, amount, err := calculateCoefficientLess700(item, previousIncomeGross, r, organizationUnit, municipality)
 
 	if err != nil {
-		return float64(0), float64(0), err
+		return float64(0), float64(0), errors.Wrap(err, "calculate coefficient less 700")
 	}
 
 	coefficient := (maxNetAmount - float32(amount)) / 300
@@ -540,7 +539,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	taxAuthorityCodebook, err := r.Repo.GetTaxAuthorityCodebookByID(taxAuthorityCodebookID)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	municipalityID := params.Args["municipality_id"].(int)
@@ -548,18 +547,18 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	municipality, err := r.Repo.GetSupplier(municipalityID)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
-		return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	organizationUnit, err := r.Repo.GetOrganizationUnitByID(*organizationUnitID)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	previousIncomeGross, previousIncomeGrossOK := params.Args["previous_income_gross"].(float64)
@@ -567,17 +566,17 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	taxAuthorityCodebook.CoefficientLess700, taxAuthorityCodebook.AmountLess700, err = calculateCoefficientLess700(*taxAuthorityCodebook, 0, r, organizationUnit, *municipality)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	taxAuthorityCodebook.CoefficientLess1000, taxAuthorityCodebook.AmountLess1000, err = calculateCoefficientLess1000(*taxAuthorityCodebook, 0, r, organizationUnit, *municipality)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	taxAuthorityCodebook.CoefficientMore1000, taxAuthorityCodebook.AmountMore1000, err = calculateCoefficientMore1000(*taxAuthorityCodebook)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if !previousIncomeGrossOK {
@@ -619,7 +618,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		//konvertuje neto u bruto
 		if !netPriceOK {
 			err := &errors.APIError{Message: "you must provide price"}
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if taxAuthorityCodebook.TaxPercentage != 0 {
@@ -678,7 +677,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 	}
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -720,7 +719,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -746,7 +745,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		remainGross := grossPrice
@@ -780,7 +779,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			additionalExpensesForTax, err := calculateAdditionalExpenses(taxAuthorityCodebook, previousIncomeGross, 0, r, organizationUnit, municipality)
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "calculate additional expenses")
 			}
 
 			if len(additionalExpensesForTax) > 0 {
@@ -842,7 +841,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.LaborFundSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -874,7 +873,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -906,7 +905,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -938,7 +937,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -970,7 +969,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -1002,7 +1001,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -1034,7 +1033,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
@@ -1096,7 +1095,7 @@ func buildInvoiceResponseItemList(r *Resolver, itemList []structs.Invoice) ([]*d
 		singleItem, err := buildInvoiceResponseItem(r, item)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build invoice response item")
 		}
 
 		items = append(items, singleItem)
@@ -1163,7 +1162,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 		supplier, err := r.Repo.GetSupplier(invoice.SupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		supplierDropdown := dto.DropdownSimple{
@@ -1178,7 +1177,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 		supplier, err := r.Repo.GetSupplier(invoice.MunicipalityID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		supplierDropdown := dto.DropdownSimple{
@@ -1193,7 +1192,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 		organizationUnit, err := r.Repo.GetOrganizationUnitByID(invoice.OrganizationUnitID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		OUDropdown := dto.DropdownSimple{
@@ -1208,7 +1207,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 		TaxAuthorityCodebook, err := r.Repo.GetTaxAuthorityCodebookByID(invoice.TaxAuthorityCodebookID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get tax authority codebook by id")
 		}
 
 		OUDropdown := dto.DropdownSimple{
@@ -1223,7 +1222,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 		file, err := r.Repo.GetFileByID(invoice.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		FileDropdown := dto.FileDropdownSimple{
@@ -1239,7 +1238,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 		file, err := r.Repo.GetFileByID(invoice.ProFormaInvoiceFileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 
 		FileDropdown := dto.FileDropdownSimple{
@@ -1254,7 +1253,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 	if invoice.TypeOfSubject != 0 {
 		setting, err := r.Repo.GetDropdownSettingByID(invoice.TypeOfSubject)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 		dropdown := dto.DropdownSimple{
 			ID:    setting.ID,
@@ -1266,7 +1265,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 	if invoice.TypeOfDecision != 0 {
 		setting, err := r.Repo.GetDropdownSettingByID(invoice.TypeOfDecision)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 		dropdown := dto.DropdownSimple{
 			ID:    setting.ID,
@@ -1278,7 +1277,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 	if invoice.TypeOfContract != 0 {
 		setting, err := r.Repo.GetDropdownSettingByID(invoice.TypeOfContract)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
 		}
 		dropdown := dto.DropdownSimple{
 			ID:    setting.ID,
@@ -1290,7 +1289,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 	if invoice.ActivityID != 0 {
 		activity, err := r.Repo.GetActivity(invoice.ActivityID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get activity")
 		}
 		dropdown := dto.DropdownSimple{
 			ID:    activity.ID,
@@ -1303,7 +1302,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 		order, err := r.Repo.GetOrderListByID(invoice.OrderID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get order list by id")
 		}
 		dropdown := dto.DropdownSimple{
 			ID: order.ID,
@@ -1322,7 +1321,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 	articles, err := r.Repo.GetInvoiceArticleList(invoice.ID)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get invoice article list")
 	}
 
 	if len(articles) > 0 {
@@ -1334,7 +1333,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 			singleArticle, err := buildInvoiceArtice(r, article)
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "build invoice article")
 			}
 
 			response.Articles = append(response.Articles, *singleArticle)
@@ -1368,7 +1367,7 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 		builtItem, err := buildAdditionalExpense(r, item)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build additional expense")
 		}
 
 		response.AdditionalExpenses = append(response.AdditionalExpenses, *builtItem)
@@ -1394,7 +1393,7 @@ func buildInvoiceArtice(r *Resolver, article structs.InvoiceArticles) (*dto.Invo
 		account, err := r.Repo.GetAccountItemByID(article.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		accountDropdown := dto.DropdownSimple{
@@ -1408,7 +1407,7 @@ func buildInvoiceArtice(r *Resolver, article structs.InvoiceArticles) (*dto.Invo
 		account, err := r.Repo.GetAccountItemByID(article.CostAccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		accountDropdown := dto.DropdownSimple{
@@ -1430,7 +1429,7 @@ func buildAdditionalExpenseItemList(r *Resolver, itemList []structs.AdditionalEx
 		singleItem, err := buildAdditionalExpense(r, item)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build additional expense")
 		}
 
 		items = append(items, singleItem)
@@ -1457,7 +1456,7 @@ func buildAdditionalExpense(r *Resolver, item structs.AdditionalExpenses) (*dto.
 		account, err := r.Repo.GetAccountItemByID(item.AccountID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get account item by id")
 		}
 
 		response.Account = dto.DropdownSimple{
@@ -1469,7 +1468,7 @@ func buildAdditionalExpense(r *Resolver, item structs.AdditionalExpenses) (*dto.
 	if item.SubjectID != 0 {
 		supplier, err := r.Repo.GetSupplier(item.SubjectID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		response.Subject = dto.DropdownSimple{
@@ -1481,7 +1480,7 @@ func buildAdditionalExpense(r *Resolver, item structs.AdditionalExpenses) (*dto.
 	if item.ObligationSupplierID != 0 {
 		supplier, err := r.Repo.GetSupplier(item.ObligationSupplierID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		response.ObligationSupplier = dto.DropdownSimple{
@@ -1493,7 +1492,7 @@ func buildAdditionalExpense(r *Resolver, item structs.AdditionalExpenses) (*dto.
 	if item.OrganizationUnitID != 0 {
 		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 
 		response.OrganizationUnit = dto.DropdownSimple{

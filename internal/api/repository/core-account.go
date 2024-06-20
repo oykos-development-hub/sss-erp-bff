@@ -3,9 +3,9 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
-	"errors"
 	"strconv"
 )
 
@@ -17,7 +17,7 @@ func (repo *MicroserviceRepository) DeleteAccount(ctx context.Context, id int) e
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.Account+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -27,7 +27,7 @@ func (repo *MicroserviceRepository) GetAccountItems(filters *dto.GetAccountsFilt
 	res := &dto.GetAccountItemListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Account, filters, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return res, nil
 }
@@ -49,7 +49,7 @@ func (repo *MicroserviceRepository) GetAccountItemByID(id int) (*structs.Account
 	res := &dto.GetAccountItemResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Account+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -64,7 +64,7 @@ func (repo *MicroserviceRepository) CreateAccountItemList(ctx context.Context, a
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Account, accountItemList, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return res.Data, nil
 }
@@ -78,7 +78,7 @@ func (repo *MicroserviceRepository) UpdateAccountItem(ctx context.Context, id in
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Account+"/"+strconv.Itoa(id), accountItem, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }

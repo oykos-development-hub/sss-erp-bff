@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -12,7 +13,7 @@ func (repo *MicroserviceRepository) GetUserAccounts(input *dto.GetUserAccountLis
 	res := &dto.GetUserAccountListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.UserAccounts, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -26,7 +27,7 @@ func (repo *MicroserviceRepository) UpdateUserAccount(ctx context.Context, userI
 	res := &dto.GetUserAccountResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -36,7 +37,7 @@ func (repo *MicroserviceRepository) GetUserAccountByID(id int) (*structs.UserAcc
 	res := &dto.GetUserAccountResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -51,7 +52,7 @@ func (repo *MicroserviceRepository) CreateUserAccount(ctx context.Context, user 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.UserAccounts, user, res, header)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -69,7 +70,7 @@ func (repo *MicroserviceRepository) DeactivateUserAccount(ctx context.Context, u
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(userID), user, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -82,7 +83,7 @@ func (repo *MicroserviceRepository) DeleteUserAccount(ctx context.Context, id in
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Core.UserAccounts+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil

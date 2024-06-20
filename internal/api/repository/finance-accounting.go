@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -13,7 +14,7 @@ func (repo *MicroserviceRepository) GetAllObligationsForAccounting(input dto.Obl
 
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetObligationsForAccounting, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -23,7 +24,7 @@ func (repo *MicroserviceRepository) GetAllPaymentOrdersForAccounting(input dto.O
 	res := &dto.GetPaymentOrdersForAccountingResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetPaymentOrdersForAccounting, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -33,7 +34,7 @@ func (repo *MicroserviceRepository) GetAllEnforcedPaymentsForAccounting(input dt
 	res := &dto.GetPaymentOrdersForAccountingResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetEnforcedPaymentsForAccounting, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -43,7 +44,7 @@ func (repo *MicroserviceRepository) GetAllReturnedEnforcedPaymentsForAccounting(
 	res := &dto.GetPaymentOrdersForAccountingResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetReturnedEnforcedPaymentsForAccounting, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -53,7 +54,7 @@ func (repo *MicroserviceRepository) BuildAccountingOrderForObligations(data stru
 	res := &dto.GetAccountingOrderForObligations{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.BuildAccountingOrderForObligations, data, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -68,7 +69,7 @@ func (repo *MicroserviceRepository) CreateAccountingEntry(ctx context.Context, i
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.AccountingEntry, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -77,7 +78,7 @@ func (repo *MicroserviceRepository) GetAccountingEntryByID(id int) (*structs.Acc
 	res := &dto.GetAccountingEntryResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.AccountingEntry+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -87,7 +88,7 @@ func (repo *MicroserviceRepository) GetAccountingEntryList(filter dto.Accounting
 	res := &dto.GetAccountingEntryListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.AccountingEntry, filter, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -101,7 +102,7 @@ func (repo *MicroserviceRepository) DeleteAccountingEntry(ctx context.Context, i
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.AccountingEntry+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -111,7 +112,7 @@ func (repo *MicroserviceRepository) GetAnalyticalCard(input dto.AnalyticalCardFi
 	res := &dto.GetAnalyticalCardListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.AnalyticalCard, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil

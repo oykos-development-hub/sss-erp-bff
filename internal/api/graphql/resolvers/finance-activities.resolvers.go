@@ -15,7 +15,7 @@ func (r *Resolver) ActivitiesOverviewResolver(params graphql.ResolveParams) (int
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		activity, err := r.Repo.GetActivity(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -39,12 +39,12 @@ func (r *Resolver) ActivitiesOverviewResolver(params graphql.ResolveParams) (int
 
 	activities, err := r.Repo.GetActivityList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	activityResItemList, err := buildActivityResItemList(r.Repo, activities)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -59,7 +59,7 @@ func buildActivityResItemList(r repository.MicroserviceRepositoryInterface, acti
 	for _, activity := range activitys {
 		activity, err := buildActivityResItem(r, activity)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build activity res item")
 		}
 		activityResItemList = append(activityResItemList, activity)
 	}
@@ -76,19 +76,19 @@ func buildActivityResItem(r repository.MicroserviceRepositoryInterface, activity
 	}
 	subProgram, err := r.GetProgram(activity.SubProgramID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get program")
 	}
 	resItem.SubProgram = dto.DropdownSimple{ID: subProgram.ID, Title: subProgram.Title}
 
 	program, err := r.GetProgram(*subProgram.ParentID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get program")
 	}
 	resItem.Program = dto.DropdownSimple{ID: program.ID, Title: program.Title}
 
 	organizationUnit, err := r.GetOrganizationUnitByID(activity.OrganizationUnitID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get organization unit by id")
 	}
 	resItem.OrganizationUnit = *organizationUnit
 
@@ -104,7 +104,7 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
@@ -112,12 +112,12 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 	if itemID != 0 {
 		item, err := r.Repo.UpdateActivity(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildActivityResItem(r.Repo, *item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You updated this item!"
@@ -125,12 +125,12 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 	} else {
 		item, err := r.Repo.CreateActivity(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildActivityResItem(r.Repo, *item)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Message = "You created this item!"

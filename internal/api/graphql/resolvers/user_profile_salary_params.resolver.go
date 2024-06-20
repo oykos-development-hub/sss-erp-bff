@@ -6,7 +6,6 @@ import (
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -15,7 +14,7 @@ func buildSalaryResponseItemList(r repository.MicroserviceRepositoryInterface, i
 	for _, item := range items {
 		resItem, err := buildSalaryResponseItem(r, item)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build salary response item")
 		}
 		resItemList = append(resItemList, resItem)
 	}
@@ -25,12 +24,12 @@ func buildSalaryResponseItemList(r repository.MicroserviceRepositoryInterface, i
 func buildSalaryResponseItem(r repository.MicroserviceRepositoryInterface, item *structs.SalaryParams) (resItem *dto.SalaryParams, err error) {
 	organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get organization unit by id")
 	}
 
 	userProfile, err := r.GetUserProfileByID(item.UserProfileID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get user profile by id")
 	}
 
 	salaryParams := &dto.SalaryParams{
@@ -59,11 +58,11 @@ func buildSalaryResponseItem(r repository.MicroserviceRepositoryInterface, item 
 	if item.UserResolutionID != nil {
 		resolution, err := r.GetEmployeeResolution(*item.UserResolutionID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user resolution")
 		}
 		resolutionResItem, err := buildResolutionResItem(r, resolution)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build resolution res item")
 		}
 		salaryParams.Resolution = *resolutionResItem
 	}
@@ -76,11 +75,11 @@ func (r *Resolver) UserProfileSalaryParamsResolver(params graphql.ResolveParams)
 
 	salaries, err := r.Repo.GetEmployeeSalaryParams(profileID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	salaryResponseItemList, err := buildSalaryResponseItemList(r.Repo, salaries)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -104,28 +103,27 @@ func (r *Resolver) UserProfileSalaryParamsInsertResolver(params graphql.ResolveP
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		fmt.Printf("Error JSON parsing because of this error - %s.\n", err)
-		return errors.ErrorResponse("Error updating settings data"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
 	if itemID != 0 {
 		item, err = r.Repo.UpdateEmployeeSalaryParams(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 	} else {
 		item, err = r.Repo.CreateEmployeeSalaryParams(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 	}
 
 	salaryResItem, err := buildSalaryResponseItem(r.Repo, item)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = salaryResItem
@@ -137,7 +135,7 @@ func (r *Resolver) UserProfileSalaryParamsDeleteResolver(params graphql.ResolveP
 	itemID := params.Args["id"]
 	err := r.Repo.DeleteSalaryParams(params.Context, itemID.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{

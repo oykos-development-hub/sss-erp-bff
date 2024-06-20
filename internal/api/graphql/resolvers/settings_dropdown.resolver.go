@@ -25,7 +25,7 @@ func (r *Resolver) SettingsDropdownResolver(params graphql.ResolveParams) (inter
 	if id != nil && id != 0 {
 		setting, err := r.Repo.GetDropdownSettingByID(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		items = []structs.SettingsDropdown{*setting}
 		total = 1
@@ -54,7 +54,7 @@ func (r *Resolver) SettingsDropdownResolver(params graphql.ResolveParams) (inter
 
 		res, err := r.Repo.GetDropdownSettings(&input)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		items = res.Data
 		total = res.Total
@@ -83,7 +83,7 @@ func (r *Resolver) SettingsDropdownInsertResolver(params graphql.ResolveParams) 
 	if itemID != 0 {
 		itemRes, err := r.Repo.UpdateDropdownSettings(itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 		response.Item = itemRes
@@ -91,7 +91,7 @@ func (r *Resolver) SettingsDropdownInsertResolver(params graphql.ResolveParams) 
 	} else {
 		itemRes, err := r.Repo.CreateDropdownSettings(&data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 		response.Item = itemRes
@@ -106,7 +106,7 @@ func (r *Resolver) SettingsDropdownDeleteResolver(params graphql.ResolveParams) 
 
 	err := r.Repo.DeleteDropdownSettings(itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

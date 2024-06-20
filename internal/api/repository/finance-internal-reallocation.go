@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateInternalReallocation(ctx context.Conte
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.InternalReallocation, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return res.Data, nil
 }
@@ -26,7 +27,7 @@ func (repo *MicroserviceRepository) GetInternalReallocationByID(id int) (*struct
 	res := &dto.GetInternalReallocationSingleResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.InternalReallocation+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -36,7 +37,7 @@ func (repo *MicroserviceRepository) GetInternalReallocationList(filter dto.Inter
 	res := &dto.GetInternalReallocationResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.InternalReallocation, filter, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) DeleteInternalReallocation(ctx context.Conte
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.InternalReallocation+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil

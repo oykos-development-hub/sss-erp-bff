@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateDepositPaymentOrder(ctx context.Contex
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.DepositPaymentOrder, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -31,7 +32,7 @@ func (repo *MicroserviceRepository) UpdateDepositPaymentOrder(ctx context.Contex
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.DepositPaymentOrder+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -40,7 +41,7 @@ func (repo *MicroserviceRepository) GetDepositPaymentOrderByID(id int) (*structs
 	res := &dto.GetDepositPaymentOrderResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.DepositPaymentOrder+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) GetDepositPaymentOrderList(filter dto.Deposi
 	res := &dto.GetDepositPaymentOrderListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.DepositPaymentOrder, filter, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -64,7 +65,7 @@ func (repo *MicroserviceRepository) DeleteDepositPaymentOrder(ctx context.Contex
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.DepositPaymentOrder+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -74,7 +75,7 @@ func (repo *MicroserviceRepository) GetDepositPaymentAdditionalExpenses(input *d
 	res := &dto.GetDepositPaymentAdditionalExpensesListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.DepositPaymentAdditionalExpenses, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -88,7 +89,7 @@ func (repo *MicroserviceRepository) PayDepositPaymentOrder(ctx context.Context, 
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.PayDepositPaymentOrder+"/"+strconv.Itoa(input.ID), input, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }

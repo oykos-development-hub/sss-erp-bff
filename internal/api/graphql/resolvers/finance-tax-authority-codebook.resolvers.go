@@ -22,12 +22,12 @@ func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveP
 	if id != nil && id != 0 {
 		setting, err := r.Repo.GetTaxAuthorityCodebookByID(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		responseItem, err := buildTaxAuthorityCodeBook(*setting, r)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		items = []dto.TaxAuthorityCodebookResponse{*responseItem}
 		total = 1
@@ -43,14 +43,14 @@ func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveP
 
 		res, err := r.Repo.GetTaxAuthorityCodebooks(input)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		for _, item := range res.Data {
 			resItem, err := buildTaxAuthorityCodeBook(item, r)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			items = append(items, *resItem)
@@ -85,29 +85,29 @@ func (r *Resolver) TaxAuthorityCodebooksInsertResolver(params graphql.ResolvePar
 			err := r.Repo.DeactivateTaxAuthorityCodebook(params.Context, itemID, data.Active)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		} else {
 			itemRes, err := r.Repo.UpdateTaxAuthorityCodebook(params.Context, itemID, &data)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			response.Message = "You updated this item!"
 			responseItem, err := buildTaxAuthorityCodeBook(*itemRes, r)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			response.Item = responseItem
 		}
 	} else {
 		itemRes, err := r.Repo.CreateTaxAuthorityCodebook(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 		responseItem, err := buildTaxAuthorityCodeBook(*itemRes, r)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Item = responseItem
 	}
@@ -184,7 +184,7 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 		supplier, err := r.Repo.GetSupplier(item.TaxSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		response.TaxSupplier.ID = supplier.ID
@@ -195,7 +195,7 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 		supplier, err := r.Repo.GetSupplier(item.PioSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		response.PioSupplier.ID = supplier.ID
@@ -206,7 +206,7 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 		supplier, err := r.Repo.GetSupplier(item.LaborFundSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		response.LaborFundSupplier.ID = supplier.ID
@@ -217,7 +217,7 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 		supplier, err := r.Repo.GetSupplier(item.PioEmployeeSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		response.PioEmployeeSupplier.ID = supplier.ID
@@ -228,7 +228,7 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 		supplier, err := r.Repo.GetSupplier(item.UnemploymentSupplierID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
 
 		response.UnemploymentSupplier.ID = supplier.ID

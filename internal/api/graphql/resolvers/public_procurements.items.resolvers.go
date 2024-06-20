@@ -23,7 +23,7 @@ func (r *Resolver) PublicProcurementPlanItemDetailsResolver(params graphql.Resol
 	if id != nil && id.(int) > 0 {
 		item, err := r.Repo.GetProcurementItem(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		filter := &dto.GetProcurementArticleListInputMS{}
@@ -43,7 +43,7 @@ func (r *Resolver) PublicProcurementPlanItemDetailsResolver(params graphql.Resol
 	} else {
 		procurements, err := r.Repo.GetProcurementItemList(nil)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		for _, item := range procurements {
@@ -78,13 +78,13 @@ func (r *Resolver) PublicProcurementPlanItemPDFResolver(params graphql.ResolvePa
 
 	item, err := r.Repo.GetProcurementItem(id)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	resItem, _ := buildProcurementItemResponseItem(ctx, r.Repo, item, nil, &dto.GetProcurementArticleListInputMS{})
 
 	if resItem.Status != structs.PostProcurementStatusContracted {
-		return errors.HandleAPIError(fmt.Errorf("procurement must be contracted"))
+		return errors.HandleAPPError(fmt.Errorf("procurement must be contracted"))
 	}
 
 	contract, _ := r.Repo.GetProcurementContract(*resItem.ContractID)
@@ -92,7 +92,7 @@ func (r *Resolver) PublicProcurementPlanItemPDFResolver(params graphql.ResolvePa
 
 	articles, err := GetProcurementArticles(ctx, r.Repo, resItem.ID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	// Prepare subtitles
@@ -107,7 +107,7 @@ func (r *Resolver) PublicProcurementPlanItemPDFResolver(params graphql.ResolvePa
 		articleRes, err := ProcessOrderArticleItem(r.Repo, article, *organizationUnitID)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		rowData := dto.TableDataRow{
@@ -144,7 +144,7 @@ func (r *Resolver) PublicProcurementPlanItemInsertResolver(params graphql.Resolv
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	itemID := data.ID
@@ -152,7 +152,7 @@ func (r *Resolver) PublicProcurementPlanItemInsertResolver(params graphql.Resolv
 	if itemID != 0 {
 		res, err := r.Repo.UpdateProcurementItem(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		resItem, _ := buildProcurementItemResponseItem(params.Context, r.Repo, res, nil, &dto.GetProcurementArticleListInputMS{})
 
@@ -161,7 +161,7 @@ func (r *Resolver) PublicProcurementPlanItemInsertResolver(params graphql.Resolv
 	} else {
 		res, err := r.Repo.CreateProcurementItem(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		resItem, _ := buildProcurementItemResponseItem(params.Context, r.Repo, res, nil, &dto.GetProcurementArticleListInputMS{})
@@ -179,7 +179,7 @@ func (r *Resolver) PublicProcurementPlanItemDeleteResolver(params graphql.Resolv
 
 	err := r.Repo.DeleteProcurementItem(params.Context, itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -228,12 +228,12 @@ func buildProcurementItemResponseItem(context context.Context, r repository.Micr
 	filter.ItemID = &item.ID
 	articlesRaw, err := r.GetProcurementArticlesList(filter)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get procurement article list")
 	}
 	for _, article := range articlesRaw {
 		articleResItem, err := buildProcurementArticleResponseItem(context, r, article, organizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build procurement article response item")
 		}
 		totalGross += articleResItem.GrossPrice * float32(articleResItem.TotalAmount)
 		totalNet += articleResItem.NetPrice * float32(articleResItem.TotalAmount)
@@ -242,14 +242,14 @@ func buildProcurementItemResponseItem(context context.Context, r repository.Micr
 
 	planStatus, err := BuildStatus(context, r, plan)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "build status")
 	}
 
 	procurementStatus := getProcurementStatus(r, *item, *plan, planStatus, organizationUnitID)
 
 	account, err := r.GetAccountItemByID(item.BudgetIndentID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get account item by id")
 	}
 
 	var contractID *int
@@ -257,7 +257,7 @@ func buildProcurementItemResponseItem(context context.Context, r repository.Micr
 	if procurementStatus == structs.PostProcurementStatusContracted {
 		contracts, err := r.GetProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &item.ID})
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get procurement contracts list")
 		}
 		contractID = &contracts.Data[0].ID
 	}

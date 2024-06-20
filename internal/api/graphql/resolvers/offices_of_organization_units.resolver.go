@@ -68,18 +68,18 @@ func (r *Resolver) OfficesOfOrganizationUnitOverviewResolver(params graphql.Reso
 	if id != nil && id.(int) != 0 {
 		setting, err := r.Repo.GetDropdownSettingByID(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		if setting.Entity != "office_types" {
 
-			return errors.HandleAPIError(fmt.Errorf("not found"))
+			return errors.HandleAPPError(fmt.Errorf("not found"))
 		}
 
 		item, err := buildOfficeOfOrganizationUnit(r.Repo, setting)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		items = append(items, item)
@@ -107,7 +107,7 @@ func (r *Resolver) OfficesOfOrganizationUnitOverviewResolver(params graphql.Reso
 
 		res, err := r.Repo.GetOfficeDropdownSettings(&input)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		data := res.Data
@@ -115,7 +115,7 @@ func (r *Resolver) OfficesOfOrganizationUnitOverviewResolver(params graphql.Reso
 		for i := 0; i < len(data); i++ {
 			item, err := buildOfficeOfOrganizationUnit(r.Repo, &data[i])
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			items = append(items, item)
 		}
@@ -155,13 +155,13 @@ func (r *Resolver) OfficesOfOrganizationUnitInsertResolver(params graphql.Resolv
 	if itemID != 0 {
 		itemRes, err := r.Repo.UpdateDropdownSettings(itemID, &arg)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 
 		item, err := buildOfficeOfOrganizationUnit(r.Repo, itemRes)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Item = item
@@ -169,13 +169,13 @@ func (r *Resolver) OfficesOfOrganizationUnitInsertResolver(params graphql.Resolv
 	} else {
 		itemRes, err := r.Repo.CreateDropdownSettings(&arg)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 
 		item, err := buildOfficeOfOrganizationUnit(r.Repo, itemRes)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		response.Item = item
@@ -189,7 +189,7 @@ func (r *Resolver) OfficesOfOrganizationUnitDeleteResolver(params graphql.Resolv
 
 	setting, err := r.Repo.GetDropdownSettingByID(itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	if setting.Entity != config.OfficeTypes {
 		return dto.ResponseSingle{
@@ -200,7 +200,7 @@ func (r *Resolver) OfficesOfOrganizationUnitDeleteResolver(params graphql.Resolv
 
 	err = r.Repo.DeleteDropdownSettings(itemID)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -213,14 +213,14 @@ func buildOfficeOfOrganizationUnit(r repository.MicroserviceRepositoryInterface,
 	organizationUnitID, err := strconv.Atoi(item.Value)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "strconv atoi")
 	}
 
 	organizationUnitDropdown := dto.DropdownSimple{}
 	if organizationUnitID != 0 {
 		organizationUnit, err := r.GetOrganizationUnitByID(organizationUnitID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get organization unit by id")
 		}
 		if organizationUnit != nil {
 			organizationUnitDropdown = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}

@@ -14,7 +14,7 @@ func (repo *MicroserviceRepository) GetAllInventoryDispatches(filter dto.Invento
 	res := &dto.GetAllBasicInventoryDispatches{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Dispatch, filter, &res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -43,7 +43,7 @@ func (repo *MicroserviceRepository) CreateDispatchItem(ctx context.Context, item
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Dispatch, item, &res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	if item.InventoryID != nil {
@@ -56,7 +56,7 @@ func (repo *MicroserviceRepository) CreateDispatchItem(ctx context.Context, item
 			if item.Type != "revers" && item.Type != "return-revers" && item.Type != "created" {
 				inventory, err := repo.GetInventoryItem(item.InventoryID[i])
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "repo get inventory item")
 				}
 
 				targetUserProfileID := 0
@@ -81,7 +81,7 @@ func (repo *MicroserviceRepository) CreateDispatchItem(ctx context.Context, item
 
 					office, err := repo.GetOfficeDropdownSettings(&input)
 					if err != nil {
-						return nil, err
+						return nil, errors.Wrap(err, "repo get office dropdown settings")
 					}
 					OfficeID = office.Data[0].ID
 				}
@@ -91,7 +91,7 @@ func (repo *MicroserviceRepository) CreateDispatchItem(ctx context.Context, item
 
 				_, err = repo.UpdateInventoryItem(ctx, inventory.ID, inventory)
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "repo upate inventory item")
 				}
 
 			}
@@ -99,7 +99,7 @@ func (repo *MicroserviceRepository) CreateDispatchItem(ctx context.Context, item
 			if item.Type == "return-revers" {
 				inventory, err := repo.GetInventoryItem(item.InventoryID[i])
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "repo get inventory item")
 				}
 
 				page := 1
@@ -111,7 +111,7 @@ func (repo *MicroserviceRepository) CreateDispatchItem(ctx context.Context, item
 
 				office, err := repo.GetOfficeDropdownSettings(&input)
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "repo get office dropdown settings")
 				}
 
 				inventory.TargetUserProfileID = 0
@@ -119,13 +119,13 @@ func (repo *MicroserviceRepository) CreateDispatchItem(ctx context.Context, item
 
 				_, err = repo.UpdateInventoryItem(ctx, inventory.ID, inventory)
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "repo update inventory item")
 				}
 			}
 
 			_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.DispatchItems, itemDispatch, nil)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "make api request")
 			}
 		}
 	}
@@ -143,7 +143,7 @@ func (repo *MicroserviceRepository) UpdateDispatchItem(ctx context.Context, id i
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(id), item, &dispatch, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	if item.InventoryID != nil {
@@ -157,7 +157,7 @@ func (repo *MicroserviceRepository) UpdateDispatchItem(ctx context.Context, id i
 			_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.DispatchItems+"/"+strconv.Itoa(dispatch.ID), nil, nil)
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "make api request")
 			}
 		}
 
@@ -169,7 +169,7 @@ func (repo *MicroserviceRepository) UpdateDispatchItem(ctx context.Context, id i
 
 			_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.DispatchItems, itemDispatch, nil)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "make api request")
 			}
 		}
 	}
@@ -186,7 +186,7 @@ func (repo *MicroserviceRepository) DeleteInventoryDispatch(ctx context.Context,
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -195,7 +195,7 @@ func (repo *MicroserviceRepository) DeleteInventoryDispatch(ctx context.Context,
 func (repo *MicroserviceRepository) CreateDispatchItemItem(item *structs.BasicInventoryDispatchItemsItem) (*structs.BasicInventoryDispatchItemsItem, error) {
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.DispatchItems, item, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return item, err
 }
@@ -205,7 +205,7 @@ func (repo *MicroserviceRepository) GetAllInventoryItemInOrgUnits(id int) ([]dto
 
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.ItemsInOrgUnit+"/"+strconv.Itoa(id), nil, &res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -216,7 +216,7 @@ func (repo *MicroserviceRepository) GetDispatchItemByID(id int) (*structs.BasicI
 
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(id), nil, &res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -232,7 +232,7 @@ func (repo *MicroserviceRepository) CreateAssessments(ctx context.Context, data 
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Assessments, data, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -248,7 +248,7 @@ func (repo *MicroserviceRepository) UpdateAssessments(ctx context.Context, id in
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Assessments+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -262,7 +262,7 @@ func (repo *MicroserviceRepository) DeleteAssessment(ctx context.Context, id int
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Inventory.Assessments+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -278,14 +278,14 @@ func (repo *MicroserviceRepository) CreateInventoryItem(ctx context.Context, ite
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.Item, item, &res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	if item.RealEstate != nil {
 		item.RealEstate.ItemID = res.Data.ID
 		_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.RealEstates, item.RealEstate, nil)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "make api request")
 		}
 	}
 
@@ -303,7 +303,7 @@ func (repo *MicroserviceRepository) UpdateInventoryItem(ctx context.Context, id 
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.Item+"/"+strconv.Itoa(id), item, &res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	if item.RealEstate != nil {
@@ -311,12 +311,12 @@ func (repo *MicroserviceRepository) UpdateInventoryItem(ctx context.Context, id 
 		if item.RealEstate.ID != 0 {
 			_, err := makeAPIRequest("PUT", repo.Config.Microservices.Inventory.RealEstates+"/"+strconv.Itoa(item.RealEstate.ID), item.RealEstate, &res1)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "make api request")
 			}
 		} else {
 			_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.RealEstates, item.RealEstate, &res1)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "make api request")
 			}
 		}
 	}
@@ -328,7 +328,7 @@ func (repo *MicroserviceRepository) GetInventoryItem(id int) (*structs.BasicInve
 	res := dto.GetBasicInventoryInsertItem{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Item+"/"+strconv.Itoa(id), nil, &res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -337,7 +337,7 @@ func (repo *MicroserviceRepository) GetAllInventoryItem(filter dto.InventoryItem
 	res := &dto.GetAllBasicInventoryItem{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Item, filter, &res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -347,8 +347,7 @@ func (repo *MicroserviceRepository) GetMyInventoryRealEstate(id int) (*structs.B
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Base+"/item/"+strconv.Itoa(id)+"/real-estates", nil, res)
 
 	if err != nil {
-		fmt.Printf("Fetching Real Estate failed because of this error - %s.\n", err)
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -360,8 +359,7 @@ func (repo *MicroserviceRepository) GetMyInventoryAssessments(id int) ([]structs
 
 	if err != nil {
 		if apiErr, ok := err.(*errors.APIError); ok && apiErr.StatusCode != 404 {
-			fmt.Printf("Fetching Assessments failed because of this error - %s.\n", err)
-			return nil, err
+			return nil, errors.Wrap(err, "make api request")
 		}
 	}
 
@@ -373,7 +371,7 @@ func (repo *MicroserviceRepository) GetDispatchItemByInventoryID(id int) ([]*str
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Base+"/item/"+strconv.Itoa(id)+"/dispatch-items", nil, &res1)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res1.Data, nil
@@ -384,7 +382,7 @@ func (repo *MicroserviceRepository) GetInventoryItemsByDispatch(dispatchID int) 
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.Dispatch+"/"+strconv.Itoa(dispatchID)+"/items", nil, &res)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -394,7 +392,7 @@ func (repo *MicroserviceRepository) GetInventoryRealEstatesList(input *dto.GetIn
 	res := &dto.GetInventoryRealEstateListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.RealEstates, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -404,7 +402,7 @@ func (repo *MicroserviceRepository) GetInventoryRealEstate(id int) (*structs.Bas
 	res := &dto.GetInventoryRealEstateResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.RealEstates+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -414,7 +412,7 @@ func (repo *MicroserviceRepository) GetAllInventoryItemForReport(filter dto.Item
 	res := &dto.GetAllItemsReportMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Inventory.ItemsReport, filter, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -450,7 +448,7 @@ func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.Bas
 		})
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get all inventory item")
 		}
 
 		if len(inventoryItem.Data) != 0 && inventoryItem.Data[0].ID != item.ID && item.SerialNumber != "" {
@@ -466,7 +464,7 @@ func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.Bas
 		})
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get all inventory item")
 		}
 
 		if len(inventoryItem.Data) != 0 && inventoryItem.Data[0].ID != item.ID && item.InventoryNumber != "" {

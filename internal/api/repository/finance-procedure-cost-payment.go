@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateProcedureCostPayment(ctx context.Conte
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.ProcedureCostPayment, item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }
@@ -26,7 +27,7 @@ func (repo *MicroserviceRepository) GetProcedureCostPayment(id int) (*structs.Pr
 	res := &dto.GetProcedureCostPaymentResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.ProcedureCostPayment+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -36,7 +37,7 @@ func (repo *MicroserviceRepository) GetProcedureCostPaymentList(input *dto.GetPr
 	res := &dto.GetProcedureCostPaymentListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.ProcedureCostPayment, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) DeleteProcedureCostPayment(ctx context.Conte
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Finance.ProcedureCostPayment+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -65,7 +66,7 @@ func (repo *MicroserviceRepository) UpdateProcedureCostPayment(ctx context.Conte
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.ProcedureCostPayment+"/"+strconv.Itoa(item.ID), item, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return &res.Data, nil
 }

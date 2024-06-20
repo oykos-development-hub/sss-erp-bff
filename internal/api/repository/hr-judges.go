@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -18,7 +19,7 @@ func (repo *MicroserviceRepository) UpdateJudgeNorm(ctx context.Context, id int,
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JudgeNorm+"/"+strconv.Itoa(id), norm, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -34,7 +35,7 @@ func (repo *MicroserviceRepository) CreateJudgeNorm(ctx context.Context, norm *s
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JudgeNorm, norm, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -48,7 +49,7 @@ func (repo *MicroserviceRepository) DeleteJudgeNorm(ctx context.Context, id int)
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JudgeNorm+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -58,7 +59,7 @@ func (repo *MicroserviceRepository) UpdateJudgeResolutionItems(id int, item *str
 	res := &dto.GetJudgeResolutionItemResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JudgeResolutionItems+"/"+strconv.Itoa(id), item, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -68,7 +69,7 @@ func (repo *MicroserviceRepository) CreateJudgeResolutionItems(item *structs.Jud
 	res := &dto.GetJudgeResolutionItemResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JudgeResolutionItems, item, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -78,7 +79,7 @@ func (repo *MicroserviceRepository) GetJudgeResolutionItemsList(input *dto.GetJu
 	res := &dto.GetJudgeResolutionItemListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JudgeResolutionItems, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -92,7 +93,7 @@ func (repo *MicroserviceRepository) UpdateJudgeResolutions(ctx context.Context, 
 	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JudgeResolutions+"/"+strconv.Itoa(id), resolution, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -107,7 +108,7 @@ func (repo *MicroserviceRepository) CreateJudgeResolutions(ctx context.Context, 
 	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JudgeResolutions, resolution, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -120,7 +121,7 @@ func (repo *MicroserviceRepository) DeleteJudgeResolution(ctx context.Context, i
 	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JudgeResolutions+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -130,7 +131,7 @@ func (repo *MicroserviceRepository) GetJudgeResolutionList(input *dto.GetJudgeRe
 	res := &dto.GetJudgeResolutionListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JudgeResolutions, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -140,7 +141,7 @@ func (repo *MicroserviceRepository) GetJudgeResolution(id int) (*structs.JudgeRe
 	res := &dto.GetJudgeResolutionResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JudgeResolutions+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -150,7 +151,7 @@ func (repo *MicroserviceRepository) GetJudgeNormListByEmployee(userProfileID int
 	res := &dto.GetEmployeeNormListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(userProfileID)+"/norms", input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -160,7 +161,7 @@ func (repo *MicroserviceRepository) CreateJudgeResolutionOrganizationUnit(input 
 	res := &dto.GetJudgeResolutionsOrganizationUnitResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Judges, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -170,7 +171,7 @@ func (repo *MicroserviceRepository) UpdateJudgeResolutionOrganizationUnit(input 
 	res := &dto.GetJudgeResolutionsOrganizationUnitResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Judges+"/"+strconv.Itoa(input.ID), input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -180,7 +181,7 @@ func (repo *MicroserviceRepository) GetJudgeResolutionOrganizationUnit(input *dt
 	res := &dto.GetJudgeResolutionsOrganizationUnitListMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.Judges, input, res)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, res.Total, nil
@@ -189,7 +190,7 @@ func (repo *MicroserviceRepository) GetJudgeResolutionOrganizationUnit(input *dt
 func (repo *MicroserviceRepository) DeleteJJudgeResolutionOrganizationUnit(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Judges+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil

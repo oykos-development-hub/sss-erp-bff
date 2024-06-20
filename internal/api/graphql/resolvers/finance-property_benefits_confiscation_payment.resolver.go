@@ -5,7 +5,6 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -19,11 +18,11 @@ func (r *Resolver) PropBenConfPaymentInsertResolver(params graphql.ResolveParams
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var item *structs.PropBenConfPayment
@@ -31,18 +30,18 @@ func (r *Resolver) PropBenConfPaymentInsertResolver(params graphql.ResolveParams
 	if data.ID == 0 {
 		item, err = r.Repo.CreatePropBenConfPayment(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdatePropBenConfPayment(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
 	propBenConfPaymentResItem, err := buildPropBenConfPaymentResponseItem(*item)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	response.Item = propBenConfPaymentResItem
@@ -54,11 +53,11 @@ func (r *Resolver) PropBenConfPaymentOverviewResolver(params graphql.ResolvePara
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		propBenConfPayment, err := r.Repo.GetPropBenConfPayment(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		propBenConfPaymentResItem, err := buildPropBenConfPaymentResponseItem(*propBenConfPayment)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		return dto.Response{
@@ -84,12 +83,12 @@ func (r *Resolver) PropBenConfPaymentOverviewResolver(params graphql.ResolvePara
 
 	PropBenConfPayments, total, err := r.Repo.GetPropBenConfPaymentList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	PropBenConfResItem, err := buildPropBenConfPaymentResponseItemList(PropBenConfPayments)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -105,8 +104,7 @@ func (r *Resolver) PropBenConfPaymentDeleteResolver(params graphql.ResolveParams
 
 	err := r.Repo.DeletePropBenConfPayment(params.Context, itemID)
 	if err != nil {
-		fmt.Printf("Deleting property benefit confiscation payment item failed because of this error - %s.\n", err)
-		return fmt.Errorf("error deleting the id"), nil
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -187,7 +185,7 @@ func buildPropBenConfPaymentResponseItemList(itemList []structs.PropBenConfPayme
 		singleItem, err := buildPropBenConfPaymentResponseItem(item)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "build prop ben conf payment response item")
 		}
 
 		items = append(items, singleItem)

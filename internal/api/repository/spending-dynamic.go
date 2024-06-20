@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"fmt"
@@ -15,7 +16,7 @@ func (repo *MicroserviceRepository) GetSpendingDynamic(BudgetID, unitID int, inp
 	res := dto.GetSpendingDynamicListResponseMS{}
 	_, err := makeAPIRequest("GET", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingDynamicGet, BudgetID, unitID), input, &res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -25,7 +26,7 @@ func (repo *MicroserviceRepository) GetSpendingDynamicHistory(BudgetID, unitID i
 	res := dto.GetSpendingDynamicHistoryResponseMS{}
 	_, err := makeAPIRequest("GET", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingDynamicGetHistory, BudgetID, unitID), nil, &res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -35,7 +36,7 @@ func (repo *MicroserviceRepository) GetSpendingDynamicActual(BudgetID, unitID, a
 	res := dto.GetSpendingDynamicActualResponseMS{}
 	_, err := makeAPIRequest("GET", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingDynamicActual, BudgetID, unitID, accountID), nil, &res)
 	if err != nil {
-		return res.Data, err
+		return res.Data, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -57,7 +58,7 @@ func (repo *MicroserviceRepository) CreateSpendingDynamic(ctx context.Context, b
 	res := dto.GetSpendingDynamicListResponseMS{}
 	_, err := makeAPIRequest("POST", fmt.Sprintf(repo.Config.Microservices.Finance.SpendingDynamicInsert, budgetID, unitID), spendingDynamicListToInsert, &res, header)
 	if err != nil {
-		return res.Data, err
+		return res.Data, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil

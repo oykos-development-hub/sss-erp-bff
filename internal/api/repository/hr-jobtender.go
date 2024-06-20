@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -13,7 +14,7 @@ func (repo *MicroserviceRepository) GetTenderTypeList(input *dto.GetJobTenderTyp
 	res := &dto.GetJobTenderTypeListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenderTypes, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -23,7 +24,7 @@ func (repo *MicroserviceRepository) GetTenderType(id int) (*structs.JobTenderTyp
 	res := &dto.GetJobTenderTypeResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenderTypes+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -32,7 +33,7 @@ func (repo *MicroserviceRepository) GetTenderType(id int) (*structs.JobTenderTyp
 func (repo *MicroserviceRepository) DeleteJobTenderType(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobTenderTypes+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -42,7 +43,7 @@ func (repo *MicroserviceRepository) CreateJobTenderType(jobTender *structs.JobTe
 	res := &dto.GetJobTenderTypeResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JobTenderTypes, jobTender, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -52,7 +53,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderType(id int, jobTender *struc
 	res := &dto.GetJobTenderTypeResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobTenderTypes+"/"+strconv.Itoa(id), jobTender, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -67,7 +68,7 @@ func (repo *MicroserviceRepository) CreateJobTender(ctx context.Context, jobTend
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JobTenders, jobTender, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -82,7 +83,7 @@ func (repo *MicroserviceRepository) UpdateJobTender(ctx context.Context, id int,
 	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobTenders+"/"+strconv.Itoa(id), jobTender, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -92,7 +93,7 @@ func (repo *MicroserviceRepository) GetJobTender(id int) (*structs.JobTenders, e
 	res := &dto.GetJobTenderResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenders+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -102,7 +103,7 @@ func (repo *MicroserviceRepository) GetJobTenderList() ([]*structs.JobTenders, e
 	res := &dto.GetJobTenderListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenders, nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -116,7 +117,7 @@ func (repo *MicroserviceRepository) DeleteJobTender(ctx context.Context, id int)
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobTenders+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -131,7 +132,7 @@ func (repo *MicroserviceRepository) CreateJobTenderApplication(ctx context.Conte
 	res := &dto.GetJobTenderApplicationResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.JobTenderApplications, jobTender, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -145,12 +146,12 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 
 		tenderType, err := repo.GetTenderType(jobTender.TypeID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get tender type")
 		}
 
 		userProfile, err := repo.GetUserProfileByID(*jobTenderApplications.UserProfileID)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
 		active := true
@@ -163,7 +164,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 
 		_, err = repo.UpdateUserProfile(ctx, userProfile.ID, *userProfile)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo update user profile")
 		}
 
 		resolution, _ := repo.GetJudgeResolutionList(&input)
@@ -185,12 +186,12 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 					}
 					_, err := repo.UpdateJudgeResolutionOrganizationUnit(&inputUpdate)
 					if err != nil {
-						return nil, err
+						return nil, errors.Wrap(err, "repo update judge resolution organization unit")
 					}
 				} else {
 					err := repo.DeleteJJudgeResolutionOrganizationUnit(judgeResolutionOrganizationUnit[0].ID)
 					if err != nil {
-						return nil, err
+						return nil, errors.Wrap(err, "repo delete jjudge reoslution organization unit")
 					}
 				}
 			}
@@ -203,7 +204,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 				}
 				_, err := repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "repo create judge resolution organization unit")
 				}
 			}
 
@@ -211,7 +212,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 
 		contract, err := repo.GetEmployeeContracts(*jobTenderApplications.UserProfileID, &dto.GetEmployeeContracts{Active: &active})
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get employee contracts")
 		}
 
 		if len(contract) == 0 {
@@ -226,7 +227,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 				DateOfSignature:    jobTenderApplications.DateOfOath,
 			})
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo create employee contract")
 			}
 
 		} else {
@@ -247,14 +248,14 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 
 			_, err := repo.UpdateEmployeeContract(ctx, singleContract.ID, singleContract)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo update employee contract")
 			}
 
 			now := time.Now()
 			dateOfStart, err := time.Parse(config.ISO8601Format, *dateOfStartString)
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "time parse")
 			}
 
 			years := now.Year() - dateOfStart.Year()
@@ -290,7 +291,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 			})
 
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "repo create experience")
 			}
 		}
 
@@ -307,7 +308,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 					application.Status = "Nije izabran"
 					_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobTenderApplications+"/"+strconv.Itoa(application.ID), application, nil)
 					if err != nil {
-						return nil, err
+						return nil, errors.Wrap(err, "make api request")
 					}
 				}
 			}
@@ -316,7 +317,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 	res := &dto.GetJobTenderApplicationResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.JobTenderApplications+"/"+strconv.Itoa(id), jobTenderApplications, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -325,7 +326,7 @@ func (repo *MicroserviceRepository) UpdateJobTenderApplication(ctx context.Conte
 func (repo *MicroserviceRepository) DeleteJobTenderApplication(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.JobTenderApplications+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -335,7 +336,7 @@ func (repo *MicroserviceRepository) GetTenderApplication(id int) (*structs.JobTe
 	res := &dto.GetJobTenderApplicationResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenderApplications+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -345,7 +346,7 @@ func (repo *MicroserviceRepository) GetTenderApplicationList(input *dto.GetJobTe
 	res := &dto.GetJobTenderApplicationListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.JobTenderApplications, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil

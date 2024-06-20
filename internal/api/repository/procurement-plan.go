@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -18,7 +19,7 @@ func (repo *MicroserviceRepository) CreateProcurementPlan(ctx context.Context, r
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.Plans, resolution, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -34,7 +35,7 @@ func (repo *MicroserviceRepository) UpdateProcurementPlan(ctx context.Context, i
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Procurements.Plans+"/"+strconv.Itoa(id), resolution, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -49,7 +50,7 @@ func (repo *MicroserviceRepository) DeleteProcurementPlan(ctx context.Context, i
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Procurements.Plans+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -59,7 +60,7 @@ func (repo *MicroserviceRepository) GetProcurementPlan(id int) (*structs.PublicP
 	res := &dto.GetProcurementPlanResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.Plans+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -69,7 +70,7 @@ func (repo *MicroserviceRepository) GetProcurementPlanList(input *dto.GetProcure
 	res := &dto.GetProcurementPlanListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.Plans, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil

@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -12,7 +13,7 @@ func (repo *MicroserviceRepository) GetSystematizationByID(id int) (*structs.Sys
 	res := &dto.GetSystematizationResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.Systematization+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -22,7 +23,7 @@ func (repo *MicroserviceRepository) GetSystematizations(input *dto.GetSystematiz
 	res := &dto.GetSystematizationsResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.Systematization, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -36,7 +37,7 @@ func (repo *MicroserviceRepository) UpdateSystematization(ctx context.Context, i
 	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.Systematization+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) CreateSystematization(ctx context.Context, d
 	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.Systematization, data, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -64,7 +65,7 @@ func (repo *MicroserviceRepository) DeleteSystematization(ctx context.Context, i
 
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.Systematization+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil

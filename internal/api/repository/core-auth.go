@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 func (repo *MicroserviceRepository) Logout(token string) error {
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Logout, nil, nil, map[string]string{"Authorization": "Bearer " + token})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -24,7 +25,7 @@ func (repo *MicroserviceRepository) ForgotPassword(email string) error {
 	}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.ForgotPassword, reqBody, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -33,7 +34,7 @@ func (repo *MicroserviceRepository) ValidateMail(input *dto.ResetPasswordVerify)
 	res := &dto.ResetPasswordVerifyResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.ValidateMail, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 	return res, nil
 }
@@ -41,7 +42,7 @@ func (repo *MicroserviceRepository) ValidateMail(input *dto.ResetPasswordVerify)
 func (repo *MicroserviceRepository) ResetPassword(input *dto.ResetPassword) error {
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.ResetPassword, input, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 	return nil
 }
@@ -55,7 +56,7 @@ func (repo *MicroserviceRepository) LoginUser(email, password string) (*dto.Logi
 	loginResponse := &dto.LoginResponseMS{}
 	cookies, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Login, reqBody, loginResponse)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.Wrap(err, "make api request")
 	}
 
 	return loginResponse, cookies, nil
@@ -65,7 +66,7 @@ func (repo *MicroserviceRepository) RefreshToken(cookie *http.Cookie) (*dto.Refr
 	refreshResponse := &dto.RefreshTokenResponse{}
 	cookies, err := makeAPIRequestWithCookie("GET", repo.Config.Microservices.Core.Refresh, nil, refreshResponse, cookie)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errors.Wrap(err, "make api request")
 	}
 
 	return refreshResponse, cookies, nil
@@ -75,7 +76,7 @@ func (repo *MicroserviceRepository) GetRole(id structs.UserRole) (*structs.Roles
 	res := &dto.GetRoleResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Roles+"/"+strconv.Itoa(int(id)), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -85,7 +86,7 @@ func (repo *MicroserviceRepository) GetRoleList() ([]structs.Roles, error) {
 	res := &dto.GeRoleListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Roles, nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil
@@ -99,7 +100,7 @@ func (repo *MicroserviceRepository) UpdateRole(ctx context.Context, id int, data
 	res := &dto.GetRoleResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.Roles+"/"+strconv.Itoa(id), data, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -114,7 +115,7 @@ func (repo *MicroserviceRepository) CreateRole(ctx context.Context, data structs
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Roles, data, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -127,7 +128,7 @@ func (repo *MicroserviceRepository) ValidatePin(pin string, headers map[string]s
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Core.Pin, reqBody, nil, headers)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -138,7 +139,7 @@ func (repo *MicroserviceRepository) AuthenticateUser(r *http.Request) (*structs.
 
 	loggedInAccount, err := repo.GetLoggedInUser(token)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return loggedInAccount, nil
@@ -148,7 +149,7 @@ func (repo *MicroserviceRepository) GetLoggedInUser(token string) (*structs.User
 	res := &dto.GetUserAccountResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.LoggedInUser, nil, res, map[string]string{"Authorization": "Bearer " + token})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil

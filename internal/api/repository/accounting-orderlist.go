@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -19,7 +20,7 @@ func (repo *MicroserviceRepository) UpdateOrderListItem(ctx context.Context, id 
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.OrderLists+"/"+strconv.Itoa(id), orderListItem, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -34,7 +35,7 @@ func (repo *MicroserviceRepository) SendOrderListToFinance(ctx context.Context, 
 
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.OrderListSendToFinance+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -50,7 +51,7 @@ func (repo *MicroserviceRepository) CreateOrderListItem(ctx context.Context, ord
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.OrderLists, orderListItem, res, header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -60,7 +61,7 @@ func (repo *MicroserviceRepository) CreateOrderProcurementArticle(orderProcureme
 	res := &dto.GetOrderProcurementArticleResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.OrderProcurementArticles, orderProcurementArticleItem, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -69,7 +70,7 @@ func (repo *MicroserviceRepository) CreateOrderProcurementArticle(orderProcureme
 func (repo *MicroserviceRepository) DeleteOrderProcurementArticle(id int) error {
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Accounting.OrderProcurementArticles+"/"+strconv.Itoa(id), nil, nil)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -82,7 +83,7 @@ func (repo *MicroserviceRepository) DeleteOrderList(ctx context.Context, id int)
 	header["UserID"] = strconv.Itoa(account.ID)
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.Accounting.OrderLists+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "make api request")
 	}
 
 	return nil
@@ -98,18 +99,18 @@ func (repo *MicroserviceRepository) CreateOrderListProcurementArticles(orderList
 			newArticle.ArticleID = article.ID
 			article, err := repo.GetProcurementArticle(article.ID)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo get procurement article")
 			}
 
 			procurement, err := repo.GetProcurementItem(article.PublicProcurementID)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo get procurement item")
 			}
 
 			plan, err := repo.GetProcurementPlan(procurement.PlanID)
 
 			if err != nil {
-				return err
+				return errors.Wrap(err, "repo get procurement plan")
 			}
 
 			newArticle.Year = plan.Year
@@ -125,7 +126,7 @@ func (repo *MicroserviceRepository) CreateOrderListProcurementArticles(orderList
 
 		_, err := repo.CreateOrderProcurementArticle(&newArticle)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "repo create order procurement article")
 		}
 	}
 	return nil
@@ -135,7 +136,7 @@ func (repo *MicroserviceRepository) GetOrderProcurementArticles(input *dto.GetOr
 	res := &dto.GetOrderProcurementArticlesResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.OrderProcurementArticles, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -145,7 +146,7 @@ func (repo *MicroserviceRepository) GetOrderListByID(id int) (*structs.OrderList
 	res := &dto.GetOrderListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.OrderLists+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -155,7 +156,7 @@ func (repo *MicroserviceRepository) GetOrderLists(input *dto.GetOrderListInput) 
 	res := &dto.GetOrderListsResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.OrderLists, input, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return res, nil
@@ -165,7 +166,7 @@ func (repo *MicroserviceRepository) GetOrderProcurementArticleByID(id int) (*str
 	res := &dto.GetOrderProcurementArticleResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.OrderProcurementArticles+"/"+strconv.Itoa(id), nil, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -175,7 +176,7 @@ func (repo *MicroserviceRepository) UpdateOrderProcurementArticle(item *structs.
 	res := &dto.GetOrderProcurementArticleResponseMS{}
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Accounting.OrderProcurementArticles+"/"+strconv.Itoa(item.ID), item, res)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "make api request")
 	}
 
 	return &res.Data, nil
@@ -197,13 +198,13 @@ func (repo *MicroserviceRepository) AddOnStock(stock []structs.StockArticle, art
 
 		err := repo.CreateStock(input)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "repo create stock")
 		}
 	} else {
 		stock[0].Amount += article.Amount
 		err := repo.UpdateStock(stock[0])
 		if err != nil {
-			return err
+			return errors.Wrap(err, "repo update stock")
 		}
 	}
 	return nil

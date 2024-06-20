@@ -20,7 +20,7 @@ func (r *Resolver) BasicInventoryRealEstatesOverviewResolver(params graphql.Reso
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		realEstate, err := r.Repo.GetInventoryRealEstate(id)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		return dto.Response{
 			Status:  "success",
@@ -32,7 +32,7 @@ func (r *Resolver) BasicInventoryRealEstatesOverviewResolver(params graphql.Reso
 
 	res, err := r.Repo.GetInventoryRealEstatesList(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{

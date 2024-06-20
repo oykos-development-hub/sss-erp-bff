@@ -3,6 +3,7 @@ package repository
 import (
 	"bff/config"
 	"bff/internal/api/dto"
+	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
 	"strconv"
@@ -17,7 +18,7 @@ func (repo *MicroserviceRepository) CreateCurrentBudget(ctx context.Context, cur
 
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.CurrentBudget, currentBudget, &res, header)
 	if err != nil {
-		return res.Data, err
+		return res.Data, errors.Wrap(err, "make api request")
 	}
 
 	return res.Data, nil

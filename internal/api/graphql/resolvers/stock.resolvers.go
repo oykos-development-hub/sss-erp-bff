@@ -51,7 +51,7 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
-		return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	if dateOk && date != "" {
@@ -63,13 +63,13 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 		})
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		for _, order := range orders.Data {
 			orderArticles, err := r.Repo.GetOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{OrderID: &order.ID})
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			for _, article := range orderArticles.Data {
 				flag := false
@@ -78,7 +78,7 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 					currentArticle, err := r.Repo.GetProcurementArticle(article.ArticleID)
 
 					if err != nil {
-						return errors.HandleAPIError(err)
+						return errors.HandleAPPError(err)
 					}
 
 					article.Title = currentArticle.Title
@@ -122,7 +122,7 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 		})
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		for i := 0; i < len(movementArticles); i++ {
@@ -138,7 +138,7 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 
 		articleList, total, err := r.Repo.GetStock(&input)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		Total = *total
 
@@ -170,7 +170,7 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
-		return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	input.OrganizationUnitID = organizationUnitID
@@ -198,7 +198,7 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 
 	movementList, total, err := r.Repo.GetMovements(&input)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	var response []dto.MovementResponse
@@ -212,7 +212,7 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 		officeItem, err := r.Repo.GetDropdownSettingByID(movement.OfficeID)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		item.Office.Title = officeItem.Title
@@ -221,7 +221,7 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 		userItem, err := r.Repo.GetUserProfileByID(movement.RecipientUserID)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		item.RecipientUser.Title = userItem.FirstName + " " + userItem.LastName
@@ -272,7 +272,7 @@ func (r *Resolver) MovementDetailsResolver(params graphql.ResolveParams) (interf
 	response, err := buildMovementDetailsResponse(r.Repo, id.(int))
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -297,7 +297,7 @@ func (r *Resolver) MovementArticlesResolver(params graphql.ResolveParams) (inter
 		Title: titleFilter,
 	})
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	for _, article := range articles {
@@ -330,7 +330,7 @@ func (r *Resolver) OrderListAssetMovementResolver(params graphql.ResolveParams) 
 	if data.ID == 0 {
 		organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 		if !ok || organizationUnitID == nil {
-			return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+			return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 		}
 
 		data.OrganizationUnitID = *organizationUnitID
@@ -338,7 +338,7 @@ func (r *Resolver) OrderListAssetMovementResolver(params graphql.ResolveParams) 
 		movement, err := r.Repo.CreateMovements(params.Context, data)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		for _, article := range data.Articles {
@@ -349,19 +349,19 @@ func (r *Resolver) OrderListAssetMovementResolver(params graphql.ResolveParams) 
 			}
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			_, err = r.Repo.CreateMovementArticle(item)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			stockArticle, err := r.Repo.GetStockByID(article.ID)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 
 			stockArticle.Amount -= article.Quantity
@@ -369,13 +369,13 @@ func (r *Resolver) OrderListAssetMovementResolver(params graphql.ResolveParams) 
 			err = r.Repo.UpdateStock(*stockArticle)
 
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 		}
 	} else {
 		_, err := r.Repo.UpdateMovements(params.Context, data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
@@ -390,7 +390,7 @@ func buildMovementDetailsResponse(r repository.MicroserviceRepositoryInterface, 
 
 	movement, err := r.GetMovementByID(id)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get movement by id")
 	}
 
 	item.ID = movement.ID
@@ -400,7 +400,7 @@ func buildMovementDetailsResponse(r repository.MicroserviceRepositoryInterface, 
 	officeItem, err := r.GetDropdownSettingByID(movement.OfficeID)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get dropdown setting by id")
 	}
 
 	item.Office.Title = officeItem.Title
@@ -409,7 +409,7 @@ func buildMovementDetailsResponse(r repository.MicroserviceRepositoryInterface, 
 	userItem, err := r.GetUserProfileByID(movement.RecipientUserID)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get user profile by id")
 	}
 
 	item.RecipientUser.Title = userItem.FirstName + " " + userItem.LastName
@@ -417,14 +417,14 @@ func buildMovementDetailsResponse(r repository.MicroserviceRepositoryInterface, 
 
 	articles, err := r.GetMovementArticles(item.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "repo get movement articles")
 	}
 
 	if movement.FileID != 0 {
 		file, err := r.GetFileByID(movement.FileID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get file by id")
 		}
 		item.File.ID = file.ID
 		item.File.Name = file.Name
@@ -436,7 +436,7 @@ func buildMovementDetailsResponse(r repository.MicroserviceRepositoryInterface, 
 		stockArticle, err := r.GetStockByID(article.StockID)
 
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "repo get stock by id")
 		}
 
 		movementArticle := dto.MovementArticle{
@@ -463,33 +463,33 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 	orderList, err := r.Repo.GetMovementByID(id)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	if orderList.FileID != 0 {
 		err := r.Repo.DeleteFile(orderList.FileID)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
 	articles, err := r.Repo.GetMovementArticles(id)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	organizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	if !ok || organizationUnitID == nil {
-		return errors.HandleAPIError(fmt.Errorf("user does not have organization unit assigned"))
+		return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
 	for _, article := range articles {
 		stock, err := r.Repo.GetStockByID(article.StockID)
 
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 		article.OrganizationUnitID = *organizationUnitID
@@ -497,7 +497,7 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 		stock.Amount += article.Amount
 		err = r.Repo.UpdateStock(*stock)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 
 	}
@@ -505,7 +505,7 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 	err = r.Repo.DeleteMovement(params.Context, id)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

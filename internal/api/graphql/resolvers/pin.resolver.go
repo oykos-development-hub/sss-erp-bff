@@ -13,7 +13,7 @@ func (r *Resolver) PinResolver(p graphql.ResolveParams) (interface{}, error) {
 
 	err := r.Repo.ValidatePin(pin, p.Context.Value(config.HTTPHeadersKey).(map[string]string))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

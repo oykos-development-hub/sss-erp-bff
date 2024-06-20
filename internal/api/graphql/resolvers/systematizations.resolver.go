@@ -28,11 +28,11 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 	if id != nil && id != 0 {
 		systematization, err := r.Repo.GetSystematizationByID(id.(int))
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		systematizationResItem, err := buildSystematizationOverviewResponse(r.Repo, systematization)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		items = []dto.SystematizationOverviewResponse{systematizationResItem}
 		total = 1
@@ -67,12 +67,12 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 
 		systematizationsResponse, err := r.Repo.GetSystematizations(&input)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 		for _, systematization := range systematizationsResponse.Data {
 			systematizationResItem, err := buildSystematizationOverviewResponse(r.Repo, &systematization)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			if loggedInUserAccount.RoleID != structs.UserRoleAdmin &&
 				loggedInOrganizationUnitID != nil &&
@@ -96,11 +96,11 @@ func (r *Resolver) SystematizationResolver(params graphql.ResolveParams) (interf
 	id := params.Args["id"]
 	systematization, err := r.Repo.GetSystematizationByID(id.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	systematizationResItem, err := buildSystematizationOverviewResponse(r.Repo, systematization)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -124,12 +124,12 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 	if itemID != 0 {
 		systematization, err = r.Repo.UpdateSystematization(params.Context, itemID, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	} else {
 		systematization, err = r.Repo.CreateSystematization(params.Context, &data)
 		if err != nil {
-			return errors.HandleAPIError(err)
+			return errors.HandleAPPError(err)
 		}
 	}
 
@@ -144,7 +144,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 	}
 	organizationUnitsResponse, err := r.Repo.GetOrganizationUnits(&inputOrganizationUnits)
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 	if (itemID == 0) && len(systematizationsActiveResponse.Data) > 0 {
 		for _, sector := range organizationUnitsResponse.Data {
@@ -154,7 +154,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 			}
 			jobPositionsInOrganizationUnits, err := r.Repo.GetJobPositionsInOrganizationUnits(&input)
 			if err != nil {
-				return errors.HandleAPIError(err)
+				return errors.HandleAPPError(err)
 			}
 			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
 				var jobPositionsInOrganizationUnitRes *dto.GetJobPositionInOrganizationUnitsResponseMS
@@ -180,7 +180,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 						}
 						_, err := r.Repo.CreateEmployeesInOrganizationUnits(input)
 						if err != nil {
-							return errors.HandleAPIError(err)
+							return errors.HandleAPPError(err)
 						}
 					}
 
@@ -204,7 +204,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 	systematizationResItem, err := buildSystematizationOverviewResponse(r.Repo, systematization)
 
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{
@@ -219,7 +219,7 @@ func (r *Resolver) SystematizationDeleteResolver(params graphql.ResolveParams) (
 
 	err := r.Repo.DeleteSystematization(params.Context, itemID.(int))
 	if err != nil {
-		return errors.HandleAPIError(err)
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.Response{
@@ -248,7 +248,7 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 	// Getting Organization Unit
 	var relatedOrganizationUnit, err = r.GetOrganizationUnitByID(systematization.OrganizationUnitID)
 	if err != nil {
-		return result, err
+		return result, errors.Wrap(err, "repo get organization unit by id")
 	}
 	result.OrganizationUnit = relatedOrganizationUnit
 
@@ -258,7 +258,7 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 	}
 	organizationUnitsResponse, err := r.GetOrganizationUnits(&inputOrganizationUnits)
 	if err != nil {
-		return result, err
+		return result, errors.Wrap(err, "repo get organization units")
 	}
 	for _, organizationUnit := range organizationUnitsResponse.Data {
 		*result.Sectors = append(*result.Sectors, *dto.ToOrganizationUnitsSectorResponse(organizationUnit))
@@ -267,7 +267,7 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 	if systematization.FileID != 0 {
 		file, err := r.GetFileByID(systematization.FileID)
 		if err != nil {
-			return result, err
+			return result, errors.Wrap(err, "repo get file by id")
 		}
 		result.File = dto.FileDropdownSimple{
 			ID:   file.ID,
@@ -286,13 +286,13 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 			}
 			jobPositionsInOrganizationUnits, err := r.GetJobPositionsInOrganizationUnits(&input)
 			if err != nil {
-				return result, err
+				return result, errors.Wrap(err, "repo get job positions in organization units")
 			}
 			var jobPositionsOrganizationUnits []dto.JobPositionsOrganizationUnits
 			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
 				jobPosition, err := r.GetJobPositionByID(jobPositionOU.JobPositionID)
 				if err != nil {
-					return result, err
+					return result, errors.Wrap(err, "repo get job position by id")
 				}
 
 				input := dto.GetEmployeesInOrganizationUnitInput{
@@ -303,7 +303,7 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 				for _, employeeID := range employeesInOrganizationUnit {
 					employee, err := r.GetUserProfileByID(employeeID.UserProfileID)
 					if err != nil {
-						return result, err
+						return result, errors.Wrap(err, "repo get user profile by id")
 					}
 					employees = append(employees, dto.DropdownSimple{
 						ID:    employeeID.UserProfileID,

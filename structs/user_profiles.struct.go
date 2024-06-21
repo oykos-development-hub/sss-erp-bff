@@ -69,9 +69,9 @@ func (u *UserProfiles) GetAge() int {
 
 	// Extract years, months, and days from the difference.
 	years := age / (365 * 24 * time.Hour)
-	age -= years * 365 * 24 * time.Hour
-	months := age / (30 * 24 * time.Hour)
-	age -= months * 30 * 24 * time.Hour
+	//age -= years * 365 * 24 * time.Hour
+	//months := age / (30 * 24 * time.Hour)
+	//age -= months * 30 * 24 * time.Hour
 
 	return int(years)
 }

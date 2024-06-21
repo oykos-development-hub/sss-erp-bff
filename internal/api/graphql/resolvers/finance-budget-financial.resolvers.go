@@ -61,7 +61,6 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 }
 
 func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unitID int, summary bool) (*dto.FinancialBudgetOverviewResponse, error) {
-	var response dto.FinancialBudgetOverviewResponse
 
 	var filledAccounts []structs.FilledFinanceBudget
 	var donationFinancialBudgetRequest *structs.BudgetRequest
@@ -71,7 +70,6 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get financial budget by budget id")
 	}
-	response.AccountVersion = financialBudget.AccountVersion
 
 	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{Version: &financialBudget.AccountVersion})
 	if err != nil {

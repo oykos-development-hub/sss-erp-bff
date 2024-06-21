@@ -637,13 +637,8 @@ func buildAccountingOrderItemForObligations(item dto.AccountingOrderItemsForObli
 			return nil, errors.Wrap(err, "repo get supplier item by id")
 		}
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
-
 		if response.Title == structs.SupplierTitle {
-			response.Title = dropdown.Title
+			response.Title = value.Title
 		}
 	}
 

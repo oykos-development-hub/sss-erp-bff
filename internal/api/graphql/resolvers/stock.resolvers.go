@@ -492,8 +492,6 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 			return errors.HandleAPPError(err)
 		}
 
-		article.OrganizationUnitID = *organizationUnitID
-
 		stock.Amount += article.Amount
 		err = r.Repo.UpdateStock(*stock)
 		if err != nil {

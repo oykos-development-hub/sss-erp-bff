@@ -198,7 +198,7 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 
 func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, error) {
 
-	var increment int
+	increment := 1
 
 	for i := 0; i < len(items); i++ {
 		items[i].RemainPrice = math.Round(items[i].RemainPrice*100) / 100

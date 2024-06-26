@@ -893,6 +893,58 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 	}, nil
 }
 
+func (r *Resolver) NonFinancialBudgetOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	unitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok {
+		return errors.HandleAPPError(errors.NewBadRequestError("error getting logged in unit"))
+	}
+
+	year := params.Args["year"].(int)
+
+	//TODO: after planning budget is done on FE, add status filter Done
+	filter := dto.GetBudgetListInputMS{}
+	if year != 0 {
+		filter.Year = &year
+	}
+	budgets, err := r.Repo.GetBudgetList(&filter)
+	if err != nil {
+		return errors.HandleAPPError(errors.Wrap(err, "repo get budget list"))
+	}
+
+	var nonFinancialData []dto.NonFinancialBudgetResItem
+
+	for _, budget := range budgets {
+		nonFinancialRequestType := structs.RequestTypeNonFinancial
+		nonFinancialRequest, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+			OrganizationUnitID: unitID,
+			BudgetID:           &budget.ID,
+			RequestType:        &nonFinancialRequestType,
+		})
+		if err != nil {
+			if errors.IsErr(err, errors.NotFoundCode) {
+				continue
+			}
+
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "get one budget request"))
+		}
+
+		nonFinancialDetails, err := r.buildNonFinancialBudgetDetails(params.Context, nonFinancialRequest)
+		if err != nil {
+			return errors.HandleAPPError(errors.Wrap(err, "build non financial budget details"))
+		}
+
+		nonFinancialDetails.Year = budget.Year
+
+		nonFinancialData = append(nonFinancialData, *nonFinancialDetails)
+	}
+
+	return dto.Response{
+		Message: "Budget requests",
+		Status:  "success",
+		Items:   nonFinancialData,
+	}, nil
+}
+
 func (r *Resolver) FinancialBudgetSummary(params graphql.ResolveParams) (interface{}, error) {
 	budgetID := params.Args["budget_id"].(int)
 	unitID := params.Args["unit_id"].(int)

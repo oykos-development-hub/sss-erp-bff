@@ -28,19 +28,19 @@ func HandleAPPError(err error) (dto.Response, error) {
 	return ErrorResponse(err.Error()), nil
 }
 
-func (e *AppError) Unwrap() error {
+func (e AppError) Unwrap() error {
 	return e.Err
 }
 
-func (e *AppError) Error() string {
+func (e AppError) Error() string {
 	return e.Err.Error()
 }
 
-func (e *AppError) HTTPStatusCode() int {
+func (e AppError) HTTPStatusCode() int {
 	return httpStatusCode(e.Code)
 }
 
-func (e *AppError) PrettyMsg() string {
+func (e AppError) PrettyMsg() string {
 	return prettyMsg(e.Code)
 }
 
@@ -51,65 +51,75 @@ func New(format string, args ...interface{}) error {
 	}
 }
 
+func IsErr(err error, code int) bool {
+	var e AppError
+
+	if errors.As(err, &e) {
+		return e.Code == code
+	}
+
+	return false
+}
+
 func Wrap(err error, message string) error {
 	code := InternalCode
 
-	var e *AppError
+	var e AppError
 
 	if errors.As(err, &e) {
 		code = e.Code
 	}
 
-	return &AppError{
+	return AppError{
 		Code: code,
 		Err:  fmt.Errorf("%s: %w", message, err),
 	}
 }
 
 func NewNotFoundError(message string, args ...interface{}) error {
-	return &AppError{
+	return AppError{
 		Code: NotFoundCode,
 		Err:  fmt.Errorf(message, args...),
 	}
 }
 
 func NewBadRequestError(message string, args ...interface{}) error {
-	return &AppError{
+	return AppError{
 		Code: BadRequestCode,
 		Err:  fmt.Errorf(message, args...),
 	}
 }
 
 func WrapBadRequestError(err error, message string, args ...interface{}) error {
-	return &AppError{
+	return AppError{
 		Code: BadRequestCode,
 		Err:  fmt.Errorf("%s: %w", fmt.Sprintf(message, args...), err),
 	}
 }
 
 func WrapMicroserviceError(err error, message string, args ...interface{}) error {
-	return &AppError{
+	return AppError{
 		Code: MicroserviceRequestCode,
 		Err:  fmt.Errorf("%s: %w", fmt.Sprintf(message, args...), err),
 	}
 }
 
 func WrapNotFoundError(err error, message string, args ...any) error {
-	return &AppError{
+	return AppError{
 		Code: NotFoundCode,
 		Err:  fmt.Errorf("%s: %w", fmt.Sprintf(message, args...), err),
 	}
 }
 
 func NewInternalServerError(message string, args ...interface{}) error {
-	return &AppError{
+	return AppError{
 		Code: InternalCode,
 		Err:  fmt.Errorf(message, args...),
 	}
 }
 
 func WrapInternalServerError(err error, message string, args ...interface{}) error {
-	return &AppError{
+	return AppError{
 		Code: InternalCode,
 		Err:  fmt.Errorf("%s: %w", fmt.Sprintf(message, args...), err),
 	}

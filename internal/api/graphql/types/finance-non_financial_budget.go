@@ -47,6 +47,9 @@ var NonFinancialBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"official_comment": &graphql.Field{
 			Type: graphql.String,
 		},
+		"year": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })
 

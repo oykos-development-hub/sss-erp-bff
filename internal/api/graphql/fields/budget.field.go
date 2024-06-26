@@ -389,3 +389,17 @@ func (f *Field) SpendingReleaseDeleteField() *graphql.Field {
 		Resolve: f.Resolvers.SpendingReleaseDelete,
 	}
 }
+
+func (f *Field) NonFinancialOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.NonFinancialOverviewType,
+		Description: "Non financial budgets",
+		Args: graphql.FieldConfigArgument{
+			"year": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
+		},
+		Resolve: f.Resolvers.NonFinancialBudgetOverviewResolver,
+	}
+}

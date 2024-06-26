@@ -614,3 +614,21 @@ var CurrentBudgetAccountType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var NonFinancialOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "NonFinancialOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(NonFinancialBudgetType),
+		},
+	},
+})

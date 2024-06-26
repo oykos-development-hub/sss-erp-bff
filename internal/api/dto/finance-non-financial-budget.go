@@ -37,6 +37,8 @@ type NonFinancialBudgetResItem struct {
 	Statement string `json:"statement"`
 
 	OfficialComment string `json:"official_comment"`
+
+	Year int `json:"year"`
 }
 
 type ActivityRequestResItem struct {

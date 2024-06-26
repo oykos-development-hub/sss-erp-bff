@@ -870,6 +870,30 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 		return errors.HandleAPPError(err)
 	}
 
+	invoices, _, err := r.Repo.GetInvoiceList(&dto.GetInvoiceListInputMS{
+		OrderID: &data.OrderID,
+	})
+
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
+
+	if len(invoices) > 0 {
+		if data.InvoiceNumber != nil && data.InvoiceDate != nil {
+			invoices[0].InvoiceNumber = *data.InvoiceNumber
+			dateOfInvoice, err := parseDate(*data.InvoiceDate)
+			if err != nil {
+				return errors.HandleAPPError(err)
+			}
+			invoices[0].DateOfInvoice = &dateOfInvoice
+
+			_, err = r.Repo.UpdateInvoice(params.Context, &invoices[0])
+			if err != nil {
+				return errors.HandleAPPError(err)
+			}
+		}
+	}
+
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "You received this order!",

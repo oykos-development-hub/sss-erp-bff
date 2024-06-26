@@ -69,6 +69,8 @@ type InvoiceItems struct {
 	Account     DropdownSimple `json:"account"`
 	TotalPrice  float64        `json:"total_price"`
 	RemainPrice float64        `json:"remain_price"`
+	Title       string         `json:"title"`
+	ID          int            `json:"id"`
 }
 
 type GetObligationsResponseMS struct {

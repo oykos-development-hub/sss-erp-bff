@@ -188,6 +188,12 @@ var ObligationsType = graphql.NewObject(graphql.ObjectConfig{
 var InvoiceItemsType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "InvoiceItemsType",
 	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
 		"account": &graphql.Field{
 			Type: DropdownItemType,
 		},

@@ -198,6 +198,8 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 
 func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, error) {
 
+	var increment int
+
 	for i := 0; i < len(items); i++ {
 		items[i].RemainPrice = math.Round(items[i].RemainPrice*100) / 100
 
@@ -240,7 +242,10 @@ func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, e
 					},
 					TotalPrice:  amount,
 					RemainPrice: math.Round(remainAccountMap[accountID]*100) / 100,
+					Title:       items[i].Title,
+					ID:          increment,
 				})
+				increment++
 			} else {
 				for m := 0; m < 10000; m++ {
 					account, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{

@@ -92,6 +92,9 @@ var SalaryType = graphql.NewObject(graphql.ObjectConfig{
 		"salary_additional_expenses": &graphql.Field{
 			Type: graphql.NewList(SalaryAdditionalExpenses),
 		},
+		"account_amounts": &graphql.Field{
+			Type: graphql.NewList(AccountAmountsType),
+		},
 		"created_at": &graphql.Field{
 			Type: graphql.DateTime,
 		},

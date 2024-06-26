@@ -52,6 +52,7 @@ type SalaryResponse struct {
 	Status                   string                             `json:"status"`
 	OrganizationUnit         DropdownSimple                     `json:"organization_unit"`
 	SalaryAdditionalExpenses []SalaryAdditionalExpensesResponse `json:"salary_additional_expenses"`
+	AccountAmounts           []AccountAmounts                   `json:"account_amounts"`
 	GrossPrice               float64                            `json:"gross_price"`
 	NumberOfEmployees        int                                `json:"number_of_employees"`
 	VatPrice                 float64                            `json:"vat_price"`

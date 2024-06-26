@@ -195,6 +195,27 @@ func buildSalary(item structs.Salary, r *Resolver) (*dto.SalaryResponse, error) 
 		response.SalaryAdditionalExpenses = append(response.SalaryAdditionalExpenses, *data)
 	}
 
+	accountMap := make(map[string]float64)
+
+	for _, item := range response.SalaryAdditionalExpenses {
+		if currentAmount, exists := accountMap[item.Account.Title]; exists {
+			accountMap[item.Account.Title] = currentAmount + float64(item.Amount)
+		} else {
+			accountMap[item.Account.Title] = float64(item.Amount)
+		}
+	}
+
+	accountAmountID := 0
+
+	for title, amount := range accountMap {
+		response.AccountAmounts = append(response.AccountAmounts, dto.AccountAmounts{
+			ID:      accountAmountID,
+			Account: title,
+			Amount:  amount,
+		})
+		accountAmountID++
+	}
+
 	return &response, nil
 }
 

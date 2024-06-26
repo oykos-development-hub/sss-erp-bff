@@ -778,6 +778,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 	orderList.DeliveryDate = data.DeliveryDate
 	orderList.DeliveryNumber = data.DeliveryNumber
 	orderList.DeliveryFileID = data.DeliveryFileID
+	orderList.ReceiveFile = append(orderList.ReceiveFile, data.ReceiveFile...)
 
 	if data.Description != nil {
 		orderList.Description = data.Description

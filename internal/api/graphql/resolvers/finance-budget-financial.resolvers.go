@@ -449,7 +449,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 		}
 	}
 
-	accounts, err := r.Repo.GetAccountItems(nil)
+	/*accounts, err := r.Repo.GetAccountItems(nil)
 	if err != nil {
 		return errors.HandleAPPError(err)
 	}
@@ -470,7 +470,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 		if err != nil {
 			return errors.HandleAPPError(err)
 		}
-	}
+	}*/
 
 	request.Status = structs.BudgetRequestCompletedActualStatus
 	_, err = r.Repo.UpdateBudgetRequest(params.Context, request)

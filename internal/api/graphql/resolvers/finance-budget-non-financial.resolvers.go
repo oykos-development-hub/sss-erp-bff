@@ -218,6 +218,38 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 	return response, nil
 }
 
+func (r *Resolver) NonFinancialBudgetUpdateResolver(params graphql.ResolveParams) (interface{}, error) {
+	var data dto.CreateNonFinancialBudget
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	err := json.Unmarshal(dataBytes, &data)
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
+
+	_, err = r.upsertNonFinancialBudget(params.Context, data)
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
+
+	request, err := r.Repo.GetBudgetRequest(data.RequestID)
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
+
+	resItem, err := r.buildNonFinancialBudgetDetails(params.Context, request)
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
+
+	response.Item = resItem
+
+	return response, nil
+}
+
 // upsertNonFinancialBudget processes the creation or update of a non-financial budget.
 func (r *Resolver) upsertNonFinancialBudget(ctx context.Context, data dto.CreateNonFinancialBudget) (*structs.NonFinancialBudgetItem, error) {
 	var item *structs.NonFinancialBudgetItem

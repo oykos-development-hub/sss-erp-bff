@@ -20,6 +20,19 @@ func (f *Field) NonFinancialBudgetInsertField() *graphql.Field {
 	}
 }
 
+func (f *Field) NonFinancialBudgetUpdateField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.NonFinancialBudgetInsertType,
+		Description: "Insert Non Financially Budget item",
+		Args: graphql.FieldConfigArgument{
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(mutations.NonFinancialBudgetInsertMutation),
+			},
+		},
+		Resolve: f.Resolvers.NonFinancialBudgetUpdateResolver,
+	}
+}
+
 func (f *Field) NonFinacialBudgetGoalInsertField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.NonFinancialBudgetGoalInsertType,

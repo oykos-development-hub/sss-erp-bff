@@ -126,6 +126,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"budgetRequest_Reject":                            fields.BudgetRequestRejectField(),
 			"accountBudgetActivity_Insert":                    fields.AccountBudgetActivityInsertField(),
 			"nonFinancialBudget_Insert":                       fields.NonFinancialBudgetInsertField(),
+			"nonFinancialBudget_Update":                       fields.NonFinancialBudgetUpdateField(),
 			"nonFinancialGoalIndicator_Insert":                fields.NonFinacialGoalIndicatorInsertField(),
 			"nonFinacialBudgetGoal_Insert":                    fields.NonFinacialBudgetGoalInsertField(),
 			"financialBudget_Fill":                            fields.FinancialBudgetFillField(),

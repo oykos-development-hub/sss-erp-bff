@@ -36,7 +36,7 @@ func (r *Resolver) TemplateResolver(params graphql.ResolveParams) (interface{}, 
 		input.OrganizationUnitID = params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	}
 
-	res, err := r.Repo.GetTemplateList(input)
+	res, total, err := r.Repo.GetTemplateList(input)
 	if err != nil {
 		return errors.HandleAPPError(err)
 	}
@@ -56,6 +56,7 @@ func (r *Resolver) TemplateResolver(params graphql.ResolveParams) (interface{}, 
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 		Items:   responseItems,
+		Total:   total,
 	}, nil
 }
 

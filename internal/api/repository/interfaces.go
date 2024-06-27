@@ -532,5 +532,5 @@ type MicroserviceRepositoryInterface interface {
 	UpdateTemplate(ctx context.Context, item *structs.Template) error
 	UpdateTemplateItem(ctx context.Context, item *structs.Template) error
 	GetTemplateByID(id int) (*structs.Template, error)
-	GetTemplateList(input dto.TemplateFilter) ([]structs.Template, error)
+	GetTemplateList(input dto.TemplateFilter) ([]structs.Template, int, error)
 }

@@ -76,14 +76,14 @@ func (repo *MicroserviceRepository) UpdateTemplateItem(ctx context.Context, item
 	return nil
 }
 
-func (repo *MicroserviceRepository) GetTemplateList(input dto.TemplateFilter) ([]structs.Template, error) {
+func (repo *MicroserviceRepository) GetTemplateList(input dto.TemplateFilter) ([]structs.Template, int, error) {
 	res := &dto.GetTemplateResponseListMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.TemplateItems, input, res)
 	if err != nil {
-		return nil, errors.Wrap(err, "make api request")
+		return nil, 0, errors.Wrap(err, "make api request")
 	}
 
-	return res.Data, nil
+	return res.Data, res.Total, nil
 }
 
 func (repo *MicroserviceRepository) GetTemplateByID(id int) (*structs.Template, error) {

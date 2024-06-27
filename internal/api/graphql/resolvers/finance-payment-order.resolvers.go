@@ -238,7 +238,7 @@ func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, e
 					AccountID: account.Data[0].ID,
 					Account: dto.DropdownSimple{
 						ID:    account.Data[0].ID,
-						Title: account.Data[0].Title,
+						Title: account.Data[0].SerialNumber + " " + account.Data[0].Title,
 					},
 					TotalPrice:  amount,
 					RemainPrice: math.Round(remainAccountMap[accountID]*100) / 100,
@@ -261,7 +261,7 @@ func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, e
 							AccountID: account.Data[0].ID,
 							Account: dto.DropdownSimple{
 								ID:    account.Data[0].ID,
-								Title: account.Data[0].Title,
+								Title: account.Data[0].SerialNumber + " " + account.Data[0].Title,
 							},
 							TotalPrice:  amount,
 							RemainPrice: math.Round(remainAccountMap[accountID]*100) / 100,

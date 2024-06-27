@@ -18,6 +18,12 @@ func (f *Field) TemplateField() *graphql.Field {
 			"template_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"page": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"size": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 		},
 		Resolve: f.Resolvers.TemplateResolver,
 	}

@@ -14,11 +14,20 @@ func (r *Resolver) TemplateResolver(params graphql.ResolveParams) (interface{}, 
 
 	templateID, templateIDOK := params.Args["template_id"].(int)
 	organizationUnitID, organizartionUnitIDOK := params.Args["organization_unit_id"].(int)
+	page, pageOK := params.Args["page"].(int)
+	size, sizeOK := params.Args["size"].(int)
 
 	input := dto.TemplateFilter{}
 
 	if templateIDOK && templateID != 0 {
 		input.TemplateID = &templateID
+	}
+
+	if pageOK && page != 0 {
+		input.Page = &page
+	}
+	if sizeOK && size != 0 {
+		input.Size = &size
 	}
 
 	if organizartionUnitIDOK && organizationUnitID != 0 {

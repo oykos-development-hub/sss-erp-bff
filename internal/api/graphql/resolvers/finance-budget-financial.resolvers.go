@@ -447,7 +447,29 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 		if err != nil {
 			return errors.HandleAPPError(err)
 		}
+	}
 
+	accounts, err := r.Repo.GetAccountItems(nil)
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
+
+	for _, account := range accounts.Data {
+		actual, err := r.Repo.GetSpendingDynamicActual(request.BudgetID, request.OrganizationUnitID, account.ID)
+		if err != nil {
+			return errors.HandleAPPError(err)
+		}
+
+		_, err = r.Repo.CreateCurrentBudget(params.Context, &structs.CurrentBudget{
+			BudgetID:      request.BudgetID,
+			UnitID:        request.OrganizationUnitID,
+			AccountID:     account.ID,
+			InitialActual: actual.Decimal,
+			Actual:        actual.Decimal,
+		})
+		if err != nil {
+			return errors.HandleAPPError(err)
+		}
 	}
 
 	request.Status = structs.BudgetRequestCompletedActualStatus
@@ -499,31 +521,6 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 			return errors.HandleAPPError(err)
 		}
 		budget.Status = structs.BudgetCompletedActualStatus
-
-		accounts, err := r.Repo.GetAccountItems(nil)
-		if err != nil {
-			return errors.HandleAPPError(err)
-		}
-
-		for _, req := range budgetGeneralRequests {
-			for _, account := range accounts.Data {
-				actual, err := r.Repo.GetSpendingDynamicActual(req.BudgetID, req.OrganizationUnitID, account.ID)
-				if err != nil {
-					return errors.HandleAPPError(err)
-				}
-
-				_, err = r.Repo.CreateCurrentBudget(params.Context, &structs.CurrentBudget{
-					BudgetID:      req.BudgetID,
-					UnitID:        req.OrganizationUnitID,
-					AccountID:     account.ID,
-					InitialActual: actual.Decimal,
-					Actual:        actual.Decimal,
-				})
-				if err != nil {
-					return errors.HandleAPPError(err)
-				}
-			}
-		}
 	}
 
 	return dto.Response{

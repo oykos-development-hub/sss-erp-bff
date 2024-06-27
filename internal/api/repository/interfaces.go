@@ -307,7 +307,7 @@ type MicroserviceRepositoryInterface interface {
 	CreateNonFinancialBudget(ctx context.Context, budget *structs.NonFinancialBudgetItem) (*structs.NonFinancialBudgetItem, error)
 	FillFinancialBudget(ctx context.Context, budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
 	UpdateFilledFinancialBudget(ctx context.Context, id int, budget *structs.FilledFinanceBudget) (*structs.FilledFinanceBudget, error)
-	FillActualFinancialBudget(ctx context.Context, id int, actual decimal.Decimal) (*structs.FilledFinanceBudget, error)
+	FillActualFinancialBudget(ctx context.Context, id int, actual decimal.Decimal, requestID int) (*structs.FilledFinanceBudget, error)
 	GetFinancialFilledSummary(budgetID int, reqType structs.RequestType) ([]structs.FilledFinanceBudget, error)
 	DeleteFilledFinancialBudgetData(ctx context.Context, id int) error
 	DeleteNonFinancialBudget(ctx context.Context, id int) error

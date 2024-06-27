@@ -219,7 +219,8 @@ func (repo *MicroserviceRepository) UpdateFilledFinancialBudget(ctx context.Cont
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) FillActualFinancialBudget(ctx context.Context, id int, actual decimal.Decimal) (*structs.FilledFinanceBudget, error) {
+// prosledjuje se accountID i budget request ID
+func (repo *MicroserviceRepository) FillActualFinancialBudget(ctx context.Context, id int, actual decimal.Decimal, requestID int) (*structs.FilledFinanceBudget, error) {
 	data := &dto.FillActualFinanceBudgetInput{Actual: actual}
 	res := &dto.GetFilledFinancialBudgetResponseItemMS{}
 
@@ -227,7 +228,7 @@ func (repo *MicroserviceRepository) FillActualFinancialBudget(ctx context.Contex
 	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	header["UserID"] = strconv.Itoa(account.ID)
 
-	_, err := makeAPIRequest("PATCH", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id)+"/actual", data, res, header)
+	_, err := makeAPIRequest("PATCH", repo.Config.Microservices.Finance.FilledFinancialBudget+"/"+strconv.Itoa(id)+"/actual"+strconv.Itoa(requestID), data, res, header)
 	if err != nil {
 		return nil, errors.WrapMicroserviceError(err, "FillActualFinancialBudget")
 	}

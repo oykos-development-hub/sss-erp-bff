@@ -137,6 +137,9 @@ func (f *Field) AccountingEntryOverviewField() *graphql.Field {
 			"date_of_end": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"group": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
+			},
 		},
 		Resolve: f.Resolvers.AccountingEntryOverviewResolver,
 	}

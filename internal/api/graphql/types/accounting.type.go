@@ -194,6 +194,9 @@ var AccountingEntryOverviewType = graphql.NewObject(graphql.ObjectConfig{
 		"items": &graphql.Field{
 			Type: graphql.NewList(AccountingEntryType),
 		},
+		"sorted_items": &graphql.Field{
+			Type: graphql.NewList(AccountingEntryItemType),
+		},
 	},
 })
 
@@ -211,6 +214,9 @@ var AccountingEntryInsertType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"item": &graphql.Field{
 			Type: AccountingEntryType,
+		},
+		"sorted_items": &graphql.Field{
+			Type: graphql.NewList(AccountingEntryItemType),
 		},
 	},
 })

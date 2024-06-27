@@ -410,11 +410,20 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		resItems = append(resItems, *resItem)
 	}
 
+	var sortedItems []dto.AccountingEntryItemResponse
+	if value, ok := params.Args["group"].(bool); ok && value {
+
+		for i := len(resItems) - 1; i >= 0; i-- {
+			sortedItems = append(sortedItems, resItems[i].Items...)
+		}
+	}
+
 	return dto.Response{
-		Status:  "success",
-		Message: "Here's the list you asked for!",
-		Items:   resItems,
-		Total:   total,
+		Status:      "success",
+		Message:     "Here's the list you asked for!",
+		Items:       resItems,
+		Total:       total,
+		SortedItems: sortedItems,
 	}, nil
 }
 

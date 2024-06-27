@@ -445,5 +445,20 @@ func buildPaymentOrderItem(item structs.PaymentOrderItems, r *Resolver) (*dto.Pa
 		response.Account = dropdown
 	}
 
+	if item.SourceAccountID != 0 {
+		value, err := r.Repo.GetAccountItemByID(item.SourceAccountID)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get account item by id")
+		}
+
+		dropdown := dto.DropdownSimple{
+			ID:    value.ID,
+			Title: value.Title,
+		}
+
+		response.SourceAccount = dropdown
+	}
+
 	return &response, nil
 }

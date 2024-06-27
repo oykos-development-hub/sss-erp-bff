@@ -65,5 +65,11 @@ var PaymentItems = graphql.NewInputObject(graphql.InputObjectConfig{
 		"account_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"source_account_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"amount": &graphql.InputObjectFieldConfig{
+			Type: graphql.Float,
+		},
 	},
 })

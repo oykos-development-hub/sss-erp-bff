@@ -31,6 +31,7 @@ type PaymentOrderItems struct {
 	SalaryAdditionalExpenseID *int      `json:"salary_additional_expense_id"`
 	Type                      string    `json:"type"`
 	AccountID                 int       `json:"account_id"`
+	SourceAccountID           int       `json:"source_account_id"`
 	Amount                    float64   `json:"amount"`
 	Title                     string    `json:"title"`
 	CreatedAt                 time.Time `json:"created_at"`

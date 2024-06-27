@@ -112,6 +112,7 @@ type PaymentOrderItemResponse struct {
 	SalaryAdditionalExpenseID *int           `json:"salary_additional_expense"`
 	Type                      string         `json:"type"`
 	Account                   DropdownSimple `json:"account"`
+	SourceAccount             DropdownSimple `json:"source_account"`
 	Amount                    float64        `json:"amount"`
 	Title                     string         `json:"title"`
 	CreatedAt                 time.Time      `json:"created_at"`

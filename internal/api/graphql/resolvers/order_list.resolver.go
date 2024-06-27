@@ -888,6 +888,10 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 			}
 			invoices[0].DateOfInvoice = &dateOfInvoice
 
+			if len(orderList.ReceiveFile) > 0 {
+				invoices[0].FileID = orderList.ReceiveFile[0]
+			}
+
 			_, err = r.Repo.UpdateInvoice(params.Context, &invoices[0])
 			if err != nil {
 				return errors.HandleAPPError(err)

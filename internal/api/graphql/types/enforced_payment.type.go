@@ -66,7 +66,7 @@ var EnforcedPaymentType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Float,
 		},
 		"account_for_expenses": &graphql.Field{
-			Type: graphql.Int,
+			Type: DropdownItemType,
 		},
 		"execution_number": &graphql.Field{
 			Type: graphql.String,

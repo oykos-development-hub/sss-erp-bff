@@ -443,16 +443,11 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 	var resItemList []dto.FilledFinancialBudgetResItem
 
 	for _, data := range items {
-		item, err := r.Repo.FillActualFinancialBudget(params.Context, data.ID, data.Actual, requestID)
-		if err != nil {
-			return errors.HandleAPPError(err)
-		}
-		resItem, err := buildFilledFinancialBudgetResItem(r.Repo, *item)
+		_, err := r.Repo.FillActualFinancialBudget(params.Context, data.ID, data.Actual, requestID)
 		if err != nil {
 			return errors.HandleAPPError(err)
 		}
 
-		resItemList = append(resItemList, *resItem)
 	}
 
 	request.Status = structs.BudgetRequestCompletedActualStatus

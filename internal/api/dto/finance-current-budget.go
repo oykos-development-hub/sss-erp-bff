@@ -11,3 +11,7 @@ type GetCurrentBudgetResponseMS struct {
 type GetCurrentBudgetListResponseMS struct {
 	Data []structs.CurrentBudget `json:"data"`
 }
+
+type GetCurrentBudgetUnitListResponseMS struct {
+	Data []int `json:"data"`
+}

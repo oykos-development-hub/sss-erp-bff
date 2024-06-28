@@ -224,6 +224,7 @@ type CurrentBudgetAccountsResponse struct {
 	CurrentAccounts []*CurrentBudgetAccounts `json:"current_accounts"`
 	BudgetID        int                      `json:"budget_id"`
 	Version         int                      `json:"version"`
+	Units           []DropdownOUSimple       `json:"units"`
 }
 
 type FilledFinancialBudgetInputMS struct {

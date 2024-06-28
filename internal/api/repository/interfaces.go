@@ -351,6 +351,7 @@ type MicroserviceRepositoryInterface interface {
 	DeleteSpendingRelease(ctx context.Context, input *dto.DeleteSpendingReleaseInput) error
 
 	CreateCurrentBudget(ctx context.Context, currentBudget *structs.CurrentBudget) (*structs.CurrentBudget, error)
+	GetCurrentBudgetUnitList(ctx context.Context) ([]int, error)
 
 	CreateInvoice(ctx context.Context, item *structs.Invoice) (*structs.Invoice, error)
 	UpdateInvoice(ctx context.Context, item *structs.Invoice) (*structs.Invoice, error)

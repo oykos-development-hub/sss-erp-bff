@@ -23,3 +23,14 @@ func (repo *MicroserviceRepository) CreateCurrentBudget(ctx context.Context, cur
 
 	return res.Data, nil
 }
+
+func (repo *MicroserviceRepository) GetCurrentBudgetUnitList(ctx context.Context) ([]int, error) {
+	res := dto.GetCurrentBudgetUnitListResponseMS{}
+
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.CurrentBudgetUnitList, nil, &res)
+	if err != nil {
+		return res.Data, errors.Wrap(err, "make api request")
+	}
+
+	return res.Data, nil
+}

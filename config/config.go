@@ -70,6 +70,7 @@ type FinanceMS struct {
 	SpendingReleaseOverview                  string
 	SpendingReleaseList                      string
 	CurrentBudget                            string
+	CurrentBudgetUnitList                    string
 	Program                                  string
 	Activity                                 string
 	FinancialBudget                          string
@@ -401,6 +402,7 @@ func LoadDefaultConfig() (*Config, error) {
 				SpendingReleaseOverview:                  financeBase + "/spending-releases/overview",
 				SpendingReleaseList:                      financeBase + "/spending-releases",
 				CurrentBudget:                            financeBase + "/current-budgets",
+				CurrentBudgetUnitList:                    financeBase + "/current-budgets/units",
 				FinancialBudget:                          financeBase + "/financial-budgets",
 				FilledFinancialBudget:                    financeBase + "/filled-financial-budgets",
 				FinancialBudgetLimit:                     financeBase + "/financial-budget-limits",

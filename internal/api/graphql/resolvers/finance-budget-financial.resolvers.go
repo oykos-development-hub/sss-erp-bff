@@ -449,29 +449,6 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 		}
 	}
 
-	/*accounts, err := r.Repo.GetAccountItems(nil)
-	if err != nil {
-		return errors.HandleAPPError(err)
-	}
-
-	for _, account := range accounts.Data {
-		actual, err := r.Repo.GetSpendingDynamicActual(request.BudgetID, request.OrganizationUnitID, account.ID)
-		if err != nil {
-			return errors.HandleAPPError(err)
-		}
-
-		_, err = r.Repo.CreateCurrentBudget(params.Context, &structs.CurrentBudget{
-			BudgetID:      request.BudgetID,
-			UnitID:        request.OrganizationUnitID,
-			AccountID:     account.ID,
-			InitialActual: actual.Decimal,
-			Actual:        actual.Decimal,
-		})
-		if err != nil {
-			return errors.HandleAPPError(err)
-		}
-	}*/
-
 	request.Status = structs.BudgetRequestCompletedActualStatus
 	_, err = r.Repo.UpdateBudgetRequest(params.Context, request)
 	if err != nil {

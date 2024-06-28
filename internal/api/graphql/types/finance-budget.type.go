@@ -588,6 +588,9 @@ var CurrentBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"version": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"units": &graphql.Field{
+			Type: graphql.NewList(DropdownItemType),
+		},
 	},
 })
 

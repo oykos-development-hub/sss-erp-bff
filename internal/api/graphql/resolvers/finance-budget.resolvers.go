@@ -998,6 +998,26 @@ func (r *Resolver) CurrentBudgetOverviewResolver(params graphql.ResolveParams) (
 		response.BudgetID = currentBudgetItems[0].BudgetID
 	}
 
+	unitIDList, err := r.Repo.GetCurrentBudgetUnitList(params.Context)
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
+
+	unitsList := make([]dto.DropdownOUSimple, len(unitIDList))
+	for i, unitID := range unitIDList {
+		unit, err := r.Repo.GetOrganizationUnitByID(unitID)
+		if err != nil {
+			return errors.HandleAPPError(err)
+		}
+
+		unitsList[i] = dto.DropdownOUSimple{
+			ID:    unit.ID,
+			Title: unit.Title,
+		}
+	}
+
+	response.Units = unitsList
+
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the list you asked for!",

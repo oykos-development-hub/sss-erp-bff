@@ -11,7 +11,7 @@ type GetNonFinancialGoalIndicatorListResponseMS struct {
 }
 
 type GetNonFinancialGoalIndicatorListInputMS struct {
-	GoalID *int    `json:"activity_id"`
+	GoalID *int    `json:"goal_id"`
 	Search *string `json:"search"`
 }
 

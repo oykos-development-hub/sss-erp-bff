@@ -63,7 +63,6 @@ func (r *Resolver) buildNonFinancialBudgetDetails(ctx context.Context, request *
 	resItem.Statement = nonFinancialBudget.Statement
 
 	goalList, err := r.Repo.GetNonFinancialGoalList(&dto.GetNonFinancialGoalListInputMS{
-		ActivityID:           &activity.ID,
 		NonFinancialBudgetID: &nonFinancialBudget.ID,
 	})
 	if err != nil {

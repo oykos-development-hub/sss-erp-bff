@@ -730,7 +730,9 @@ func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.Accou
 		if response.Items[i].Title == "Korektivni račun" {
 			if i > 0 && response.Items[i].PaymentOrder.ID != 0 {
 				response.Items[i].Title = response.Items[i-1].Title
-			} else {
+			} else if i < len(response.Items) && response.Items[i].Salary.ID != 0 {
+				response.Items[i].Title = "Zarada"
+			} else if i < len(response.Items) {
 				response.Items[i].Title = response.Items[i+1].Title
 			}
 

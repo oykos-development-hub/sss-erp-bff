@@ -237,7 +237,8 @@ func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, e
 			}
 
 			//pronalazak najsvjezije verzije konta sa datim serijskim brojem, ako ne postoji, onda trazimo najstariji postojeci
-			if len(account.Data) > 0 {
+			remainAmount := math.Round(remainAccountMap[accountID]*100) / 100
+			if len(account.Data) > 0 && remainAmount > 0 {
 				invoiceItems = append(invoiceItems, dto.InvoiceItems{
 					AccountID: account.Data[0].ID,
 					Account: dto.DropdownSimple{
@@ -245,7 +246,7 @@ func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, e
 						Title: account.Data[0].SerialNumber + " " + account.Data[0].Title,
 					},
 					TotalPrice:  amount,
-					RemainPrice: math.Round(remainAccountMap[accountID]*100) / 100,
+					RemainPrice: remainAmount,
 					Title:       items[i].Title,
 					ID:          increment,
 				})
@@ -260,7 +261,8 @@ func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, e
 						return nil, errors.Wrap(err, "repo get account item by id")
 					}
 
-					if len(account.Data) > 0 {
+					remainAmount := math.Round(remainAccountMap[accountID]*100) / 100
+					if len(account.Data) > 0 && remainAmount > 0 {
 						invoiceItems = append(invoiceItems, dto.InvoiceItems{
 							AccountID: account.Data[0].ID,
 							Account: dto.DropdownSimple{
@@ -268,7 +270,7 @@ func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, e
 								Title: account.Data[0].SerialNumber + " " + account.Data[0].Title,
 							},
 							TotalPrice:  amount,
-							RemainPrice: math.Round(remainAccountMap[accountID]*100) / 100,
+							RemainPrice: remainAmount,
 						})
 						break
 					}

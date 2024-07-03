@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/graphql-go/graphql"
+	"github.com/shopspring/decimal"
 )
 
 func (r *Resolver) SpendingDynamicInsert(params graphql.ResolveParams) (interface{}, error) {
@@ -245,8 +246,36 @@ func buildTreeRecursively(accountID int, parent *dto.SpendingDynamicDTO, account
 }
 
 func calculateSums(node *dto.SpendingDynamicDTO) {
+	if len(node.Children) > 0 {
+		node.January.Value = decimal.NewFromInt(0)
+		node.January.Savings = decimal.NewFromInt(0)
+		node.February.Value = decimal.NewFromInt(0)
+		node.February.Savings = decimal.NewFromInt(0)
+		node.March.Value = decimal.NewFromInt(0)
+		node.March.Savings = decimal.NewFromInt(0)
+		node.April.Value = decimal.NewFromInt(0)
+		node.April.Savings = decimal.NewFromInt(0)
+		node.May.Value = decimal.NewFromInt(0)
+		node.May.Savings = decimal.NewFromInt(0)
+		node.June.Value = decimal.NewFromInt(0)
+		node.June.Savings = decimal.NewFromInt(0)
+		node.July.Value = decimal.NewFromInt(0)
+		node.July.Savings = decimal.NewFromInt(0)
+		node.August.Value = decimal.NewFromInt(0)
+		node.August.Savings = decimal.NewFromInt(0)
+		node.September.Value = decimal.NewFromInt(0)
+		node.September.Savings = decimal.NewFromInt(0)
+		node.October.Value = decimal.NewFromInt(0)
+		node.October.Savings = decimal.NewFromInt(0)
+		node.November.Value = decimal.NewFromInt(0)
+		node.November.Savings = decimal.NewFromInt(0)
+		node.December.Value = decimal.NewFromInt(0)
+		node.December.Savings = decimal.NewFromInt(0)
+		node.Actual = decimal.NewFromInt(0)
+	}
 	for _, child := range node.Children {
 		calculateSums(child)
+
 		node.January.Value = node.January.Value.Add(child.January.Value)
 		node.January.Savings = node.January.Savings.Add(child.January.Savings)
 		node.February.Value = node.February.Value.Add(child.February.Value)
@@ -273,6 +302,8 @@ func calculateSums(node *dto.SpendingDynamicDTO) {
 		node.December.Savings = node.December.Savings.Add(child.December.Savings)
 		node.Actual = node.Actual.Add(child.Actual)
 	}
+
+	// Nakon što rekurzija završi za svu decu, izračunavamo ukupne uštede za roditeljski čvor
 	node.TotalSavings = node.January.Savings.Add(node.February.Savings).Add(node.March.Savings).Add(node.April.Savings).
 		Add(node.May.Savings).Add(node.June.Savings).Add(node.July.Savings).Add(node.August.Savings).
 		Add(node.September.Savings).Add(node.October.Savings).Add(node.November.Savings).Add(node.December.Savings)

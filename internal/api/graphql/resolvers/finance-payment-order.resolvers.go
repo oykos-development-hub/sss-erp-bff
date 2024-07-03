@@ -119,6 +119,10 @@ func (r *Resolver) PaymentOrderInsertResolver(params graphql.ResolveParams) (int
 
 	var item *structs.PaymentOrder
 
+	if len(data.Items) == 1 {
+		data.Items[0].Amount = data.Amount
+	}
+
 	if data.ID == 0 {
 		item, err = r.Repo.CreatePaymentOrder(params.Context, &data)
 		if err != nil {

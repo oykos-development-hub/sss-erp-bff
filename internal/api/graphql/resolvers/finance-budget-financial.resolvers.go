@@ -322,6 +322,21 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 	for _, data := range items {
 		itemID := data.ID
 		data.BudgetRequestID = requestID
+
+		var accounts []int
+		accounts = append(accounts, data.AccountID)
+		item, err := r.Repo.GetFilledFinancialBudgetList(&dto.FilledFinancialBudgetInputMS{
+			BudgetRequestID: data.BudgetRequestID,
+			Accounts:        accounts,
+		})
+
+		if err != nil {
+			return errors.HandleAPPError(err)
+		}
+		if len(item) > 0 {
+			itemID = item[0].ID
+		}
+
 		if itemID != 0 {
 			item, err := r.Repo.UpdateFilledFinancialBudget(params.Context, itemID, &data)
 			if err != nil {

@@ -14,5 +14,6 @@ type CurrentBudget struct {
 	InitialActual decimal.Decimal `json:"initial_actual"`
 	Actual        decimal.Decimal `json:"actual"`
 	Balance       decimal.Decimal `json:"balance"`
+	CurrentAmount decimal.Decimal `json:"current_amount"`
 	CreatedAt     time.Time       `json:"created_at"`
 }

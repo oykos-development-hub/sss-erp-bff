@@ -1055,6 +1055,7 @@ func buildCurrentBudget(r *Resolver, accountVersion int, currentBudgetItems []st
 				InititalActual: budget.InitialActual,
 				Actual:         budget.Actual,
 				Balance:        budget.Balance,
+				CurrentAmount:  budget.CurrentAmount,
 				BudgetID:       budget.BudgetID,
 			}
 		}

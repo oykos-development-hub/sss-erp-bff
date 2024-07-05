@@ -612,6 +612,9 @@ var CurrentBudgetAccountType = graphql.NewObject(graphql.ObjectConfig{
 		"balance": &graphql.Field{
 			Type: decimalType,
 		},
+		"current_amount": &graphql.Field{
+			Type: decimalType,
+		},
 		"initial_actual": &graphql.Field{
 			Type: decimalType,
 		},

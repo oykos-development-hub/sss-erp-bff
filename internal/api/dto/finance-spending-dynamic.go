@@ -42,6 +42,7 @@ type SpendingDynamicDTO struct {
 	UnitID              int                   `json:"unit_id"`
 	CurrentBudgetID     int                   `json:"current_budget_id"`
 	Actual              decimal.Decimal       `json:"actual"`
+	CurrentAmount       decimal.Decimal       `json:"current_amount"`
 	Username            string                `json:"username"`
 	January             MonthEntry            `json:"january"`
 	February            MonthEntry            `json:"february"`

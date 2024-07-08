@@ -77,6 +77,9 @@ func initSpendingDynamicType() {
 				"actual": &graphql.Field{
 					Type: graphql.String,
 				},
+				"current_amount": &graphql.Field{
+					Type: graphql.String,
+				},
 				"username": &graphql.Field{
 					Type: graphql.String,
 				},
@@ -230,6 +233,9 @@ var SpendingDynamicItemType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.Int,
 		},
 		"actual": &graphql.Field{
+			Type: graphql.String,
+		},
+		"current_amount": &graphql.Field{
 			Type: graphql.String,
 		},
 		"username": &graphql.Field{

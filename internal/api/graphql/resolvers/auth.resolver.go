@@ -60,11 +60,29 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 
 	employeesInOrganizationUnit, _ := r.Repo.GetEmployeesInOrganizationUnitsByProfileID(userProfile.ID)
 	if employeesInOrganizationUnit != nil {
-		jobPositionInOrganizationUnit, _ := r.Repo.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
+		jobPositionInOrganizationUnit, err := r.Repo.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 
-		jobPosition, _ = r.Repo.GetJobPositionByID(jobPositionInOrganizationUnit.JobPositionID)
-		systematization, _ := r.Repo.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
-		organizationUnit, _ = r.Repo.GetOrganizationUnitByID(systematization.OrganizationUnitID)
+		if err != nil {
+			return apierrors.HandleAPPError(err)
+		}
+
+		jobPosition, err = r.Repo.GetJobPositionByID(jobPositionInOrganizationUnit.JobPositionID)
+
+		if err != nil {
+			return apierrors.HandleAPPError(err)
+		}
+
+		systematization, err := r.Repo.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
+
+		if err != nil {
+			return apierrors.HandleAPPError(err)
+		}
+
+		organizationUnit, err = r.Repo.GetOrganizationUnitByID(systematization.OrganizationUnitID)
+
+		if err != nil {
+			return apierrors.HandleAPPError(err)
+		}
 	}
 
 	var organizationUnitList []dto.OrganizationUnitsOverviewResponse

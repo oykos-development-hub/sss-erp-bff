@@ -350,6 +350,10 @@ type MicroserviceRepositoryInterface interface {
 	GetSpendingReleaseList(ctx context.Context, input *dto.GetSpendingReleaseListInput) ([]structs.SpendingRelease, error)
 	DeleteSpendingRelease(ctx context.Context, input *dto.DeleteSpendingReleaseInput) error
 
+	CreateSpendingReleaseRequest(ctx context.Context, spendingRelease structs.SpendingReleaseRequest) error
+	GetSpendingReleaseRequests(filter dto.SpendingReleaseOverviewRequestFilter) ([]structs.SpendingReleaseRequest, error)
+	SpendingReleaseAcceptSSS(id int, fileID int) error
+
 	CreateCurrentBudget(ctx context.Context, currentBudget *structs.CurrentBudget) (*structs.CurrentBudget, error)
 	GetCurrentBudgetUnitList(ctx context.Context) ([]int, error)
 

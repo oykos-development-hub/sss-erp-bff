@@ -347,8 +347,43 @@ func (f *Field) SpendingReleaseOverviewField() *graphql.Field {
 				Type:         graphql.Int,
 				DefaultValue: 0,
 			},
+			"status": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"hide": &graphql.ArgumentConfig{
+				Type:         graphql.Boolean,
+				DefaultValue: false,
+			},
 		},
 		Resolve: f.Resolvers.SpendingReleaseOverview,
+	}
+}
+func (f *Field) SpendingReleaseRequestInsertField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.SpendingReleaseListType,
+		Description: "Creates new spending releases",
+		Args: graphql.FieldConfigArgument{
+			"file_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.SpendingReleaseRequestInsert,
+	}
+}
+
+func (f *Field) SpendingReleaseAcceptSSSField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.SpendingReleaseListType,
+		Description: "Creates new spending releases",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"file_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.SpendingReleaseAcceptSSS,
 	}
 }
 

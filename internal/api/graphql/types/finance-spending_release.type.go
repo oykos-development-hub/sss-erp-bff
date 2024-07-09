@@ -73,6 +73,15 @@ var SpendingReleaseOverviwItemType = graphql.NewObject(graphql.ObjectConfig{
 		"created_at": &graphql.Field{
 			Type: graphql.DateTime,
 		},
+		"sss_file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
+		"organization_unit_file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })
 

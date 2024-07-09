@@ -64,3 +64,37 @@ func (repo *MicroserviceRepository) DeleteSpendingRelease(ctx context.Context, i
 
 	return nil
 }
+
+func (repo *MicroserviceRepository) CreateSpendingReleaseRequest(ctx context.Context, spendingRelease structs.SpendingReleaseRequest) error {
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.SpendingReleaseRequest, spendingRelease, nil, nil)
+	if err != nil {
+		return errors.Wrap(err, "make api request")
+	}
+
+	return nil
+}
+
+func (repo *MicroserviceRepository) GetSpendingReleaseRequests(filter dto.SpendingReleaseOverviewRequestFilter) ([]structs.SpendingReleaseRequest, error) {
+	res := dto.GetSpendingReleaseRequestListResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.SpendingReleaseRequest, filter, &res)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return res.Data, nil
+}
+
+func (repo *MicroserviceRepository) SpendingReleaseAcceptSSS(id int, fileID int) error {
+
+	item := structs.SpendingReleaseRequest{
+		SSSFileID: fileID,
+	}
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Finance.AcceptSpendingReleaseRequest+"/"+strconv.Itoa(id), item, nil, nil)
+	if err != nil {
+		return errors.Wrap(err, "make api request")
+	}
+
+	return nil
+}

@@ -135,6 +135,8 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"spendingDynamic_Insert":                          fields.SpendingDynamicInsertField(),
 			"spendingRelease_Insert":                          fields.SpendingReleaseInsertField(),
 			"spendingRelease_Delete":                          fields.SpendingReleaseDeleteField(),
+			"spendingReleaseRequest_Insert":                   fields.SpendingReleaseRequestInsertField(),
+			"spendingReleaseAcceptSSS":                        fields.SpendingReleaseAcceptSSSField(),
 			"invoice_Insert":                                  fields.InvoiceInsertField(),
 			"invoice_Delete":                                  fields.InvoiceDeleteField(),
 			"taxAuthorityCodebooks_Insert":                    fields.TaxAuthorityCodebooksInsertField(),

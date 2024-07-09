@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/graphql-go/graphql"
+	"github.com/shopspring/decimal"
 )
 
 func (r *Resolver) SpendingReleaseInsert(params graphql.ResolveParams) (interface{}, error) {
@@ -60,6 +61,60 @@ func (r *Resolver) SpendingReleaseInsert(params graphql.ResolveParams) (interfac
 	}, nil
 }
 
+func (r *Resolver) SpendingReleaseRequestInsert(params graphql.ResolveParams) (interface{}, error) {
+	fileID := params.Args["file_id"].(int)
+
+	var data structs.SpendingReleaseRequest
+	data.OrganizationUnitFileID = fileID
+
+	loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+	if !ok {
+		return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
+	}
+
+	data.OrganizationUnitID = *loggedInOrganizationUnitID
+
+	currentYear := time.Now().Year()
+	//TODO: after planning budget is done on FE, add status filter Done
+	budget, err := r.Repo.GetBudgetList(&dto.GetBudgetListInputMS{
+		Year: &currentYear,
+	})
+	if err != nil {
+		return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting budget for current year"))
+	}
+	if len(budget) != 1 {
+		return errors.HandleAPPError(errors.NewBadRequestError("Budget for current year not found"))
+	}
+
+	data.Year = currentYear
+	data.Month = int(time.Now().Month())
+
+	err = r.Repo.CreateSpendingReleaseRequest(params.Context, data)
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "You created this item!",
+	}, nil
+}
+
+func (r *Resolver) SpendingReleaseAcceptSSS(params graphql.ResolveParams) (interface{}, error) {
+	fileID := params.Args["file_id"].(int)
+	id := params.Args["id"].(int)
+
+	err := r.Repo.SpendingReleaseAcceptSSS(id, fileID)
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "You accepted this item!",
+	}, nil
+}
+
 func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interface{}, error) {
 	budgetID := params.Args["budget_id"].(int)
 	unitID := params.Args["unit_id"].(int)
@@ -105,6 +160,118 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
 			}
 		}
+	}
+
+	status, statusOK := params.Args["status"].(string)
+
+	requestFilter := dto.SpendingReleaseOverviewRequestFilter{
+		OrganizationUnitID: loggedInOrganizationUnitID,
+	}
+
+	if statusOK && status != "" {
+		requestFilter.Status = &status
+	}
+
+	spendingReleaseRequests, err := r.Repo.GetSpendingReleaseRequests(requestFilter)
+
+	if err != nil {
+		var apiErr *errors.APIError
+		if goerrors.As(err, &apiErr) {
+			if apiErr.StatusCode != 404 {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending release requests"))
+			}
+		}
+	}
+
+	for _, item := range spendingReleaseRequests {
+		found := false
+		for i := 0; i < len(spendingReleaseOverview); i++ {
+			if item.Month == spendingReleaseOverview[i].Month && item.Year == spendingReleaseOverview[i].Year {
+				if item.SSSFileID != 0 {
+					file, err := r.Repo.GetFileByID(item.SSSFileID)
+
+					if err != nil {
+						return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+					}
+
+					spendingReleaseOverview[i].SSSFile = dto.FileDropdownSimple{
+						ID:   file.ID,
+						Name: file.Name,
+						Type: *file.Type,
+					}
+				}
+
+				if item.OrganizationUnitFileID != 0 {
+					file, err := r.Repo.GetFileByID(item.OrganizationUnitFileID)
+
+					if err != nil {
+						return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+					}
+
+					spendingReleaseOverview[i].OrganizationUnitFile = dto.FileDropdownSimple{
+						ID:   file.ID,
+						Name: file.Name,
+						Type: *file.Type,
+					}
+				}
+
+				spendingReleaseOverview[i].Status = item.Status
+				found = true
+			}
+		}
+
+		if !found {
+			var SSSFile dto.FileDropdownSimple
+			var OUFile dto.FileDropdownSimple
+			if item.SSSFileID != 0 {
+				file, err := r.Repo.GetFileByID(item.SSSFileID)
+
+				if err != nil {
+					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+				}
+
+				SSSFile = dto.FileDropdownSimple{
+					ID:   file.ID,
+					Name: file.Name,
+					Type: *file.Type,
+				}
+			}
+
+			if item.OrganizationUnitFileID != 0 {
+				file, err := r.Repo.GetFileByID(item.OrganizationUnitFileID)
+
+				if err != nil {
+					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+				}
+
+				OUFile = dto.FileDropdownSimple{
+					ID:   file.ID,
+					Name: file.Name,
+					Type: *file.Type,
+				}
+			}
+
+			spendingReleaseOverview = append(spendingReleaseOverview, dto.SpendingReleaseOverviewItem{
+				Month:                item.Month,
+				Year:                 item.Year,
+				Value:                decimal.NewFromInt(0),
+				Status:               item.Status,
+				OrganizationUnitFile: OUFile,
+				SSSFile:              SSSFile,
+			})
+		}
+	}
+
+	hide := params.Args["hide"].(bool)
+
+	if hide && statusOK && status != "" {
+		var responseItems []dto.SpendingReleaseOverviewItem
+		for _, item := range spendingReleaseOverview {
+			if item.Status == status {
+				responseItems = append(responseItems, item)
+			}
+		}
+		spendingReleaseOverview = responseItems
 	}
 
 	return dto.Response{

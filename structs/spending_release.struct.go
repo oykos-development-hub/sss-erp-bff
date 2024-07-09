@@ -13,6 +13,15 @@ type SpendingReleaseInsert struct {
 	Username  string          `json:"username"`
 }
 
+type SpendingReleaseRequest struct {
+	Year                   int    `json:"year"`
+	Month                  int    `json:"month"`
+	OrganizationUnitID     int    `json:"organization_unit_id"`
+	OrganizationUnitFileID int    `json:"organization_unit_file_id"`
+	SSSFileID              int    `json:"sss_file_id"`
+	Status                 string `json:"status"`
+}
+
 type SpendingRelease struct {
 	ID              int             `json:"id"`
 	CurrentBudgetID int             `json:"current_budget_id"`

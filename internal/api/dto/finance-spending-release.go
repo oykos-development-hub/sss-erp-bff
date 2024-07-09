@@ -15,6 +15,10 @@ type GetSpendingReleaseListResponseMS struct {
 	Data []structs.SpendingRelease `json:"data"`
 }
 
+type GetSpendingReleaseRequestListResponseMS struct {
+	Data []structs.SpendingReleaseRequest `json:"data"`
+}
+
 type GetSpendingReleaseListInput struct {
 	Year     int `json:"year"`
 	Month    int `json:"month"`
@@ -36,15 +40,23 @@ type SpendingReleaseOverviewFilterDTO struct {
 	UnitID   int `json:"unit_id" validate:"required"`
 }
 
+type SpendingReleaseOverviewRequestFilter struct {
+	OrganizationUnitID *int    `json:"organization_unit_id"`
+	Status             *string `json:"status"`
+}
+
 type GetSpendingReleaseOverviewResponseMS struct {
 	Data []SpendingReleaseOverviewItem `json:"data"`
 }
 
 type SpendingReleaseOverviewItem struct {
-	Month     int             `json:"month"`
-	Year      int             `json:"year"`
-	CreatedAt time.Time       `json:"created_at"`
-	Value     decimal.Decimal `json:"value"`
+	Month                int                `json:"month"`
+	Year                 int                `json:"year"`
+	CreatedAt            time.Time          `json:"created_at"`
+	Value                decimal.Decimal    `json:"value"`
+	OrganizationUnitFile FileDropdownSimple `json:"organization_unit_file"`
+	SSSFile              FileDropdownSimple `json:"sss_file"`
+	Status               string             `json:"status"`
 }
 
 type SpendingReleaseDTO struct {

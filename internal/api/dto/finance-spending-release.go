@@ -26,6 +26,7 @@ type DeleteSpendingReleaseInput struct {
 	Month    int `json:"month"`
 	UnitID   int `json:"unit_id"`
 	BudgetID int `json:"budget_id"`
+	Year     int `json:"year"`
 }
 
 type SpendingReleaseOverviewFilterDTO struct {

@@ -147,6 +147,7 @@ func (r *Resolver) SpendingReleaseDelete(params graphql.ResolveParams) (interfac
 	}
 
 	input.BudgetID = budget[0].ID
+	input.Year = currentYear
 
 	err = r.Repo.DeleteSpendingRelease(params.Context, input)
 	if err != nil {

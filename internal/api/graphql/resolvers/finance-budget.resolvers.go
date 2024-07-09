@@ -755,6 +755,18 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 	unitRequestsList := make([]dto.BudgetRequestOfficialOverview, 0, len(requests))
 	totalOnReview := 0
 
+	limits, err := r.Repo.GetBudgetLimits(budgetID)
+
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
+
+	mapLimits := make(map[int]decimal.Decimal)
+
+	for _, limit := range limits {
+		mapLimits[limit.OrganizationUnitID] = decimal.NewFromInt(int64(limit.Limit))
+	}
+
 	for _, request := range requests {
 		var receiveDate *time.Time
 
@@ -825,6 +837,8 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 
 			resItem.Total = total
 		}
+
+		resItem.Limit = mapLimits[resItem.Unit.ID]
 
 		unitRequestsList = append(unitRequestsList, resItem)
 	}

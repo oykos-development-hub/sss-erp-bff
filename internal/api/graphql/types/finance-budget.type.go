@@ -513,6 +513,9 @@ var OfficialBudgetRequestType = graphql.NewObject(graphql.ObjectConfig{
 		"total": &graphql.Field{
 			Type: graphql.String,
 		},
+		"limit": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })
 

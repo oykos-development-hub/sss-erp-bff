@@ -111,6 +111,14 @@ type ImportSalaries struct {
 	Data              []structs.SalaryAdditionalExpense `json:"data"`
 }
 
+type ImportSAP struct {
+	Status     string                 `json:"status"`
+	Message    string                 `json:"message"`
+	Error      string                 `json:"error"`
+	Validation []ValidationResponse   `json:"validation"`
+	Data       []structs.PaymentOrder `json:"data"`
+}
+
 type ImportUserProfileVacation struct {
 	UserProfileID int `json:"user_profile_id"`
 	NumberOfDays  int `json:"number_of_days"`

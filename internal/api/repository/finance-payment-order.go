@@ -47,6 +47,16 @@ func (repo *MicroserviceRepository) GetPaymentOrderByID(id int) (*structs.Paymen
 	return &res.Data, nil
 }
 
+func (repo *MicroserviceRepository) GetPaymentOrderByIDOfStatement(id int) (*structs.PaymentOrder, error) {
+	res := &dto.GetPaymentOrderResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.GetPaymentOrderByIDOfStatement+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return &res.Data, nil
+}
+
 func (repo *MicroserviceRepository) GetPaymentOrderList(filter dto.PaymentOrderFilter) ([]structs.PaymentOrder, int, error) {
 	res := &dto.GetPaymentOrderListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.PaymentOrder, filter, res)

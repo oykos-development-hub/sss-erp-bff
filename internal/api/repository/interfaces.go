@@ -483,6 +483,7 @@ type MicroserviceRepositoryInterface interface {
 	DeletePaymentOrder(ctx context.Context, id int) error
 	UpdatePaymentOrder(ctx context.Context, item *structs.PaymentOrder) (*structs.PaymentOrder, error)
 	GetPaymentOrderByID(id int) (*structs.PaymentOrder, error)
+	GetPaymentOrderByIDOfStatement(id int) (*structs.PaymentOrder, error)
 	GetPaymentOrderList(input dto.PaymentOrderFilter) ([]structs.PaymentOrder, int, error)
 	GetAllObligations(input dto.ObligationsFilter) ([]dto.Obligation, int, error)
 	PayPaymentOrder(ctx context.Context, input structs.PaymentOrder) error

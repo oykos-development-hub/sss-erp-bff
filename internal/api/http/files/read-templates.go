@@ -2168,3 +2168,108 @@ func (h *Handler) ImportSuspensionsHandler(w http.ResponseWriter, r *http.Reques
 	response.Message = "File was read successfuly"
 	_ = MarshalAndWriteJSON(w, response)
 }
+
+func (h *Handler) ImportSAPHandler(w http.ResponseWriter, r *http.Request) {
+	var response ImportSAP
+
+	xlsFile, err := openExcelFile(r)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	sheetMap := xlsFile.GetSheetMap()
+
+	for _, sheetName := range sheetMap {
+
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := 0
+
+		for rows.Next() {
+			rowindex++
+			if rowindex < 2 {
+				continue
+			}
+
+			cols := rows.Columns()
+
+			paymentOrder := structs.PaymentOrder{}
+			var SAPID string
+			var DateOfSAP time.Time
+			//var err error
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				switch cellIndex {
+				case 0:
+					SAPID = value
+				case 6:
+					if value != "" {
+						date, err := parseDate(value)
+
+						if err != nil {
+							responseMessage := ValidationResponse{
+								Column:  6,
+								Row:     rowindex,
+								Message: "Datum nije ispravno unijet!",
+							}
+							response.Validation = append(response.Validation, responseMessage)
+						} else {
+							DateOfSAP = date
+						}
+					}
+				case 14:
+					if value != "" {
+						idOfStatement, err := strconv.Atoi(value)
+						if err != nil {
+							responseMessage := ValidationResponse{
+								Column:  14,
+								Row:     rowindex,
+								Message: "ID naloga nije ispravno unijet!",
+							}
+							response.Validation = append(response.Validation, responseMessage)
+						} else {
+							item, err := h.Repo.GetPaymentOrderByIDOfStatement(idOfStatement)
+
+							if err != nil || item.ID == 0 {
+								responseMessage := ValidationResponse{
+									Column:  14,
+									Row:     rowindex,
+									Message: "Nalog sa zadatim ID-em ne postoji!",
+								}
+								response.Validation = append(response.Validation, responseMessage)
+							} else {
+								paymentOrder = *item
+							}
+						}
+					}
+				}
+			}
+
+			paymentOrder.SAPID = &SAPID
+			paymentOrder.DateOfSAP = &DateOfSAP
+			if paymentOrder.SAPID != nil && paymentOrder.DateOfSAP != nil && paymentOrder.ID != 0 {
+				response.Data = append(response.Data, paymentOrder)
+			}
+		}
+	}
+
+	if len(response.Validation) == 0 {
+		for _, item := range response.Data {
+			_, err := h.Repo.UpdatePaymentOrder(r.Context(), &item)
+
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+
+	response.Message = "File was read successfuly"
+	_ = MarshalAndWriteJSON(w, response)
+}

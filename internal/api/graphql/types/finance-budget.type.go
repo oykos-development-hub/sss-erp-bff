@@ -585,6 +585,9 @@ var CurrentBudgetType = graphql.NewObject(graphql.ObjectConfig{
 		"current_accounts": &graphql.Field{
 			Type: graphql.NewList(GetCurrentBudgetAccounts()),
 		},
+		"donation_accounts": &graphql.Field{
+			Type: graphql.NewList(GetCurrentBudgetAccounts()),
+		},
 		"budget_id": &graphql.Field{
 			Type: graphql.Int,
 		},

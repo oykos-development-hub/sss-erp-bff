@@ -65,5 +65,9 @@ var FinancialBudgetFillActualMutation = graphql.NewInputObject(graphql.InputObje
 		"actual": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.Float),
 		},
+		"type": &graphql.InputObjectFieldConfig{
+			Type:         graphql.Int,
+			DefaultValue: 1,
+		},
 	},
 })

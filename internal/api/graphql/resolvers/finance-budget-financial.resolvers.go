@@ -458,7 +458,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 	var resItemList []dto.FilledFinancialBudgetResItem
 
 	for _, data := range items {
-		_, err := r.Repo.FillActualFinancialBudget(params.Context, data.ID, data.Actual, requestID)
+		_, err := r.Repo.FillActualFinancialBudget(params.Context, data.ID, data.Actual, data.Type, requestID)
 		if err != nil {
 			return errors.HandleAPPError(err)
 		}

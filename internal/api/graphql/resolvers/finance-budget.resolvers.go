@@ -979,6 +979,7 @@ func (r *Resolver) CurrentBudgetOverviewResolver(params graphql.ResolveParams) (
 	organizationUnitID, _ := params.Args["organization_unit_id"].(int)
 
 	var items []*dto.CurrentBudgetAccounts
+	var donationItems []*dto.CurrentBudgetAccounts
 
 	currentBudgetItems, err := r.Repo.GetCurrentBudgetByOrganizationUnit(organizationUnitID)
 	if err != nil {
@@ -1001,11 +1002,18 @@ func (r *Resolver) CurrentBudgetOverviewResolver(params graphql.ResolveParams) (
 		if err != nil {
 			return errors.HandleAPPError(err)
 		}
+
+		donationItems, err = buildDonationBudget(r, accountVersion, currentBudgetItems)
+
+		if err != nil {
+			return errors.HandleAPPError(err)
+		}
 	}
 
 	response := dto.CurrentBudgetAccountsResponse{
-		CurrentAccounts: items,
-		Version:         accountVersion,
+		CurrentAccounts:  items,
+		DonationAccounts: donationItems,
+		Version:          accountVersion,
 	}
 
 	if len(currentBudgetItems) > 0 && currentBudgetItems[0].BudgetID != 0 {
@@ -1064,7 +1072,56 @@ func buildCurrentBudget(r *Resolver, accountVersion int, currentBudgetItems []st
 
 	// Popunjavanje mape
 	for _, budget := range currentBudgetItems {
-		if accountNode, exists := accountMap[budget.AccountID]; exists {
+		if accountNode, exists := accountMap[budget.AccountID]; exists && budget.Type == 1 {
+			accountNode.FilledFinanceBudget = dto.CurrentBudgetResponse{
+				InititalActual: budget.InitialActual,
+				Actual:         budget.Actual,
+				Balance:        budget.Balance,
+				CurrentAmount:  budget.CurrentAmount,
+				BudgetID:       budget.BudgetID,
+			}
+		}
+	}
+
+	// Kreiranje stabla
+	var rootNodes []*dto.CurrentBudgetAccounts
+	for _, account := range accounts.Data {
+		if account.ParentID == nil {
+			rootNodes = append(rootNodes, accountMap[account.ID])
+		} else if parentAccount, exists := accountMap[*account.ParentID]; exists {
+			parentAccount.Children = append(parentAccount.Children, accountMap[account.ID])
+		}
+	}
+
+	return rootNodes, nil
+}
+
+func buildDonationBudget(r *Resolver, accountVersion int, currentBudgetItems []structs.CurrentBudget) ([]*dto.CurrentBudgetAccounts, error) {
+
+	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+		Version: &accountVersion,
+	})
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get account items")
+	}
+
+	accountMap := make(map[int]*dto.CurrentBudgetAccounts)
+
+	// Inicijalizacija mape konta
+	for _, account := range accounts.Data {
+		accountMap[account.ID] = &dto.CurrentBudgetAccounts{
+			ID:           account.ID,
+			Title:        account.Title,
+			ParentID:     account.ParentID,
+			SerialNumber: account.SerialNumber,
+			Children:     []*dto.CurrentBudgetAccounts{},
+		}
+	}
+
+	// Popunjavanje mape
+	for _, budget := range currentBudgetItems {
+		if accountNode, exists := accountMap[budget.AccountID]; exists && budget.Type == 2 {
 			accountNode.FilledFinanceBudget = dto.CurrentBudgetResponse{
 				InititalActual: budget.InitialActual,
 				Actual:         budget.Actual,

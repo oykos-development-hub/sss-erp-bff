@@ -220,8 +220,8 @@ func (repo *MicroserviceRepository) UpdateFilledFinancialBudget(ctx context.Cont
 }
 
 // prosledjuje se accountID i budget request ID
-func (repo *MicroserviceRepository) FillActualFinancialBudget(ctx context.Context, id int, actual decimal.Decimal, requestID int) (*structs.FilledFinanceBudget, error) {
-	data := &dto.FillActualFinanceBudgetInput{Actual: actual}
+func (repo *MicroserviceRepository) FillActualFinancialBudget(ctx context.Context, id int, actual decimal.Decimal, Type int, requestID int) (*structs.FilledFinanceBudget, error) {
+	data := &dto.FillActualFinanceBudgetInput{Actual: actual, Type: Type}
 	res := &dto.GetFilledFinancialBudgetResponseItemMS{}
 
 	header := make(map[string]string)

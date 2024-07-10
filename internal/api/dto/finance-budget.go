@@ -188,6 +188,7 @@ type CreateBudget struct {
 type FillActualFinanceBudgetInput struct {
 	ID     int             `json:"id"`
 	Actual decimal.Decimal `json:"actual"`
+	Type   int             `json:"type"`
 }
 
 type GetFilledFinancialBudgetResponseItemMS struct {
@@ -221,10 +222,11 @@ type CurrentBudgetAccounts struct {
 }
 
 type CurrentBudgetAccountsResponse struct {
-	CurrentAccounts []*CurrentBudgetAccounts `json:"current_accounts"`
-	BudgetID        int                      `json:"budget_id"`
-	Version         int                      `json:"version"`
-	Units           []DropdownOUSimple       `json:"units"`
+	CurrentAccounts  []*CurrentBudgetAccounts `json:"current_accounts"`
+	DonationAccounts []*CurrentBudgetAccounts `json:"donation_accounts"`
+	BudgetID         int                      `json:"budget_id"`
+	Version          int                      `json:"version"`
+	Units            []DropdownOUSimple       `json:"units"`
 }
 
 type FilledFinancialBudgetInputMS struct {
@@ -291,5 +293,6 @@ type CurrentBudgetResponse struct {
 	Actual         decimal.Decimal `json:"actual"`
 	Balance        decimal.Decimal `json:"balance"`
 	CurrentAmount  decimal.Decimal `json:"current_amount"`
+	Type           int             `json:"type"`
 	CreatedAt      time.Time       `json:"created_at"`
 }

@@ -54,6 +54,9 @@ func (f *Field) ErrorLogsOverviewField() *graphql.Field {
 			"entity": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 			"date_of_start": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},

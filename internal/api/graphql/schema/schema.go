@@ -334,6 +334,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"internalReallocations_Overview":                             fields.InternalReallocationOverviewField(),
 			"externalReallocations_Overview":                             fields.ExternalReallocationOverviewField(),
 			"logs_Overview":                                              fields.LogsOverviewField(),
+			"errorLogs_Overview":                                         fields.ErrorLogsOverviewField(),
 		},
 	})
 	schemaConfig := graphql.SchemaConfig{

@@ -23,6 +23,7 @@ func (r *Resolver) PublicProcurementPlanItemArticleInsertResolver(params graphql
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -33,10 +34,12 @@ func (r *Resolver) PublicProcurementPlanItemArticleInsertResolver(params graphql
 		if itemID != 0 {
 			res, err := r.Repo.UpdateProcurementArticle(itemID, &item)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			item, err := buildProcurementArticleResponseItem(params.Context, r.Repo, res, nil)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -44,10 +47,12 @@ func (r *Resolver) PublicProcurementPlanItemArticleInsertResolver(params graphql
 		} else {
 			res, err := r.Repo.CreateProcurementArticle(&item)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			item, err := buildProcurementArticleResponseItem(params.Context, r.Repo, res, nil)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			items = append(items, item)
@@ -63,6 +68,7 @@ func (r *Resolver) PublicProcurementPlanItemArticleDeleteResolver(params graphql
 
 	err := r.Repo.DeleteProcurementArticle(itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

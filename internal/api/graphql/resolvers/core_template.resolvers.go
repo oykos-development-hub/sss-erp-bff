@@ -38,6 +38,7 @@ func (r *Resolver) TemplateResolver(params graphql.ResolveParams) (interface{}, 
 
 	res, total, err := r.Repo.GetTemplateList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -46,6 +47,7 @@ func (r *Resolver) TemplateResolver(params graphql.ResolveParams) (interface{}, 
 	for _, item := range res {
 		responseItem, err := r.buildTemplateResponse(item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -72,6 +74,7 @@ func (r *Resolver) TemplateInsertResolver(params graphql.ResolveParams) (interfa
 
 	err := r.Repo.CreateTemplate(params.Context, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	response.Message = "You created this item!"
@@ -92,6 +95,7 @@ func (r *Resolver) TemplateUpdateResolver(params graphql.ResolveParams) (interfa
 
 	err := r.Repo.UpdateTemplate(params.Context, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	response.Message = "You updated this item!"
@@ -112,6 +116,7 @@ func (r *Resolver) TemplateItemUpdateResolver(params graphql.ResolveParams) (int
 
 	err := r.Repo.UpdateTemplateItem(params.Context, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	response.Message = "You updated this item!"
@@ -125,6 +130,7 @@ func (r *Resolver) TemplateDeleteResolver(params graphql.ResolveParams) (interfa
 
 	err := r.Repo.DeleteTemplate(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

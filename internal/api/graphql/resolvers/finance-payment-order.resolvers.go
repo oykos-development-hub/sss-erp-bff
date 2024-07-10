@@ -16,10 +16,12 @@ func (r *Resolver) PaymentOrderOverviewResolver(params graphql.ResolveParams) (i
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		PaymentOrder, err := r.Repo.GetPaymentOrderByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildPaymentOrder(*PaymentOrder, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -68,6 +70,7 @@ func (r *Resolver) PaymentOrderOverviewResolver(params graphql.ResolveParams) (i
 
 	items, total, err := r.Repo.GetPaymentOrderList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -76,6 +79,7 @@ func (r *Resolver) PaymentOrderOverviewResolver(params graphql.ResolveParams) (i
 		resItem, err := buildPaymentOrder(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -99,10 +103,12 @@ func (r *Resolver) PaymentOrderInsertResolver(params graphql.ResolveParams) (int
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -126,11 +132,13 @@ func (r *Resolver) PaymentOrderInsertResolver(params graphql.ResolveParams) (int
 	if data.ID == 0 {
 		item, err = r.Repo.CreatePaymentOrder(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdatePaymentOrder(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -138,6 +146,7 @@ func (r *Resolver) PaymentOrderInsertResolver(params graphql.ResolveParams) (int
 
 	singleItem, err := buildPaymentOrder(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -151,6 +160,7 @@ func (r *Resolver) PaymentOrderDeleteResolver(params graphql.ResolveParams) (int
 
 	err := r.Repo.DeletePaymentOrder(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -177,12 +187,14 @@ func (r *Resolver) ObligationsOverviewResolver(params graphql.ResolveParams) (in
 
 	items, total, err := r.Repo.GetAllObligations(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	responseItems, err := r.buildObligations(items)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -292,6 +304,7 @@ func (r *Resolver) PayOrderResolver(params graphql.ResolveParams) (interface{}, 
 	dateOfSAP, err := parseDate(DateOfSAP)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -303,6 +316,7 @@ func (r *Resolver) PayOrderResolver(params graphql.ResolveParams) (interface{}, 
 
 	err = r.Repo.PayPaymentOrder(params.Context, paymentOrder)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -317,6 +331,7 @@ func (r *Resolver) CancelOrderResolver(params graphql.ResolveParams) (interface{
 
 	err := r.Repo.CancelPaymentOrder(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

@@ -162,22 +162,26 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	_, err = r.upsertNonFinancialBudget(params.Context, data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	request, err := r.Repo.GetBudgetRequest(data.RequestID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	request.Status = structs.BudgetRequestFilledStatus
 	_, err = r.Repo.UpdateBudgetRequest(params.Context, request)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -185,6 +189,7 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 		ParentID: request.ParentID,
 	})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -198,17 +203,20 @@ func (r *Resolver) NonFinancialBudgetInsertResolver(params graphql.ResolveParams
 	if allFilled {
 		generalRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		generalRequest.Status = structs.BudgetRequestFilledStatus
 		_, err = r.Repo.UpdateBudgetRequest(params.Context, generalRequest)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
 
 	resItem, err := r.buildNonFinancialBudgetDetails(params.Context, request)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -226,21 +234,25 @@ func (r *Resolver) NonFinancialBudgetUpdateResolver(params graphql.ResolveParams
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	_, err = r.upsertNonFinancialBudget(params.Context, data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	request, err := r.Repo.GetBudgetRequest(data.RequestID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	resItem, err := r.buildNonFinancialBudgetDetails(params.Context, request)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -391,6 +403,7 @@ func (r *Resolver) NonFinancialGoalInsertResolver(params graphql.ResolveParams) 
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -399,11 +412,13 @@ func (r *Resolver) NonFinancialGoalInsertResolver(params graphql.ResolveParams) 
 	if itemID != 0 {
 		item, err := r.Repo.UpdateNonFinancialGoal(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildGoalRequestResItem(r.Repo, *item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -412,11 +427,13 @@ func (r *Resolver) NonFinancialGoalInsertResolver(params graphql.ResolveParams) 
 	} else {
 		item, err := r.Repo.CreateNonFinancialGoal(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildGoalRequestResItem(r.Repo, *item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -436,6 +453,7 @@ func (r *Resolver) NonFinancialGoalIndicatorInsertResolver(params graphql.Resolv
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -444,11 +462,13 @@ func (r *Resolver) NonFinancialGoalIndicatorInsertResolver(params graphql.Resolv
 	if itemID != 0 {
 		item, err := r.Repo.UpdateNonFinancialGoalIndicator(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildGoalIndicatorRequestResItem(*item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -457,11 +477,13 @@ func (r *Resolver) NonFinancialGoalIndicatorInsertResolver(params graphql.Resolv
 	} else {
 		item, err := r.Repo.CreateNonFinancialGoalIndicator(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildGoalIndicatorRequestResItem(*item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 

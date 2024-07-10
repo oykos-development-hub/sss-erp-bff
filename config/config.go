@@ -133,6 +133,7 @@ type FinanceMS struct {
 	RejectSSSExternalReallocation            string
 	GetCurrentBudgetByOrganizationUnit       string
 	Logs                                     string
+	ErrorLogs                                string
 }
 
 type ProcurementMS struct {
@@ -146,6 +147,7 @@ type ProcurementMS struct {
 	ContractArticleOverage  string
 	OrganizationUnitArticle string
 	Logs                    string
+	ErrorLogs               string
 }
 
 type CoreMS struct {
@@ -168,6 +170,8 @@ type CoreMS struct {
 	Logs           string
 	Templates      string
 	TemplateItems  string
+	ErrorLogs      string
+	BffErrorLogs   string
 }
 
 type HrMS struct {
@@ -206,6 +210,7 @@ type HrMS struct {
 	RevisionRevisors                string
 	RevisionOrgUnit                 string
 	Logs                            string
+	ErrorLogs                       string
 }
 
 type AccountingMS struct {
@@ -218,6 +223,7 @@ type AccountingMS struct {
 	MovementArticles         string
 	Stock                    string
 	Logs                     string
+	ErrorLogs                string
 }
 
 type InventoryMS struct {
@@ -230,6 +236,7 @@ type InventoryMS struct {
 	ItemsInOrgUnit string
 	ItemsReport    string
 	Logs           string
+	ErrorLogs      string
 }
 
 type FilesMS struct {
@@ -238,6 +245,7 @@ type FilesMS struct {
 	FilesMultipleDelete string
 	FilesDownload       string
 	FilesOverview       string
+	ErrorLogs           string
 }
 
 func getEnvString(key string, defaultValue string) string {
@@ -329,6 +337,7 @@ func LoadDefaultConfig() (*Config, error) {
 				RevisionRevisors:                hrBase + "/revision-revisors",
 				RevisionOrgUnit:                 hrBase + "/revisions-in-organization-units",
 				Logs:                            hrBase + "/logs",
+				ErrorLogs:                       hrBase + "/error-logs",
 			},
 			Core: CoreMS{
 				Base:           coreBase,
@@ -350,6 +359,8 @@ func LoadDefaultConfig() (*Config, error) {
 				Logs:           coreBase + "/logs",
 				Templates:      coreBase + "/templates",
 				TemplateItems:  coreBase + "/template-items",
+				ErrorLogs:      coreBase + "/error-logs",
+				BffErrorLogs:   coreBase + "/bff-error-logs",
 			},
 			Procurements: ProcurementMS{
 				Base:                    procurementsBase,
@@ -362,6 +373,7 @@ func LoadDefaultConfig() (*Config, error) {
 				OrganizationUnitArticle: procurementsBase + "/organization-unit-articles",
 				ContractArticleOverage:  procurementsBase + "/contract-article-overages",
 				Logs:                    procurementsBase + "/logs",
+				ErrorLogs:               procurementsBase + "/error-logs",
 			},
 			Inventory: InventoryMS{
 				Base:           inventoryBase,
@@ -373,6 +385,7 @@ func LoadDefaultConfig() (*Config, error) {
 				ItemsInOrgUnit: inventoryBase + "/items-in-organization-unit",
 				ItemsReport:    inventoryBase + "/items-for-item-list-report",
 				Logs:           inventoryBase + "/logs",
+				ErrorLogs:      inventoryBase + "/error-logs",
 			},
 			Files: FilesMS{
 				Base:                filesBase,
@@ -380,6 +393,7 @@ func LoadDefaultConfig() (*Config, error) {
 				FilesDownload:       filesBase + "/file-overview",
 				FilesOverview:       filesBase + "/download",
 				FilesMultipleDelete: filesBase + "/files/batch-delete",
+				ErrorLogs:           filesBase + "/error-logs",
 			},
 			Accounting: AccountingMS{
 				Base:                     accountingBase,
@@ -391,6 +405,7 @@ func LoadDefaultConfig() (*Config, error) {
 				MovementArticles:         accountingBase + "/movement-articles",
 				Stock:                    accountingBase + "/stocks",
 				Logs:                     accountingBase + "/logs",
+				ErrorLogs:                accountingBase + "/error-logs",
 			},
 			Finance: FinanceMS{
 				Base:                                     financeBase,
@@ -468,6 +483,7 @@ func LoadDefaultConfig() (*Config, error) {
 				RejectSSSExternalReallocation:            financeBase + "/reject-sss-external-reallocations",
 				GetCurrentBudgetByOrganizationUnit:       financeBase + "/get-actual-current-budget",
 				Logs:                                     financeBase + "/logs",
+				ErrorLogs:                                financeBase + "/error-logs",
 			},
 		},
 		Frontend: FrontendConfig{

@@ -144,11 +144,13 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 	if id != nil && id != 0 {
 		orderList, err := r.Repo.GetOrderListByID(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		orderListItem, err := buildOrderListResponseItem(params.Context, r.Repo, orderList)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = []dto.OrderListOverviewResponse{*orderListItem}
@@ -157,6 +159,7 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 		inputPlans := dto.GetProcurementPlansInput{}
 		plans, err := r.Repo.GetProcurementPlanList(&inputPlans)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		currentYear := time.Now().Year()
@@ -172,6 +175,7 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 							inputOrderList.PublicProcurementID = &procurement.ID
 							orderLists, err := r.Repo.GetOrderLists(&inputOrderList)
 							if err != nil {
+								_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 								return errors.HandleAPPError(err)
 							}
 							for _, orderList := range orderLists.Data {
@@ -180,6 +184,7 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 								}
 								orderListItem, err := buildOrderListResponseItem(params.Context, r.Repo, &orderList)
 								if err != nil {
+									_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 									return errors.HandleAPPError(err)
 								}
 
@@ -241,11 +246,13 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 
 		orderLists, err := r.Repo.GetOrderLists(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		for _, orderList := range orderLists.Data {
 			orderListItem, err := buildOrderListResponseItem(params.Context, r.Repo, &orderList)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			items = append(items, *orderListItem)
@@ -274,6 +281,7 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -281,28 +289,33 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 
 	listInsertItem, err := buildOrderListInsertItem(params.Context, r.Repo, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	if itemID != 0 {
 		res, err := r.Repo.UpdateOrderListItem(params.Context, itemID, listInsertItem)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		if len(data.Articles) > 0 {
 			err := deleteOrderArticles(r.Repo, itemID)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			err = r.Repo.CreateOrderListProcurementArticles(res.ID, data)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
 
 		item, err = buildOrderListResponseItem(params.Context, r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -313,16 +326,19 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 		listInsertItem.IsUsed = false
 		res, err := r.Repo.CreateOrderListItem(params.Context, listInsertItem)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		err = r.Repo.CreateOrderListProcurementArticles(res.ID, data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		item, err = buildOrderListResponseItem(params.Context, r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -339,18 +355,21 @@ func (r *Resolver) PassOrderListToFinance(params graphql.ResolveParams) (interfa
 	orderListBE, err := r.Repo.GetOrderListByID(id)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	orderList, err := buildOrderListResponseItem(params.Context, r.Repo, orderListBE)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	err = r.Repo.SendOrderListToFinance(params.Context, id)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -393,6 +412,7 @@ func (r *Resolver) PassOrderListToFinance(params graphql.ResolveParams) (interfa
 
 	insertedItem, err := r.Repo.CreateInvoice(params.Context, &invoice)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -411,6 +431,7 @@ func (r *Resolver) PassOrderListToFinance(params graphql.ResolveParams) (interfa
 		_, err = r.Repo.CreateInvoiceArticle(&invoiceArticle)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -449,6 +470,7 @@ func (r *Resolver) OrderProcurementAvailableResolver(params graphql.ResolveParam
 
 	articles, err := GetProcurementArticles(ctx, r.Repo, publicProcurementID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -458,6 +480,7 @@ func (r *Resolver) OrderProcurementAvailableResolver(params graphql.ResolveParam
 		}
 		processedArticle, err := ProcessOrderArticleItem(r.Repo, item, organizationUnitID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -624,6 +647,7 @@ func (r *Resolver) RecipientUsersResolver(params graphql.ResolveParams) (interfa
 
 	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, *organizationUnitID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	for _, employee := range employees {
@@ -698,6 +722,7 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 	orderList, err := r.Repo.GetOrderListByID(itemID)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -705,6 +730,7 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 		err := r.Repo.DeleteFile(*orderList.OrderFile)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -713,6 +739,7 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 		if fileID != 0 {
 			err := r.Repo.DeleteFile(fileID)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -722,12 +749,14 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 		err := r.Repo.DeleteFile(*orderList.MovementFile)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
 
 	err = deleteOrderArticles(r.Repo, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -736,6 +765,7 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 	})
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -743,12 +773,14 @@ func (r *Resolver) OrderListDeleteResolver(params graphql.ResolveParams) (interf
 		err = r.Repo.DeleteInvoice(params.Context, invoice[0].ID)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
 
 	err = r.Repo.DeleteOrderList(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -765,6 +797,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 
 	orderList, err := r.Repo.GetOrderListByID(data.OrderID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -794,6 +827,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				orderArticle, err := r.Repo.GetOrderProcurementArticleByID(article.ID)
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 
@@ -803,6 +837,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				_, err = r.Repo.UpdateOrderProcurementArticle(orderArticle)
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 
@@ -817,6 +852,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				err = r.Repo.AddOnStock(stock, *orderArticle, *organizationUnitID)
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -826,6 +862,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 			})
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -833,12 +870,14 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				currentArticle, err := r.Repo.GetProcurementArticle(orderArticle.ArticleID)
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 
 				vatPercentageInt, err := strconv.Atoi(currentArticle.VatPercentage)
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 
@@ -849,6 +888,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				})
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 
@@ -860,6 +900,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				err = r.Repo.AddOnStock(stockArticle, orderArticle, *organizationUnitID)
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -868,6 +909,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 
 	_, err = r.Repo.UpdateOrderListItem(params.Context, data.OrderID, orderList)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -876,6 +918,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 	})
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -884,6 +927,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 			invoices[0].InvoiceNumber = *data.InvoiceNumber
 			dateOfInvoice, err := parseDate(*data.InvoiceDate)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			invoices[0].DateOfInvoice = &dateOfInvoice
@@ -894,6 +938,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 
 			_, err = r.Repo.UpdateInvoice(params.Context, &invoices[0])
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -910,6 +955,7 @@ func (r *Resolver) OrderListReceiveDeleteResolver(params graphql.ResolveParams) 
 
 	orderList, err := r.Repo.GetOrderListByID(id)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -917,6 +963,7 @@ func (r *Resolver) OrderListReceiveDeleteResolver(params graphql.ResolveParams) 
 		err := r.Repo.DeleteFile(*orderList.MovementFile)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -924,6 +971,7 @@ func (r *Resolver) OrderListReceiveDeleteResolver(params graphql.ResolveParams) 
 	for _, fileID := range orderList.ReceiveFile {
 		err := r.Repo.DeleteFile(fileID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -940,6 +988,7 @@ func (r *Resolver) OrderListReceiveDeleteResolver(params graphql.ResolveParams) 
 
 	_, err = r.Repo.UpdateOrderListItem(params.Context, id, orderList)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

@@ -13,10 +13,12 @@ func (r *Resolver) ModelsOfAccountingOverviewResolver(params graphql.ResolvePara
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		ModelsOfAccounting, err := r.Repo.GetModelsOfAccountingByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildModelsOfAccounting(*ModelsOfAccounting, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -36,6 +38,7 @@ func (r *Resolver) ModelsOfAccountingOverviewResolver(params graphql.ResolvePara
 
 	items, total, err := r.Repo.GetModelsOfAccountingList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -44,6 +47,7 @@ func (r *Resolver) ModelsOfAccountingOverviewResolver(params graphql.ResolvePara
 		resItem, err := buildModelsOfAccounting(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -67,10 +71,12 @@ func (r *Resolver) ModelsOfAccountingUpdateResolver(params graphql.ResolveParams
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -78,11 +84,13 @@ func (r *Resolver) ModelsOfAccountingUpdateResolver(params graphql.ResolveParams
 
 	item, err = r.Repo.UpdateModelsOfAccounting(params.Context, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	singleItem, err := buildModelsOfAccounting(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

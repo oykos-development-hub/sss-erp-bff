@@ -15,10 +15,12 @@ func (r *Resolver) DepositPaymentOverviewResolver(params graphql.ResolveParams) 
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		DepositPayment, err := r.Repo.GetDepositPaymentByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildDepositPayment(*DepositPayment, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -55,6 +57,7 @@ func (r *Resolver) DepositPaymentOverviewResolver(params graphql.ResolveParams) 
 
 	items, total, err := r.Repo.GetDepositPaymentList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -63,6 +66,7 @@ func (r *Resolver) DepositPaymentOverviewResolver(params graphql.ResolveParams) 
 		resItem, err := buildDepositPayment(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -84,6 +88,7 @@ func (r *Resolver) GetInitialStateOverviewResolver(params graphql.ResolveParams)
 		date, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -110,6 +115,7 @@ func (r *Resolver) GetInitialStateOverviewResolver(params graphql.ResolveParams)
 	if input.TransitionalBankAccount != nil && input.OrganizationUnitID != nil {
 		items, err = r.Repo.GetInitialState(input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -117,6 +123,7 @@ func (r *Resolver) GetInitialStateOverviewResolver(params graphql.ResolveParams)
 	} else if input.BankAccount != nil {
 		items, err = r.Repo.GetInitialState(input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -124,12 +131,14 @@ func (r *Resolver) GetInitialStateOverviewResolver(params graphql.ResolveParams)
 	} else if input.OrganizationUnitID != nil && input.BankAccount == nil {
 		orgUnit, err := r.Repo.GetOrganizationUnitByID(*input.OrganizationUnitID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		for _, bankAccount := range orgUnit.BankAccounts {
 			input.BankAccount = &bankAccount
 			items, err = r.Repo.GetInitialState(input)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -154,10 +163,12 @@ func (r *Resolver) DepositPaymentInsertResolver(params graphql.ResolveParams) (i
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -177,11 +188,13 @@ func (r *Resolver) DepositPaymentInsertResolver(params graphql.ResolveParams) (i
 	if data.ID == 0 {
 		item, err = r.Repo.CreateDepositPayment(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateDepositPayment(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -189,6 +202,7 @@ func (r *Resolver) DepositPaymentInsertResolver(params graphql.ResolveParams) (i
 
 	singleItem, err := buildDepositPayment(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -203,6 +217,7 @@ func (r *Resolver) DepositPaymentCaseNumberResolver(params graphql.ResolveParams
 
 	res, err := r.Repo.GetDepositPaymentCaseNumber(caseNumber, bankAccount)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -219,6 +234,7 @@ func (r *Resolver) DepositCaseNumberResolver(params graphql.ResolveParams) (inte
 
 	res, err := r.Repo.GetCaseNumber(organizationUnitID, bankAccount)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

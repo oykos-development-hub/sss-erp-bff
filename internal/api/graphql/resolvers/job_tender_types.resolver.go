@@ -17,6 +17,7 @@ func (r *Resolver) JobTenderTypesResolver(params graphql.ResolveParams) (interfa
 	if id != nil && id != 0 {
 		tenderType, err := r.Repo.GetTenderType(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = append(items, tenderType)
@@ -28,6 +29,7 @@ func (r *Resolver) JobTenderTypesResolver(params graphql.ResolveParams) (interfa
 		}
 		tenderTypes, err := r.Repo.GetTenderTypeList(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = tenderTypes
@@ -53,6 +55,7 @@ func (r *Resolver) JobTenderTypeInsertResolver(params graphql.ResolveParams) (in
 	if itemID != 0 {
 		res, err := r.Repo.UpdateJobTenderType(itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -61,6 +64,7 @@ func (r *Resolver) JobTenderTypeInsertResolver(params graphql.ResolveParams) (in
 	} else {
 		res, err := r.Repo.CreateJobTenderType(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -76,6 +80,7 @@ func (r *Resolver) JobTenderTypeDeleteResolver(params graphql.ResolveParams) (in
 
 	err := r.Repo.DeleteJobTenderType(itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

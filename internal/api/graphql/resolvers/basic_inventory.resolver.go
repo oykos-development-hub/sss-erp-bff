@@ -88,6 +88,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 	basicInventoryData, err := r.Repo.GetAllInventoryItem(filter)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -96,6 +97,7 @@ func (r *Resolver) BasicInventoryOverviewResolver(params graphql.ResolveParams) 
 
 		items = append(items, resItem)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -119,12 +121,14 @@ func (r *Resolver) BasicInventoryDetailsResolver(params graphql.ResolveParams) (
 	Item, err := r.Repo.GetInventoryItem(id)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	items, err := buildInventoryItemResponse(r.Repo, Item, *organizationUnitID)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -153,12 +157,14 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	responseItem, err := r.Repo.CheckInsertInventoryData(data)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -177,6 +183,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
 			itemRes, err := r.Repo.UpdateInventoryItem(params.Context, item.ID, &item)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			response.Message = "You updated this item/s!"
@@ -184,6 +191,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 			items, err := buildInventoryItemResponse(r.Repo, itemRes, 0)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -193,6 +201,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 			item.OrganizationUnitID = *organizationUnitID
 			itemRes, err := r.Repo.CreateInventoryItem(params.Context, &item)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			if item.ContractID > 0 && item.ContractArticleID > 0 {
@@ -207,6 +216,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 					article.UsedArticles++
 					_, err := r.Repo.UpdateProcurementContractArticle(article.ID, article)
 					if err != nil {
+						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 						return errors.HandleAPPError(err)
 					}
 				}
@@ -215,12 +225,14 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 			depreciationType, err := r.Repo.GetDropdownSettingByID(item.DepreciationTypeID)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
 			value, err := strconv.Atoi(depreciationType.Value)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -247,6 +259,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 
 			_, err = r.Repo.CreateAssessments(params.Context, &assessment)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -261,6 +274,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 
 			_, err = r.Repo.CreateDispatchItem(params.Context, &dispatch)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -268,6 +282,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 			items, err := buildInventoryItemResponse(r.Repo, itemRes, 0)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			responseItemList = append(responseItemList, items)
@@ -301,6 +316,7 @@ func (r *Resolver) InvoicesForInventoryOverview(params graphql.ResolveParams) (i
 	})
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -316,6 +332,7 @@ func (r *Resolver) InvoicesForInventoryOverview(params graphql.ResolveParams) (i
 			})
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -353,6 +370,7 @@ func (r *Resolver) BasicInventoryDeactivateResolver(params graphql.ResolveParams
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		item, err := r.Repo.GetInventoryItem(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item.Active = false
@@ -370,6 +388,7 @@ func (r *Resolver) BasicInventoryDeactivateResolver(params graphql.ResolveParams
 
 		_, err = r.Repo.UpdateInventoryItem(params.Context, id, item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You Deactivate this item!"

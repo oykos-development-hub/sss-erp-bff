@@ -54,16 +54,19 @@ func (r *Resolver) AccountOverviewResolver(params graphql.ResolveParams) (interf
 
 	accounts, err := r.Repo.GetAccountItems(&accountFilters)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	accountResItemlist, err := buildAccountItemResponseItemList(accounts.Data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	if tree, ok := params.Args["tree"].(bool); ok && tree {
 		accountResItemlist, err = CreateTree(accountResItemlist)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -126,10 +129,12 @@ func (r *Resolver) AccountInsertResolver(params graphql.ResolveParams) (interfac
 
 	res, err := r.Repo.CreateAccountItemList(params.Context, data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	items, err := buildAccountItemResponseItemList(res)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	response.Items = items
@@ -143,6 +148,7 @@ func (r *Resolver) AccountDeleteResolver(params graphql.ResolveParams) (interfac
 
 	err := r.Repo.DeleteAccount(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

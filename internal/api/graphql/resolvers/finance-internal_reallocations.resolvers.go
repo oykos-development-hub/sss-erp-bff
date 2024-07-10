@@ -17,10 +17,12 @@ func (r *Resolver) InternalReallocationOverviewResolver(params graphql.ResolvePa
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		InternalReallocation, err := r.Repo.GetInternalReallocationByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildInternalReallocation(*InternalReallocation, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -61,6 +63,7 @@ func (r *Resolver) InternalReallocationOverviewResolver(params graphql.ResolvePa
 
 	items, total, err := r.Repo.GetInternalReallocationList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -69,6 +72,7 @@ func (r *Resolver) InternalReallocationOverviewResolver(params graphql.ResolvePa
 		resItem, err := buildInternalReallocation(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -92,10 +96,12 @@ func (r *Resolver) InternalReallocationInsertResolver(params graphql.ResolvePara
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -123,11 +129,13 @@ func (r *Resolver) InternalReallocationInsertResolver(params graphql.ResolvePara
 
 	item, err = r.Repo.CreateInternalReallocation(params.Context, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	singleItem, err := buildInternalReallocation(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -141,6 +149,7 @@ func (r *Resolver) InternalReallocationDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteInternalReallocation(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

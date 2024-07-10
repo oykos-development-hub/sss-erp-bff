@@ -22,6 +22,7 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 	articles, err := r.Repo.GetProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{ContractID: &contractID})
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -30,6 +31,7 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 			ArticleID: &article.PublicProcurementArticleID})
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		amount := 0
@@ -43,11 +45,13 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 
 		amount = amount - inventors.Total
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		articleData, err := r.Repo.GetProcurementArticle(article.PublicProcurementArticleID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -56,6 +60,7 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 		})
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -126,6 +131,7 @@ func (r *Resolver) PublicProcurementContractArticlesOverviewResolver(params grap
 
 	contractsRes, err := r.Repo.GetProcurementContractArticlesList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	total = contractsRes.Total
@@ -133,12 +139,14 @@ func (r *Resolver) PublicProcurementContractArticlesOverviewResolver(params grap
 	contract, err := r.Repo.GetProcurementContract(*input.ContractID)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	procurement, err := r.Repo.GetProcurementItem(contract.PublicProcurementID)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -149,6 +157,7 @@ func (r *Resolver) PublicProcurementContractArticlesOverviewResolver(params grap
 		}
 		resItem, err := buildProcurementContractArticlesResponseItem(ctx, r.Repo, contractArticle)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -163,6 +172,7 @@ func (r *Resolver) PublicProcurementContractArticlesOverviewResolver(params grap
 		orgUnitArticles, err := r.Repo.GetOrganizationUnitArticlesList(filter)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -199,6 +209,7 @@ func (r *Resolver) PublicProcurementContractArticleInsertResolver(params graphql
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -209,10 +220,12 @@ func (r *Resolver) PublicProcurementContractArticleInsertResolver(params graphql
 		if itemID != 0 {
 			res, err := r.Repo.UpdateProcurementContractArticle(itemID, &data)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			item, err := buildProcurementContractArticlesResponseItem(params.Context, r.Repo, res)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -221,10 +234,12 @@ func (r *Resolver) PublicProcurementContractArticleInsertResolver(params graphql
 		} else {
 			res, err := r.Repo.CreateProcurementContractArticle(&data)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			item, err := buildProcurementContractArticlesResponseItem(params.Context, r.Repo, res)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -246,6 +261,7 @@ func (r *Resolver) PublicProcurementContractArticleOverageInsertResolver(params 
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -254,6 +270,7 @@ func (r *Resolver) PublicProcurementContractArticleOverageInsertResolver(params 
 	if itemID != 0 {
 		res, err := r.Repo.UpdateProcurementContractArticleOverage(itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -262,6 +279,7 @@ func (r *Resolver) PublicProcurementContractArticleOverageInsertResolver(params 
 	} else {
 		res, err := r.Repo.CreateProcurementContractArticleOverage(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -277,6 +295,7 @@ func (r *Resolver) PublicProcurementContractArticleOverageDeleteResolver(params 
 
 	err := r.Repo.DeleteProcurementContractArticleOverage(itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

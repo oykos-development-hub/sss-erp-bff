@@ -31,6 +31,7 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
@@ -40,6 +41,7 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
@@ -47,6 +49,7 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 
 	items, total, err := r.Repo.GetAllObligationsForAccounting(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -55,6 +58,7 @@ func (r *Resolver) GetObligationsForAccountingResolver(params graphql.ResolvePar
 			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -97,6 +101,7 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
@@ -106,6 +111,7 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
@@ -113,6 +119,7 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 
 	items, total, err := r.Repo.GetAllPaymentOrdersForAccounting(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -121,6 +128,7 @@ func (r *Resolver) GetPaymentOrdersForAccountingResolver(params graphql.ResolveP
 			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -163,6 +171,7 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
@@ -172,6 +181,7 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
@@ -179,6 +189,7 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 
 	items, total, err := r.Repo.GetAllEnforcedPaymentsForAccounting(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -187,6 +198,7 @@ func (r *Resolver) GetEnforcedPaymentsForAccountingResolver(params graphql.Resol
 			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -229,6 +241,7 @@ func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graph
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
@@ -238,6 +251,7 @@ func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graph
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
@@ -245,6 +259,7 @@ func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graph
 
 	items, total, err := r.Repo.GetAllReturnedEnforcedPaymentsForAccounting(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -253,6 +268,7 @@ func (r *Resolver) GetReturnedEnforcedPaymentsForAccountingResolver(params graph
 			supplier, err := r.Repo.GetSupplier(*items[i].SupplierID)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -289,15 +305,18 @@ func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.Res
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	items, err := r.Repo.BuildAccountingOrderForObligations(data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -310,6 +329,7 @@ func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.Res
 	orgUnit, err := r.Repo.GetOrganizationUnitByID(data.OrganizationUnitID)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -327,6 +347,7 @@ func (r *Resolver) BuildAccountingOrderForObligationsResolver(params graphql.Res
 		builtItem.ID = id + 1
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -342,10 +363,12 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		AccountingEntry, err := r.Repo.GetAccountingEntryByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildAccountingEntry(*AccountingEntry, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -380,6 +403,7 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
@@ -389,6 +413,7 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
@@ -396,6 +421,7 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 
 	items, total, err := r.Repo.GetAccountingEntryList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -404,6 +430,7 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		resItem, err := buildAccountingEntry(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -436,10 +463,12 @@ func (r *Resolver) AccountingEntryInsertResolver(params graphql.ResolveParams) (
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -458,11 +487,13 @@ func (r *Resolver) AccountingEntryInsertResolver(params graphql.ResolveParams) (
 
 	item, err = r.Repo.CreateAccountingEntry(params.Context, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	singleItem, err := buildAccountingEntry(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -503,6 +534,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfStart = &dateOfStart
@@ -512,6 +544,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfEnd = &dateOfEnd
@@ -521,6 +554,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		dateOfStart, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfStartBooking = &dateOfStart
@@ -530,6 +564,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		dateOfEnd, err := parseDate(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		input.DateOfEndBooking = &dateOfEnd
@@ -539,6 +574,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		account, err := r.Repo.GetAccountItemByID(value)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -547,6 +583,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		})
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -559,6 +596,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 				})
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 
@@ -571,6 +609,7 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 
 	items, err := r.Repo.GetAnalyticalCard(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -588,12 +627,14 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 
 	response, err := buildAnalyticalCardResponse(items, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	orgUnitID, err := r.Repo.GetOrganizationUnitByID(input.OrganizationUnitID)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

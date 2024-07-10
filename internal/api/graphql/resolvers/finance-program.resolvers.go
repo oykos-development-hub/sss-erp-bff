@@ -80,6 +80,7 @@ func (r *Resolver) ProgramOverviewResolver(params graphql.ResolveParams) (interf
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		program, err := r.Repo.GetProgram(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -101,11 +102,13 @@ func (r *Resolver) ProgramOverviewResolver(params graphql.ResolveParams) (interf
 
 	programs, err := r.Repo.GetProgramList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	programResItem, err := buildProgramResItemList(r.Repo, programs)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -155,6 +158,7 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -163,11 +167,13 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 	if itemID != 0 {
 		item, err := r.Repo.UpdateProgram(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildProgramResItem(r.Repo, *item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -176,11 +182,13 @@ func (r *Resolver) ProgramInsertResolver(params graphql.ResolveParams) (interfac
 	} else {
 		item, err := r.Repo.CreateProgram(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildProgramResItem(r.Repo, *item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -196,6 +204,7 @@ func (r *Resolver) ProgramDeleteResolver(params graphql.ResolveParams) (interfac
 
 	err := r.Repo.DeleteProgram(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

@@ -48,15 +48,18 @@ func (r *Resolver) BudgetAccountOverviewResolver(params graphql.ResolveParams) (
 
 	accounts, err := r.Repo.GetAccountItems(&accountFilters)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	accountResItemlist, err := buildAccountItemResponseItemList(accounts.Data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	accountsTree, err := CreateTree(accountResItemlist)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	// for _, account := range accountsTree {

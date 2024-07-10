@@ -28,10 +28,12 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 	if id != nil && id != 0 {
 		systematization, err := r.Repo.GetSystematizationByID(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		systematizationResItem, err := buildSystematizationOverviewResponse(r.Repo, systematization)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = []dto.SystematizationOverviewResponse{systematizationResItem}
@@ -67,11 +69,13 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 
 		systematizationsResponse, err := r.Repo.GetSystematizations(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		for _, systematization := range systematizationsResponse.Data {
 			systematizationResItem, err := buildSystematizationOverviewResponse(r.Repo, &systematization)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			if loggedInUserAccount.RoleID != structs.UserRoleAdmin &&
@@ -96,10 +100,12 @@ func (r *Resolver) SystematizationResolver(params graphql.ResolveParams) (interf
 	id := params.Args["id"]
 	systematization, err := r.Repo.GetSystematizationByID(id.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	systematizationResItem, err := buildSystematizationOverviewResponse(r.Repo, systematization)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -124,11 +130,13 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 	if itemID != 0 {
 		systematization, err = r.Repo.UpdateSystematization(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		systematization, err = r.Repo.CreateSystematization(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -144,6 +152,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 	}
 	organizationUnitsResponse, err := r.Repo.GetOrganizationUnits(&inputOrganizationUnits)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	if (itemID == 0) && len(systematizationsActiveResponse.Data) > 0 {
@@ -154,6 +163,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 			}
 			jobPositionsInOrganizationUnits, err := r.Repo.GetJobPositionsInOrganizationUnits(&input)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
@@ -180,6 +190,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 						}
 						_, err := r.Repo.CreateEmployeesInOrganizationUnits(input)
 						if err != nil {
+							_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 							return errors.HandleAPPError(err)
 						}
 					}
@@ -204,6 +215,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 	systematizationResItem, err := buildSystematizationOverviewResponse(r.Repo, systematization)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -219,6 +231,7 @@ func (r *Resolver) SystematizationDeleteResolver(params graphql.ResolveParams) (
 
 	err := r.Repo.DeleteSystematization(params.Context, itemID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

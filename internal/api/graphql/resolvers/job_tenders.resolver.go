@@ -26,6 +26,7 @@ func (r *Resolver) JobTenderResolver(params graphql.ResolveParams) (interface{},
 	if id != nil && id != 0 {
 		jobTender, err := r.Repo.GetJobTender(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resItem, _ := buildJobTenderResponse(r.Repo, jobTender)
@@ -40,6 +41,7 @@ func (r *Resolver) JobTenderResolver(params graphql.ResolveParams) (interface{},
 	}
 	jobTenders, err := r.Repo.GetJobTenderList()
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	total = len(jobTenders)
@@ -48,6 +50,7 @@ func (r *Resolver) JobTenderResolver(params graphql.ResolveParams) (interface{},
 
 		resItem, err := buildJobTenderResponse(r.Repo, jobTender)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -253,10 +256,12 @@ func (r *Resolver) JobTenderInsertResolver(params graphql.ResolveParams) (interf
 	if itemID != 0 {
 		res, err := r.Repo.UpdateJobTender(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildJobTenderResponse(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = item
@@ -264,10 +269,12 @@ func (r *Resolver) JobTenderInsertResolver(params graphql.ResolveParams) (interf
 	} else {
 		res, err := r.Repo.CreateJobTender(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildJobTenderResponse(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = item
@@ -282,6 +289,7 @@ func (r *Resolver) JobTenderDeleteResolver(params graphql.ResolveParams) (interf
 
 	err := r.Repo.DeleteJobTender(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -302,6 +310,7 @@ func (r *Resolver) JobTenderApplicationsResolver(params graphql.ResolveParams) (
 	if id != nil && id != 0 {
 		tenderApplication, err := r.Repo.GetTenderApplication(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resItem, _ := buildJobTenderApplicationResponse(r.Repo, tenderApplication)
@@ -329,6 +338,7 @@ func (r *Resolver) JobTenderApplicationsResolver(params graphql.ResolveParams) (
 
 	tenderApplications, err := r.Repo.GetTenderApplicationList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -336,6 +346,7 @@ func (r *Resolver) JobTenderApplicationsResolver(params graphql.ResolveParams) (
 	for _, jobTender := range tenderApplications.Data {
 		resItem, err := buildJobTenderApplicationResponse(r.Repo, jobTender)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -372,6 +383,7 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 	if data.UserProfileID != nil {
 		userProfile, err := r.Repo.GetUserProfileByID(*data.UserProfileID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		data.FirstName = userProfile.FirstName
@@ -388,11 +400,13 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 
 		res, err := r.Repo.UpdateJobTenderApplication(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		item, err := buildJobTenderApplicationResponse(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -401,11 +415,13 @@ func (r *Resolver) JobTenderApplicationInsertResolver(params graphql.ResolvePara
 	} else {
 		res, err := r.Repo.CreateJobTenderApplication(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		item, err := buildJobTenderApplicationResponse(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -421,6 +437,7 @@ func (r *Resolver) JobTenderApplicationDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteJobTenderApplication(itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

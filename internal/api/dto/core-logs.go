@@ -31,6 +31,16 @@ type LogFilterDTO struct {
 	Module      config.Module `json:"module"`
 }
 
+type ErrorLogFilterDTO struct {
+	Page        *int          `json:"page"`
+	Size        *int          `json:"size"`
+	SortByTitle *string       `json:"sort_by_title"`
+	Entity      *string       `json:"entity"`
+	DateOfStart *time.Time    `json:"date_of_start"`
+	DateOfEnd   *time.Time    `json:"date_of_end"`
+	Module      config.Module `json:"module"`
+}
+
 type GetLogResponseListMS struct {
 	Data  []structs.Logs `json:"data"`
 	Total int            `json:"total"`
@@ -38,4 +48,13 @@ type GetLogResponseListMS struct {
 
 type GetLogResponseMS struct {
 	Data structs.Logs `json:"data"`
+}
+
+type GetErrorLogResponseListMS struct {
+	Data  []structs.ErrorLogs `json:"data"`
+	Total int                 `json:"total"`
+}
+
+type GetErrorLogResponseMS struct {
+	Data structs.ErrorLogs `json:"data"`
 }

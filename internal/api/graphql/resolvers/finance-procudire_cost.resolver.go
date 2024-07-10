@@ -18,10 +18,12 @@ func (r *Resolver) ProcedureCostInsertResolver(params graphql.ResolveParams) (in
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -30,16 +32,19 @@ func (r *Resolver) ProcedureCostInsertResolver(params graphql.ResolveParams) (in
 	if data.ID == 0 {
 		item, err = r.Repo.CreateProcedureCost(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateProcedureCost(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
 	procedurecostResItem, err := buildProcedureCostResponseItem(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	response.Item = procedurecostResItem
@@ -51,10 +56,12 @@ func (r *Resolver) ProcedureCostOverviewResolver(params graphql.ResolveParams) (
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		procedurecost, err := r.Repo.GetProcedureCost(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		procedurecostResItem, err := buildProcedureCostResponseItem(*procedurecost, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -89,11 +96,13 @@ func (r *Resolver) ProcedureCostOverviewResolver(params graphql.ResolveParams) (
 
 	procedurecosts, total, err := r.Repo.GetProcedureCostList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	procedurecostResItem, err := buildProcedureCostResponseItemList(procedurecosts, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -110,6 +119,7 @@ func (r *Resolver) ProcedureCostDeleteResolver(params graphql.ResolveParams) (in
 
 	err := r.Repo.DeleteProcedureCost(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

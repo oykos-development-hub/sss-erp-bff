@@ -56,6 +56,7 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 	resolution, err := r.Repo.GetJudgeResolutionList(&input)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -68,6 +69,7 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 	judges, total, err := r.Repo.GetJudgeResolutionOrganizationUnit(&filter)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -82,6 +84,7 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 	for _, judge := range judges {
 		judgeUser, err := buildJudgeResponseItem(r.Repo, judge.UserProfileID, judge.OrganizationUnitID, judge.IsPresident, normYear)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		responseItems = append(responseItems, judgeUser)
@@ -211,6 +214,7 @@ func (r *Resolver) JudgeNormInsertResolver(params graphql.ResolveParams) (interf
 	if itemID != 0 {
 		res, err := r.Repo.UpdateJudgeNorm(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = res
@@ -218,6 +222,7 @@ func (r *Resolver) JudgeNormInsertResolver(params graphql.ResolveParams) (interf
 	} else {
 		res, err := r.Repo.CreateJudgeNorm(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = res
@@ -232,6 +237,7 @@ func (r *Resolver) JudgeNormDeleteResolver(params graphql.ResolveParams) (interf
 
 	err := r.Repo.DeleteJudgeNorm(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -255,6 +261,7 @@ func (r *Resolver) JudgeResolutionsResolver(params graphql.ResolveParams) (inter
 	if id != nil && id.(int) > 0 {
 		resolution, err := r.Repo.GetJudgeResolution(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -265,6 +272,7 @@ func (r *Resolver) JudgeResolutionsResolver(params graphql.ResolveParams) (inter
 		input.Size = &size
 		resolutions, err := r.Repo.GetJudgeResolutionList(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resolutionList = append(resolutionList, resolutions.Data...)
@@ -272,6 +280,7 @@ func (r *Resolver) JudgeResolutionsResolver(params graphql.ResolveParams) (inter
 
 	resolutionResponseList, err := processResolutions(r.Repo, resolutionList)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -297,12 +306,14 @@ func (r *Resolver) JudgeResolutionsActiveResolver(params graphql.ResolveParams) 
 	input.Size = &size
 	resolutions, err := r.Repo.GetJudgeResolutionList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	for _, res := range resolutions.Data {
 		if res.Active {
 			resolutionResponseItem, err := processJudgeResolution(r.Repo, res)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			item = *resolutionResponseItem
@@ -541,6 +552,7 @@ func (r *Resolver) OrganizationUintCalculateEmployeeStats(params graphql.Resolve
 
 		numberOfJudgesInOU, numberOfPresidents, numberOfEmployees, numberOfRelocations, err := calculateEmployeeStats(r.Repo, organizationUnit.ID, resolutionID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -653,11 +665,13 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 		}
 		resolution, err = r.Repo.UpdateJudgeResolutions(params.Context, itemID, &judgeResolution)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		updatedItems, err := insertOrUpdateResolutionItemList(r.Repo, data.Items, resolution.ID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resolution.Items = updatedItems
@@ -670,6 +684,7 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 		}
 		resolution, err = r.Repo.CreateJudgeResolutions(params.Context, &judgeResolution)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -677,6 +692,7 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 
 		resolutions, err := r.Repo.GetJudgeResolutionList(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -688,7 +704,8 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 				}
 				_, err = r.Repo.UpdateJudgeResolutions(res.ID, &judgeResolution)
 				if err != nil {
-					return errors.HandleAPPError(err)
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
 				}
 		*/
 		oldResID := resolution.ID - 1
@@ -696,6 +713,7 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 			ResolutionID: &oldResID,
 		})
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -709,6 +727,7 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 				}
 				_, err := r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 				//		}
@@ -719,6 +738,7 @@ func (r *Resolver) JudgeResolutionInsertResolver(params graphql.ResolveParams) (
 
 		updatedItems, err := insertOrUpdateResolutionItemList(r.Repo, data.Items, resolution.ID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -767,6 +787,7 @@ func (r *Resolver) JudgeResolutionDeleteResolver(params graphql.ResolveParams) (
 
 	err := r.Repo.DeleteJudgeResolution(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

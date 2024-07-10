@@ -55,6 +55,7 @@ func (r *Resolver) BasicInventoryDispatchOverviewResolver(params graphql.Resolve
 	data, err := r.Repo.GetAllInventoryDispatches(filter)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -68,6 +69,7 @@ func (r *Resolver) BasicInventoryDispatchOverviewResolver(params graphql.Resolve
 		items = append(items, resItem)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -91,6 +93,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -102,18 +105,21 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 	if data.ID != 0 {
 		itemRes, err := r.Repo.UpdateDispatchItem(params.Context, data.ID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 		items, err = buildInventoryDispatchResponse(r.Repo, itemRes)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		if data.Type != "convert" {
 			itemRes, err := r.Repo.CreateDispatchItem(params.Context, &data)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -121,16 +127,19 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 				// return revers is always one by one item.
 				item, err := r.Repo.GetInventoryItem(data.InventoryID[0])
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 				err = sendInventoryReturnReversDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitID, item.OrganizationUnitID, item.ID)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 
 			} else if itemRes.Type == "revers" {
 				err = sendInventoryDispatchNotification(params.Context, r.Repo, r.NotificationsService, itemRes.SourceOrganizationUnitID, itemRes.TargetOrganizationUnitID)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -139,6 +148,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 			items, err = buildInventoryDispatchResponse(r.Repo, itemRes)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		} else {
@@ -158,6 +168,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 
 			_, err := r.Repo.CreateDispatchItem(params.Context, &input)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -165,6 +176,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 				item, err := r.Repo.GetInventoryItem(itemID)
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 
@@ -174,6 +186,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 				_, err = r.Repo.UpdateInventoryItem(params.Context, itemID, item)
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -299,6 +312,7 @@ func (r *Resolver) BasicInventoryDispatchDeleteResolver(params graphql.ResolvePa
 	dispatch, err := r.Repo.GetDispatchItemByID(itemID)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -306,17 +320,20 @@ func (r *Resolver) BasicInventoryDispatchDeleteResolver(params graphql.ResolvePa
 		err := r.Repo.DeleteFile(dispatch.FileID)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
 
 	err = r.Repo.DeleteInventoryDispatch(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitID, dispatch.TargetOrganizationUnitID, false)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -333,6 +350,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 	dispatch, err := r.Repo.GetDispatchItemByID(id)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -345,6 +363,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 	itemDispatchList, err := r.Repo.GetMyInventoryDispatchesItems(&filter)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -353,6 +372,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 		item, err := r.Repo.GetInventoryItem(itemDispatch.InventoryID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		if dispatch.Type == "revers" {
@@ -361,6 +381,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 			if item.TargetOrganizationUnitID != 0 {
 				_, err = r.Repo.UpdateInventoryItem(params.Context, item.ID, item)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -371,6 +392,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 
 			_, err = r.Repo.UpdateInventoryItem(params.Context, item.ID, item)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -380,11 +402,13 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 	//dispatch.Date = currentDate.Format("2006-01-02T15:04:05.999999Z07:00")
 	_, err = r.Repo.UpdateDispatchItem(params.Context, dispatch.ID, dispatch)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitID, dispatch.TargetOrganizationUnitID, true)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

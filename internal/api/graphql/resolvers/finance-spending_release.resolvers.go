@@ -46,11 +46,13 @@ func (r *Resolver) SpendingReleaseInsert(params graphql.ResolveParams) (interfac
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	items, err := r.Repo.CreateSpendingRelease(params.Context, data, budgetID, unitID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -91,6 +93,7 @@ func (r *Resolver) SpendingReleaseRequestInsert(params graphql.ResolveParams) (i
 
 	err = r.Repo.CreateSpendingReleaseRequest(params.Context, data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -106,6 +109,7 @@ func (r *Resolver) SpendingReleaseAcceptSSS(params graphql.ResolveParams) (inter
 
 	err := r.Repo.SpendingReleaseAcceptSSS(id, fileID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

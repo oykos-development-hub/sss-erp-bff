@@ -23,6 +23,7 @@ func (r *Resolver) JobPositionsResolver(params graphql.ResolveParams) (interface
 	if id != nil && id != 0 {
 		jobPositionResponse, err := r.Repo.GetJobPositionByID(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = append(items, *jobPositionResponse)
@@ -43,6 +44,7 @@ func (r *Resolver) JobPositionsResolver(params graphql.ResolveParams) (interface
 
 		jobPositionsResponse, err := r.Repo.GetJobPositions(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = jobPositionsResponse.Data
@@ -75,12 +77,14 @@ func (r *Resolver) JobPositionsOrganizationUnitResolver(params graphql.ResolvePa
 	}
 	jobPositionsInOrganizationUnitsResponse, err := r.Repo.GetJobPositionsInOrganizationUnits(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	for _, jobPositionsInOrganizationUnits := range jobPositionsInOrganizationUnitsResponse.Data {
 		getJobPositionResponse, err := r.Repo.GetJobPositionByID(jobPositionsInOrganizationUnits.JobPositionID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item := structs.JobPositionsInOrganizationUnitsSettings{
@@ -112,11 +116,13 @@ func (r *Resolver) JobPositionInsertResolver(params graphql.ResolveParams) (inte
 	if itemID != 0 {
 		jobPositionResponse, err = r.Repo.UpdateJobPositions(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		jobPositionResponse, err = r.Repo.CreateJobPositions(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -133,6 +139,7 @@ func (r *Resolver) JobPositionDeleteResolver(params graphql.ResolveParams) (inte
 
 	err := r.Repo.DeleteJobPositions(params.Context, itemID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -156,6 +163,7 @@ func (r *Resolver) JobPositionInOrganizationUnitInsertResolver(params graphql.Re
 	}
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -164,6 +172,7 @@ func (r *Resolver) JobPositionInOrganizationUnitInsertResolver(params graphql.Re
 	if len(data.Employees) > 0 {
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -174,6 +183,7 @@ func (r *Resolver) JobPositionInOrganizationUnitInsertResolver(params graphql.Re
 			}
 			res, err := r.Repo.CreateEmployeesInOrganizationUnits(input)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -207,6 +217,7 @@ func (r *Resolver) JobPositionInOrganizationUnitResolver(params graphql.ResolveP
 
 		systematizationsResponse, err := r.Repo.GetSystematizations(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -218,6 +229,7 @@ func (r *Resolver) JobPositionInOrganizationUnitResolver(params graphql.ResolveP
 				}
 				jobPositionsInOrganizationUnits, err := r.Repo.GetJobPositionsInOrganizationUnits(&input)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 				for _, jobPositionOU := range jobPositionsInOrganizationUnits.Data {
@@ -229,6 +241,7 @@ func (r *Resolver) JobPositionInOrganizationUnitResolver(params graphql.ResolveP
 					if len(employeesInOrganizationUnit) < jobPositionOU.AvailableSlots {
 						jobPosition, err := r.Repo.GetJobPositionByID(jobPositionOU.JobPositionID)
 						if err != nil {
+							_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 							return errors.HandleAPPError(err)
 						}
 						items = append(items, structs.JobPositionsInOrganizationUnitsSettings{
@@ -255,6 +268,7 @@ func (r *Resolver) JobPositionInOrganizationUnitDeleteResolver(params graphql.Re
 
 	err := r.Repo.DeleteJobPositionsInOrganizationUnits(itemID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

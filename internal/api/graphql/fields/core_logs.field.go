@@ -42,3 +42,31 @@ func (f *Field) LogsOverviewField() *graphql.Field {
 		Resolve: f.Resolvers.LogsOverviewResolver,
 	}
 }
+
+func (f *Field) ErrorLogsOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.ErrorLogsOverviewType,
+		Description: "Returns a data of fixed deposits",
+		Args: graphql.FieldConfigArgument{
+			"module": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.String),
+			},
+			"entity": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"date_of_start": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"date_of_end": &graphql.ArgumentConfig{
+				Type: graphql.String,
+			},
+			"page": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+			"size": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+		},
+		Resolve: f.Resolvers.ErrorLogsOverviewResolver,
+	}
+}

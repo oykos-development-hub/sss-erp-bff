@@ -23,6 +23,7 @@ func (r *Resolver) PublicProcurementPlanItemDetailsResolver(params graphql.Resol
 	if id != nil && id.(int) > 0 {
 		item, err := r.Repo.GetProcurementItem(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -43,6 +44,7 @@ func (r *Resolver) PublicProcurementPlanItemDetailsResolver(params graphql.Resol
 	} else {
 		procurements, err := r.Repo.GetProcurementItemList(nil)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -78,6 +80,7 @@ func (r *Resolver) PublicProcurementPlanItemPDFResolver(params graphql.ResolvePa
 
 	item, err := r.Repo.GetProcurementItem(id)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -92,6 +95,7 @@ func (r *Resolver) PublicProcurementPlanItemPDFResolver(params graphql.ResolvePa
 
 	articles, err := GetProcurementArticles(ctx, r.Repo, resItem.ID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -107,6 +111,7 @@ func (r *Resolver) PublicProcurementPlanItemPDFResolver(params graphql.ResolvePa
 		articleRes, err := ProcessOrderArticleItem(r.Repo, article, *organizationUnitID)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -144,6 +149,7 @@ func (r *Resolver) PublicProcurementPlanItemInsertResolver(params graphql.Resolv
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -152,6 +158,7 @@ func (r *Resolver) PublicProcurementPlanItemInsertResolver(params graphql.Resolv
 	if itemID != 0 {
 		res, err := r.Repo.UpdateProcurementItem(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resItem, _ := buildProcurementItemResponseItem(params.Context, r.Repo, res, nil, &dto.GetProcurementArticleListInputMS{})
@@ -161,6 +168,7 @@ func (r *Resolver) PublicProcurementPlanItemInsertResolver(params graphql.Resolv
 	} else {
 		res, err := r.Repo.CreateProcurementItem(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -179,6 +187,7 @@ func (r *Resolver) PublicProcurementPlanItemDeleteResolver(params graphql.Resolv
 
 	err := r.Repo.DeleteProcurementItem(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

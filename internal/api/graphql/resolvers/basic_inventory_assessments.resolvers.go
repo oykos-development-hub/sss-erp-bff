@@ -25,11 +25,13 @@ func (r *Resolver) BasicInventoryAssessmentsInsertResolver(params graphql.Resolv
 	if itemID != 0 {
 		assessmentResponse, err = r.Repo.UpdateAssessments(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		assessmentResponse, err = r.Repo.CreateAssessments(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -37,6 +39,7 @@ func (r *Resolver) BasicInventoryAssessmentsInsertResolver(params graphql.Resolv
 	items, err := BuildAssessmentResponse(r.Repo, assessmentResponse)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -59,11 +62,13 @@ func (r *Resolver) BasicEXCLInventoryAssessmentsInsertResolver(params graphql.Re
 		for _, data := range dataArr {
 			assessmentResponse, err = r.Repo.CreateAssessments(params.Context, &data)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
 			item, err := BuildAssessmentResponse(r.Repo, assessmentResponse)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -72,6 +77,7 @@ func (r *Resolver) BasicEXCLInventoryAssessmentsInsertResolver(params graphql.Re
 	}
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -87,6 +93,7 @@ func (r *Resolver) BasicInventoryAssessmentDeleteResolver(params graphql.Resolve
 
 	err := r.Repo.DeleteAssessment(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

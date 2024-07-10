@@ -75,10 +75,12 @@ func (r *Resolver) UserProfileSalaryParamsResolver(params graphql.ResolveParams)
 
 	salaries, err := r.Repo.GetEmployeeSalaryParams(profileID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	salaryResponseItemList, err := buildSalaryResponseItemList(r.Repo, salaries)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -103,6 +105,7 @@ func (r *Resolver) UserProfileSalaryParamsInsertResolver(params graphql.ResolveP
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -110,12 +113,14 @@ func (r *Resolver) UserProfileSalaryParamsInsertResolver(params graphql.ResolveP
 	if itemID != 0 {
 		item, err = r.Repo.UpdateEmployeeSalaryParams(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 	} else {
 		item, err = r.Repo.CreateEmployeeSalaryParams(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
@@ -123,6 +128,7 @@ func (r *Resolver) UserProfileSalaryParamsInsertResolver(params graphql.ResolveP
 
 	salaryResItem, err := buildSalaryResponseItem(r.Repo, item)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -135,6 +141,7 @@ func (r *Resolver) UserProfileSalaryParamsDeleteResolver(params graphql.ResolveP
 	itemID := params.Args["id"]
 	err := r.Repo.DeleteSalaryParams(params.Context, itemID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

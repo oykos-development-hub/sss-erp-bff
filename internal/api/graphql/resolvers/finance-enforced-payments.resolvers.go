@@ -15,10 +15,12 @@ func (r *Resolver) EnforcedPaymentOverviewResolver(params graphql.ResolveParams)
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		EnforcedPayment, err := r.Repo.GetEnforcedPaymentByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildEnforcedPayment(*EnforcedPayment, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -67,6 +69,7 @@ func (r *Resolver) EnforcedPaymentOverviewResolver(params graphql.ResolveParams)
 
 	items, total, err := r.Repo.GetEnforcedPaymentList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -75,6 +78,7 @@ func (r *Resolver) EnforcedPaymentOverviewResolver(params graphql.ResolveParams)
 		resItem, err := buildEnforcedPayment(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -98,10 +102,12 @@ func (r *Resolver) EnforcedPaymentInsertResolver(params graphql.ResolveParams) (
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -127,12 +133,14 @@ func (r *Resolver) EnforcedPaymentInsertResolver(params graphql.ResolveParams) (
 					Message: "insufficient funds",
 				}, nil
 			}
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 
 		}
 	} else {
 		item, err = r.Repo.UpdateEnforcedPayment(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -140,6 +148,7 @@ func (r *Resolver) EnforcedPaymentInsertResolver(params graphql.ResolveParams) (
 
 	singleItem, err := buildEnforcedPayment(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

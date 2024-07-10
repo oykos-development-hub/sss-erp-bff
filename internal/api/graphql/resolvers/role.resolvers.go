@@ -14,11 +14,13 @@ func (r *Resolver) RoleDetailsResolver(params graphql.ResolveParams) (interface{
 
 	role, err := r.Repo.GetRole(structs.UserRole(roleID))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	users, err := r.Repo.GetUserAccounts(&dto.GetUserAccountListInput{RoleID: (*structs.UserRole)(&roleID)})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -37,6 +39,7 @@ func (r *Resolver) RoleDetailsResolver(params graphql.ResolveParams) (interface{
 func (r *Resolver) RoleOverviewResolver(_ graphql.ResolveParams) (interface{}, error) {
 	roleList, err := r.Repo.GetRoleList()
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -58,6 +61,7 @@ func (r *Resolver) RolesInsertResolver(params graphql.ResolveParams) (interface{
 	if itemID != 0 {
 		roleRes, err := r.Repo.UpdateRole(params.Context, itemID, data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -69,6 +73,7 @@ func (r *Resolver) RolesInsertResolver(params graphql.ResolveParams) (interface{
 	}
 	roleRes, err := r.Repo.CreateRole(params.Context, data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

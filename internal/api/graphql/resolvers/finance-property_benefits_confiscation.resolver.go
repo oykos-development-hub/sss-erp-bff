@@ -18,10 +18,12 @@ func (r *Resolver) PropBenConfInsertResolver(params graphql.ResolveParams) (inte
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -30,16 +32,19 @@ func (r *Resolver) PropBenConfInsertResolver(params graphql.ResolveParams) (inte
 	if data.ID == 0 {
 		item, err = r.Repo.CreatePropBenConf(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdatePropBenConf(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
 	propBenConfResItem, err := buildPropBenConfResponseItem(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	response.Item = propBenConfResItem
@@ -51,10 +56,12 @@ func (r *Resolver) PropBenConfOverviewResolver(params graphql.ResolveParams) (in
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		PropBenConf, err := r.Repo.GetPropBenConf(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		PropBenConfResItem, err := buildPropBenConfResponseItem(*PropBenConf, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -89,11 +96,13 @@ func (r *Resolver) PropBenConfOverviewResolver(params graphql.ResolveParams) (in
 
 	PropBenConfs, total, err := r.Repo.GetPropBenConfList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	PropBenConfResItem, err := buildPropBenConfResponseItemList(PropBenConfs, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -110,6 +119,7 @@ func (r *Resolver) PropBenConfDeleteResolver(params graphql.ResolveParams) (inte
 
 	err := r.Repo.DeletePropBenConf(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

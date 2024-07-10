@@ -55,3 +55,45 @@ var LogsType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var ErrorLogsOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ErrorLogsOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"total": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(ErrorLogsType),
+		},
+	},
+})
+
+var ErrorLogsType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ErrorLogsType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"entity": &graphql.Field{
+			Type: graphql.String,
+		},
+		"code": &graphql.Field{
+			Type: graphql.String,
+		},
+		"error": &graphql.Field{
+			Type: graphql.String,
+		},
+		"created_at": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})

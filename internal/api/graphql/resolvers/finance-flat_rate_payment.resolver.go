@@ -18,10 +18,12 @@ func (r *Resolver) FlatRatePaymentInsertResolver(params graphql.ResolveParams) (
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -30,17 +32,20 @@ func (r *Resolver) FlatRatePaymentInsertResolver(params graphql.ResolveParams) (
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFlatRatePayment(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFlatRatePayment(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
 
 	flatrateResItem, err := buildFlatRatePaymentResponseItem(*item)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -53,10 +58,12 @@ func (r *Resolver) FlatRatePaymentOverviewResolver(params graphql.ResolveParams)
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		flatratePayment, err := r.Repo.GetFlatRatePayment(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		flatratePaymentResItem, err := buildFlatRatePaymentResponseItem(*flatratePayment)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -83,11 +90,13 @@ func (r *Resolver) FlatRatePaymentOverviewResolver(params graphql.ResolveParams)
 
 	flatratePayments, total, err := r.Repo.GetFlatRatePaymentList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	flatrateResItem, err := buildFlatRatePaymentResponseItemList(flatratePayments)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -104,6 +113,7 @@ func (r *Resolver) FlatRatePaymentDeleteResolver(params graphql.ResolveParams) (
 
 	err := r.Repo.DeleteFlatRatePayment(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

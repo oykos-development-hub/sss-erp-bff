@@ -24,10 +24,12 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 	if id != nil && id != 0 {
 		user, err := r.Repo.GetUserAccountByID(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		role, err := r.Repo.GetRole(user.RoleID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		user.Role = *role
@@ -52,15 +54,17 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 
 		res, err := r.Repo.GetUserAccounts(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		/*		for _, user := range res.Data {
-				role, err := r.Repo.GetRole(user.RoleID)
-				if err != nil {
-					return errors.HandleAPPError(err)
-				}
-				user.Role = *role
-			}*/
+					role, err := r.Repo.GetRole(user.RoleID)
+					if err != nil {
+						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+					}
+					user.Role = *role
+				}*/
 		items = res.Data
 		total = res.Total
 	}
@@ -88,6 +92,7 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 
 		userResponse, err := r.Repo.UpdateUserAccount(params.Context, itemID, dataUpdate)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -95,6 +100,7 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 			role, err := r.Repo.GetRole(userResponse.RoleID)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -110,6 +116,7 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 	}
 	userResponse, err := r.Repo.CreateUserAccount(params.Context, data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -129,6 +136,7 @@ func (r *Resolver) UserAccountDeleteResolver(params graphql.ResolveParams) (inte
 	user.Active = false
 	_, err := r.Repo.UpdateUserAccount(params.Context, id.(int), *user)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

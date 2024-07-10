@@ -12,6 +12,7 @@ import (
 func (r *Resolver) AbsentTypeResolver(_ graphql.ResolveParams) (interface{}, error) {
 	absentTypesAll, err := r.Repo.GetAbsentTypes()
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -35,6 +36,7 @@ func (r *Resolver) AbsentTypeInsertResolver(params graphql.ResolveParams) (inter
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -42,6 +44,7 @@ func (r *Resolver) AbsentTypeInsertResolver(params graphql.ResolveParams) (inter
 	if itemID != 0 {
 		item, err := r.Repo.UpdateAbsentType(itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -50,6 +53,7 @@ func (r *Resolver) AbsentTypeInsertResolver(params graphql.ResolveParams) (inter
 	} else {
 		item, err := r.Repo.CreateAbsentType(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -65,6 +69,7 @@ func (r *Resolver) AbsentTypeDeleteResolver(params graphql.ResolveParams) (inter
 
 	err := r.Repo.DeleteAbsentType(itemID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

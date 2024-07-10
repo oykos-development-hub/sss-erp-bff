@@ -15,10 +15,12 @@ func (r *Resolver) UserProfileResolutionResolver(params graphql.ResolveParams) (
 
 	resolutions, err := r.Repo.GetEmployeeResolutions(userProfileID, nil)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	resolutonResItemList, err := buildResolutionResponseItemList(r.Repo, resolutions)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -42,10 +44,12 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 	if itemID != 0 {
 		resolution, err := r.Repo.UpdateResolution(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resolutionResItem, err := buildResolutionResItem(r.Repo, resolution)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = resolutionResItem
@@ -53,10 +57,12 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 	} else {
 		resolution, err := r.Repo.CreateResolution(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resolutionResItem, err := buildResolutionResItem(r.Repo, resolution)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = resolutionResItem
@@ -71,6 +77,7 @@ func (r *Resolver) UserProfileResolutionDeleteResolver(params graphql.ResolvePar
 
 	err := r.Repo.DeleteResolution(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

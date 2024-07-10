@@ -18,10 +18,12 @@ func (r *Resolver) FeePaymentInsertResolver(params graphql.ResolveParams) (inter
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -30,11 +32,13 @@ func (r *Resolver) FeePaymentInsertResolver(params graphql.ResolveParams) (inter
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFeePayment(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFeePayment(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -42,6 +46,7 @@ func (r *Resolver) FeePaymentInsertResolver(params graphql.ResolveParams) (inter
 
 	feePaymentResItem, err := buildFeePaymentResponseItem(*item)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	response.Item = feePaymentResItem
@@ -53,10 +58,12 @@ func (r *Resolver) FeePaymentOverviewResolver(params graphql.ResolveParams) (int
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		feePayment, err := r.Repo.GetFeePayment(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		feePaymentResItem, err := buildFeePaymentResponseItem(*feePayment)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -83,11 +90,13 @@ func (r *Resolver) FeePaymentOverviewResolver(params graphql.ResolveParams) (int
 
 	feePayments, total, err := r.Repo.GetFeePaymentList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	feeResItem, err := buildFeePaymentResponseItemList(feePayments)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -104,6 +113,7 @@ func (r *Resolver) FeePaymentDeleteResolver(params graphql.ResolveParams) (inter
 
 	err := r.Repo.DeleteFeePayment(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

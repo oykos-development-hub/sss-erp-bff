@@ -15,11 +15,13 @@ func (r *Resolver) UserProfileEvaluationResolver(params graphql.ResolveParams) (
 
 	userEvaluationList, err := r.Repo.GetEmployeeEvaluations(profileID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	userEvaluationResponseList, err := buildEvaluationResponseItemList(r.Repo, userEvaluationList)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -46,11 +48,13 @@ func (r *Resolver) JudgeEvaluationReportResolver(params graphql.ResolveParams) (
 	var evaluationResItemList []*dto.JudgeEvaluationReportResponseItem
 	evaluationList, err := r.Repo.GetEvaluationList(&filter)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	for _, item := range evaluationList {
 		evaluationResItem, err := buildJudgeEvaluationReportResponseItem(r.Repo, item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		if organizationUnitIDinput, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitIDinput != 0 {
@@ -78,6 +82,7 @@ func (r *Resolver) UserProfileEvaluationInsertResolver(params graphql.ResolvePar
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -85,10 +90,12 @@ func (r *Resolver) UserProfileEvaluationInsertResolver(params graphql.ResolvePar
 	if itemID != 0 {
 		item, err := r.Repo.UpdateEmployeeEvaluation(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildEvaluationResponseItem(r.Repo, item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
@@ -96,10 +103,12 @@ func (r *Resolver) UserProfileEvaluationInsertResolver(params graphql.ResolvePar
 	} else {
 		item, err := r.Repo.CreateEmployeeEvaluation(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildEvaluationResponseItem(r.Repo, item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
@@ -114,6 +123,7 @@ func (r *Resolver) UserProfileEvaluationDeleteResolver(params graphql.ResolvePar
 
 	err := r.Repo.DeleteEvaluation(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

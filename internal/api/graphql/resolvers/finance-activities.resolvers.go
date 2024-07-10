@@ -15,6 +15,7 @@ func (r *Resolver) ActivitiesOverviewResolver(params graphql.ResolveParams) (int
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		activity, err := r.Repo.GetActivity(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -39,11 +40,13 @@ func (r *Resolver) ActivitiesOverviewResolver(params graphql.ResolveParams) (int
 
 	activities, err := r.Repo.GetActivityList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	activityResItemList, err := buildActivityResItemList(r.Repo, activities)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -104,6 +107,7 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -112,11 +116,13 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 	if itemID != 0 {
 		item, err := r.Repo.UpdateActivity(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildActivityResItem(r.Repo, *item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -125,11 +131,13 @@ func (r *Resolver) ActivityInsertResolver(params graphql.ResolveParams) (interfa
 	} else {
 		item, err := r.Repo.CreateActivity(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		resItem, err := buildActivityResItem(r.Repo, *item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 

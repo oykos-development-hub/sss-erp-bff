@@ -15,3 +15,11 @@ type Logs struct {
 	OldState  json.RawMessage `json:"old_state"`
 	NewState  json.RawMessage `json:"new_state"`
 }
+
+type ErrorLogs struct {
+	ID        int       `json:"id,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	Error     string    `json:"error"`
+	Entity    string    `json:"entity"`
+	Code      int       `json:"code"`
+}

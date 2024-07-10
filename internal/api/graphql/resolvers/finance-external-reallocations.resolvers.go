@@ -16,10 +16,12 @@ func (r *Resolver) ExternalReallocationOverviewResolver(params graphql.ResolvePa
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		ExternalReallocation, err := r.Repo.GetExternalReallocationByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildExternalReallocation(*ExternalReallocation, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -66,6 +68,7 @@ func (r *Resolver) ExternalReallocationOverviewResolver(params graphql.ResolvePa
 
 	items, total, err := r.Repo.GetExternalReallocationList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -74,6 +77,7 @@ func (r *Resolver) ExternalReallocationOverviewResolver(params graphql.ResolvePa
 		resItem, err := buildExternalReallocation(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -97,10 +101,12 @@ func (r *Resolver) ExternalReallocationInsertResolver(params graphql.ResolvePara
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -128,11 +134,13 @@ func (r *Resolver) ExternalReallocationInsertResolver(params graphql.ResolvePara
 
 	item, err = r.Repo.CreateExternalReallocation(params.Context, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	singleItem, err := buildExternalReallocation(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -146,6 +154,7 @@ func (r *Resolver) ExternalReallocationDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteExternalReallocation(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -164,10 +173,12 @@ func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolvePa
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -184,11 +195,13 @@ func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolvePa
 
 	item, err = r.Repo.AcceptOUExternalReallocation(params.Context, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	singleItem, err := buildExternalReallocation(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -202,6 +215,7 @@ func (r *Resolver) ExternalReallocationOURejectResolver(params graphql.ResolvePa
 
 	err := r.Repo.RejectOUExternalReallocation(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -216,6 +230,7 @@ func (r *Resolver) ExternalReallocationSSSAcceptResolver(params graphql.ResolveP
 
 	err := r.Repo.AcceptSSSExternalReallocation(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -230,6 +245,7 @@ func (r *Resolver) ExternalReallocationSSSRejectResolver(params graphql.ResolveP
 
 	err := r.Repo.RejectSSSExternalReallocation(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

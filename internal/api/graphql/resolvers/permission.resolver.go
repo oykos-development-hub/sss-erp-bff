@@ -17,11 +17,13 @@ func (r *Resolver) PermissionsUpdateResolver(params graphql.ResolveParams) (inte
 
 	_, err := r.Repo.SyncPermissions(data.RoleID, data.PermissionList)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	permissions, err := r.Repo.GetPermissionList(data.RoleID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -39,6 +41,7 @@ func (r *Resolver) PermissionsForRoleResolver(params graphql.ResolveParams) (int
 
 	permissions, err := r.Repo.GetPermissionList(roleID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

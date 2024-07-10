@@ -20,6 +20,7 @@ func (r *Resolver) SuppliersOverviewResolver(params graphql.ResolveParams) (inte
 	if id != nil && id.(int) > 0 {
 		supplier, err := r.Repo.GetSupplier(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -59,6 +60,7 @@ func (r *Resolver) SuppliersOverviewResolver(params graphql.ResolveParams) (inte
 
 	res, err := r.Repo.GetSupplierList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -80,6 +82,7 @@ func (r *Resolver) SuppliersInsertResolver(params graphql.ResolveParams) (interf
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -88,6 +91,7 @@ func (r *Resolver) SuppliersInsertResolver(params graphql.ResolveParams) (interf
 	if itemID != 0 {
 		res, err := r.Repo.UpdateSupplier(itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -96,6 +100,7 @@ func (r *Resolver) SuppliersInsertResolver(params graphql.ResolveParams) (interf
 	} else {
 		res, err := r.Repo.CreateSupplier(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -111,6 +116,7 @@ func (r *Resolver) SuppliersDeleteResolver(params graphql.ResolveParams) (interf
 
 	err := r.Repo.DeleteSupplier(itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

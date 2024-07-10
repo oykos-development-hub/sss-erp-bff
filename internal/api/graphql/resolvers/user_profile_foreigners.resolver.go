@@ -14,6 +14,7 @@ func (r *Resolver) UserProfileForeignerResolver(params graphql.ResolveParams) (i
 
 	UserProfilesData, err := r.Repo.GetEmployeeForeigners(profileID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -36,6 +37,7 @@ func (r *Resolver) UserProfileForeignerInsertResolver(params graphql.ResolvePara
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -43,6 +45,7 @@ func (r *Resolver) UserProfileForeignerInsertResolver(params graphql.ResolvePara
 	if itemID != 0 {
 		item, err := r.Repo.UpdateEmployeeForeigner(itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
@@ -50,6 +53,7 @@ func (r *Resolver) UserProfileForeignerInsertResolver(params graphql.ResolvePara
 	} else {
 		item, err := r.Repo.CreateEmployeeForeigner(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
@@ -64,6 +68,7 @@ func (r *Resolver) UserProfileForeignerDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteForeigner(itemID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

@@ -48,4 +48,5 @@ const (
 	ModuleAccounting   Module = "ACCOUNTING"
 	ModuleProcurements Module = "PROCUREMENTS"
 	ModuleFinance      Module = "FINANCE"
+	ModuleBFF          Module = "BFF"
 )

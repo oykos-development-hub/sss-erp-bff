@@ -15,10 +15,12 @@ func (r *Resolver) DepositPaymentOrderOverviewResolver(params graphql.ResolvePar
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		DepositPaymentOrder, err := r.Repo.GetDepositPaymentOrderByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildDepositPaymentOrder(*DepositPaymentOrder, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -59,6 +61,7 @@ func (r *Resolver) DepositPaymentOrderOverviewResolver(params graphql.ResolvePar
 
 	items, total, err := r.Repo.GetDepositPaymentOrderList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -67,6 +70,7 @@ func (r *Resolver) DepositPaymentOrderOverviewResolver(params graphql.ResolvePar
 		resItem, err := buildDepositPaymentOrder(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -90,10 +94,12 @@ func (r *Resolver) DepositPaymentOrderInsertResolver(params graphql.ResolveParam
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -113,11 +119,13 @@ func (r *Resolver) DepositPaymentOrderInsertResolver(params graphql.ResolveParam
 	if data.ID == 0 {
 		item, err = r.Repo.CreateDepositPaymentOrder(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateDepositPaymentOrder(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -125,6 +133,7 @@ func (r *Resolver) DepositPaymentOrderInsertResolver(params graphql.ResolveParam
 
 	singleItem, err := buildDepositPaymentOrder(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -350,11 +359,13 @@ func (r *Resolver) DepositPaymentAdditionalExpensesOverviewResolver(params graph
 
 	additionalExpenses, total, err := r.Repo.GetDepositPaymentAdditionalExpenses(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	builtAdditionalExpenses, err := buildDepositPaymentAdditionalExpenseItemList(r, additionalExpenses)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

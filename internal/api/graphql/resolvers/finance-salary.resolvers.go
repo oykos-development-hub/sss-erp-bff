@@ -15,10 +15,12 @@ func (r *Resolver) SalaryOverviewResolver(params graphql.ResolveParams) (interfa
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		Salary, err := r.Repo.GetSalaryByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildSalary(*Salary, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -59,6 +61,7 @@ func (r *Resolver) SalaryOverviewResolver(params graphql.ResolveParams) (interfa
 
 	items, total, err := r.Repo.GetSalaryList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -67,6 +70,7 @@ func (r *Resolver) SalaryOverviewResolver(params graphql.ResolveParams) (interfa
 		resItem, err := buildSalary(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -90,10 +94,12 @@ func (r *Resolver) SalaryInsertResolver(params graphql.ResolveParams) (interface
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -113,11 +119,13 @@ func (r *Resolver) SalaryInsertResolver(params graphql.ResolveParams) (interface
 	if data.ID == 0 {
 		item, err = r.Repo.CreateSalary(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateSalary(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -125,6 +133,7 @@ func (r *Resolver) SalaryInsertResolver(params graphql.ResolveParams) (interface
 
 	singleItem, err := buildSalary(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -138,6 +147,7 @@ func (r *Resolver) SalaryDeleteResolver(params graphql.ResolveParams) (interface
 
 	err := r.Repo.DeleteSalary(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

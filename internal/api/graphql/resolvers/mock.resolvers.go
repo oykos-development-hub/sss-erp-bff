@@ -12,12 +12,14 @@ import (
 func (r *Resolver) CurrentBudgetMockResolver(params graphql.ResolveParams) (interface{}, error) {
 	budgets, err := r.Repo.GetBudgetList(nil)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	isParent := true
 	units, err := r.Repo.GetOrganizationUnits(&dto.GetOrganizationUnitsInput{IsParent: &isParent})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -46,6 +48,7 @@ func (r *Resolver) CurrentBudgetMockResolver(params graphql.ResolveParams) (inte
 					Balance:       decimal.Zero,
 				})
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}

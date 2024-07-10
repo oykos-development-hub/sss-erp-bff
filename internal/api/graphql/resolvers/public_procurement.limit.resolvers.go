@@ -18,11 +18,13 @@ func (r *Resolver) PublicProcurementPlanItemLimitsResolver(params graphql.Resolv
 	}
 	limits, err := r.Repo.GetProcurementOULimitList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	for _, limit := range limits {
 		resItem, err := buildProcurementOULimitResponseItem(r.Repo, limit)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = append(items, resItem)
@@ -46,6 +48,7 @@ func (r *Resolver) PublicProcurementPlanItemLimitInsertResolver(params graphql.R
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -54,10 +57,12 @@ func (r *Resolver) PublicProcurementPlanItemLimitInsertResolver(params graphql.R
 	if itemID != 0 {
 		res, err := r.Repo.UpdateProcurementOULimit(itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementOULimitResponseItem(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -66,10 +71,12 @@ func (r *Resolver) PublicProcurementPlanItemLimitInsertResolver(params graphql.R
 	} else {
 		res, err := r.Repo.CreateProcurementOULimit(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementOULimitResponseItem(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 

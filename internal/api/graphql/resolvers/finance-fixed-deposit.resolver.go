@@ -15,10 +15,12 @@ func (r *Resolver) FixedDepositOverviewResolver(params graphql.ResolveParams) (i
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		fixedDeposit, err := r.Repo.GetFixedDepositByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildFixedDeposit(*fixedDeposit, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -63,6 +65,7 @@ func (r *Resolver) FixedDepositOverviewResolver(params graphql.ResolveParams) (i
 
 	items, total, err := r.Repo.GetFixedDepositList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -71,6 +74,7 @@ func (r *Resolver) FixedDepositOverviewResolver(params graphql.ResolveParams) (i
 		resItem, err := buildFixedDeposit(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -94,10 +98,12 @@ func (r *Resolver) FixedDepositInsertResolver(params graphql.ResolveParams) (int
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -117,11 +123,13 @@ func (r *Resolver) FixedDepositInsertResolver(params graphql.ResolveParams) (int
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFixedDeposit(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFixedDeposit(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -129,6 +137,7 @@ func (r *Resolver) FixedDepositInsertResolver(params graphql.ResolveParams) (int
 
 	singleItem, err := buildFixedDeposit(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -142,6 +151,7 @@ func (r *Resolver) FixedDepositDeleteResolver(params graphql.ResolveParams) (int
 
 	err := r.Repo.DeleteFixedDeposit(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -160,21 +170,25 @@ func (r *Resolver) FixedDepositItemInsertResolver(params graphql.ResolveParams) 
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositItem(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositItem(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -188,6 +202,7 @@ func (r *Resolver) FixedDepositItemDeleteResolver(params graphql.ResolveParams) 
 
 	err := r.Repo.DeleteFixedDepositItem(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -206,21 +221,25 @@ func (r *Resolver) FixedDepositDispatchInsertResolver(params graphql.ResolvePara
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositDispatch(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositDispatch(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -234,6 +253,7 @@ func (r *Resolver) FixedDepositDispatchDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteFixedDepositDispatch(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -252,21 +272,25 @@ func (r *Resolver) FixedDepositJudgeInsertResolver(params graphql.ResolveParams)
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositJudge(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositJudge(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -280,6 +304,7 @@ func (r *Resolver) FixedDepositJudgeDeleteResolver(params graphql.ResolveParams)
 
 	err := r.Repo.DeleteFixedDepositJudge(itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -293,10 +318,12 @@ func (r *Resolver) FixedDepositWillOverviewResolver(params graphql.ResolveParams
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		fixedDeposit, err := r.Repo.GetFixedDepositWillByID(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		res, err := buildFixedDepositWill(*fixedDeposit, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -333,6 +360,7 @@ func (r *Resolver) FixedDepositWillOverviewResolver(params graphql.ResolveParams
 
 	items, total, err := r.Repo.GetFixedDepositWillList(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -341,6 +369,7 @@ func (r *Resolver) FixedDepositWillOverviewResolver(params graphql.ResolveParams
 		resItem, err := buildFixedDepositWill(item, r)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -364,10 +393,12 @@ func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) 
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -387,11 +418,13 @@ func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) 
 		data.Status = "Depozit"
 		item, err = r.Repo.CreateFixedDepositWill(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFixedDepositWill(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -399,6 +432,7 @@ func (r *Resolver) FixedDepositWillInsertResolver(params graphql.ResolveParams) 
 
 	singleItem, err := buildFixedDepositWill(*item, r)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -412,6 +446,7 @@ func (r *Resolver) FixedDepositWillDeleteResolver(params graphql.ResolveParams) 
 
 	err := r.Repo.DeleteFixedDepositWill(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -430,21 +465,25 @@ func (r *Resolver) FixedDepositWillDispatchInsertResolver(params graphql.Resolve
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	if data.ID == 0 {
 		err = r.Repo.CreateFixedDepositWillDispatch(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		err = r.Repo.UpdateFixedDepositWillDispatch(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -458,6 +497,7 @@ func (r *Resolver) FixedDepositWillDispatchDeleteResolver(params graphql.Resolve
 
 	err := r.Repo.DeleteFixedDepositWillDispatch(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

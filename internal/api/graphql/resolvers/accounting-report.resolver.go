@@ -3,6 +3,7 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
+	"bff/structs"
 	"encoding/json"
 	"strings"
 
@@ -24,6 +25,7 @@ func (r *Resolver) OverallSpendingResolver(params graphql.ResolveParams) (interf
 	articles, err := r.Repo.GetMovementArticleList(data)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

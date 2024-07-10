@@ -31,10 +31,12 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 	if id != nil && id != 0 {
 		user, err := r.Repo.GetUserProfileByID(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildUserProfileOverviewResponse(r.Repo, user)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = []dto.UserProfileOverviewResponse{*resItem}
@@ -43,6 +45,7 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 		input := dto.GetUserProfilesInput{}
 		profiles, err := r.Repo.GetUserProfiles(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -52,6 +55,7 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 		for _, userProfile := range profiles {
 			resItem, err := buildUserProfileOverviewResponse(r.Repo, userProfile)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -83,6 +87,7 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 
 	paginatedItems, err := shared.Paginate(items, page, size)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -100,10 +105,12 @@ func (r *Resolver) UserProfileContractsResolver(params graphql.ResolveParams) (i
 
 	contracts, err := r.Repo.GetEmployeeContracts(id.(int), nil)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	contractResponseItems, err := buildContractResponseItemList(r.Repo, contracts)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	return dto.Response{
@@ -257,11 +264,13 @@ func (r *Resolver) UserProfileBasicResolver(params graphql.ResolveParams) (inter
 
 	profile, err := r.Repo.GetUserProfileByID(profileID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	res, err := buildUserProfileBasicResponse(r.Repo, profile)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -287,14 +296,17 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 
 	err = json.Unmarshal(dataBytes, &userAccountData)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &userProfileData)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &activeContract)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -309,6 +321,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 
 	userAccountRes, err = r.Repo.CreateUserAccount(params.Context, userAccountData)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -316,6 +329,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 	userProfileRes, err = r.Repo.CreateUserProfile(params.Context, userProfileData)
 	if err != nil {
 		_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -325,6 +339,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 		if err != nil {
 			_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 			_ = r.Repo.DeleteUserProfile(params.Context, userProfileRes.ID)
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -337,6 +352,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 			if err != nil {
 				_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 				_ = r.Repo.DeleteUserProfile(params.Context, userProfileRes.ID)
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -360,6 +376,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 			if err != nil {
 				_ = r.Repo.DeleteUserAccount(params.Context, userAccountRes.ID)
 				_ = r.Repo.DeleteUserProfile(params.Context, userProfileRes.ID)
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -367,6 +384,7 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 
 	res, err := buildUserProfileBasicResponse(r.Repo, userProfileRes)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -386,11 +404,13 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 	err = json.Unmarshal(dataBytes, &userProfileData)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	err = json.Unmarshal(dataBytes, &activeContract)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -402,11 +422,13 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 		if activeContract.Contract.ID == 0 {
 			_, err = r.Repo.CreateEmployeeContract(params.Context, activeContract.Contract)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		} else {
 			_, err = r.Repo.UpdateEmployeeContract(params.Context, activeContract.Contract.ID, activeContract.Contract)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -419,6 +441,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 			systematizationsResponse, err := r.Repo.GetSystematizations(&inputSys)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			if len(systematizationsResponse.Data) > 0 {
@@ -428,6 +451,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 					}
 					jobPositionsInOrganizationUnits, err := r.Repo.GetJobPositionsInOrganizationUnits(&inputJpbPos)
 					if err != nil {
+						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 						return errors.HandleAPPError(err)
 					}
 					if len(jobPositionsInOrganizationUnits.Data) > 0 {
@@ -446,6 +470,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 										} else {
 											err := r.Repo.DeleteEmployeeInOrganizationUnit(emp.ID)
 											if err != nil {
+												_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 												return errors.HandleAPPError(err)
 											}
 										}
@@ -464,6 +489,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 				}
 				_, err = r.Repo.CreateEmployeesInOrganizationUnits(input)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -495,11 +521,13 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 				}
 				_, err := r.Repo.UpdateJudgeResolutionOrganizationUnit(&inputUpdate)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			} else {
 				err := r.Repo.DeleteJJudgeResolutionOrganizationUnit(judgeResolutionOrganizationUnit[0].ID)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -513,6 +541,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 			}
 			_, err := r.Repo.CreateJudgeResolutionOrganizationUnit(&inputCreate)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -521,11 +550,13 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 	userProfileRes, err := r.Repo.UpdateUserProfile(params.Context, userProfileData.ID, userProfileData)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	res, err := buildUserProfileBasicResponse(r.Repo, userProfileRes)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -548,6 +579,7 @@ func (r *Resolver) UserProfileContractInsertResolver(params graphql.ResolveParam
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -555,10 +587,12 @@ func (r *Resolver) UserProfileContractInsertResolver(params graphql.ResolveParam
 	if itemID != 0 {
 		item, err := r.Repo.UpdateEmployeeContract(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		contractResponseItem, err := buildContractResponseItem(r.Repo, *item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
@@ -566,10 +600,12 @@ func (r *Resolver) UserProfileContractInsertResolver(params graphql.ResolveParam
 	} else {
 		item, err := r.Repo.CreateEmployeeContract(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		contractResponseItem, err := buildContractResponseItem(r.Repo, *item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -585,6 +621,7 @@ func (r *Resolver) UserProfileContractDeleteResolver(params graphql.ResolveParam
 
 	err := r.Repo.DeleteEmployeeContract(params.Context, itemID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -653,6 +690,7 @@ func (r *Resolver) UserProfileEducationResolver(params graphql.ResolveParams) (i
 		Entity: educationType,
 	})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -662,10 +700,12 @@ func (r *Resolver) UserProfileEducationResolver(params graphql.ResolveParams) (i
 			TypeID:        &educationType.ID,
 		})
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		educationResItemList, err := buildEducationResItemList(r.Repo, educations)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		responseItemList = append(responseItemList, educationResItemList...)
@@ -695,12 +735,14 @@ func (r *Resolver) UserProfileEducationInsertResolver(params graphql.ResolvePara
 	if itemID != 0 {
 		employeeEducation, err = r.Repo.UpdateEmployeeEducation(itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 	} else {
 		employeeEducation, err = r.Repo.CreateEmployeeEducation(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
@@ -708,6 +750,7 @@ func (r *Resolver) UserProfileEducationInsertResolver(params graphql.ResolvePara
 
 	responseItem, err := buildEducationResItem(r.Repo, *employeeEducation)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	response.Item = responseItem
@@ -720,6 +763,7 @@ func (r *Resolver) UserProfileEducationDeleteResolver(params graphql.ResolvePara
 
 	err := r.Repo.DeleteEmployeeEducation(itemID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -734,10 +778,12 @@ func (r *Resolver) UserProfileExperienceResolver(params graphql.ResolveParams) (
 
 	experiences, err := r.Repo.GetEmployeeExperiences(userProfileID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	experienceResponseItemList, err := buildExprienceResponseItemList(r.Repo, experiences)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -760,6 +806,7 @@ func (r *Resolver) UserProfileExperienceInsertResolver(params graphql.ResolvePar
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -767,10 +814,12 @@ func (r *Resolver) UserProfileExperienceInsertResolver(params graphql.ResolvePar
 	if itemID != 0 {
 		item, err := r.Repo.UpdateExperience(itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildExprienceResponseItem(r.Repo, item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
@@ -778,10 +827,12 @@ func (r *Resolver) UserProfileExperienceInsertResolver(params graphql.ResolvePar
 	} else {
 		item, err := r.Repo.CreateExperience(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildExprienceResponseItem(r.Repo, item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
@@ -803,6 +854,7 @@ func (r *Resolver) UserProfileExperiencesInsertResolver(params graphql.ResolvePa
 
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -810,10 +862,12 @@ func (r *Resolver) UserProfileExperiencesInsertResolver(params graphql.ResolvePa
 	for _, item := range data {
 		item, err := r.Repo.CreateExperience(&item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resItem, err := buildExprienceResponseItem(r.Repo, item)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
@@ -924,6 +978,7 @@ func (r *Resolver) UserProfileExperienceDeleteResolver(params graphql.ResolvePar
 
 	err := r.Repo.DeleteExperience(itemID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -938,6 +993,7 @@ func (r *Resolver) UserProfileFamilyResolver(params graphql.ResolveParams) (inte
 
 	familyMembers, err := r.Repo.GetEmployeeFamilyMembers(userProfileID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -961,6 +1017,7 @@ func (r *Resolver) UserProfileFamilyInsertResolver(params graphql.ResolveParams)
 	if itemID != 0 {
 		res, err := r.Repo.UpdateEmployeeFamilyMember(itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = res
@@ -968,6 +1025,7 @@ func (r *Resolver) UserProfileFamilyInsertResolver(params graphql.ResolveParams)
 	} else {
 		res, err := r.Repo.CreateEmployeeFamilyMember(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = res
@@ -982,6 +1040,7 @@ func (r *Resolver) UserProfileFamilyDeleteResolver(params graphql.ResolveParams)
 
 	err := r.Repo.DeleteEmployeeFamilyMember(itemID.(int))
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

@@ -18,12 +18,14 @@ func (r *Resolver) LogsOverviewResolver(params graphql.ResolveParams) (interface
 		log, err := r.Repo.GetLog(module, id)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		responseItem, err := buildLogItem(r, *log)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -67,6 +69,7 @@ func (r *Resolver) LogsOverviewResolver(params graphql.ResolveParams) (interface
 
 	items, total, err := r.Repo.GetLogs(input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -75,6 +78,7 @@ func (r *Resolver) LogsOverviewResolver(params graphql.ResolveParams) (interface
 		resItem, err := buildLogItem(r, item)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -86,6 +90,77 @@ func (r *Resolver) LogsOverviewResolver(params graphql.ResolveParams) (interface
 		Message: "Here's the list you asked for!",
 		Total:   int(total),
 		Items:   resItems,
+	}, nil
+}
+
+func (r *Resolver) ErrorLogsOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	moduleStr, _ := params.Args["module"].(string)
+
+	module := config.Module(moduleStr)
+
+	if id, ok := params.Args["id"].(int); ok && id != 0 {
+		log, err := r.Repo.GetErrorLog(module, id)
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Items:   []structs.ErrorLogs{*log},
+			Total:   1,
+		}, nil
+	}
+
+	input := dto.ErrorLogFilterDTO{}
+	input.Module = module
+	if value, ok := params.Args["page"].(int); ok && value != 0 {
+		input.Page = &value
+	}
+
+	if value, ok := params.Args["size"].(int); ok && value != 0 {
+		input.Size = &value
+	}
+
+	if value, ok := params.Args["entity"].(string); ok && value != "" {
+		input.Entity = &value
+	}
+
+	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {
+		date, err := parseDate(value)
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		input.DateOfStart = &date
+	}
+
+	if value, ok := params.Args["date_of_end"].(string); ok && value != "" {
+		date, err := parseDate(value)
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		input.DateOfEnd = &date
+	}
+
+	items, total, err := r.Repo.GetErrorLogs(input)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	return dto.Response{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+		Total:   int(total),
+		Items:   items,
 	}, nil
 }
 

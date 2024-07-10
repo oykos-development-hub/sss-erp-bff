@@ -63,12 +63,14 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 		})
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		for _, order := range orders.Data {
 			orderArticles, err := r.Repo.GetOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{OrderID: &order.ID})
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			for _, article := range orderArticles.Data {
@@ -78,6 +80,7 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 					currentArticle, err := r.Repo.GetProcurementArticle(article.ArticleID)
 
 					if err != nil {
+						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 						return errors.HandleAPPError(err)
 					}
 
@@ -122,6 +125,7 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 		})
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -138,6 +142,7 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 
 		articleList, total, err := r.Repo.GetStock(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		Total = *total
@@ -198,6 +203,7 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 
 	movementList, total, err := r.Repo.GetMovements(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -212,6 +218,7 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 		officeItem, err := r.Repo.GetDropdownSettingByID(movement.OfficeID)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -221,6 +228,7 @@ func (r *Resolver) MovementOverviewResolver(params graphql.ResolveParams) (inter
 		userItem, err := r.Repo.GetUserProfileByID(movement.RecipientUserID)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -272,6 +280,7 @@ func (r *Resolver) MovementDetailsResolver(params graphql.ResolveParams) (interf
 	response, err := buildMovementDetailsResponse(r.Repo, id.(int))
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -297,6 +306,7 @@ func (r *Resolver) MovementArticlesResolver(params graphql.ResolveParams) (inter
 		Title: titleFilter,
 	})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -338,6 +348,7 @@ func (r *Resolver) OrderListAssetMovementResolver(params graphql.ResolveParams) 
 		movement, err := r.Repo.CreateMovements(params.Context, data)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -349,18 +360,21 @@ func (r *Resolver) OrderListAssetMovementResolver(params graphql.ResolveParams) 
 			}
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
 			_, err = r.Repo.CreateMovementArticle(item)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
 			stockArticle, err := r.Repo.GetStockByID(article.ID)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -369,12 +383,14 @@ func (r *Resolver) OrderListAssetMovementResolver(params graphql.ResolveParams) 
 			err = r.Repo.UpdateStock(*stockArticle)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
 	} else {
 		_, err := r.Repo.UpdateMovements(params.Context, data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -463,6 +479,7 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 	orderList, err := r.Repo.GetMovementByID(id)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -470,6 +487,7 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 		err := r.Repo.DeleteFile(orderList.FileID)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -477,6 +495,7 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 	articles, err := r.Repo.GetMovementArticles(id)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -489,12 +508,14 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 		stock, err := r.Repo.GetStockByID(article.StockID)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		stock.Amount += article.Amount
 		err = r.Repo.UpdateStock(*stock)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -503,6 +524,7 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 	err = r.Repo.DeleteMovement(params.Context, id)
 
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

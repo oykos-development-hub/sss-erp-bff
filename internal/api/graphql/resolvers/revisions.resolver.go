@@ -201,10 +201,12 @@ func (r *Resolver) RevisionsOverviewResolver(params graphql.ResolveParams) (inte
 	if id != nil && id.(int) > 0 {
 		revision, err := r.Repo.GetRevisionByID(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionOverviewItemResponse(r.Repo, revision)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Items = append(response.Items, *item)
@@ -238,12 +240,14 @@ func (r *Resolver) RevisionsOverviewResolver(params graphql.ResolveParams) (inte
 
 		revisions, err := r.Repo.GetRevisionList(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		for _, revision := range revisions.Data {
 			item, err := buildRevisionOverviewItemResponse(r.Repo, revision)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			response.Items = append(response.Items, *item)
@@ -253,6 +257,7 @@ func (r *Resolver) RevisionsOverviewResolver(params graphql.ResolveParams) (inte
 
 	revisorDropdownList, err := getRevisorListDropdown(r.Repo)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -279,10 +284,12 @@ func (r *Resolver) RevisionResolver(params graphql.ResolveParams) (interface{}, 
 	if id != nil && id.(int) > 0 {
 		revision, err := r.Repo.GetRevisionByID(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionDetailsItemResponse(r.Repo, revision)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		return dto.Response{
@@ -295,6 +302,7 @@ func (r *Resolver) RevisionResolver(params graphql.ResolveParams) (interface{}, 
 
 	revisions, err := r.Repo.GetRevisionList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -302,6 +310,7 @@ func (r *Resolver) RevisionResolver(params graphql.ResolveParams) (interface{}, 
 	for _, revision := range revisions.Data {
 		item, err := buildRevisionDetailsItemResponse(r.Repo, revision)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = append(items, *item)
@@ -320,10 +329,12 @@ func (r *Resolver) RevisionDetailsResolver(params graphql.ResolveParams) (interf
 
 	revision, err := r.Repo.GetRevisionByID(id)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	item, err := buildRevisionDetailsItemResponse(r.Repo, revision)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	return dto.ResponseSingle{
@@ -346,10 +357,12 @@ func (r *Resolver) RevisionInsertResolver(params graphql.ResolveParams) (interfa
 	if itemID != 0 {
 		res, err := r.Repo.UpdateRevision(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionDetailsItemResponse(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = item
@@ -357,10 +370,12 @@ func (r *Resolver) RevisionInsertResolver(params graphql.ResolveParams) (interfa
 	} else {
 		res, err := r.Repo.CreateRevision(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionDetailsItemResponse(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = item
@@ -375,6 +390,7 @@ func (r *Resolver) RevisionDeleteResolver(params graphql.ResolveParams) (interfa
 
 	err := r.Repo.DeleteRevision(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -427,6 +443,7 @@ func (r *Resolver) RevisionPlansOverviewResolver(params graphql.ResolveParams) (
 
 	revisions, err := r.Repo.GetRevisionPlanList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -441,6 +458,7 @@ func (r *Resolver) RevisionPlansDetailsResolver(params graphql.ResolveParams) (i
 
 	revision, err := r.Repo.GetRevisionPlanByID(id)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -456,6 +474,7 @@ func (r *Resolver) RevisionPlanDeleteResolver(params graphql.ResolveParams) (int
 
 	err := r.Repo.DeleteRevisionPlan(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -478,6 +497,7 @@ func (r *Resolver) RevisionPlanInsertResolver(params graphql.ResolveParams) (int
 	if itemID != 0 {
 		res, err := r.Repo.UpdateRevisionPlan(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -486,6 +506,7 @@ func (r *Resolver) RevisionPlanInsertResolver(params graphql.ResolveParams) (int
 	} else {
 		res, err := r.Repo.CreateRevisionPlan(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -656,6 +677,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 
 	revisions, err := r.Repo.GetRevisionsList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -670,6 +692,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 
 		revisionsOrgUnit, err = r.Repo.GetRevisionOrgUnitList(&filter)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		revisionOrgUnit = true
@@ -686,6 +709,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 
 		revisionsRevisor, err = r.Repo.GetRevisionRevisorList(&filter)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		revisionRevisor = true
@@ -732,6 +756,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 
 		item, err := buildRevisionItemResponse(r.Repo, revision)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Items = append(response.Items, *item)
@@ -740,6 +765,7 @@ func (r *Resolver) RevisionOverviewResolver(params graphql.ResolveParams) (inter
 
 	revisorDropdownList, err := getRevisorListDropdown(r.Repo)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -753,15 +779,18 @@ func (r *Resolver) RevisionDetailResolver(params graphql.ResolveParams) (interfa
 
 	revision, err := r.Repo.GetRevisionsByID(id)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	item, err := buildRevisionItemResponse(r.Repo, revision)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	revisorDropdownList, err := getRevisorListDropdown(r.Repo)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -792,6 +821,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 		revisors, err := r.Repo.GetRevisionRevisorList(&input)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -799,6 +829,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 			err := r.Repo.DeleteRevisionRevisor(revisor.ID)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -812,6 +843,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 			err := r.Repo.CreateRevisionRevisor(&inp)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -824,6 +856,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 			revisions, err := r.Repo.GetRevisionOrgUnitList(&filt)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -831,6 +864,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 				err = r.Repo.DeleteRevisionOrgUnit(revision.ID)
 
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -843,6 +877,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 
 				err := r.Repo.CreateRevisionOrgUnit(&dataRevision)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -850,11 +885,13 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 
 		res, err := r.Repo.UpdateRevisions(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		item, err := buildRevisionItemResponse(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = item
@@ -862,6 +899,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 	} else {
 		res, err := r.Repo.CreateRevisions(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -874,6 +912,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 			err := r.Repo.CreateRevisionRevisor(&inp)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -887,6 +926,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 
 				err := r.Repo.CreateRevisionOrgUnit(&dataRevision)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -894,6 +934,7 @@ func (r *Resolver) RevisionsInsertResolver(params graphql.ResolveParams) (interf
 
 		item, err := buildRevisionItemResponse(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = item
@@ -908,6 +949,7 @@ func (r *Resolver) RevisionsDeleteResolver(params graphql.ResolveParams) (interf
 
 	err := r.Repo.DeleteRevisions(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -1001,12 +1043,14 @@ func (r *Resolver) RevisionTipsOverviewResolver(params graphql.ResolveParams) (i
 
 	revisions, err := r.Repo.GetRevisionTipsList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	for _, revision := range revisions.Data {
 		item, err := buildRevisionTipItemResponse(r.Repo, revision)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Items = append(response.Items, *item)
@@ -1015,6 +1059,7 @@ func (r *Resolver) RevisionTipsOverviewResolver(params graphql.ResolveParams) (i
 
 	revisorDropdownList, err := getRevisorListDropdown(r.Repo)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -1028,10 +1073,12 @@ func (r *Resolver) RevisionTipsDetailsResolver(params graphql.ResolveParams) (in
 
 	revision, err := r.Repo.GetRevisionTipByID(id)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	item, err := buildRevisionTipItemResponse(r.Repo, revision)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	return dto.ResponseSingle{
@@ -1054,10 +1101,12 @@ func (r *Resolver) RevisionTipsInsertResolver(params graphql.ResolveParams) (int
 	if itemID != 0 {
 		res, err := r.Repo.UpdateRevisionTips(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionTipItemResponse(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = item
@@ -1065,10 +1114,12 @@ func (r *Resolver) RevisionTipsInsertResolver(params graphql.ResolveParams) (int
 	} else {
 		res, err := r.Repo.CreateRevisionTips(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildRevisionTipItemResponse(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = item
@@ -1083,6 +1134,7 @@ func (r *Resolver) RevisionTipsDeleteResolver(params graphql.ResolveParams) (int
 
 	err := r.Repo.DeleteRevisionTips(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

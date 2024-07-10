@@ -18,10 +18,12 @@ func (r *Resolver) FinePaymentInsertResolver(params graphql.ResolveParams) (inte
 
 	dataBytes, err := json.Marshal(params.Args["data"])
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	err = json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -30,11 +32,13 @@ func (r *Resolver) FinePaymentInsertResolver(params graphql.ResolveParams) (inte
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFinePayment(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	} else {
 		item, err = r.Repo.UpdateFinePayment(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -42,6 +46,7 @@ func (r *Resolver) FinePaymentInsertResolver(params graphql.ResolveParams) (inte
 
 	finePaymentResItem, err := buildFinePaymentResponseItem(*item)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -54,10 +59,12 @@ func (r *Resolver) FinePaymentOverviewResolver(params graphql.ResolveParams) (in
 	if id, ok := params.Args["id"].(int); ok && id != 0 {
 		finePayment, err := r.Repo.GetFinePayment(id)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		finePaymentResItem, err := buildFinePaymentResponseItem(*finePayment)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -84,11 +91,13 @@ func (r *Resolver) FinePaymentOverviewResolver(params graphql.ResolveParams) (in
 
 	finePayments, total, err := r.Repo.GetFinePaymentList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	fineResItem, err := buildFinePaymentResponseItemList(finePayments)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -105,6 +114,7 @@ func (r *Resolver) FinePaymentDeleteResolver(params graphql.ResolveParams) (inte
 
 	err := r.Repo.DeleteFinePayment(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

@@ -22,11 +22,13 @@ func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveP
 	if id != nil && id != 0 {
 		setting, err := r.Repo.GetTaxAuthorityCodebookByID(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
 		responseItem, err := buildTaxAuthorityCodeBook(*setting, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = []dto.TaxAuthorityCodebookResponse{*responseItem}
@@ -43,6 +45,7 @@ func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveP
 
 		res, err := r.Repo.GetTaxAuthorityCodebooks(input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -50,6 +53,7 @@ func (r *Resolver) TaxAuthorityCodebooksOverviewResolver(params graphql.ResolveP
 			resItem, err := buildTaxAuthorityCodeBook(item, r)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -85,16 +89,19 @@ func (r *Resolver) TaxAuthorityCodebooksInsertResolver(params graphql.ResolvePar
 			err := r.Repo.DeactivateTaxAuthorityCodebook(params.Context, itemID, data.Active)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		} else {
 			itemRes, err := r.Repo.UpdateTaxAuthorityCodebook(params.Context, itemID, &data)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			response.Message = "You updated this item!"
 			responseItem, err := buildTaxAuthorityCodeBook(*itemRes, r)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			response.Item = responseItem
@@ -102,11 +109,13 @@ func (r *Resolver) TaxAuthorityCodebooksInsertResolver(params graphql.ResolvePar
 	} else {
 		itemRes, err := r.Repo.CreateTaxAuthorityCodebook(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 		responseItem, err := buildTaxAuthorityCodeBook(*itemRes, r)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Item = responseItem

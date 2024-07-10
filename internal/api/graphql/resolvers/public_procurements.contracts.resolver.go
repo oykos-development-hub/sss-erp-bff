@@ -68,6 +68,7 @@ func (r *Resolver) PublicProcurementContractsOverviewResolver(params graphql.Res
 	if id != nil && id.(int) > 0 {
 		contract, err := r.Repo.GetProcurementContract(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		resItem, _ := buildProcurementContractResponseItem(r.Repo, contract)
@@ -81,6 +82,7 @@ func (r *Resolver) PublicProcurementContractsOverviewResolver(params graphql.Res
 	}
 	contractsRes, err := r.Repo.GetProcurementContractsList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	total = contractsRes.Total
@@ -88,6 +90,7 @@ func (r *Resolver) PublicProcurementContractsOverviewResolver(params graphql.Res
 	for _, contract := range contractsRes.Data {
 		resItem, err := buildProcurementContractResponseItem(r.Repo, contract)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		items = append(items, *resItem)
@@ -112,6 +115,7 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -120,10 +124,12 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 	if itemID != 0 {
 		res, err := r.Repo.UpdateProcurementContract(params.Context, itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementContractResponseItem(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -132,6 +138,7 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 	} else {
 		res, err := r.Repo.CreateProcurementContract(params.Context, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -140,6 +147,7 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 		})
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -156,6 +164,7 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 			_, err := r.Repo.CreateProcurementContractArticle(&item)
 
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -163,6 +172,7 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 
 		item, err := buildProcurementContractResponseItem(r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -253,6 +263,7 @@ func (r *Resolver) PublicProcurementContractDeleteResolver(params graphql.Resolv
 
 	err := r.Repo.DeleteProcurementContract(params.Context, itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

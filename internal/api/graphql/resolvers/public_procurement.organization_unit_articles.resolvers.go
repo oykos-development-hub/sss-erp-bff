@@ -40,11 +40,13 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticlesOverviewResolver(par
 
 	articles, err := r.Repo.GetProcurementOUArticleList(&input)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	items, err := buildProcurementOUArticleResponseItemList(params.Context, r.Repo, articles)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	filteredItems := make([]*dto.ProcurementOrganizationUnitArticleResponseItem, 0)
@@ -61,6 +63,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticlesOverviewResolver(par
 	if page != nil && page.(int) > 0 && size != nil && size.(int) > 0 {
 		paginatedItems, err := shared.Paginate(filteredItems, page.(int), size.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		filteredItems = paginatedItems.([]*dto.ProcurementOrganizationUnitArticleResponseItem)
@@ -84,6 +87,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 
 	err := json.Unmarshal(dataBytes, &data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -95,6 +99,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 	if itemID != 0 {
 		oldRequest, err := r.Repo.GetOrganizationUnitArticleByID(itemID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -110,11 +115,13 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 			employees, err := GetEmployeesOfOrganizationUnit(r.Repo, data.OrganizationUnitID)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			for _, employee := range employees {
 				employeeAccount, err := r.Repo.GetUserAccountByID(employee.UserAccountID)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 				if employeeAccount.RoleID == structs.UserRoleManagerOJ {
@@ -136,6 +143,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 						Path:        fmt.Sprintf("/procurements/plans/%d", procurement.PlanID),
 					})
 					if err != nil {
+						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 						return errors.HandleAPPError(err)
 					}
 				}
@@ -144,10 +152,12 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 
 		res, err := r.Repo.UpdateProcurementOUArticle(itemID, &data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementOUArticleResponseItem(params.Context, r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -156,10 +166,12 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 	} else {
 		res, err := r.Repo.CreateProcurementOUArticle(&data)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		item, err := buildProcurementOUArticleResponseItem(params.Context, r.Repo, res)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -180,6 +192,7 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 
 	ouArticleList, err := GetOrganizationUnitArticles(r.Repo, planID, *organizationUnitID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -192,6 +205,7 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 		ouArticle.Status = structs.ArticleStatusRevision
 		_, err = r.Repo.UpdateProcurementOUArticle(ouArticle.ID, ouArticle)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -200,6 +214,7 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 	unitID := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	unit, err := r.Repo.GetOrganizationUnitByID(*unitID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -208,6 +223,7 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 		RoleID: &oficialOfProcurementsRole,
 	})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -237,6 +253,7 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 			Data:        dataJSON,
 		})
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -269,6 +286,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticlesDetailsResolver(para
 
 	response, err := buildProcurementOUArticleDetailsResponseItem(params.Context, r.Repo, planID, organizationUnitID.(int), procurementID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

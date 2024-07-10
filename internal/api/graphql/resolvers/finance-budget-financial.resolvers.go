@@ -16,20 +16,24 @@ func (r *Resolver) FinancialBudgetDetails(params graphql.ResolveParams) (interfa
 
 	financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	latestVersion, err := r.Repo.GetLatestVersionOfAccounts()
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{Version: &financialBudget.AccountVersion})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	accountResItemlist, err := buildAccountItemResponseItemList(accounts.Data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -50,6 +54,7 @@ func (r *Resolver) FinancialBudgetOverview(params graphql.ResolveParams) (interf
 
 	financialBudgetOveriew, err := r.GetFinancialBudgetDetails(params.Context, budgetID, unitID, false)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -199,11 +204,13 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 
 	latestVersion, err := r.Repo.GetLatestVersionOfAccounts()
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	financialBudget, err := r.Repo.GetFinancialBudgetByBudgetID(budgetID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -211,6 +218,7 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 
 	_, err = r.Repo.UpdateFinancialBudget(params.Context, financialBudget)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -219,12 +227,14 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 		RequestTypes: []structs.RequestType{structs.RequestTypeCurrentFinancial, structs.RequestTypeDonationFinancial},
 	})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	for _, request := range financialBudgetRequests {
 		filledRequestData, err := r.Repo.GetFilledFinancialBudgetList(&dto.FilledFinancialBudgetInputMS{BudgetRequestID: request.ID})
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -236,6 +246,7 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 		for _, filledData := range filledRequestData {
 			oldAccount, err := r.Repo.GetAccountItemByID(filledData.AccountID)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -245,6 +256,7 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 				Title:        &oldAccount.Title,
 			})
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -258,6 +270,7 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 					Description:     filledData.Description,
 				})
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 				filledDataForDelete[filledData.ID] = false
@@ -267,6 +280,7 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 			if delete {
 				err := r.Repo.DeleteFilledFinancialBudgetData(params.Context, id)
 				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
 			}
@@ -275,10 +289,12 @@ func (r *Resolver) FinancialBudgetVersionUpdate(params graphql.ResolveParams) (i
 
 	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{Version: &financialBudget.AccountVersion})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	accountResItemlist, err := buildAccountItemResponseItemList(accounts.Data)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -298,6 +314,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 
 	request, err := r.Repo.GetBudgetRequest(requestID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	if request.RequestType != structs.RequestTypeCurrentFinancial && request.RequestType != structs.RequestTypeDonationFinancial {
@@ -314,6 +331,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err = json.Unmarshal(dataBytes, &items)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -331,6 +349,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 		})
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		if len(item) > 0 {
@@ -340,11 +359,13 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 		if itemID != 0 {
 			item, err := r.Repo.UpdateFilledFinancialBudget(params.Context, itemID, &data)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
 			resItem, err := buildFilledFinancialBudgetResItem(r.Repo, *item)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -352,11 +373,13 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 		} else {
 			item, err := r.Repo.FillFinancialBudget(params.Context, &data)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
 			resItem, err := buildFilledFinancialBudgetResItem(r.Repo, *item)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
@@ -368,6 +391,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 	request.Comment = params.Args["comment"].(string)
 	_, err = r.Repo.UpdateBudgetRequest(params.Context, request)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -376,6 +400,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 		ParentID: request.ParentID,
 	})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -390,11 +415,13 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 	if allFinancialFilled {
 		financialRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		financialRequest.Status = structs.BudgetRequestFilledStatus
 		_, err = r.Repo.UpdateBudgetRequest(params.Context, financialRequest)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -402,6 +429,7 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 			ParentID: financialRequest.ParentID,
 		})
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -415,11 +443,13 @@ func (r *Resolver) FinancialBudgetFillResolver(params graphql.ResolveParams) (in
 		if allFilled {
 			generalRequest, err := r.Repo.GetBudgetRequest(*financialRequest.ParentID)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			generalRequest.Status = structs.BudgetRequestFilledStatus
 			_, err = r.Repo.UpdateBudgetRequest(params.Context, generalRequest)
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 		}
@@ -437,6 +467,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 
 	request, err := r.Repo.GetBudgetRequest(requestID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	if request.RequestType != structs.RequestTypeCurrentFinancial {
@@ -452,6 +483,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 	dataBytes, _ := json.Marshal(params.Args["data"])
 	err = json.Unmarshal(dataBytes, &items)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -460,6 +492,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 	for _, data := range items {
 		_, err := r.Repo.FillActualFinancialBudget(params.Context, data.ID, data.Actual, data.Type, requestID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 	}
@@ -467,26 +500,31 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 	request.Status = structs.BudgetRequestCompletedActualStatus
 	_, err = r.Repo.UpdateBudgetRequest(params.Context, request)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	financialRequest, err := r.Repo.GetBudgetRequest(*request.ParentID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	financialRequest.Status = structs.BudgetRequestCompletedActualStatus
 	_, err = r.Repo.UpdateBudgetRequest(params.Context, financialRequest)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	generalRequest, err := r.Repo.GetBudgetRequest(*financialRequest.ParentID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	generalRequest.Status = structs.BudgetRequestCompletedActualStatus
 	_, err = r.Repo.UpdateBudgetRequest(params.Context, generalRequest)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -496,6 +534,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 		RequestType: &generallReqType,
 	})
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
@@ -510,6 +549,7 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 	if allGeneralRequestsCompleted {
 		budget, err := r.Repo.GetBudget(request.BudgetID)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		budget.Status = structs.BudgetCompletedActualStatus

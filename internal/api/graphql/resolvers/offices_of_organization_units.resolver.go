@@ -68,6 +68,7 @@ func (r *Resolver) OfficesOfOrganizationUnitOverviewResolver(params graphql.Reso
 	if id != nil && id.(int) != 0 {
 		setting, err := r.Repo.GetDropdownSettingByID(id.(int))
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -79,6 +80,7 @@ func (r *Resolver) OfficesOfOrganizationUnitOverviewResolver(params graphql.Reso
 		item, err := buildOfficeOfOrganizationUnit(r.Repo, setting)
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -107,6 +109,7 @@ func (r *Resolver) OfficesOfOrganizationUnitOverviewResolver(params graphql.Reso
 
 		res, err := r.Repo.GetOfficeDropdownSettings(&input)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -115,6 +118,7 @@ func (r *Resolver) OfficesOfOrganizationUnitOverviewResolver(params graphql.Reso
 		for i := 0; i < len(data); i++ {
 			item, err := buildOfficeOfOrganizationUnit(r.Repo, &data[i])
 			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 			items = append(items, item)
@@ -155,12 +159,14 @@ func (r *Resolver) OfficesOfOrganizationUnitInsertResolver(params graphql.Resolv
 	if itemID != 0 {
 		itemRes, err := r.Repo.UpdateDropdownSettings(itemID, &arg)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You updated this item!"
 
 		item, err := buildOfficeOfOrganizationUnit(r.Repo, itemRes)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -169,12 +175,14 @@ func (r *Resolver) OfficesOfOrganizationUnitInsertResolver(params graphql.Resolv
 	} else {
 		itemRes, err := r.Repo.CreateDropdownSettings(&arg)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Message = "You created this item!"
 
 		item, err := buildOfficeOfOrganizationUnit(r.Repo, itemRes)
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -189,6 +197,7 @@ func (r *Resolver) OfficesOfOrganizationUnitDeleteResolver(params graphql.Resolv
 
 	setting, err := r.Repo.GetDropdownSettingByID(itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 	if setting.Entity != config.OfficeTypes {
@@ -200,6 +209,7 @@ func (r *Resolver) OfficesOfOrganizationUnitDeleteResolver(params graphql.Resolv
 
 	err = r.Repo.DeleteDropdownSettings(itemID)
 	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 

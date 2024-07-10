@@ -2271,5 +2271,6 @@ func (h *Handler) ImportSAPHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.Message = "File was read successfuly"
+	response.Status = "success"
 	_ = MarshalAndWriteJSON(w, response)
 }

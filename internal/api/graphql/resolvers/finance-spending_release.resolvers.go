@@ -205,6 +205,19 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 					}
 				}
 
+				if item.OrganizationUnitID != 0 {
+					value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+
+					if err != nil {
+						return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+					}
+
+					spendingReleaseOverview[i].OrganizationUnit = dto.DropdownSimple{
+						ID:    value.ID,
+						Title: value.Title,
+					}
+				}
+
 				if item.OrganizationUnitFileID != 0 {
 					file, err := r.Repo.GetFileByID(item.OrganizationUnitFileID)
 
@@ -227,6 +240,7 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 		if !found {
 			var SSSFile dto.FileDropdownSimple
 			var OUFile dto.FileDropdownSimple
+			var OU dto.DropdownSimple
 			if item.SSSFileID != 0 {
 				file, err := r.Repo.GetFileByID(item.SSSFileID)
 
@@ -255,6 +269,19 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 				}
 			}
 
+			if item.OrganizationUnitID != 0 {
+				value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+
+				if err != nil {
+					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+				}
+
+				OU = dto.DropdownSimple{
+					ID:    value.ID,
+					Title: value.Title,
+				}
+			}
+
 			spendingReleaseOverview = append(spendingReleaseOverview, dto.SpendingReleaseOverviewItem{
 				Month:                item.Month,
 				Year:                 item.Year,
@@ -262,6 +289,7 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 				Status:               item.Status,
 				OrganizationUnitFile: OUFile,
 				SSSFile:              SSSFile,
+				OrganizationUnit:     OU,
 			})
 		}
 	}

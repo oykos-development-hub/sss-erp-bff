@@ -79,6 +79,9 @@ var SpendingReleaseOverviwItemType = graphql.NewObject(graphql.ObjectConfig{
 		"organization_unit_file": &graphql.Field{
 			Type: FileDropdownItemType,
 		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},

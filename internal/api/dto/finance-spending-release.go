@@ -56,6 +56,7 @@ type SpendingReleaseOverviewItem struct {
 	Value                decimal.Decimal    `json:"value"`
 	OrganizationUnitFile FileDropdownSimple `json:"organization_unit_file"`
 	SSSFile              FileDropdownSimple `json:"sss_file"`
+	OrganizationUnit     DropdownSimple     `json:"organization_unit"`
 	Status               string             `json:"status"`
 }
 

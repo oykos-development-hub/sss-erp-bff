@@ -140,6 +140,9 @@ func (f *Field) AccountingEntryOverviewField() *graphql.Field {
 			"group": &graphql.ArgumentConfig{
 				Type: graphql.Boolean,
 			},
+			"sort_for_report": &graphql.ArgumentConfig{
+				Type: graphql.Boolean,
+			},
 		},
 		Resolve: f.Resolvers.AccountingEntryOverviewResolver,
 	}

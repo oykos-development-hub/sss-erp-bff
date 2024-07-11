@@ -399,8 +399,8 @@ func (r *Resolver) AccountingEntryOverviewResolver(params graphql.ResolveParams)
 		input.Type = &value
 	}
 
-	if value, ok := params.Args["sort_for_booking"].(bool); ok && value {
-		input.SortForBooking = &value
+	if value, ok := params.Args["sort_for_report"].(bool); ok && value {
+		input.SortForReport = &value
 	}
 
 	if value, ok := params.Args["date_of_start"].(string); ok && value != "" {

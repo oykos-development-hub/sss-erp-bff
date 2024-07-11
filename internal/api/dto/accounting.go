@@ -134,7 +134,7 @@ type AccountingEntryFilter struct {
 	Type               *string    `json:"type"`
 	DateOfStart        *time.Time `json:"date_of_start"`
 	DateOfEnd          *time.Time `json:"date_of_end"`
-	SortForBooking     *bool      `json:"sort_for_booking"`
+	SortForReport      *bool      `json:"sort_for_report"`
 }
 
 type GetAccountingEntryResponseMS struct {

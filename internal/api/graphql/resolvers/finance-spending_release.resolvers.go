@@ -165,6 +165,14 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 		requestFilter.OrganizationUnitID = &unitID
 	}
 
+	if month != 0 {
+		requestFilter.Month = &month
+	}
+
+	if year != 0 {
+		requestFilter.Year = &year
+	}
+
 	if statusOK && status != "" {
 		requestFilter.Status = &status
 	}

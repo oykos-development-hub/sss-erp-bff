@@ -43,6 +43,8 @@ type SpendingReleaseOverviewFilterDTO struct {
 type SpendingReleaseOverviewRequestFilter struct {
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 	Status             *string `json:"status"`
+	Month              *int    `json:"month"`
+	Year               *int    `json:"year"`
 }
 
 type GetSpendingReleaseOverviewResponseMS struct {

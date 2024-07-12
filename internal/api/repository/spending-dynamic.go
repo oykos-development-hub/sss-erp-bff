@@ -56,7 +56,7 @@ func (repo *MicroserviceRepository) CreateSpendingDynamic(ctx context.Context, b
 	}
 
 	res := dto.GetSpendingDynamicListResponseMS{}
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(budgetID)+"/units/"+strconv.Itoa(unitID)+"/spending-releases", spendingDynamicListToInsert, &res, header)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.Budget+"/"+strconv.Itoa(budgetID)+"/units/"+strconv.Itoa(unitID)+"/spending-dynamics", spendingDynamicListToInsert, &res, header)
 	if err != nil {
 		return res.Data, errors.Wrap(err, "make api request")
 	}

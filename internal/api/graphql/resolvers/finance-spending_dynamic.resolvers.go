@@ -273,7 +273,7 @@ func calculateSums(node *dto.SpendingDynamicDTO) {
 		node.November.Savings = decimal.NewFromInt(0)
 		node.December.Value = decimal.NewFromInt(0)
 		node.December.Savings = decimal.NewFromInt(0)
-		node.Actual = decimal.NewFromInt(0)
+		//node.Actual = decimal.NewFromInt(0)
 	}
 	for _, child := range node.Children {
 		calculateSums(child)
@@ -302,11 +302,16 @@ func calculateSums(node *dto.SpendingDynamicDTO) {
 		node.November.Savings = node.November.Savings.Add(child.November.Savings)
 		node.December.Value = node.December.Value.Add(child.December.Value)
 		node.December.Savings = node.December.Savings.Add(child.December.Savings)
-		node.Actual = node.Actual.Add(child.Actual)
+		//node.Actual = node.Actual.Add(child.Actual)
 	}
 
-	// Nakon što rekurzija završi za svu decu, izračunavamo ukupne uštede za roditeljski čvor
+	// Nakon što rekurzija završi za svu djecu, izračunavamo ukupne uštede za roditeljski čvor
 	node.TotalSavings = node.January.Savings.Add(node.February.Savings).Add(node.March.Savings).Add(node.April.Savings).
 		Add(node.May.Savings).Add(node.June.Savings).Add(node.July.Savings).Add(node.August.Savings).
 		Add(node.September.Savings).Add(node.October.Savings).Add(node.November.Savings).Add(node.December.Savings)
+
+	node.Actual = node.January.Value.Add(node.February.Value).Add(node.March.Value).Add(node.April.Value).
+		Add(node.May.Value).Add(node.June.Value).Add(node.July.Value).Add(node.August.Value).
+		Add(node.September.Value).Add(node.October.Value).Add(node.November.Value).Add(node.December.Value)
+
 }

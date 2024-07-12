@@ -125,15 +125,6 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 	month := params.Args["month"].(int)
 	year := params.Args["year"].(int)
 
-	loggedInOrganizationUnitID, ok := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-	if !ok {
-		return errors.HandleAPPError(errors.NewBadRequestError("Error getting logged in unit"))
-	}
-
-	if unitID == 0 {
-		unitID = *loggedInOrganizationUnitID
-	}
-
 	if budgetID == 0 {
 		currentYear := time.Now().Year()
 		//TODO: after planning budget is done on FE, add status filter Done
@@ -168,8 +159,10 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 
 	status, statusOK := params.Args["status"].(string)
 
-	requestFilter := dto.SpendingReleaseOverviewRequestFilter{
-		OrganizationUnitID: loggedInOrganizationUnitID,
+	requestFilter := dto.SpendingReleaseOverviewRequestFilter{}
+
+	if unitID != 0 {
+		requestFilter.OrganizationUnitID = &unitID
 	}
 
 	if statusOK && status != "" {

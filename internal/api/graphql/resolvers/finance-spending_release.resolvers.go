@@ -124,39 +124,6 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 	unitID := params.Args["unit_id"].(int)
 	month := params.Args["month"].(int)
 	year := params.Args["year"].(int)
-
-	if budgetID == 0 {
-		currentYear := time.Now().Year()
-		//TODO: after planning budget is done on FE, add status filter Done
-		budget, err := r.Repo.GetBudgetList(&dto.GetBudgetListInputMS{
-			Year: &currentYear,
-		})
-		if err != nil {
-			return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting budget for current year"))
-		}
-		if len(budget) != 1 {
-			return errors.HandleAPPError(errors.NewBadRequestError("Budget for current year not found"))
-		}
-		budgetID = budget[0].ID
-	}
-
-	input := &dto.SpendingReleaseOverviewFilterDTO{
-		Year:     year,
-		BudgetID: budgetID,
-		UnitID:   unitID,
-		Month:    month,
-	}
-
-	spendingReleaseOverview, err := r.Repo.GetSpendingReleaseOverview(params.Context, input)
-	if err != nil {
-		var apiErr *errors.APIError
-		if goerrors.As(err, &apiErr) {
-			if apiErr.StatusCode != 404 {
-				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
-			}
-		}
-	}
-
 	status, statusOK := params.Args["status"].(string)
 
 	requestFilter := dto.SpendingReleaseOverviewRequestFilter{}
@@ -188,111 +155,101 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 		}
 	}
 
-	for _, item := range spendingReleaseRequests {
-		found := false
-		for i := 0; i < len(spendingReleaseOverview); i++ {
-			if item.Month == spendingReleaseOverview[i].Month && item.Year == spendingReleaseOverview[i].Year {
-				if item.SSSFileID != 0 {
-					file, err := r.Repo.GetFileByID(item.SSSFileID)
+	if budgetID == 0 {
+		currentYear := time.Now().Year()
+		//TODO: after planning budget is done on FE, add status filter Done
+		budget, err := r.Repo.GetBudgetList(&dto.GetBudgetListInputMS{
+			Year: &currentYear,
+		})
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting budget for current year"))
+		}
+		if len(budget) != 1 {
+			return errors.HandleAPPError(errors.NewBadRequestError("Budget for current year not found"))
+		}
+		budgetID = budget[0].ID
+	}
 
-					if err != nil {
-						return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
-					}
+	var spendingReleaseOverview []dto.SpendingReleaseOverviewItem
 
-					spendingReleaseOverview[i].SSSFile = dto.FileDropdownSimple{
-						ID:   file.ID,
-						Name: file.Name,
-						Type: *file.Type,
-					}
+	for i := 0; i < len(spendingReleaseRequests); i++ {
+		input := &dto.GetSpendingReleaseListInput{
+			Year:     spendingReleaseRequests[i].Year,
+			BudgetID: budgetID,
+			UnitID:   spendingReleaseRequests[i].OrganizationUnitID,
+			Month:    spendingReleaseRequests[i].Month,
+		}
+
+		spendingReleaseOverviewItems, err := r.Repo.GetSpendingReleaseList(params.Context, input)
+		if err != nil {
+			var apiErr *errors.APIError
+			if goerrors.As(err, &apiErr) {
+				if apiErr.StatusCode != 404 {
+					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting spending dynamic"))
 				}
-
-				if item.OrganizationUnitID != 0 {
-					value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
-
-					if err != nil {
-						return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
-					}
-
-					spendingReleaseOverview[i].OrganizationUnit = dto.DropdownSimple{
-						ID:    value.ID,
-						Title: value.Title,
-					}
-				}
-
-				if item.OrganizationUnitFileID != 0 {
-					file, err := r.Repo.GetFileByID(item.OrganizationUnitFileID)
-
-					if err != nil {
-						return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
-					}
-
-					spendingReleaseOverview[i].OrganizationUnitFile = dto.FileDropdownSimple{
-						ID:   file.ID,
-						Name: file.Name,
-						Type: *file.Type,
-					}
-				}
-
-				spendingReleaseOverview[i].Status = item.Status
-				found = true
 			}
 		}
 
-		if !found {
-			var SSSFile dto.FileDropdownSimple
-			var OUFile dto.FileDropdownSimple
-			var OU dto.DropdownSimple
-			if item.SSSFileID != 0 {
-				file, err := r.Repo.GetFileByID(item.SSSFileID)
+		var SSSFile dto.FileDropdownSimple
+		var OUFile dto.FileDropdownSimple
+		var OU dto.DropdownSimple
+		if spendingReleaseRequests[i].SSSFileID != 0 {
+			file, err := r.Repo.GetFileByID(spendingReleaseRequests[i].SSSFileID)
 
-				if err != nil {
-					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
-				}
-
-				SSSFile = dto.FileDropdownSimple{
-					ID:   file.ID,
-					Name: file.Name,
-					Type: *file.Type,
-				}
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
 			}
 
-			if item.OrganizationUnitFileID != 0 {
-				file, err := r.Repo.GetFileByID(item.OrganizationUnitFileID)
-
-				if err != nil {
-					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
-				}
-
-				OUFile = dto.FileDropdownSimple{
-					ID:   file.ID,
-					Name: file.Name,
-					Type: *file.Type,
-				}
+			SSSFile = dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
 			}
-
-			if item.OrganizationUnitID != 0 {
-				value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
-
-				if err != nil {
-					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
-				}
-
-				OU = dto.DropdownSimple{
-					ID:    value.ID,
-					Title: value.Title,
-				}
-			}
-
-			spendingReleaseOverview = append(spendingReleaseOverview, dto.SpendingReleaseOverviewItem{
-				Month:                item.Month,
-				Year:                 item.Year,
-				Value:                decimal.NewFromInt(0),
-				Status:               item.Status,
-				OrganizationUnitFile: OUFile,
-				SSSFile:              SSSFile,
-				OrganizationUnit:     OU,
-			})
 		}
+
+		if spendingReleaseRequests[i].OrganizationUnitFileID != 0 {
+			file, err := r.Repo.GetFileByID(spendingReleaseRequests[i].OrganizationUnitFileID)
+
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+			}
+
+			OUFile = dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			}
+		}
+
+		if spendingReleaseRequests[i].OrganizationUnitID != 0 {
+			value, err := r.Repo.GetOrganizationUnitByID(spendingReleaseRequests[i].OrganizationUnitID)
+
+			if err != nil {
+				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+			}
+
+			OU = dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+		}
+
+		value := decimal.NewFromInt(0)
+
+		for _, item := range spendingReleaseOverviewItems {
+			value = value.Add(item.Value)
+		}
+
+		spendingReleaseOverview = append(spendingReleaseOverview, dto.SpendingReleaseOverviewItem{
+			Month:                spendingReleaseRequests[i].Month,
+			Year:                 spendingReleaseRequests[i].Year,
+			Value:                value,
+			Status:               spendingReleaseRequests[i].Status,
+			OrganizationUnitFile: OUFile,
+			SSSFile:              SSSFile,
+			OrganizationUnit:     OU,
+		})
+
 	}
 
 	hide := params.Args["hide"].(bool)

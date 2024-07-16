@@ -241,6 +241,7 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 		}
 
 		spendingReleaseOverview = append(spendingReleaseOverview, dto.SpendingReleaseOverviewItem{
+			ID:                   spendingReleaseRequests[i].ID,
 			Month:                spendingReleaseRequests[i].Month,
 			Year:                 spendingReleaseRequests[i].Year,
 			Value:                value,
@@ -248,6 +249,7 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 			OrganizationUnitFile: OUFile,
 			SSSFile:              SSSFile,
 			OrganizationUnit:     OU,
+			CreatedAt:            spendingReleaseRequests[i].CreatedAt,
 		})
 
 	}

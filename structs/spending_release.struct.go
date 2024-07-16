@@ -14,12 +14,14 @@ type SpendingReleaseInsert struct {
 }
 
 type SpendingReleaseRequest struct {
-	Year                   int    `json:"year"`
-	Month                  int    `json:"month"`
-	OrganizationUnitID     int    `json:"organization_unit_id"`
-	OrganizationUnitFileID int    `json:"organization_unit_file_id"`
-	SSSFileID              int    `json:"sss_file_id"`
-	Status                 string `json:"status"`
+	ID                     int       `json:"id"`
+	Year                   int       `json:"year"`
+	Month                  int       `json:"month"`
+	OrganizationUnitID     int       `json:"organization_unit_id"`
+	OrganizationUnitFileID int       `json:"organization_unit_file_id"`
+	SSSFileID              int       `json:"sss_file_id"`
+	Status                 string    `json:"status"`
+	CreatedAt              time.Time `json:"created_at"`
 }
 
 type SpendingRelease struct {

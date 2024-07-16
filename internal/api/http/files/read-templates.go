@@ -856,7 +856,7 @@ func (h *Handler) ImportExcelOrgUnitInventoriesHandler(w http.ResponseWriter, r 
 			cols := rows.Columns()
 
 			var inventory structs.BasicInventoryItem
-			var assessment structs.BasicInventoryAssessmentsTypesItem
+			//var assessment structs.BasicInventoryAssessmentsTypesItem
 			// var dispatch structs.BasicInventoryDispatchItem
 
 			for cellIndex, cellValue := range cols {
@@ -890,32 +890,32 @@ func (h *Handler) ImportExcelOrgUnitInventoriesHandler(w http.ResponseWriter, r 
 						return
 					}
 					inventory.GrossPrice = float32(floatValue)
-				case 14:
-					if value != "" {
-						formattedDate, err := ConvertDateFormat(value)
-						if err != nil {
-							handleError(w, err, http.StatusInternalServerError)
-							return
-						}
-						assessment.DateOfAssessment = &formattedDate
-					}
-				case 15:
-					floatValue, err := strconv.ParseFloat(value, 32)
-
+				/*case 14:
+				if value != "" {
+					formattedDate, err := ConvertDateFormat(value)
 					if err != nil {
 						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
-					assessment.GrossPriceDifference = float32(floatValue)
-				case 16:
-					floatValue, err := strconv.ParseFloat(value, 32)
+					assessment.DateOfAssessment = &formattedDate
+				}*/
+				/*case 15:
+				floatValue, err := strconv.ParseFloat(value, 32)
 
-					if err != nil {
-						handleError(w, err, http.StatusInternalServerError)
-						return
-					}
-					val := float32(floatValue)
-					assessment.ResidualPrice = &val
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+				assessment.GrossPriceDifference = float32(floatValue)*/
+				/*case 16:
+				floatValue, err := strconv.ParseFloat(value, 32)
+
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+				val := float32(floatValue)
+				assessment.ResidualPrice = &val*/
 				case 26:
 					input := dto.GetSettingsInput{}
 
@@ -951,7 +951,7 @@ func (h *Handler) ImportExcelOrgUnitInventoriesHandler(w http.ResponseWriter, r 
 						return
 					}
 					if len(deprecation.Data) > 0 {
-						assessment.DepreciationTypeID = deprecation.Data[0].ID
+						//assessment.DepreciationTypeID = deprecation.Data[0].ID
 						inventory.DepreciationTypeID = deprecation.Data[0].ID
 					}
 				}

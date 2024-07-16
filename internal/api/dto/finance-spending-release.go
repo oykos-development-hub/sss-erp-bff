@@ -52,6 +52,7 @@ type GetSpendingReleaseOverviewResponseMS struct {
 }
 
 type SpendingReleaseOverviewItem struct {
+	ID                   int                `json:"id"`
 	Month                int                `json:"month"`
 	Year                 int                `json:"year"`
 	CreatedAt            time.Time          `json:"created_at"`

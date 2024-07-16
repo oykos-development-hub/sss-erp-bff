@@ -61,6 +61,9 @@ var SpendingReleaseItemType = graphql.NewObject(graphql.ObjectConfig{
 var SpendingReleaseOverviwItemType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "SpendingReleaseOverviewItem",
 	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"month": &graphql.Field{
 			Type: graphql.Int,
 		},

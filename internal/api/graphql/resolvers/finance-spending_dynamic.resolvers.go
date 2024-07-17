@@ -217,12 +217,15 @@ func (r *Resolver) buildSpendingDynamicTree(accounts []*structs.AccountItem, spe
 		mapCurrentBudget[item.ID] = item.CurrentAmount
 	}
 
+	for _, item := range spendingMap {
+		item.Actual = mapCurrentBudget[item.AccountID]
+	}
+
 	for _, account := range accountTree[0] {
 		root := &dto.SpendingDynamicDTO{
 			AccountID:           account.ID,
 			AccountSerialNumber: account.SerialNumber,
 			AccountTitle:        account.Title,
-			Actual:              mapCurrentBudget[account.ID],
 		}
 
 		buildTreeRecursively(account.ID, root, accountTree, spendingMap)

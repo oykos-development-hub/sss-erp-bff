@@ -290,7 +290,7 @@ func calculateSums(node *dto.SpendingDynamicDTO) {
 		node.November.Savings = decimal.NewFromInt(0)
 		node.December.Value = decimal.NewFromInt(0)
 		node.December.Savings = decimal.NewFromInt(0)
-		//node.Actual = decimal.NewFromInt(0)
+		node.Actual = decimal.NewFromInt(0)
 	}
 	for _, child := range node.Children {
 		calculateSums(child)
@@ -319,7 +319,7 @@ func calculateSums(node *dto.SpendingDynamicDTO) {
 		node.November.Savings = node.November.Savings.Add(child.November.Savings)
 		node.December.Value = node.December.Value.Add(child.December.Value)
 		node.December.Savings = node.December.Savings.Add(child.December.Savings)
-		//node.Actual = node.Actual.Add(child.Actual)
+		node.Actual = node.Actual.Add(child.Actual)
 	}
 
 	node.TotalSavings = node.January.Savings.Add(node.February.Savings).Add(node.March.Savings).Add(node.April.Savings).

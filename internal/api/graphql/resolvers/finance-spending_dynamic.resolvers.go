@@ -334,5 +334,9 @@ func calculateSums(node *dto.SpendingDynamicDTO) {
 		Add(node.May.Savings).Add(node.June.Savings).Add(node.July.Savings).Add(node.August.Savings).
 		Add(node.September.Savings).Add(node.October.Savings).Add(node.November.Savings).Add(node.December.Savings)
 
-	node.TotalSavings = node.Actual.Sub(node.TotalSavings)
+	sumValue := node.January.Value.Add(node.February.Value).Add(node.March.Value).Add(node.April.Value).
+		Add(node.May.Value).Add(node.June.Value).Add(node.July.Value).Add(node.August.Value).
+		Add(node.September.Value).Add(node.October.Value).Add(node.November.Value).Add(node.December.Value)
+
+	node.TotalSavings = sumValue.Sub(node.Actual).Sub(node.TotalSavings)
 }

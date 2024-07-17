@@ -328,15 +328,15 @@ func calculateSums(node *dto.SpendingDynamicDTO) {
 		node.December.Value = node.December.Value.Add(child.December.Value)
 		node.December.Savings = node.December.Savings.Add(child.December.Savings)
 		node.Actual = node.Actual.Add(child.Actual)
+
+		node.TotalSavings = node.January.Savings.Add(node.February.Savings).Add(node.March.Savings).Add(node.April.Savings).
+			Add(node.May.Savings).Add(node.June.Savings).Add(node.July.Savings).Add(node.August.Savings).
+			Add(node.September.Savings).Add(node.October.Savings).Add(node.November.Savings).Add(node.December.Savings)
+
+		sumValue := node.January.Value.Add(node.February.Value).Add(node.March.Value).Add(node.April.Value).
+			Add(node.May.Value).Add(node.June.Value).Add(node.July.Value).Add(node.August.Value).
+			Add(node.September.Value).Add(node.October.Value).Add(node.November.Value).Add(node.December.Value)
+
+		node.TotalSavings = sumValue.Sub(node.Actual).Sub(node.TotalSavings)
 	}
-
-	node.TotalSavings = node.January.Savings.Add(node.February.Savings).Add(node.March.Savings).Add(node.April.Savings).
-		Add(node.May.Savings).Add(node.June.Savings).Add(node.July.Savings).Add(node.August.Savings).
-		Add(node.September.Savings).Add(node.October.Savings).Add(node.November.Savings).Add(node.December.Savings)
-
-	sumValue := node.January.Value.Add(node.February.Value).Add(node.March.Value).Add(node.April.Value).
-		Add(node.May.Value).Add(node.June.Value).Add(node.July.Value).Add(node.August.Value).
-		Add(node.September.Value).Add(node.October.Value).Add(node.November.Value).Add(node.December.Value)
-
-	node.TotalSavings = sumValue.Sub(node.Actual).Sub(node.TotalSavings)
 }

@@ -152,6 +152,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 				OrderFile:             &data.FileID,
 				ReceiveFile:           []int{data.ProFormaInvoiceFileID},
 				InvoiceNumber:         &data.InvoiceNumber,
+				PassedToFinance:       true,
 			}
 
 			if data.ProFormaInvoiceDate != nil {

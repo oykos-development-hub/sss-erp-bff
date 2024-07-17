@@ -214,11 +214,16 @@ func (r *Resolver) buildSpendingDynamicTree(accounts []*structs.AccountItem, spe
 
 	mapCurrentBudget := make(map[int]decimal.Decimal)
 	for _, item := range currentBudget {
-		mapCurrentBudget[item.ID] = item.CurrentAmount
+		if item.Type == 1 {
+			mapCurrentBudget[item.AccountID] = item.CurrentAmount
+		}
 	}
 
-	for _, item := range spendingMap {
-		item.Actual = mapCurrentBudget[item.AccountID]
+	for key, spendingDynamic := range spendingMap {
+		if value, exists := mapCurrentBudget[spendingDynamic.AccountID]; exists {
+			spendingDynamic.Actual = value
+			spendingMap[key] = spendingDynamic
+		}
 	}
 
 	for _, account := range accountTree[0] {

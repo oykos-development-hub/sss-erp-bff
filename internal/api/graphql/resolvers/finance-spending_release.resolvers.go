@@ -389,7 +389,7 @@ func (r *Resolver) SpendingReleaseGet(params graphql.ResolveParams) (interface{}
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "get account items"))
 	}
 
-	tree := buildSpendingReleaseTree(month, accounts.Data, spendingReleases, spendingDynamic)
+	tree := r.buildSpendingReleaseTree(month, accounts.Data, spendingReleases, spendingDynamic)
 
 	return dto.Response{
 		Status:  "success",
@@ -416,10 +416,10 @@ func populateSpendingReleaseData(spendingData []structs.SpendingRelease) map[int
 	return spendingMap
 }
 
-func buildSpendingReleaseTree(month int, accounts []*structs.AccountItem, spendingData []structs.SpendingRelease, dynamicData []dto.SpendingDynamicDTO) []*dto.SpendingReleaseDTO {
-	accountTree := buildAccountTree(accounts)
+func (r *Resolver) buildSpendingReleaseTree(month int, accounts []*structs.AccountItem, spendingData []structs.SpendingRelease, dynamicData []dto.SpendingDynamicDTO) []*dto.SpendingReleaseDTO {
+	accountTree := r.buildAccountTree(accounts)
 	spendingMap := populateSpendingReleaseData(spendingData)
-	spendingDynamicMap := populateSpendingData(dynamicData)
+	spendingDynamicMap := r.populateSpendingData(dynamicData)
 
 	var roots []*dto.SpendingReleaseDTO
 

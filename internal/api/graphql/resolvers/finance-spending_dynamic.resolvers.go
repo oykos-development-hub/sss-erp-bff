@@ -119,7 +119,11 @@ func (r *Resolver) SpendingDynamicOverview(params graphql.ResolveParams) (interf
 		return errors.HandleAPPError(errors.WrapInternalServerError(err, "get account items"))
 	}
 
-	tree := buildSpendingDynamicTree(accounts.Data, spendingDynamic)
+	tree, err := r.buildSpendingDynamicTree(accounts.Data, spendingDynamic)
+
+	if err != nil {
+		return errors.HandleAPPError(err)
+	}
 
 	return dto.Response{
 		Status:  "success",
@@ -170,7 +174,7 @@ func (r *Resolver) SpendingDynamicHistoryOverview(params graphql.ResolveParams) 
 	}, nil
 }
 
-func buildAccountTree(accounts []*structs.AccountItem) map[int][]*structs.AccountItem {
+func (r *Resolver) buildAccountTree(accounts []*structs.AccountItem) map[int][]*structs.AccountItem {
 	sort.Slice(accounts, func(i, j int) bool {
 		return accounts[i].SerialNumber < accounts[j].SerialNumber
 	})
@@ -187,7 +191,7 @@ func buildAccountTree(accounts []*structs.AccountItem) map[int][]*structs.Accoun
 	return accountTree
 }
 
-func populateSpendingData(spendingData []dto.SpendingDynamicDTO) map[int]*dto.SpendingDynamicDTO {
+func (r *Resolver) populateSpendingData(spendingData []dto.SpendingDynamicDTO) map[int]*dto.SpendingDynamicDTO {
 	spendingMap := make(map[int]*dto.SpendingDynamicDTO)
 	for _, data := range spendingData {
 		data := data // capture range variable
@@ -196,17 +200,29 @@ func populateSpendingData(spendingData []dto.SpendingDynamicDTO) map[int]*dto.Sp
 	return spendingMap
 }
 
-func buildSpendingDynamicTree(accounts []*structs.AccountItem, spendingData []dto.SpendingDynamicDTO) []*dto.SpendingDynamicDTO {
-	accountTree := buildAccountTree(accounts)
-	spendingMap := populateSpendingData(spendingData)
+func (r *Resolver) buildSpendingDynamicTree(accounts []*structs.AccountItem, spendingData []dto.SpendingDynamicDTO) ([]*dto.SpendingDynamicDTO, error) {
+	accountTree := r.buildAccountTree(accounts)
+	spendingMap := r.populateSpendingData(spendingData)
 
 	var roots []*dto.SpendingDynamicDTO
+
+	currentBudget, err := r.Repo.GetCurrentBudgetByOrganizationUnit(spendingData[0].UnitID)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get current budget by organization unit")
+	}
+
+	mapCurrentBudget := make(map[int]decimal.Decimal)
+	for _, item := range currentBudget {
+		mapCurrentBudget[item.ID] = item.CurrentAmount
+	}
 
 	for _, account := range accountTree[0] {
 		root := &dto.SpendingDynamicDTO{
 			AccountID:           account.ID,
 			AccountSerialNumber: account.SerialNumber,
 			AccountTitle:        account.Title,
+			Actual:              mapCurrentBudget[account.ID],
 		}
 
 		buildTreeRecursively(account.ID, root, accountTree, spendingMap)
@@ -214,7 +230,7 @@ func buildSpendingDynamicTree(accounts []*structs.AccountItem, spendingData []dt
 		roots = append(roots, root)
 	}
 
-	return roots
+	return roots, nil
 }
 
 func buildTreeRecursively(accountID int, parent *dto.SpendingDynamicDTO, accountTree map[int][]*structs.AccountItem, spendingMap map[int]*dto.SpendingDynamicDTO) {
@@ -306,13 +322,7 @@ func calculateSums(node *dto.SpendingDynamicDTO) {
 		//node.Actual = node.Actual.Add(child.Actual)
 	}
 
-	// Nakon što rekurzija završi za svu djecu, izračunavamo ukupne uštede za roditeljski čvor
 	node.TotalSavings = node.January.Savings.Add(node.February.Savings).Add(node.March.Savings).Add(node.April.Savings).
 		Add(node.May.Savings).Add(node.June.Savings).Add(node.July.Savings).Add(node.August.Savings).
 		Add(node.September.Savings).Add(node.October.Savings).Add(node.November.Savings).Add(node.December.Savings)
-
-	node.Actual = node.January.Value.Add(node.February.Value).Add(node.March.Value).Add(node.April.Value).
-		Add(node.May.Value).Add(node.June.Value).Add(node.July.Value).Add(node.August.Value).
-		Add(node.September.Value).Add(node.October.Value).Add(node.November.Value).Add(node.December.Value)
-
 }

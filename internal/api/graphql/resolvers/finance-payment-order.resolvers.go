@@ -217,6 +217,20 @@ func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, e
 	increment := 1
 
 	for i := 0; i < len(items); i++ {
+
+		if items[i].AccountID != 0 {
+			account, err := r.Repo.GetAccountItemByID(items[i].AccountID)
+
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+
+			items[i].Account = dto.DropdownSimple{
+				ID:    account.ID,
+				Title: account.SerialNumber + " - " + account.Title,
+			}
+		}
+
 		items[i].RemainPrice = math.Round(items[i].RemainPrice*100) / 100
 
 		accountMap := make(map[string]float64)

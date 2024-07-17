@@ -61,6 +61,8 @@ type Obligation struct {
 	TotalPrice                float64        `json:"total_price"`
 	RemainPrice               float64        `json:"remain_price"`
 	Status                    string         `json:"status"`
+	AccountID                 int            `json:"account_id"`
+	Account                   DropdownSimple `json:"account"`
 	CreatedAt                 time.Time      `json:"created_at"`
 }
 

@@ -125,6 +125,9 @@ func initSpendingDynamicType() {
 				"created_at": &graphql.Field{
 					Type: graphql.String,
 				},
+				"is_current_month_editable": &graphql.Field{
+					Type: graphql.Boolean,
+				},
 				"children": &graphql.Field{
 					Type: graphql.NewList(spendingDynamicType),
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {

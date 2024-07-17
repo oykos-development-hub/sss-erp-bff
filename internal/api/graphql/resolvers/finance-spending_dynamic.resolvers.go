@@ -240,6 +240,7 @@ func buildTreeRecursively(accountID int, parent *dto.SpendingDynamicDTO, account
 			child.December = data.December
 			child.Actual = data.Actual
 			child.TotalSavings = data.TotalSavings
+			child.IsCurrentMonthEditable = data.IsCurrentMonthEditable
 		}
 
 		buildTreeRecursively(childAccount.ID, child, accountTree, spendingMap)

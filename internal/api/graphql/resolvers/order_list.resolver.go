@@ -319,6 +319,24 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 			return errors.HandleAPPError(err)
 		}
 
+		invoices, _, err := r.Repo.GetInvoiceList(&dto.GetInvoiceListInputMS{OrderID: &item.ID})
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		if len(invoices) == 1 {
+			if invoices[0].ProFormaInvoiceFileID != item.OrderFile.ID {
+				invoices[0].ProFormaInvoiceFileID = item.OrderFile.ID
+				_, err := r.Repo.UpdateInvoice(params.Context, &invoices[0])
+
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			}
+		}
+
 		response.Message = "You updated this item!"
 		response.Item = item
 	} else {

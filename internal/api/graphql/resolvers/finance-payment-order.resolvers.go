@@ -313,7 +313,9 @@ func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, e
 				TotalPrice:  items[i].TotalPrice,
 				RemainPrice: items[i].RemainPrice,
 				Title:       items[i].Title,
+				ID:          increment,
 			})
+			increment++
 		}
 	}
 

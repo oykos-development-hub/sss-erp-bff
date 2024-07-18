@@ -55,6 +55,10 @@ func openExcelFile(r *http.Request) (*excelize.File, error) {
 
 func handleError(w http.ResponseWriter, err error, statusCode int) {
 	log.Logger.Printf("Error: %s - %v", err.Error(), err)
+
+	if statusCode < 100 || statusCode > 599 {
+		statusCode = http.StatusInternalServerError
+	}
 	w.WriteHeader(statusCode)
 	_ = MarshalAndWriteJSON(w, errorResponse{
 		Message: err.Error(),

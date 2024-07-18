@@ -305,6 +305,16 @@ func (r *Resolver) buildObligations(items []dto.Obligation) ([]dto.Obligation, e
 		}
 
 		items[i].InvoiceItems = invoiceItems
+
+		if items[i].Type != "invoices" {
+			items[i].InvoiceItems = append(items[i].InvoiceItems, dto.InvoiceItems{
+				AccountID:   items[i].AccountID,
+				Account:     items[i].Account,
+				TotalPrice:  items[i].TotalPrice,
+				RemainPrice: items[i].RemainPrice,
+				Title:       items[i].Title,
+			})
+		}
 	}
 
 	return items, nil

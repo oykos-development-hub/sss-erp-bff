@@ -708,7 +708,7 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 
 	additionalExpenses, err := calculateAdditionalExpenses(*taxAuthorityCodebook, grossPrice, previousIncomeGross, r, organizationUnit, *municipality)
 
-	if taxAuthorityCodebook.IncludeSubtax {
+	if taxAuthorityCodebook.IncludeSubtax && len(additionalExpenses) > 1 {
 		additionalExpenses[len(additionalExpenses)-1].Price += additionalExpenses[1].Price
 	}
 

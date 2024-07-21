@@ -161,7 +161,6 @@ func (r *Resolver) ReturnEnforcedPaymentResolver(params graphql.ResolveParams) (
 	itemID := params.Args["id"].(int)
 	returnFileID := params.Args["return_file_id"].(int)
 	returnDateString := params.Args["return_date"].(string)
-	returnAmount := params.Args["return_amount"].(float64)
 
 	returnDate, err := parseDate(returnDateString)
 
@@ -176,7 +175,6 @@ func (r *Resolver) ReturnEnforcedPaymentResolver(params graphql.ResolveParams) (
 		ID:           itemID,
 		ReturnFileID: &returnFileID,
 		ReturnDate:   &returnDate,
-		ReturnAmount: &returnAmount,
 	}
 
 	err = r.Repo.ReturnEnforcedPayment(params.Context, EnforcedPayment)

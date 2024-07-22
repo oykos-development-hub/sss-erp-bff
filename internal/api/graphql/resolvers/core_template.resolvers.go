@@ -104,6 +104,66 @@ func (r *Resolver) TemplateUpdateResolver(params graphql.ResolveParams) (interfa
 
 }
 
+func (r *Resolver) CustomerSupportUpdateResolver(params graphql.ResolveParams) (interface{}, error) {
+	id, _ := params.Args["id"].(int)
+	fileID, _ := params.Args["user_documentation_file_id"].(int)
+
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	data := structs.CustomerSupport{
+		ID:                      id,
+		UserDocumentationFileID: fileID,
+	}
+
+	err := r.Repo.UpdateCustomerSupport(params.Context, &data)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+	response.Message = "You updated this item!"
+
+	return response, nil
+
+}
+
+func (r *Resolver) CustomerSupportOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	id, _ := params.Args["id"].(int)
+
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	data, err := r.Repo.GetCustomerSupport(id)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+	response.Message = "You get this item!"
+
+	var file *structs.File
+	if data.UserDocumentationFileID != 0 {
+		file, err = r.Repo.GetFileByID(data.UserDocumentationFileID)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+	}
+
+	response.Item = dto.CustomerSupport{
+		ID: data.ID,
+		UserDocumentationFile: dto.FileDropdownSimple{
+			ID:   file.ID,
+			Name: file.Name,
+			Type: *file.Type,
+		},
+	}
+
+	return response, nil
+
+}
+
 func (r *Resolver) TemplateItemUpdateResolver(params graphql.ResolveParams) (interface{}, error) {
 	var data structs.Template
 	dataBytes, _ := json.Marshal(params.Args["data"])

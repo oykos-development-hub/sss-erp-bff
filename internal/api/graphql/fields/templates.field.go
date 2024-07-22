@@ -80,3 +80,32 @@ func (f *Field) TemplateDeleteField() *graphql.Field {
 		Resolve: f.Resolvers.TemplateDeleteResolver,
 	}
 }
+
+func (f *Field) CustomerSupportUpdateFiled() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.CustomerSupportInsertType,
+		Description: "Creates new or alter existing Settings Dropdown options",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+			"user_documentation_file_id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.CustomerSupportUpdateResolver,
+	}
+}
+
+func (f *Field) CustomerSupportOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.CustomerSupportInsertType,
+		Description: "Creates new or alter existing Settings Dropdown options",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.CustomerSupportOverviewResolver,
+	}
+}

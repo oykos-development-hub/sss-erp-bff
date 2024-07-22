@@ -27,3 +27,12 @@ type GetTemplateResponseListMS struct {
 type GetTemplateResponseMS struct {
 	Data structs.Template `json:"data"`
 }
+
+type GetCustomerResponseMS struct {
+	Data structs.CustomerSupport `json:"data"`
+}
+
+type CustomerSupport struct {
+	ID                    int                `json:"id"`
+	UserDocumentationFile FileDropdownSimple `json:"user_documentation_file"`
+}

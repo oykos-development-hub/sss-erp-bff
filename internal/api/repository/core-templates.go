@@ -76,6 +76,29 @@ func (repo *MicroserviceRepository) UpdateTemplateItem(ctx context.Context, item
 	return nil
 }
 
+func (repo *MicroserviceRepository) UpdateCustomerSupport(ctx context.Context, item *structs.CustomerSupport) error {
+
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.Core.CustomerSupport+"/"+strconv.Itoa(item.ID), item, nil, header)
+	if err != nil {
+		return errors.Wrap(err, "make api request")
+	}
+	return nil
+}
+
+func (repo *MicroserviceRepository) GetCustomerSupport(id int) (*structs.CustomerSupport, error) {
+	res := &dto.GetCustomerResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.CustomerSupport+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return &res.Data, nil
+}
+
 func (repo *MicroserviceRepository) GetTemplateList(input dto.TemplateFilter) ([]structs.Template, int, error) {
 	res := &dto.GetTemplateResponseListMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.TemplateItems, input, res)

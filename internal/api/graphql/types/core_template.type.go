@@ -73,3 +73,33 @@ var TemplateDeleteType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var CustomerSupportInsertType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "CustomerSupportInsertType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: CustomerSupportType,
+		},
+	},
+})
+
+var CustomerSupportType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "CustomerSupportType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"user_documentation_file": &graphql.Field{
+			Type: FileDropdownItemType,
+		},
+	},
+})

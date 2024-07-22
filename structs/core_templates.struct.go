@@ -7,3 +7,8 @@ type Template struct {
 	FileID             int    `json:"file_id"`
 	TemplateID         int    `json:"template_id"`
 }
+
+type CustomerSupport struct {
+	ID                      int `json:"id"`
+	UserDocumentationFileID int `json:"user_documentation_file_id"`
+}

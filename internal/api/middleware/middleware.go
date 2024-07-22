@@ -114,10 +114,7 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 			bytes.Contains(body, []byte("refresh")) ||
 			bytes.Contains(body, []byte("ForgotPassword")) ||
 			bytes.Contains(body, []byte("ValidateMail")) ||
-			bytes.Contains(body, []byte("ResetPassword")) ||
-			bytes.Contains(body, []byte("settingsDropdown_")) ||
-			bytes.Contains(body, []byte("jobPositions")) ||
-			bytes.Contains(body, []byte("userProfile_")) {
+			bytes.Contains(body, []byte("ResetPassword")) {
 			next.ServeHTTP(w, r)
 			return
 		}

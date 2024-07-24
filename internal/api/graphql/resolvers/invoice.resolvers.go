@@ -392,7 +392,7 @@ func (r *Resolver) InvoiceDeleteResolver(params graphql.ResolveParams) (interfac
 			GroupOfArticlesID:   order.GroupOfArticlesID,
 			SupplierID:          order.SupplierID,
 			Status:              order.Status,
-			PassedToFinance:     true,
+			PassedToFinance:     false,
 			UsedInFinance:       false,
 			DateSystem:          order.DateSystem,
 			InvoiceDate:         order.InvoiceDate,

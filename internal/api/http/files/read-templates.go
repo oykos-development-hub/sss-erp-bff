@@ -2020,7 +2020,7 @@ func (h *Handler) ImportSalariesHandler(w http.ResponseWriter, r *http.Request) 
 						typeOfInput = value
 					}
 
-					if strings.Contains(value, "Ukupno") {
+					if strings.Contains(value, "Ukupno") || strings.Contains(value, "Za isplatu") {
 						typeOfInput = ""
 						additionalSalaryExpense.Type = ""
 					}

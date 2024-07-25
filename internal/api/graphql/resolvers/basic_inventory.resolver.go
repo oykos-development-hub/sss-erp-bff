@@ -906,6 +906,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		get invoice
 	*/
 
+	if lifetimeOfAssessmentInMonths == 0 {
+		lifetimeOfAssessmentInMonths = 999999999
+	}
+
 	res := dto.BasicInventoryResponseItem{
 		ID:                           item.ID,
 		InvoiceArticleID:             item.InvoiceArticleID,

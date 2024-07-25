@@ -839,9 +839,31 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 	if !ok || organizationUnitID == nil {
 		return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 	}
+	var articles []structs.OrderArticleInsertItem
+	if len(data.Articles) == 0 {
+		articlesBE, err := r.Repo.GetOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{OrderID: &orderList.ID})
+
+		if err != nil {
+			return errors.HandleAPPError(err)
+		}
+
+		for _, article := range articlesBE.Data {
+			articles = append(articles, structs.OrderArticleInsertItem{
+				ID:            article.ID,
+				Amount:        article.Amount,
+				Title:         article.Title,
+				Description:   article.Description,
+				NetPrice:      article.NetPrice,
+				VatPercentage: article.VatPercentage,
+			})
+		}
+	} else {
+		articles = data.Articles
+	}
+
 	if status != "Receive" {
 		if (orderList.GroupOfArticlesID != nil && *orderList.GroupOfArticlesID != 0) || orderList.IsProFormaInvoice {
-			for _, article := range data.Articles {
+			for _, article := range articles {
 				orderArticle, err := r.Repo.GetOrderProcurementArticleByID(article.ID)
 
 				if err != nil {

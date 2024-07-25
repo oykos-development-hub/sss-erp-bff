@@ -11,7 +11,7 @@ import (
 )
 
 type MicroserviceRepositoryInterface interface {
-	AddOnStock(stock []structs.StockArticle, article structs.OrderProcurementArticleItem, organizationUnitID int) error
+	AddOnStock(stock []structs.StockArticle, article structs.OrderProcurementArticleItem, organizationUnitID int, exception bool) error
 	AuthenticateUser(r *http.Request) (*structs.UserAccounts, error)
 	CheckInsertInventoryData(input []structs.BasicInventoryInsertItem) ([]structs.BasicInventoryInsertValidator, error)
 	CreateAbsent(ctx context.Context, absent *structs.Absent) (*structs.Absent, error)

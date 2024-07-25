@@ -182,7 +182,7 @@ func (repo *MicroserviceRepository) UpdateOrderProcurementArticle(item *structs.
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) AddOnStock(stock []structs.StockArticle, article structs.OrderProcurementArticleItem, organizationUnitID int) error {
+func (repo *MicroserviceRepository) AddOnStock(stock []structs.StockArticle, article structs.OrderProcurementArticleItem, organizationUnitID int, exception bool) error {
 
 	if len(stock) == 0 {
 		input := dto.MovementArticle{
@@ -193,7 +193,7 @@ func (repo *MicroserviceRepository) AddOnStock(stock []structs.StockArticle, art
 			NetPrice:           article.NetPrice,
 			VatPercentage:      article.VatPercentage,
 			OrganizationUnitID: organizationUnitID,
-			Exception:          true,
+			Exception:          exception,
 		}
 
 		err := repo.CreateStock(input)

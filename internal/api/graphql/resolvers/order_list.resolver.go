@@ -889,7 +889,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 					VatPercentage:      &orderArticle.VatPercentage,
 					OrganizationUnitID: organizationUnitID})
 
-				err = r.Repo.AddOnStock(stock, *orderArticle, *organizationUnitID)
+				err = r.Repo.AddOnStock(stock, *orderArticle, *organizationUnitID, true)
 
 				if err != nil {
 					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
@@ -937,7 +937,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				orderArticle.NetPrice = currentArticle.NetPrice
 				orderArticle.VatPercentage = vatPercentageInt
 
-				err = r.Repo.AddOnStock(stockArticle, orderArticle, *organizationUnitID)
+				err = r.Repo.AddOnStock(stockArticle, orderArticle, *organizationUnitID, false)
 
 				if err != nil {
 					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})

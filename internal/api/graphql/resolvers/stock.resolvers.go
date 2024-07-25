@@ -57,6 +57,15 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 	input.OrganizationUnitID = organizationUnitID
 
 	if dateOk && date != "" {
+		inputDate, err := parseDate(date)
+
+		input.Date = inputDate
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
 		articleList, err := r.Repo.GetStockReport(&input)
 
 		if err != nil {

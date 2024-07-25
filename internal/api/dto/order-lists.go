@@ -68,16 +68,17 @@ type OrderListOverviewResponse struct {
 }
 
 type StockFilter struct {
-	Page               *int     `json:"page"`
-	Size               *int     `json:"size"`
-	Title              *string  `json:"title"`
-	Year               *string  `json:"year"`
-	Description        *string  `json:"description"`
-	NetPrice           *float32 `json:"net_price"`
-	VatPercentage      *int     `json:"vat_percentage"`
-	OrganizationUnitID *int     `json:"organization_unit_id"`
-	SortByAmount       *string  `json:"sort_by_amount"`
-	SortByYear         *string  `json:"sort_by_year"`
+	Page               *int      `json:"page"`
+	Size               *int      `json:"size"`
+	Title              *string   `json:"title"`
+	Year               *string   `json:"year"`
+	Description        *string   `json:"description"`
+	NetPrice           *float32  `json:"net_price"`
+	VatPercentage      *int      `json:"vat_percentage"`
+	OrganizationUnitID *int      `json:"organization_unit_id"`
+	SortByAmount       *string   `json:"sort_by_amount"`
+	SortByYear         *string   `json:"sort_by_year"`
+	Date               time.Time `json:"date"`
 }
 
 type GetStockResponseMS struct {

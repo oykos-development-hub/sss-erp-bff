@@ -160,7 +160,8 @@ func BuildAssessmentResponse(
 
 func calculateMonthlyConsumption(startDateStr string, initialPrice float32, estimatedDuration int) float32 {
 	startDate, _ := time.Parse(config.ISO8601Format, startDateStr)
-	today := time.Date(2023, time.December, 31, 0, 0, 0, 0, time.UTC)
+	//today := time.Date(2023, time.December, 31, 0, 0, 0, 0, time.UTC)
+	today := time.Now()
 	endDate := startDate.AddDate(estimatedDuration, 0, 0)
 
 	if endDate.Before(today) {

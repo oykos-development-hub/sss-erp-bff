@@ -750,12 +750,12 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 				residualPrice = assessmentResponse.ResidualPrice
 				lifetimeOfAssessmentInMonths = assessmentResponse.EstimatedDuration
 				dateOfAssessment = *assessmentResponse.DateOfAssessment
-				//grossPrice = assessmentResponse.GrossPriceDifference
-				//amortizationValue = calculateMonthlyConsumption(dateOfAssessment, 100/lifetimeOfAssessmentInMonths, grossPrice, lifetimeOfAssessmentInMonths)
-				//grossPrice = assessmentResponse.GrossPriceDifference - amortizationValue
+				grossPrice = assessmentResponse.GrossPriceDifference
+				amortizationValue = calculateMonthlyConsumption(dateOfAssessment, grossPrice, lifetimeOfAssessmentInMonths)
+				grossPrice = assessmentResponse.GrossPriceDifference - amortizationValue
 
-				grossPrice = assessmentResponse.GrossPriceDifference - item.AssessmentPrice
-				amortizationValue = item.AssessmentPrice
+				//grossPrice = assessmentResponse.GrossPriceDifference - item.AssessmentPrice
+				//amortizationValue = item.AssessmentPrice
 			}
 			assessmentsResponse = append(assessmentsResponse, assessmentResponse)
 		}

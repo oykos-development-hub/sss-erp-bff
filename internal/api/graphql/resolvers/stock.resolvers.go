@@ -8,7 +8,6 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/graphql-go/graphql"
@@ -475,6 +474,7 @@ func (r *Resolver) MovementDeleteResolver(params graphql.ResolveParams) (interfa
 	}, nil
 }
 
+/*
 func officeInOrgUnit(r repository.MicroserviceRepositoryInterface, OfficeID int, OrganizationUnitID int) bool {
 	orgUnitString := strconv.Itoa(OrganizationUnitID)
 
@@ -493,3 +493,4 @@ func officeInOrgUnit(r repository.MicroserviceRepositoryInterface, OfficeID int,
 	}
 	return false
 }
+*/

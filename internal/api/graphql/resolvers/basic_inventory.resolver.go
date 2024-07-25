@@ -266,8 +266,14 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 
 			}
 
+			typeOfDispatch := "created"
+
+			if item.Type == "small" {
+				typeOfDispatch = "allocation"
+			}
+
 			dispatch := structs.BasicInventoryDispatchItem{
-				Type:                     "created",
+				Type:                     typeOfDispatch,
 				SourceUserProfileID:      item.TargetUserProfileID,
 				SourceOrganizationUnitID: *organizationUnitID,
 				Date:                     itemRes.CreatedAt,

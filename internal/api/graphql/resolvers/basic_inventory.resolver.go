@@ -222,45 +222,48 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 				}
 			}
 
-			depreciationType, err := r.Repo.GetDropdownSettingByID(item.DepreciationTypeID)
+			if item.DepreciationTypeID != 0 {
 
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
+				depreciationType, err := r.Repo.GetDropdownSettingByID(item.DepreciationTypeID)
 
-			value, err := strconv.Atoi(depreciationType.Value)
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+				value, err := strconv.Atoi(depreciationType.Value)
 
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
 
-			var estimatedDuration int
+				var estimatedDuration int
 
-			if value != 0 {
-				estimatedDuration = 100 / value
-			} else {
-				estimatedDuration = 10000
-			}
+				if value != 0 {
+					estimatedDuration = 100 / value
+				} else {
+					estimatedDuration = 10000
+				}
 
-			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
-			assessment := structs.BasicInventoryAssessmentsTypesItem{
-				EstimatedDuration:    estimatedDuration,
-				DepreciationTypeID:   item.DepreciationTypeID,
-				GrossPriceNew:        item.GrossPrice,
-				GrossPriceDifference: item.GrossPrice,
-				DateOfAssessment:     &itemRes.CreatedAt,
-				InventoryID:          itemRes.ID,
-				Active:               true,
-				UserProfileID:        loggedInProfile.ID,
-				Type:                 "financial",
-			}
+				item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
+				assessment := structs.BasicInventoryAssessmentsTypesItem{
+					EstimatedDuration:    estimatedDuration,
+					DepreciationTypeID:   item.DepreciationTypeID,
+					GrossPriceNew:        item.GrossPrice,
+					GrossPriceDifference: item.GrossPrice,
+					DateOfAssessment:     &itemRes.CreatedAt,
+					InventoryID:          itemRes.ID,
+					Active:               true,
+					UserProfileID:        loggedInProfile.ID,
+					Type:                 "financial",
+				}
 
-			_, err = r.Repo.CreateAssessments(params.Context, &assessment)
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
+				_, err = r.Repo.CreateAssessments(params.Context, &assessment)
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+
 			}
 
 			dispatch := structs.BasicInventoryDispatchItem{

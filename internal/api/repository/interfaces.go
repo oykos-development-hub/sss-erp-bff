@@ -204,6 +204,7 @@ type MicroserviceRepositoryInterface interface {
 	GetRole(id structs.UserRole) (*structs.Roles, error)
 	GetRoleList() ([]structs.Roles, error)
 	GetStock(input *dto.StockFilter) ([]structs.StockArticle, *int, error)
+	GetStockReport(input *dto.StockFilter) ([]structs.StockArticle, error)
 	GetStockByID(id int) (*structs.StockArticle, error)
 	GetSupplier(id int) (*structs.Suppliers, error)
 	GetSupplierList(input *dto.GetSupplierInputMS) (*dto.GetSupplierListResponseMS, error)

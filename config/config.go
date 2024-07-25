@@ -223,6 +223,7 @@ type AccountingMS struct {
 	MovementReport           string
 	MovementArticles         string
 	Stock                    string
+	StockReport              string
 	Logs                     string
 	ErrorLogs                string
 }
@@ -406,6 +407,7 @@ func LoadDefaultConfig() (*Config, error) {
 				MovementReport:           accountingBase + "/movements-report",
 				MovementArticles:         accountingBase + "/movement-articles",
 				Stock:                    accountingBase + "/stocks",
+				StockReport:              accountingBase + "/get-all-stocks",
 				Logs:                     accountingBase + "/logs",
 				ErrorLogs:                accountingBase + "/error-logs",
 			},

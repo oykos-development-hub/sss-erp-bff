@@ -54,91 +54,23 @@ func (r *Resolver) StockOverviewResolver(params graphql.ResolveParams) (interfac
 		return errors.HandleAPPError(fmt.Errorf("user does not have organization unit assigned"))
 	}
 
+	input.OrganizationUnitID = organizationUnitID
+
 	if dateOk && date != "" {
-		statusReceive := "Receive"
-		orders, err := r.Repo.GetOrderLists(&dto.GetOrderListInput{
-			DateSystem:         &date,
-			Status:             &statusReceive,
-			OrganizationUnitID: organizationUnitID,
-		})
+		articleList, err := r.Repo.GetStockReport(&input)
 
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
-		for _, order := range orders.Data {
-			orderArticles, err := r.Repo.GetOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{OrderID: &order.ID})
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
-			for _, article := range orderArticles.Data {
-				flag := false
-
-				if article.ArticleID != 0 {
-					currentArticle, err := r.Repo.GetProcurementArticle(article.ArticleID)
-
-					if err != nil {
-						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-						return errors.HandleAPPError(err)
-					}
-
-					article.Title = currentArticle.Title
-					article.Description = currentArticle.Description
-					article.NetPrice = currentArticle.NetPrice
-					vatPercentageInt, err := strconv.Atoi(currentArticle.VatPercentage)
-
-					if err != nil {
-						return nil, err
-					}
-
-					article.VatPercentage = vatPercentageInt
-				}
-
-				for i := 0; i < len(articles); i++ {
-					if article.Title == articles[i].Title && article.Year == articles[i].Year {
-						articles[i].Amount += article.Amount
-						flag = true
-						break
-					}
-				}
-
-				if !flag {
-					newArticle := structs.StockArticle{
-						Title:         article.Title,
-						Description:   article.Description,
-						Year:          article.Year,
-						Amount:        article.Amount,
-						ID:            article.ID,
-						NetPrice:      article.NetPrice,
-						VatPercentage: article.VatPercentage,
-					}
-					articles = append(articles, newArticle)
-				}
-			}
-		}
-
-		movementArticles, err := r.Repo.GetMovementArticleList(dto.OveralSpendingFilter{
-			EndDate:            &date,
-			OrganizationUnitID: organizationUnitID,
-		})
-
-		if err != nil {
-			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-			return errors.HandleAPPError(err)
-		}
-
-		for i := 0; i < len(movementArticles); i++ {
-			for j := 0; j < len(articles); j++ {
-				if movementArticles[i].Title == articles[j].Title && movementArticles[i].Year == articles[j].Year && officeInOrgUnit(r.Repo, movementArticles[i].OfficeID, *organizationUnitID) {
-					articles[j].Amount -= movementArticles[i].Amount
-				}
+		for _, article := range articleList {
+			if article.Amount > 0 {
+				articles = append(articles, article)
 			}
 		}
 
 	} else {
-		input.OrganizationUnitID = organizationUnitID
 
 		articleList, total, err := r.Repo.GetStock(&input)
 		if err != nil {

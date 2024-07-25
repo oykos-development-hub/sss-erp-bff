@@ -19,6 +19,16 @@ func (repo *MicroserviceRepository) GetStock(input *dto.StockFilter) ([]structs.
 	return res.Data, &res.Total, nil
 }
 
+func (repo *MicroserviceRepository) GetStockReport(input *dto.StockFilter) ([]structs.StockArticle, error) {
+	res := &dto.GetStockResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.StockReport, input, res)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return res.Data, nil
+}
+
 func (repo *MicroserviceRepository) GetStockByID(id int) (*structs.StockArticle, error) {
 	res := &dto.GetSingleStockResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.Stock+"/"+strconv.Itoa(id), nil, res)

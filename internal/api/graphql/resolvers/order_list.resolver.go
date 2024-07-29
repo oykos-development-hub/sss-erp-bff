@@ -566,31 +566,39 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, artic
 			amount -= article.Amount
 		}
 		currentArticle.Available = amount
+	} else {
+
+		articleInventory, err := r.GetAllInventoryItem(dto.InventoryItemFilter{
+			ArticleID:          &article.ID,
+			OrganizationUnitID: &organizationUnitID,
+		})
+
+		if err != nil {
+			return currentArticle, errors.Wrap(err, "repo get all inventory item")
+		}
+
+		numberOfArticles := len(articleInventory.Data)
+
+		for _, article := range articleInventory.Data {
+			if article.TargetOrganizationUnitID != 0 && article.TargetOrganizationUnitID != organizationUnitID {
+				numberOfArticles--
+			}
+		}
+
+		currentArticle.Available -= numberOfArticles
+
+		overages, err := r.GetProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
+			ContractArticleID:  &article.ID,
+			OrganizationUnitID: &organizationUnitID})
+
+		if err != nil {
+			return currentArticle, errors.Wrap(err, "repo get procurement contract article overage list")
+		}
+
+		for _, overage := range overages {
+			currentArticle.Available += overage.Amount
+		}
 	}
-
-	articleInventory, err := r.GetAllInventoryItem(dto.InventoryItemFilter{
-		ArticleID:          &article.ID,
-		OrganizationUnitID: &organizationUnitID,
-	})
-
-	if err != nil {
-		return currentArticle, errors.Wrap(err, "repo get all inventory item")
-	}
-
-	currentArticle.Available -= len(articleInventory.Data)
-
-	overages, err := r.GetProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
-		ContractArticleID:  &article.ID,
-		OrganizationUnitID: &organizationUnitID})
-
-	if err != nil {
-		return currentArticle, errors.Wrap(err, "repo get procurement contract article overage list")
-	}
-
-	for _, overage := range overages {
-		currentArticle.Available += overage.Amount
-	}
-
 	return currentArticle, nil
 }
 

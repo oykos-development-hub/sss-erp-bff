@@ -117,7 +117,9 @@ func (repo *MicroserviceRepository) CreateDispatchItem(ctx context.Context, item
 				}
 
 				inventory.TargetUserProfileID = 0
-				inventory.OfficeID = office.Data[0].ID
+				if len(office.Data) > 0 {
+					inventory.OfficeID = office.Data[0].ID
+				}
 
 				_, err = repo.UpdateInventoryItem(ctx, inventory.ID, inventory)
 				if err != nil {

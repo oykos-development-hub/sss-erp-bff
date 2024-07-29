@@ -585,7 +585,7 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, artic
 	numberOfArticles := len(articleInventory.Data)
 
 	for _, article := range articleInventory.Data {
-		if article.TargetOrganizationUnitID != 0 && article.TargetOrganizationUnitID != organizationUnitID {
+		if organizationUnitID != 0 && article.TargetOrganizationUnitID != 0 && article.TargetOrganizationUnitID != organizationUnitID {
 			numberOfArticles--
 		}
 	}

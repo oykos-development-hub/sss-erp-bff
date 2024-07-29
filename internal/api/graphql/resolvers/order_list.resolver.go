@@ -568,10 +568,15 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, artic
 		currentArticle.Available = amount
 	}
 
-	articleInventory, err := r.GetAllInventoryItem(dto.InventoryItemFilter{
-		ArticleID:          &article.ID,
-		OrganizationUnitID: &organizationUnitID,
-	})
+	input := dto.InventoryItemFilter{
+		ArticleID: &article.ID,
+	}
+
+	if organizationUnitID != 0 {
+		input.OrganizationUnitID = &organizationUnitID
+	}
+
+	articleInventory, err := r.GetAllInventoryItem(input)
 
 	if err != nil {
 		return currentArticle, errors.Wrap(err, "repo get all inventory item")

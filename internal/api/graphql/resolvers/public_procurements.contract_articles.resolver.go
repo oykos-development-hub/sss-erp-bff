@@ -81,7 +81,7 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 			grossValue = article.NetValue + article.NetValue*float32(vatPercentageFloat)/100
 		}
 
-		if amount > 0 {
+		if amount > 0 && articleData.VisibilityType == 1 {
 			items = append(items, dto.ProcurementContractArticlesResponseItem{
 				ID: article.PublicProcurementArticleID,
 				Article: dto.DropdownProcurementArticle{

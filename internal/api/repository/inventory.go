@@ -83,7 +83,9 @@ func (repo *MicroserviceRepository) CreateDispatchItem(ctx context.Context, item
 					if err != nil {
 						return nil, errors.Wrap(err, "repo get office dropdown settings")
 					}
-					OfficeID = office.Data[0].ID
+					if len(office.Data) > 0 {
+						OfficeID = office.Data[0].ID
+					}
 				}
 
 				inventory.TargetUserProfileID = targetUserProfileID

@@ -78,7 +78,7 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
-			if loggedInUserAccount.RoleID != structs.UserRoleAdmin &&
+			if loggedInUserAccount.RoleID != nil && *loggedInUserAccount.RoleID != structs.UserRoleAdmin &&
 				loggedInOrganizationUnitID != nil &&
 				*loggedInOrganizationUnitID != systematizationResItem.OrganizationUnitID {
 				continue

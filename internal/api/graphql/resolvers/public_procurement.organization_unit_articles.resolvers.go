@@ -124,7 +124,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
-				if employeeAccount.RoleID == structs.UserRoleManagerOJ {
+				if employeeAccount.RoleID != nil && *employeeAccount.RoleID == structs.UserRoleManagerOJ {
 					plan, _ := r.Repo.GetProcurementPlan(procurement.PlanID)
 					data := dto.ProcurementPlanNotification{
 						ID:          plan.ID,

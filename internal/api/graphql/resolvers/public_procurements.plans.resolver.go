@@ -398,7 +398,7 @@ func BuildStatus(context context.Context, r repository.MicroserviceRepositoryInt
 		isConverted = true
 	}
 
-	isAdmin := loggedInAccount.RoleID == 1 || loggedInAccount.RoleID == 3
+	isAdmin := loggedInAccount.RoleID != nil && (*loggedInAccount.RoleID == 1 || *loggedInAccount.RoleID == 3)
 
 	if !isAdmin {
 		if organizationUnitID == nil {

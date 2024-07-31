@@ -28,8 +28,10 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 		return apierrors.HandleAPPError(err)
 	}
 
-	roleID := int(loginRes.Data.RoleID)
-
+	var roleID int
+	if loginRes.Data.RoleID != nil {
+		roleID = int(*loginRes.Data.RoleID)
+	}
 	httpResponseWriter := p.Context.Value((config.HTTPResponseWriterKey)).(http.ResponseWriter)
 	for _, cookie := range cookies {
 		http.SetCookie(httpResponseWriter, cookie)

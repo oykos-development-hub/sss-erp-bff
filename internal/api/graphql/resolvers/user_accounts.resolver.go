@@ -27,12 +27,14 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
-		role, err := r.Repo.GetRole(user.RoleID)
-		if err != nil {
-			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-			return errors.HandleAPPError(err)
+		if user.RoleID != nil {
+			role, err := r.Repo.GetRole(*user.RoleID)
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+			user.Role = *role
 		}
-		user.Role = *role
 		items = []structs.UserAccounts{*user}
 		total = 1
 	} else {
@@ -58,8 +60,8 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 			return errors.HandleAPPError(err)
 		}
 		for i := 0; i < len(res.Data); i++ {
-			if res.Data[i].RoleID != 0 {
-				role, err := r.Repo.GetRole(res.Data[i].RoleID)
+			if res.Data[i].RoleID != nil {
+				role, err := r.Repo.GetRole(*res.Data[i].RoleID)
 				if err != nil {
 					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
@@ -98,8 +100,8 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 			return errors.HandleAPPError(err)
 		}
 
-		if userResponse.RoleID != 0 {
-			role, err := r.Repo.GetRole(userResponse.RoleID)
+		if userResponse.RoleID != nil {
+			role, err := r.Repo.GetRole(*userResponse.RoleID)
 
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})

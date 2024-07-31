@@ -69,7 +69,7 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 				continue
 			}
 
-			if loggedInAccount.RoleID != structs.UserRoleAdmin && resItem.OrganizationUnit.ID != *userOrganizationUnitID {
+			if loggedInAccount.RoleID != nil && *loggedInAccount.RoleID != structs.UserRoleAdmin && resItem.OrganizationUnit.ID != *userOrganizationUnitID {
 				continue
 			}
 
@@ -137,9 +137,13 @@ func buildUserProfileOverviewResponse(
 		return nil, errors.Wrap(err, "repo get user account by id")
 	}
 
-	role, err := r.GetRole(account.RoleID)
-	if err != nil {
-		return nil, errors.Wrap(err, "repo get role")
+	var role *structs.Roles
+
+	if account.RoleID != nil {
+		role, err = r.GetRole(*account.RoleID)
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get role")
+		}
 	}
 
 	employeesInOrganizationUnit, _ := r.GetEmployeesInOrganizationUnitsByProfileID(profile.ID)
@@ -1340,7 +1344,7 @@ func buildUserProfileBasicResponse(
 const (
 	letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	numberBytes = "0123456789"
-	symbolBytes = "!@#$%^&*()-_=+[]{}|;:,.<>?/~`"
+	symbolBytes = "!@#$%&"
 	allBytes    = letterBytes + numberBytes + symbolBytes
 )
 

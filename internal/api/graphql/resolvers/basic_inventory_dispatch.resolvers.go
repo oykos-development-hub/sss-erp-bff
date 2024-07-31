@@ -211,7 +211,7 @@ func sendInventoryReturnReversDispatchNotification(
 
 	for _, employee := range employees {
 		userAccount, _ := r.GetUserAccountByID(employee.UserAccountID)
-		if userAccount.RoleID == structs.UserRoleManagerOJ {
+		if userAccount.RoleID != nil && *userAccount.RoleID == structs.UserRoleManagerOJ {
 			_, err := notificationService.CreateNotification(&structs.Notifications{
 				Content:     "Izvršen je povrat sredstva.",
 				Module:      "Osnovna sredstva",
@@ -244,7 +244,7 @@ func sendInventoryDispatchNotification(
 
 	for _, employee := range employees {
 		userAccount, _ := r.GetUserAccountByID(employee.UserAccountID)
-		if userAccount.RoleID == structs.UserRoleManagerOJ {
+		if userAccount.RoleID != nil && *userAccount.RoleID == structs.UserRoleManagerOJ {
 			_, err := notificationService.CreateNotification(&structs.Notifications{
 				Content:     "Kreiran je revers. Potrebno je da ga odobrite ili odbijete.",
 				Module:      "Osnovna sredstva",
@@ -286,7 +286,7 @@ func createInventoryDispatchApprovalnotification(
 
 	for _, employee := range employees {
 		userAccount, _ := r.GetUserAccountByID(employee.UserAccountID)
-		if userAccount.RoleID == structs.UserRoleManagerOJ {
+		if userAccount.RoleID != nil && *userAccount.RoleID == structs.UserRoleManagerOJ {
 			_, err := notificationService.CreateNotification(&structs.Notifications{
 				Content:     content,
 				Module:      "Osnovna sredstva",

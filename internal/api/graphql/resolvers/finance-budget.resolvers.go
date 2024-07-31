@@ -96,7 +96,7 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 	var status dto.DropdownSimple
 
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	if loggedInUser.RoleID == structs.UserRoleManagerOJ {
+	if loggedInUser.RoleID != nil && *loggedInUser.RoleID == structs.UserRoleManagerOJ {
 		unitID, _ := ctx.Value(config.OrganizationUnitIDKey).(*int)
 		generalRequestType := structs.RequestTypeGeneral
 		req, err := r.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
@@ -272,7 +272,7 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 
 func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}, error) {
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	if loggedInUser.RoleID != structs.UserRoleOfficialForFinanceBudget && loggedInUser.RoleID != structs.UserRoleAdmin {
+	if loggedInUser.RoleID != nil && *loggedInUser.RoleID != structs.UserRoleOfficialForFinanceBudget && *loggedInUser.RoleID != structs.UserRoleAdmin {
 		return errors.HandleAPPError(fmt.Errorf("forbidden"))
 	}
 
@@ -772,7 +772,7 @@ func (r *Resolver) BudgetDetailsResolver(params graphql.ResolveParams) (interfac
 func buildBudgetRequestStatus(ctx context.Context, s structs.BudgetRequestStatus) dto.DropdownSimple {
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
-	if loggedInUser.RoleID == structs.UserRoleOfficialForFinanceBudget {
+	if loggedInUser.RoleID != nil && *loggedInUser.RoleID == structs.UserRoleOfficialForFinanceBudget {
 		return dto.DropdownSimple{
 			ID:    int(s),
 			Title: string(dto.RequestStatusForOfficial(s)),

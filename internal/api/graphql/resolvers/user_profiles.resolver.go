@@ -139,7 +139,7 @@ func buildUserProfileOverviewResponse(
 
 	var role *structs.Roles
 
-	if account.RoleID != nil {
+	if account.RoleID != nil && *account.RoleID != 0 {
 		role, err = r.GetRole(*account.RoleID)
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get role")
@@ -240,6 +240,13 @@ func buildUserProfileOverviewResponse(
 
 		organizationUnitDropdown.ID = orgUnit.ID
 		organizationUnitDropdown.Title = orgUnit.Title
+	}
+
+	if role == nil {
+		role = &structs.Roles{
+			ID:    0,
+			Title: "",
+		}
 	}
 
 	return &dto.UserProfileOverviewResponse{

@@ -7,7 +7,9 @@ import (
 	"bff/internal/api/repository"
 	"bff/shared"
 	"bff/structs"
+	"crypto/rand"
 	"encoding/json"
+	"math/big"
 	"strings"
 	"time"
 
@@ -318,6 +320,22 @@ func (r *Resolver) UserProfileBasicInsertResolver(params graphql.ResolveParams) 
 	} else {
 		userProfileData.ActiveContract = &inactive
 	}
+
+	password, err := generateRandomString(8)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	userAccountData.Password = password
+
+	pin, err := generateRandomString(4)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	userAccountData.Pin = pin
 
 	userAccountRes, err = r.Repo.CreateUserAccount(params.Context, userAccountData)
 	if err != nil {
@@ -1317,4 +1335,61 @@ func buildUserProfileBasicResponse(
 	}
 
 	return userProfileResItem, nil
+}
+
+const (
+	letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	numberBytes = "0123456789"
+	symbolBytes = "!@#$%^&*()-_=+[]{}|;:,.<>?/~`"
+	allBytes    = letterBytes + numberBytes + symbolBytes
+)
+
+func generateRandomString(n int) (string, error) {
+	result := make([]byte, n)
+
+	// Ensure one uppercase letter, one number, and one symbol
+	categories := []string{
+		letterBytes[26:], // Uppercase letters
+		numberBytes,      // Numbers
+		symbolBytes,      // Symbols
+	}
+
+	// Place mandatory characters in the result
+	for i, category := range categories {
+		char, err := randomCharFromCategory(category)
+		if err != nil {
+			return "", err
+		}
+		result[i] = char
+	}
+
+	// Fill the remaining positions with random characters
+	for i := len(categories); i < n; i++ {
+		char, err := randomCharFromCategory(allBytes)
+		if err != nil {
+			return "", err
+		}
+		result[i] = char
+	}
+
+	// Shuffle the result to mix mandatory characters
+	shuffle(result)
+
+	return string(result), nil
+}
+
+func randomCharFromCategory(category string) (byte, error) {
+	max := big.NewInt(int64(len(category)))
+	randNum, err := rand.Int(rand.Reader, max)
+	if err != nil {
+		return 0, err
+	}
+	return category[randNum.Int64()], nil
+}
+
+func shuffle(data []byte) {
+	for i := range data {
+		j, _ := rand.Int(rand.Reader, big.NewInt(int64(i+1)))
+		data[i], data[j.Int64()] = data[j.Int64()], data[i]
+	}
 }

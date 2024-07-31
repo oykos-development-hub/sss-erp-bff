@@ -100,9 +100,6 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"email": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
-		"password": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.String),
-		},
 		"secondary_email": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
@@ -113,9 +110,6 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 			Type: graphql.Int,
 		},
 		"national_minority": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"pin": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"file_id": &graphql.InputObjectFieldConfig{

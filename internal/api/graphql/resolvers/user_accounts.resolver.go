@@ -57,13 +57,15 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
-		for _, user := range res.Data {
-			role, err := r.Repo.GetRole(user.RoleID)
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
+		for i := 0; i < len(res.Data); i++ {
+			if res.Data[i].RoleID != 0 {
+				role, err := r.Repo.GetRole(res.Data[i].RoleID)
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+				res.Data[i].Role = *role
 			}
-			user.Role = *role
 		}
 		items = res.Data
 		total = res.Total

@@ -114,16 +114,16 @@ func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) 
 			Item:    userResponse,
 		}, nil
 	}
-	userResponse, err := r.Repo.CreateUserAccount(params.Context, data)
+	/*userResponse, err := r.Repo.CreateUserAccount(params.Context, data)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You created this item!",
-		Item:    userResponse,
+		Status:  "failed",
+		Message: "You can not create this item!",
+		//Item:    userResponse,
 	}, nil
 }
 

@@ -151,28 +151,29 @@ type ProcurementMS struct {
 }
 
 type CoreMS struct {
-	Base            string
-	Login           string
-	Logout          string
-	Refresh         string
-	Pin             string
-	UserAccounts    string
-	Roles           string
-	Permissions     string
-	Settings        string
-	Suppliers       string
-	Notifications   string
-	LoggedInUser    string
-	Account         string
-	ForgotPassword  string
-	ValidateMail    string
-	ResetPassword   string
-	Logs            string
-	Templates       string
-	TemplateItems   string
-	ErrorLogs       string
-	BffErrorLogs    string
-	CustomerSupport string
+	Base                string
+	Login               string
+	Logout              string
+	Refresh             string
+	Pin                 string
+	UserAccounts        string
+	Roles               string
+	Permissions         string
+	GetUserByPermission string
+	Settings            string
+	Suppliers           string
+	Notifications       string
+	LoggedInUser        string
+	Account             string
+	ForgotPassword      string
+	ValidateMail        string
+	ResetPassword       string
+	Logs                string
+	Templates           string
+	TemplateItems       string
+	ErrorLogs           string
+	BffErrorLogs        string
+	CustomerSupport     string
 }
 
 type HrMS struct {
@@ -342,28 +343,29 @@ func LoadDefaultConfig() (*Config, error) {
 				ErrorLogs:                       hrBase + "/error-logs",
 			},
 			Core: CoreMS{
-				Base:            coreBase,
-				Login:           coreBase + "/users/login",
-				Logout:          coreBase + "/users/logout",
-				Refresh:         coreBase + "/refresh",
-				Roles:           coreBase + "/roles",
-				Permissions:     coreBase + "/permissions",
-				Pin:             coreBase + "/users/validate-pin",
-				UserAccounts:    coreBase + "/users",
-				Settings:        coreBase + "/settings",
-				Suppliers:       coreBase + "/suppliers",
-				Notifications:   coreBase + "/notifications",
-				LoggedInUser:    coreBase + "/logged-in-user",
-				Account:         coreBase + "/accounts",
-				ForgotPassword:  coreBase + "/users/password/forgot",
-				ValidateMail:    coreBase + "/users/password/validate-email",
-				ResetPassword:   coreBase + "/users/password/reset",
-				Logs:            coreBase + "/logs",
-				Templates:       coreBase + "/templates",
-				TemplateItems:   coreBase + "/template-items",
-				ErrorLogs:       coreBase + "/error-logs",
-				BffErrorLogs:    coreBase + "/bff-error-logs",
-				CustomerSupport: coreBase + "/customer-supports",
+				Base:                coreBase,
+				Login:               coreBase + "/users/login",
+				Logout:              coreBase + "/users/logout",
+				Refresh:             coreBase + "/refresh",
+				Roles:               coreBase + "/roles",
+				Permissions:         coreBase + "/permissions",
+				GetUserByPermission: coreBase + "/get-users-by-permission",
+				Pin:                 coreBase + "/users/validate-pin",
+				UserAccounts:        coreBase + "/users",
+				Settings:            coreBase + "/settings",
+				Suppliers:           coreBase + "/suppliers",
+				Notifications:       coreBase + "/notifications",
+				LoggedInUser:        coreBase + "/logged-in-user",
+				Account:             coreBase + "/accounts",
+				ForgotPassword:      coreBase + "/users/password/forgot",
+				ValidateMail:        coreBase + "/users/password/validate-email",
+				ResetPassword:       coreBase + "/users/password/reset",
+				Logs:                coreBase + "/logs",
+				Templates:           coreBase + "/templates",
+				TemplateItems:       coreBase + "/template-items",
+				ErrorLogs:           coreBase + "/error-logs",
+				BffErrorLogs:        coreBase + "/bff-error-logs",
+				CustomerSupport:     coreBase + "/customer-supports",
 			},
 			Procurements: ProcurementMS{
 				Base:                    procurementsBase,

@@ -178,6 +178,7 @@ type MicroserviceRepositoryInterface interface {
 	GetOrganizationUnitIDByUserProfile(id int) (*int, error)
 	GetOrganizationUnits(input *dto.GetOrganizationUnitsInput) (*dto.GetOrganizationUnitsResponseMS, error)
 	GetPermissionList(roleID int) ([]structs.Permissions, error)
+	GetUsersByPermission(title config.PermissionPath) ([]structs.UserAccounts, error)
 	GetProcurementArticle(id int) (*structs.PublicProcurementArticle, error)
 	GetProcurementArticlesList(input *dto.GetProcurementArticleListInputMS) ([]*structs.PublicProcurementArticle, error)
 	GetProcurementContract(id int) (*structs.PublicProcurementContract, error)

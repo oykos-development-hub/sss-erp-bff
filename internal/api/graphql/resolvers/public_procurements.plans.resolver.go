@@ -177,10 +177,7 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 
 		if oldPlan.DateOfPublishing == nil && data.DateOfPublishing != nil {
 			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-			managerRole := structs.UserRoleManagerOJ
-			targetUsers, err := r.Repo.GetUserAccounts(&dto.GetUserAccountListInput{
-				RoleID: &managerRole,
-			})
+			targetUsers, err := r.Repo.GetUsersByPermission(config.PublicProcurementPlan)
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
@@ -193,20 +190,22 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 			}
 			planDataJSON, _ := json.Marshal(planData)
 
-			for _, targetUser := range targetUsers.Data {
-				_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
-					Content:     "Proslijeđen je novi plan javnih nabavki na pregled i popunjavanje.",
-					Module:      "Javne nabavke",
-					FromUserID:  loggedInUser.ID,
-					ToUserID:    targetUser.ID,
-					FromContent: "Službenik za javne nabavke",
-					Path:        fmt.Sprintf("/procurements/plans/%d", data.ID),
-					Data:        planDataJSON,
-					IsRead:      false,
-				})
-				if err != nil {
-					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-					return errors.HandleAPPError(err)
+			for _, targetUser := range targetUsers {
+				if targetUser.ID != loggedInUser.ID {
+					_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+						Content:     "Proslijeđen je novi plan javnih nabavki na pregled i popunjavanje.",
+						Module:      "Javne nabavke",
+						FromUserID:  loggedInUser.ID,
+						ToUserID:    targetUser.ID,
+						FromContent: "Službenik za javne nabavke",
+						Path:        fmt.Sprintf("/procurements/plans/%d", data.ID),
+						Data:        planDataJSON,
+						IsRead:      false,
+					})
+					if err != nil {
+						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+						return errors.HandleAPPError(err)
+					}
 				}
 			}
 		}

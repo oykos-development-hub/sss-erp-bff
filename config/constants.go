@@ -2,6 +2,7 @@ package config
 
 type ContextKey string
 type Module string
+type PermissionPath string
 
 const (
 	HTTPResponseWriterKey ContextKey = "httpResponseWriter"
@@ -49,4 +50,6 @@ const (
 	ModuleProcurements Module = "PROCUREMENTS"
 	ModuleFinance      Module = "FINANCE"
 	ModuleBFF          Module = "BFF"
+
+	PublicProcurementPlan PermissionPath = "/procurements/plans"
 )

@@ -54,8 +54,13 @@ func (s *Websockets) CreateNotification(notification *structs.Notifications) (*s
 		return nil, err
 	}
 
+	newNotification, err := s.Repo.GetNotification(res.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	notificationData := NotificationMessage{
-		Data: notification,
+		Data: newNotification,
 		Type: "new_notification",
 	}
 

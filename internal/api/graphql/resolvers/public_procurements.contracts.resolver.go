@@ -1,11 +1,13 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -174,6 +176,32 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
+		}
+
+		loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+
+		targetUsers, err := r.Repo.GetUsersByPermission(config.AccountingContract, config.OperationRead)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		for _, user := range targetUsers {
+			dataJSON, _ := json.Marshal(item)
+			_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+				Content:     "Potpisan je novi ugovor",
+				Module:      "Materijalno knjigovodstvo",
+				FromUserID:  loggedInUser.ID,
+				ToUserID:    user.ID,
+				FromContent: "Službenik za javne nabavke",
+				IsRead:      false,
+				Data:        dataJSON,
+				Path:        fmt.Sprintf("/accounting/contracts/%d/contract-details", item.ID),
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
 		}
 
 		response.Message = "You created this item!"

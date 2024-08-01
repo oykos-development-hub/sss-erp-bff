@@ -124,27 +124,36 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
 				}
-				if employeeAccount.RoleID != nil && *employeeAccount.RoleID == structs.UserRoleManagerOJ {
-					plan, _ := r.Repo.GetProcurementPlan(procurement.PlanID)
-					data := dto.ProcurementPlanNotification{
-						ID:          plan.ID,
-						IsPreBudget: plan.IsPreBudget,
-						Year:        plan.Year,
-					}
-					dataJSON, _ := json.Marshal(data)
-					_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
-						Content:     notificationContent,
-						Module:      "Javne nabavke",
-						FromUserID:  loggedInUser.ID,
-						ToUserID:    employeeAccount.ID,
-						FromContent: "Službenik za javne nabavke",
-						IsRead:      false,
-						Data:        dataJSON,
-						Path:        fmt.Sprintf("/procurements/plans/%d", procurement.PlanID),
-					})
-					if err != nil {
-						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-						return errors.HandleAPPError(err)
+
+				targetUsers, err := r.Repo.GetUsersByPermission(config.PublicProcurementPlan, config.OperationRead)
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+
+				for _, user := range targetUsers {
+					if user.ID == employee.ID {
+						plan, _ := r.Repo.GetProcurementPlan(procurement.PlanID)
+						data := dto.ProcurementPlanNotification{
+							ID:          plan.ID,
+							IsPreBudget: plan.IsPreBudget,
+							Year:        plan.Year,
+						}
+						dataJSON, _ := json.Marshal(data)
+						_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+							Content:     notificationContent,
+							Module:      "Javne nabavke",
+							FromUserID:  loggedInUser.ID,
+							ToUserID:    employeeAccount.ID,
+							FromContent: "Službenik za javne nabavke",
+							IsRead:      false,
+							Data:        dataJSON,
+							Path:        fmt.Sprintf("/procurements/plans/%d", procurement.PlanID),
+						})
+						if err != nil {
+							_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+							return errors.HandleAPPError(err)
+						}
 					}
 				}
 			}
@@ -218,16 +227,13 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 		return errors.HandleAPPError(err)
 	}
 
-	oficialOfProcurementsRole := structs.UserRoleOfficialForPublicProcurements
-	targetUsers, err := r.Repo.GetUserAccounts(&dto.GetUserAccountListInput{
-		RoleID: &oficialOfProcurementsRole,
-	})
+	targetUsers, err := r.Repo.GetUsersByPermission(config.PublicProcurementPlan, config.OperationFullAccess)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
-	for _, targetUser := range targetUsers.Data {
+	for _, targetUser := range targetUsers {
 		plan, _ := r.Repo.GetProcurementPlan(planID)
 		data := dto.ProcurementPlanNotification{
 			ID:          plan.ID,

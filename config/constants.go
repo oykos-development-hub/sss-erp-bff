@@ -53,6 +53,7 @@ const (
 	ModuleBFF          Module = "BFF"
 
 	PublicProcurementPlan PermissionPath = "/procurements/plans"
+	AccountingContract    PermissionPath = "/accounting/contracts"
 
 	OperationCreate     PermissionOperations = "can_create"
 	OperationUpdate     PermissionOperations = "can_update"

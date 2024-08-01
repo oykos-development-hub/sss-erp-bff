@@ -177,7 +177,7 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 
 		if oldPlan.DateOfPublishing == nil && data.DateOfPublishing != nil {
 			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-			targetUsers, err := r.Repo.GetUsersByPermission(config.PublicProcurementPlan)
+			targetUsers, err := r.Repo.GetUsersByPermission(config.PublicProcurementPlan, config.OperationRead)
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)

@@ -28,10 +28,11 @@ func (repo *MicroserviceRepository) GetPermissionList(roleID int) ([]structs.Per
 	return res.Data, nil
 }
 
-func (repo *MicroserviceRepository) GetUsersByPermission(title config.PermissionPath) ([]structs.UserAccounts, error) {
+func (repo *MicroserviceRepository) GetUsersByPermission(title config.PermissionPath, operation config.PermissionOperations) ([]structs.UserAccounts, error) {
 	res := &dto.GetUserAccountListResponseMS{}
 	input := structs.Permissions{
-		Title: string(title),
+		Title: string(operation),
+		Route: string(title),
 	}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.GetUserByPermission, input, res)
 	if err != nil {

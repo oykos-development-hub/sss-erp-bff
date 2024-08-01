@@ -3,6 +3,7 @@ package config
 type ContextKey string
 type Module string
 type PermissionPath string
+type PermissionOperations string
 
 const (
 	HTTPResponseWriterKey ContextKey = "httpResponseWriter"
@@ -52,4 +53,10 @@ const (
 	ModuleBFF          Module = "BFF"
 
 	PublicProcurementPlan PermissionPath = "/procurements/plans"
+
+	OperationCreate     PermissionOperations = "can_create"
+	OperationUpdate     PermissionOperations = "can_update"
+	OperationRead       PermissionOperations = "can_read"
+	OperationDelete     PermissionOperations = "can_delete"
+	OperationFullAccess PermissionOperations = "full_access"
 )

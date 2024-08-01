@@ -55,7 +55,7 @@ func (s *Websockets) CreateNotification(notification *structs.Notifications) (*s
 	}
 
 	notificationData := NotificationMessage{
-		Data: res.Data,
+		Data: notification,
 		Type: "new_notification",
 	}
 

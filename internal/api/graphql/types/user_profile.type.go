@@ -775,3 +775,96 @@ var UserProfileFamilyDeleteType = graphql.NewObject(graphql.ObjectConfig{
 		},
 	},
 })
+
+var DataForTemplateType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DataForTemplateType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: DataForTemplate,
+		},
+	},
+})
+
+var DataForTemplate = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DataForTemplate",
+	Fields: graphql.Fields{
+		"tekuci_datum": &graphql.Field{
+			Type: graphql.String,
+		},
+		"tekuca_godina": &graphql.Field{
+			Type: graphql.String,
+		},
+		"tekuci_mjesec": &graphql.Field{
+			Type: graphql.String,
+		},
+		"ime_prezime": &graphql.Field{
+			Type: graphql.String,
+		},
+		"jmbg": &graphql.Field{
+			Type: graphql.String,
+		},
+		"ulica": &graphql.Field{
+			Type: graphql.String,
+		},
+		"organizaciona_jedinica": &graphql.Field{
+			Type: graphql.String,
+		},
+		"odjeljenje": &graphql.Field{
+			Type: graphql.String,
+		},
+		"radno_mjesto": &graphql.Field{
+			Type: graphql.String,
+		},
+		"broj_sistematizacije": &graphql.Field{
+			Type: graphql.String,
+		},
+		"datum_sistematizacije": &graphql.Field{
+			Type: graphql.String,
+		},
+		"datum_pocetka_ugovora": &graphql.Field{
+			Type: graphql.String,
+		},
+		"datum_pocetka_rada": &graphql.Field{
+			Type: graphql.String,
+		},
+		"datum_isteka_ugovora": &graphql.Field{
+			Type: graphql.String,
+		},
+		"trajanje_ugovora_u_danima": &graphql.Field{
+			Type: graphql.String,
+		},
+		"steceni_broj_dana_odmora": &graphql.Field{
+			Type: graphql.String,
+		},
+		"preostali_broj_dana_odmora": &graphql.Field{
+			Type: graphql.String,
+		},
+		"potroseni_broj_dana_odmora": &graphql.Field{
+			Type: graphql.String,
+		},
+		"radni_sati_sedmicno": &graphql.Field{
+			Type: graphql.String,
+		},
+		"datum_pocetka_godisnjeg_odmora": &graphql.Field{
+			Type: graphql.String,
+		},
+		"datum_kraja_godisnjeg_odmora": &graphql.Field{
+			Type: graphql.String,
+		},
+		"ocjena": &graphql.Field{
+			Type: graphql.String,
+		},
+		"obrazovanje": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})

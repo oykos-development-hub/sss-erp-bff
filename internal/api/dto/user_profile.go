@@ -238,3 +238,29 @@ type JudgeEvaluationReportResponseItem struct {
 	EvaluationPeriod    *string `json:"evaluation_period"`
 	DecisionNumber      string  `json:"decision_number"`
 }
+
+type UserDataForTemplate struct {
+	CurrentDate            string `json:"tekuci_datum"`
+	CurrentYear            string `json:"tekuca_godina"`
+	CurrentMonth           string `json:"tekuci_mjesec"`
+	FullName               string `json:"ime_prezime"`
+	JMBG                   string `json:"jmbg"`
+	Street                 string `json:"ulica"`
+	OrganizationalUnit     string `json:"organizaciona_jedinica"`
+	Department             string `json:"odjeljenje"`
+	Position               string `json:"radno_mjesto"`
+	SystematizationNumber  string `json:"broj_sistematizacije"`
+	SystematizationDate    string `json:"datum_sistematizacije"`
+	ContractStartDate      string `json:"datum_pocetka_ugovora"`
+	WorkStartDate          string `json:"datum_pocetka_rada"`
+	ContractEndDate        string `json:"datum_isteka_ugovora"`
+	ContractDurationInDays string `json:"trajanje_ugovora_u_danima"`
+	AcquiredVacationDays   string `json:"steceni_broj_dana_odmora"`
+	RemainingVacationDays  string `json:"preostali_broj_dana_odmora"`
+	UsedVacationDays       string `json:"potroseni_broj_dana_odmora"`
+	WeeklyWorkingHours     string `json:"radni_sati_sedmicno"`
+	VacationStartDate      string `json:"datum_pocetka_godisnjeg_odmora"`
+	VacationEndDate        string `json:"datum_kraja_godisnjeg_odmora"`
+	Rating                 string `json:"ocjena"`
+	Education              string `json:"obrazovanje"`
+}

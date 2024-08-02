@@ -222,6 +222,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"jobTender_Applications":                             fields.JobTenderApplicationsField(),
 			"systematizations_Overview":                          fields.SystematizationsOverviewField(),
 			"systematization_Details":                            fields.SystematizationDetailsField(),
+			"dataForTemplate_Overview":                           fields.DataForTemplateOverviewField(),
 			"userProfiles_Overview":                              fields.UserProfilesOverviewField(),
 			"userProfile_Contracts":                              fields.UserProfileContractsField(),
 			"userProfile_Basic":                                  fields.UserProfileBasicField(),

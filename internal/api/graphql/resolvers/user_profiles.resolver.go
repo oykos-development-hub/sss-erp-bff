@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"math/big"
+	"strconv"
 	"strings"
 	"time"
 
@@ -1403,4 +1404,262 @@ func shuffle(data []byte) {
 		j, _ := rand.Int(rand.Reader, big.NewInt(int64(i+1)))
 		data[i], data[j.Int64()] = data[j.Int64()], data[i]
 	}
+}
+
+func (r *Resolver) DataForTemplateResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+
+	dataForTemplate, err := r.buildDataForTemplate(itemID)
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You get this item!",
+		Item:    dataForTemplate,
+	}, nil
+}
+
+func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error) {
+
+	var organizationUnitName string
+	var departmentName string
+	var jobPositionName string
+	var systematizationNumber string
+	var systematizationDate string
+	var contractStartDate string
+	var contractEndDate string
+	var workStartDate string
+	var contractDuration string
+	var acquiredVacationDays string
+	var remainingVacationDays string
+	var usedVacationDays string
+	var weeklyWorkingHours string
+	var vacationStartDate string
+	var vacationEndDate string
+	var rating string
+	var education string
+
+	employee, err := r.Repo.GetUserProfileByID(id)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get user profile by id")
+	}
+
+	currentDate := time.Now()
+
+	currentYear := strconv.Itoa(currentDate.Year())
+	currentMonth := strconv.Itoa(int(currentDate.Month()))
+	currentDateString := currentDate.Format("02.01.2006")
+
+	isActive := true
+	contracts, _ := r.Repo.GetEmployeeContracts(employee.ID, &dto.GetEmployeeContracts{Active: &isActive})
+
+	if len(contracts) > 0 {
+		if contracts[0].DateOfStart != nil {
+			contractStartDateTime, err := parseDate(*contracts[0].DateOfStart)
+
+			if err != nil {
+				return nil, errors.Wrap(err, "repo parse date")
+			}
+			contractStartDate = contractStartDateTime.Format("02.01.2006")
+		}
+
+		if contracts[0].DateOfEnd != nil {
+			contractEndDateTime, err := parseDate(*contracts[0].DateOfEnd)
+
+			if err != nil {
+				return nil, errors.Wrap(err, "repo parse date")
+			}
+			contractEndDate = contractEndDateTime.Format("02.01.2006")
+		}
+		if contracts[0].DateOfSignature != nil {
+			contractDateOfSignatureTime, err := parseDate(*contracts[0].DateOfSignature)
+
+			if err != nil {
+				return nil, errors.Wrap(err, "repo parse date")
+			}
+
+			workStartDate = contractDateOfSignatureTime.Format("02.01.2006")
+		}
+
+		if contracts[0].DateOfStart != nil && contracts[0].DateOfEnd != nil {
+			contractStartDateTime, err := parseDate(*contracts[0].DateOfStart)
+
+			if err != nil {
+				return nil, errors.Wrap(err, "repo parse date")
+			}
+
+			contractEndDateTime, err := parseDate(*contracts[0].DateOfEnd)
+
+			if err != nil {
+				return nil, errors.Wrap(err, "repo parse date")
+			}
+
+			duration := contractEndDateTime.Sub(contractStartDateTime)
+
+			days := int(duration.Hours() / 24)
+			contractDuration = strconv.Itoa(days)
+		}
+	}
+
+	employeesInOrganizationUnit, _ := r.Repo.GetEmployeesInOrganizationUnitsByProfileID(employee.ID)
+	if employeesInOrganizationUnit != nil {
+		jobPositionInOrganizationUnit, err := r.Repo.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get job position in organization units by id")
+		}
+
+		jobPosition, err := r.Repo.GetJobPositionByID(jobPositionInOrganizationUnit.JobPositionID)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get job position by id")
+		}
+
+		jobPositionName = jobPosition.Title
+
+		systematization, err := r.Repo.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get systematization by id")
+		}
+
+		systematizationNumber = systematization.SerialNumber
+
+		if systematization.DateOfActivation != nil {
+			systematizationDateTime, err := parseDate(*systematization.DateOfActivation)
+
+			if err != nil {
+				return nil, errors.Wrap(err, "repo parse date")
+			}
+			systematizationDate = systematizationDateTime.Format("02.01.2006")
+		}
+
+		fullSystematization, err := buildSystematizationOverviewResponse(r.Repo, systematization)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo build systematization overview response")
+		}
+
+		for _, item := range fullSystematization.ActiveEmployees {
+			if item.ID == id {
+				departmentName = item.Sector
+				break
+			}
+		}
+
+		organizationUnit, err := r.Repo.GetOrganizationUnitByID(systematization.OrganizationUnitID)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get organization unit by id")
+		}
+
+		organizationUnitName = organizationUnit.Title
+	}
+
+	sumDaysOfCurrentYear, availableDaysOfCurrentYear, availableDaysOfPreviousYear, err := GetNumberOfCurrentAndPreviousYearAvailableDays(r.Repo, id)
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get number of current and previous year avaliable days")
+	}
+
+	remainingVacationDays = strconv.Itoa(availableDaysOfCurrentYear + availableDaysOfPreviousYear)
+	usedVacationDays = strconv.Itoa(sumDaysOfCurrentYear - availableDaysOfCurrentYear)
+	acquiredVacationDays = strconv.Itoa(sumDaysOfCurrentYear + availableDaysOfPreviousYear)
+
+	salaries, err := r.Repo.GetEmployeeSalaryParams(id)
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get employee salary params")
+	}
+
+	if len(salaries) > 0 {
+		weeklyWorkingHours = salaries[0].WeeklyWorkHours
+	}
+
+	allAbsents, err := r.Repo.GetEmployeeAbsents(id, nil)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get employee absents")
+	}
+
+	if len(allAbsents) > 0 {
+		vacationStartDateTime, err := parseDate(allAbsents[0].DateOfStart)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo parse date")
+		}
+		vacationStartDate = vacationStartDateTime.Format("02.01.2006")
+
+		vacationEndDateTime, err := parseDate(allAbsents[0].DateOfEnd)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo parse date")
+		}
+		vacationEndDate = vacationEndDateTime.Format("02.01.2006")
+	}
+
+	employeeRatings, err := r.Repo.GetEmployeeEvaluations(id)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get employee evaluations")
+	}
+
+	if len(employeeRatings) > 0 {
+		rating = employeeRatings[0].Score
+	}
+
+	educationTypes, err := r.Repo.GetDropdownSettings(&dto.GetSettingsInput{
+		Entity: "education_academic_types",
+	})
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get droodown settings")
+	}
+
+	if len(educationTypes.Data) > 0 {
+		educations, err := r.Repo.GetEmployeeEducations(dto.EducationInput{
+			UserProfileID: id,
+			TypeID:        &educationTypes.Data[0].ID,
+		})
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get employee educations")
+		}
+
+		if len(educations) > 0 {
+			education = educations[0].AcademicTitle
+		}
+	}
+
+	dataForTemplate := dto.UserDataForTemplate{
+		CurrentYear:            currentYear,
+		CurrentMonth:           currentMonth,
+		CurrentDate:            currentDateString,
+		FullName:               employee.FirstName + " " + employee.LastName,
+		JMBG:                   employee.OfficialPersonalDocumentNumber,
+		Street:                 employee.Address,
+		OrganizationalUnit:     organizationUnitName,
+		Department:             departmentName,
+		Position:               jobPositionName,
+		SystematizationNumber:  systematizationNumber,
+		SystematizationDate:    systematizationDate,
+		ContractStartDate:      contractStartDate,
+		ContractEndDate:        contractEndDate,
+		WorkStartDate:          workStartDate,
+		ContractDurationInDays: contractDuration,
+		AcquiredVacationDays:   acquiredVacationDays,
+		RemainingVacationDays:  remainingVacationDays,
+		UsedVacationDays:       usedVacationDays,
+		WeeklyWorkingHours:     weeklyWorkingHours,
+		VacationStartDate:      vacationStartDate,
+		VacationEndDate:        vacationEndDate,
+		Rating:                 rating,
+		Education:              education,
+	}
+
+	return &dataForTemplate, nil
+
 }

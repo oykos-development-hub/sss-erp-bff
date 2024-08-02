@@ -249,3 +249,16 @@ func (f *Field) UserProfileFamilyDeleteField() *graphql.Field {
 		Resolve: f.Resolvers.UserProfileFamilyDeleteResolver,
 	}
 }
+
+func (f *Field) DataForTemplateOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.DataForTemplateType,
+		Description: "Returns a data of User Profile for displaying inside Basic tab",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(graphql.Int),
+			},
+		},
+		Resolve: f.Resolvers.DataForTemplateResolver,
+	}
+}

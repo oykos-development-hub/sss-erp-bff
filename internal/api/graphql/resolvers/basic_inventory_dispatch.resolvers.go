@@ -284,6 +284,7 @@ func createInventoryDispatchApprovalnotification(
 	sourceOrganizationUnitID int,
 	targetOrganziationUnitID int,
 	isAccepted bool,
+	typeDispatch string,
 ) error {
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	targetOrganizationUnit, _ := r.GetOrganizationUnitByID(targetOrganziationUnitID)
@@ -291,10 +292,14 @@ func createInventoryDispatchApprovalnotification(
 
 	var content string
 
-	if isAccepted {
+	if isAccepted && typeDispatch == "revers" {
 		content = "Revers je prihvaćen."
-	} else {
-		content = "Revers je obijen."
+	} else if typeDispatch == "revers" {
+		content = "Revers je odbijen."
+	} else if isAccepted && typeDispatch == "return-revers" {
+		content = "Povraćaj je prihvaćen."
+	} else if typeDispatch == "return-revers" {
+		content = "Povraćaj je odbijen."
 	}
 
 	for _, employee := range employees {
@@ -350,7 +355,7 @@ func (r *Resolver) BasicInventoryDispatchDeleteResolver(params graphql.ResolvePa
 		return errors.HandleAPPError(err)
 	}
 
-	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitID, dispatch.TargetOrganizationUnitID, false)
+	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitID, dispatch.TargetOrganizationUnitID, false, dispatch.Type)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
@@ -425,7 +430,7 @@ func (r *Resolver) BasicInventoryDispatchAcceptResolver(params graphql.ResolvePa
 		return errors.HandleAPPError(err)
 	}
 
-	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitID, dispatch.TargetOrganizationUnitID, true)
+	err = createInventoryDispatchApprovalnotification(params.Context, r.Repo, r.NotificationsService, dispatch.SourceOrganizationUnitID, dispatch.TargetOrganizationUnitID, true, dispatch.Type)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)

@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
@@ -553,6 +554,39 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 			return errors.HandleAPPError(err)
 		}
 		budget.Status = structs.BudgetCompletedActualStatus
+	}
+
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, generalRequest.OrganizationUnitID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, targetUser := range targetUsers {
+		for _, employee := range employees {
+			if targetUser.ID != loggedInUser.ID && employee.UserAccountID == targetUser.ID {
+				_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+					Content:     "Unesen je tekući budžet.",
+					Module:      "Finansije",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    targetUser.ID,
+					FromContent: "Službenik za budžet",
+					Path:        "/finance/budget/current",
+					IsRead:      false,
+				})
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			}
+		}
 	}
 
 	return dto.Response{

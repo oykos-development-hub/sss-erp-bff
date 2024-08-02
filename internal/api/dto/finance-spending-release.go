@@ -19,6 +19,10 @@ type GetSpendingReleaseRequestListResponseMS struct {
 	Data []structs.SpendingReleaseRequest `json:"data"`
 }
 
+type GetSpendingReleaseRequestResponseMS struct {
+	Data *structs.SpendingReleaseRequest `json:"data"`
+}
+
 type GetSpendingReleaseListInput struct {
 	Year     int `json:"year"`
 	Month    int `json:"month"`

@@ -85,6 +85,16 @@ func (repo *MicroserviceRepository) GetSpendingReleaseRequests(filter dto.Spendi
 	return res.Data, nil
 }
 
+func (repo *MicroserviceRepository) GetSpendingReleaseRequestByID(id int) (*structs.SpendingReleaseRequest, error) {
+	res := dto.GetSpendingReleaseRequestResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Finance.SpendingReleaseRequest+"/"+strconv.Itoa(id), nil, &res)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return res.Data, nil
+}
+
 func (repo *MicroserviceRepository) SpendingReleaseAcceptSSS(id int, fileID int) error {
 
 	item := structs.SpendingReleaseRequest{

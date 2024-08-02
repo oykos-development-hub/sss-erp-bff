@@ -97,6 +97,32 @@ func (r *Resolver) SpendingReleaseRequestInsert(params graphql.ResolveParams) (i
 		return errors.HandleAPPError(err)
 	}
 
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationFullAccess)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, targetUser := range targetUsers {
+		if targetUser.ID != loggedInUser.ID {
+			_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+				Content:     "Podnijet je novi zahtjev za otpuštanje sredstava.",
+				Module:      "Finansije",
+				FromUserID:  loggedInUser.ID,
+				ToUserID:    targetUser.ID,
+				FromContent: "Službenik za budžet",
+				Path:        "/finance/budget/current/fund-release/requests",
+				IsRead:      false,
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+		}
+	}
+
 	return dto.Response{
 		Status:  "success",
 		Message: "You created this item!",
@@ -111,6 +137,46 @@ func (r *Resolver) SpendingReleaseAcceptSSS(params graphql.ResolveParams) (inter
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
+	}
+
+	request, err := r.Repo.GetSpendingReleaseRequestByID(id)
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, request.OrganizationUnitID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, targetUser := range targetUsers {
+		for _, employee := range employees {
+			if targetUser.ID != loggedInUser.ID && employee.UserAccountID == targetUser.ID {
+				_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+					Content:     "Vaš zahtjev za otpuštanje je prihvaćen.",
+					Module:      "Finansije",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    targetUser.ID,
+					FromContent: "Službenik za budžet",
+					Path:        "/finance/budget/current/fund-release",
+					IsRead:      false,
+				})
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			}
+		}
 	}
 
 	return dto.Response{

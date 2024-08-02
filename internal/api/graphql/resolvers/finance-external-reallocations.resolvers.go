@@ -146,6 +146,39 @@ func (r *Resolver) ExternalReallocationInsertResolver(params graphql.ResolvePara
 
 	response.Item = *singleItem
 
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, singleItem.SourceOrganizationUnit.ID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, targetUser := range targetUsers {
+		for _, employee := range employees {
+			if targetUser.ID != loggedInUser.ID && employee.UserAccountID == targetUser.ID {
+				_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+					Content:     "Poslat je novi zahtjev za eksterno preusmjerenje od strane OJ " + singleItem.DestinationOrganizationUnit.Title + ".",
+					Module:      "Finansije",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    targetUser.ID,
+					FromContent: "Službenik za budžet",
+					Path:        fmt.Sprintf("/finance/budget/current/external-reallocation/%d", singleItem.ID),
+					IsRead:      false,
+				})
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			}
+		}
+	}
+
 	return response, nil
 }
 
@@ -207,6 +240,32 @@ func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolvePa
 
 	response.Item = *singleItem
 
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationFullAccess)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, targetUser := range targetUsers {
+		if targetUser.ID != loggedInUser.ID {
+			_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+				Content:     "Poslat je novi zahtjev za eksterno preusmjerenje od strane OJ " + singleItem.DestinationOrganizationUnit.Title + ".",
+				Module:      "Finansije",
+				FromUserID:  loggedInUser.ID,
+				ToUserID:    targetUser.ID,
+				FromContent: "Službenik za budžet",
+				Path:        fmt.Sprintf("/finance/budget/current/external-reallocation/%d", singleItem.ID),
+				IsRead:      false,
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+		}
+	}
+
 	return response, nil
 }
 
@@ -217,6 +276,53 @@ func (r *Resolver) ExternalReallocationOURejectResolver(params graphql.ResolvePa
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
+	}
+
+	externalReallocation, err := r.Repo.GetExternalReallocationByID(itemID)
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	organizationUnit, err := r.Repo.GetOrganizationUnitByID(externalReallocation.SourceOrganizationUnitID)
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.DestinationOrganizationUnitID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, targetUser := range targetUsers {
+		for _, employee := range employees {
+			if targetUser.ID != loggedInUser.ID && employee.UserAccountID == targetUser.ID {
+				_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+					Content:     "Vaš zahtjev za eksterno preusmjerenje je odbijen od strane OJ. " + organizationUnit.Title,
+					Module:      "Finansije",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    targetUser.ID,
+					FromContent: "Službenik za budžet",
+					Path:        "/finance/budget/current/external-reallocation",
+					IsRead:      false,
+				})
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			}
+		}
 	}
 
 	return dto.ResponseSingle{
@@ -234,6 +340,54 @@ func (r *Resolver) ExternalReallocationSSSAcceptResolver(params graphql.ResolveP
 		return errors.HandleAPPError(err)
 	}
 
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	externalReallocation, err := r.Repo.GetExternalReallocationByID(itemID)
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.DestinationOrganizationUnitID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	sourceEmployees, err := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.SourceOrganizationUnitID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	employees = append(employees, sourceEmployees...)
+
+	for _, targetUser := range targetUsers {
+		for _, employee := range employees {
+			if targetUser.ID != loggedInUser.ID && employee.UserAccountID == targetUser.ID {
+				_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+					Content:     "Vaš zahtjev za eksterno preusmjerenje je prihvaćen od strane SSS. ",
+					Module:      "Finansije",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    targetUser.ID,
+					FromContent: "Službenik za budžet",
+					Path:        fmt.Sprintf("/finance/budget/current/external-reallocation/%d", externalReallocation.ID),
+					IsRead:      false,
+				})
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			}
+		}
+	}
+
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "You accept this item!",
@@ -247,6 +401,54 @@ func (r *Resolver) ExternalReallocationSSSRejectResolver(params graphql.ResolveP
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
+	}
+
+	externalReallocation, err := r.Repo.GetExternalReallocationByID(itemID)
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.DestinationOrganizationUnitID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	sourceEmployees, err := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.SourceOrganizationUnitID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	employees = append(employees, sourceEmployees...)
+
+	for _, targetUser := range targetUsers {
+		for _, employee := range employees {
+			if targetUser.ID != loggedInUser.ID && employee.UserAccountID == targetUser.ID {
+				_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+					Content:     "Vaš zahtjev za eksterno preusmjerenje je odbijen od strane SSS. ",
+					Module:      "Finansije",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    targetUser.ID,
+					FromContent: "Službenik za budžet",
+					Path:        fmt.Sprintf("/finance/budget/current/external-reallocation/%d", externalReallocation.ID),
+					IsRead:      false,
+				})
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			}
+		}
 	}
 
 	return dto.ResponseSingle{

@@ -376,6 +376,31 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		return errors.HandleAPPError(err)
 	}
 
+	loggedInUser = params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, targetUser := range targetUsers {
+		if targetUser.ID != loggedInUser.ID {
+			_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+				Content:     "Proslijeđen je novi plan budžeta na pregled i popunjavanje.",
+				Module:      "Finansije",
+				FromUserID:  loggedInUser.ID,
+				ToUserID:    targetUser.ID,
+				FromContent: "Službenik za budžet",
+				Path:        fmt.Sprintf("/finance/budget/planning/%d/details", budgetID),
+				IsRead:      false,
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+		}
+	}
+
 	return dto.ResponseSingle{
 		Message: "Budget sent successfuly",
 		Status:  "success",
@@ -418,6 +443,31 @@ func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (int
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
+		}
+	}
+
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationFullAccess)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, targetUser := range targetUsers {
+		if targetUser.ID != loggedInUser.ID {
+			_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+				Content:     "Proslijeđen je novi zahtjev na pregled.",
+				Module:      "Finansije",
+				FromUserID:  loggedInUser.ID,
+				ToUserID:    targetUser.ID,
+				FromContent: "Službenik za budžet",
+				Path:        fmt.Sprintf("/finance/budget/planning/%d/requests/%d/summary", req.BudgetID, req.ID),
+				IsRead:      false,
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
 		}
 	}
 
@@ -478,6 +528,39 @@ func (r *Resolver) BudgetRequestRejectResolver(params graphql.ResolveParams) (in
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
+	}
+
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, request.OrganizationUnitID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, targetUser := range targetUsers {
+		for _, employee := range employees {
+			if targetUser.ID != loggedInUser.ID && employee.UserAccountID == targetUser.ID {
+				_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+					Content:     "Zahtjev je odbijen.",
+					Module:      "Finansije",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    targetUser.ID,
+					FromContent: "Službenik za budžet",
+					Path:        fmt.Sprintf("/finance/budget/planning/%d/summary", request.BudgetID),
+					IsRead:      false,
+				})
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			}
+		}
 	}
 
 	return dto.ResponseSingle{
@@ -680,6 +763,39 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
+			}
+		}
+	}
+
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, request.OrganizationUnitID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, targetUser := range targetUsers {
+		for _, employee := range employees {
+			if targetUser.ID != loggedInUser.ID && employee.UserAccountID == targetUser.ID {
+				_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+					Content:     "Zahtjev je prihvaćen.",
+					Module:      "Finansije",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    targetUser.ID,
+					FromContent: "Službenik za budžet",
+					Path:        fmt.Sprintf("/finance/budget/planning/%d/summary", request.BudgetID),
+					IsRead:      false,
+				})
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
 			}
 		}
 	}

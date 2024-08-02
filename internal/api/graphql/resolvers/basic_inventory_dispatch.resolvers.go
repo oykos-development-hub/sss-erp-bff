@@ -210,20 +210,27 @@ func sendInventoryReturnReversDispatchNotification(
 	employees, _ := GetEmployeesOfOrganizationUnit(r, targetOrganziationUnitID)
 
 	for _, employee := range employees {
-		userAccount, _ := r.GetUserAccountByID(employee.UserAccountID)
-		if userAccount.RoleID != nil && *userAccount.RoleID == structs.UserRoleManagerOJ {
-			_, err := notificationService.CreateNotification(&structs.Notifications{
-				Content:     "Izvršen je povrat sredstva.",
-				Module:      "Osnovna sredstva",
-				FromUserID:  loggedInUser.ID,
-				ToUserID:    userAccount.ID,
-				FromContent: "Menadžer organizacione jedinice - " + sourceOrganizationUnit.Title,
-				Path:        "/inventory/movable-inventory/" + strconv.Itoa(itemID),
-				Data:        nil,
-				IsRead:      false,
-			})
-			if err != nil {
-				return errors.Wrap(err, "notification service create notification")
+		targetUsers, err := r.GetUsersByPermission(config.InventoryMovableItems, config.OperationFullAccess)
+		if err != nil {
+			_ = r.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return err
+		}
+
+		for _, user := range targetUsers {
+			if user.ID == employee.UserAccountID && user.ID != loggedInUser.ID {
+				_, err := notificationService.CreateNotification(&structs.Notifications{
+					Content:     "Izvršen je povrat sredstva.",
+					Module:      "Osnovna sredstva",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    user.ID,
+					FromContent: "Menadžer organizacione jedinice - " + sourceOrganizationUnit.Title,
+					Path:        "/inventory/movable-inventory/" + strconv.Itoa(itemID),
+					Data:        nil,
+					IsRead:      false,
+				})
+				if err != nil {
+					return errors.Wrap(err, "notification service create notification")
+				}
 			}
 		}
 	}
@@ -243,24 +250,30 @@ func sendInventoryDispatchNotification(
 	employees, _ := GetEmployeesOfOrganizationUnit(r, targetOrganziationUnitID)
 
 	for _, employee := range employees {
-		userAccount, _ := r.GetUserAccountByID(employee.UserAccountID)
-		if userAccount.RoleID != nil && *userAccount.RoleID == structs.UserRoleManagerOJ {
-			_, err := notificationService.CreateNotification(&structs.Notifications{
-				Content:     "Kreiran je revers. Potrebno je da ga odobrite ili odbijete.",
-				Module:      "Osnovna sredstva",
-				FromUserID:  loggedInUser.ID,
-				ToUserID:    userAccount.ID,
-				FromContent: "Menadžer organizacione jedinice - " + sourceOrganizationUnit.Title,
-				Path:        "/inventory/movable-inventory/receive-inventory",
-				Data:        nil,
-				IsRead:      false,
-			})
-			if err != nil {
-				return errors.Wrap(err, "repo notification service create notification")
+		targetUsers, err := r.GetUsersByPermission(config.InventoryMovableItems, config.OperationFullAccess)
+		if err != nil {
+			_ = r.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return err
+		}
+
+		for _, user := range targetUsers {
+			if user.ID == employee.UserAccountID && user.ID != loggedInUser.ID {
+				_, err := notificationService.CreateNotification(&structs.Notifications{
+					Content:     "Kreiran je revers. Potrebno je da ga odobrite ili odbijete.",
+					Module:      "Osnovna sredstva",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    user.ID,
+					FromContent: "Menadžer organizacione jedinice - " + sourceOrganizationUnit.Title,
+					Path:        "/inventory/movable-inventory/receive-inventory",
+					Data:        nil,
+					IsRead:      false,
+				})
+				if err != nil {
+					return errors.Wrap(err, "repo notification service create notification")
+				}
 			}
 		}
 	}
-
 	return nil
 }
 
@@ -285,24 +298,30 @@ func createInventoryDispatchApprovalnotification(
 	}
 
 	for _, employee := range employees {
-		userAccount, _ := r.GetUserAccountByID(employee.UserAccountID)
-		if userAccount.RoleID != nil && *userAccount.RoleID == structs.UserRoleManagerOJ {
-			_, err := notificationService.CreateNotification(&structs.Notifications{
-				Content:     content,
-				Module:      "Osnovna sredstva",
-				FromUserID:  loggedInUser.ID,
-				ToUserID:    userAccount.ID,
-				FromContent: "Menadžer organizacione jedinice - " + targetOrganizationUnit.Title,
-				Path:        "/inventory/movable-inventory",
-				Data:        nil,
-				IsRead:      false,
-			})
-			if err != nil {
-				return errors.Wrap(err, "repo notification service create notification")
+		targetUsers, err := r.GetUsersByPermission(config.InventoryMovableItems, config.OperationFullAccess)
+		if err != nil {
+			_ = r.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return err
+		}
+
+		for _, user := range targetUsers {
+			if user.ID == employee.UserAccountID && user.ID != loggedInUser.ID {
+				_, err := notificationService.CreateNotification(&structs.Notifications{
+					Content:     content,
+					Module:      "Osnovna sredstva",
+					FromUserID:  loggedInUser.ID,
+					ToUserID:    user.ID,
+					FromContent: "Menadžer organizacione jedinice - " + targetOrganizationUnit.Title,
+					Path:        "/inventory/movable-inventory",
+					Data:        nil,
+					IsRead:      false,
+				})
+				if err != nil {
+					return errors.Wrap(err, "repo notification service create notification")
+				}
 			}
 		}
 	}
-
 	return nil
 }
 

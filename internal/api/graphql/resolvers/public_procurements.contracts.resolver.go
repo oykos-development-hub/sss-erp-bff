@@ -178,29 +178,128 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 			return errors.HandleAPPError(err)
 		}
 
-		loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+		contractArticles, err := r.Repo.GetProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
+			ContractID: &item.ID,
+		})
 
-		targetUsers, err := r.Repo.GetUsersByPermission(config.AccountingContract, config.OperationRead)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
-		for _, user := range targetUsers {
-			dataJSON, _ := json.Marshal(item)
-			_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
-				Content:     "Potpisan je novi ugovor",
-				Module:      "Materijalno knjigovodstvo",
-				FromUserID:  loggedInUser.ID,
-				ToUserID:    user.ID,
-				FromContent: "Službenik za javne nabavke",
-				IsRead:      false,
-				Data:        dataJSON,
-				Path:        fmt.Sprintf("/accounting/contracts/%d/contract-details", item.ID),
-			})
+		isAccounting := false
+		isInventory := false
+
+		for _, article := range contractArticles.Data {
+			procurementArticle, err := r.Repo.GetProcurementArticle(article.PublicProcurementArticleID)
+
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
+			}
+
+			if procurementArticle.VisibilityType == 3 {
+				isInventory = true
+			} else if procurementArticle.VisibilityType == 2 {
+				isAccounting = true
+			}
+
+			if isAccounting && isInventory {
+				break
+			}
+
+		}
+
+		if isAccounting {
+			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+
+			targetUsers, err := r.Repo.GetUsersByPermission(config.AccountingContract, config.OperationRead)
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			for _, user := range targetUsers {
+				if loggedInUser.ID != user.ID {
+					dataJSON, _ := json.Marshal(item)
+					_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+						Content:     "Potpisan je novi ugovor",
+						Module:      "Javne nabavke",
+						FromUserID:  loggedInUser.ID,
+						ToUserID:    user.ID,
+						FromContent: "Službenik za javne nabavke",
+						IsRead:      false,
+						Data:        dataJSON,
+						Path:        fmt.Sprintf("/accounting/contracts/%d/contract-details", item.ID),
+					})
+					if err != nil {
+						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+						return errors.HandleAPPError(err)
+					}
+				}
+			}
+		}
+
+		if isInventory {
+			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+
+			targetUsers, err := r.Repo.GetUsersByPermission(config.InventoryMovableItems, config.OperationRead)
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			searchParam := "Sekretarijat"
+
+			targetOrganizationUnit, err := r.Repo.GetOrganizationUnits(
+				&dto.GetOrganizationUnitsInput{
+					ParentID: nil,
+					Search:   &searchParam,
+				},
+			)
+
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			var targetOrganziationUnitID int
+
+			for _, OU := range targetOrganizationUnit.Data {
+				if OU.ID < 5 {
+					targetOrganziationUnitID = OU.ID
+				}
+			}
+
+			if targetOrganziationUnitID != 0 {
+
+				employees, err := GetEmployeesOfOrganizationUnit(r.Repo, targetOrganziationUnitID)
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+
+				for _, user := range targetUsers {
+					for _, employee := range employees {
+						if employee.UserAccountID == user.ID && loggedInUser.ID != user.ID {
+							dataJSON, _ := json.Marshal(item)
+							_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+								Content:     "Potpisan je novi ugovor",
+								Module:      "Javne nabavke",
+								FromUserID:  loggedInUser.ID,
+								ToUserID:    user.ID,
+								FromContent: "Službenik za javne nabavke",
+								IsRead:      false,
+								Data:        dataJSON,
+								Path:        fmt.Sprintf("/procurements/contracts/%d/details", item.ID),
+							})
+							if err != nil {
+								_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+								return errors.HandleAPPError(err)
+							}
+						}
+					}
+				}
 			}
 		}
 

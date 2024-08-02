@@ -54,6 +54,7 @@ const (
 
 	PublicProcurementPlan PermissionPath = "/procurements/plans"
 	AccountingContract    PermissionPath = "/accounting/contracts"
+	InventoryMovableItems PermissionPath = "/inventory/movable-inventory"
 
 	OperationCreate     PermissionOperations = "can_create"
 	OperationUpdate     PermissionOperations = "can_update"

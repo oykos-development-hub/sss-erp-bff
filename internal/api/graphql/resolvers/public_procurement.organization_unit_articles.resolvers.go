@@ -132,7 +132,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 				}
 
 				for _, user := range targetUsers {
-					if user.ID == employee.ID {
+					if user.ID == employee.UserAccountID && loggedInUser.ID != user.ID {
 						plan, _ := r.Repo.GetProcurementPlan(procurement.PlanID)
 						data := dto.ProcurementPlanNotification{
 							ID:          plan.ID,
@@ -234,33 +234,35 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 	}
 
 	for _, targetUser := range targetUsers {
-		plan, _ := r.Repo.GetProcurementPlan(planID)
-		data := dto.ProcurementPlanNotification{
-			ID:          plan.ID,
-			IsPreBudget: plan.IsPreBudget,
-			Year:        plan.Year,
-		}
-		dataJSON, _ := json.Marshal(data)
+		if loggedInUser.ID != targetUser.ID {
+			plan, _ := r.Repo.GetProcurementPlan(planID)
+			data := dto.ProcurementPlanNotification{
+				ID:          plan.ID,
+				IsPreBudget: plan.IsPreBudget,
+				Year:        plan.Year,
+			}
+			dataJSON, _ := json.Marshal(data)
 
-		var content string
-		if isRejected {
-			content = "Zahtjev sa novim izmjenama je ažuriran i proslijeđen."
-		} else {
-			content = "Zahtjev je proslijeđen."
-		}
-		_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
-			Content:     content,
-			Module:      "Javne nabavke",
-			FromUserID:  loggedInUser.ID,
-			Path:        fmt.Sprintf("/procurements/plans/%d?tab=requests", planID),
-			ToUserID:    targetUser.ID,
-			FromContent: fmt.Sprintf("Menadžer %s", unit.Abbreviation),
-			IsRead:      false,
-			Data:        dataJSON,
-		})
-		if err != nil {
-			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-			return errors.HandleAPPError(err)
+			var content string
+			if isRejected {
+				content = "Zahtjev sa novim izmjenama je ažuriran i proslijeđen."
+			} else {
+				content = "Zahtjev je proslijeđen."
+			}
+			_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+				Content:     content,
+				Module:      "Javne nabavke",
+				FromUserID:  loggedInUser.ID,
+				Path:        fmt.Sprintf("/procurements/plans/%d?tab=requests", planID),
+				ToUserID:    targetUser.ID,
+				FromContent: fmt.Sprintf("Menadžer %s", unit.Abbreviation),
+				IsRead:      false,
+				Data:        dataJSON,
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
 		}
 	}
 

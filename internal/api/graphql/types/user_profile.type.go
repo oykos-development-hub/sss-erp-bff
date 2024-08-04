@@ -869,5 +869,14 @@ var DataForTemplate = graphql.NewObject(graphql.ObjectConfig{
 		"obrazovanje": &graphql.Field{
 			Type: graphql.String,
 		},
+		"godine_staza": &graphql.Field{
+			Type: graphql.String,
+		},
+		"mjeseci_staza": &graphql.Field{
+			Type: graphql.String,
+		},
+		"dani_staza": &graphql.Field{
+			Type: graphql.String,
+		},
 	},
 })

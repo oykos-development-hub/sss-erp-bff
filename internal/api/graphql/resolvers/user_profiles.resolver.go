@@ -1443,6 +1443,9 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 	var vacationEndDate string
 	var rating string
 	var education string
+	var yearsOfExperience string
+	var monthsOfExperience string
+	var daysOfExperience string
 
 	employee, err := r.Repo.GetUserProfileByID(id)
 
@@ -1456,8 +1459,41 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 	currentMonth := strconv.Itoa(int(currentDate.Month()))
 	currentDateString := currentDate.Format("02.01.2006")
 
+	experiences, err := r.Repo.GetEmployeeExperiences(id)
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get employee experiences")
+	}
+	experienceResponseItemList, err := buildExprienceResponseItemList(r.Repo, experiences)
+	if err != nil {
+		return nil, errors.Wrap(err, "build exprience response item list")
+	}
+
+	var yearsOfExperienceInt int
+	var monthsOfExperienceInt int
+	var daysOfExperienceInt int
+
+	for _, item := range experienceResponseItemList {
+		daysOfExperienceInt += item.DaysOfExperience
+		monthsOfExperienceInt += item.MonthsOfExperience
+		yearsOfExperienceInt += item.YearsOfExperience
+
+		if daysOfExperienceInt > 29 {
+			monthsOfExperienceInt++
+			daysOfExperienceInt -= 29
+		}
+
+		if monthsOfExperienceInt > 11 {
+			yearsOfExperienceInt++
+			monthsOfExperienceInt -= 11
+		}
+	}
+
 	isActive := true
-	contracts, _ := r.Repo.GetEmployeeContracts(employee.ID, &dto.GetEmployeeContracts{Active: &isActive})
+	contracts, err := r.Repo.GetEmployeeContracts(employee.ID, &dto.GetEmployeeContracts{Active: &isActive})
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get employee contracts")
+	}
 
 	if len(contracts) > 0 {
 		if contracts[0].DateOfStart != nil {
@@ -1467,6 +1503,26 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 				return nil, errors.Wrap(err, "repo parse date")
 			}
 			contractStartDate = contractStartDateTime.Format("02.01.2006")
+
+			duration := time.Now().Sub(contractStartDateTime).Hours() / 24
+			years := int(duration) / 365
+			remainingDays := int(duration) % 365
+			months := remainingDays / 30
+			days := remainingDays % 30
+
+			yearsOfExperienceInt += years
+			monthsOfExperienceInt += months
+			daysOfExperienceInt += days
+
+			if daysOfExperienceInt > 29 {
+				monthsOfExperienceInt++
+				daysOfExperienceInt -= 29
+			}
+
+			if monthsOfExperienceInt > 11 {
+				yearsOfExperienceInt++
+				monthsOfExperienceInt -= 11
+			}
 		}
 
 		if contracts[0].DateOfEnd != nil {
@@ -1645,6 +1701,10 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 		}
 	}
 
+	yearsOfExperience = strconv.Itoa(yearsOfExperienceInt)
+	monthsOfExperience = strconv.Itoa(monthsOfExperienceInt)
+	daysOfExperience = strconv.Itoa(daysOfExperienceInt)
+
 	dataForTemplate := dto.UserDataForTemplate{
 		CurrentYear:            currentYear,
 		CurrentMonth:           currentMonth,
@@ -1670,6 +1730,9 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 		VacationEndDate:        vacationEndDate,
 		Rating:                 rating,
 		Education:              education,
+		YearsOfExperience:      yearsOfExperience,
+		MonthsOfExperience:     monthsOfExperience,
+		DaysOfExperience:       daysOfExperience,
 	}
 
 	return &dataForTemplate, nil

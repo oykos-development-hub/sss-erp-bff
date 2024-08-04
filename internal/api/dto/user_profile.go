@@ -264,4 +264,7 @@ type UserDataForTemplate struct {
 	VacationEndDate        string `json:"datum_kraja_godisnjeg_odmora"`
 	Rating                 string `json:"ocjena"`
 	Education              string `json:"obrazovanje"`
+	YearsOfExperience      string `json:"godine_staza"`
+	MonthsOfExperience     string `json:"mjeseci_staza"`
+	DaysOfExperience       string `json:"dani_staza"`
 }

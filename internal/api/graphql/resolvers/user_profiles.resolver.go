@@ -1479,12 +1479,12 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 
 		if daysOfExperienceInt > 29 {
 			monthsOfExperienceInt++
-			daysOfExperienceInt -= 29
+			daysOfExperienceInt -= 30
 		}
 
 		if monthsOfExperienceInt > 11 {
 			yearsOfExperienceInt++
-			monthsOfExperienceInt -= 11
+			monthsOfExperienceInt -= 12
 		}
 	}
 
@@ -1504,24 +1504,38 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 			}
 			contractStartDate = contractStartDateTime.Format("02.01.2006")
 
-			duration := time.Now().Sub(contractStartDateTime).Hours() / 24
-			years := int(duration) / 365
-			remainingDays := int(duration) % 365
-			months := remainingDays / 30
-			days := remainingDays % 30
+			startDay, startMonth, startYear := contractStartDateTime.Day(), contractStartDateTime.Month(), contractStartDateTime.Year()
+			endDay, endMonth, endYear := time.Now().Day(), time.Now().Month(), time.Now().Year()
 
-			yearsOfExperienceInt += years
-			monthsOfExperienceInt += months
-			daysOfExperienceInt += days
+			// Izračunajte razliku u danima
+			dayDiff := endDay - startDay
+			if dayDiff < 0 {
+				dayDiff += 30
+				endMonth--
+			}
+
+			// Izračunajte razliku u mjesecima
+			monthDiff := int(endMonth) - int(startMonth)
+			if monthDiff < 0 {
+				monthDiff += 12
+				endYear--
+			}
+
+			// Izračunajte razliku u godinama
+			yearDiff := endYear - startYear
+
+			yearsOfExperienceInt += yearDiff
+			monthsOfExperienceInt += monthDiff
+			daysOfExperienceInt += dayDiff
 
 			if daysOfExperienceInt > 29 {
 				monthsOfExperienceInt++
-				daysOfExperienceInt -= 29
+				daysOfExperienceInt -= 30
 			}
 
 			if monthsOfExperienceInt > 11 {
 				yearsOfExperienceInt++
-				monthsOfExperienceInt -= 11
+				monthsOfExperienceInt -= 12
 			}
 		}
 

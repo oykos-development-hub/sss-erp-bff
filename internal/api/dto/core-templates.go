@@ -24,6 +24,11 @@ type GetTemplateResponseListMS struct {
 	Total int                `json:"total"`
 }
 
+type GetListOfParametersResponseListMS struct {
+	Data  []structs.ListOfParameters `json:"data"`
+	Total int                        `json:"total"`
+}
+
 type GetTemplateResponseMS struct {
 	Data structs.Template `json:"data"`
 }

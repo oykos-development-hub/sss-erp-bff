@@ -12,3 +12,9 @@ type CustomerSupport struct {
 	ID                      int `json:"id"`
 	UserDocumentationFileID int `json:"user_documentation_file_id"`
 }
+
+type ListOfParameters struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}

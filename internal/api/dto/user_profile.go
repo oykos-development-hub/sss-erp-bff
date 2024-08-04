@@ -249,6 +249,7 @@ type UserDataForTemplate struct {
 	OrganizationalUnit     string `json:"organizaciona_jedinica"`
 	Department             string `json:"odjeljenje"`
 	Position               string `json:"radno_mjesto"`
+	JobPositionRequirments string `json:"radno_mjesto_uslovi"`
 	SystematizationNumber  string `json:"broj_sistematizacije"`
 	SystematizationDate    string `json:"datum_sistematizacije"`
 	ContractStartDate      string `json:"datum_pocetka_ugovora"`

@@ -1428,6 +1428,7 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 	var organizationUnitName string
 	var departmentName string
 	var jobPositionName string
+	var jobPositionRequirments string
 	var systematizationNumber string
 	var systematizationDate string
 	var contractStartDate string
@@ -1552,6 +1553,16 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 			}
 		}
 
+		for _, item := range *fullSystematization.Sectors {
+			for _, employeeItem := range item.JobPositionsOrganizationUnits {
+				for _, employee := range employeeItem.Employees {
+					if employee.ID == id && employeeItem.Requirements != nil {
+						jobPositionRequirments = *employeeItem.Requirements
+					}
+				}
+			}
+		}
+
 		organizationUnit, err := r.Repo.GetOrganizationUnitByID(systematization.OrganizationUnitID)
 
 		if err != nil {
@@ -1644,6 +1655,7 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 		OrganizationalUnit:     organizationUnitName,
 		Department:             departmentName,
 		Position:               jobPositionName,
+		JobPositionRequirments: jobPositionRequirments,
 		SystematizationNumber:  systematizationNumber,
 		SystematizationDate:    systematizationDate,
 		ContractStartDate:      contractStartDate,

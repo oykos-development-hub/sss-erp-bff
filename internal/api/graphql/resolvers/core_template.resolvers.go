@@ -247,3 +247,21 @@ func (r *Resolver) buildTemplateResponse(item structs.Template) (*dto.TemplatesR
 
 	return &responseItem, nil
 }
+
+func (r *Resolver) ListOfParametersOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+
+	response := dto.Response{
+		Status: "success",
+	}
+
+	data, err := r.Repo.GetListOfParameters()
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+	response.Message = "You get this item!"
+	response.Items = data
+
+	return response, nil
+
+}

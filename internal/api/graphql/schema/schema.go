@@ -211,6 +211,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 			"userAccount_ResetPassword":                          fields.UserResetPassword(),
 			"settingsDropdown_Overview":                          fields.SettingsDropdownField(),
 			"template_Overview":                                  fields.TemplateField(),
+			"listOfParameters_Overview":                          fields.ListOfParametersOverviewField(),
 			"customerSupport_Update":                             fields.CustomerSupportUpdateFiled(),
 			"customerSupport_Overview":                           fields.CustomerSupportOverviewField(),
 			"organizationUnits":                                  fields.OrganizationUnitsField(),

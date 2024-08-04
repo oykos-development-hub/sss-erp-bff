@@ -74,6 +74,39 @@ var TemplateDeleteType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var ListOfParametersOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ListOfParametersOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(ListOfParametersType),
+		},
+	},
+})
+
+var ListOfParametersType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "ListOfParametersType",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"title": &graphql.Field{
+			Type: graphql.String,
+		},
+		"description": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
 var CustomerSupportInsertType = graphql.NewObject(graphql.ObjectConfig{
 	Name: "CustomerSupportInsertType",
 	Fields: graphql.Fields{

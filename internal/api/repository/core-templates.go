@@ -132,3 +132,13 @@ func (repo *MicroserviceRepository) DeleteTemplate(ctx context.Context, id int) 
 
 	return nil
 }
+
+func (repo *MicroserviceRepository) GetListOfParameters() ([]structs.ListOfParameters, error) {
+	res := &dto.GetListOfParametersResponseListMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.ListOfParameters, nil, res)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return res.Data, nil
+}

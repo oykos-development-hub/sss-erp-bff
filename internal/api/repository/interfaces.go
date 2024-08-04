@@ -549,4 +549,6 @@ type MicroserviceRepositoryInterface interface {
 
 	UpdateCustomerSupport(ctx context.Context, item *structs.CustomerSupport) error
 	GetCustomerSupport(id int) (*structs.CustomerSupport, error)
+
+	GetListOfParameters() ([]structs.ListOfParameters, error)
 }

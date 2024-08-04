@@ -824,6 +824,9 @@ var DataForTemplate = graphql.NewObject(graphql.ObjectConfig{
 		"radno_mjesto": &graphql.Field{
 			Type: graphql.String,
 		},
+		"radno_mjesto_uslovi": &graphql.Field{
+			Type: graphql.String,
+		},
 		"broj_sistematizacije": &graphql.Field{
 			Type: graphql.String,
 		},

@@ -174,6 +174,7 @@ type CoreMS struct {
 	ErrorLogs           string
 	BffErrorLogs        string
 	CustomerSupport     string
+	ListOfParameters    string
 }
 
 type HrMS struct {
@@ -366,6 +367,7 @@ func LoadDefaultConfig() (*Config, error) {
 				ErrorLogs:           coreBase + "/error-logs",
 				BffErrorLogs:        coreBase + "/bff-error-logs",
 				CustomerSupport:     coreBase + "/customer-supports",
+				ListOfParameters:    coreBase + "/list-of-parameters",
 			},
 			Procurements: ProcurementMS{
 				Base:                    procurementsBase,

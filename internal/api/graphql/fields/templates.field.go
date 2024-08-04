@@ -109,3 +109,11 @@ func (f *Field) CustomerSupportOverviewField() *graphql.Field {
 		Resolve: f.Resolvers.CustomerSupportOverviewResolver,
 	}
 }
+
+func (f *Field) ListOfParametersOverviewField() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.ListOfParametersOverviewType,
+		Description: "Returns a list of parameters",
+		Resolve:     f.Resolvers.ListOfParametersOverviewResolver,
+	}
+}

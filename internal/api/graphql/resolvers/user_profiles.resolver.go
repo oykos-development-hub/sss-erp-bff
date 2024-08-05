@@ -1732,6 +1732,7 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 		}
 
 		if len(resolution.Data) > 0 {
+
 			filter := dto.JudgeResolutionsOrganizationUnitInput{
 				ResolutionID:  &resolution.Data[0].ID,
 				UserProfileID: &id,
@@ -1747,6 +1748,14 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 				jobPositionName = "Predsjednik suda"
 			} else if len(judges) > 0 {
 				jobPositionName = "Sudija"
+			}
+
+			if len(judges) > 0 {
+				organizationUnit, err := r.Repo.GetOrganizationUnitByID(judges[0].OrganizationUnitID)
+				if err != nil {
+					return nil, errors.Wrap(err, "repo get organization unit by id")
+				}
+				organizationUnitName = organizationUnit.Title
 			}
 
 		}

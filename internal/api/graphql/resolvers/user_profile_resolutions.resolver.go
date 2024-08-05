@@ -6,6 +6,8 @@ import (
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -39,6 +41,16 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 	}
 
 	_ = json.Unmarshal(dataBytes, &data)
+
+	if data.DateOfStart == "" {
+		currentTime := time.Now()
+
+		currentYear := currentTime.Year()
+
+		data.DateOfStart = fmt.Sprintf("%d-01-01T00:00:00Z", currentYear)
+		dateOfEnd := fmt.Sprintf("%d-12-31T00:00:00Z", currentYear)
+		data.DateOfEnd = &dateOfEnd
+	}
 
 	itemID := data.ID
 	if itemID != 0 {

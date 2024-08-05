@@ -1719,6 +1719,39 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 	monthsOfExperience = strconv.Itoa(monthsOfExperienceInt)
 	daysOfExperience = strconv.Itoa(daysOfExperienceInt)
 
+	if jobPositionName == "" {
+		active := true
+		input := dto.GetJudgeResolutionListInputMS{
+			Active: &active,
+		}
+
+		resolution, err := r.Repo.GetJudgeResolutionList(&input)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get resolution list")
+		}
+
+		if len(resolution.Data) > 0 {
+			filter := dto.JudgeResolutionsOrganizationUnitInput{
+				ResolutionID:  &resolution.Data[0].ID,
+				UserProfileID: &id,
+			}
+
+			judges, _, err := r.Repo.GetJudgeResolutionOrganizationUnit(&filter)
+
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get judge resolution organization unit")
+			}
+
+			if len(judges) > 0 && judges[0].IsPresident {
+				jobPositionName = "Predsjednik suda"
+			} else if len(judges) > 0 {
+				jobPositionName = "Sudija"
+			}
+
+		}
+	}
+
 	dataForTemplate := dto.UserDataForTemplate{
 		CurrentYear:            currentYear,
 		CurrentMonth:           currentMonth,

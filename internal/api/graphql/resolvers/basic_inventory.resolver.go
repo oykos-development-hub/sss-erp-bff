@@ -204,23 +204,6 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
-			if item.ContractID > 0 && item.ContractArticleID > 0 {
-				articles, _ := r.Repo.GetProcurementContractArticlesList(&dto.GetProcurementContractArticlesInput{
-					ContractID: &item.ContractID,
-					ArticleID:  &item.ContractArticleID,
-				})
-
-				if len(articles.Data) > 0 {
-					article := articles.Data[0]
-
-					article.UsedArticles++
-					_, err := r.Repo.UpdateProcurementContractArticle(article.ID, article)
-					if err != nil {
-						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-						return errors.HandleAPPError(err)
-					}
-				}
-			}
 
 			if item.DepreciationTypeID != 0 {
 

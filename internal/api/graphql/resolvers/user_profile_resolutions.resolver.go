@@ -6,8 +6,6 @@ import (
 	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
-	"fmt"
-	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -57,16 +55,6 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 		response.Item = resolutionResItem
 		response.Message = "You updated this item!"
 	} else {
-		if data.DateOfStart == "" {
-			currentTime := time.Now()
-
-			currentYear := currentTime.Year()
-
-			data.DateOfStart = fmt.Sprintf("%d-01-01T00:00:00Z", currentYear)
-			dateOfEnd := fmt.Sprintf("%d-12-31T00:00:00Z", currentYear)
-			data.DateOfEnd = &dateOfEnd
-		}
-
 		resolution, err := r.Repo.CreateResolution(params.Context, &data)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})

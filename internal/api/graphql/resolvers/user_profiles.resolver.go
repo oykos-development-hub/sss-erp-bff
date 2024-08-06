@@ -1280,14 +1280,17 @@ func buildUserProfileBasicResponse(
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get employee contracts")
 	}
+
 	if len(contracts) > 0 {
 
 		contractResponseItem, err := buildContractResponseItem(r, *contracts[0])
 		if err != nil {
 			return nil, errors.Wrap(err, "build contract response item")
 		}
-		userProfileResItem.Contract = contractResponseItem
 
+		if organizationUnit != nil || profile.IsJudge {
+			userProfileResItem.Contract = contractResponseItem
+		}
 		// need check user is judge or president
 		if contractResponseItem.OrganizationUnit.ID > 0 {
 

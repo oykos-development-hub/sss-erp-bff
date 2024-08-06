@@ -1598,55 +1598,56 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 			return nil, errors.Wrap(err, "repo get job position by id")
 		}
 
-		jobPositionName = jobPosition.Title
-
 		systematization, err := r.Repo.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
 
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get systematization by id")
 		}
 
-		systematizationNumber = systematization.SerialNumber
-
-		if systematization.DateOfActivation != nil {
-			systematizationDateTime, err := parseDate(*systematization.DateOfActivation)
+		if systematization.Active == 2 {
+			fullSystematization, err := buildSystematizationOverviewResponse(r.Repo, systematization)
 
 			if err != nil {
-				return nil, errors.Wrap(err, "repo parse date")
+				return nil, errors.Wrap(err, "repo build systematization overview response")
 			}
-			systematizationDate = systematizationDateTime.Format("02.01.2006")
-		}
 
-		fullSystematization, err := buildSystematizationOverviewResponse(r.Repo, systematization)
+			jobPositionName = jobPosition.Title
+			systematizationNumber = systematization.SerialNumber
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo build systematization overview response")
-		}
+			if systematization.DateOfActivation != nil {
+				systematizationDateTime, err := parseDate(*systematization.DateOfActivation)
 
-		for _, item := range fullSystematization.ActiveEmployees {
-			if item.ID == id {
-				departmentName = item.Sector
-				break
+				if err != nil {
+					return nil, errors.Wrap(err, "repo parse date")
+				}
+				systematizationDate = systematizationDateTime.Format("02.01.2006")
 			}
-		}
 
-		for _, item := range *fullSystematization.Sectors {
-			for _, employeeItem := range item.JobPositionsOrganizationUnits {
-				for _, employee := range employeeItem.Employees {
-					if employee.ID == id && employeeItem.Requirements != nil {
-						jobPositionRequirments = *employeeItem.Requirements
+			for _, item := range fullSystematization.ActiveEmployees {
+				if item.ID == id {
+					departmentName = item.Sector
+					break
+				}
+			}
+
+			for _, item := range *fullSystematization.Sectors {
+				for _, employeeItem := range item.JobPositionsOrganizationUnits {
+					for _, employee := range employeeItem.Employees {
+						if employee.ID == id && employeeItem.Requirements != nil {
+							jobPositionRequirments = *employeeItem.Requirements
+						}
 					}
 				}
 			}
+
+			organizationUnit, err := r.Repo.GetOrganizationUnitByID(systematization.OrganizationUnitID)
+
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get organization unit by id")
+			}
+
+			organizationUnitName = organizationUnit.Title
 		}
-
-		organizationUnit, err := r.Repo.GetOrganizationUnitByID(systematization.OrganizationUnitID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
-
-		organizationUnitName = organizationUnit.Title
 	}
 
 	sumDaysOfCurrentYear, availableDaysOfCurrentYear, availableDaysOfPreviousYear, err := GetNumberOfCurrentAndPreviousYearAvailableDays(r.Repo, id)

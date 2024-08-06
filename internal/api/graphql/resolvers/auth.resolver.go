@@ -87,11 +87,14 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 			return apierrors.HandleAPPError(err)
 		}
 
-		organizationUnit, err = r.Repo.GetOrganizationUnitByID(systematization.OrganizationUnitID)
+		if systematization.Active == 2 {
 
-		if err != nil {
-			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-			return apierrors.HandleAPPError(err)
+			organizationUnit, err = r.Repo.GetOrganizationUnitByID(systematization.OrganizationUnitID)
+
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return apierrors.HandleAPPError(err)
+			}
 		}
 	}
 

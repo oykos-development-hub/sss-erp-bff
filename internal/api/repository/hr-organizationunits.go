@@ -71,6 +71,37 @@ func (repo *MicroserviceRepository) CreateOrganizationUnits(ctx context.Context,
 }
 
 func (repo *MicroserviceRepository) GetOrganizationUnitIDByUserProfile(id int) (*int, error) {
+
+	active := true
+	input := dto.GetJudgeResolutionListInputMS{
+		Active: &active,
+	}
+
+	resolution, err := repo.GetJudgeResolutionList(&input)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get resolution list")
+	}
+
+	if len(resolution.Data) > 0 {
+
+		filter := dto.JudgeResolutionsOrganizationUnitInput{
+			ResolutionID:  &resolution.Data[0].ID,
+			UserProfileID: &id,
+		}
+
+		judges, _, err := repo.GetJudgeResolutionOrganizationUnit(&filter)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get judge resolution organization unit")
+		}
+
+		if len(judges) > 0 {
+			return &judges[0].OrganizationUnitID, nil
+		}
+
+	}
+
 	employeesInOrganizationUnit, err := repo.GetEmployeesInOrganizationUnitsByProfileID(id)
 	if err != nil {
 		return nil, errors.Wrap(err, "make api request")
@@ -91,4 +122,5 @@ func (repo *MicroserviceRepository) GetOrganizationUnitIDByUserProfile(id int) (
 	}
 
 	return &systematization.OrganizationUnitID, nil
+
 }

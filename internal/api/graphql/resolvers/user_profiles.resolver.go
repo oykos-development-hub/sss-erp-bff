@@ -187,21 +187,6 @@ func buildUserProfileOverviewResponse(
 		}
 	}
 
-	contract, err := r.GetEmployeeContracts(profile.ID, nil)
-
-	if err != nil {
-		return nil, errors.Wrap(err, "repo get employee contract")
-	}
-
-	if len(contract) > 0 {
-		orgUnit, err := r.GetOrganizationUnitByID(contract[0].OrganizationUnitID)
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
-		organizationUnitDropdown.ID = orgUnit.ID
-		organizationUnitDropdown.Title = orgUnit.Title
-	}
-
 	active := true
 	input := dto.GetJudgeResolutionListInputMS{
 		Active: &active,

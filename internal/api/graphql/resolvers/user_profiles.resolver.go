@@ -1297,6 +1297,7 @@ func buildUserProfileBasicResponse(
 				ID:    contractResponseItem.OrganizationUnit.ID,
 				Title: contractResponseItem.OrganizationUnit.Title,
 			}
+			userProfileResItem.OrganizationUnit = organizationUnit
 		}
 		// need check user is judge or president
 		if contractResponseItem.OrganizationUnit.ID > 0 {

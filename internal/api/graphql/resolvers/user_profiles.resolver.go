@@ -200,15 +200,6 @@ func buildUserProfileOverviewResponse(
 		}
 		organizationUnitDropdown.ID = orgUnit.ID
 		organizationUnitDropdown.Title = orgUnit.Title
-
-		if contract[0].OrganizationUnitDepartmentID != nil {
-			department, err := r.GetOrganizationUnitByID(*contract[0].OrganizationUnitDepartmentID)
-			if err != nil {
-				return nil, errors.Wrap(err, "repo get organization unit by id")
-			}
-			departmentDropdown.ID = department.ID
-			departmentDropdown.Title = department.Title
-		}
 	}
 
 	active := true
@@ -1239,16 +1230,26 @@ func buildUserProfileBasicResponse(
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get job positions in organization units by id")
 		}
-		jobPositionInOrganizationUnitID = jobPositionInOrganizationUnit.ID
 
-		jobPosition, err = r.GetJobPositionByID(jobPositionInOrganizationUnit.JobPositionID)
+		systematization, err := r.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
+
 		if err != nil {
-			return nil, errors.Wrap(err, "repo get job positions by id")
+			return nil, errors.Wrap(err, "repo systematization by id")
 		}
 
-		organizationUnit, err = r.GetOrganizationUnitByID(jobPositionInOrganizationUnit.ParentOrganizationUnitID)
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get organization unit by id")
+		if systematization.Active == 2 {
+
+			jobPositionInOrganizationUnitID = jobPositionInOrganizationUnit.ID
+
+			jobPosition, err = r.GetJobPositionByID(jobPositionInOrganizationUnit.JobPositionID)
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get job positions by id")
+			}
+
+			organizationUnit, err = r.GetOrganizationUnitByID(jobPositionInOrganizationUnit.ParentOrganizationUnitID)
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get organization unit by id")
+			}
 		}
 	}
 

@@ -133,7 +133,15 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 
 	var organizationUnitList []dto.OrganizationUnitsOverviewResponse
 
-	if loginRes.Data.HasPermission(structs.PermissionManageOrganizationUnits) {
+	loggedInAccount := p.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+
+	hasPermission, err := r.HasPermission(*loggedInAccount, string(config.HR), config.OperationFullAccess)
+
+	if err != nil {
+		return nil, apierrors.Wrap(err, "repo has permission")
+	}
+
+	if hasPermission {
 		isParent := true
 		organizationUnits, err := r.Repo.GetOrganizationUnits(&dto.GetOrganizationUnitsInput{IsParent: &isParent})
 		if err != nil {

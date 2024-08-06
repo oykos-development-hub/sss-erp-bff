@@ -44,7 +44,15 @@ func (r *Resolver) JudgesOverviewResolver(params graphql.ResolveParams) (interfa
 		user := id.(int)
 		filter.UserProfileID = &user
 	}
-	if !loggedInUser.HasPermission(structs.PermissionManageOrganizationUnits) {
+
+	hasPermission, err := r.HasPermission(*loggedInUser, string(config.HR), config.OperationFullAccess)
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	if !hasPermission {
 		filter.OrganizationUnitID = profileOrganizationUnit
 	}
 

@@ -15,7 +15,13 @@ import (
 func (r *Resolver) buildNonFinancialBudgetDetails(ctx context.Context, request *structs.BudgetRequest) (*dto.NonFinancialBudgetResItem, error) {
 	resItem := &dto.NonFinancialBudgetResItem{}
 
-	resItem.Status = buildBudgetRequestStatus(ctx, request.Status)
+	status, err := r.buildBudgetRequestStatus(ctx, request.Status)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo build budget request status")
+	}
+
+	resItem.Status = *status
 	resItem.RequestID = request.ID
 
 	activity, err := r.Repo.GetActivityByUnit(request.OrganizationUnitID)

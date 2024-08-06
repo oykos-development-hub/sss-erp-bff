@@ -153,16 +153,26 @@ func (r *Resolver) GetFinancialBudgetDetails(ctx context.Context, budgetID, unit
 
 		financialBudgetOveriew.RequestID = financialRequest.ID
 		financialBudgetOveriew.OfficialComment = financialRequest.Comment
-		financialBudgetOveriew.Status = buildBudgetRequestStatus(ctx, financialRequest.Status)
+		status, err := r.buildBudgetRequestStatus(ctx, donationFinancialBudgetRequest.Status)
+		if err != nil {
+			return nil, errors.Wrap(err, "repo build budget request status")
+		}
+		financialBudgetOveriew.Status = *status
 
 		financialBudgetOveriew.CurrentRequestID = currentFinancialBudgetRequest.ID
 		financialBudgetOveriew.CurrentBudgetComment = currentFinancialBudgetRequest.Comment
-		financialBudgetOveriew.CurrentBudgetStatus = buildBudgetRequestStatus(ctx, currentFinancialBudgetRequest.Status)
-
+		status, err = r.buildBudgetRequestStatus(ctx, donationFinancialBudgetRequest.Status)
+		if err != nil {
+			return nil, errors.Wrap(err, "repo build budget request status")
+		}
+		financialBudgetOveriew.CurrentBudgetStatus = *status
 		financialBudgetOveriew.DonationRequestID = donationFinancialBudgetRequest.ID
 		financialBudgetOveriew.CurrentBudgetComment = donationFinancialBudgetRequest.Comment
-		financialBudgetOveriew.DonationBudgetStatus = buildBudgetRequestStatus(ctx, donationFinancialBudgetRequest.Status)
-
+		status, err = r.buildBudgetRequestStatus(ctx, donationFinancialBudgetRequest.Status)
+		if err != nil {
+			return nil, errors.Wrap(err, "repo build budget request status")
+		}
+		financialBudgetOveriew.DonationBudgetStatus = *status
 	}
 
 	return financialBudgetOveriew, nil

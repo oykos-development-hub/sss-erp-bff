@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
@@ -79,6 +80,51 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 		Total:   total,
 		Items:   items,
 	}, nil
+}
+
+func (r *Resolver) GetPermissionsForRole(id *int) ([]structs.Permissions, error) {
+	var permissions []structs.Permissions
+
+	if id != nil {
+		permission, err := r.Repo.GetPermissionList(*id)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get permissions for role")
+		}
+
+		permissions = permission
+	}
+
+	return permissions, nil
+}
+
+func (r *Resolver) HasPermission(userID structs.UserAccounts, requiredPermission string, operation config.PermissionOperations) (bool, error) {
+	permissions, err := r.GetPermissionsForRole(userID.RoleID)
+
+	if err != nil {
+		return false, errors.Wrap(err, "repo get permissions for role")
+	}
+
+	for _, p := range permissions {
+		if p.Route == requiredPermission {
+			if operation == config.OperationCreate && p.Create {
+				return true, nil
+			}
+			if operation == config.OperationDelete && p.Delete {
+				return true, nil
+			}
+			if operation == config.OperationRead && p.Read {
+				return true, nil
+			}
+			if operation == config.OperationUpdate && p.Update {
+				return true, nil
+			}
+			if operation == config.OperationFullAccess && p.Create && p.Delete && p.Read && p.Update {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
 }
 
 func (r *Resolver) UserAccountBasicInsertResolver(params graphql.ResolveParams) (interface{}, error) {

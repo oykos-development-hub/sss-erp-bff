@@ -56,6 +56,7 @@ const (
 	AccountingContract    PermissionPath = "/accounting/contracts"
 	InventoryMovableItems PermissionPath = "/inventory/movable-inventory"
 	FinanceBudget         PermissionPath = "/finance/budget"
+	HR                    PermissionPath = "/hr"
 
 	OperationCreate     PermissionOperations = "can_create"
 	OperationUpdate     PermissionOperations = "can_update"

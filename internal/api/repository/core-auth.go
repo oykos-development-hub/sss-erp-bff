@@ -72,7 +72,7 @@ func (repo *MicroserviceRepository) RefreshToken(cookie *http.Cookie) (*dto.Refr
 	return refreshResponse, cookies, nil
 }
 
-func (repo *MicroserviceRepository) GetRole(id structs.UserRole) (*structs.Roles, error) {
+func (repo *MicroserviceRepository) GetRole(id int) (*structs.Roles, error) {
 	res := &dto.GetRoleResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Core.Roles+"/"+strconv.Itoa(int(id)), nil, res)
 	if err != nil {

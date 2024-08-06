@@ -12,13 +12,13 @@ import (
 func (r *Resolver) RoleDetailsResolver(params graphql.ResolveParams) (interface{}, error) {
 	roleID := params.Args["id"].(int)
 
-	role, err := r.Repo.GetRole(structs.UserRole(roleID))
+	role, err := r.Repo.GetRole(roleID)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
-	users, err := r.Repo.GetUserAccounts(&dto.GetUserAccountListInput{RoleID: (*structs.UserRole)(&roleID)})
+	users, err := r.Repo.GetUserAccounts(&dto.GetUserAccountListInput{RoleID: &roleID})
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)

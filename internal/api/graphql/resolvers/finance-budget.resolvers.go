@@ -4,7 +4,6 @@ import (
 	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/internal/api/repository"
 	"bff/structs"
 	"context"
 	"encoding/json"
@@ -26,7 +25,7 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
-		budgetResItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget)
+		budgetResItem, err := r.buildBudgetResponseItem(params.Context, *budget)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
@@ -59,7 +58,7 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
-	items, err = buildBudgetResponseItemList(params.Context, r.Repo, budgets)
+	items, err = r.buildBudgetResponseItemList(params.Context, budgets)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
@@ -73,9 +72,9 @@ func (r *Resolver) BudgetOverviewResolver(params graphql.ResolveParams) (interfa
 	}, nil
 }
 
-func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceRepositoryInterface, budgetList []structs.Budget) (budgetResItemList []*dto.BudgetResponseItem, err error) {
+func (r *Resolver) buildBudgetResponseItemList(ctx context.Context, budgetList []structs.Budget) (budgetResItemList []*dto.BudgetResponseItem, err error) {
 	for _, budget := range budgetList {
-		budgetResponseItem, err := buildBudgetResponseItem(ctx, r, budget)
+		budgetResponseItem, err := r.buildBudgetResponseItem(ctx, budget)
 		if err != nil {
 			return nil, errors.Wrap(err, "build budget response item")
 		}
@@ -87,19 +86,26 @@ func buildBudgetResponseItemList(ctx context.Context, r repository.MicroserviceR
 	return
 }
 
-func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepositoryInterface, budget structs.Budget) (*dto.BudgetResponseItem, error) {
-	limits, err := r.GetBudgetLimits(budget.ID)
+func (r *Resolver) buildBudgetResponseItem(ctx context.Context, budget structs.Budget) (*dto.BudgetResponseItem, error) {
+	limits, err := r.Repo.GetBudgetLimits(budget.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get budget limits")
 	}
 
-	var status dto.DropdownSimple
+	var status *dto.DropdownSimple
 
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	if loggedInUser.RoleID != nil && *loggedInUser.RoleID == structs.UserRoleManagerOJ {
+
+	hasPermission, err := r.HasPermission(*loggedInUser, string(config.FinanceBudget), config.OperationRead)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo has permission")
+	}
+
+	if hasPermission {
 		unitID, _ := ctx.Value(config.OrganizationUnitIDKey).(*int)
 		generalRequestType := structs.RequestTypeGeneral
-		req, err := r.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
+		req, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
 			OrganizationUnitID: unitID,
 			BudgetID:           &budget.ID,
 			RequestType:        &generalRequestType,
@@ -115,16 +121,20 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 			}
 			return nil, errors.Wrap(err, "repo get one budget request")
 		}
-		status = buildBudgetRequestStatus(ctx, req.Status)
-	} else {
-		status = dto.DropdownSimple{
-			ID:    int(budget.Status),
-			Title: string(dto.GetBudgetStatus(budget.Status)),
+		status, err = r.buildBudgetRequestStatus(ctx, req.Status)
+		if err != nil {
+			return nil, errors.Wrap(err, "repo build budget request status")
 		}
+	} else {
+		statusDropdown := dto.DropdownSimple{}
+		statusDropdown.ID = int(budget.Status)
+		statusDropdown.Title = string(dto.GetBudgetStatus(budget.Status))
+
+		status = &statusDropdown
 	}
 
 	generalRequestType := structs.RequestTypeGeneral
-	requests, err := r.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
+	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
 		BudgetID:    &budget.ID,
 		RequestType: &generalRequestType,
 		Statuses: []structs.BudgetRequestStatus{
@@ -139,7 +149,7 @@ func buildBudgetResponseItem(ctx context.Context, r repository.MicroserviceRepos
 		ID:                          budget.ID,
 		Year:                        budget.Year,
 		BudgetType:                  budget.BudgetType,
-		Status:                      status,
+		Status:                      *status,
 		Limits:                      limits,
 		NumberOfRequestsForOfficial: len(requests),
 	}
@@ -201,7 +211,7 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 			}
 		}
 
-		resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget)
+		resItem, err := r.buildBudgetResponseItem(params.Context, *budget)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
@@ -259,7 +269,7 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 		}
 	}
 
-	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget)
+	resItem, err := r.buildBudgetResponseItem(params.Context, *budget)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
@@ -271,10 +281,6 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 }
 
 func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}, error) {
-	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	if loggedInUser.RoleID != nil && *loggedInUser.RoleID != structs.UserRoleOfficialForFinanceBudget && *loggedInUser.RoleID != structs.UserRoleAdmin {
-		return errors.HandleAPPError(fmt.Errorf("forbidden"))
-	}
 
 	budgetID := params.Args["id"].(int)
 
@@ -370,13 +376,13 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		return errors.HandleAPPError(err)
 	}
 
-	resItem, err := buildBudgetResponseItem(params.Context, r.Repo, *updatedBudget)
+	resItem, err := r.buildBudgetResponseItem(params.Context, *updatedBudget)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
-	loggedInUser = params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
@@ -870,7 +876,7 @@ func (r *Resolver) BudgetDetailsResolver(params graphql.ResolveParams) (interfac
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
-	budgetResItem, err := buildBudgetResponseItem(params.Context, r.Repo, *budget)
+	budgetResItem, err := r.buildBudgetResponseItem(params.Context, *budget)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
@@ -885,20 +891,26 @@ func (r *Resolver) BudgetDetailsResolver(params graphql.ResolveParams) (interfac
 
 }
 
-func buildBudgetRequestStatus(ctx context.Context, s structs.BudgetRequestStatus) dto.DropdownSimple {
+func (r *Resolver) buildBudgetRequestStatus(ctx context.Context, s structs.BudgetRequestStatus) (*dto.DropdownSimple, error) {
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
-	if loggedInUser.RoleID != nil && *loggedInUser.RoleID == structs.UserRoleOfficialForFinanceBudget {
-		return dto.DropdownSimple{
-			ID:    int(s),
-			Title: string(dto.RequestStatusForOfficial(s)),
-		}
+	hasPermission, err := r.HasPermission(*loggedInUser, string(config.FinanceBudget), config.OperationFullAccess)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo has permission")
 	}
 
-	return dto.DropdownSimple{
+	if hasPermission {
+		return &dto.DropdownSimple{
+			ID:    int(s),
+			Title: string(dto.RequestStatusForOfficial(s)),
+		}, nil
+	}
+
+	return &dto.DropdownSimple{
 		ID:    int(s),
 		Title: string(dto.RequestStatusForManager(s)),
-	}
+	}, nil
 }
 
 func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) (interface{}, error) {
@@ -1066,6 +1078,12 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 		return errors.HandleAPPError(err)
 	}
 
+	status, err := r.buildBudgetRequestStatus(params.Context, generalRequest.Status)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo build budget request status")
+	}
+
 	return dto.ResponseSingle{
 		Message: "Budget requests",
 		Status:  "success",
@@ -1075,7 +1093,7 @@ func (r *Resolver) BudgetRequestsDetailsResolver(params graphql.ResolveParams) (
 				ID:    budget.ID,
 				Title: strconv.Itoa(budget.Year),
 			},
-			Status:                    buildBudgetRequestStatus(params.Context, generalRequest.Status),
+			Status:                    *status,
 			RequestID:                 generalRequest.ID,
 			FinancialBudgetDetails:    financialDetails,
 			NonFinancialBudgetDetails: nonFinancialDetails,

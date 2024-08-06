@@ -70,7 +70,14 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 				continue
 			}
 
-			if loggedInAccount.RoleID != nil && *loggedInAccount.RoleID != structs.UserRoleAdmin && resItem.OrganizationUnit.ID != *userOrganizationUnitID {
+			hasPermission, err := r.HasPermission(*loggedInAccount, string(config.HR), config.OperationFullAccess)
+
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			if loggedInAccount.RoleID != nil && hasPermission && resItem.OrganizationUnit.ID != *userOrganizationUnitID {
 				continue
 			}
 

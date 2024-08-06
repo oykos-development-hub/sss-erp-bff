@@ -64,7 +64,6 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 			return errors.HandleAPPError(err)
 		}
 
-		loggedInAccount := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 		profileOrganizationUnit := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 
 		hasPresident, hasPresidentOk := params.Args["has_president"].(bool)
@@ -103,7 +102,15 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 			}
 
 			if !disableFilters {
-				hasGeneralPermission := loggedInAccount.HasPermission(structs.PermissionManageOrganizationUnits)
+
+				loggedInAccount := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+
+				hasPermission, err := r.HasPermission(*loggedInAccount, string(config.HR), config.OperationFullAccess)
+
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
 
 				// Initialize isOwnOrChildUnit as false
 				isOwnOrChildUnit := false
@@ -118,7 +125,7 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 					isOwnOrChildUnit = true
 				}
 
-				if !hasGeneralPermission && !isOwnOrChildUnit && !settings {
+				if !hasPermission && !isOwnOrChildUnit && !settings {
 					continue
 				}
 

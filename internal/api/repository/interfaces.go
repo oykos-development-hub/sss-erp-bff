@@ -202,7 +202,7 @@ type MicroserviceRepositoryInterface interface {
 	GetRevisionsByID(id int) (*structs.Revisions, error)
 	GetRevisionsList(input *dto.GetRevisionFilter) (*dto.GetRevisionsResponseMS, error)
 	GetRevisors() ([]*structs.Revisor, error)
-	GetRole(id structs.UserRole) (*structs.Roles, error)
+	GetRole(id int) (*structs.Roles, error)
 	GetRoleList() ([]structs.Roles, error)
 	GetStock(input *dto.StockFilter) ([]structs.StockArticle, *int, error)
 	GetStockReport(input *dto.StockFilter) ([]structs.StockArticle, error)

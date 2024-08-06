@@ -78,7 +78,15 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
-			if loggedInUserAccount.RoleID != nil && *loggedInUserAccount.RoleID != structs.UserRoleAdmin &&
+
+			hasPermission, err := r.HasPermission(*loggedInUserAccount, string(config.HR), config.OperationFullAccess)
+
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			if loggedInUserAccount.RoleID != nil && hasPermission &&
 				loggedInOrganizationUnitID != nil &&
 				*loggedInOrganizationUnitID != systematizationResItem.OrganizationUnitID {
 				continue

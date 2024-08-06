@@ -166,8 +166,6 @@ func buildUserProfileOverviewResponse(
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get job position by id")
 		}
-		jobPositionDropdown.ID = jobPosition.ID
-		jobPositionDropdown.Title = jobPosition.Title
 
 		systematization, err := r.GetSystematizationByID(jobPositionInOrganizationUnit.SystematizationID)
 
@@ -175,12 +173,18 @@ func buildUserProfileOverviewResponse(
 			return nil, errors.Wrap(err, "repo get systematization by id")
 		}
 
-		organizationUnit, err := r.GetOrganizationUnitByID(systematization.OrganizationUnitID)
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get organization unit by id")
+		if systematization.Active == 2 {
+
+			jobPositionDropdown.ID = jobPosition.ID
+			jobPositionDropdown.Title = jobPosition.Title
+
+			organizationUnit, err := r.GetOrganizationUnitByID(systematization.OrganizationUnitID)
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get organization unit by id")
+			}
+			organizationUnitDropdown.ID = organizationUnit.ID
+			organizationUnitDropdown.Title = organizationUnit.Title
 		}
-		organizationUnitDropdown.ID = organizationUnit.ID
-		organizationUnitDropdown.Title = organizationUnit.Title
 	}
 
 	contract, err := r.GetEmployeeContracts(profile.ID, nil)

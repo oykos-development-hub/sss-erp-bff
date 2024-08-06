@@ -1719,46 +1719,44 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 	monthsOfExperience = strconv.Itoa(monthsOfExperienceInt)
 	daysOfExperience = strconv.Itoa(daysOfExperienceInt)
 
-	if jobPositionName == "" {
-		active := true
-		input := dto.GetJudgeResolutionListInputMS{
-			Active: &active,
+	active := true
+	input := dto.GetJudgeResolutionListInputMS{
+		Active: &active,
+	}
+
+	resolution, err := r.Repo.GetJudgeResolutionList(&input)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get resolution list")
+	}
+
+	if len(resolution.Data) > 0 {
+
+		filter := dto.JudgeResolutionsOrganizationUnitInput{
+			ResolutionID:  &resolution.Data[0].ID,
+			UserProfileID: &id,
 		}
 
-		resolution, err := r.Repo.GetJudgeResolutionList(&input)
+		judges, _, err := r.Repo.GetJudgeResolutionOrganizationUnit(&filter)
 
 		if err != nil {
-			return nil, errors.Wrap(err, "repo get resolution list")
+			return nil, errors.Wrap(err, "repo get judge resolution organization unit")
 		}
 
-		if len(resolution.Data) > 0 {
+		if len(judges) > 0 && judges[0].IsPresident {
+			jobPositionName = "Predsjednik suda"
+		} else if len(judges) > 0 {
+			jobPositionName = "Sudija"
+		}
 
-			filter := dto.JudgeResolutionsOrganizationUnitInput{
-				ResolutionID:  &resolution.Data[0].ID,
-				UserProfileID: &id,
-			}
-
-			judges, _, err := r.Repo.GetJudgeResolutionOrganizationUnit(&filter)
-
+		if len(judges) > 0 {
+			organizationUnit, err := r.Repo.GetOrganizationUnitByID(judges[0].OrganizationUnitID)
 			if err != nil {
-				return nil, errors.Wrap(err, "repo get judge resolution organization unit")
+				return nil, errors.Wrap(err, "repo get organization unit by id")
 			}
-
-			if len(judges) > 0 && judges[0].IsPresident {
-				jobPositionName = "Predsjednik suda"
-			} else if len(judges) > 0 {
-				jobPositionName = "Sudija"
-			}
-
-			if len(judges) > 0 {
-				organizationUnit, err := r.Repo.GetOrganizationUnitByID(judges[0].OrganizationUnitID)
-				if err != nil {
-					return nil, errors.Wrap(err, "repo get organization unit by id")
-				}
-				organizationUnitName = organizationUnit.Title
-			}
-
+			organizationUnitName = organizationUnit.Title
 		}
+
 	}
 
 	dataForTemplate := dto.UserDataForTemplate{

@@ -95,6 +95,42 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 		}
 	}
 
+	active := true
+	input := dto.GetJudgeResolutionListInputMS{
+		Active: &active,
+	}
+
+	resolution, err := r.Repo.GetJudgeResolutionList(&input)
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return apierrors.HandleAPPError(err)
+	}
+
+	if len(resolution.Data) > 0 {
+
+		filter := dto.JudgeResolutionsOrganizationUnitInput{
+			ResolutionID:  &resolution.Data[0].ID,
+			UserProfileID: &userProfile.ID,
+		}
+
+		judges, _, err := r.Repo.GetJudgeResolutionOrganizationUnit(&filter)
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return apierrors.HandleAPPError(err)
+		}
+
+		if len(judges) > 0 {
+			organizationUnit, err = r.Repo.GetOrganizationUnitByID(judges[0].OrganizationUnitID)
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return apierrors.HandleAPPError(err)
+			}
+		}
+
+	}
+
 	var organizationUnitList []dto.OrganizationUnitsOverviewResponse
 
 	if loginRes.Data.HasPermission(structs.PermissionManageOrganizationUnits) {

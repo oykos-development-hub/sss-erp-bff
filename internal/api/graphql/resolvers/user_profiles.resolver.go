@@ -55,6 +55,13 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 		loggedInAccount := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 		userOrganizationUnitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
 
+		hasPermission, err := r.HasPermission(*loggedInAccount, string(config.HR), config.OperationFullAccess)
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
 		for _, userProfile := range profiles {
 			resItem, err := buildUserProfileOverviewResponse(r.Repo, userProfile)
 			if err != nil {
@@ -70,14 +77,7 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 				continue
 			}
 
-			hasPermission, err := r.HasPermission(*loggedInAccount, string(config.HR), config.OperationFullAccess)
-
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
-
-			if hasPermission || resItem.OrganizationUnit.ID == *userOrganizationUnitID {
+			if !hasPermission && resItem.OrganizationUnit.ID != *userOrganizationUnitID {
 				continue
 			}
 

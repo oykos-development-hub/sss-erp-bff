@@ -160,7 +160,7 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 	if systematization.Active == 2 {
 		if len(systematizationsActiveResponse.Data) > 0 {
 			for _, sys := range systematizationsActiveResponse.Data {
-				if sys.ID != systematization.ID {
+				if sys.ID != systematization.ID && sys.Active == 2 {
 					sys.Active = 1
 					_, _ = r.Repo.UpdateSystematization(params.Context, sys.ID, &sys)
 				}

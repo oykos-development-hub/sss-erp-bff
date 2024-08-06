@@ -134,6 +134,12 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 
 	}
 
+	if organizationUnit.ID == 0 {
+		err = errors.New("organization unit is not asigned")
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return apierrors.HandleAPPError(err)
+	}
+
 	var organizationUnitList []dto.OrganizationUnitsOverviewResponse
 
 	userAccount, err := r.Repo.GetUserAccountByID(userProfile.UserAccountID)

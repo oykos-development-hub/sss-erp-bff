@@ -727,6 +727,44 @@ func GetEmployeesOfOrganizationUnit(r repository.MicroserviceRepositoryInterface
 		}
 	}
 
+	activeBool := true
+	input := dto.GetJudgeResolutionListInputMS{
+		Active: &activeBool,
+	}
+
+	resolution, err := r.GetJudgeResolutionList(&input)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "repo get resolution list")
+	}
+
+	if len(resolution.Data) > 0 {
+
+		filter := dto.JudgeResolutionsOrganizationUnitInput{
+			ResolutionID:       &resolution.Data[0].ID,
+			OrganizationUnitID: &id,
+		}
+
+		judges, _, err := r.GetJudgeResolutionOrganizationUnit(&filter)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get judge resolution organization unit")
+		}
+
+		if len(judges) > 0 {
+			for _, item := range judges {
+				userProfile, err := r.GetUserProfileByID(item.UserProfileID)
+
+				if err != nil {
+					return nil, errors.Wrap(err, "repo get user profile by id")
+				}
+
+				userProfileList = append(userProfileList, userProfile)
+			}
+		}
+
+	}
+
 	return userProfileList, nil
 }
 

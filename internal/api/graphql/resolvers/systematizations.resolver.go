@@ -156,6 +156,18 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 	inputOrganizationUnits := dto.GetOrganizationUnitsInput{
 		ParentID: &systematization.OrganizationUnitID,
 	}
+
+	if systematization.Active == 2 {
+		if len(systematizationsActiveResponse.Data) > 0 {
+			for _, sys := range systematizationsActiveResponse.Data {
+				if sys.ID != systematization.ID {
+					sys.Active = 1
+					_, _ = r.Repo.UpdateSystematization(params.Context, sys.ID, &sys)
+				}
+			}
+		}
+	}
+
 	organizationUnitsResponse, err := r.Repo.GetOrganizationUnits(&inputOrganizationUnits)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
@@ -203,17 +215,6 @@ func (r *Resolver) SystematizationInsertResolver(params graphql.ResolveParams) (
 
 				}
 
-			}
-		}
-	}
-
-	if systematization.Active == 2 {
-		if len(systematizationsActiveResponse.Data) > 0 {
-			for _, sys := range systematizationsActiveResponse.Data {
-				if sys.ID != systematization.ID {
-					sys.Active = 1
-					_, _ = r.Repo.UpdateSystematization(params.Context, sys.ID, &sys)
-				}
 			}
 		}
 	}

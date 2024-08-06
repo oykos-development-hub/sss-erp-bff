@@ -134,7 +134,7 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 
 	}
 
-	if organizationUnit == nil || organizationUnit.ID == 0 {
+	if (organizationUnit == nil || organizationUnit.ID == 0) && roleID != 1 {
 		err = errors.New("organization unit is not assigned")
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return apierrors.HandleAPPError(err)

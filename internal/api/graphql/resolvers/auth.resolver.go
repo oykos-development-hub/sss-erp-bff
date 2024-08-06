@@ -133,9 +133,14 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 
 	var organizationUnitList []dto.OrganizationUnitsOverviewResponse
 
-	loggedInAccount := p.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	userAccount, err := r.Repo.GetUserAccountByID(userProfile.UserAccountID)
 
-	hasPermission, err := r.HasPermission(*loggedInAccount, string(config.HR), config.OperationFullAccess)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return apierrors.HandleAPPError(err)
+	}
+
+	hasPermission, err := r.HasPermission(*userAccount, string(config.HR), config.OperationFullAccess)
 
 	if err != nil {
 		return nil, apierrors.Wrap(err, "repo has permission")

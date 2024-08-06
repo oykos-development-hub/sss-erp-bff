@@ -86,9 +86,8 @@ func (r *Resolver) SystematizationsOverviewResolver(params graphql.ResolveParams
 				return errors.HandleAPPError(err)
 			}
 
-			if loggedInUserAccount.RoleID != nil && hasPermission &&
-				loggedInOrganizationUnitID != nil &&
-				*loggedInOrganizationUnitID != systematizationResItem.OrganizationUnitID {
+			if hasPermission || (loggedInOrganizationUnitID != nil &&
+				*loggedInOrganizationUnitID != systematizationResItem.OrganizationUnitID) {
 				continue
 			}
 			items = append(items, systematizationResItem)

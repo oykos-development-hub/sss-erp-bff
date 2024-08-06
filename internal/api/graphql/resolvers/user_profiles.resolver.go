@@ -77,7 +77,7 @@ func (r *Resolver) UserProfilesOverviewResolver(params graphql.ResolveParams) (i
 				return errors.HandleAPPError(err)
 			}
 
-			if loggedInAccount.RoleID != nil && hasPermission && resItem.OrganizationUnit.ID != *userOrganizationUnitID {
+			if hasPermission || resItem.OrganizationUnit.ID == *userOrganizationUnitID {
 				continue
 			}
 

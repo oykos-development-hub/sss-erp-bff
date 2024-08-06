@@ -173,17 +173,17 @@ func buildUserProfileOverviewResponse(
 			return nil, errors.Wrap(err, "repo get systematization by id")
 		}
 
-		organizationUnit, err := r.GetOrganizationUnitByID(systematization.OrganizationUnitID)
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
-		organizationUnitDropdown.ID = organizationUnit.ID
-		organizationUnitDropdown.Title = organizationUnit.Title
-
 		if systematization.Active == 2 {
 
 			jobPositionDropdown.ID = jobPosition.ID
 			jobPositionDropdown.Title = jobPosition.Title
+
+			organizationUnit, err := r.GetOrganizationUnitByID(systematization.OrganizationUnitID)
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get organization unit by id")
+			}
+			organizationUnitDropdown.ID = organizationUnit.ID
+			organizationUnitDropdown.Title = organizationUnit.Title
 
 		}
 	}
@@ -235,6 +235,23 @@ func buildUserProfileOverviewResponse(
 		role = &structs.Roles{
 			ID:    0,
 			Title: "",
+		}
+	}
+
+	if organizationUnitDropdown.ID == 0 {
+		contracts, err := r.GetEmployeeContracts(profile.ID, nil)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get employee contracts")
+		}
+
+		if len(contracts) > 0 {
+			organizationUnit, err := r.GetOrganizationUnitByID(contracts[0].OrganizationUnitID)
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get organization unit by id")
+			}
+			organizationUnitDropdown.ID = organizationUnit.ID
+			organizationUnitDropdown.Title = organizationUnit.Title
 		}
 	}
 

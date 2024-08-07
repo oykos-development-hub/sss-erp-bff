@@ -14,7 +14,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func buildProcurementOUArticleResponseItemList(context context.Context, r repository.MicroserviceRepositoryInterface, articles []*structs.PublicProcurementOrganizationUnitArticle) (items []*dto.ProcurementOrganizationUnitArticleResponseItem, err error) {
+func buildProcurementOUArticleResponseItemList(context context.Context, r *Resolver, articles []*structs.PublicProcurementOrganizationUnitArticle) (items []*dto.ProcurementOrganizationUnitArticleResponseItem, err error) {
 	for _, article := range articles {
 		resItem, err := buildProcurementOUArticleResponseItem(context, r, article)
 		if err != nil {
@@ -44,7 +44,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticlesOverviewResolver(par
 		return errors.HandleAPPError(err)
 	}
 
-	items, err := buildProcurementOUArticleResponseItemList(params.Context, r.Repo, articles)
+	items, err := buildProcurementOUArticleResponseItemList(params.Context, r, articles)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
@@ -164,7 +164,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
-		item, err := buildProcurementOUArticleResponseItem(params.Context, r.Repo, res)
+		item, err := buildProcurementOUArticleResponseItem(params.Context, r, res)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
@@ -178,7 +178,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
-		item, err := buildProcurementOUArticleResponseItem(params.Context, r.Repo, res)
+		item, err := buildProcurementOUArticleResponseItem(params.Context, r, res)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
@@ -292,7 +292,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticlesDetailsResolver(para
 		organizationUnitID = *organizationUnitIDFromContext
 	}
 
-	response, err := buildProcurementOUArticleDetailsResponseItem(params.Context, r.Repo, planID, organizationUnitID.(int), procurementID)
+	response, err := buildProcurementOUArticleDetailsResponseItem(params.Context, r, planID, organizationUnitID.(int), procurementID)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
@@ -305,7 +305,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticlesDetailsResolver(para
 	}, nil
 }
 
-func buildProcurementOUArticleDetailsResponseItem(context context.Context, r repository.MicroserviceRepositoryInterface, planID *int, unitID int, procurementID *int) ([]*dto.ProcurementItemWithOrganizationUnitArticleResponseItem, error) {
+func buildProcurementOUArticleDetailsResponseItem(context context.Context, r *Resolver, planID *int, unitID int, procurementID *int) ([]*dto.ProcurementItemWithOrganizationUnitArticleResponseItem, error) {
 	var responseItemList []*dto.ProcurementItemWithOrganizationUnitArticleResponseItem
 
 	var items []*structs.PublicProcurementItem
@@ -313,18 +313,18 @@ func buildProcurementOUArticleDetailsResponseItem(context context.Context, r rep
 	var err error
 
 	if procurementID != nil {
-		item, err := r.GetProcurementItem(*procurementID)
+		item, err := r.Repo.GetProcurementItem(*procurementID)
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get procurement itme")
 		}
-		plan, _ = r.GetProcurementPlan(item.PlanID)
+		plan, _ = r.Repo.GetProcurementPlan(item.PlanID)
 		items = append(items, item)
 	} else {
-		plan, err = r.GetProcurementPlan(*planID)
+		plan, err = r.Repo.GetProcurementPlan(*planID)
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get procurement plan")
 		}
-		items, err = r.GetProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &plan.ID})
+		items, err = r.Repo.GetProcurementItemList(&dto.GetProcurementItemListInputMS{PlanID: &plan.ID})
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get procurement item list")
 		}
@@ -353,7 +353,7 @@ func buildProcurementOUArticleDetailsResponseItem(context context.Context, r rep
 			CreatedAt:         item.CreatedAt,
 			UpdatedAt:         item.UpdatedAt,
 		}
-		organizationUnitArticleList, err := GetOrganizationUnitArticles(r, plan.ID, unitID)
+		organizationUnitArticleList, err := GetOrganizationUnitArticles(r.Repo, plan.ID, unitID)
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit articles")
 		}
@@ -373,8 +373,8 @@ func buildProcurementOUArticleDetailsResponseItem(context context.Context, r rep
 	return responseItemList, nil
 }
 
-func buildProcurementOUArticleResponseItem(context context.Context, r repository.MicroserviceRepositoryInterface, item *structs.PublicProcurementOrganizationUnitArticle) (*dto.ProcurementOrganizationUnitArticleResponseItem, error) {
-	article, err := r.GetProcurementArticle(item.PublicProcurementArticleID)
+func buildProcurementOUArticleResponseItem(context context.Context, r *Resolver, item *structs.PublicProcurementOrganizationUnitArticle) (*dto.ProcurementOrganizationUnitArticleResponseItem, error) {
+	article, err := r.Repo.GetProcurementArticle(item.PublicProcurementArticleID)
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get procurement article")
 	}
@@ -383,7 +383,7 @@ func buildProcurementOUArticleResponseItem(context context.Context, r repository
 		return nil, errors.Wrap(err, "build procurement article response item")
 	}
 
-	organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
+	organizationUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get organization unit by id")
 	}

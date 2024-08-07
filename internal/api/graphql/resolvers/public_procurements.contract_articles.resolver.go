@@ -4,7 +4,6 @@ import (
 	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/internal/api/repository"
 	"bff/structs"
 	"context"
 	"encoding/json"
@@ -155,7 +154,7 @@ func (r *Resolver) PublicProcurementContractArticlesOverviewResolver(params grap
 		if visibilityType != nil && visibilityType.(int) != int(article.VisibilityType) {
 			continue
 		}
-		resItem, err := buildProcurementContractArticlesResponseItem(ctx, r.Repo, contractArticle)
+		resItem, err := buildProcurementContractArticlesResponseItem(ctx, r, contractArticle)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
@@ -223,7 +222,7 @@ func (r *Resolver) PublicProcurementContractArticleInsertResolver(params graphql
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
-			item, err := buildProcurementContractArticlesResponseItem(params.Context, r.Repo, res)
+			item, err := buildProcurementContractArticlesResponseItem(params.Context, r, res)
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
@@ -237,7 +236,7 @@ func (r *Resolver) PublicProcurementContractArticleInsertResolver(params graphql
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
-			item, err := buildProcurementContractArticlesResponseItem(params.Context, r.Repo, res)
+			item, err := buildProcurementContractArticlesResponseItem(params.Context, r, res)
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
@@ -305,10 +304,10 @@ func (r *Resolver) PublicProcurementContractArticleOverageDeleteResolver(params 
 	}, nil
 }
 
-func buildProcurementContractArticlesResponseItem(context context.Context, r repository.MicroserviceRepositoryInterface, item *structs.PublicProcurementContractArticle) (*dto.ProcurementContractArticlesResponseItem, error) {
+func buildProcurementContractArticlesResponseItem(context context.Context, r *Resolver, item *structs.PublicProcurementContractArticle) (*dto.ProcurementContractArticlesResponseItem, error) {
 	organizationUnitID, _ := context.Value(config.OrganizationUnitIDKey).(*int)
 
-	article, err := r.GetProcurementArticle(item.PublicProcurementArticleID)
+	article, err := r.Repo.GetProcurementArticle(item.PublicProcurementArticleID)
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get procurement article")
 	}
@@ -316,7 +315,7 @@ func buildProcurementContractArticlesResponseItem(context context.Context, r rep
 	if err != nil {
 		return nil, errors.Wrap(err, "build procurement article response item")
 	}
-	contract, err := r.GetProcurementContract(item.PublicProcurementContractID)
+	contract, err := r.Repo.GetProcurementContract(item.PublicProcurementContractID)
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get procurement contract")
 	}
@@ -325,7 +324,7 @@ func buildProcurementContractArticlesResponseItem(context context.Context, r rep
 	if organizationUnitID != nil && *organizationUnitID != 0 {
 		overageInput.OrganizationUnitID = organizationUnitID
 	}
-	overageList, err := r.GetProcurementContractArticleOverageList(&overageInput)
+	overageList, err := r.Repo.GetProcurementContractArticleOverageList(&overageInput)
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get procurement contract article overage list")
 	}

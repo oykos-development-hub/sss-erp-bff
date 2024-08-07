@@ -4,7 +4,6 @@ import (
 	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	"bff/internal/api/repository"
 	"bff/structs"
 	"context"
 	"encoding/json"
@@ -37,7 +36,7 @@ func (r *Resolver) PublicProcurementPlanItemArticleInsertResolver(params graphql
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
-			item, err := buildProcurementArticleResponseItem(params.Context, r.Repo, res, nil)
+			item, err := buildProcurementArticleResponseItem(params.Context, r, res, nil)
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
@@ -50,7 +49,7 @@ func (r *Resolver) PublicProcurementPlanItemArticleInsertResolver(params graphql
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
-			item, err := buildProcurementArticleResponseItem(params.Context, r.Repo, res, nil)
+			item, err := buildProcurementArticleResponseItem(params.Context, r, res, nil)
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
@@ -78,11 +77,11 @@ func (r *Resolver) PublicProcurementPlanItemArticleDeleteResolver(params graphql
 	}, nil
 }
 
-func buildProcurementArticleResponseItem(context context.Context, r repository.MicroserviceRepositoryInterface, item *structs.PublicProcurementArticle, organizationUnitID *int) (*dto.ProcurementArticleResponseItem, error) {
+func buildProcurementArticleResponseItem(context context.Context, r *Resolver, item *structs.PublicProcurementArticle, organizationUnitID *int) (*dto.ProcurementArticleResponseItem, error) {
 	if organizationUnitID == nil {
 		organizationUnitID, _ = context.Value(config.OrganizationUnitIDKey).(*int)
 	}
-	procurement, err := r.GetProcurementItem(item.PublicProcurementID)
+	procurement, err := r.Repo.GetProcurementItem(item.PublicProcurementID)
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get procurement item")
 	}
@@ -101,7 +100,7 @@ func buildProcurementArticleResponseItem(context context.Context, r repository.M
 		UpdatedAt:         item.UpdatedAt,
 	}
 
-	ouArticles, _ := r.GetProcurementOUArticleList(&dto.GetProcurementOrganizationUnitArticleListInputDTO{ArticleID: &item.ID})
+	ouArticles, _ := r.Repo.GetProcurementOUArticleList(&dto.GetProcurementOrganizationUnitArticleListInputDTO{ArticleID: &item.ID})
 
 	totalAmount := 0
 

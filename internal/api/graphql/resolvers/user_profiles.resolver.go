@@ -1228,7 +1228,7 @@ func buildUserProfileBasicResponse(
 		}
 	}
 
-	if employeesInOrganizationUnit != nil {
+	if employeesInOrganizationUnit != nil && employeesInOrganizationUnit.PositionInOrganizationUnitID != 0 {
 		jobPositionInOrganizationUnit, err := r.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get job positions in organization units by id")

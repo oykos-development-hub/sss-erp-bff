@@ -129,7 +129,7 @@ type JudgeResolutionsOrganizationUnitItem struct {
 
 type JudgeResolutionsOrganizationUnitInput struct {
 	Page               *int `json:"page"`
-	PageSize           *int `json:"page_size"`
+	PageSize           *int `json:"size"`
 	UserProfileID      *int `json:"user_profile_id"`
 	OrganizationUnitID *int `json:"organization_unit_id"`
 	ResolutionID       *int `json:"resolution_id"`

@@ -16,6 +16,7 @@ type OrganizationUnits struct {
 	FolderID       int      `json:"folder_id"`
 	BankAccounts   []string `json:"bank_accounts"`
 	Code           string   `json:"code"`
+	Active         bool     `json:"active"`
 	CreatedAt      string   `json:"created_at"`
 	UpdatedAt      string   `json:"updated_at"`
 }

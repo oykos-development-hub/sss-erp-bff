@@ -65,7 +65,7 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 	}
 
 	employeesInOrganizationUnit, _ := r.Repo.GetEmployeesInOrganizationUnitsByProfileID(userProfile.ID)
-	if employeesInOrganizationUnit != nil {
+	if employeesInOrganizationUnit != nil && employeesInOrganizationUnit.PositionInOrganizationUnitID != 0 {
 		jobPositionInOrganizationUnit, err := r.Repo.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 
 		if err != nil {

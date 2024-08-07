@@ -35,6 +35,7 @@ type OrganizationUnitsOverviewResponse struct {
 	CreatedAt      string                       `json:"created_at"`
 	UpdatedAt      string                       `json:"updated_at"`
 	BankAccounts   []string                     `json:"bank_accounts"`
+	Active         bool                         `json:"active"`
 	Children       *[]structs.OrganizationUnits `json:"children"`
 	Code           string                       `json:"code"`
 }

@@ -158,6 +158,10 @@ func (r *Resolver) OrganizationUnitInsertResolver(params graphql.ResolveParams) 
 
 	_ = json.Unmarshal(dataBytes, &data)
 
+	if !data.Active {
+		data.Active = true
+	}
+
 	itemID := data.ID
 	if itemID != 0 {
 		organizationUnitResponse, err = r.Repo.UpdateOrganizationUnits(params.Context, itemID, &data)
@@ -186,6 +190,10 @@ func (r *Resolver) OrganizationUnitOrderResolver(params graphql.ResolveParams) (
 	_ = json.Unmarshal(dataBytes, &data)
 
 	for _, item := range data {
+		if !item.Active {
+			item.Active = true
+		}
+
 		organizationUnit, err := r.Repo.UpdateOrganizationUnits(params.Context, item.ID, &item)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
@@ -203,17 +211,28 @@ func (r *Resolver) OrganizationUnitOrderResolver(params graphql.ResolveParams) (
 }
 
 func (r *Resolver) OrganizationUnitDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	/*itemID := params.Args["id"]
+	itemID := params.Args["id"].(int)
 
-	err := r.Repo.DeleteOrganizationUnits(itemID.(int))
+	organizationUnit, err := r.Repo.GetOrganizationUnitByID(itemID)
+
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	if organizationUnit != nil {
+		organizationUnit.Active = false
+
+		_, err = r.Repo.UpdateOrganizationUnits(params.Context, itemID, organizationUnit)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
-	}*/
+		}
+	}
 
 	return map[string]interface{}{
-		"status":  "failed",
-		"message": "You can not delete this item!",
+		"status":  "success",
+		"message": "You deactivated this item!",
 	}, nil
 
 }
@@ -246,5 +265,6 @@ func buildOrganizationUnitOverviewResponse(
 		FolderID:       organizationUnits.FolderID,
 		BankAccounts:   organizationUnits.BankAccounts,
 		Code:           organizationUnits.Code,
+		Active:         organizationUnits.Active,
 	}, nil
 }

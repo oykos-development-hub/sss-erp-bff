@@ -1604,7 +1604,7 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 	}
 
 	employeesInOrganizationUnit, _ := r.Repo.GetEmployeesInOrganizationUnitsByProfileID(employee.ID)
-	if employeesInOrganizationUnit != nil {
+	if employeesInOrganizationUnit != nil && employeesInOrganizationUnit.PositionInOrganizationUnitID != 0 {
 		jobPositionInOrganizationUnit, err := r.Repo.GetJobPositionsInOrganizationUnitsByID(employeesInOrganizationUnit.PositionInOrganizationUnitID)
 
 		if err != nil {

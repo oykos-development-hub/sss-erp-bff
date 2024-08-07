@@ -17,6 +17,7 @@ type GetOrganizationUnitsInput struct {
 	ParentID *int    `json:"parent_id"`
 	IsParent *bool   `json:"is_parent"`
 	Search   *string `json:"search"`
+	Active   *bool   `json:"active"`
 }
 
 type OrganizationUnitsOverviewResponse struct {

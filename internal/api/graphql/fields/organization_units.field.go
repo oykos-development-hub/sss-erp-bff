@@ -31,6 +31,10 @@ func (f *Field) OrganizationUnitsField() *graphql.Field {
 				Type:         graphql.Boolean,
 				DefaultValue: false,
 			},
+			"active": &graphql.ArgumentConfig{
+				Type:         graphql.Boolean,
+				DefaultValue: true,
+			},
 			"disable_filters": &graphql.ArgumentConfig{
 				Type:         graphql.Boolean,
 				DefaultValue: false,

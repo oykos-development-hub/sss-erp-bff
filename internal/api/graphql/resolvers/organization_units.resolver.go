@@ -24,6 +24,7 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 	search, searchOk := params.Args["search"].(string)
 	settings := params.Args["settings"].(bool)
 	disableFilters := params.Args["disable_filters"].(bool)
+	active := params.Args["active"].(bool)
 
 	if id != nil && id != 0 {
 		organizationUnit, err := r.Repo.GetOrganizationUnitByID(id.(int))
@@ -57,6 +58,8 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 		if searchOk && search != "" {
 			input.Search = &search
 		}
+
+		input.Active = &active
 
 		organizationUnits, err := r.Repo.GetOrganizationUnits(&input)
 		if err != nil {

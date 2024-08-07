@@ -116,12 +116,12 @@ func (r *Resolver) OrganizationUnitsResolver(params graphql.ResolveParams) (inte
 				isOwnOrChildUnit := false
 
 				// Check if the current unit is the user's own unit
-				if *profileOrganizationUnit == organizationUnitItem.ID {
+				if hasPermission || *profileOrganizationUnit == organizationUnitItem.ID {
 					isOwnOrChildUnit = true
 				}
 
 				// Check if the current unit is a child of the user's unit
-				if organizationUnitItem.ParentID != nil && *profileOrganizationUnit == *organizationUnitItem.ParentID {
+				if hasPermission || organizationUnitItem.ParentID != nil && *profileOrganizationUnit == *organizationUnitItem.ParentID {
 					isOwnOrChildUnit = true
 				}
 

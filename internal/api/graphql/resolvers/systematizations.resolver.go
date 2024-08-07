@@ -284,6 +284,19 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 		*result.Sectors = append(*result.Sectors, *dto.ToOrganizationUnitsSectorResponse(organizationUnit))
 	}
 
+	isFalse := false
+	inputOrganizationUnits = dto.GetOrganizationUnitsInput{
+		ParentID: &systematization.OrganizationUnitID,
+		Active:   &isFalse,
+	}
+	organizationUnitsResponse, err = r.GetOrganizationUnits(&inputOrganizationUnits)
+	if err != nil {
+		return result, errors.Wrap(err, "repo get organization units")
+	}
+	for _, organizationUnit := range organizationUnitsResponse.Data {
+		*result.Sectors = append(*result.Sectors, *dto.ToOrganizationUnitsSectorResponse(organizationUnit))
+	}
+
 	if systematization.FileID != 0 {
 		file, err := r.GetFileByID(systematization.FileID)
 		if err != nil {
@@ -360,6 +373,19 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 
 		}
 	}
+
+	var filteredSectors []dto.OrganizationUnitsSectorResponse
+
+	// Iterate over the sectors
+	for _, sector := range *result.Sectors {
+		// Check if the sector's items slice is not empty
+		if len(sector.JobPositionsOrganizationUnits) > 0 {
+			// Append the sector to the filtered list
+			filteredSectors = append(filteredSectors, sector)
+		}
+	}
+
+	result.Sectors = &filteredSectors
 
 	return result, nil
 }

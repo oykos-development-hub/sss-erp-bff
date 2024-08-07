@@ -224,12 +224,51 @@ func (r *Resolver) OrganizationUnitDeleteResolver(params graphql.ResolveParams) 
 	}
 
 	if organizationUnit != nil {
-		organizationUnit.Active = false
 
-		_, err = r.Repo.UpdateOrganizationUnits(params.Context, itemID, organizationUnit)
+		if organizationUnit.ParentID == nil && *organizationUnit.ParentID == 0 {
+			return map[string]interface{}{
+				"status":  "failed",
+				"message": "You can not delete this item!",
+			}, nil
+		}
+
+		jobPositions, err := r.Repo.GetJobPositionsInOrganizationUnits(&dto.GetJobPositionInOrganizationUnitsInput{
+			OrganizationUnitID: &organizationUnit.ID,
+		})
+
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
+		}
+
+		isDeletable := true
+
+		for _, item := range jobPositions.Data {
+			systematization, err := r.Repo.GetSystematizationByID(item.SystematizationID)
+
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			if systematization.Active != 1 {
+				isDeletable = false
+			}
+		}
+
+		if isDeletable {
+			organizationUnit.Active = false
+
+			_, err = r.Repo.UpdateOrganizationUnits(params.Context, itemID, organizationUnit)
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+		} else {
+			return map[string]interface{}{
+				"status":  "failed",
+				"message": "You must first delete job positions in organization unit!",
+			}, nil
 		}
 	}
 

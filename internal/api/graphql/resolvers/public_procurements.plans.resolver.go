@@ -4,6 +4,7 @@ import (
 	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
+	apierrors "bff/internal/api/errors"
 	"bff/internal/api/repository"
 	"bff/shared"
 	"bff/structs"
@@ -59,6 +60,14 @@ func (r *Resolver) PublicProcurementPlansOverviewResolver(params graphql.Resolve
 		return errors.HandleAPPError(err)
 	}
 
+	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+
+	hasPermission, err := r.HasPermission(*loggedInUser, string(config.PublicProcurementPlan), config.OperationFullAccess)
+
+	if err != nil {
+		return nil, apierrors.Wrap(err, "repo has permission")
+	}
+
 	for _, plan := range plans {
 		var contract *bool
 
@@ -73,7 +82,7 @@ func (r *Resolver) PublicProcurementPlansOverviewResolver(params graphql.Resolve
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
-		if resItem == nil {
+		if resItem.Status == dto.PlanStatusAdminInProggress && !hasPermission {
 			//fmt.Printf("user does not have access to this plan id: %d", plan.ID)
 			continue
 		}

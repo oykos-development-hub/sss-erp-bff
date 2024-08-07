@@ -13,7 +13,7 @@ func (f *Field) PermissionsForRoleField() *graphql.Field {
 		Description: "Returns permissions for role",
 		Args: graphql.FieldConfigArgument{
 			"role_id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
+				Type: graphql.Int,
 			},
 		},
 		Resolve: f.Resolvers.PermissionsForRoleResolver,

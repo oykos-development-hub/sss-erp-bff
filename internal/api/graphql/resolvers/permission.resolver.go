@@ -37,14 +37,30 @@ func (r *Resolver) PermissionsUpdateResolver(params graphql.ResolveParams) (inte
 }
 
 func (r *Resolver) PermissionsForRoleResolver(params graphql.ResolveParams) (interface{}, error) {
-	roleID := params.Args["role_id"].(int)
+	roleID, roleIDOK := params.Args["role_id"].(int)
 
-	permissions, err := r.Repo.GetPermissionList(roleID)
-	if err != nil {
-		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-		return errors.HandleAPPError(err)
+	var permissions []structs.Permissions
+	var err error
+
+	if !roleIDOK {
+		permissions, err = r.Repo.GetPermissionList(1)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+		for i := 0; i < len(permissions); i++ {
+			permissions[i].Create = false
+			permissions[i].Update = false
+			permissions[i].Read = false
+			permissions[i].Delete = false
+		}
+	} else {
+		permissions, err = r.Repo.GetPermissionList(roleID)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
 	}
-
 	permissionsTree := buildTree(permissions)
 
 	return dto.ResponseSingle{

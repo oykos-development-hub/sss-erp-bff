@@ -28,6 +28,9 @@ var OrganizationUnitItemType = graphql.NewObject(graphql.ObjectConfig{
 		"pib": &graphql.Field{
 			Type: graphql.String,
 		},
+		"active": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"description": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -75,6 +78,9 @@ var OrganizationUnitParentType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"code": &graphql.Field{
 			Type: graphql.String,
+		},
+		"active": &graphql.Field{
+			Type: graphql.Boolean,
 		},
 		"pib": &graphql.Field{
 			Type: graphql.String,

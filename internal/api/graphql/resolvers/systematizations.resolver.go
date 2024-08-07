@@ -377,7 +377,7 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 	var filteredSectors []dto.OrganizationUnitsSectorResponse
 
 	for _, sector := range *result.Sectors {
-		if len(sector.JobPositionsOrganizationUnits) > 0 || (result.Active == 2 && sector.Active) {
+		if len(sector.JobPositionsOrganizationUnits) > 0 || ((result.Active == 2 || result.Active == 0) && sector.Active) {
 			filteredSectors = append(filteredSectors, sector)
 		}
 	}

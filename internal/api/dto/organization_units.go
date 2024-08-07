@@ -51,6 +51,7 @@ type OrganizationUnitsSectorResponse struct {
 	Color                         string                          `json:"color"`
 	Icon                          string                          `json:"icon"`
 	FolderID                      int                             `json:"folder_id"`
+	Active                        bool                            `json:"active"`
 	CreatedAt                     string                          `json:"created_at"`
 	UpdatedAt                     string                          `json:"updated_at"`
 	JobPositionsOrganizationUnits []JobPositionsOrganizationUnits `json:"job_positions_organization_units"`
@@ -75,6 +76,7 @@ func ToOrganizationUnitsSectorResponse(organizationUnit structs.OrganizationUnit
 		Address:      organizationUnit.Address,
 		Color:        organizationUnit.Color,
 		Icon:         organizationUnit.Icon,
+		Active:       organizationUnit.Active,
 		FolderID:     organizationUnit.FolderID,
 		UpdatedAt:    organizationUnit.UpdatedAt,
 		CreatedAt:    organizationUnit.CreatedAt,

@@ -376,11 +376,8 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 
 	var filteredSectors []dto.OrganizationUnitsSectorResponse
 
-	// Iterate over the sectors
 	for _, sector := range *result.Sectors {
-		// Check if the sector's items slice is not empty
-		if len(sector.JobPositionsOrganizationUnits) > 0 {
-			// Append the sector to the filtered list
+		if len(sector.JobPositionsOrganizationUnits) > 0 || (result.Active == 2 && sector.Active) {
 			filteredSectors = append(filteredSectors, sector)
 		}
 	}

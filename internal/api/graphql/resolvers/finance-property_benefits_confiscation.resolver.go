@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
@@ -28,6 +29,13 @@ func (r *Resolver) PropBenConfInsertResolver(params graphql.ResolveParams) (inte
 	}
 
 	var item *structs.PropBenConf
+
+	if data.OrganizationUnitID == 0 {
+		organizationUnitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if organizationUnitID != nil {
+			data.OrganizationUnitID = *organizationUnitID
+		}
+	}
 
 	if data.ID == 0 {
 		item, err = r.Repo.CreatePropBenConf(params.Context, &data)
@@ -92,6 +100,10 @@ func (r *Resolver) PropBenConfOverviewResolver(params graphql.ResolveParams) (in
 
 	if value, ok := params.Args["property_benefits_confiscation_type_id"].(int); ok && value != 0 {
 		input.FilterByPropBenConfTypeID = &value
+	}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = &value
 	}
 
 	PropBenConfs, total, err := r.Repo.GetPropBenConfList(&input)
@@ -234,6 +246,20 @@ func buildPropBenConfResponseItem(PropBenConf structs.PropBenConf, r *Resolver) 
 			Title: courtAccount.Title,
 		}
 		response.CourtAccount = courtAccountDropdown
+	}
+
+	if PropBenConf.OrganizationUnitID != 0 {
+		organizationUnit, err := r.Repo.GetOrganizationUnitByID(PropBenConf.OrganizationUnitID)
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get organization unit by id")
+		}
+
+		orgUnitDropdown := dto.DropdownSimple{
+			ID:    organizationUnit.ID,
+			Title: organizationUnit.Title,
+		}
+
+		response.OrganizationUnit = orgUnitDropdown
 	}
 
 	return &response, nil

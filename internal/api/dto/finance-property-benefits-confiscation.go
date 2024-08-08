@@ -23,6 +23,7 @@ const (
 type PropBenConfResponseItem struct {
 	ID                     int                         `json:"id"`
 	PropBenConfType        DropdownSimple              `json:"property_benefits_confiscation_type"`
+	OrganizationUnit       DropdownSimple              `json:"organization_unit"`
 	DecisionNumber         string                      `json:"decision_number"`
 	DecisionDate           time.Time                   `json:"decision_date"`
 	Subject                string                      `json:"subject"`
@@ -59,4 +60,5 @@ type GetPropBenConfListInputMS struct {
 	Size                      *int    `json:"size"`
 	FilterByPropBenConfTypeID *int    `json:"property_benefits_confiscation_type_id"`
 	Search                    *string `json:"search"`
+	OrganizationUnitID        *int    `json:"organization_unit_id"`
 }

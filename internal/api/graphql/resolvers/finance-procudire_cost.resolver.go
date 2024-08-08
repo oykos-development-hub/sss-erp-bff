@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
@@ -28,6 +29,13 @@ func (r *Resolver) ProcedureCostInsertResolver(params graphql.ResolveParams) (in
 	}
 
 	var item *structs.ProcedureCost
+
+	if data.OrganizationUnitID == 0 {
+		organizationUnitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if organizationUnitID != nil {
+			data.OrganizationUnitID = *organizationUnitID
+		}
+	}
 
 	if data.ID == 0 {
 		item, err = r.Repo.CreateProcedureCost(params.Context, &data)
@@ -88,6 +96,10 @@ func (r *Resolver) ProcedureCostOverviewResolver(params graphql.ResolveParams) (
 
 	if value, ok := params.Args["subject"].(string); ok && value != "" {
 		input.Subject = &value
+	}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = &value
 	}
 
 	if value, ok := params.Args["procedure_cost_type_id"].(int); ok && value != 0 {
@@ -236,6 +248,20 @@ func buildProcedureCostResponseItem(procedurecost structs.ProcedureCost, r *Reso
 			Title: courtAccount.Title,
 		}
 		response.CourtAccount = courtAccountDropdown
+	}
+
+	if procedurecost.OrganizationUnitID != 0 {
+		organizationUnit, err := r.Repo.GetOrganizationUnitByID(procedurecost.OrganizationUnitID)
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get organization unit by id")
+		}
+
+		orgUnitDropdown := dto.DropdownSimple{
+			ID:    organizationUnit.ID,
+			Title: organizationUnit.Title,
+		}
+
+		response.OrganizationUnit = orgUnitDropdown
 	}
 
 	return &response, nil

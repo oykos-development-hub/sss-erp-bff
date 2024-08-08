@@ -47,6 +47,9 @@ var PropBenConfType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"property_benefits_confiscation_type": &graphql.Field{
 			Type: DropdownItemType,
 		},

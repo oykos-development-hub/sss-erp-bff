@@ -14,6 +14,9 @@ var FeeMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"fee_subcategory": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"decision_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

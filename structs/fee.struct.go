@@ -27,6 +27,7 @@ type Fee struct {
 	ID                     int            `json:"id,omitempty"`
 	FeeType                FeeType        `json:"fee_type"`
 	FeeSubcategory         FeeSubcategory `json:"fee_subcategory"`
+	OrganizationUnitID     int            `json:"organization_unit_id"`
 	DecisionNumber         string         `json:"decision_number"`
 	DecisionDate           time.Time      `json:"decision_date"`
 	Subject                string         `json:"subject"`

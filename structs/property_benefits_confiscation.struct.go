@@ -23,6 +23,7 @@ type PropBenConf struct {
 	DecisionNumber         string              `json:"decision_number"`
 	DecisionDate           time.Time           `json:"decision_date"`
 	Subject                string              `json:"subject"`
+	OrganizationUnitID     int                 `json:"organization_unit_id"`
 	JMBG                   string              `json:"jmbg"`
 	Residence              string              `json:"residence"`
 	Amount                 float64             `json:"amount"`

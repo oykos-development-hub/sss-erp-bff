@@ -50,6 +50,9 @@ var FlatRateType = graphql.NewObject(graphql.ObjectConfig{
 		"flat_rate_type": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"decision_number": &graphql.Field{
 			Type: graphql.String,
 		},

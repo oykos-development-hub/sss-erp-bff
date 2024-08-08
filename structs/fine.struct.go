@@ -22,6 +22,7 @@ type Fine struct {
 	ActType                FineActType     `json:"act_type"`
 	DecisionNumber         string          `json:"decision_number"`
 	DecisionDate           time.Time       `json:"decision_date"`
+	OrganizationUnitID     int             `json:"organization_unit_id"`
 	Subject                string          `json:"subject"`
 	JMBG                   string          `json:"jmbg"`
 	Residence              string          `json:"residence"`

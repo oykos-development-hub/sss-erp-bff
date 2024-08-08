@@ -30,6 +30,7 @@ type FeeResponseItem struct {
 	ID                     int                  `json:"id"`
 	FeeType                DropdownSimple       `json:"fee_type"`
 	FeeSubcategory         DropdownSimple       `json:"fee_subcategory"`
+	OrganizationUnit       DropdownSimple       `json:"organization_unit"`
 	DecisionNumber         string               `json:"decision_number"`
 	DecisionDate           time.Time            `json:"decision_date"`
 	Subject                string               `json:"subject"`
@@ -65,4 +66,5 @@ type GetFeeListInputMS struct {
 	FilterByFeeTypeID     *int    `json:"fee_type_id"`
 	FilterBySubcategoryID *int    `json:"fee_subcategory_id"`
 	Search                *string `json:"search"`
+	OrganizationUnitID    *int    `json:"organization_unit_id"`
 }

@@ -26,6 +26,7 @@ type FlatRate struct {
 	JMBG                   string           `json:"jmbg"`
 	Residence              string           `json:"residence"`
 	Amount                 float64          `json:"amount"`
+	OrganizationUnitID     int              `json:"organization_unit_id"`
 	PaymentReferenceNumber string           `json:"payment_reference_number"`
 	DebitReferenceNumber   string           `json:"debit_reference_number"`
 	AccountID              int              `json:"account_id"`

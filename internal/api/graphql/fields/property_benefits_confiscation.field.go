@@ -50,6 +50,9 @@ func (f *Field) PropBenConfOverviewField() *graphql.Field {
 			"subject": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 			"property_benefits_confiscation_type_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},

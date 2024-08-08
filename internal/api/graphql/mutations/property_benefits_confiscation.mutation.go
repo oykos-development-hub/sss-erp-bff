@@ -20,6 +20,9 @@ var PropBenConfMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"subject": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"jmbg": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

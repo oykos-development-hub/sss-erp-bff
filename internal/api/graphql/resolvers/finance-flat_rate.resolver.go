@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
@@ -28,6 +29,13 @@ func (r *Resolver) FlatRateInsertResolver(params graphql.ResolveParams) (interfa
 	}
 
 	var item *structs.FlatRate
+
+	if data.OrganizationUnitID == 0 {
+		organizationUnitID, _ := params.Context.Value(config.OrganizationUnitIDKey).(*int)
+		if organizationUnitID != nil {
+			data.OrganizationUnitID = *organizationUnitID
+		}
+	}
 
 	if data.ID == 0 {
 		item, err = r.Repo.CreateFlatRate(params.Context, &data)
@@ -95,6 +103,10 @@ func (r *Resolver) FlatRateOverviewResolver(params graphql.ResolveParams) (inter
 
 	if value, ok := params.Args["flat_rate_type_id"].(int); ok && value != 0 {
 		input.FilterByTypeID = &value
+	}
+
+	if value, ok := params.Args["organization_unit_id"].(int); ok && value != 0 {
+		input.OrganizationUnitID = &value
 	}
 
 	flatrates, total, err := r.Repo.GetFlatRateList(&input)
@@ -236,6 +248,20 @@ func buildFlatRateResponseItem(flatrate structs.FlatRate, r *Resolver) (*dto.Fla
 			Title: courtAccount.Title,
 		}
 		response.CourtAccount = courtAccountDropdown
+	}
+
+	if flatrate.OrganizationUnitID != 0 {
+		organizationUnit, err := r.Repo.GetOrganizationUnitByID(flatrate.OrganizationUnitID)
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get organization unit by id")
+		}
+
+		orgUnitDropdown := dto.DropdownSimple{
+			ID:    organizationUnit.ID,
+			Title: organizationUnit.Title,
+		}
+
+		response.OrganizationUnit = orgUnitDropdown
 	}
 
 	return &response, nil

@@ -14,6 +14,9 @@ var FineMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"decision_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"decision_date": &graphql.InputObjectFieldConfig{
 			Type: graphql.DateTime,
 		},

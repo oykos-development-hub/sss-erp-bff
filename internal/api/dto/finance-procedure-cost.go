@@ -25,6 +25,7 @@ type ProcedureCostResponseItem struct {
 	ActType                 DropdownSimple                `json:"procedure_cost_type"`
 	DecisionNumber          string                        `json:"decision_number"`
 	DecisionDate            time.Time                     `json:"decision_date"`
+	OrganizationUnit        DropdownSimple                `json:"organization_unit"`
 	Subject                 string                        `json:"subject"`
 	JMBG                    string                        `json:"jmbg"`
 	Residence               string                        `json:"residence"`
@@ -59,4 +60,5 @@ type GetProcedureCostListInputMS struct {
 	Size                        *int    `json:"size"`
 	FilterByProcedureCostTypeID *int    `json:"procedure_cost_type_id"`
 	Search                      *string `json:"search"`
+	OrganizationUnitID          *int    `json:"organization_unit_id"`
 }

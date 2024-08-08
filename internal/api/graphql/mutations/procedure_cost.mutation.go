@@ -17,6 +17,9 @@ var ProcedureCostMutation = graphql.NewInputObject(graphql.InputObjectConfig{
 		"decision_date": &graphql.InputObjectFieldConfig{
 			Type: graphql.DateTime,
 		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
 		"subject": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},

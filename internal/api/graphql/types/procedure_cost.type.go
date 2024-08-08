@@ -50,6 +50,9 @@ var ProcedureCostType = graphql.NewObject(graphql.ObjectConfig{
 		"procedure_cost_type": &graphql.Field{
 			Type: DropdownItemType,
 		},
+		"organization_unit": &graphql.Field{
+			Type: DropdownItemType,
+		},
 		"decision_number": &graphql.Field{
 			Type: graphql.String,
 		},

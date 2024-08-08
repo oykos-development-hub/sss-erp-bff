@@ -25,6 +25,7 @@ type FineResponseItem struct {
 	ActType                DropdownSimple          `json:"act_type"`
 	DecisionNumber         string                  `json:"decision_number"`
 	DecisionDate           time.Time               `json:"decision_date"`
+	OrganizationUnit       DropdownSimple          `json:"organization_unit"`
 	Subject                string                  `json:"subject"`
 	JMBG                   string                  `json:"jmbg"`
 	Residence              string                  `json:"residence"`
@@ -54,9 +55,10 @@ type GetFineListResponseMS struct {
 }
 
 type GetFineListInputMS struct {
-	Subject           *string `json:"subject"`
-	Page              *int    `json:"page"`
-	Size              *int    `json:"size"`
-	FilterByActTypeID *int    `json:"act_type_id"`
-	Search            *string `json:"search"`
+	Subject            *string `json:"subject"`
+	Page               *int    `json:"page"`
+	Size               *int    `json:"size"`
+	FilterByActTypeID  *int    `json:"act_type_id"`
+	Search             *string `json:"search"`
+	OrganizationUnitID *int    `json:"organization_unit_id"`
 }

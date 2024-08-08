@@ -47,6 +47,9 @@ func (f *Field) FineOverviewField() *graphql.Field {
 			"size": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 			"subject": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},

@@ -61,6 +61,7 @@ func (r *Resolver) PermissionsForRoleResolver(params graphql.ResolveParams) (int
 			return errors.HandleAPPError(err)
 		}
 	}
+
 	permissionsTree := buildTree(permissions)
 
 	return dto.ResponseSingle{

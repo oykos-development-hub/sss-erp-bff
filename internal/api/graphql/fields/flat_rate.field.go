@@ -44,6 +44,9 @@ func (f *Field) FlatRateOverviewField() *graphql.Field {
 			"page": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 			"size": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},

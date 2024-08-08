@@ -53,6 +53,9 @@ func (f *Field) FeeOverviewField() *graphql.Field {
 			"fee_type_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"organization_unit_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 			"fee_subcategory_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},

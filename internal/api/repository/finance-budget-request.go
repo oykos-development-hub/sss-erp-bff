@@ -70,3 +70,16 @@ func (repo *MicroserviceRepository) GetBudgetRequest(id int) (*structs.BudgetReq
 
 	return &res.Data, nil
 }
+
+func (repo *MicroserviceRepository) CreateFilledFinancialBudget(ctx context.Context, input structs.FilledFinanceBudget) error {
+	header := make(map[string]string)
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Finance.FilledFinancialBudget, input, nil, header)
+	if err != nil {
+		return errors.Wrap(err, "make api request")
+	}
+
+	return nil
+}

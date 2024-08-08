@@ -211,6 +211,114 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 			}
 		}
 
+		isParent := true
+		organizationUnits, err := r.Repo.GetOrganizationUnits(&dto.GetOrganizationUnitsInput{
+			IsParent: &isParent,
+		})
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		accounts, err := r.Repo.GetAccountItems(
+			&dto.GetAccountsFilter{
+				Version: &accountLatestVersion})
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		for _, item := range organizationUnits.Data {
+			generalRequest, err := r.Repo.CreateBudgetRequest(params.Context, &structs.BudgetRequest{
+				OrganizationUnitID: item.ID,
+				BudgetID:           budget.ID,
+				RequestType:        1,
+				Status:             1,
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			_, err = r.Repo.CreateBudgetRequest(params.Context, &structs.BudgetRequest{
+				OrganizationUnitID: item.ID,
+				BudgetID:           budget.ID,
+				RequestType:        2,
+				Status:             1,
+				ParentID:           &generalRequest.ID,
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			financialRequest, err := r.Repo.CreateBudgetRequest(params.Context, &structs.BudgetRequest{
+				OrganizationUnitID: item.ID,
+				BudgetID:           budget.ID,
+				RequestType:        3,
+				Status:             1,
+				ParentID:           &generalRequest.ID,
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			currentFinancialRequest, err := r.Repo.CreateBudgetRequest(params.Context, &structs.BudgetRequest{
+				OrganizationUnitID: item.ID,
+				BudgetID:           budget.ID,
+				RequestType:        4,
+				Status:             1,
+				ParentID:           &financialRequest.ID,
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			donationsFinancialRequest, err := r.Repo.CreateBudgetRequest(params.Context, &structs.BudgetRequest{
+				OrganizationUnitID: item.ID,
+				BudgetID:           budget.ID,
+				RequestType:        5,
+				Status:             1,
+				ParentID:           &financialRequest.ID,
+			})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			for _, account := range accounts.Data {
+				err := r.Repo.CreateFilledFinancialBudget(params.Context, structs.FilledFinanceBudget{
+					BudgetRequestID: currentFinancialRequest.ID,
+					AccountID:       account.ID,
+					CurrentYear:     decimal.NewFromInt(0),
+					NextYear:        decimal.NewFromInt(0),
+					YearAfterNext:   decimal.NewFromInt(0),
+				})
+
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+
+				err = r.Repo.CreateFilledFinancialBudget(params.Context, structs.FilledFinanceBudget{
+					BudgetRequestID: donationsFinancialRequest.ID,
+					AccountID:       account.ID,
+					CurrentYear:     decimal.NewFromInt(0),
+					NextYear:        decimal.NewFromInt(0),
+					YearAfterNext:   decimal.NewFromInt(0),
+				})
+
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			}
+		}
+
 		resItem, err := r.buildBudgetResponseItem(params.Context, *budget)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})

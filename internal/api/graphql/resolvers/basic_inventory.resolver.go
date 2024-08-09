@@ -315,38 +315,39 @@ func (r *Resolver) InvoicesForInventoryOverview(params graphql.ResolveParams) (i
 	var invoicesResponse []structs.Invoice
 
 	for _, invoice := range invoices {
+		if invoice.PassedToInventory {
+			invoiceResponse, _ := buildInvoiceResponseItem(r, invoice)
+			var invoiceArticles []structs.InvoiceArticles
+			for _, article := range invoiceResponse.Articles {
+				data, err := r.Repo.GetAllInventoryItem(dto.InventoryItemFilter{
+					InvoiceArticleID: &article.ID,
+				})
 
-		invoiceResponse, _ := buildInvoiceResponseItem(r, invoice)
-		var invoiceArticles []structs.InvoiceArticles
-		for _, article := range invoiceResponse.Articles {
-			data, err := r.Repo.GetAllInventoryItem(dto.InventoryItemFilter{
-				InvoiceArticleID: &article.ID,
-			})
-
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
-
-			if article.Amount-data.Total > 0 {
-				invoiceArticle := structs.InvoiceArticles{
-					ID:       article.ID,
-					Title:    article.Title,
-					NetPrice: article.NetPrice,
-					Amount:   article.Amount - data.Total,
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
 				}
 
-				invoiceArticles = append(invoiceArticles, invoiceArticle)
-			}
-		}
+				if article.Amount-data.Total > 0 {
+					invoiceArticle := structs.InvoiceArticles{
+						ID:       article.ID,
+						Title:    article.Title,
+						NetPrice: article.NetPrice,
+						Amount:   article.Amount - data.Total,
+					}
 
-		if len(invoiceArticles) > 0 {
-			invoicesResponse = append(invoicesResponse, structs.Invoice{
-				ID:            invoice.ID,
-				InvoiceNumber: invoice.InvoiceNumber,
-				DateOfInvoice: invoice.DateOfInvoice,
-				Articles:      invoiceArticles,
-			})
+					invoiceArticles = append(invoiceArticles, invoiceArticle)
+				}
+			}
+
+			if len(invoiceArticles) > 0 {
+				invoicesResponse = append(invoicesResponse, structs.Invoice{
+					ID:            invoice.ID,
+					InvoiceNumber: invoice.InvoiceNumber,
+					DateOfInvoice: invoice.DateOfInvoice,
+					Articles:      invoiceArticles,
+				})
+			}
 		}
 	}
 

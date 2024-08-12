@@ -96,13 +96,19 @@ func (r *Resolver) buildBudgetResponseItem(ctx context.Context, budget structs.B
 
 	loggedInUser := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
-	hasPermission, err := r.HasPermission(*loggedInUser, string(config.FinanceBudget), config.OperationRead)
+	hasPermission, err := r.HasPermission(*loggedInUser, string(config.FinanceBudget), config.OperationFullAccess)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "repo has permission")
 	}
 
 	if hasPermission {
+		statusDropdown := dto.DropdownSimple{}
+		statusDropdown.ID = int(budget.Status)
+		statusDropdown.Title = string(dto.GetBudgetStatus(budget.Status))
+		status = &statusDropdown
+	} else {
+
 		unitID, _ := ctx.Value(config.OrganizationUnitIDKey).(*int)
 		generalRequestType := structs.RequestTypeGeneral
 		req, err := r.Repo.GetOneBudgetRequest(&dto.GetBudgetRequestListInputMS{
@@ -121,16 +127,11 @@ func (r *Resolver) buildBudgetResponseItem(ctx context.Context, budget structs.B
 			}
 			return nil, errors.Wrap(err, "repo get one budget request")
 		}
+
 		status, err = r.buildBudgetRequestStatus(ctx, req.Status)
 		if err != nil {
 			return nil, errors.Wrap(err, "repo build budget request status")
 		}
-	} else {
-		statusDropdown := dto.DropdownSimple{}
-		statusDropdown.ID = int(budget.Status)
-		statusDropdown.Title = string(dto.GetBudgetStatus(budget.Status))
-
-		status = &statusDropdown
 	}
 
 	generalRequestType := structs.RequestTypeGeneral

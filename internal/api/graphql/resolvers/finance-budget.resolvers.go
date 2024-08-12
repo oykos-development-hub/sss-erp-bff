@@ -418,11 +418,11 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		return errors.HandleAPPError(err)
 	}
 
-	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{})
+	/*accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{})
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, organizationUnit := range organizationUnitList.Data {
 		generalRequestToCreate := &structs.BudgetRequest{
@@ -470,7 +470,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.RequestTypeCurrentFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		currentFinancialRequest, err := r.Repo.CreateBudgetRequest(params.Context, currentFinancialRequestToCreate)
+		_, err = r.Repo.CreateBudgetRequest(params.Context, currentFinancialRequestToCreate)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
@@ -483,13 +483,13 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.RequestTypeDonationFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		donationFinancialRequest, err := r.Repo.CreateBudgetRequest(params.Context, donationFinancialRequestToCreate)
+		_, err = r.Repo.CreateBudgetRequest(params.Context, donationFinancialRequestToCreate)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
-		for _, account := range accounts.Data {
+		/*for _, account := range accounts.Data {
 			filledItem := structs.FilledFinanceBudget{
 				BudgetRequestID: currentFinancialRequest.ID,
 				AccountID:       account.ID,
@@ -519,7 +519,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
-		}
+		}*/
 	}
 
 	budget.Status = structs.BudgetSentStatus

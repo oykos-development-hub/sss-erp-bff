@@ -470,7 +470,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.RequestTypeCurrentFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		_, err = r.Repo.CreateBudgetRequest(params.Context, currentFinancialRequestToCreate)
+		currentFinancialRequest, err := r.Repo.CreateBudgetRequest(params.Context, currentFinancialRequestToCreate)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
@@ -483,7 +483,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			RequestType:        structs.RequestTypeDonationFinancial,
 			Status:             structs.BudgetRequestSentStatus,
 		}
-		_, err = r.Repo.CreateBudgetRequest(params.Context, donationFinancialRequestToCreate)
+		donationFinancialRequest, err := r.Repo.CreateBudgetRequest(params.Context, donationFinancialRequestToCreate)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
@@ -491,7 +491,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 
 		for _, account := range accounts.Data {
 			filledItem := structs.FilledFinanceBudget{
-				BudgetRequestID: currentFinancialRequestToCreate.ID,
+				BudgetRequestID: currentFinancialRequest.ID,
 				AccountID:       account.ID,
 				CurrentYear:     decimal.NewFromInt(0),
 				NextYear:        decimal.NewFromInt(0),
@@ -506,7 +506,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			}
 
 			filledItem = structs.FilledFinanceBudget{
-				BudgetRequestID: donationFinancialRequestToCreate.ID,
+				BudgetRequestID: donationFinancialRequest.ID,
 				AccountID:       account.ID,
 				CurrentYear:     decimal.NewFromInt(0),
 				NextYear:        decimal.NewFromInt(0),

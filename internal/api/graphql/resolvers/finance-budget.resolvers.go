@@ -116,6 +116,11 @@ func (r *Resolver) buildBudgetResponseItem(ctx context.Context, budget structs.B
 			BudgetID:           &budget.ID,
 			RequestType:        &generalRequestType,
 		})
+
+		if req == nil && err == nil {
+			return nil, nil
+		}
+
 		if err != nil {
 			var appErr *errors.AppError
 			if goerrors.As(err, &appErr) {

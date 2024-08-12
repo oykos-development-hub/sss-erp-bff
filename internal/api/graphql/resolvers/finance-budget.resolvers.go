@@ -193,7 +193,7 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 			return errors.HandleAPPError(err)
 		}
 
-		/*accountLatestVersion, err := r.Repo.GetLatestVersionOfAccounts()
+		accountLatestVersion, err := r.Repo.GetLatestVersionOfAccounts()
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
@@ -217,7 +217,7 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 			}
 		}
 
-		isParent := true
+		/*isParent := true
 		organizationUnits, err := r.Repo.GetOrganizationUnits(&dto.GetOrganizationUnitsInput{
 			IsParent: &isParent,
 		})

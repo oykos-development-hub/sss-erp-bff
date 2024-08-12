@@ -417,6 +417,13 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
+
+	accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{})
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
 	for _, organizationUnit := range organizationUnitList.Data {
 		generalRequestToCreate := &structs.BudgetRequest{
 			OrganizationUnitID: organizationUnit.ID,
@@ -480,6 +487,38 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
+		}
+
+		for _, account := range accounts.Data {
+			filledItem := structs.FilledFinanceBudget{
+				BudgetRequestID: currentFinancialRequestToCreate.ID,
+				AccountID:       account.ID,
+				CurrentYear:     decimal.NewFromInt(0),
+				NextYear:        decimal.NewFromInt(0),
+				YearAfterNext:   decimal.NewFromInt(0),
+			}
+
+			err := r.Repo.CreateFilledFinancialBudget(params.Context, filledItem)
+
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			filledItem = structs.FilledFinanceBudget{
+				BudgetRequestID: donationFinancialRequestToCreate.ID,
+				AccountID:       account.ID,
+				CurrentYear:     decimal.NewFromInt(0),
+				NextYear:        decimal.NewFromInt(0),
+				YearAfterNext:   decimal.NewFromInt(0),
+			}
+
+			err = r.Repo.CreateFilledFinancialBudget(params.Context, filledItem)
+
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
 		}
 	}
 

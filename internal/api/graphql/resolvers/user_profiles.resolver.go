@@ -449,6 +449,13 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 		return errors.HandleAPPError(err)
 	}
 
+	oldData, err := r.Repo.GetUserProfileByID(userProfileData.ID)
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
 	active := true
 	inactive := false
 	if activeContract.Contract != nil {
@@ -587,6 +594,47 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
+	}
+
+	if oldData.IsJudge && !userProfileData.IsJudge {
+
+		if len(resolution.Data) > 0 {
+			judgeResolutionOrganizationUnit, _, err := r.Repo.GetJudgeResolutionOrganizationUnit(&dto.JudgeResolutionsOrganizationUnitInput{
+				OrganizationUnitID: &activeContract.Contract.OrganizationUnitID,
+				UserProfileID:      &userProfileData.ID,
+				ResolutionID:       &resolution.Data[0].ID,
+			})
+
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			for _, item := range judgeResolutionOrganizationUnit {
+				err := r.Repo.DeleteJJudgeResolutionOrganizationUnit(item.ID)
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			}
+		}
+	}
+
+	if !oldData.IsJudge && userProfileData.IsJudge {
+		item, err := r.Repo.GetEmployeesInOrganizationUnitsByProfileID(userProfileData.ID)
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		if item != nil && item.ID != 0 {
+			err := r.Repo.DeleteEmployeeInOrganizationUnitByID(item.ID)
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+		}
 	}
 
 	res, err := buildUserProfileBasicResponse(r.Repo, userProfileRes)

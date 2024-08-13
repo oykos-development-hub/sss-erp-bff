@@ -42,6 +42,7 @@ type Fee struct {
 	CourtAccountID         *int           `json:"court_account"`
 	FeeDetails             *FeeDetails    `json:"fee_details"`
 	File                   []int          `json:"file"`
+	Residence              string         `json:"residence"`
 	CreatedAt              time.Time      `json:"created_at,omitempty"`
 	UpdatedAt              time.Time      `json:"updated_at"`
 }

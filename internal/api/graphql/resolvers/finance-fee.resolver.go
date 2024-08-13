@@ -212,6 +212,7 @@ func buildFeeResponseItem(fee structs.Fee, r *Resolver) (*dto.FeeResponseItem, e
 		Description:            fee.Description,
 		Status:                 status,
 		FeeDetails:             fee.FeeDetails,
+		Residence:              fee.Residence,
 		CreatedAt:              fee.CreatedAt,
 		UpdatedAt:              fee.UpdatedAt,
 	}

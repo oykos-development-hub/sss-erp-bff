@@ -1347,9 +1347,19 @@ func buildUserProfileBasicResponse(
 					}
 
 					userProfileResItem.OrganizationUnit = organizationUnitID
-					userProfileResItem.Contract.OrganizationUnit = dto.DropdownSimple{
-						ID:    organizationUnitID.ID,
-						Title: organizationUnitID.Title,
+					if userProfileResItem.Contract != nil {
+						userProfileResItem.Contract.OrganizationUnit = dto.DropdownSimple{
+							ID:    organizationUnitID.ID,
+							Title: organizationUnitID.Title,
+						}
+					} else {
+						contract := dto.Contract{
+							OrganizationUnit: dto.DropdownSimple{
+								ID:    organizationUnitID.ID,
+								Title: organizationUnitID.Title,
+							},
+						}
+						userProfileResItem.Contract = &contract
 					}
 				}
 			}

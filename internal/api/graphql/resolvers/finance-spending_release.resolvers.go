@@ -302,8 +302,24 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 
 		value := decimal.NewFromInt(0)
 
+		accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{
+			Leaf: true,
+		})
+
+		if err != nil {
+			return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+		}
+
+		accountsMap := make(map[int]string)
+
+		for _, account := range accounts.Data {
+			accountsMap[account.ID] = account.Title
+		}
+
 		for _, item := range spendingReleaseOverviewItems {
-			value = value.Add(item.Value)
+			if _, exists := accountsMap[item.AccountID]; exists {
+				value = value.Add(item.Value)
+			}
 		}
 
 		spendingReleaseOverview = append(spendingReleaseOverview, dto.SpendingReleaseOverviewItem{

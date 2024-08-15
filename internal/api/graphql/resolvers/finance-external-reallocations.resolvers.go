@@ -168,7 +168,7 @@ func (r *Resolver) ExternalReallocationInsertResolver(params graphql.ResolvePara
 					FromUserID:  loggedInUser.ID,
 					ToUserID:    targetUser.ID,
 					FromContent: "Službenik za budžet",
-					Path:        fmt.Sprintf("/finance/budget/current/external-reallocation/%d", singleItem.ID),
+					Path:        fmt.Sprintf("/finance/budget/requests/%d", singleItem.ID),
 					IsRead:      false,
 				})
 				if err != nil {
@@ -255,7 +255,7 @@ func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolvePa
 				FromUserID:  loggedInUser.ID,
 				ToUserID:    targetUser.ID,
 				FromContent: "Službenik za budžet",
-				Path:        fmt.Sprintf("/finance/budget/current/external-reallocation/%d", singleItem.ID),
+				Path:        fmt.Sprintf("/finance/budget/requests/%d", singleItem.ID),
 				IsRead:      false,
 			})
 			if err != nil {
@@ -314,7 +314,7 @@ func (r *Resolver) ExternalReallocationOURejectResolver(params graphql.ResolvePa
 					FromUserID:  loggedInUser.ID,
 					ToUserID:    targetUser.ID,
 					FromContent: "Službenik za budžet",
-					Path:        "/finance/budget/current/external-reallocation",
+					Path:        fmt.Sprintf("/finance/budget/external-reallocation/%d", externalReallocation.ID),
 					IsRead:      false,
 				})
 				if err != nil {
@@ -377,7 +377,7 @@ func (r *Resolver) ExternalReallocationSSSAcceptResolver(params graphql.ResolveP
 					FromUserID:  loggedInUser.ID,
 					ToUserID:    targetUser.ID,
 					FromContent: "Službenik za budžet",
-					Path:        fmt.Sprintf("/finance/budget/current/external-reallocation/%d", externalReallocation.ID),
+					Path:        fmt.Sprintf("/finance/budget/external-reallocation/%d", externalReallocation.ID),
 					IsRead:      false,
 				})
 				if err != nil {

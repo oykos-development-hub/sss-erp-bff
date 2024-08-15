@@ -206,26 +206,6 @@ func (r *Resolver) buildSpendingDynamicTree(accounts []*structs.AccountItem, spe
 
 	var roots []*dto.SpendingDynamicDTO
 
-	currentBudget, err := r.Repo.GetCurrentBudgetByOrganizationUnit(spendingData[0].UnitID)
-
-	if err != nil {
-		return nil, errors.Wrap(err, "repo get current budget by organization unit")
-	}
-
-	mapCurrentBudget := make(map[int]decimal.Decimal)
-	for _, item := range currentBudget {
-		if item.Type == 1 {
-			mapCurrentBudget[item.AccountID] = item.CurrentAmount
-		}
-	}
-
-	for key, spendingDynamic := range spendingMap {
-		if value, exists := mapCurrentBudget[spendingDynamic.AccountID]; exists {
-			spendingDynamic.Actual = value
-			spendingMap[key] = spendingDynamic
-		}
-	}
-
 	for _, account := range accountTree[0] {
 		root := &dto.SpendingDynamicDTO{
 			AccountID:           account.ID,

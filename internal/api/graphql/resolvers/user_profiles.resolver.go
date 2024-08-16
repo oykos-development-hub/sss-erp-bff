@@ -458,7 +458,9 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 	active := true
 	inactive := false
+	hasContract := false
 	if activeContract.Contract != nil {
+		hasContract = true
 		userProfileData.ActiveContract = &active
 		activeContract.Contract.UserProfileID = userProfileData.ID
 		if activeContract.Contract.ID == 0 {
@@ -590,6 +592,7 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 	}
 
+	userProfileData.ActiveContract = &hasContract
 	userProfileRes, err := r.Repo.UpdateUserProfile(params.Context, userProfileData.ID, userProfileData)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
@@ -630,6 +633,24 @@ func (r *Resolver) UserProfileUpdateResolver(params graphql.ResolveParams) (inte
 
 		if item != nil && item.ID != 0 {
 			err := r.Repo.DeleteEmployeeInOrganizationUnitByID(item.ID)
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+		}
+	}
+
+	if hasContract {
+		account, err := r.Repo.GetUserAccountByID(userProfileRes.UserAccountID)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		if !account.Active {
+			account.Active = true
+
+			_, err = r.Repo.UpdateUserAccount(params.Context, account.ID, *account)
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)

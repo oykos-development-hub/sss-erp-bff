@@ -58,11 +58,14 @@ func (r *Resolver) JudgeEvaluationReportResolver(params graphql.ResolveParams) (
 			return errors.HandleAPPError(err)
 		}
 		if organizationUnitIDinput, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitIDinput != 0 {
-			if evaluationResItem.UnitID != organizationUnitIDinput {
+			if evaluationResItem != nil && evaluationResItem.UnitID != organizationUnitIDinput {
 				continue
 			}
 		}
-		evaluationResItemList = append(evaluationResItemList, evaluationResItem)
+
+		if evaluationResItem != nil {
+			evaluationResItemList = append(evaluationResItemList, evaluationResItem)
+		}
 	}
 
 	return dto.Response{
@@ -153,10 +156,15 @@ func buildJudgeEvaluationReportResponseItem(repo repository.MicroserviceReposito
 	filter := dto.JudgeResolutionsOrganizationUnitInput{
 		UserProfileID: &userProfile.ID,
 	}
+
 	judge, _, err := repo.GetJudgeResolutionOrganizationUnit(&filter)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get judge resolution organization unit")
+	}
+
+	if len(judge) == 0 {
+		return nil, nil
 	}
 
 	orgUnit, err := repo.GetOrganizationUnitByID(judge[0].OrganizationUnitID)

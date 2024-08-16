@@ -42,12 +42,15 @@ func (r *Resolver) UserProfileResolutionInsertResolver(params graphql.ResolvePar
 
 	_ = json.Unmarshal(dataBytes, &data)
 
+	currentTime := time.Now()
+
+	currentYear := currentTime.Year()
+
 	if data.DateOfStart == "" {
-		currentTime := time.Now()
-
-		currentYear := currentTime.Year()
-
 		data.DateOfStart = fmt.Sprintf("%d-01-01T00:00:00Z", currentYear)
+	}
+
+	if data.DateOfEnd == nil || *data.DateOfEnd == "" {
 		dateOfEnd := fmt.Sprintf("%d-12-31T00:00:00Z", currentYear)
 		data.DateOfEnd = &dateOfEnd
 	}

@@ -4,7 +4,6 @@ import (
 	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
-	apierrors "bff/internal/api/errors"
 	"bff/shared"
 	"bff/structs"
 	"context"
@@ -401,7 +400,7 @@ func BuildStatus(context context.Context, r *Resolver, plan *structs.PublicProcu
 	hasPermission, err := r.HasPermission(*loggedInUser, string(config.PublicProcurementPlan), config.OperationFullAccess)
 
 	if err != nil {
-		return "", apierrors.Wrap(err, "repo has permission")
+		return "", errors.Wrap(err, "repo has permission")
 	}
 
 	if !hasPermission {

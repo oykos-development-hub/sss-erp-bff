@@ -1869,8 +1869,16 @@ func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Req
 						}
 						response.Validation = append(response.Validation, responseMessage)
 					} else {
-						item.DateOfEnd = dateOfEnd.Format(config.ISO8601Format)
-
+						if dateOfEnd.Before(dateOfStart) {
+							responseMessage := ValidationResponse{
+								Column:  5,
+								Row:     rowindex,
+								Message: "Kraj radnog odnosa mora biti posle početka radnog odnosa!",
+							}
+							response.Validation = append(response.Validation, responseMessage)
+						} else {
+							item.DateOfEnd = dateOfEnd.Format(config.ISO8601Format)
+						}
 					}
 				case 6:
 					years, err := strconv.Atoi(value)

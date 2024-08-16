@@ -1352,7 +1352,13 @@ func buildInvoiceResponseItem(r *Resolver, invoice structs.Invoice) (*dto.Invoic
 		}
 
 		response.Order = dropdown
-
+		if order.DateSystem != nil {
+			receiptDate, err := parseDate(*order.DateSystem)
+			if err != nil {
+				return nil, errors.Wrap(err, "parse date")
+			}
+			response.ReceiptDate = &receiptDate
+		}
 	}
 
 	articles, err := r.Repo.GetInvoiceArticleList(invoice.ID)

@@ -251,7 +251,7 @@ func (r *Resolver) OrganizationUnitDeleteResolver(params graphql.ResolveParams) 
 				return errors.HandleAPPError(err)
 			}
 
-			if systematization.Active != 1 {
+			if systematization.Active > 0 {
 				isDeletable = false
 			}
 		}

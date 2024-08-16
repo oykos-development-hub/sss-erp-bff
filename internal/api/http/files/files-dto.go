@@ -125,10 +125,11 @@ type ImportUserProfileVacation struct {
 }
 
 type ImportUserProfileVacationsResponse struct {
-	Status  string                      `json:"status"`
-	Message string                      `json:"message"`
-	Error   string                      `json:"error"`
-	Data    []ImportUserProfileVacation `json:"data"`
+	Status     string                      `json:"status"`
+	Message    string                      `json:"message"`
+	Error      string                      `json:"error"`
+	Validation []ValidationResponse        `json:"validation"`
+	Data       []ImportUserProfileVacation `json:"data"`
 }
 
 type ImportInventoryArticles struct {

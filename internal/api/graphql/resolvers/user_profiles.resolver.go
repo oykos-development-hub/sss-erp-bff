@@ -1455,10 +1455,11 @@ func buildUserProfileBasicResponse(
 }
 
 const (
-	letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	numberBytes = "0123456789"
-	symbolBytes = "!@#$%&"
-	allBytes    = letterBytes + numberBytes + symbolBytes
+	smallLetterBytes = "abcdefghijklmnopqrstuvwxyz"
+	bigLetterBytes   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	numberBytes      = "0123456789"
+	symbolBytes      = "!@#$%&"
+	allBytes         = smallLetterBytes + bigLetterBytes + numberBytes + symbolBytes
 )
 
 func generateRandomString(n int) (string, error) {
@@ -1467,9 +1468,10 @@ func generateRandomString(n int) (string, error) {
 
 	// Ensure one uppercase letter, one number, and one symbol
 	categories := []string{
-		letterBytes[26:], // Uppercase letters
-		numberBytes,      // Numbers
-		symbolBytes,      // Symbols
+		smallLetterBytes,
+		bigLetterBytes,
+		numberBytes,
+		symbolBytes,
 	}
 
 	// Place mandatory characters in the result

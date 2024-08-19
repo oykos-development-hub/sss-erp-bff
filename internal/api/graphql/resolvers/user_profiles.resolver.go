@@ -1462,6 +1462,7 @@ const (
 )
 
 func generateRandomString(n int) (string, error) {
+
 	result := make([]byte, n)
 
 	// Ensure one uppercase letter, one number, and one symbol

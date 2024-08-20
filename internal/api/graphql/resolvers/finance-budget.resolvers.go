@@ -217,114 +217,6 @@ func (r *Resolver) BudgetInsertResolver(params graphql.ResolveParams) (interface
 			}
 		}
 
-		/*isParent := true
-		organizationUnits, err := r.Repo.GetOrganizationUnits(&dto.GetOrganizationUnitsInput{
-			IsParent: &isParent,
-		})
-
-		if err != nil {
-			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-			return errors.HandleAPPError(err)
-		}
-
-		accounts, err := r.Repo.GetAccountItems(
-			&dto.GetAccountsFilter{
-				Version: &accountLatestVersion})
-
-		if err != nil {
-			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-			return errors.HandleAPPError(err)
-		}
-
-		for _, item := range organizationUnits.Data {
-			generalRequest, err := r.Repo.CreateBudgetRequest(params.Context, &structs.BudgetRequest{
-				OrganizationUnitID: item.ID,
-				BudgetID:           budget.ID,
-				RequestType:        1,
-				Status:             1,
-			})
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
-
-			_, err = r.Repo.CreateBudgetRequest(params.Context, &structs.BudgetRequest{
-				OrganizationUnitID: item.ID,
-				BudgetID:           budget.ID,
-				RequestType:        2,
-				Status:             1,
-				ParentID:           &generalRequest.ID,
-			})
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
-
-			financialRequest, err := r.Repo.CreateBudgetRequest(params.Context, &structs.BudgetRequest{
-				OrganizationUnitID: item.ID,
-				BudgetID:           budget.ID,
-				RequestType:        3,
-				Status:             1,
-				ParentID:           &generalRequest.ID,
-			})
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
-
-			currentFinancialRequest, err := r.Repo.CreateBudgetRequest(params.Context, &structs.BudgetRequest{
-				OrganizationUnitID: item.ID,
-				BudgetID:           budget.ID,
-				RequestType:        4,
-				Status:             1,
-				ParentID:           &financialRequest.ID,
-			})
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
-
-			donationsFinancialRequest, err := r.Repo.CreateBudgetRequest(params.Context, &structs.BudgetRequest{
-				OrganizationUnitID: item.ID,
-				BudgetID:           budget.ID,
-				RequestType:        5,
-				Status:             1,
-				ParentID:           &financialRequest.ID,
-			})
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
-
-			for _, account := range accounts.Data {
-				err := r.Repo.CreateFilledFinancialBudget(params.Context, structs.FilledFinanceBudget{
-					BudgetRequestID: currentFinancialRequest.ID,
-					AccountID:       account.ID,
-					CurrentYear:     decimal.NewFromInt(0),
-					NextYear:        decimal.NewFromInt(0),
-					YearAfterNext:   decimal.NewFromInt(0),
-				})
-
-				if err != nil {
-					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-					return errors.HandleAPPError(err)
-				}
-
-				err = r.Repo.CreateFilledFinancialBudget(params.Context, structs.FilledFinanceBudget{
-					BudgetRequestID: donationsFinancialRequest.ID,
-					AccountID:       account.ID,
-					CurrentYear:     decimal.NewFromInt(0),
-					NextYear:        decimal.NewFromInt(0),
-					YearAfterNext:   decimal.NewFromInt(0),
-				})
-
-				if err != nil {
-					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-					return errors.HandleAPPError(err)
-				}
-			}
-		}*/
-
 		resItem, err := r.buildBudgetResponseItem(params.Context, *budget)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
@@ -418,12 +310,6 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 		return errors.HandleAPPError(err)
 	}
 
-	/*accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{})
-	if err != nil {
-		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-		return errors.HandleAPPError(err)
-	}*/
-
 	for _, organizationUnit := range organizationUnitList.Data {
 		generalRequestToCreate := &structs.BudgetRequest{
 			OrganizationUnitID: organizationUnit.ID,
@@ -489,37 +375,6 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 			return errors.HandleAPPError(err)
 		}
 
-		/*for _, account := range accounts.Data {
-			filledItem := structs.FilledFinanceBudget{
-				BudgetRequestID: currentFinancialRequest.ID,
-				AccountID:       account.ID,
-				CurrentYear:     decimal.NewFromInt(0),
-				NextYear:        decimal.NewFromInt(0),
-				YearAfterNext:   decimal.NewFromInt(0),
-			}
-
-			err := r.Repo.CreateFilledFinancialBudget(params.Context, filledItem)
-
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
-
-			filledItem = structs.FilledFinanceBudget{
-				BudgetRequestID: donationFinancialRequest.ID,
-				AccountID:       account.ID,
-				CurrentYear:     decimal.NewFromInt(0),
-				NextYear:        decimal.NewFromInt(0),
-				YearAfterNext:   decimal.NewFromInt(0),
-			}
-
-			err = r.Repo.CreateFilledFinancialBudget(params.Context, filledItem)
-
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
-			}
-		}*/
 	}
 
 	budget.Status = structs.BudgetSentStatus
@@ -536,11 +391,11 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		if targetUser.ID != loggedInUser.ID {
@@ -606,11 +461,11 @@ func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (int
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationFullAccess)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationFullAccess)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		if targetUser.ID != loggedInUser.ID {
@@ -690,17 +545,17 @@ func (r *Resolver) BudgetRequestRejectResolver(params graphql.ResolveParams) (in
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
-	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, request.OrganizationUnitID)
-	if err != nil {
+	employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, request.OrganizationUnitID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		for _, employee := range employees {
@@ -927,17 +782,17 @@ func (r *Resolver) BudgetRequestAcceptResolver(params graphql.ResolveParams) (in
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
-	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, request.OrganizationUnitID)
-	if err != nil {
+	employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, request.OrganizationUnitID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		for _, employee := range employees {
@@ -1372,11 +1227,11 @@ func (r *Resolver) CurrentBudgetOverviewResolver(params graphql.ResolveParams) (
 		response.BudgetID = currentBudgetItems[0].BudgetID
 	}
 
-	unitIDList, err := r.Repo.GetCurrentBudgetUnitList(params.Context)
-	if err != nil {
+	unitIDList, _ := r.Repo.GetCurrentBudgetUnitList(params.Context)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	unitsList := make([]dto.DropdownOUSimple, len(unitIDList))
 	for i, unitID := range unitIDList {

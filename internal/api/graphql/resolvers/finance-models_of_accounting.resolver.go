@@ -116,37 +116,39 @@ func buildModelsOfAccounting(item structs.ModelsOfAccounting, r *Resolver) (*dto
 		}
 
 		if orderItem.DebitAccountID != 0 {
-			account, err := r.Repo.GetAccountItemByID(orderItem.DebitAccountID)
+			account, _ := r.Repo.GetAccountItemByID(orderItem.DebitAccountID)
+			/*
+				if err != nil {
+					return nil, errors.Wrap(err, "repo get account item by id")
+				}
+			*/
+			if account != nil {
+				builtAccount := dto.AccountItemResponseItem{
+					ID:           account.ID,
+					SerialNumber: account.SerialNumber,
+					Title:        account.Title,
+				}
 
-			if err != nil {
-				return nil, errors.Wrap(err, "repo get account item by id")
+				item.DebitAccount = builtAccount
 			}
-
-			builtAccount := dto.AccountItemResponseItem{
-				ID:           account.ID,
-				SerialNumber: account.SerialNumber,
-				Title:        account.Title,
-			}
-
-			item.DebitAccount = builtAccount
 		}
-
 		if orderItem.CreditAccountID != 0 {
-			account, err := r.Repo.GetAccountItemByID(orderItem.CreditAccountID)
+			account, _ := r.Repo.GetAccountItemByID(orderItem.CreditAccountID)
 
-			if err != nil {
+			/*if err != nil {
 				return nil, errors.Wrap(err, "repo get account item by id")
-			}
+			}*/
 
-			builtAccount := dto.AccountItemResponseItem{
-				ID:           account.ID,
-				SerialNumber: account.SerialNumber,
-				Title:        account.Title,
-			}
+			if account != nil {
+				builtAccount := dto.AccountItemResponseItem{
+					ID:           account.ID,
+					SerialNumber: account.SerialNumber,
+					Title:        account.Title,
+				}
 
-			item.CreditAccount = builtAccount
+				item.CreditAccount = builtAccount
+			}
 		}
-
 		response.Items = append(response.Items, item)
 	}
 

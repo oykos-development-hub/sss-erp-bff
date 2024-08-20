@@ -353,38 +353,46 @@ func buildMovementDetailsResponse(r repository.MicroserviceRepositoryInterface, 
 	item.DateOrder = movement.DateOrder
 	item.Description = movement.Description
 
-	officeItem, err := r.GetDropdownSettingByID(movement.OfficeID)
+	officeItem, _ := r.GetDropdownSettingByID(movement.OfficeID)
 
-	if err != nil {
-		return nil, errors.Wrap(err, "repo get dropdown setting by id")
+	/*	if err != nil {
+			return nil, errors.Wrap(err, "repo get dropdown setting by id")
+		}
+	*/
+
+	if officeItem != nil {
+		item.Office.Title = officeItem.Title
+		item.Office.ID = officeItem.ID
 	}
 
-	item.Office.Title = officeItem.Title
-	item.Office.ID = officeItem.ID
+	userItem, _ := r.GetUserProfileByID(movement.RecipientUserID)
+	/*
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get user profile by id")
+		}
+	*/
 
-	userItem, err := r.GetUserProfileByID(movement.RecipientUserID)
-
-	if err != nil {
-		return nil, errors.Wrap(err, "repo get user profile by id")
+	if userItem != nil {
+		item.RecipientUser.Title = userItem.FirstName + " " + userItem.LastName
+		item.RecipientUser.ID = userItem.ID
 	}
-
-	item.RecipientUser.Title = userItem.FirstName + " " + userItem.LastName
-	item.RecipientUser.ID = userItem.ID
-
 	articles, err := r.GetMovementArticles(item.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get movement articles")
 	}
 
 	if movement.FileID != 0 {
-		file, err := r.GetFileByID(movement.FileID)
+		file, _ := r.GetFileByID(movement.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		if file != nil {
+			item.File.ID = file.ID
+			item.File.Name = file.Name
+			item.File.Type = *file.Type
 		}
-		item.File.ID = file.ID
-		item.File.Name = file.Name
-		item.File.Type = *file.Type
 	}
 
 	var movementArticles []dto.MovementArticle

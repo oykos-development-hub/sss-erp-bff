@@ -255,10 +255,10 @@ func buildProcurementItemResponseItem(context context.Context, r *Resolver, item
 
 	procurementStatus := getProcurementStatus(r, *item, *plan, planStatus, organizationUnitID)
 
-	account, err := r.Repo.GetAccountItemByID(item.BudgetIndentID)
-	if err != nil {
+	account, _ := r.Repo.GetAccountItemByID(item.BudgetIndentID)
+	/*if err != nil {
 		return nil, errors.Wrap(err, "repo get account item by id")
-	}
+	}*/
 
 	var contractID *int
 
@@ -276,13 +276,8 @@ func buildProcurementItemResponseItem(context context.Context, r *Resolver, item
 	}
 
 	res := dto.ProcurementItemResponseItem{
-		ID:    item.ID,
-		Title: item.Title,
-		BudgetIndent: dto.DropdownBudgetIndent{
-			ID:           account.ID,
-			Title:        account.Title,
-			SerialNumber: account.SerialNumber,
-		},
+		ID:                item.ID,
+		Title:             item.Title,
 		Plan:              planDropdown,
 		IsOpenProcurement: item.IsOpenProcurement,
 		ArticleType:       item.ArticleType,
@@ -298,6 +293,14 @@ func buildProcurementItemResponseItem(context context.Context, r *Resolver, item
 		TypeOfProcedure:   typeOfProcedure,
 		CreatedAt:         item.CreatedAt,
 		UpdatedAt:         item.UpdatedAt,
+	}
+
+	if account != nil {
+		res.BudgetIndent = dto.DropdownBudgetIndent{
+			ID:           account.ID,
+			Title:        account.Title,
+			SerialNumber: account.SerialNumber,
+		}
 	}
 
 	return &res, nil

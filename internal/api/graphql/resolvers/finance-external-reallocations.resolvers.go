@@ -147,17 +147,17 @@ func (r *Resolver) ExternalReallocationInsertResolver(params graphql.ResolvePara
 	response.Item = *singleItem
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
-	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, singleItem.SourceOrganizationUnit.ID)
-	if err != nil {
+	employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, singleItem.SourceOrganizationUnit.ID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		for _, employee := range employees {
@@ -241,11 +241,11 @@ func (r *Resolver) ExternalReallocationOUAcceptResolver(params graphql.ResolvePa
 	response.Item = *singleItem
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationFullAccess)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationFullAccess)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		if targetUser.ID != loggedInUser.ID {
@@ -293,17 +293,17 @@ func (r *Resolver) ExternalReallocationOURejectResolver(params graphql.ResolvePa
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
-	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.DestinationOrganizationUnitID)
-	if err != nil {
+	employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.DestinationOrganizationUnitID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		for _, employee := range employees {
@@ -341,11 +341,11 @@ func (r *Resolver) ExternalReallocationSSSAcceptResolver(params graphql.ResolveP
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	externalReallocation, err := r.Repo.GetExternalReallocationByID(itemID)
 
@@ -354,17 +354,17 @@ func (r *Resolver) ExternalReallocationSSSAcceptResolver(params graphql.ResolveP
 		return errors.HandleAPPError(err)
 	}
 
-	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.DestinationOrganizationUnitID)
-	if err != nil {
+	employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.DestinationOrganizationUnitID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
-	sourceEmployees, err := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.SourceOrganizationUnitID)
-	if err != nil {
+	sourceEmployees, _ := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.SourceOrganizationUnitID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	employees = append(employees, sourceEmployees...)
 
@@ -411,23 +411,23 @@ func (r *Resolver) ExternalReallocationSSSRejectResolver(params graphql.ResolveP
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
-	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.DestinationOrganizationUnitID)
-	if err != nil {
+	employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.DestinationOrganizationUnitID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
-	sourceEmployees, err := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.SourceOrganizationUnitID)
-	if err != nil {
+	sourceEmployees, _ := GetEmployeesOfOrganizationUnit(r.Repo, externalReallocation.SourceOrganizationUnitID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	employees = append(employees, sourceEmployees...)
 
@@ -471,111 +471,130 @@ func buildExternalReallocation(item structs.ExternalReallocation, r *Resolver) (
 	}
 
 	if item.SourceOrganizationUnitID != 0 {
-		value, err := r.Repo.GetOrganizationUnitByID(item.SourceOrganizationUnitID)
+		value, _ := r.Repo.GetOrganizationUnitByID(item.SourceOrganizationUnitID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
 
-		response.SourceOrganizationUnit = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.SourceOrganizationUnit = dropdown
+		}
 	}
 
 	if item.DestinationOrganizationUnitID != 0 {
-		value, err := r.Repo.GetOrganizationUnitByID(item.DestinationOrganizationUnitID)
+		value, _ := r.Repo.GetOrganizationUnitByID(item.DestinationOrganizationUnitID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
 
-		response.DestinationOrganizationUnit = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.DestinationOrganizationUnit = dropdown
+		}
 	}
 
 	if item.RequestedBy != 0 {
-		value, err := r.Repo.GetUserProfileByID(item.RequestedBy)
+		value, _ := r.Repo.GetUserProfileByID(item.RequestedBy)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get user profile by id")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.FirstName + " " + value.LastName,
-		}
+		if value != nil {
 
-		response.RequestedBy = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.FirstName + " " + value.LastName,
+			}
+
+			response.RequestedBy = dropdown
+		}
 	}
 
 	if item.AcceptedBy != 0 {
-		value, err := r.Repo.GetUserProfileByID(item.AcceptedBy)
+		value, _ := r.Repo.GetUserProfileByID(item.AcceptedBy)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get user profile by id")
+			}
+		*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get user profile by id")
+		if value != nil {
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.FirstName + " " + value.LastName,
+			}
+
+			response.AcceptedBy = dropdown
 		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.FirstName + " " + value.LastName,
-		}
-
-		response.AcceptedBy = dropdown
 	}
 
 	if item.FileID != 0 {
-		value, err := r.Repo.GetFileByID(item.FileID)
+		value, _ := r.Repo.GetFileByID(item.FileID)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if value != nil {
+			dropdown := dto.FileDropdownSimple{
+				ID:   value.ID,
+				Name: value.Name,
+				Type: *value.Type,
+			}
+
+			response.File = dropdown
 		}
-
-		dropdown := dto.FileDropdownSimple{
-			ID:   value.ID,
-			Name: value.Name,
-			Type: *value.Type,
-		}
-
-		response.File = dropdown
 	}
 
 	if item.DestinationOrgUnitFileID != 0 {
-		value, err := r.Repo.GetFileByID(item.DestinationOrgUnitFileID)
+		value, _ := r.Repo.GetFileByID(item.DestinationOrgUnitFileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if value != nil {
+			dropdown := dto.FileDropdownSimple{
+				ID:   value.ID,
+				Name: value.Name,
+				Type: *value.Type,
+			}
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+			response.DestinationOrgUnitFile = dropdown
 		}
-
-		dropdown := dto.FileDropdownSimple{
-			ID:   value.ID,
-			Name: value.Name,
-			Type: *value.Type,
-		}
-
-		response.DestinationOrgUnitFile = dropdown
 	}
 
 	if item.SSSFileID != 0 {
-		value, err := r.Repo.GetFileByID(item.SSSFileID)
+		value, _ := r.Repo.GetFileByID(item.SSSFileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if value != nil {
+			dropdown := dto.FileDropdownSimple{
+				ID:   value.ID,
+				Name: value.Name,
+				Type: *value.Type,
+			}
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+			response.SSSFile = dropdown
 		}
-
-		dropdown := dto.FileDropdownSimple{
-			ID:   value.ID,
-			Name: value.Name,
-			Type: *value.Type,
-		}
-
-		response.SSSFile = dropdown
 	}
 
 	if item.BudgetID != 0 {
@@ -613,33 +632,38 @@ func buildExternalReallocationItem(item structs.ExternalReallocationItem, r *Res
 	}
 
 	if item.SourceAccountID != 0 {
-		value, err := r.Repo.GetAccountItemByID(item.SourceAccountID)
+		value, _ := r.Repo.GetAccountItemByID(item.SourceAccountID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+		*/
+		if value != nil {
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
+			response.SourceAccount = dropdown
 		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
-
-		response.SourceAccount = dropdown
 	}
 
 	if item.DestinationAccountID != 0 {
-		value, err := r.Repo.GetAccountItemByID(item.DestinationAccountID)
+		value, _ := r.Repo.GetAccountItemByID(item.DestinationAccountID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get account item by id")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
 
-		response.DestinationAccount = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.DestinationAccount = dropdown
+		}
 	}
 
 	return &response, nil

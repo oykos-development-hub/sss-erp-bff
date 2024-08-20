@@ -176,11 +176,11 @@ func (r *Resolver) PublicProcurementPlanInsertResolver(params graphql.ResolvePar
 
 		if oldPlan.DateOfPublishing == nil && data.DateOfPublishing != nil {
 			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-			targetUsers, err := r.Repo.GetUsersByPermission(config.PublicProcurementPlan, config.OperationRead)
-			if err != nil {
+			targetUsers, _ := r.Repo.GetUsersByPermission(config.PublicProcurementPlan, config.OperationRead)
+			/*if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
-			}
+			}*/
 			plan, _ := r.Repo.GetProcurementPlan(data.ID)
 			planData := dto.ProcurementPlanNotification{
 				ID:          plan.ID,
@@ -397,11 +397,11 @@ func BuildStatus(context context.Context, r *Resolver, plan *structs.PublicProcu
 
 	loggedInUser := context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
-	hasPermission, err := r.HasPermission(*loggedInUser, string(config.PublicProcurementPlan), config.OperationFullAccess)
+	hasPermission, _ := r.HasPermission(*loggedInUser, string(config.PublicProcurementPlan), config.OperationFullAccess)
 
-	if err != nil {
+	/*if err != nil {
 		return "", errors.Wrap(err, "repo has permission")
-	}
+	}*/
 
 	if !hasPermission {
 		if organizationUnitID == nil {

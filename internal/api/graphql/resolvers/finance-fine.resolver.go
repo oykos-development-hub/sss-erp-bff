@@ -208,63 +208,75 @@ func buildFineResponseItem(fine structs.Fine, r *Resolver) (*dto.FineResponseIte
 
 	if len(fine.File) > 0 {
 		for _, fileID := range fine.File {
-			file, err := r.Repo.GetFileByID(fileID)
+			file, _ := r.Repo.GetFileByID(fileID)
 
-			if err != nil {
+			/*if err != nil {
 				return nil, errors.Wrap(err, "repo get file by id")
-			}
+			}*/
 
-			FileDropdown := dto.FileDropdownSimple{
-				ID:   file.ID,
-				Name: file.Name,
-				Type: *file.Type,
+			if file != nil {
+
+				FileDropdown := dto.FileDropdownSimple{
+					ID:   file.ID,
+					Name: file.Name,
+					Type: *file.Type,
+				}
+				response.File = append(response.File, FileDropdown)
 			}
-			response.File = append(response.File, FileDropdown)
 		}
 	}
 
 	if fine.AccountID != 0 {
-		account, err := r.Repo.GetAccountItemByID(fine.AccountID)
+		account, _ := r.Repo.GetAccountItemByID(fine.AccountID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get account item by id")
-		}
+		}*/
 
-		accountDropdown := dto.DropdownSimple{
-			ID:    account.ID,
-			Title: account.Title,
+		if account != nil {
+
+			accountDropdown := dto.DropdownSimple{
+				ID:    account.ID,
+				Title: account.Title,
+			}
+			response.Account = accountDropdown
 		}
-		response.Account = accountDropdown
 	}
 
 	if fine.CourtAccountID != nil {
-		courtAccount, err := r.Repo.GetAccountItemByID(*fine.CourtAccountID)
+		courtAccount, _ := r.Repo.GetAccountItemByID(*fine.CourtAccountID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get account item by id")
-		}
+		}*/
 
-		courtAccountDropdown := &dto.DropdownSimple{
-			ID:    courtAccount.ID,
-			Title: courtAccount.Title,
+		if courtAccount != nil {
+
+			courtAccountDropdown := &dto.DropdownSimple{
+				ID:    courtAccount.ID,
+				Title: courtAccount.Title,
+			}
+			response.CourtAccount = courtAccountDropdown
 		}
-		response.CourtAccount = courtAccountDropdown
 	}
 
 	if fine.OrganizationUnitID != 0 {
-		organizationUnit, err := r.Repo.GetOrganizationUnitByID(fine.OrganizationUnitID)
-		if err != nil {
+		organizationUnit, _ := r.Repo.GetOrganizationUnitByID(fine.OrganizationUnitID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
+		}*/
+
+		if organizationUnit != nil {
+
+			orgUnitDropdown := dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			}
+
+			response.OrganizationUnit = orgUnitDropdown
 		}
 
-		orgUnitDropdown := dto.DropdownSimple{
-			ID:    organizationUnit.ID,
-			Title: organizationUnit.Title,
-		}
-
-		response.OrganizationUnit = orgUnitDropdown
 	}
-
 	return &response, nil
 }
 

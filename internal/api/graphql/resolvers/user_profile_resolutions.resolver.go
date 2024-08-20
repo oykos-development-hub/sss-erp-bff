@@ -128,17 +128,19 @@ func buildResolutionResItem(r repository.MicroserviceRepositoryInterface, item *
 	var file dto.FileDropdownSimple
 
 	if item.FileID > 0 {
-		res, err := r.GetFileByID(item.FileID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		res, _ := r.GetFileByID(item.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if res != nil {
+			file.ID = res.ID
+			file.Name = res.Name
+			file.Type = *res.Type
 		}
 
-		file.ID = res.ID
-		file.Name = res.Name
-		file.Type = *res.Type
 	}
-
 	return &dto.Resolution{
 		ID:                item.ID,
 		ResolutionPurpose: item.ResolutionPurpose,

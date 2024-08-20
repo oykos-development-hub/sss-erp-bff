@@ -524,48 +524,59 @@ func buildFixedDeposit(item structs.FixedDeposit, r *Resolver) (*dto.FixedDeposi
 	}
 
 	if item.OrganizationUnitID != 0 {
-		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		orgUnit, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get organization unit by id")
+		/*	if err != nil {
+				return nil, errors.Wrap(err, "repo get organization unit by id")
+			}
+		*/
+		if orgUnit != nil {
+			response.OrganizationUnit.ID = orgUnit.ID
+			response.OrganizationUnit.Title = orgUnit.Title
 		}
-
-		response.OrganizationUnit.ID = orgUnit.ID
-		response.OrganizationUnit.Title = orgUnit.Title
 	}
 
 	if item.JudgeID != 0 {
-		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
+		judge, _ := r.Repo.GetUserProfileByID(item.JudgeID)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get user profile by id")
+		/*		if err != nil {
+				return nil, errors.Wrap(err, "repo get user profile by id")
+			}*/
+
+		if judge != nil {
+
+			response.Judge.ID = judge.ID
+			response.Judge.Title = judge.FirstName + " " + judge.LastName
 		}
-
-		response.Judge.ID = judge.ID
-		response.Judge.Title = judge.FirstName + " " + judge.LastName
 	}
 
 	if item.AccountID != 0 {
-		account, err := r.Repo.GetAccountItemByID(item.AccountID)
+		account, _ := r.Repo.GetAccountItemByID(item.AccountID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get account item by id")
-		}
+		}*/
 
-		response.Account.ID = account.ID
-		response.Account.Title = account.Title
+		if account != nil {
+
+			response.Account.ID = account.ID
+			response.Account.Title = account.Title
+		}
 	}
 
 	if item.FileID != 0 {
-		file, err := r.Repo.GetFileByID(item.FileID)
+		file, _ := r.Repo.GetFileByID(item.FileID)
 
-		if err != nil {
+		/*	if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
-		}
+		}*/
 
-		response.File.ID = file.ID
-		response.File.Name = file.Name
-		response.File.Type = *file.Type
+		if file != nil {
+
+			response.File.ID = file.ID
+			response.File.Name = file.Name
+			response.File.Type = *file.Type
+		}
 	}
 
 	for _, itemFixed := range item.Items {
@@ -618,26 +629,32 @@ func buildFixedDepositWill(item structs.FixedDepositWill, r *Resolver) (*dto.Fix
 	}
 
 	if item.OrganizationUnitID != 0 {
-		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get organization unit by id")
+		orgUnit, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get organization unit by id")
+			}
+		*/
+		if orgUnit != nil {
+			response.OrganizationUnit.ID = orgUnit.ID
+			response.OrganizationUnit.Title = orgUnit.Title
 		}
-
-		response.OrganizationUnit.ID = orgUnit.ID
-		response.OrganizationUnit.Title = orgUnit.Title
 	}
 
 	if item.FileID != 0 {
-		file, err := r.Repo.GetFileByID(item.FileID)
+		file, _ := r.Repo.GetFileByID(item.FileID)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}*/
+
+		if file != nil {
+
+			response.File.ID = file.ID
+			response.File.Name = file.Name
+			response.File.Type = *file.Type
 		}
-
-		response.File.ID = file.ID
-		response.File.Name = file.Name
-		response.File.Type = *file.Type
 	}
 
 	for _, dispatch := range item.Dispatches {
@@ -678,50 +695,57 @@ func buildFixedDepositItem(item structs.FixedDepositItem, r *Resolver) (*dto.Fix
 	}
 
 	if item.CategoryID != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(item.CategoryID)
+		setting, _ := r.Repo.GetDropdownSettingByID(item.CategoryID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get dropdown setting by id")
-		}
+		}*/
 
-		response.Category.ID = setting.ID
-		response.Category.Title = setting.Title
+		if setting != nil {
+
+			response.Category.ID = setting.ID
+			response.Category.Title = setting.Title
+		}
 	}
 
 	if item.TypeID != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(item.TypeID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get dropdown setting by id")
+		setting, _ := r.Repo.GetDropdownSettingByID(item.TypeID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get dropdown setting by id")
+			}
+		*/
+		if setting != nil {
+			response.Type.ID = setting.ID
+			response.Type.Title = setting.Title
 		}
-
-		response.Type.ID = setting.ID
-		response.Type.Title = setting.Title
 	}
-
 	if item.FileID != 0 {
-		file, err := r.Repo.GetFileByID(item.FileID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		file, _ := r.Repo.GetFileByID(item.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if file != nil {
+			response.File.ID = file.ID
+			response.File.Name = file.Name
+			response.File.Type = *file.Type
 		}
-
-		response.File.ID = file.ID
-		response.File.Name = file.Name
-		response.File.Type = *file.Type
 	}
 
 	if item.JudgeID != 0 {
-		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get user profile by id")
+		judge, _ := r.Repo.GetUserProfileByID(item.JudgeID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get user profile by id")
+			}
+		*/
+		if judge != nil {
+			response.Judge.ID = judge.ID
+			response.Judge.Title = judge.FirstName + " " + judge.LastName
 		}
-
-		response.Judge.ID = judge.ID
-		response.Judge.Title = judge.FirstName + " " + judge.LastName
 	}
-
 	return &response, nil
 }
 
@@ -742,48 +766,54 @@ func buildFixedDepositDispatches(item structs.FixedDepositDispatch, r *Resolver)
 	}
 
 	if item.CategoryID != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(item.CategoryID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get dropdown setting by id")
+		setting, _ := r.Repo.GetDropdownSettingByID(item.CategoryID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get dropdown setting by id")
+			}
+		*/
+		if setting != nil {
+			response.Category.ID = setting.ID
+			response.Category.Title = setting.Title
 		}
-
-		response.Category.ID = setting.ID
-		response.Category.Title = setting.Title
 	}
-
 	if item.TypeID != 0 {
-		setting, err := r.Repo.GetDropdownSettingByID(item.TypeID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get dropdown setting by id")
+		setting, _ := r.Repo.GetDropdownSettingByID(item.TypeID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get dropdown setting by id")
+			}
+		*/
+		if setting != nil {
+			response.Type.ID = setting.ID
+			response.Type.Title = setting.Title
 		}
-
-		response.Type.ID = setting.ID
-		response.Type.Title = setting.Title
 	}
-
 	if item.FileID != 0 {
-		file, err := r.Repo.GetFileByID(item.FileID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		file, _ := r.Repo.GetFileByID(item.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if file != nil {
+			response.File.ID = file.ID
+			response.File.Name = file.Name
+			response.File.Type = *file.Type
 		}
-
-		response.File.ID = file.ID
-		response.File.Name = file.Name
-		response.File.Type = *file.Type
 	}
 
 	if item.JudgeID != 0 {
-		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get user profile by id")
+		judge, _ := r.Repo.GetUserProfileByID(item.JudgeID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get user profile by id")
+			}
+		*/
+		if judge != nil {
+			response.Judge.ID = judge.ID
+			response.Judge.Title = judge.FirstName + " " + judge.LastName
 		}
-
-		response.Judge.ID = judge.ID
-		response.Judge.Title = judge.FirstName + " " + judge.LastName
 	}
 
 	return &response, nil
@@ -801,28 +831,31 @@ func buildFixedDepositWillDispatches(item structs.FixedDepositWillDispatch, r *R
 	}
 
 	if item.FileID != 0 {
-		file, err := r.Repo.GetFileByID(item.FileID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		file, _ := r.Repo.GetFileByID(item.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if file != nil {
+			response.File.ID = file.ID
+			response.File.Name = file.Name
+			response.File.Type = *file.Type
 		}
-
-		response.File.ID = file.ID
-		response.File.Name = file.Name
-		response.File.Type = *file.Type
 	}
 
 	if item.JudgeID != 0 {
-		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get user profile by id")
+		judge, _ := r.Repo.GetUserProfileByID(item.JudgeID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get user profile by id")
+			}
+		*/
+		if judge != nil {
+			response.Judge.ID = judge.ID
+			response.Judge.Title = judge.FirstName + " " + judge.LastName
 		}
-
-		response.Judge.ID = judge.ID
-		response.Judge.Title = judge.FirstName + " " + judge.LastName
 	}
-
 	return &response, nil
 }
 
@@ -838,27 +871,29 @@ func buildFixedDepositJudges(item structs.FixedDepositJudge, r *Resolver) (*dto.
 	}
 
 	if item.FileID != 0 {
-		file, err := r.Repo.GetFileByID(item.FileID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		file, _ := r.Repo.GetFileByID(item.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if file != nil {
+			response.File.ID = file.ID
+			response.File.Name = file.Name
+			response.File.Type = *file.Type
 		}
-
-		response.File.ID = file.ID
-		response.File.Name = file.Name
-		response.File.Type = *file.Type
 	}
-
 	if item.JudgeID != 0 {
-		judge, err := r.Repo.GetUserProfileByID(item.JudgeID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get user profile by id")
+		judge, _ := r.Repo.GetUserProfileByID(item.JudgeID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get user profile by id")
+			}
+		*/
+		if judge != nil {
+			response.Judge.ID = judge.ID
+			response.Judge.Title = judge.FirstName + " " + judge.LastName
 		}
-
-		response.Judge.ID = judge.ID
-		response.Judge.Title = judge.FirstName + " " + judge.LastName
 	}
-
 	return &response, nil
 }

@@ -207,61 +207,71 @@ func buildProcedureCostResponseItem(procedurecost structs.ProcedureCost, r *Reso
 
 	if len(procedurecost.File) > 0 {
 		for _, fileID := range procedurecost.File {
-			file, err := r.Repo.GetFileByID(fileID)
-
-			if err != nil {
-				return nil, errors.Wrap(err, "repo get file by id")
+			file, _ := r.Repo.GetFileByID(fileID)
+			/*
+				if err != nil {
+					return nil, errors.Wrap(err, "repo get file by id")
+				}
+			*/
+			if file != nil {
+				FileDropdown := dto.FileDropdownSimple{
+					ID:   file.ID,
+					Name: file.Name,
+					Type: *file.Type,
+				}
+				response.File = append(response.File, FileDropdown)
 			}
-
-			FileDropdown := dto.FileDropdownSimple{
-				ID:   file.ID,
-				Name: file.Name,
-				Type: *file.Type,
-			}
-			response.File = append(response.File, FileDropdown)
 		}
 	}
 
 	if procedurecost.AccountID != 0 {
-		account, err := r.Repo.GetAccountItemByID(procedurecost.AccountID)
+		account, _ := r.Repo.GetAccountItemByID(procedurecost.AccountID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
-		}
+		if account != nil {
 
-		accountDropdown := dto.DropdownSimple{
-			ID:    account.ID,
-			Title: account.Title,
+			accountDropdown := dto.DropdownSimple{
+				ID:    account.ID,
+				Title: account.Title,
+			}
+			response.Account = accountDropdown
 		}
-		response.Account = accountDropdown
 	}
 
 	if procedurecost.CourtAccountID != nil {
-		courtAccount, err := r.Repo.GetAccountItemByID(*procedurecost.CourtAccountID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
+		courtAccount, _ := r.Repo.GetAccountItemByID(*procedurecost.CourtAccountID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+		*/
+		if courtAccount != nil {
+			courtAccountDropdown := &dto.DropdownSimple{
+				ID:    courtAccount.ID,
+				Title: courtAccount.Title,
+			}
+			response.CourtAccount = courtAccountDropdown
 		}
-
-		courtAccountDropdown := &dto.DropdownSimple{
-			ID:    courtAccount.ID,
-			Title: courtAccount.Title,
-		}
-		response.CourtAccount = courtAccountDropdown
 	}
 
 	if procedurecost.OrganizationUnitID != 0 {
-		organizationUnit, err := r.Repo.GetOrganizationUnitByID(procedurecost.OrganizationUnitID)
-		if err != nil {
+		organizationUnit, _ := r.Repo.GetOrganizationUnitByID(procedurecost.OrganizationUnitID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		orgUnitDropdown := dto.DropdownSimple{
-			ID:    organizationUnit.ID,
-			Title: organizationUnit.Title,
-		}
+		if organizationUnit != nil {
 
-		response.OrganizationUnit = orgUnitDropdown
+			orgUnitDropdown := dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			}
+
+			response.OrganizationUnit = orgUnitDropdown
+		}
 	}
 
 	return &response, nil

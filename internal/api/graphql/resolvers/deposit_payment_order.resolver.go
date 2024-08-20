@@ -207,18 +207,21 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 	}
 
 	if item.MunicipalityID != nil && *item.MunicipalityID != 0 {
-		supplier, err := r.Repo.GetSupplier(*item.MunicipalityID)
+		supplier, _ := r.Repo.GetSupplier(*item.MunicipalityID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get supplier")
-		}
+		}*/
 
-		supplierDropdown := dto.DropdownSimple{
-			ID:    supplier.ID,
-			Title: supplier.Title,
-		}
+		if supplier != nil {
 
-		response.Municipality = supplierDropdown
+			supplierDropdown := dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			}
+
+			response.Municipality = supplierDropdown
+		}
 	}
 
 	if item.TaxAuthorityCodebookID != nil && *item.TaxAuthorityCodebookID != 0 {
@@ -237,48 +240,56 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 	}
 
 	if item.OrganizationUnitID != 0 {
-		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		value, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
 
-		response.OrganizationUnit = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.OrganizationUnit = dropdown
+		}
 	}
 
 	if item.SupplierID != 0 {
-		value, err := r.Repo.GetSupplier(item.SupplierID)
+		value, _ := r.Repo.GetSupplier(item.SupplierID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get supplier")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
 
-		response.Supplier = dropdown
+			response.Supplier = dropdown
+		}
 	}
 
 	if item.SubjectTypeID != 0 {
-		value, err := r.Repo.GetSupplier(item.SubjectTypeID)
+		value, _ := r.Repo.GetSupplier(item.SubjectTypeID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get supplier")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
 
-		response.SubjectType = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.SubjectType = dropdown
+		}
 	}
 
 	for _, additionalExpense := range item.AdditionalExpenses {
@@ -302,18 +313,21 @@ func buildDepositPaymentOrder(item structs.DepositPaymentOrder, r *Resolver) (*d
 	}
 
 	if item.FileID != 0 {
-		file, err := r.Repo.GetFileByID(item.FileID)
+		file, _ := r.Repo.GetFileByID(item.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
-		}
-		fileDropdown := dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
-		}
+		if file != nil {
+			fileDropdown := dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			}
 
-		response.File = fileDropdown
+			response.File = fileDropdown
+		}
 	}
 
 	return &response, nil
@@ -408,15 +422,17 @@ func buildDepositPaymentAdditionalExpense(r *Resolver, item structs.DepositPayme
 	}
 
 	if item.AccountID != 0 {
-		account, err := r.Repo.GetAccountItemByID(item.AccountID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
-		}
-
-		response.Account = dto.DropdownSimple{
-			ID:    account.ID,
-			Title: account.Title,
+		account, _ := r.Repo.GetAccountItemByID(item.AccountID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+		*/
+		if account != nil {
+			response.Account = dto.DropdownSimple{
+				ID:    account.ID,
+				Title: account.Title,
+			}
 		}
 	}
 
@@ -433,26 +449,31 @@ func buildDepositPaymentAdditionalExpense(r *Resolver, item structs.DepositPayme
 	}
 
 	if item.SubjectID != 0 {
-		supplier, err := r.Repo.GetSupplier(item.SubjectID)
-		if err != nil {
+		supplier, _ := r.Repo.GetSupplier(item.SubjectID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get supplier")
-		}
+		}*/
 
-		response.Subject = dto.DropdownSimple{
-			ID:    supplier.ID,
-			Title: supplier.Title,
+		if supplier != nil {
+			response.Subject = dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			}
 		}
 	}
 
 	if item.OrganizationUnitID != 0 {
-		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
-		if err != nil {
+		orgUnit, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		response.OrganizationUnit = dto.DropdownSimple{
-			ID:    orgUnit.ID,
-			Title: orgUnit.Title,
+		if orgUnit != nil {
+
+			response.OrganizationUnit = dto.DropdownSimple{
+				ID:    orgUnit.ID,
+				Title: orgUnit.Title,
+			}
 		}
 	}
 	return &response, nil

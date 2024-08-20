@@ -219,47 +219,55 @@ func buildFeeResponseItem(fee structs.Fee, r *Resolver) (*dto.FeeResponseItem, e
 
 	if len(fee.File) > 0 {
 		for _, fileID := range fee.File {
-			file, err := r.Repo.GetFileByID(fileID)
+			file, _ := r.Repo.GetFileByID(fileID)
+			/*
+				if err != nil {
+					return nil, err
+				}
+			*/
 
-			if err != nil {
-				return nil, err
+			if file != nil {
+				FileDropdown := dto.FileDropdownSimple{
+					ID:   file.ID,
+					Name: file.Name,
+					Type: *file.Type,
+				}
+				response.File = append(response.File, FileDropdown)
 			}
-
-			FileDropdown := dto.FileDropdownSimple{
-				ID:   file.ID,
-				Name: file.Name,
-				Type: *file.Type,
-			}
-			response.File = append(response.File, FileDropdown)
 		}
 	}
 
 	if fee.CourtAccountID != nil {
-		courtAccount, err := r.Repo.GetAccountItemByID(*fee.CourtAccountID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
+		courtAccount, _ := r.Repo.GetAccountItemByID(*fee.CourtAccountID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+		*/
+		if courtAccount != nil {
+			courtAccountDropdown := &dto.DropdownSimple{
+				ID:    courtAccount.ID,
+				Title: courtAccount.Title,
+			}
+			response.CourtAccount = courtAccountDropdown
 		}
-
-		courtAccountDropdown := &dto.DropdownSimple{
-			ID:    courtAccount.ID,
-			Title: courtAccount.Title,
-		}
-		response.CourtAccount = courtAccountDropdown
 	}
 
 	if fee.OrganizationUnitID != 0 {
-		organizationUnit, err := r.Repo.GetOrganizationUnitByID(fee.OrganizationUnitID)
-		if err != nil {
+		organizationUnit, _ := r.Repo.GetOrganizationUnitByID(fee.OrganizationUnitID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		orgUnitDropdown := dto.DropdownSimple{
-			ID:    organizationUnit.ID,
-			Title: organizationUnit.Title,
-		}
+		if organizationUnit != nil {
 
-		response.OrganizationUnit = orgUnitDropdown
+			orgUnitDropdown := dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			}
+
+			response.OrganizationUnit = orgUnitDropdown
+		}
 	}
 
 	return &response, nil

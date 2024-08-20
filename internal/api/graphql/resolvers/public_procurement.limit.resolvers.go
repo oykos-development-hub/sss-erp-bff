@@ -97,13 +97,18 @@ func buildProcurementOULimitResponseItem(r repository.MicroserviceRepositoryInte
 		Title: item.Title,
 	}
 
-	organization, err := r.GetOrganizationUnitByID(limit.OrganizationUnitID)
-	if err != nil {
+	organization, _ := r.GetOrganizationUnitByID(limit.OrganizationUnitID)
+	/*if err != nil {
 		return nil, errors.Wrap(err, "repo get organization unit by id")
-	}
-	organizationDropdown := dto.DropdownSimple{
-		ID:    organization.ID,
-		Title: organization.Title,
+	}*/
+
+	var organizationDropdown dto.DropdownSimple
+
+	if organization != nil {
+		organizationDropdown = dto.DropdownSimple{
+			ID:    organization.ID,
+			Title: organization.Title,
+		}
 	}
 
 	res := dto.ProcurementOULimitResponseItem{

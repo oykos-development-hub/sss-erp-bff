@@ -298,14 +298,17 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 	}
 
 	if systematization.FileID != 0 {
-		file, err := r.GetFileByID(systematization.FileID)
-		if err != nil {
+		file, _ := r.GetFileByID(systematization.FileID)
+		/*if err != nil {
 			return result, errors.Wrap(err, "repo get file by id")
-		}
-		result.File = dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
+		}*/
+
+		if file != nil {
+			result.File = dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			}
 		}
 	}
 

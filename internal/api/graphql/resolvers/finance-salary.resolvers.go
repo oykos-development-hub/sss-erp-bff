@@ -176,23 +176,29 @@ func buildSalary(item structs.Salary, r *Resolver) (*dto.SalaryResponse, error) 
 	}
 
 	if item.ActivityID != 0 {
-		activity, err := r.Repo.GetActivity(item.ActivityID)
-		if err != nil {
+		activity, _ := r.Repo.GetActivity(item.ActivityID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get activity")
-		}
+		}*/
 
-		response.Activity.ID = activity.ID
-		response.Activity.Title = activity.Title
+		if activity != nil {
+
+			response.Activity.ID = activity.ID
+			response.Activity.Title = activity.Title
+		}
 	}
 
 	if item.OrganizationUnitID != 0 {
-		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
-		if err != nil {
+		orgUnit, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		response.OrganizationUnit.ID = orgUnit.ID
-		response.OrganizationUnit.Title = orgUnit.Title
+		if orgUnit != nil {
+
+			response.OrganizationUnit.ID = orgUnit.ID
+			response.OrganizationUnit.Title = orgUnit.Title
+		}
 	}
 
 	for _, additionalExpense := range item.SalaryAdditionalExpenses {
@@ -242,44 +248,56 @@ func buildSalaryAdditionalExpense(item structs.SalaryAdditionalExpense, r *Resol
 	}
 
 	if item.OrganizationUnitID != 0 {
-		orgUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
-		if err != nil {
+		orgUnit, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		response.OrganizationUnit.ID = orgUnit.ID
-		response.OrganizationUnit.Title = orgUnit.Title
+		if orgUnit != nil {
+
+			response.OrganizationUnit.ID = orgUnit.ID
+			response.OrganizationUnit.Title = orgUnit.Title
+		}
 	}
 
 	if item.AccountID != 0 {
-		account, err := r.Repo.GetAccountItemByID(item.AccountID)
-		if err != nil {
+		account, _ := r.Repo.GetAccountItemByID(item.AccountID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get account item by id")
-		}
+		}*/
 
-		response.Account.ID = account.ID
-		response.Account.Title = account.Title
+		if account != nil {
+
+			response.Account.ID = account.ID
+			response.Account.Title = account.Title
+		}
 	}
 
 	if item.SubjectID != 0 {
-		subject, err := r.Repo.GetSupplier(item.SubjectID)
+		subject, _ := r.Repo.GetSupplier(item.SubjectID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get supplier")
-		}
+		}*/
 
-		response.Subject.ID = subject.ID
-		response.Subject.Title = subject.Title
+		if subject != nil {
+
+			response.Subject.ID = subject.ID
+			response.Subject.Title = subject.Title
+		}
 	}
 
 	if item.DebtorID != 0 {
-		debtor, err := r.Repo.GetUserProfileByID(item.DebtorID)
-		if err != nil {
+		debtor, _ := r.Repo.GetUserProfileByID(item.DebtorID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get user profile by id")
-		}
+		}*/
 
-		response.Debtor.ID = debtor.ID
-		response.Debtor.Title = debtor.FirstName + " " + debtor.LastName
+		if debtor != nil {
+
+			response.Debtor.ID = debtor.ID
+			response.Debtor.Title = debtor.FirstName + " " + debtor.LastName
+		}
 	}
 
 	return &response, nil

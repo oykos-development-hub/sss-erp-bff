@@ -107,10 +107,10 @@ func BuildAssessmentResponse(
 	r repository.MicroserviceRepositoryInterface,
 	item *structs.BasicInventoryAssessmentsTypesItem,
 ) (*dto.BasicInventoryResponseAssessment, error) {
-	settings, err := r.GetDropdownSettingByID(item.DepreciationTypeID)
-	if err != nil {
+	settings, _ := r.GetDropdownSettingByID(item.DepreciationTypeID)
+	/*if err != nil {
 		return nil, errors.Wrap(err, "repo get dropdown setting by id")
-	}
+	}*/
 
 	settingDropdownDepreciationTypeID := dto.DropdownSimple{}
 	if settings != nil {
@@ -120,12 +120,15 @@ func BuildAssessmentResponse(
 
 	userDropdown := dto.DropdownSimple{}
 	if item.UserProfileID != 0 {
-		user, err := r.GetUserProfileByID(item.UserProfileID)
-		if err != nil {
+		user, _ := r.GetUserProfileByID(item.UserProfileID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get user profile by id")
+		}*/
+
+		if user != nil {
+			userDropdown.ID = user.ID
+			userDropdown.Title = user.FirstName + " " + user.LastName
 		}
-		userDropdown.ID = user.ID
-		userDropdown.Title = user.FirstName + " " + user.LastName
 	}
 
 	if item.EstimatedDuration == 0 {

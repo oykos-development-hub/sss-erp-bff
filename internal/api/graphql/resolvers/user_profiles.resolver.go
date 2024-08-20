@@ -140,17 +140,21 @@ func buildUserProfileOverviewResponse(
 		jobPositionDropdown      structs.SettingsDropdown
 		isJudge, isPresident     bool
 	)
-	account, err := r.GetUserAccountByID(profile.UserAccountID)
-	if err != nil {
-		return nil, errors.Wrap(err, "repo get user account by id")
-	}
+	account, _ := r.GetUserAccountByID(profile.UserAccountID)
+	/*	if err != nil {
+			return nil, errors.Wrap(err, "repo get user account by id")
+		}
+	*/
 
 	var role *structs.Roles
 
-	if account.RoleID != nil && *account.RoleID != 0 {
-		role, err = r.GetRole(*account.RoleID)
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get role")
+	if account != nil {
+
+		if account.RoleID != nil && *account.RoleID != 0 {
+			role, _ = r.GetRole(*account.RoleID)
+			/*	if err != nil {
+				return nil, errors.Wrap(err, "repo get role")
+			}*/
 		}
 	}
 
@@ -736,10 +740,10 @@ func (r *Resolver) UserProfileContractDeleteResolver(params graphql.ResolveParam
 }
 
 func buildEducationResItem(r repository.MicroserviceRepositoryInterface, education structs.Education) (*dto.Education, error) {
-	educationType, err := r.GetDropdownSettingByID(education.TypeID)
-	if err != nil {
+	educationType, _ := r.GetDropdownSettingByID(education.TypeID)
+	/*if err != nil {
 		return nil, errors.Wrap(err, "repo get dropdown setting by id")
-	}
+	}*/
 
 	educationResItem := &dto.Education{
 		ID:                  education.ID,
@@ -758,16 +762,23 @@ func buildEducationResItem(r repository.MicroserviceRepositoryInterface, educati
 		ExpertiseLevel:      education.ExpertiseLevel,
 	}
 
-	educationResItem.Type = dto.DropdownSimple{ID: educationType.ID, Title: educationType.Title}
+	if educationType != nil {
+
+		educationResItem.Type = dto.DropdownSimple{ID: educationType.ID, Title: educationType.Title}
+	}
+
 	if education.FileID != 0 {
-		file, err := r.GetFileByID(education.FileID)
-		if err != nil {
+		file, _ := r.GetFileByID(education.FileID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
-		}
-		educationResItem.File = dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
+		}*/
+
+		if file != nil {
+			educationResItem.File = dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			}
 		}
 	}
 
@@ -998,17 +1009,20 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 	var fileDropdown dto.FileDropdownSimple
 
 	if item.ReferenceFileID != 0 {
-		file, err := repo.GetFileByID(item.ReferenceFileID)
+		file, _ := repo.GetFileByID(item.ReferenceFileID)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
-		}
+		/*	if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
 
-		fileDropdown.ID = file.ID
-		fileDropdown.Name = file.Name
+		if file != nil {
+			fileDropdown.ID = file.ID
+			fileDropdown.Name = file.Name
 
-		if file.Type != nil {
-			fileDropdown.Type = *file.Type
+			if file.Type != nil {
+				fileDropdown.Type = *file.Type
+			}
 		}
 	}
 
@@ -1169,15 +1183,18 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 	var file dto.FileDropdownSimple
 
 	if contract.FileID != nil && *contract.FileID != 0 {
-		res, err := r.GetFileByID(*contract.FileID)
+		res, _ := r.GetFileByID(*contract.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		if res != nil {
+			file.ID = res.ID
+			file.Name = res.Name
+			file.Type = *res.Type
 		}
-
-		file.ID = res.ID
-		file.Name = res.Name
-		file.Type = *res.Type
 	}
 	responseContract := &dto.Contract{
 		ID:                 contract.ID,
@@ -1201,11 +1218,15 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 		File:               file,
 	}
 
-	contractType, err := r.GetDropdownSettingByID(contract.ContractTypeID)
-	if err != nil {
+	contractType, _ := r.GetDropdownSettingByID(contract.ContractTypeID)
+	/*if err != nil {
 		return nil, errors.Wrap(err, "repo get dropdown setting by id")
 	}
-	responseContract.ContractType = dto.DropdownSimple{ID: contractType.ID, Title: contractType.Title}
+	*/
+
+	if contractType != nil {
+		responseContract.ContractType = dto.DropdownSimple{ID: contractType.ID, Title: contractType.Title}
+	}
 
 	userProfile, err := r.GetUserProfileByID(contract.UserProfileID)
 	if err != nil {
@@ -1615,21 +1636,18 @@ func (r *Resolver) buildDataForTemplate(id int) (*dto.UserDataForTemplate, error
 			startDay, startMonth, startYear := contractStartDateTime.Day(), contractStartDateTime.Month(), contractStartDateTime.Year()
 			endDay, endMonth, endYear := time.Now().Day(), time.Now().Month(), time.Now().Year()
 
-			// Izračunajte razliku u danima
 			dayDiff := endDay - startDay
 			if dayDiff < 0 {
 				dayDiff += 30
 				endMonth--
 			}
 
-			// Izračunajte razliku u mjesecima
 			monthDiff := int(endMonth) - int(startMonth)
 			if monthDiff < 0 {
 				monthDiff += 12
 				endYear--
 			}
 
-			// Izračunajte razliku u godinama
 			yearDiff := endYear - startYear
 
 			yearsOfExperienceInt += yearDiff

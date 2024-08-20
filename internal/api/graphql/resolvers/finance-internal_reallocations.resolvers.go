@@ -171,49 +171,57 @@ func buildInternalReallocation(item structs.InternalReallocation, r *Resolver) (
 	}
 
 	if item.OrganizationUnitID != 0 {
-		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		value, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
 
-		response.OrganizationUnit = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.OrganizationUnit = dropdown
+		}
 	}
 
 	if item.RequestedBy != 0 {
-		value, err := r.Repo.GetUserProfileByID(item.RequestedBy)
+		value, _ := r.Repo.GetUserProfileByID(item.RequestedBy)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get user profile by id")
+		/*		if err != nil {
+				return nil, errors.Wrap(err, "repo get user profile by id")
+			}*/
+
+		if value != nil {
+
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.FirstName + " " + value.LastName,
+			}
+
+			response.RequestedBy = dropdown
 		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.FirstName + " " + value.LastName,
-		}
-
-		response.RequestedBy = dropdown
 	}
 
 	if item.FileID != 0 {
-		value, err := r.Repo.GetFileByID(item.FileID)
+		value, _ := r.Repo.GetFileByID(item.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if value != nil {
+			dropdown := dto.FileDropdownSimple{
+				ID:   value.ID,
+				Name: value.Name,
+				Type: *value.Type,
+			}
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+			response.File = dropdown
 		}
-
-		dropdown := dto.FileDropdownSimple{
-			ID:   value.ID,
-			Name: value.Name,
-			Type: *value.Type,
-		}
-
-		response.File = dropdown
 	}
 
 	if item.BudgetID != 0 {
@@ -251,33 +259,37 @@ func buildInternalReallocationItem(item structs.InternalReallocationItem, r *Res
 	}
 
 	if item.SourceAccountID != 0 {
-		value, err := r.Repo.GetAccountItemByID(item.SourceAccountID)
+		value, _ := r.Repo.GetAccountItemByID(item.SourceAccountID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+		*/
+		if value != nil {
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
+			response.SourceAccount = dropdown
 		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
-
-		response.SourceAccount = dropdown
 	}
 
 	if item.DestinationAccountID != 0 {
-		value, err := r.Repo.GetAccountItemByID(item.DestinationAccountID)
+		value, _ := r.Repo.GetAccountItemByID(item.DestinationAccountID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+		*/
+		if value != nil {
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
+			response.DestinationAccount = dropdown
 		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
-
-		response.DestinationAccount = dropdown
 	}
 
 	return &response, nil

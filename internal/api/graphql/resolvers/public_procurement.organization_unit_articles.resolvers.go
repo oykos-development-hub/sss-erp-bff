@@ -113,11 +113,11 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 
 		if notificationContent != "" {
 			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-			employees, err := GetEmployeesOfOrganizationUnit(r.Repo, data.OrganizationUnitID)
-			if err != nil {
+			employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, data.OrganizationUnitID)
+			/*if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
-			}
+			}*/
 			for _, employee := range employees {
 				employeeAccount, err := r.Repo.GetUserAccountByID(employee.UserAccountID)
 				if err != nil {
@@ -125,11 +125,11 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 					return errors.HandleAPPError(err)
 				}
 
-				targetUsers, err := r.Repo.GetUsersByPermission(config.PublicProcurementPlan, config.OperationRead)
-				if err != nil {
+				targetUsers, _ := r.Repo.GetUsersByPermission(config.PublicProcurementPlan, config.OperationRead)
+				/*if err != nil {
 					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
-				}
+				}*/
 
 				for _, user := range targetUsers {
 					if user.ID == employee.UserAccountID && loggedInUser.ID != user.ID {
@@ -220,18 +220,12 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	unitID := params.Context.Value(config.OrganizationUnitIDKey).(*int)
-	unit, err := r.Repo.GetOrganizationUnitByID(*unitID)
-	if err != nil {
-		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-		return errors.HandleAPPError(err)
-	}
 
-	targetUsers, err := r.Repo.GetUsersByPermission(config.PublicProcurementPlan, config.OperationFullAccess)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.PublicProcurementPlan, config.OperationFullAccess)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		if loggedInUser.ID != targetUser.ID {
@@ -250,14 +244,14 @@ func (r *Resolver) PublicProcurementSendPlanOnRevisionResolver(params graphql.Re
 				content = "Zahtjev je proslijeđen."
 			}
 			_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
-				Content:     content,
-				Module:      "Javne nabavke",
-				FromUserID:  loggedInUser.ID,
-				Path:        fmt.Sprintf("/procurements/plans/%d?tab=requests", planID),
-				ToUserID:    targetUser.ID,
-				FromContent: fmt.Sprintf("Menadžer %s", unit.Abbreviation),
-				IsRead:      false,
-				Data:        dataJSON,
+				Content:    content,
+				Module:     "Javne nabavke",
+				FromUserID: loggedInUser.ID,
+				Path:       fmt.Sprintf("/procurements/plans/%d?tab=requests", planID),
+				ToUserID:   targetUser.ID,
+				//FromContent: fmt.Sprintf("Menadžer %s", unit.Abbreviation),
+				IsRead: false,
+				Data:   dataJSON,
 			})
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
@@ -383,13 +377,18 @@ func buildProcurementOUArticleResponseItem(context context.Context, r *Resolver,
 		return nil, errors.Wrap(err, "build procurement article response item")
 	}
 
-	organizationUnit, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
-	if err != nil {
+	organizationUnit, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+	/*if err != nil {
 		return nil, errors.Wrap(err, "repo get organization unit by id")
-	}
-	organizationUnitDropdown := dto.DropdownSimple{
-		ID:    organizationUnit.ID,
-		Title: organizationUnit.Title,
+	}*/
+
+	var organizationUnitDropdown dto.DropdownSimple
+
+	if organizationUnit != nil {
+		organizationUnitDropdown = dto.DropdownSimple{
+			ID:    organizationUnit.ID,
+			Title: organizationUnit.Title,
+		}
 	}
 
 	res := dto.ProcurementOrganizationUnitArticleResponseItem{

@@ -278,48 +278,57 @@ func buildDepositPayment(item structs.DepositPayment, r *Resolver) (*dto.Deposit
 	}
 
 	if item.OrganizationUnitID != 0 {
-		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		value, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
 
-		response.OrganizationUnit = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.OrganizationUnit = dropdown
+		}
 	}
 
 	if item.AccountID != 0 {
-		value, err := r.Repo.GetAccountItemByID(item.AccountID)
+		value, _ := r.Repo.GetAccountItemByID(item.AccountID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get account item by id")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
 
-		response.Account = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.Account = dropdown
+		}
 	}
 
 	if item.FileID != 0 {
-		file, err := r.Repo.GetFileByID(item.FileID)
+		file, _ := r.Repo.GetFileByID(item.FileID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
-		}
-		fileDropdown := dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
-		}
+		}*/
 
-		response.File = fileDropdown
+		if file != nil {
+			fileDropdown := dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			}
+
+			response.File = fileDropdown
+		}
 	}
 
 	return &response, nil

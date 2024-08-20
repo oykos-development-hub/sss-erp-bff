@@ -190,59 +190,67 @@ func buildTaxAuthorityCodeBook(item structs.TaxAuthorityCodebook, r *Resolver) (
 	}
 
 	if item.TaxSupplierID != 0 {
-		supplier, err := r.Repo.GetSupplier(item.TaxSupplierID)
+		supplier, _ := r.Repo.GetSupplier(item.TaxSupplierID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get supplier")
+			}
+		*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get supplier")
+		if supplier != nil {
+			response.TaxSupplier.ID = supplier.ID
+			response.TaxSupplier.Title = supplier.Title
 		}
-
-		response.TaxSupplier.ID = supplier.ID
-		response.TaxSupplier.Title = supplier.Title
 	}
 
 	if item.PioSupplierID != 0 {
-		supplier, err := r.Repo.GetSupplier(item.PioSupplierID)
+		supplier, _ := r.Repo.GetSupplier(item.PioSupplierID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get supplier")
+			}
+		*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get supplier")
+		if supplier != nil {
+			response.PioSupplier.ID = supplier.ID
+			response.PioSupplier.Title = supplier.Title
 		}
-
-		response.PioSupplier.ID = supplier.ID
-		response.PioSupplier.Title = supplier.Title
 	}
-
 	if item.LaborFundSupplierID != 0 {
-		supplier, err := r.Repo.GetSupplier(item.LaborFundSupplierID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get supplier")
+		supplier, _ := r.Repo.GetSupplier(item.LaborFundSupplierID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get supplier")
+			}
+		*/
+		if supplier != nil {
+			response.LaborFundSupplier.ID = supplier.ID
+			response.LaborFundSupplier.Title = supplier.Title
 		}
-
-		response.LaborFundSupplier.ID = supplier.ID
-		response.LaborFundSupplier.Title = supplier.Title
 	}
-
 	if item.PioEmployeeSupplierID != 0 {
-		supplier, err := r.Repo.GetSupplier(item.PioEmployeeSupplierID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get supplier")
+		supplier, _ := r.Repo.GetSupplier(item.PioEmployeeSupplierID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get supplier")
+			}
+		*/
+		if supplier != nil {
+			response.PioEmployeeSupplier.ID = supplier.ID
+			response.PioEmployeeSupplier.Title = supplier.Title
 		}
-
-		response.PioEmployeeSupplier.ID = supplier.ID
-		response.PioEmployeeSupplier.Title = supplier.Title
 	}
-
 	if item.UnemploymentSupplierID != 0 {
-		supplier, err := r.Repo.GetSupplier(item.UnemploymentSupplierID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get supplier")
+		supplier, _ := r.Repo.GetSupplier(item.UnemploymentSupplierID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get supplier")
+			}
+		*/
+		if supplier != nil {
+			response.UnemploymentSupplier.ID = supplier.ID
+			response.UnemploymentSupplier.Title = supplier.Title
 		}
-
-		response.UnemploymentSupplier.ID = supplier.ID
-		response.UnemploymentSupplier.Title = supplier.Title
 	}
-
 	return response, nil
 }

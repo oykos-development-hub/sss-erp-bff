@@ -38,15 +38,15 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 			amount += articleInOrgUnit.Amount
 		}
 
-		inventors, err := r.Repo.GetAllInventoryItem(dto.InventoryItemFilter{
+		inventors, _ := r.Repo.GetAllInventoryItem(dto.InventoryItemFilter{
 			ArticleID: &article.PublicProcurementArticleID,
 		})
 
 		amount = amount - inventors.Total
-		if err != nil {
+		/*if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
-		}
+		}*/
 
 		articleData, err := r.Repo.GetProcurementArticle(article.PublicProcurementArticleID)
 		if err != nil {

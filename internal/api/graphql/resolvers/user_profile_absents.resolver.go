@@ -191,15 +191,18 @@ func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *st
 	var file dto.FileDropdownSimple
 
 	if item.FileID > 0 {
-		res, err := r.GetFileByID(item.FileID)
+		res, _ := r.GetFileByID(item.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		if res != nil {
+			file.ID = res.ID
+			file.Name = res.Name
+			file.Type = *res.Type
 		}
-
-		file.ID = res.ID
-		file.Name = res.Name
-		file.Type = *res.Type
 	}
 	return &dto.Vacation{
 		ID:                item.ID,
@@ -294,18 +297,20 @@ func (r *Resolver) UserProfileAbsentResolver(params graphql.ResolveParams) (inte
 		}
 
 		if absent.FileID > 0 {
-			res, err := r.Repo.GetFileByID(absent.FileID)
-
-			if err != nil {
-				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-				return errors.HandleAPPError(err)
+			res, _ := r.Repo.GetFileByID(absent.FileID)
+			/*
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+			*/
+			if res != nil {
+				absent.File.ID = res.ID
+				absent.File.Name = res.Name
+				absent.File.Type = *res.Type
 			}
-
-			absent.File.ID = res.ID
-			absent.File.Name = res.Name
-			absent.File.Type = *res.Type
+			absent.AbsentType = *absentType
 		}
-		absent.AbsentType = *absentType
 	}
 
 	absentSummary.CurrentAvailableDays = availableDaysOfCurrentYear
@@ -575,15 +580,17 @@ func buildAbsentResponseItem(r repository.MicroserviceRepositoryInterface, absen
 	}
 
 	if absent.FileID > 0 {
-		res, err := r.GetFileByID(absent.FileID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		res, _ := r.GetFileByID(absent.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if res != nil {
+			absent.File.ID = res.ID
+			absent.File.Name = res.Name
+			absent.File.Type = *res.Type
 		}
-
-		absent.File.ID = res.ID
-		absent.File.Name = res.Name
-		absent.File.Type = *res.Type
 	}
 
 	return &absent, nil

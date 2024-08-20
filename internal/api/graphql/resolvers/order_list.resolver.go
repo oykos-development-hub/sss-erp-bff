@@ -19,18 +19,23 @@ import (
 func processContractArticle(ctx context.Context, r *Resolver, contractArticle *structs.PublicProcurementContractArticle) (structs.OrderArticleItem, error) {
 	organizationUnitID, _ := ctx.Value(config.OrganizationUnitIDKey).(*int)
 
+	var resProcurementArticle *dto.ProcurementArticleResponseItem
+	var err error
+
 	// Get the related public procurement article details.
-	relatedPublicProcurementArticle, err := r.Repo.GetProcurementArticle(contractArticle.PublicProcurementArticleID)
-	if err != nil {
+	relatedPublicProcurementArticle, _ := r.Repo.GetProcurementArticle(contractArticle.PublicProcurementArticleID)
+	/*if err != nil {
 		return structs.OrderArticleItem{}, errors.Wrap(err, "repo get procurement article")
-	}
+	}*/
 
-	// Build response item based on the related article and possibly organization unit.
-	resProcurementArticle, err := buildProcurementArticleResponseItem(ctx, r, relatedPublicProcurementArticle, organizationUnitID)
-	if err != nil {
-		return structs.OrderArticleItem{}, errors.Wrap(err, "build procurement article response item")
-	}
+	if relatedPublicProcurementArticle != nil {
 
+		// Build response item based on the related article and possibly organization unit.
+		resProcurementArticle, err = buildProcurementArticleResponseItem(ctx, r, relatedPublicProcurementArticle, organizationUnitID)
+		if err != nil {
+			return structs.OrderArticleItem{}, errors.Wrap(err, "build procurement article response item")
+		}
+	}
 	// Determine the amount based on the organization unit.
 	amount := resProcurementArticle.Amount
 	if organizationUnitID != nil && *organizationUnitID == 0 {
@@ -38,13 +43,13 @@ func processContractArticle(ctx context.Context, r *Resolver, contractArticle *s
 	}
 
 	// Get overages for the contract article.
-	overageList, err := r.Repo.GetProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
+	overageList, _ := r.Repo.GetProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
 		ContractArticleID:  &contractArticle.ID,
 		OrganizationUnitID: organizationUnitID,
 	})
-	if err != nil {
+	/*if err != nil {
 		return structs.OrderArticleItem{}, errors.Wrap(err, "repo get procurement contract article overage list")
-	}
+	}*/
 
 	// Calculate the total overage amount.
 	overageTotal := 0
@@ -76,12 +81,12 @@ func GetProcurementArticles(ctx context.Context, r *Resolver, publicProcurementI
 	itemsMap := make(map[int]structs.OrderArticleItem)
 
 	// Get related contracts.
-	relatedContractsResponse, err := r.Repo.GetProcurementContractsList(&dto.GetProcurementContractsInput{
+	relatedContractsResponse, _ := r.Repo.GetProcurementContractsList(&dto.GetProcurementContractsInput{
 		ProcurementID: &publicProcurementID,
 	})
-	if err != nil {
+	/*if err != nil {
 		return nil, errors.Wrap(err, "repo get procurement contracts list")
-	}
+	}*/
 
 	// Process each contract.
 	for _, contract := range relatedContractsResponse.Data {
@@ -157,11 +162,11 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 		total = 1
 	} else if activePlan {
 		inputPlans := dto.GetProcurementPlansInput{}
-		plans, err := r.Repo.GetProcurementPlanList(&inputPlans)
-		if err != nil {
+		plans, _ := r.Repo.GetProcurementPlanList(&inputPlans)
+		/*if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
-		}
+		}*/
 		currentYear := time.Now().Year()
 		inputOrderList := dto.GetOrderListInput{}
 		for _, plan := range plans {
@@ -486,11 +491,11 @@ func (r *Resolver) OrderProcurementAvailableResolver(params graphql.ResolveParam
 		organizationUnitID = 0
 	}
 
-	articles, err := GetProcurementArticles(ctx, r, publicProcurementID)
-	if err != nil {
+	articles, _ := GetProcurementArticles(ctx, r, publicProcurementID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, item := range articles {
 		if visibilityType != nil && visibilityType.(int) > 0 && visibilityType.(int) != int(item.VisibilityType) {
@@ -529,10 +534,10 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, artic
 		ArticleID: &currentArticle.ID,
 	}
 
-	relatedOrderProcurementArticleResponse, err := r.GetOrderProcurementArticles(&getOrderProcurementArticleInput)
-	if err != nil {
+	relatedOrderProcurementArticleResponse, _ := r.GetOrderProcurementArticles(&getOrderProcurementArticleInput)
+	/*if err != nil {
 		return currentArticle, errors.Wrap(err, "repo get order procurement articles")
-	}
+	}*/
 
 	if relatedOrderProcurementArticleResponse.Total > 0 {
 		for _, orderArticle := range relatedOrderProcurementArticleResponse.Data {
@@ -576,11 +581,11 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, artic
 		input.OrganizationUnitID = &organizationUnitID
 	}
 
-	articleInventory, err := r.GetAllInventoryItem(input)
+	articleInventory, _ := r.GetAllInventoryItem(input)
 
-	if err != nil {
+	/*if err != nil {
 		return currentArticle, errors.Wrap(err, "repo get all inventory item")
-	}
+	}*/
 
 	numberOfArticles := len(articleInventory.Data)
 
@@ -676,11 +681,11 @@ func (r *Resolver) RecipientUsersResolver(params graphql.ResolveParams) (interfa
 		}, nil
 	}
 
-	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, *organizationUnitID)
-	if err != nil {
+	employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, *organizationUnitID)
+	/*	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 	for _, employee := range employees {
 		userProfileDropdownList = append(userProfileDropdownList, &dto.DropdownSimple{
 			ID:    employee.ID,
@@ -1185,72 +1190,78 @@ func buildOrderListResponseItem(context context.Context, r *Resolver, item *stru
 	zero := 0
 
 	if item.PublicProcurementID != nil && *item.PublicProcurementID != zero {
-		procurementItem, err := r.Repo.GetProcurementItem(*item.PublicProcurementID)
-		if err != nil {
+		procurementItem, _ := r.Repo.GetProcurementItem(*item.PublicProcurementID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get procurement item")
-		}
+		}*/
 
-		procurementDropdown.ID = procurementItem.ID
-		procurementDropdown.Title = procurementItem.Title
+		if procurementItem != nil {
+			procurementDropdown.ID = procurementItem.ID
+			procurementDropdown.Title = procurementItem.Title
 
-		contract, err := r.Repo.GetProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &procurementItem.ID})
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get procurement contracts list")
-		}
+			contract, _ := r.Repo.GetProcurementContractsList(&dto.GetProcurementContractsInput{ProcurementID: &procurementItem.ID})
+			/*if err != nil {
+				return nil, errors.Wrap(err, "repo get procurement contracts list")
+			}*/
 
-		supplier, err := r.Repo.GetSupplier(contract.Data[0].SupplierID)
+			if len(contract.Data) > 0 {
+				supplier, _ := r.Repo.GetSupplier(contract.Data[0].SupplierID)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get supplier")
-		}
+				/*if err != nil {
+					return nil, errors.Wrap(err, "repo get supplier")
+				}*/
 
-		supplierDropdown = dto.DropdownSimple{
-			ID:    supplier.ID,
-			Title: supplier.Title,
-		}
+				if supplier != nil {
+					supplierDropdown = dto.DropdownSimple{
+						ID:    supplier.ID,
+						Title: supplier.Title,
+					}
+				}
 
-		// getting articles and total price
-		getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
-			OrderID: &item.ID,
-		}
-		relatedOrderProcurementArticle, err := r.Repo.GetOrderProcurementArticles(&getOrderProcurementArticleInput)
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get order procurement articles")
-		}
+				// getting articles and total price
+				getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
+					OrderID: &item.ID,
+				}
+				relatedOrderProcurementArticle, _ := r.Repo.GetOrderProcurementArticles(&getOrderProcurementArticleInput)
+				/*if err != nil {
+					return nil, errors.Wrap(err, "repo get order procurement articles")
+				}*/
 
-		publicProcurementArticles, err := GetProcurementArticles(context, r, *item.PublicProcurementID)
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get procurement articles")
-		}
+				publicProcurementArticles, _ := GetProcurementArticles(context, r, *item.PublicProcurementID)
+				/*if err != nil {
+					return nil, errors.Wrap(err, "repo get procurement articles")
+				}*/
 
-		publicProcurementArticlesMap := make(map[int]structs.OrderArticleItem)
-		for _, article := range publicProcurementArticles {
-			publicProcurementArticlesMap[article.ID] = article
-		}
+				publicProcurementArticlesMap := make(map[int]structs.OrderArticleItem)
+				for _, article := range publicProcurementArticles {
+					publicProcurementArticlesMap[article.ID] = article
+				}
 
-		for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
-			if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleID]; exists {
-				articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
-				articleVat32 := float32(articleVat)
-				articleUnitPrice := article.NetPrice + article.NetPrice*articleVat32/100
-				articleTotalPrice := articleUnitPrice * float32(itemOrderArticle.Amount)
-				totalBruto += articleTotalPrice
-				vat := articleTotalPrice * (100 - articleVat32) / 100
-				totalNeto += vat
+				for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
+					if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleID]; exists {
+						articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
+						articleVat32 := float32(articleVat)
+						articleUnitPrice := article.NetPrice + article.NetPrice*articleVat32/100
+						articleTotalPrice := articleUnitPrice * float32(itemOrderArticle.Amount)
+						totalBruto += articleTotalPrice
+						vat := articleTotalPrice * (100 - articleVat32) / 100
+						totalNeto += vat
 
-				articles = append(articles, dto.DropdownProcurementAvailableArticle{
-					ID:            itemOrderArticle.ID,
-					Title:         article.Title,
-					Manufacturer:  article.Manufacturer,
-					Description:   article.Description,
-					Unit:          article.Unit,
-					Available:     article.Available,
-					Amount:        itemOrderArticle.Amount,
-					TotalPrice:    articleTotalPrice,
-					Price:         articleUnitPrice,
-					NetPrice:      article.NetPrice,
-					VatPercentage: article.VatPercentage,
-				})
+						articles = append(articles, dto.DropdownProcurementAvailableArticle{
+							ID:            itemOrderArticle.ID,
+							Title:         article.Title,
+							Manufacturer:  article.Manufacturer,
+							Description:   article.Description,
+							Unit:          article.Unit,
+							Available:     article.Available,
+							Amount:        itemOrderArticle.Amount,
+							TotalPrice:    articleTotalPrice,
+							Price:         articleUnitPrice,
+							NetPrice:      article.NetPrice,
+							VatPercentage: article.VatPercentage,
+						})
+					}
+				}
 			}
 		}
 	} else {
@@ -1279,8 +1290,10 @@ func buildOrderListResponseItem(context context.Context, r *Resolver, item *stru
 	office := &dto.DropdownSimple{}
 	if item.OfficeID != nil && *item.OfficeID > zero {
 		officeItem, _ := r.Repo.GetDropdownSettingByID(*item.OfficeID)
-		office.Title = officeItem.Title
-		office.ID = officeItem.ID
+		if officeItem != nil {
+			office.Title = officeItem.Title
+			office.ID = officeItem.ID
+		}
 	}
 
 	defaultFile := dto.FileDropdownSimple{
@@ -1294,13 +1307,15 @@ func buildOrderListResponseItem(context context.Context, r *Resolver, item *stru
 	movementFile := defaultFile
 
 	if item.OrderFile != nil && *item.OrderFile != zero {
-		file, err := r.Repo.GetFileByID(*item.OrderFile)
-		if err != nil {
+		file, _ := r.Repo.GetFileByID(*item.OrderFile)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
+		}*/
+		if file != nil {
+			orderFile.ID = *item.OrderFile
+			orderFile.Name = file.Name
+			orderFile.Type = *file.Type
 		}
-		orderFile.ID = *item.OrderFile
-		orderFile.Name = file.Name
-		orderFile.Type = *file.Type
 	}
 
 	for _, fileID := range item.ReceiveFile {
@@ -1309,48 +1324,58 @@ func buildOrderListResponseItem(context context.Context, r *Resolver, item *stru
 			continue
 		}
 
-		file, err := r.Repo.GetFileByID(fileID)
-		if err != nil {
+		file, _ := r.Repo.GetFileByID(fileID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
-		}
+		}*/
 
-		receiveFile = append(receiveFile, dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
-		})
+		if file != nil {
+
+			receiveFile = append(receiveFile, dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			})
+		}
 	}
 
 	if item.MovementFile != nil && *item.MovementFile != zero {
-		file, err := r.Repo.GetFileByID(*item.MovementFile)
-		if err != nil {
+		file, _ := r.Repo.GetFileByID(*item.MovementFile)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get movement file")
+		}*/
+
+		if file != nil {
+			movementFile.ID = file.ID
+			movementFile.Name = file.Name
+			movementFile.Type = *file.Type
 		}
-		movementFile.ID = file.ID
-		movementFile.Name = file.Name
-		movementFile.Type = *file.Type
 	}
 
 	var groupOfArticles dto.DropdownSimple
 	if item.GroupOfArticlesID != nil && *item.GroupOfArticlesID != zero {
-		getGroupOfArticles, err := r.Repo.GetDropdownSettingByID(*item.GroupOfArticlesID)
+		getGroupOfArticles, _ := r.Repo.GetDropdownSettingByID(*item.GroupOfArticlesID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get dropdown setting by id")
+			}*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get dropdown setting by id")
+		if getGroupOfArticles != nil {
+			groupOfArticles.ID = getGroupOfArticles.ID
+			groupOfArticles.Title = getGroupOfArticles.Title
 		}
-		groupOfArticles.ID = getGroupOfArticles.ID
-		groupOfArticles.Title = getGroupOfArticles.Title
 	}
-
 	var account dto.DropdownSimple
 	if item.AccountID != nil && *item.AccountID != zero {
-		getAccount, err := r.Repo.GetAccountItemByID(*item.AccountID)
+		getAccount, _ := r.Repo.GetAccountItemByID(*item.AccountID)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
+		/*		if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}*/
+		if getAccount != nil {
+			account.ID = getAccount.ID
+			account.Title = getAccount.Title
 		}
-		account.ID = getAccount.ID
-		account.Title = getAccount.Title
 	}
 
 	res = dto.OrderListOverviewResponse{
@@ -1388,26 +1413,32 @@ func buildOrderListResponseItem(context context.Context, r *Resolver, item *stru
 	}
 
 	if item.RecipientUserID != nil && *item.RecipientUserID > 0 {
-		userProfile, err := r.Repo.GetUserProfileByID(*item.RecipientUserID)
-		if err != nil {
+		userProfile, _ := r.Repo.GetUserProfileByID(*item.RecipientUserID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get user profile by id")
+		}*/
+
+		if userProfile != nil {
+			res.RecipientUser = &dto.DropdownSimple{
+				ID:    userProfile.ID,
+				Title: userProfile.GetFullName(),
+			}
+			res.RecipientUserID = item.RecipientUserID
 		}
-		res.RecipientUser = &dto.DropdownSimple{
-			ID:    userProfile.ID,
-			Title: userProfile.GetFullName(),
-		}
-		res.RecipientUserID = item.RecipientUserID
 	}
 
 	if item.SupplierID != nil && *item.SupplierID != 0 {
-		supplier, err := r.Repo.GetSupplier(*item.SupplierID)
-		if err != nil {
+		supplier, _ := r.Repo.GetSupplier(*item.SupplierID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get supplier")
-		}
-		res.SupplierID = supplier.ID
-		res.Supplier = &dto.DropdownSimple{
-			ID:    supplier.ID,
-			Title: supplier.Title,
+		}*/
+
+		if supplier != nil {
+			res.SupplierID = supplier.ID
+			res.Supplier = &dto.DropdownSimple{
+				ID:    supplier.ID,
+				Title: supplier.Title,
+			}
 		}
 	}
 
@@ -1416,18 +1447,21 @@ func buildOrderListResponseItem(context context.Context, r *Resolver, item *stru
 	}
 
 	if item.DeliveryFileID != nil && *item.DeliveryFileID != 0 {
-		file, err := r.Repo.GetFileByID(*item.DeliveryFileID)
-		if err != nil {
+		file, _ := r.Repo.GetFileByID(*item.DeliveryFileID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
-		}
+		}*/
 
-		deliveryFile := dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
-		}
+		if file != nil {
 
-		res.DeliveryFile = &deliveryFile
+			deliveryFile := dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			}
+
+			res.DeliveryFile = &deliveryFile
+		}
 	}
 
 	return &res, nil

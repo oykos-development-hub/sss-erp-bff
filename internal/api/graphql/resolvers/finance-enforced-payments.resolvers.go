@@ -214,93 +214,107 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 	}
 
 	if item.OrganizationUnitID != 0 {
-		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		value, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get organization unit by id")
+		/*f err != nil {
+		/return nil, errors.Wrap(err, "repo get organization unit by id")
+		}*/
+
+		if value != nil {
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.OrganizationUnit = dropdown
 		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
-
-		response.OrganizationUnit = dropdown
 	}
 
 	if item.SupplierID != 0 {
-		value, err := r.Repo.GetSupplier(item.SupplierID)
+		value, _ := r.Repo.GetSupplier(item.SupplierID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get supplier")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
 
-		response.Supplier = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.Supplier = dropdown
+		}
 	}
 
 	if item.AgentID != 0 {
-		value, err := r.Repo.GetSupplier(item.AgentID)
+		value, _ := r.Repo.GetSupplier(item.AgentID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get supplier")
+			}
+		*/
+		if value != nil {
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get supplier")
+			response.Agent = dropdown
 		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
-
-		response.Agent = dropdown
 	}
 
 	if item.AccountIDForExpenses != 0 {
-		value, err := r.Repo.GetAccountItemByID(item.AccountIDForExpenses)
+		value, _ := r.Repo.GetAccountItemByID(item.AccountIDForExpenses)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+		*/
+		if value != nil {
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
+			response.AccountForExpenses = dropdown
 		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
-
-		response.AccountForExpenses = dropdown
 	}
 
 	if item.FileID != nil && *item.FileID != 0 {
-		file, err := r.Repo.GetFileByID(*item.FileID)
+		file, _ := r.Repo.GetFileByID(*item.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
+		if file != nil {
+			fileDropdown := dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			}
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+			response.File = fileDropdown
 		}
-		fileDropdown := dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
-		}
-
-		response.File = fileDropdown
 	}
 
 	if item.ReturnFileID != nil && *item.ReturnFileID != 0 {
-		file, err := r.Repo.GetFileByID(*item.ReturnFileID)
+		file, _ := r.Repo.GetFileByID(*item.ReturnFileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}*/
+		if file != nil {
+			fileDropdown := dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			}
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+			response.ReturnFile = fileDropdown
 		}
-		fileDropdown := dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
-		}
-
-		response.ReturnFile = fileDropdown
 	}
 
 	for _, orderItem := range item.Items {
@@ -328,18 +342,21 @@ func buildEnforcedPaymentItem(item structs.EnforcedPaymentItems, r *Resolver) (*
 	}
 
 	if item.AccountID != 0 {
-		value, err := r.Repo.GetAccountItemByID(item.AccountID)
+		value, _ := r.Repo.GetAccountItemByID(item.AccountID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get account item by id")
-		}
+		}*/
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
+		if value != nil {
 
-		response.Account = dropdown
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.Account = dropdown
+		}
 	}
 
 	return &response, nil

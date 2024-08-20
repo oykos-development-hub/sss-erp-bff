@@ -521,14 +521,18 @@ func (r *Resolver) RevisionPlanInsertResolver(params graphql.ResolveParams) (int
 
 func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, revision *structs.Revisions) (*dto.RevisionsOverviewItem, error) {
 
-	revisiontype, err := r.GetDropdownSettingByID(revision.RevisionType)
-	if err != nil {
+	revisiontype, _ := r.GetDropdownSettingByID(revision.RevisionType)
+	/*if err != nil {
 		return nil, errors.Wrap(err, "repo get dropdown setting by id")
-	}
+	}*/
 
-	revisionType := dto.DropdownSimple{
-		ID:    revisiontype.ID,
-		Title: revisiontype.Title,
+	var revisionType dto.DropdownSimple
+	if revisiontype != nil {
+
+		revisionType = dto.DropdownSimple{
+			ID:    revisiontype.ID,
+			Title: revisiontype.Title,
+		}
 	}
 
 	var revisorDropdown []dto.DropdownSimple
@@ -598,17 +602,19 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 	var file dto.FileDropdownSimple
 
 	if revision.FileID != nil && *revision.FileID > 0 {
-		res, err := r.GetFileByID(*revision.FileID)
+		res, _ := r.GetFileByID(*revision.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		if res != nil {
+			file.ID = res.ID
+			file.Name = res.Name
+			file.Type = *res.Type
 		}
-
-		file.ID = res.ID
-		file.Name = res.Name
-		file.Type = *res.Type
 	}
-
 	revisionItem := &dto.RevisionsOverviewItem{
 		ID:                      revision.ID,
 		Title:                   revision.Title,
@@ -626,15 +632,18 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 	}
 
 	if revision.TipsFileID != nil && *revision.TipsFileID > 0 {
-		res, err := r.GetFileByID(*revision.TipsFileID)
+		res, _ := r.GetFileByID(*revision.TipsFileID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
-		}
+		}*/
 
-		file.ID = res.ID
-		file.Name = res.Name
-		file.Type = *res.Type
+		if res != nil {
+
+			file.ID = res.ID
+			file.Name = res.Name
+			file.Type = *res.Type
+		}
 
 		revisionItem.TipsFile = file
 	}
@@ -980,17 +989,19 @@ func buildRevisionTipItemResponse(r repository.MicroserviceRepositoryInterface, 
 	var file dto.FileDropdownSimple
 
 	if revision.FileID != nil && *revision.FileID > 0 {
-		res, err := r.GetFileByID(*revision.FileID)
+		res, _ := r.GetFileByID(*revision.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		if res != nil {
+			file.ID = res.ID
+			file.Name = res.Name
+			file.Type = *res.Type
 		}
-
-		file.ID = res.ID
-		file.Name = res.Name
-		file.Type = *res.Type
 	}
-
 	revisionTipItem := &dto.RevisionTipsOverviewItem{
 		ID:                     revision.ID,
 		RevisionID:             revision.RevisionID,

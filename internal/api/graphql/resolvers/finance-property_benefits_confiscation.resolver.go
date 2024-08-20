@@ -205,61 +205,71 @@ func buildPropBenConfResponseItem(PropBenConf structs.PropBenConf, r *Resolver) 
 
 	if len(PropBenConf.File) > 0 {
 		for _, fileID := range PropBenConf.File {
-			file, err := r.Repo.GetFileByID(fileID)
+			file, _ := r.Repo.GetFileByID(fileID)
 
-			if err != nil {
+			/*if err != nil {
 				return nil, errors.Wrap(err, "repo get file by id")
-			}
+			}*/
 
-			FileDropdown := dto.FileDropdownSimple{
-				ID:   file.ID,
-				Name: file.Name,
-				Type: *file.Type,
+			if file != nil {
+
+				FileDropdown := dto.FileDropdownSimple{
+					ID:   file.ID,
+					Name: file.Name,
+					Type: *file.Type,
+				}
+				response.File = append(response.File, FileDropdown)
 			}
-			response.File = append(response.File, FileDropdown)
 		}
 	}
 
 	if PropBenConf.AccountID != 0 {
-		account, err := r.Repo.GetAccountItemByID(PropBenConf.AccountID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
+		account, _ := r.Repo.GetAccountItemByID(PropBenConf.AccountID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+		*/
+		if account != nil {
+			accountDropdown := dto.DropdownSimple{
+				ID:    account.ID,
+				Title: account.Title,
+			}
+			response.Account = accountDropdown
 		}
-
-		accountDropdown := dto.DropdownSimple{
-			ID:    account.ID,
-			Title: account.Title,
-		}
-		response.Account = accountDropdown
 	}
 
 	if PropBenConf.CourtAccountID != nil {
-		courtAccount, err := r.Repo.GetAccountItemByID(*PropBenConf.CourtAccountID)
+		courtAccount, _ := r.Repo.GetAccountItemByID(*PropBenConf.CourtAccountID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+		*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
+		if courtAccount != nil {
+			courtAccountDropdown := &dto.DropdownSimple{
+				ID:    courtAccount.ID,
+				Title: courtAccount.Title,
+			}
+			response.CourtAccount = courtAccountDropdown
 		}
-
-		courtAccountDropdown := &dto.DropdownSimple{
-			ID:    courtAccount.ID,
-			Title: courtAccount.Title,
-		}
-		response.CourtAccount = courtAccountDropdown
 	}
-
 	if PropBenConf.OrganizationUnitID != 0 {
-		organizationUnit, err := r.Repo.GetOrganizationUnitByID(PropBenConf.OrganizationUnitID)
-		if err != nil {
+		organizationUnit, _ := r.Repo.GetOrganizationUnitByID(PropBenConf.OrganizationUnitID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		orgUnitDropdown := dto.DropdownSimple{
-			ID:    organizationUnit.ID,
-			Title: organizationUnit.Title,
-		}
+		if organizationUnit != nil {
 
-		response.OrganizationUnit = orgUnitDropdown
+			orgUnitDropdown := dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			}
+
+			response.OrganizationUnit = orgUnitDropdown
+		}
 	}
 
 	return &response, nil

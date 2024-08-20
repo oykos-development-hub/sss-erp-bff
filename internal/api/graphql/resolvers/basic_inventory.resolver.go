@@ -394,10 +394,10 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	settingDropdownClassType := dto.DropdownSimple{}
 	var estimatedDuration int
 	if item.ClassTypeID != 0 {
-		settings, err := r.GetDropdownSettingByID(item.ClassTypeID)
-		if err != nil {
+		settings, _ := r.GetDropdownSettingByID(item.ClassTypeID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get dropdown setting by id")
-		}
+		}*/
 
 		if settings != nil {
 			settingDropdownClassType = dto.DropdownSimple{ID: settings.ID, Title: settings.Title}
@@ -430,10 +430,10 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 
 	settingDropdownOfficeID := dto.DropdownSimple{}
 	if item.OfficeID != 0 {
-		settings, err := r.GetDropdownSettingByID(item.OfficeID)
-		if err != nil {
+		settings, _ := r.GetDropdownSettingByID(item.OfficeID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get dropdown setting by id")
-		}
+		}*/
 
 		if settings != nil {
 			settingDropdownOfficeID = dto.DropdownSimple{ID: settings.ID, Title: settings.Title}
@@ -443,23 +443,26 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	settingDropdownDepreciationTypeID := dto.DropdownSimple{}
 
 	if item.DepreciationTypeID != 0 {
-		depreciationTypeDropDown, err := r.GetDropdownSettingByID(item.DepreciationTypeID)
+		depreciationTypeDropDown, _ := r.GetDropdownSettingByID(item.DepreciationTypeID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get dropdown setting by id")
-		}
-		settingDropdownDepreciationTypeID.ID = depreciationTypeDropDown.ID
-		settingDropdownDepreciationTypeID.Title = depreciationTypeDropDown.Title
-		value, err := strconv.Atoi(depreciationTypeDropDown.Value)
+		}*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "strconv atoi")
-		}
+		if depreciationTypeDropDown != nil {
+			settingDropdownDepreciationTypeID.ID = depreciationTypeDropDown.ID
+			settingDropdownDepreciationTypeID.Title = depreciationTypeDropDown.Title
+			value, err := strconv.Atoi(depreciationTypeDropDown.Value)
 
-		if value != 0 {
-			estimatedDuration = 100 / value
-		} else {
-			estimatedDuration = 10000
+			if err != nil {
+				return nil, errors.Wrap(err, "strconv atoi")
+			}
+
+			if value != 0 {
+				estimatedDuration = 100 / value
+			} else {
+				estimatedDuration = 10000
+			}
 		}
 	}
 
@@ -551,10 +554,10 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 
 	organizationUnitDropdown := dto.DropdownOUSimple{}
 	if item.OrganizationUnitID != 0 {
-		organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
-		if err != nil {
+		organizationUnit, _ := r.GetOrganizationUnitByID(item.OrganizationUnitID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 		if organizationUnit != nil {
 			organizationUnitDropdown = dto.DropdownOUSimple{
 				ID:      organizationUnit.ID,
@@ -567,10 +570,10 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 
 	targetOrganizationUnitDropdown := dto.DropdownOUSimple{}
 	if item.TargetOrganizationUnitID != 0 {
-		targetOrganizationUnit, err := r.GetOrganizationUnitByID(item.TargetOrganizationUnitID)
-		if err != nil {
+		targetOrganizationUnit, _ := r.GetOrganizationUnitByID(item.TargetOrganizationUnitID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 		if targetOrganizationUnit != nil {
 			targetOrganizationUnitDropdown = dto.DropdownOUSimple{
 				ID:      targetOrganizationUnit.ID,
@@ -621,10 +624,10 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, item *structs.BasicInventoryInsertItem, organizationUnitID int) (*dto.BasicInventoryResponseItem, error) {
 	settingDropdownClassType := dto.DropdownSimple{}
 	if item.ClassTypeID != 0 {
-		settings, err := r.GetDropdownSettingByID(item.ClassTypeID)
-		if err != nil {
+		settings, _ := r.GetDropdownSettingByID(item.ClassTypeID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get dropdown setting by id")
-		}
+		}*/
 
 		if settings != nil {
 			settingDropdownClassType = dto.DropdownSimple{ID: settings.ID, Title: settings.Title}
@@ -633,10 +636,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	suppliersDropdown := dto.DropdownSimple{}
 	if item.SupplierID != 0 {
-		suppliers, err := r.GetSupplier(item.SupplierID)
-		if err != nil {
+		suppliers, _ := r.GetSupplier(item.SupplierID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get supplier")
-		}
+		}*/
 
 		if suppliers != nil {
 			suppliersDropdown = dto.DropdownSimple{ID: suppliers.ID, Title: suppliers.Title}
@@ -645,10 +648,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	donorDropdown := dto.DropdownSimple{}
 	if item.DonorID != 0 {
-		donor, err := r.GetSupplier(item.DonorID)
-		if err != nil {
+		donor, _ := r.GetSupplier(item.DonorID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get supplier")
-		}
+		}*/
 
 		if donor != nil {
 			donorDropdown = dto.DropdownSimple{ID: donor.ID, Title: donor.Title}
@@ -657,10 +660,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	settingDropdownOfficeID := dto.DropdownSimple{}
 	if item.OfficeID != 0 {
-		settings, err := r.GetDropdownSettingByID(item.OfficeID)
-		if err != nil {
+		settings, _ := r.GetDropdownSettingByID(item.OfficeID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get dropdown setting by id")
-		}
+		}*/
 
 		if settings != nil {
 			settingDropdownOfficeID = dto.DropdownSimple{ID: settings.ID, Title: settings.Title}
@@ -669,10 +672,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	targetUserDropdown := dto.DropdownSimple{}
 	if item.TargetUserProfileID != 0 {
-		user, err := r.GetUserProfileByID(item.TargetUserProfileID)
-		if err != nil {
+		user, _ := r.GetUserProfileByID(item.TargetUserProfileID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get user profile by id")
-		}
+		}*/
 		if user != nil {
 			targetUserDropdown = dto.DropdownSimple{ID: user.ID, Title: user.FirstName + " " + user.LastName}
 		}
@@ -680,11 +683,11 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	var currentOrganizationUnit *structs.OrganizationUnits
 	organizationUnitDropdown := dto.DropdownSimple{}
 	if item.OrganizationUnitID != 0 {
-		organizationUnit, err := r.GetOrganizationUnitByID(item.OrganizationUnitID)
+		organizationUnit, _ := r.GetOrganizationUnitByID(item.OrganizationUnitID)
 		currentOrganizationUnit = organizationUnit
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 		if organizationUnit != nil {
 			organizationUnitDropdown = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
 		}
@@ -692,11 +695,11 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	targetOrganizationUnitDropdown := dto.DropdownSimple{}
 	if item.TargetOrganizationUnitID != 0 {
-		targetOrganizationUnit, err := r.GetOrganizationUnitByID(item.TargetOrganizationUnitID)
+		targetOrganizationUnit, _ := r.GetOrganizationUnitByID(item.TargetOrganizationUnitID)
 		currentOrganizationUnit = targetOrganizationUnit
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 		if targetOrganizationUnit != nil {
 			targetOrganizationUnitDropdown = dto.DropdownSimple{ID: targetOrganizationUnit.ID, Title: targetOrganizationUnit.Title}
 		}
@@ -855,16 +858,20 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	if !item.Active && item.DeactivationFileID != 0 {
 
-		file, err := r.GetFileByID(item.DeactivationFileID)
+		file, _ := r.GetFileByID(item.DeactivationFileID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
-		}
+		}*/
 
-		fileDropdown := dto.FileDropdownSimple{
-			ID:   file.ID,
-			Type: *file.Type,
-			Name: file.Name,
+		var fileDropdown dto.FileDropdownSimple
+
+		if file != nil {
+			fileDropdown = dto.FileDropdownSimple{
+				ID:   file.ID,
+				Type: *file.Type,
+				Name: file.Name,
+			}
 		}
 
 		movement := &dto.InventoryDispatchResponse{
@@ -879,17 +886,19 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	var donationFiles []dto.FileDropdownSimple
 
 	for _, fileID := range item.DonationFiles {
-		file, err := r.GetFileByID(fileID)
+		file, _ := r.GetFileByID(fileID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
-		}
+		}*/
 
-		donationFiles = append(donationFiles, dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
-		})
+		if file != nil {
+			donationFiles = append(donationFiles, dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			})
+		}
 	}
 
 	/*

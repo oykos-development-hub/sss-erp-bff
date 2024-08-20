@@ -96,17 +96,19 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 	var file dto.FileDropdownSimple
 
 	if item.FileID != 0 {
-		res, err := r.GetFileByID(item.FileID)
+		res, _ := r.GetFileByID(item.FileID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get file by id")
+			}
+		*/
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get file by id")
+		if res != nil {
+			file.ID = res.ID
+			file.Name = res.Name
+			file.Type = *res.Type
 		}
-
-		file.ID = res.ID
-		file.Name = res.Name
-		file.Type = *res.Type
 	}
-
 	tenderType, err := r.GetTenderType(item.TypeID)
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get tender type")
@@ -194,33 +196,40 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 	}
 
 	if item.Evaluation != 0 {
-		evaluation, err := r.GetDropdownSettingByID(item.Evaluation)
+		evaluation, _ := r.GetDropdownSettingByID(item.Evaluation)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get dropdown setting by id")
-		}
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get dropdown setting by id")
+			}*/
 
-		res.Evaluation = &dto.DropdownSimple{
-			ID:    evaluation.ID,
-			Title: evaluation.Title,
+		if evaluation != nil {
+
+			res.Evaluation = &dto.DropdownSimple{
+				ID:    evaluation.ID,
+				Title: evaluation.Title,
+			}
 		}
 	}
 
 	if item.UserProfileID != nil {
-		userProfile, err := r.GetUserProfileByID(*item.UserProfileID)
-		if err != nil {
+		userProfile, _ := r.GetUserProfileByID(*item.UserProfileID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get user profile by id")
+		}*/
+
+		if userProfile != nil {
+			userProfileDropdownItem := &dto.DropdownSimple{
+				ID:    userProfile.ID,
+				Title: userProfile.GetFullName(),
+			}
+			res.FirstName = userProfile.FirstName
+			res.LastName = userProfile.LastName
+			res.OfficialPersonalDocumentNumber = userProfile.OfficialPersonalDocumentNumber
+			res.DateOfBirth = userProfile.DateOfBirth
+			res.Nationality = userProfile.Citizenship
+			res.UserProfile = userProfileDropdownItem
 		}
-		userProfileDropdownItem := &dto.DropdownSimple{
-			ID:    userProfile.ID,
-			Title: userProfile.GetFullName(),
-		}
-		res.FirstName = userProfile.FirstName
-		res.LastName = userProfile.LastName
-		res.OfficialPersonalDocumentNumber = userProfile.OfficialPersonalDocumentNumber
-		res.DateOfBirth = userProfile.DateOfBirth
-		res.Nationality = userProfile.Citizenship
-		res.UserProfile = userProfileDropdownItem
 	}
 
 	jobTender, err := r.GetJobTender(item.JobTenderID)

@@ -98,11 +98,11 @@ func (r *Resolver) SpendingReleaseRequestInsert(params graphql.ResolveParams) (i
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationFullAccess)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationFullAccess)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		if targetUser.ID != loggedInUser.ID {
@@ -147,17 +147,17 @@ func (r *Resolver) SpendingReleaseAcceptSSS(params graphql.ResolveParams) (inter
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
-	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, request.OrganizationUnitID)
-	if err != nil {
+	employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, request.OrganizationUnitID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		for _, employee := range employees {
@@ -260,46 +260,53 @@ func (r *Resolver) SpendingReleaseOverview(params graphql.ResolveParams) (interf
 		var OUFile dto.FileDropdownSimple
 		var OU dto.DropdownSimple
 		if spendingReleaseRequests[i].SSSFileID != 0 {
-			file, err := r.Repo.GetFileByID(spendingReleaseRequests[i].SSSFileID)
+			file, _ := r.Repo.GetFileByID(spendingReleaseRequests[i].SSSFileID)
 
-			if err != nil {
+			/*if err != nil {
 				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
-			}
+			}*/
 
-			SSSFile = dto.FileDropdownSimple{
-				ID:   file.ID,
-				Name: file.Name,
-				Type: *file.Type,
+			if file != nil {
+
+				SSSFile = dto.FileDropdownSimple{
+					ID:   file.ID,
+					Name: file.Name,
+					Type: *file.Type,
+				}
 			}
 		}
 
 		if spendingReleaseRequests[i].OrganizationUnitFileID != 0 {
-			file, err := r.Repo.GetFileByID(spendingReleaseRequests[i].OrganizationUnitFileID)
+			file, _ := r.Repo.GetFileByID(spendingReleaseRequests[i].OrganizationUnitFileID)
+			/*
+				if err != nil {
+					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+				}
+			*/
 
-			if err != nil {
-				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
-			}
-
-			OUFile = dto.FileDropdownSimple{
-				ID:   file.ID,
-				Name: file.Name,
-				Type: *file.Type,
+			if file != nil {
+				OUFile = dto.FileDropdownSimple{
+					ID:   file.ID,
+					Name: file.Name,
+					Type: *file.Type,
+				}
 			}
 		}
 
 		if spendingReleaseRequests[i].OrganizationUnitID != 0 {
-			value, err := r.Repo.GetOrganizationUnitByID(spendingReleaseRequests[i].OrganizationUnitID)
-
-			if err != nil {
-				return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
-			}
-
-			OU = dto.DropdownSimple{
-				ID:    value.ID,
-				Title: value.Title,
+			value, _ := r.Repo.GetOrganizationUnitByID(spendingReleaseRequests[i].OrganizationUnitID)
+			/*
+				if err != nil {
+					return errors.HandleAPPError(errors.WrapInternalServerError(err, "Error getting file by id"))
+				}
+			*/
+			if value != nil {
+				OU = dto.DropdownSimple{
+					ID:    value.ID,
+					Title: value.Title,
+				}
 			}
 		}
-
 		value := decimal.NewFromInt(0)
 
 		accounts, err := r.Repo.GetAccountItems(&dto.GetAccountsFilter{

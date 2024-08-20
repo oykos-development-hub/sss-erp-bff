@@ -192,17 +192,19 @@ func buildEvaluationResponseItem(repo repository.MicroserviceRepositoryInterface
 	var fileDropdown dto.FileDropdownSimple
 
 	if item.FileID != 0 {
-		file, err := repo.GetFileByID(item.FileID)
+		file, _ := repo.GetFileByID(item.FileID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
-		}
+		}*/
+		if file != nil {
 
-		fileDropdown.ID = file.ID
-		fileDropdown.Name = file.Name
+			fileDropdown.ID = file.ID
+			fileDropdown.Name = file.Name
 
-		if file.Type != nil {
-			fileDropdown.Type = *file.Type
+			if file.Type != nil {
+				fileDropdown.Type = *file.Type
+			}
 		}
 	}
 

@@ -176,26 +176,31 @@ func buildLogItem(r *Resolver, log structs.Logs) (*dto.LogResponse, error) {
 	}
 
 	if log.UserID != 0 {
-		user, err := r.Repo.GetUserAccountByID(log.UserID)
+		user, _ := r.Repo.GetUserAccountByID(log.UserID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get user account by id")
+		}*/
+
+		if user != nil {
+
+			response.User = dto.DropdownSimple{
+				ID:    user.ID,
+				Title: user.Email,
+			}
 		}
 
-		response.User = dto.DropdownSimple{
-			ID:    user.ID,
-			Title: user.Email,
-		}
+		userProfile, _ := r.Repo.GetUserProfileByUserAccountID(log.UserID)
 
-		userProfile, err := r.Repo.GetUserProfileByUserAccountID(log.UserID)
-
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get user profile by user account id")
-		}
+		}*/
 
-		response.UserProfile = dto.DropdownSimple{
-			ID:    userProfile.ID,
-			Title: userProfile.FirstName + " " + userProfile.LastName,
+		if userProfile != nil {
+			response.UserProfile = dto.DropdownSimple{
+				ID:    userProfile.ID,
+				Title: userProfile.FirstName + " " + userProfile.LastName,
+			}
 		}
 	}
 

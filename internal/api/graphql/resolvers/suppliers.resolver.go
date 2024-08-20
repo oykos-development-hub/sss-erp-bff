@@ -112,16 +112,16 @@ func (r *Resolver) SuppliersInsertResolver(params graphql.ResolveParams) (interf
 }
 
 func (r *Resolver) SuppliersDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
-	itemID := params.Args["id"].(int)
+	/*itemID := params.Args["id"].(int)
 
 	err := r.Repo.DeleteSupplier(itemID)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	return dto.ResponseSingle{
-		Status:  "success",
-		Message: "You deleted this item!",
+		Status:  "failed",
+		Message: "You can not delete this item!",
 	}, nil
 }

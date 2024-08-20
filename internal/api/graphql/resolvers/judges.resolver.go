@@ -108,10 +108,6 @@ func buildJudgeResponseItem(r repository.MicroserviceRepositoryInterface, userPr
 	if err != nil {
 		return nil, errors.Wrap(err, "repo get user profile by id")
 	}
-	userAccount, err := r.GetUserAccountByID(userProfile.UserAccountID)
-	if err != nil {
-		return nil, errors.Wrap(err, "repo get user account by id")
-	}
 
 	organizationUnit, err := r.GetOrganizationUnitByID(organizationUnitID)
 	if err != nil {
@@ -141,7 +137,6 @@ func buildJudgeResponseItem(r repository.MicroserviceRepositoryInterface, userPr
 		Norms:            normResItemList,
 		Gender:           userProfile.Gender,
 		Age:              userProfile.GetAge(),
-		FolderID:         userAccount.FolderID,
 		CreatedAt:        userProfile.CreatedAt,
 		UpdatedAt:        userProfile.UpdatedAt,
 	}, nil
@@ -185,12 +180,15 @@ func buildNormResItem(r repository.MicroserviceRepositoryInterface, norm structs
 			return nil, errors.Wrap(err, "repo get evaluation")
 		}
 
-		evaluationType, err := r.GetDropdownSettingByID(evaluation.EvaluationTypeID)
-		if err != nil {
+		evaluationType, _ := r.GetDropdownSettingByID(evaluation.EvaluationTypeID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get dropdown setting by id")
+		}*/
+
+		if evaluationType != nil {
+			normResItem.Evaluation = evaluation
+			evaluation.EvaluationType = *evaluationType
 		}
-		normResItem.Evaluation = evaluation
-		evaluation.EvaluationType = *evaluationType
 	}
 	if norm.RelocationID != nil {
 		relocation, err := r.GetAbsentByID(*norm.RelocationID)

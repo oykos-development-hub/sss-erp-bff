@@ -567,17 +567,17 @@ func (r *Resolver) FinancialBudgetFillActualResolver(params graphql.ResolveParam
 	}
 
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-	targetUsers, err := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
-	if err != nil {
+	targetUsers, _ := r.Repo.GetUsersByPermission(config.FinanceBudget, config.OperationRead)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
-	employees, err := GetEmployeesOfOrganizationUnit(r.Repo, generalRequest.OrganizationUnitID)
-	if err != nil {
+	employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, generalRequest.OrganizationUnitID)
+	/*if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
-	}
+	}*/
 
 	for _, targetUser := range targetUsers {
 		for _, employee := range employees {
@@ -622,11 +622,14 @@ func buildFilledFinancialBudgetResItem(r repository.MicroserviceRepositoryInterf
 		return nil, errors.Wrap(err, "repo get budget request")
 	}
 
-	organizationUnit, err := r.GetOrganizationUnitByID(budgetRequest.OrganizationUnitID)
-	if err != nil {
+	organizationUnit, _ := r.GetOrganizationUnitByID(budgetRequest.OrganizationUnitID)
+	/*if err != nil {
 		return nil, errors.Wrap(err, "repo get organization unit by id")
+	}*/
+
+	if organizationUnit != nil {
+		resItem.OrganizationUnit = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
 	}
-	resItem.OrganizationUnit = dto.DropdownSimple{ID: organizationUnit.ID, Title: organizationUnit.Title}
 
 	account, err := r.GetAccountItemByID(filledFinancialBudget.AccountID)
 	if err != nil {

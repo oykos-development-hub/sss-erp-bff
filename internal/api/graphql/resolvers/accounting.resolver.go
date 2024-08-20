@@ -635,16 +635,13 @@ func (r *Resolver) AnalyticalCardOverviewResolver(params graphql.ResolveParams) 
 		return errors.HandleAPPError(err)
 	}
 
-	orgUnitID, err := r.Repo.GetOrganizationUnitByID(input.OrganizationUnitID)
+	orgUnitID, _ := r.Repo.GetOrganizationUnitByID(input.OrganizationUnitID)
 
-	if err != nil {
-		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-		return errors.HandleAPPError(err)
-	}
-
-	for i := 0; i < len(response); i++ {
-		response[i].OrganizationUnit.ID = orgUnitID.ID
-		response[i].OrganizationUnit.Title = orgUnitID.Title
+	if orgUnitID != nil {
+		for i := 0; i < len(response); i++ {
+			response[i].OrganizationUnit.ID = orgUnitID.ID
+			response[i].OrganizationUnit.Title = orgUnitID.Title
+		}
 	}
 
 	return dto.Response{
@@ -746,19 +743,21 @@ func buildAccountingEntry(item structs.AccountingEntry, r *Resolver) (*dto.Accou
 	}
 
 	if item.OrganizationUnitID != 0 {
-		value, err := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
+		value, _ := r.Repo.GetOrganizationUnitByID(item.OrganizationUnitID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		dropdown := dto.OrganizationUnitsOverviewResponse{
-			ID:      value.ID,
-			Title:   value.Title,
-			Address: value.Address,
-		}
+		if value != nil {
+			dropdown := dto.OrganizationUnitsOverviewResponse{
+				ID:      value.ID,
+				Title:   value.Title,
+				Address: value.Address,
+			}
 
-		response.OrganizationUnit = dropdown
+			response.OrganizationUnit = dropdown
+		}
 	}
 
 	for _, orderItem := range item.Items {
@@ -804,18 +803,20 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 	}
 
 	if item.AccountID != 0 {
-		value, err := r.Repo.GetAccountItemByID(item.AccountID)
+		value, _ := r.Repo.GetAccountItemByID(item.AccountID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get account item by id")
-		}
+		}*/
+		if value != nil {
 
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.SerialNumber + " - " + value.Title,
-		}
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.SerialNumber + " - " + value.Title,
+			}
 
-		response.Account = dropdown
+			response.Account = dropdown
+		}
 	}
 
 	if item.SalaryID != nil && *item.SalaryID != 0 {
@@ -894,18 +895,21 @@ func buildAccountingEntryItem(item structs.AccountingEntryItems, r *Resolver) (*
 	}
 
 	if item.SupplierID != 0 {
-		value, err := r.Repo.GetSupplier(item.SupplierID)
+		value, _ := r.Repo.GetSupplier(item.SupplierID)
 
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get supplier")
+		/*		if err != nil {
+				return nil, errors.Wrap(err, "repo get supplier")
+			}*/
+
+		if value != nil {
+
+			dropdown := dto.DropdownSimple{
+				ID:    value.ID,
+				Title: value.Title,
+			}
+
+			response.Supplier = dropdown
 		}
-
-		dropdown := dto.DropdownSimple{
-			ID:    value.ID,
-			Title: value.Title,
-		}
-
-		response.Supplier = dropdown
 	}
 
 	return &response, nil
@@ -916,11 +920,11 @@ func buildAnalyticalCardResponse(items []structs.AnalyticalCard, r *Resolver) ([
 
 	for _, item := range items {
 		if item.SupplierID != 0 {
-			supplier, err := r.Repo.GetSupplier(item.SupplierID)
+			supplier, _ := r.Repo.GetSupplier(item.SupplierID)
 
-			if err != nil {
+			/*if err != nil {
 				return nil, errors.Wrap(err, "repo get supplier")
-			}
+			}*/
 
 			responseItem := dto.AnalyticalCardDTO{
 				InitialState:            item.InitialState,
@@ -929,11 +933,14 @@ func buildAnalyticalCardResponse(items []structs.AnalyticalCard, r *Resolver) ([
 				SumCreditAmountInPeriod: item.SumCreditAmountInPeriod,
 				SumDebitAmountInPeriod:  item.SumDebitAmountInPeriod,
 				DateOfStart:             item.DateOfStart,
-				DateOfEnd:               item.DateOfEnd,
-				Supplier: dto.DropdownSimple{
+			}
+
+			if supplier != nil {
+				responseItem.Supplier = dto.DropdownSimple{
 					ID:    supplier.ID,
 					Title: supplier.Title,
-				}}
+				}
+			}
 
 			for _, entryItem := range item.Items {
 

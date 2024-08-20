@@ -207,61 +207,71 @@ func buildFlatRateResponseItem(flatrate structs.FlatRate, r *Resolver) (*dto.Fla
 
 	if len(flatrate.File) > 0 {
 		for _, fileID := range flatrate.File {
-			file, err := r.Repo.GetFileByID(fileID)
+			file, _ := r.Repo.GetFileByID(fileID)
 
-			if err != nil {
+			/*if err != nil {
 				return nil, errors.Wrap(err, "repo get file by id")
-			}
+			}*/
 
-			FileDropdown := dto.FileDropdownSimple{
-				ID:   file.ID,
-				Name: file.Name,
-				Type: *file.Type,
+			if file != nil {
+
+				FileDropdown := dto.FileDropdownSimple{
+					ID:   file.ID,
+					Name: file.Name,
+					Type: *file.Type,
+				}
+				response.File = append(response.File, FileDropdown)
 			}
-			response.File = append(response.File, FileDropdown)
 		}
 	}
 
 	if flatrate.AccountID != 0 {
-		account, err := r.Repo.GetAccountItemByID(flatrate.AccountID)
+		account, _ := r.Repo.GetAccountItemByID(flatrate.AccountID)
 
-		if err != nil {
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get account item by id")
-		}
+		}*/
 
-		accountDropdown := dto.DropdownSimple{
-			ID:    account.ID,
-			Title: account.Title,
+		if account != nil {
+
+			accountDropdown := dto.DropdownSimple{
+				ID:    account.ID,
+				Title: account.Title,
+			}
+			response.Account = accountDropdown
 		}
-		response.Account = accountDropdown
 	}
 
 	if flatrate.CourtAccountID != nil {
-		courtAccount, err := r.Repo.GetAccountItemByID(*flatrate.CourtAccountID)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get account item by id")
+		courtAccount, _ := r.Repo.GetAccountItemByID(*flatrate.CourtAccountID)
+		/*
+			if err != nil {
+				return nil, errors.Wrap(err, "repo get account item by id")
+			}
+		*/
+		if courtAccount != nil {
+			courtAccountDropdown := &dto.DropdownSimple{
+				ID:    courtAccount.ID,
+				Title: courtAccount.Title,
+			}
+			response.CourtAccount = courtAccountDropdown
 		}
-
-		courtAccountDropdown := &dto.DropdownSimple{
-			ID:    courtAccount.ID,
-			Title: courtAccount.Title,
-		}
-		response.CourtAccount = courtAccountDropdown
 	}
-
 	if flatrate.OrganizationUnitID != 0 {
-		organizationUnit, err := r.Repo.GetOrganizationUnitByID(flatrate.OrganizationUnitID)
-		if err != nil {
+		organizationUnit, _ := r.Repo.GetOrganizationUnitByID(flatrate.OrganizationUnitID)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get organization unit by id")
-		}
+		}*/
 
-		orgUnitDropdown := dto.DropdownSimple{
-			ID:    organizationUnit.ID,
-			Title: organizationUnit.Title,
-		}
+		if organizationUnit != nil {
 
-		response.OrganizationUnit = orgUnitDropdown
+			orgUnitDropdown := dto.DropdownSimple{
+				ID:    organizationUnit.ID,
+				Title: organizationUnit.Title,
+			}
+
+			response.OrganizationUnit = orgUnitDropdown
+		}
 	}
 
 	return &response, nil

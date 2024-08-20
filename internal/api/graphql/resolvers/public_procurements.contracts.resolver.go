@@ -213,11 +213,11 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 		if isAccounting {
 			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
-			targetUsers, err := r.Repo.GetUsersByPermission(config.AccountingContract, config.OperationRead)
-			if err != nil {
+			targetUsers, _ := r.Repo.GetUsersByPermission(config.AccountingContract, config.OperationRead)
+			/*if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
-			}
+			}*/
 
 			for _, user := range targetUsers {
 				if loggedInUser.ID != user.ID {
@@ -243,25 +243,25 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 		if isInventory {
 			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
-			targetUsers, err := r.Repo.GetUsersByPermission(config.InventoryMovableItems, config.OperationRead)
-			if err != nil {
+			targetUsers, _ := r.Repo.GetUsersByPermission(config.InventoryMovableItems, config.OperationRead)
+			/*if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
-			}
+			}*/
 
 			searchParam := "Sekretarijat"
 
-			targetOrganizationUnit, err := r.Repo.GetOrganizationUnits(
+			targetOrganizationUnit, _ := r.Repo.GetOrganizationUnits(
 				&dto.GetOrganizationUnitsInput{
 					ParentID: nil,
 					Search:   &searchParam,
 				},
 			)
 
-			if err != nil {
+			/*if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
-			}
+			}*/
 
 			var targetOrganziationUnitID int
 
@@ -273,11 +273,11 @@ func (r *Resolver) PublicProcurementContractInsertResolver(params graphql.Resolv
 
 			if targetOrganziationUnitID != 0 {
 
-				employees, err := GetEmployeesOfOrganizationUnit(r.Repo, targetOrganziationUnitID)
-				if err != nil {
+				employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, targetOrganziationUnitID)
+				/*if err != nil {
 					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
-				}
+				}*/
 
 				for _, user := range targetUsers {
 					for _, employee := range employees {
@@ -316,26 +316,29 @@ func buildProcurementContractResponseItem(r repository.MicroserviceRepositoryInt
 		return nil, errors.Wrap(err, "repo get procurement item")
 	}
 
-	supplier, err := r.GetSupplier(item.SupplierID)
-	if err != nil {
+	supplier, _ := r.GetSupplier(item.SupplierID)
+	/*if err != nil {
 		return nil, errors.Wrap(err, "repo get supplier")
-	}
+	}*/
 
 	var files []dto.FileDropdownSimple
 
 	for _, id := range item.File {
-		file, err := r.GetFileByID(id)
-		if err != nil {
+		file, _ := r.GetFileByID(id)
+		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
-		}
+		}*/
 
-		fileDropDown := dto.FileDropdownSimple{
-			ID:   file.ID,
-			Name: file.Name,
-			Type: *file.Type,
-		}
+		if file != nil {
 
-		files = append(files, fileDropDown)
+			fileDropDown := dto.FileDropdownSimple{
+				ID:   file.ID,
+				Name: file.Name,
+				Type: *file.Type,
+			}
+
+			files = append(files, fileDropDown)
+		}
 	}
 
 	daysUntilExpiry, err := calculateDaysUntilExpiry(*item.DateOfExpiry)
@@ -359,11 +362,14 @@ func buildProcurementContractResponseItem(r repository.MicroserviceRepositoryInt
 			ID:    publicProcurementItem.ID,
 			Title: publicProcurementItem.Title,
 		},
-		Supplier: dto.DropdownSimple{
+		DaysUntilExpiry: daysUntilExpiry,
+	}
+
+	if supplier != nil {
+		res.Supplier = dto.DropdownSimple{
 			ID:    supplier.ID,
 			Title: supplier.Title,
-		},
-		DaysUntilExpiry: daysUntilExpiry,
+		}
 	}
 
 	return &res, nil

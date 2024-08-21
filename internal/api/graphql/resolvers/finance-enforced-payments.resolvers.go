@@ -7,6 +7,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -192,6 +193,16 @@ func (r *Resolver) ReturnEnforcedPaymentResolver(params graphql.ResolveParams) (
 }
 
 func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.EnforcedPaymentResponse, error) {
+	var status string
+
+	var defaultTime time.Time
+
+	if item.ReturnDate != nil && *item.ReturnDate != defaultTime {
+		status = "Povraćaj"
+	} else {
+		status = "Kreiran"
+	}
+
 	response := dto.EnforcedPaymentResponse{
 		ID:              item.ID,
 		BankAccount:     item.BankAccount,
@@ -207,7 +218,7 @@ func buildEnforcedPayment(item structs.EnforcedPayment, r *Resolver) (*dto.Enfor
 		AmountForAgent:  item.AmountForAgent,
 		AmountForBank:   item.AmountForBank,
 		ExecutionNumber: item.ExecutionNumber,
-		Status:          item.Status,
+		Status:          status,
 		Description:     item.Description,
 		CreatedAt:       item.CreatedAt,
 		UpdatedAt:       item.UpdatedAt,

@@ -7,6 +7,7 @@ import (
 	"bff/structs"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/graphql-go/graphql"
 )
@@ -676,6 +677,19 @@ func buildFixedDepositWill(item structs.FixedDepositWill, r *Resolver) (*dto.Fix
 
 		response.Judges = append(response.Judges, *builtJudge)
 	}
+
+	var status string
+	var defaultDate time.Time
+
+	if response.DateOfEnd != nil && *response.DateOfEnd != defaultDate {
+		status = "Zaključen"
+	} else if len(response.Dispatches) > 0 && response.Dispatches[len(response.Dispatches)-1].DispatchType == "U radu" {
+		status = "U radu"
+	} else {
+		status = "Depozit"
+	}
+
+	response.Status = status
 
 	return &response, nil
 }

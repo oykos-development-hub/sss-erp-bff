@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"bff/config"
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
@@ -20,6 +21,10 @@ func (r *Resolver) OverallSpendingResolver(params graphql.ResolveParams) (interf
 
 	if len(data.Articles) > 0 {
 		flagArticles = true
+	}
+
+	if data.OrganizationUnitID == nil || *data.OrganizationUnitID == 0 {
+		data.OrganizationUnitID, _ = params.Context.Value(config.OrganizationUnitIDKey).(*int)
 	}
 
 	articles, err := r.Repo.GetMovementArticleList(data)

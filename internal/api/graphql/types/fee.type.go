@@ -116,6 +116,15 @@ var FeeDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		"fee_all_payments_amount": &graphql.Field{
 			Type: graphql.Float,
 		},
+		"fee_amount_grace_period": &graphql.Field{
+			Type: graphql.Float,
+		},
+		"fee_amount_grace_period_due_date": &graphql.Field{
+			Type: graphql.DateTime,
+		},
+		"fee_amount_grace_period_available": &graphql.Field{
+			Type: graphql.Boolean,
+		},
 		"fee_left_to_pay_amount": &graphql.Field{
 			Type: graphql.Float,
 		},

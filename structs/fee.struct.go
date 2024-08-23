@@ -48,6 +48,10 @@ type Fee struct {
 }
 
 type FeeDetails struct {
-	FeeAllPaymentAmount float64 `json:"fee_all_payments_amount"`
 	FeeLeftToPayAmount  float64 `json:"fee_left_to_pay_amount"`
+	FeeAllPaymentAmount float64 `json:"fee_all_payments_amount"`
+
+	FeeAmountGracePeriod          float64   `json:"fee_amount_grace_period"`
+	FeeAmountGracePeriodDueDate   time.Time `json:"fee_amount_grace_period_due_date"`
+	FeeAmountGracePeriodAvailable bool      `json:"fee_amount_grace_period_available"`
 }

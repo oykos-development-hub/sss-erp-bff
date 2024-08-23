@@ -900,6 +900,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 		articlesBE, err := r.Repo.GetOrderProcurementArticles(&dto.GetOrderProcurementArticleInput{OrderID: &orderList.ID})
 
 		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
@@ -915,6 +916,32 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 		}
 	} else {
 		articles = data.Articles
+
+		for _, article := range articles {
+
+			oldArticle, err := r.Repo.GetOrderProcurementArticleByID(article.ID)
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			_, err = r.Repo.UpdateOrderProcurementArticle(&structs.OrderProcurementArticleItem{
+				ID:            article.ID,
+				OrderID:       oldArticle.OrderID,
+				ArticleID:     oldArticle.ArticleID,
+				Year:          oldArticle.Year,
+				Title:         oldArticle.Title,
+				Description:   oldArticle.Description,
+				Amount:        article.Amount,
+				NetPrice:      article.NetPrice,
+				VatPercentage: article.VatPercentage,
+			})
+
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+		}
 	}
 
 	if status != "Receive" {

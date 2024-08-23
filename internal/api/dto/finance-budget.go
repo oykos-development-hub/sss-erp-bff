@@ -273,6 +273,7 @@ type BudgetRequestOfficialOverview struct {
 	ReceiveDate *time.Time       `json:"receive_date"`
 	Total       decimal.Decimal  `json:"total"`
 	Limit       decimal.Decimal  `json:"limit"`
+	Year        int              `json:"year"`
 }
 
 type BudgetRequestsDetails struct {

@@ -507,6 +507,9 @@ var OfficialBudgetRequestType = graphql.NewObject(graphql.ObjectConfig{
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
+		"year": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"receive_date": &graphql.Field{
 			Type: graphql.DateTime,
 		},

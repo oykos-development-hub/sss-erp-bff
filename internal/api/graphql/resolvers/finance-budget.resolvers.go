@@ -927,6 +927,12 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 	generalReqType := structs.RequestTypeGeneral
 	financialReqType := structs.RequestTypeCurrentFinancial
 
+	budget, err := r.Repo.GetBudget(budgetID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
 	requests, err := r.Repo.GetBudgetRequestList(&dto.GetBudgetRequestListInputMS{
 		BudgetID:    &budgetID,
 		RequestType: &generalReqType,
@@ -1029,6 +1035,8 @@ func (r *Resolver) BudgetRequestsOfficialResolver(params graphql.ResolveParams) 
 		}
 
 		resItem.Limit = mapLimits[resItem.Unit.ID]
+
+		resItem.Year = budget.Year
 
 		unitRequestsList = append(unitRequestsList, resItem)
 	}

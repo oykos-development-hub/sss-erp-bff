@@ -354,6 +354,10 @@ func (f *Field) SpendingReleaseOverviewField() *graphql.Field {
 				Type:         graphql.Boolean,
 				DefaultValue: false,
 			},
+			"id": &graphql.ArgumentConfig{
+				Type:         graphql.Int,
+				DefaultValue: 0,
+			},
 		},
 		Resolve: f.Resolvers.SpendingReleaseOverview,
 	}

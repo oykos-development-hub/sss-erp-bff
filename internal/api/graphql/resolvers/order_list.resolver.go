@@ -932,7 +932,7 @@ func (r *Resolver) OrderListReceiveResolver(params graphql.ResolveParams) (inter
 				Year:          oldArticle.Year,
 				Title:         oldArticle.Title,
 				Description:   oldArticle.Description,
-				Amount:        article.Amount,
+				Amount:        oldArticle.Amount,
 				NetPrice:      article.NetPrice,
 				VatPercentage: article.VatPercentage,
 			})

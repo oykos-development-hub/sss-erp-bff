@@ -405,7 +405,7 @@ func (r *Resolver) BudgetSendResolver(params graphql.ResolveParams) (interface{}
 				FromUserID:  loggedInUser.ID,
 				ToUserID:    targetUser.ID,
 				FromContent: "Službenik za budžet",
-				Path:        fmt.Sprintf("/finance/budget/planning/%d/details", budgetID),
+				Path:        fmt.Sprintf("/finance/budget/planning/%d/summary", budgetID),
 				IsRead:      false,
 			})
 			if err != nil {
@@ -475,7 +475,7 @@ func (r *Resolver) BudgetSendOnReviewResolver(params graphql.ResolveParams) (int
 				FromUserID:  loggedInUser.ID,
 				ToUserID:    targetUser.ID,
 				FromContent: "Službenik za budžet",
-				Path:        fmt.Sprintf("/finance/budget/planning/%d/requests/%d/summary", req.BudgetID, req.ID),
+				Path:        fmt.Sprintf("/finance/budget/planning/%d/requests", req.BudgetID),
 				IsRead:      false,
 			})
 			if err != nil {

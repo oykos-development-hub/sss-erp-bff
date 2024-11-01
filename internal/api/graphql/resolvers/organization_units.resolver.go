@@ -217,25 +217,29 @@ func (r *Resolver) OrganizationUnitDeleteResolver(params graphql.ResolveParams) 
 	itemID := params.Args["id"].(int)
 
 	organizationUnit, err := r.Repo.GetOrganizationUnitByID(itemID)
-
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
 
 	if organizationUnit != nil {
-
-		if organizationUnit.ParentID == nil && *organizationUnit.ParentID == 0 {
-			return map[string]interface{}{
-				"status":  "failed",
-				"message": "You can not delete this item!",
-			}, nil
+		if organizationUnit.ParentID == nil || *organizationUnit.ParentID == 0 {
+			childUnits, err := r.Repo.GetOrganizationUnits(&dto.GetOrganizationUnitsInput{ParentID: &itemID})
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+			if childUnits.Total > 0 {
+				return map[string]interface{}{
+					"status":  "failed",
+					"message": "You can not delete this item!",
+				}, nil
+			}
 		}
 
 		jobPositions, err := r.Repo.GetJobPositionsInOrganizationUnits(&dto.GetJobPositionInOrganizationUnitsInput{
 			OrganizationUnitID: &organizationUnit.ID,
 		})
-
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
@@ -245,7 +249,6 @@ func (r *Resolver) OrganizationUnitDeleteResolver(params graphql.ResolveParams) 
 
 		for _, item := range jobPositions.Data {
 			systematization, err := r.Repo.GetSystematizationByID(item.SystematizationID)
-
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)

@@ -161,7 +161,7 @@ func BuildAssessmentResponse(
 	return &res, nil
 }
 
-func calculateMonthlyConsumption(startDateStr string, initialPrice float32, estimatedDuration int) float32 {
+func calculateMonthlyConsumption(startDateStr string, initialPrice float64, estimatedDuration int) float64 {
 	startDate, _ := time.Parse(config.ISO8601Format, startDateStr)
 	//today := time.Date(2023, time.December, 31, 0, 0, 0, 0, time.UTC)
 	today := time.Now()
@@ -180,12 +180,12 @@ func calculateMonthlyConsumption(startDateStr string, initialPrice float32, esti
 
 	months = years*12 + months
 
-	totalConsumption := float32(0)
-	var percentage float32
+	totalConsumption := float64(0)
+	var percentage float64
 	if estimatedDuration == 0 {
 		percentage = 0.0000000001
 	} else {
-		percentage = float32(100) / float32(estimatedDuration)
+		percentage = float64(100) / float64(estimatedDuration)
 	}
 
 	monthlyConsumption := initialPrice * percentage / 100 / 12

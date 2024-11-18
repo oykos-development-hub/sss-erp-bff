@@ -599,10 +599,12 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 		externalUnitDropdown.Title = organizationUnit.Title
 	}
 
-	var file dto.FileDropdownSimple
+	var fileList []dto.FileDropdownSimple
 
-	if revision.FileID != nil && *revision.FileID > 0 {
-		res, _ := r.GetFileByID(*revision.FileID)
+	for i := range revision.FileIDs {
+		var file dto.FileDropdownSimple
+
+		res, _ := r.GetFileByID(revision.FileIDs[i])
 		/*
 			if err != nil {
 				return nil, errors.Wrap(err, "repo get file by id")
@@ -614,7 +616,10 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 			file.Name = res.Name
 			file.Type = *res.Type
 		}
+
+		fileList = append(fileList, file)
 	}
+
 	revisionItem := &dto.RevisionsOverviewItem{
 		ID:                      revision.ID,
 		Title:                   revision.Title,
@@ -626,13 +631,16 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 		ExternalRevisionsubject: externalUnitDropdown,
 		Revisor:                 revisorDropdown,
 		RevisionType:            revisionType,
-		File:                    file,
+		Files:                   fileList,
 		CreatedAt:               revision.CreatedAt,
 		UpdatedAt:               revision.UpdatedAt,
 	}
 
-	if revision.TipsFileID != nil && *revision.TipsFileID > 0 {
-		res, _ := r.GetFileByID(*revision.TipsFileID)
+	var fileTipsList []dto.FileDropdownSimple
+
+	for i := range revision.TipsFileIDs {
+		var file dto.FileDropdownSimple
+		res, _ := r.GetFileByID(revision.TipsFileIDs[i])
 
 		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
@@ -645,8 +653,10 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 			file.Type = *res.Type
 		}
 
-		revisionItem.TipsFile = file
+		fileTipsList = append(fileTipsList, file)
 	}
+
+	revisionItem.TipsFiles = fileTipsList
 
 	return revisionItem, nil
 }

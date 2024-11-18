@@ -32,11 +32,8 @@ var UserProfileEvaluationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"updated_at": &graphql.Field{
 			Type: graphql.String,
 		},
-		"file_id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"file": &graphql.Field{
-			Type: FileDropdownItemType,
+		"files": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
 		},
 		"reason_for_evaluation": &graphql.Field{
 			Type: graphql.String,

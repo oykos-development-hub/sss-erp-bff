@@ -70,7 +70,7 @@ type DepositPaymentAdditionalExpensesResponse struct {
 	Title             string         `json:"title"`
 	CaseNumber        string         `json:"case_number"`
 	Account           DropdownSimple `json:"account"`
-	Price             float32        `json:"price"`
+	Price             float64        `json:"price"`
 	Subject           DropdownSimple `json:"subject"`
 	BankAccount       string         `json:"bank_account"`
 	PaymentOrder      DropdownSimple `json:"payment_order"`

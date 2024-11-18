@@ -35,8 +35,8 @@ var UserProfileEvaluationInsertMutation = graphql.NewInputObject(graphql.InputOb
 		"decision_number": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"file_ids": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
 		},
 	},
 })

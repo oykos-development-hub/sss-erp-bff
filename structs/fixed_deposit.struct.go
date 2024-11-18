@@ -65,7 +65,7 @@ type FixedDepositItem struct {
 	TypeID             int        `json:"type_id"`
 	Unit               string     `json:"unit"`
 	Currency           string     `json:"currency"`
-	Amount             float32    `json:"amount"`
+	Amount             float64    `json:"amount"`
 	SerialNumber       string     `json:"serial_number"`
 	DateOfConfiscation *time.Time `json:"date_of_confiscation"`
 	CaseNumber         string     `json:"case_number"`
@@ -82,7 +82,7 @@ type FixedDepositDispatch struct {
 	TypeID       int        `json:"type_id"`
 	Unit         string     `json:"unit"`
 	Currency     string     `json:"currency"`
-	Amount       float32    `json:"amount"`
+	Amount       float64    `json:"amount"`
 	SerialNumber string     `json:"serial_number"`
 	DateOfAction *time.Time `json:"date_of_action"`
 	Subject      string     `json:"subject"`

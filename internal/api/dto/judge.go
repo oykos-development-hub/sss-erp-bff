@@ -70,7 +70,7 @@ type NormResItem struct {
 	UserProfileID            int                 `json:"user_profile_id"`
 	Topic                    string              `json:"topic"`
 	Title                    string              `json:"title"`
-	PercentageOfNormDecrease float32             `json:"percentage_of_norm_decrease"`
+	PercentageOfNormDecrease float64             `json:"percentage_of_norm_decrease"`
 	NumberOfNormDecrease     int                 `json:"number_of_norm_decrease"`
 	NumberOfItems            int                 `json:"number_of_items"`
 	NumberOfItemsSolved      int                 `json:"number_of_items_solved"`

@@ -180,7 +180,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 		item.Active = true
 		item.OrganizationUnitID = *organizationUnitID
 		if item.ID != 0 {
-			item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
+			item.GrossPrice = float64(int(item.GrossPrice*100+0.5)) / 100
 			itemRes, err := r.Repo.UpdateInventoryItem(params.Context, item.ID, &item)
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
@@ -228,7 +228,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 					estimatedDuration = 10000
 				}
 
-				item.GrossPrice = float32(int(item.GrossPrice*100+0.5)) / 100
+				item.GrossPrice = float64(int(item.GrossPrice*100+0.5)) / 100
 				assessment := structs.BasicInventoryAssessmentsTypesItem{
 					EstimatedDuration:    estimatedDuration,
 					DepreciationTypeID:   item.DepreciationTypeID,
@@ -467,11 +467,11 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 	}
 
 	assessments, _ := r.GetMyInventoryAssessments(item.ID)
-	var grossPrice float32
+	var grossPrice float64
 	var dateOfAssessment string
 	var dateOfEndOfAssessment string
 	hasAssessments := false
-	var amortizationValue float32
+	var amortizationValue float64
 	indexAssessments := 0
 	if len(assessments) > 0 {
 		hasAssessments = true
@@ -731,10 +731,10 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 	}
 	assessments, _ := r.GetMyInventoryAssessments(item.ID)
 	depreciationTypeID := 0
-	var grossPrice float32
-	var residualPrice *float32
+	var grossPrice float64
+	var residualPrice *float64
 	var dateOfAssessment string
-	var amortizationValue float32
+	var amortizationValue float64
 	indexAssessments := 0
 	lifetimeOfAssessmentInMonths := 0
 	var assessmentsResponse []*dto.BasicInventoryResponseAssessment
@@ -967,7 +967,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 }
 
 /*
-func calculateAmortizationPrice(r repository.MicroserviceRepositoryInterface, depreciationTypeID *int, CreatedAt *string, grossPrice *float32) float32 {
+func calculateAmortizationPrice(r repository.MicroserviceRepositoryInterface, depreciationTypeID *int, CreatedAt *string, grossPrice *float64) float64 {
 
 	if depreciationTypeID != nil && *depreciationTypeID != 0 {
 		settings, _ := r.GetDropdownSettingByID(*depreciationTypeID)
@@ -1002,7 +1002,7 @@ func calculateAmortizationPrice(r repository.MicroserviceRepositoryInterface, de
 				totalMonths := years*12 + months
 
 				if totalMonths > 0 {
-					return *grossPrice / float32(lifetimeOfAssessmentInMonths) / 12 * float32(totalMonths)
+					return *grossPrice / float64(lifetimeOfAssessmentInMonths) / 12 * float64(totalMonths)
 				}
 			}
 		}

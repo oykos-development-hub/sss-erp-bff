@@ -37,9 +37,9 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 	var report []dto.ReportValueClassInventoryItem
 
 	var (
-		sumClassGrossPriceAllItem         float32
-		sumClassPurchaseGrossPriceAllItem float32
-		sumClassPriceOfAssessmentAllItem  float32
+		sumClassGrossPriceAllItem         float64
+		sumClassPurchaseGrossPriceAllItem float64
+		sumClassPriceOfAssessmentAllItem  float64
 	)
 
 	var filter dto.InventoryItemFilter
@@ -59,9 +59,9 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 			return apierrors.HandleAPPError(err)
 		}
 		var (
-			sumClassGrossPrice         float32
-			sumClassPurchaseGrossPrice float32
-			sumClassPriceOfAssessment  float32
+			sumClassGrossPrice         float64
+			sumClassPurchaseGrossPrice float64
+			sumClassPriceOfAssessment  float64
 		)
 		for _, inventory := range basicInventoryData.Data {
 			assessments, _ := r.Repo.GetMyInventoryAssessments(inventory.ID)
@@ -89,16 +89,16 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 			ID:                 class.ID,
 			Title:              class.Title,
 			Class:              class.Abbreviation,
-			PurchaseGrossPrice: float32(int(sumClassPurchaseGrossPrice*100+0.5)) / 100,
-			LostValue:          float32(int(sumClassPriceOfAssessment*100+0.5)) / 100,
-			Price:              float32(int(sumClassGrossPrice*100+0.5)) / 100,
+			PurchaseGrossPrice: float64(int(sumClassPurchaseGrossPrice*100+0.5)) / 100,
+			LostValue:          float64(int(sumClassPriceOfAssessment*100+0.5)) / 100,
+			Price:              float64(int(sumClassGrossPrice*100+0.5)) / 100,
 		})
 	}
 	response := dto.ReportValueClassInventory{
 		Values:             report,
-		PurchaseGrossPrice: float32(int(sumClassPurchaseGrossPriceAllItem*100+0.5)) / 100,
-		LostValue:          float32(int(sumClassPriceOfAssessmentAllItem*100+0.5)) / 100,
-		Price:              float32(int(sumClassGrossPriceAllItem*100+0.5)) / 100,
+		PurchaseGrossPrice: float64(int(sumClassPurchaseGrossPriceAllItem*100+0.5)) / 100,
+		LostValue:          float64(int(sumClassPriceOfAssessmentAllItem*100+0.5)) / 100,
+		Price:              float64(int(sumClassGrossPriceAllItem*100+0.5)) / 100,
 	}
 	return dto.ResponseSingle{
 		Status:  "success",

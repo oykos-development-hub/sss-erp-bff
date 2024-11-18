@@ -482,8 +482,8 @@ var UserProfileEducationItemType = graphql.NewObject(graphql.ObjectConfig{
 		"updated_at": &graphql.Field{
 			Type: graphql.String,
 		},
-		"file": &graphql.Field{
-			Type: FileDropdownItemType,
+		"files": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
 		},
 	},
 })
@@ -572,11 +572,8 @@ var UserProfileExperienceItemType = graphql.NewObject(graphql.ObjectConfig{
 		"updated_at": &graphql.Field{
 			Type: graphql.String,
 		},
-		"reference_file_id": &graphql.Field{
-			Type: graphql.Int,
-		},
-		"file": &graphql.Field{
-			Type: FileDropdownItemType,
+		"files": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
 		},
 	},
 })

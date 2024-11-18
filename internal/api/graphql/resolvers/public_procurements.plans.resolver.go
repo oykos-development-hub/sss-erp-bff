@@ -252,8 +252,8 @@ func buildProcurementPlanResponseItem(context context.Context, r *Resolver, plan
 	contYes := true
 	contNo := false
 
-	var totalNet float32
-	var totalGross float32
+	var totalNet float64
+	var totalGross float64
 
 	for _, item := range rawItems {
 
@@ -290,8 +290,8 @@ func buildProcurementPlanResponseItem(context context.Context, r *Resolver, plan
 		if err != nil {
 			return nil, errors.Wrap(err, "build procurement item response item")
 		}
-		totalNet += resItem.TotalNet
-		totalGross += resItem.TotalGross
+		totalNet = totalNet + resItem.TotalNet
+		totalGross = totalGross + resItem.TotalGross
 
 		items = append(items, resItem)
 	}
@@ -449,16 +449,17 @@ func BuildStatus(context context.Context, r *Resolver, plan *structs.PublicProcu
 			// Admin closed a post-budget Plan that can't be edited any further
 			return dto.PlanStatusPostBudgetClosed, nil
 		}
-		if isSentOnRevision {
-			if isRejected {
-				return dto.PlanStatusUserRejected, nil
-			}
-			if isAccepted {
-				return dto.PlanStatusUserAccepted, nil
-			}
 
+		if isSentOnRevision {
 			return dto.PlanStatusUserRequested, nil
 		}
+		if isRejected {
+			return dto.PlanStatusUserRejected, nil
+		}
+		if isAccepted {
+			return dto.PlanStatusUserAccepted, nil
+		}
+
 		// Users in Organization units can see Plan and request Articles after it has been published
 		return dto.PlanStatusUserPublished, nil
 	}

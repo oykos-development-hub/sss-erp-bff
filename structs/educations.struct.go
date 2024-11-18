@@ -7,7 +7,7 @@ type Education struct {
 	UserProfileID       int     `json:"user_profile_id"`
 	Description         string  `json:"description"`
 	DateOfCertification *string `json:"date_of_certification"`
-	Price               float32 `json:"price"`
+	Price               float64 `json:"price"`
 	DateOfStart         *string `json:"date_of_start"`
 	DateOfEnd           *string `json:"date_of_end"`
 	AcademicTitle       string  `json:"academic_title"`
@@ -16,7 +16,7 @@ type Education struct {
 	CertificateIssuer   string  `json:"certificate_issuer"`
 	CreatedAt           string  `json:"created_at"`
 	UpdatedAt           string  `json:"updated_at"`
-	FileID              int     `json:"file_id"`
+	FileIDs             []int   `json:"file_ids"`
 }
 
 type EducationType struct {

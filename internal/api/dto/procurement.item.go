@@ -35,8 +35,8 @@ type ProcurementItemResponseItem struct {
 	FileID            *int                              `json:"file_id"`
 	Articles          []*ProcurementArticleResponseItem `json:"articles"`
 	ContractID        *int                              `json:"contract_id"`
-	TotalGross        float32                           `json:"total_gross"`
-	TotalNet          float32                           `json:"total_net"`
+	TotalGross        float64                           `json:"total_gross"`
+	TotalNet          float64                           `json:"total_net"`
 	CreatedAt         string                            `json:"created_at"`
 	UpdatedAt         string                            `json:"updated_at"`
 }

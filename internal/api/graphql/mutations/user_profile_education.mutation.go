@@ -44,8 +44,8 @@ var UserProfileEducationInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"certificate_issuer": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"file_ids": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
 		},
 	},
 })

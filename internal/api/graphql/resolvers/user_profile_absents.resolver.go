@@ -295,22 +295,30 @@ func (r *Resolver) UserProfileAbsentResolver(params graphql.ResolveParams) (inte
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
+		absent.AbsentType = *absentType
 
-		if absent.FileID > 0 {
-			res, _ := r.Repo.GetFileByID(absent.FileID)
-			/*
-				if err != nil {
-					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-					return errors.HandleAPPError(err)
-				}
-			*/
+		var fileDropdownList []structs.FileDropdownSimple
+
+		for i := range absent.FileIDs {
+			var fileDropdown structs.FileDropdownSimple
+
+			res, _ := r.Repo.GetFileByID(absent.FileIDs[i])
+
 			if res != nil {
-				absent.File.ID = res.ID
-				absent.File.Name = res.Name
-				absent.File.Type = *res.Type
+				fileDropdown.ID = res.ID
+				fileDropdown.Name = res.Name
+
+				if res.Type != nil {
+					fileDropdown.Type = *res.Type
+				}
 			}
-			absent.AbsentType = *absentType
+
+			if fileDropdown.ID != 0 {
+				fileDropdownList = append(fileDropdownList, fileDropdown)
+			}
 		}
+
+		absent.Files = fileDropdownList
 	}
 
 	absentSummary.CurrentAvailableDays = availableDaysOfCurrentYear
@@ -579,19 +587,28 @@ func buildAbsentResponseItem(r repository.MicroserviceRepositoryInterface, absen
 		absent.TargetOrganizationUnit = organizationUnit
 	}
 
-	if absent.FileID > 0 {
-		res, _ := r.GetFileByID(absent.FileID)
-		/*
-			if err != nil {
-				return nil, errors.Wrap(err, "repo get file by id")
-			}
-		*/
+	var fileDropdownList []structs.FileDropdownSimple
+
+	for i := range absent.FileIDs {
+		var fileDropdown structs.FileDropdownSimple
+
+		res, _ := r.GetFileByID(absent.FileIDs[i])
+
 		if res != nil {
-			absent.File.ID = res.ID
-			absent.File.Name = res.Name
-			absent.File.Type = *res.Type
+			fileDropdown.ID = res.ID
+			fileDropdown.Name = res.Name
+
+			if res.Type != nil {
+				fileDropdown.Type = *res.Type
+			}
+		}
+
+		if fileDropdown.ID != 0 {
+			fileDropdownList = append(fileDropdownList, fileDropdown)
 		}
 	}
+
+	absent.Files = fileDropdownList
 
 	return &absent, nil
 }

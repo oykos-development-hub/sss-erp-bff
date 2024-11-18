@@ -130,7 +130,7 @@ func (r *Resolver) OrderListOverviewResolver(params graphql.ResolveParams) (inte
 	var (
 		items []dto.OrderListOverviewResponse
 		total int
-		price float32
+		price float64
 	)
 
 	id := params.Args["id"]
@@ -523,11 +523,11 @@ func (r *Resolver) OrderProcurementAvailableResolver(params graphql.ResolveParam
 
 // ProcessOrderArticleItem processes a single order article item to calculate its available amount and total price
 func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, article structs.OrderArticleItem, organizationUnitID int) (structs.OrderArticleItem, error) {
-	var err error
+	var consumedAmount int
 	currentArticle := article // work with a copy to avoid modifying the original
 
 	articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
-	articleVat32 := float32(articleVat)
+	articleVat32 := float64(articleVat)
 	currentArticle.Price = article.NetPrice + article.NetPrice*(articleVat32/100)
 
 	getOrderProcurementArticleInput := dto.GetOrderProcurementArticleInput{
@@ -549,8 +549,8 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, artic
 
 			if organizationUnitID > 0 && order.OrganizationUnitID == organizationUnitID {
 				// if article is used in another order, deduct the amount to get Available articles
-				currentArticle.TotalPrice *= float32(currentArticle.Available-orderArticle.Amount) / float32(currentArticle.Available)
-				currentArticle.Available -= orderArticle.Amount
+				currentArticle.TotalPrice *= float64(currentArticle.Available-orderArticle.Amount) / float64(currentArticle.Available)
+				consumedAmount += orderArticle.Amount
 			}
 		}
 	}
@@ -569,8 +569,10 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, artic
 
 		for _, article := range relatedOrderProcurementArticleResponse.Data {
 			amount -= article.Amount
+			consumedAmount += article.Amount
 		}
 		currentArticle.Available = amount
+		currentArticle.ConsumedAmount = consumedAmount
 	}
 
 	input := dto.InventoryItemFilter{
@@ -595,19 +597,10 @@ func ProcessOrderArticleItem(r repository.MicroserviceRepositoryInterface, artic
 		}
 	}
 
-	currentArticle.Available -= numberOfArticles
+	consumedAmount += numberOfArticles
 
-	overages, err := r.GetProcurementContractArticleOverageList(&dto.GetProcurementContractArticleOverageInput{
-		ContractArticleID:  &article.ID,
-		OrganizationUnitID: &organizationUnitID})
-
-	if err != nil {
-		return currentArticle, errors.Wrap(err, "repo get procurement contract article overage list")
-	}
-
-	for _, overage := range overages {
-		currentArticle.Available += overage.Amount
-	}
+	currentArticle.ConsumedAmount = consumedAmount
+	currentArticle.Available -= consumedAmount
 
 	return currentArticle, nil
 }
@@ -633,6 +626,8 @@ func parseDate(dateString string) (time.Time, error) {
 		"02 Jan 2006",                        // dd Mon yyyy
 		"2006-01-02T15:04:05Z07:00",          // ISO 8601
 		"2006-01-02T15:04:05Z",               // ISO
+		"2006-01-02T15:04:05.000Z",           // ISO 8601 sa milisekundama
+		"2006-01-02T15:04:05.000",            // ISO 8601 sa milisekundama bez Z
 		"Mon Jan 02 15:04:05 -0700 MST 2006", // Go standard format
 		"Jan _2 15:04:05",                    // Without leading zeros in day
 		"2006-01-02 15:04:05",                // YYYY-MM-DD HH:MM:SS
@@ -1127,7 +1122,7 @@ func buildOrderListInsertItem(context context.Context, r repository.Microservice
 
 	var newItem *structs.OrderListItem
 
-	totalPrice := float32(0.0)
+	totalPrice := float64(0.0)
 	var supplierID *int
 
 	if len(item.Articles) > 0 {
@@ -1154,7 +1149,7 @@ func buildOrderListInsertItem(context context.Context, r repository.Microservice
 
 			for _, contractArticle := range relatedContractArticlesResponse.Data {
 				if article, exists := articleMap[contractArticle.PublicProcurementArticleID]; exists {
-					totalPrice += (contractArticle.GrossValue) * float32(article.Amount)
+					totalPrice += (contractArticle.GrossValue) * float64(article.Amount)
 				}
 			}
 		}
@@ -1212,8 +1207,8 @@ func buildOrderListResponseItem(context context.Context, r *Resolver, item *stru
 	var procurementDropdown dto.DropdownSimple
 	var supplierDropdown dto.DropdownSimple
 	articles := []dto.DropdownProcurementAvailableArticle{}
-	totalBruto := float32(0.0)
-	totalNeto := float32(0.0)
+	totalBruto := float64(0.0)
+	totalNeto := float64(0.0)
 	zero := 0
 
 	if item.PublicProcurementID != nil && *item.PublicProcurementID != zero {
@@ -1267,9 +1262,9 @@ func buildOrderListResponseItem(context context.Context, r *Resolver, item *stru
 				for _, itemOrderArticle := range relatedOrderProcurementArticle.Data {
 					if article, exists := publicProcurementArticlesMap[itemOrderArticle.ArticleID]; exists {
 						articleVat, _ := strconv.ParseFloat(article.VatPercentage, 32)
-						articleVat32 := float32(articleVat)
+						articleVat32 := float64(articleVat)
 						articleUnitPrice := article.NetPrice + article.NetPrice*articleVat32/100
-						articleTotalPrice := articleUnitPrice * float32(itemOrderArticle.Amount)
+						articleTotalPrice := articleUnitPrice * float64(itemOrderArticle.Amount)
 						totalBruto += articleTotalPrice
 						vat := articleTotalPrice * (100 - articleVat32) / 100
 						totalNeto += vat
@@ -1309,8 +1304,8 @@ func buildOrderListResponseItem(context context.Context, r *Resolver, item *stru
 				NetPrice:      article.NetPrice,
 				VatPercentage: strconv.Itoa(article.VatPercentage),
 			})
-			totalNeto += article.NetPrice * float32(article.Amount)
-			totalBruto += (article.NetPrice + article.NetPrice*float32(article.VatPercentage/100)) * float32(article.Amount)
+			totalNeto += article.NetPrice * float64(article.Amount)
+			totalBruto += (article.NetPrice + article.NetPrice*float64(article.VatPercentage/100)) * float64(article.Amount)
 		}
 	}
 

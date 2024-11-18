@@ -69,9 +69,9 @@ type ItemReportResponse struct {
 	InventoryNumber  string  `json:"inventory_number"`
 	OfficeID         int     `json:"office_id"`
 	Office           string  `json:"office"`
-	ProcurementPrice float32 `json:"procurement_price"`
-	LostValue        float32 `json:"lost_value"`
-	Price            float32 `json:"price"`
+	ProcurementPrice float64 `json:"procurement_price"`
+	LostValue        float64 `json:"lost_value"`
+	Price            float64 `json:"price"`
 	Date             string  `json:"date"`
 	DateOfPurchase   string  `json:"date_of_purchase"`
 }
@@ -91,9 +91,9 @@ type BasicInventoryResponseListItem struct {
 	Title                        string                                                         `json:"title"`
 	Location                     string                                                         `json:"location"`
 	InventoryNumber              string                                                         `json:"inventory_number"`
-	PurchaseGrossPrice           float32                                                        `json:"purchase_gross_price"`
-	GrossPrice                   float32                                                        `json:"gross_price"`
-	ResidualPrice                *float32                                                       `json:"residual_price"`
+	PurchaseGrossPrice           float64                                                        `json:"purchase_gross_price"`
+	GrossPrice                   float64                                                        `json:"gross_price"`
+	ResidualPrice                *float64                                                       `json:"residual_price"`
 	DateOfPurchase               *string                                                        `json:"date_of_purchase"`
 	Description                  string                                                         `json:"description"`
 	DateOfAssessments            string                                                         `json:"date_of_assessments"`
@@ -106,7 +106,7 @@ type BasicInventoryResponseListItem struct {
 	City                         *string                                                        `json:"city"`
 	Address                      *string                                                        `json:"address"`
 	LifetimeOfAssessmentInMonths int                                                            `json:"lifetime_of_assessment_in_months"`
-	AmortizationValue            float32                                                        `json:"amortization_value"`
+	AmortizationValue            float64                                                        `json:"amortization_value"`
 	HasAssessments               bool                                                           `json:"has_assessments"`
 	IsExternalDonation           bool                                                           `json:"is_external_donation"`
 	RealEstate                   *structs.BasicInventoryRealEstatesItemResponseForInventoryItem `json:"real_estate"`
@@ -147,10 +147,10 @@ type BasicInventoryResponseItem struct {
 	Address                      string                                                         `json:"address"`
 	Unit                         string                                                         `json:"unit"`
 	Amount                       int                                                            `json:"amount"`
-	NetPrice                     float32                                                        `json:"net_price"`
-	PurchaseGrossPrice           float32                                                        `json:"purchase_gross_price"`
-	GrossPrice                   float32                                                        `json:"gross_price"`
-	ResidualPrice                *float32                                                       `json:"residual_price"`
+	NetPrice                     float64                                                        `json:"net_price"`
+	PurchaseGrossPrice           float64                                                        `json:"purchase_gross_price"`
+	GrossPrice                   float64                                                        `json:"gross_price"`
+	ResidualPrice                *float64                                                       `json:"residual_price"`
 	Description                  string                                                         `json:"description"`
 	DateOfPurchase               *string                                                        `json:"date_of_purchase"`
 	Source                       string                                                         `json:"source"`
@@ -160,7 +160,7 @@ type BasicInventoryResponseItem struct {
 	DateOfAssessment             *string                                                        `json:"date_of_assessment"`
 	LifetimeOfAssessmentInMonths int                                                            `json:"lifetime_of_assessment_in_months"`
 	DepreciationRate             string                                                         `json:"depreciation_rate"`
-	AmortizationValue            float32                                                        `json:"amortization_value"`
+	AmortizationValue            float64                                                        `json:"amortization_value"`
 	Active                       bool                                                           `json:"active"`
 	Inactive                     *string                                                        `json:"inactive"`
 	DeactivationDescription      string                                                         `json:"deactivation_description"`
@@ -178,14 +178,14 @@ type ReportValueClassInventoryItem struct {
 	ID                 int     `json:"id"`
 	Title              string  `json:"title"`
 	Class              string  `json:"class"`
-	PurchaseGrossPrice float32 `json:"purchase_gross_price"`
-	LostValue          float32 `json:"lost_value"`
-	Price              float32 `json:"price"`
+	PurchaseGrossPrice float64 `json:"purchase_gross_price"`
+	LostValue          float64 `json:"lost_value"`
+	Price              float64 `json:"price"`
 }
 
 type ReportValueClassInventory struct {
 	Values             []ReportValueClassInventoryItem `json:"items"`
-	PurchaseGrossPrice float32                         `json:"purchase_gross_price"`
-	LostValue          float32                         `json:"lost_value"`
-	Price              float32                         `json:"price"`
+	PurchaseGrossPrice float64                         `json:"purchase_gross_price"`
+	LostValue          float64                         `json:"lost_value"`
+	Price              float64                         `json:"price"`
 }

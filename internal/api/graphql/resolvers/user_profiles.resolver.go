@@ -767,20 +767,28 @@ func buildEducationResItem(r repository.MicroserviceRepositoryInterface, educati
 		educationResItem.Type = dto.DropdownSimple{ID: educationType.ID, Title: educationType.Title}
 	}
 
-	if education.FileID != 0 {
-		file, _ := r.GetFileByID(education.FileID)
+	var fileList []dto.FileDropdownSimple
+	for i := range education.FileIDs {
+		file, _ := r.GetFileByID(education.FileIDs[i])
 		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
 		}*/
 
 		if file != nil {
-			educationResItem.File = dto.FileDropdownSimple{
+			fileDropdown := dto.FileDropdownSimple{
 				ID:   file.ID,
 				Name: file.Name,
-				Type: *file.Type,
 			}
+
+			if file.Type != nil {
+				fileDropdown.Type = *file.Type
+			}
+
+			fileList = append(fileList, fileDropdown)
 		}
 	}
+
+	educationResItem.Files = fileList
 
 	return educationResItem, nil
 }
@@ -1005,11 +1013,71 @@ func buildExprienceResponseItemList(repo repository.MicroserviceRepositoryInterf
 	return
 }
 
-func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface, item *structs.Experience) (*dto.ExperienceResponseItem, error) {
-	var fileDropdown dto.FileDropdownSimple
+func calculateDifference(dateOfStart, dateOfEnd time.Time) (int, int, int) {
+	years := dateOfEnd.Year() - dateOfStart.Year()
+	months := int(dateOfEnd.Month()) - int(dateOfStart.Month())
+	days := 1 + dateOfEnd.Day() - dateOfStart.Day()
 
-	if item.ReferenceFileID != 0 {
-		file, _ := repo.GetFileByID(item.ReferenceFileID)
+	if months < 0 {
+		years--
+		months += 12
+	}
+
+	isLeapStartYear := isLeapYear(dateOfStart.Year())
+	isLeapEndYear := isLeapYear(dateOfEnd.Year())
+
+	if days < 0 {
+		if int(dateOfStart.Month()) == 12 || int(dateOfStart.Month()) == 10 || int(dateOfStart.Month()) == 8 ||
+			int(dateOfStart.Month()) == 7 || int(dateOfStart.Month()) == 5 || int(dateOfStart.Month()) == 3 || int(dateOfStart.Month()) == 1 {
+			days += 31
+		} else if int(dateOfStart.Month()) == 11 || int(dateOfStart.Month()) == 9 || int(dateOfStart.Month()) == 6 || int(dateOfStart.Month()) == 4 {
+			days += 30
+		} else if int(dateOfStart.Month()) == 2 && isLeapStartYear {
+			days += 29
+		} else if int(dateOfStart.Month()) == 2 && !isLeapStartYear {
+			days += 28
+		}
+		months--
+
+		if months < 0 {
+			years--
+			months += 12
+		}
+	}
+
+	if (days == 31 && (int(dateOfEnd.Month()) == 12 || int(dateOfEnd.Month()) == 10 || int(dateOfEnd.Month()) == 8 ||
+		int(dateOfEnd.Month()) == 7 || int(dateOfEnd.Month()) == 5 || int(dateOfEnd.Month()) == 3 || int(dateOfEnd.Month()) == 1)) ||
+		(days == 30 && (int(dateOfEnd.Month()) == 11 || int(dateOfEnd.Month()) == 9 || int(dateOfEnd.Month()) == 6 || int(dateOfEnd.Month()) == 4)) ||
+		(days == 29 && int(dateOfEnd.Month()) == 2 && isLeapEndYear) ||
+		(days == 28 && int(dateOfEnd.Month()) == 2 && !isLeapEndYear) {
+		months++
+		days = 0
+		if months == 12 {
+			months = 0
+			years++
+		}
+	}
+
+	return years, months, days
+}
+
+func isLeapYear(year int) bool {
+	if year%4 == 0 {
+		if year%100 == 0 {
+			return year%400 == 0
+		}
+		return true
+	}
+	return false
+}
+
+func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface, item *structs.Experience) (*dto.ExperienceResponseItem, error) {
+	var fileDropdownList []dto.FileDropdownSimple
+
+	for i := range item.FileIDs {
+		var fileDropdown dto.FileDropdownSimple
+
+		file, _ := repo.GetFileByID(item.FileIDs[i])
 
 		/*	if err != nil {
 				return nil, errors.Wrap(err, "repo get file by id")
@@ -1024,30 +1092,14 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 				fileDropdown.Type = *file.Type
 			}
 		}
+
+		fileDropdownList = append(fileDropdownList, fileDropdown)
 	}
 
 	dateOfEnd, _ := time.Parse(config.ISO8601Format, item.DateOfEnd)
 	dateOfStart, _ := time.Parse(config.ISO8601Format, item.DateOfStart)
-	var years, months, days int
 
-	years = dateOfEnd.Year() - dateOfStart.Year()
-	month := dateOfEnd.Month() - dateOfStart.Month()
-	if month < 0 {
-		month = 12 + dateOfEnd.Month() - dateOfStart.Month()
-		years--
-	}
-
-	days = dateOfEnd.Day() - dateOfStart.Day()
-
-	if days < 0 {
-		days = 30 - dateOfEnd.Day() - dateOfStart.Day()
-		month--
-		if month < 0 {
-			month = 12 + month
-			years--
-		}
-	}
-	months = int(month)
+	years, months, days := calculateDifference(dateOfStart, dateOfEnd)
 
 	insuredExperienceYears := item.YearsOfInsuredExperience
 	insuredExperienceMonths := item.MonthsOfInsuredExperience
@@ -1072,10 +1124,9 @@ func buildExprienceResponseItem(repo repository.MicroserviceRepositoryInterface,
 		DaysOfInsuredExperience:   insuredExperienceDays,
 		DateOfStart:               item.DateOfStart,
 		DateOfEnd:                 item.DateOfEnd,
-		ReferenceFileID:           item.ReferenceFileID,
 		CreatedAt:                 item.CreatedAt,
 		UpdatedAt:                 item.UpdatedAt,
-		File:                      fileDropdown,
+		Files:                     fileDropdownList,
 	}
 
 	if item.OrganizationUnitID != 0 {
@@ -1180,21 +1231,26 @@ func buildContractResponseItemList(r repository.MicroserviceRepositoryInterface,
 }
 
 func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, contract structs.Contracts) (*dto.Contract, error) {
-	var file dto.FileDropdownSimple
+	var files []dto.FileDropdownSimple
 
-	if contract.FileID != nil && *contract.FileID != 0 {
-		res, _ := r.GetFileByID(*contract.FileID)
-		/*
-			if err != nil {
-				return nil, errors.Wrap(err, "repo get file by id")
+	if len(contract.FileIDs) > 0 {
+		for i := range contract.FileIDs {
+			res, _ := r.GetFileByID(contract.FileIDs[i])
+			/*
+				if err != nil {
+					return nil, errors.Wrap(err, "repo get file by id")
+				}
+			*/
+
+			if res != nil {
+				files = append(files, dto.FileDropdownSimple{
+					ID:   res.ID,
+					Name: res.Name,
+					Type: *res.Type,
+				})
 			}
-		*/
-
-		if res != nil {
-			file.ID = res.ID
-			file.Name = res.Name
-			file.Type = *res.Type
 		}
+
 	}
 	responseContract := &dto.Contract{
 		ID:                 contract.ID,
@@ -1214,8 +1270,7 @@ func buildContractResponseItem(r repository.MicroserviceRepositoryInterface, con
 		DateOfEligibility:  contract.DateOfEligibility,
 		CreatedAt:          contract.CreatedAt,
 		UpdatedAt:          contract.UpdatedAt,
-		FileID:             contract.FileID,
-		File:               file,
+		Files:              files,
 	}
 
 	contractType, _ := r.GetDropdownSettingByID(contract.ContractTypeID)

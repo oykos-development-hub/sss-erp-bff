@@ -123,7 +123,7 @@ func buildProcurementArticleResponseItem(context context.Context, r *Resolver, i
 	}
 
 	vatPercentage, _ := strconv.ParseFloat(item.VatPercentage, 32)
-	res.GrossPrice = item.NetPrice + item.NetPrice*float32(vatPercentage)/100
+	res.GrossPrice = float64((item.NetPrice + item.NetPrice*float64(vatPercentage)/100))
 
 	return &res, nil
 }

@@ -45,8 +45,8 @@ type Revisions struct {
 	ExternalRevisionsubject *int   `json:"external_revision_subject_id"`
 	Revisor                 []int  `json:"revisor_id"`
 	RevisionType            int    `json:"revision_type_id"`
-	TipsFileID              *int   `json:"tips_file_id"`
-	FileID                  *int   `json:"file_id"`
+	TipsFileIDs             []int  `json:"tips_file_ids"`
+	FileIDs                 []int  `json:"file_ids"`
 	CreatedAt               string `json:"created_at"`
 	UpdatedAt               string `json:"updated_at"`
 }

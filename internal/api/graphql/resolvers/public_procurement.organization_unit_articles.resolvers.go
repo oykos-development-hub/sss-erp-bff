@@ -11,6 +11,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	goerror "errors"
+
 	"github.com/graphql-go/graphql"
 )
 
@@ -101,6 +103,10 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
+		}
+
+		if oldRequest.Status == string(structs.ArticleStatusAccepted) && oldRequest.Amount != data.Amount {
+			return errors.HandleAPPError(goerror.New("you request has been accepted already"))
 		}
 
 		var notificationContent string

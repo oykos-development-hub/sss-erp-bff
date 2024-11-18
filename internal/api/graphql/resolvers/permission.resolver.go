@@ -3,7 +3,10 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
+	apierrors "bff/internal/api/errors"
+	"bff/internal/api/repository"
 	"bff/structs"
+	"context"
 	"encoding/json"
 
 	"github.com/graphql-go/graphql"
@@ -37,29 +40,12 @@ func (r *Resolver) PermissionsUpdateResolver(params graphql.ResolveParams) (inte
 }
 
 func (r *Resolver) PermissionsForRoleResolver(params graphql.ResolveParams) (interface{}, error) {
-	roleID, roleIDOK := params.Args["role_id"].(int)
+	roleID := params.Args["role_id"].(int)
 
-	var permissions []structs.Permissions
-	var err error
-
-	if !roleIDOK {
-		permissions, err = r.Repo.GetPermissionList(1)
-		if err != nil {
-			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-			return errors.HandleAPPError(err)
-		}
-		for i := 0; i < len(permissions); i++ {
-			permissions[i].Create = false
-			permissions[i].Update = false
-			permissions[i].Read = false
-			permissions[i].Delete = false
-		}
-	} else {
-		permissions, err = r.Repo.GetPermissionList(roleID)
-		if err != nil {
-			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-			return errors.HandleAPPError(err)
-		}
+	permissions, err := GetPermissionsForRole(params.Context, r.Repo, roleID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
 	}
 
 	permissionsTree := buildTree(permissions)
@@ -69,6 +55,42 @@ func (r *Resolver) PermissionsForRoleResolver(params graphql.ResolveParams) (int
 		Message: "Here's the list you asked for!",
 		Item:    permissionsTree,
 	}, nil
+}
+
+func GetPermissionsForRole(ctx context.Context, repo repository.MicroserviceRepositoryInterface, roleID int) ([]structs.Permissions, error) {
+	var permissions []structs.Permissions
+	var err error
+
+	activeRole := false
+	if roleID != 0 {
+		roleData, err := repo.GetRole(roleID)
+		if err != nil {
+			return nil, apierrors.Wrap(err, "repo get role")
+		}
+
+		activeRole = roleData.Active
+	}
+
+	if roleID == 0 || !activeRole {
+		permissions, err = repo.GetPermissionList(1)
+		if err != nil {
+			return nil, apierrors.Wrap(err, "repo get permission list")
+		}
+
+		for i := 0; i < len(permissions); i++ {
+			permissions[i].Create = false
+			permissions[i].Update = false
+			permissions[i].Read = false
+			permissions[i].Delete = false
+		}
+	} else {
+		permissions, err = repo.GetPermissionList(roleID)
+		if err != nil {
+			return nil, apierrors.Wrap(err, "repo get permission list")
+		}
+	}
+
+	return permissions, nil
 }
 
 func buildTree(permissions []structs.Permissions) *dto.PermissionNode {

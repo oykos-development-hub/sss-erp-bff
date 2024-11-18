@@ -91,7 +91,7 @@ type AdditionalExpenses struct {
 	ObligationNumber     string                   `json:"obligation_number"`
 	ObligationSupplierID int                      `json:"obligation_supplier_id"`
 	AccountID            int                      `json:"account_id"`
-	Price                float32                  `json:"price"`
+	Price                float64                  `json:"price"`
 	SubjectID            int                      `json:"subject_id"`
 	BankAccount          string                   `json:"bank_account"`
 	InvoiceID            int                      `json:"invoice_id"`

@@ -26,8 +26,8 @@ type ProcurementContractArticlesResponseItem struct {
 	UsedArticles int                                                `json:"used_articles"`
 	OverageList  []*structs.PublicProcurementContractArticleOverage `json:"overages"`
 	OverageTotal int                                                `json:"overage_total"`
-	NetValue     float32                                            `json:"net_value"`
-	GrossValue   float32                                            `json:"gross_value"`
+	NetValue     float64                                            `json:"net_value"`
+	GrossValue   float64                                            `json:"gross_value"`
 	CreatedAt    string                                             `json:"created_at"`
 	UpdatedAt    string                                             `json:"updated_at"`
 }

@@ -217,8 +217,8 @@ package files
 							}
 							response.Validation = append(response.Validation, responseMessage)
 						} else {
-							article.Article.GrossPrice = float32(price)
-							article.FirstAmortization.GrossPriceDifference = float32(price)
+							article.Article.GrossPrice = float64(price)
+							article.FirstAmortization.GrossPriceDifference = float64(price)
 						}
 					case 14:
 						DateOfAssessment, err := parseDate(value)
@@ -246,8 +246,8 @@ package files
 							}
 							response.Validation = append(response.Validation, responseMessage)
 						} else if grossPriceNew > 0 {
-							article.SecondAmortization.GrossPriceDifference = float32(grossPriceNew)
-							article.Article.GrossPrice = float32(grossPriceNew)
+							article.SecondAmortization.GrossPriceDifference = float64(grossPriceNew)
+							article.Article.GrossPrice = float64(grossPriceNew)
 						}
 					case 16:
 						residualPrice, err := strconv.ParseFloat(value, 32)
@@ -259,8 +259,8 @@ package files
 							}
 							response.Validation = append(response.Validation, responseMessage)
 						} else if value != "" {
-							residualPriceFloat32 := float32(residualPrice)
-							article.SecondAmortization.ResidualPrice = &residualPriceFloat32
+							residualPricefloat64 := float64(residualPrice)
+							article.SecondAmortization.ResidualPrice = &residualPricefloat64
 						}
 					case 23:
 						estimatedDuration, err := strconv.Atoi(value)
@@ -297,8 +297,8 @@ package files
 							}
 							response.Validation = append(response.Validation, responseMessage)
 						} else if value != "" {
-							priceFloat32 := float32(price)
-							article.Article.AssessmentPrice = priceFloat32
+							pricefloat64 := float64(price)
+							article.Article.AssessmentPrice = pricefloat64
 						}
 					case 29:
 						dateOfPurchase, err := parseDate(value)

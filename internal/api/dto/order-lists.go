@@ -32,8 +32,8 @@ type GetOrderListInput struct {
 type OrderListOverviewResponse struct {
 	ID                    int                                    `json:"id"`
 	DateOrder             string                                 `json:"date_order" validate:"required"`
-	TotalBruto            float32                                `json:"total_bruto"`
-	TotalNeto             float32                                `json:"total_neto"`
+	TotalBruto            float64                                `json:"total_bruto"`
+	TotalNeto             float64                                `json:"total_neto"`
 	PublicProcurementID   int                                    `json:"public_procurement_id"`
 	SupplierID            int                                    `json:"supplier_id"`
 	Status                string                                 `json:"status"`
@@ -73,7 +73,7 @@ type StockFilter struct {
 	Title              *string   `json:"title"`
 	Year               *string   `json:"year"`
 	Description        *string   `json:"description"`
-	NetPrice           *float32  `json:"net_price"`
+	NetPrice           *float64  `json:"net_price"`
 	VatPercentage      *int      `json:"vat_percentage"`
 	OrganizationUnitID *int      `json:"organization_unit_id"`
 	SortByAmount       *string   `json:"sort_by_amount"`
@@ -147,7 +147,7 @@ type MovementArticle struct {
 	Description        string  `json:"description"`
 	Exception          bool    `json:"exception"`
 	Amount             int     `json:"amount"`
-	NetPrice           float32 `json:"net_price"`
+	NetPrice           float64 `json:"net_price"`
 	VatPercentage      int     `json:"vat_percentage"`
 	StockID            int     `json:"stock_id"`
 	MovementID         int     `json:"movement_id"`

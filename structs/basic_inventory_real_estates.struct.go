@@ -5,7 +5,7 @@ type BasicInventoryRealEstatesItem struct {
 	Title                    string  `json:"title"`
 	ItemID                   int     `json:"item_id"`
 	TypeID                   string  `json:"type_id"`
-	SquareArea               float32 `json:"square_area"`
+	SquareArea               float64 `json:"square_area"`
 	LandSerialNumber         string  `json:"land_serial_number"`
 	EstateSerialNumber       string  `json:"estate_serial_number"`
 	OwnershipType            string  `json:"ownership_type"`
@@ -21,7 +21,7 @@ type BasicInventoryRealEstatesItem struct {
 type BasicInventoryRealEstatesItemResponseForInventoryItem struct {
 	ID                       int     `json:"id"`
 	TypeID                   string  `json:"type_id"`
-	SquareArea               float32 `json:"square_area"`
+	SquareArea               float64 `json:"square_area"`
 	LandSerialNumber         string  `json:"land_serial_number"`
 	EstateSerialNumber       string  `json:"estate_serial_number"`
 	OwnershipType            string  `json:"ownership_type"`

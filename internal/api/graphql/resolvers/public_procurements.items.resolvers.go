@@ -119,7 +119,7 @@ func (r *Resolver) PublicProcurementPlanItemPDFResolver(params graphql.ResolvePa
 			KeyFeatures:      article.Description,
 			ContractedAmount: fmt.Sprintf("%d", articleRes.Amount),
 			AvailableAmount:  fmt.Sprintf("%d", articleRes.Available),
-			ConsumedAmount:   fmt.Sprintf("%d", articleRes.Amount-articleRes.Available),
+			ConsumedAmount:   fmt.Sprintf("%d", articleRes.ConsumedAmount),
 		}
 		tableData = append(tableData, rowData)
 	}
@@ -229,8 +229,8 @@ func buildProcurementItemResponseItem(context context.Context, r *Resolver, item
 
 	plan, _ := r.Repo.GetProcurementPlan(item.PlanID)
 	planDropdown := dto.DropdownSimple{ID: plan.ID, Title: plan.Title}
-	var totalGross float32
-	var totalNet float32
+	var totalGross float64
+	var totalNet float64
 
 	var articles []*dto.ProcurementArticleResponseItem
 	filter.ItemID = &item.ID
@@ -243,8 +243,8 @@ func buildProcurementItemResponseItem(context context.Context, r *Resolver, item
 		if err != nil {
 			return nil, errors.Wrap(err, "build procurement article response item")
 		}
-		totalGross += articleResItem.GrossPrice * float32(articleResItem.TotalAmount)
-		totalNet += articleResItem.NetPrice * float32(articleResItem.TotalAmount)
+		totalGross += articleResItem.GrossPrice * float64(articleResItem.TotalAmount)
+		totalNet += articleResItem.NetPrice * float64(articleResItem.TotalAmount)
 		articles = append(articles, articleResItem)
 	}
 

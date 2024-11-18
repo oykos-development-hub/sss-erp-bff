@@ -29,8 +29,8 @@ var UserProfileAbsentInsertMutation = graphql.NewInputObject(graphql.InputObject
 		"description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"file_ids": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
 		},
 	},
 })

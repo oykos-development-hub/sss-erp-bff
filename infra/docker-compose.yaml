@@ -1,0 +1,21 @@
+services:
+  bff:
+    image: ${IMAGE_URL}:${IMAGE_TAG}
+    volumes:
+      - ../.env:/.env:ro
+      - ../log:/log
+    ports:
+      - "${PORT}:${PORT}"
+    networks:
+      - internal-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224 # TODO: hardcoded
+        tag: bff
+    restart: always
+networks:
+  internal-network:
+    name: ${DOCKER_BACKEND_NETWORK}
+    driver: bridge
+    external: true

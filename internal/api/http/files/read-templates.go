@@ -64,7 +64,7 @@ func (h *Handler) ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Reques
 			var (
 				article            ContractArticleResponseDTO
 				title, description string
-				price              float32
+				price              float64
 			)
 
 			for cellIndex, cellValue := range cols {
@@ -85,7 +85,7 @@ func (h *Handler) ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Reques
 						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
-					price = float32(floatValue)
+					price = float64(floatValue)
 				}
 			}
 
@@ -127,10 +127,10 @@ func (h *Handler) ReadArticlesPriceHandler(w http.ResponseWriter, r *http.Reques
 			}
 
 			vatPercentage, _ := strconv.ParseFloat(res[0].VatPercentage, 32)
-			vatFloat32 := float32(vatPercentage)
+			vatfloat64 := float64(vatPercentage)
 			article.ArticleID = res[0].ID
-			grossValue := price + price*vatFloat32/100
-			grossValue = float32(math.Round(float64(grossValue)*100) / 100)
+			grossValue := price + price*vatfloat64/100
+			grossValue = float64(math.Round(float64(grossValue)*100) / 100)
 			article.NetValue = &price
 			article.GrossValue = &grossValue
 			article.ContractID = contractID
@@ -209,7 +209,7 @@ func (h *Handler) ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
-					article.NetPrice = float32(floatValue)
+					article.NetPrice = float64(floatValue)
 				case 3:
 					if value == "" {
 						break
@@ -352,7 +352,7 @@ func (h *Handler) ReadArticlesInventoryHandler(w http.ResponseWriter, r *http.Re
 							return
 						}
 
-						article.GrossPrice = articleData.NetPrice + articleData.NetPrice*float32(vatPercentageFloat)/100
+						article.GrossPrice = articleData.NetPrice + articleData.NetPrice*float64(vatPercentageFloat)/100
 						article.ID = articleData.ID
 						break
 					}
@@ -427,7 +427,7 @@ func (h *Handler) ReadArticlesDonationHandler(w http.ResponseWriter, r *http.Req
 						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
-					article.GrossPrice = float32(floatValue)
+					article.GrossPrice = float64(floatValue)
 				case 2:
 					if value == "" {
 						break
@@ -514,7 +514,7 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 					if err != nil {
 						outerloop = false
 					}
-					dispatch.GrossPriceDifference = float32(floatValue)
+					dispatch.GrossPriceDifference = float64(floatValue)
 				case 5:
 					f, err := strconv.ParseFloat(value, 64)
 					if err != nil {
@@ -530,7 +530,7 @@ func (h *Handler) ReadExpireInventoriesHandler(w http.ResponseWriter, r *http.Re
 					if err != nil {
 						continue
 					}
-					residualPriceFloat := float32(residualPrice)
+					residualPriceFloat := float64(residualPrice)
 					dispatch.ResidualPrice = &residualPriceFloat
 				}
 			}
@@ -641,7 +641,7 @@ func (h *Handler) ReadExpireImovableInventoriesHandler(w http.ResponseWriter, r 
 					if err != nil {
 						outerloop = false
 					}
-					dispatch.GrossPriceDifference = float32(floatValue)
+					dispatch.GrossPriceDifference = float64(floatValue)
 				case 5:
 					estimatedDuration, err := strconv.Atoi(value)
 					if err != nil {
@@ -653,7 +653,7 @@ func (h *Handler) ReadExpireImovableInventoriesHandler(w http.ResponseWriter, r 
 					if err != nil {
 						continue
 					}
-					residualPriceFloat := float32(residualPrice)
+					residualPriceFloat := float64(residualPrice)
 					dispatch.ResidualPrice = &residualPriceFloat
 				}
 			}
@@ -752,7 +752,7 @@ func (h *Handler) ReadArticlesSimpleProcurementHandler(w http.ResponseWriter, r 
 						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
-					article.NetPrice = float32(floatValue)
+					article.NetPrice = float64(floatValue)
 				case 3:
 					if value == "" {
 						break
@@ -889,7 +889,7 @@ func (h *Handler) ImportExcelOrgUnitInventoriesHandler(w http.ResponseWriter, r 
 						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
-					inventory.GrossPrice = float32(floatValue)
+					inventory.GrossPrice = float64(floatValue)
 				/*case 14:
 				if value != "" {
 					formattedDate, err := ConvertDateFormat(value)
@@ -906,7 +906,7 @@ func (h *Handler) ImportExcelOrgUnitInventoriesHandler(w http.ResponseWriter, r 
 					handleError(w, err, http.StatusInternalServerError)
 					return
 				}
-				assessment.GrossPriceDifference = float32(floatValue)*/
+				assessment.GrossPriceDifference = float64(floatValue)*/
 				/*case 16:
 				floatValue, err := strconv.ParseFloat(value, 32)
 
@@ -914,7 +914,7 @@ func (h *Handler) ImportExcelOrgUnitInventoriesHandler(w http.ResponseWriter, r 
 					handleError(w, err, http.StatusInternalServerError)
 					return
 				}
-				val := float32(floatValue)
+				val := float64(floatValue)
 				assessment.ResidualPrice = &val*/
 				case 26:
 					input := dto.GetSettingsInput{}

@@ -5,6 +5,7 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/structs"
+	"context"
 	"encoding/json"
 
 	"github.com/graphql-go/graphql"
@@ -82,25 +83,13 @@ func (r *Resolver) UserAccountsOverviewResolver(params graphql.ResolveParams) (i
 	}, nil
 }
 
-func (r *Resolver) GetPermissionsForRole(id *int) ([]structs.Permissions, error) {
-	var permissions []structs.Permissions
-
-	if id != nil {
-		permission, err := r.Repo.GetPermissionList(*id)
-
-		if err != nil {
-			return nil, errors.Wrap(err, "repo get permissions for role")
-		}
-
-		permissions = permission
+func (r *Resolver) HasPermission(user structs.UserAccounts, requiredPermission string, operation config.PermissionOperations) (bool, error) {
+	roleID := 0
+	if user.RoleID != nil {
+		roleID = *user.RoleID
 	}
 
-	return permissions, nil
-}
-
-func (r *Resolver) HasPermission(userID structs.UserAccounts, requiredPermission string, operation config.PermissionOperations) (bool, error) {
-	permissions, err := r.GetPermissionsForRole(userID.RoleID)
-
+	permissions, err := GetPermissionsForRole(context.Background(), r.Repo, roleID)
 	if err != nil {
 		return false, errors.Wrap(err, "repo get permissions for role")
 	}

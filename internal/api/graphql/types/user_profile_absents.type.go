@@ -122,8 +122,8 @@ var UserProfileAbsentItemType = graphql.NewObject(graphql.ObjectConfig{
 		"updated_at": &graphql.Field{
 			Type: graphql.String,
 		},
-		"file": &graphql.Field{
-			Type: FileDropdownItemType,
+		"files": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
 		},
 	},
 })

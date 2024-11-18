@@ -16,5 +16,5 @@ type Experience struct {
 	DateOfEnd                 string `json:"date_of_end"`
 	CreatedAt                 string `json:"created_at"`
 	UpdatedAt                 string `json:"updated_at"`
-	ReferenceFileID           int    `json:"reference_file_id"`
+	FileIDs                   []int  `json:"file_ids"`
 }

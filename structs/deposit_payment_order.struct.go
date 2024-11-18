@@ -29,7 +29,7 @@ type DepositPaymentAdditionalExpenses struct {
 	Title              string    `json:"title"`
 	CaseNumber         string    `json:"case_number"`
 	AccountID          int       `json:"account_id"`
-	Price              float32   `json:"price"`
+	Price              float64   `json:"price"`
 	SubjectID          int       `json:"subject_id"`
 	BankAccount        string    `json:"bank_account"`
 	SourceBankAccount  string    `json:"source_bank_account"`

@@ -45,8 +45,8 @@ type ContractArticleResponseDTO struct {
 	ID           int      `json:"id"`
 	ArticleID    int      `json:"public_procurement_article_id"`
 	ContractID   int      `json:"public_procurement_contract_id"`
-	NetValue     *float32 `json:"net_value"`
-	GrossValue   *float32 `json:"gross_value"`
+	NetValue     *float64 `json:"net_value"`
+	GrossValue   *float64 `json:"gross_value"`
 	UsedArticles int      `json:"used_articles"`
 }
 

@@ -46,21 +46,21 @@ type GetRevisionFilter struct {
 }
 
 type RevisionsOverviewItem struct {
-	ID                      int                `json:"id"`
-	Title                   string             `json:"title"`
-	PlanID                  int                `json:"plan_id"`
-	SerialNumber            string             `json:"serial_number"`
-	DateOfRevision          string             `json:"date_of_revision"`
-	RevisionQuartal         string             `json:"revision_quartal"`
-	InternalRevisionsubject *[]DropdownSimple  `json:"internal_revision_subject"`
-	ExternalRevisionsubject *DropdownSimple    `json:"external_revision_subject"`
-	Revisor                 []DropdownSimple   `json:"revisor"`
-	RevisionType            DropdownSimple     `json:"revision_type"`
-	FileID                  *int               `json:"file_id"`
-	File                    FileDropdownSimple `json:"file"`
-	TipsFile                FileDropdownSimple `json:"tips_file"`
-	CreatedAt               string             `json:"created_at"`
-	UpdatedAt               string             `json:"updated_at"`
+	ID                      int                  `json:"id"`
+	Title                   string               `json:"title"`
+	PlanID                  int                  `json:"plan_id"`
+	SerialNumber            string               `json:"serial_number"`
+	DateOfRevision          string               `json:"date_of_revision"`
+	RevisionQuartal         string               `json:"revision_quartal"`
+	InternalRevisionsubject *[]DropdownSimple    `json:"internal_revision_subject"`
+	ExternalRevisionsubject *DropdownSimple      `json:"external_revision_subject"`
+	Revisor                 []DropdownSimple     `json:"revisor"`
+	RevisionType            DropdownSimple       `json:"revision_type"`
+	FileID                  *int                 `json:"file_id"`
+	Files                   []FileDropdownSimple `json:"files"`
+	TipsFiles               []FileDropdownSimple `json:"tips_files"`
+	CreatedAt               string               `json:"created_at"`
+	UpdatedAt               string               `json:"updated_at"`
 }
 
 type GetRevisionMS struct {

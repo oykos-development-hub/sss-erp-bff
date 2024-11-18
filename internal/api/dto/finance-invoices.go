@@ -78,7 +78,7 @@ type AdditionalExpensesResponse struct {
 	ObligationNumber   string                           `json:"obligation_number"`
 	ObligationSupplier DropdownSimple                   `json:"obligation_supplier"`
 	Account            DropdownSimple                   `json:"account"`
-	Price              float32                          `json:"price"`
+	Price              float64                          `json:"price"`
 	Subject            DropdownSimple                   `json:"subject"`
 	BankAccount        string                           `json:"bank_account"`
 	Invoice            DropdownSimple                   `json:"invoice"`

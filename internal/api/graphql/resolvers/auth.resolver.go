@@ -37,7 +37,7 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 		http.SetCookie(httpResponseWriter, cookie)
 	}
 
-	permissions, err := r.Repo.GetPermissionList(roleID)
+	permissions, err := GetPermissionsForRole(p.Context, r.Repo, roleID)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return apierrors.HandleAPPError(err)

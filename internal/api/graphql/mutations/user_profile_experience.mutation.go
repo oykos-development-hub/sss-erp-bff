@@ -44,8 +44,8 @@ var UserProfileExperienceInsertMutation = graphql.NewInputObject(graphql.InputOb
 		"date_of_end": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"reference_file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"file_ids": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
 		},
 	},
 })

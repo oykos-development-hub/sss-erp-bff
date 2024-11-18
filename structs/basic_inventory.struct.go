@@ -21,9 +21,9 @@ type BasicInventoryDetailsItem struct {
 	TargetUserProfileID          int     `json:"target_user_profile_id"`
 	Unit                         string  `json:"unit"`
 	Amount                       int     `json:"amount"`
-	NetPrice                     float32 `json:"net_price"`
-	GrossPrice                   float32 `json:"gross_price"`
-	PurchaseGrossPrice           float32 `json:"purchase_gross_price"`
+	NetPrice                     float64 `json:"net_price"`
+	GrossPrice                   float64 `json:"gross_price"`
+	PurchaseGrossPrice           float64 `json:"purchase_gross_price"`
 	Description                  string  `json:"description"`
 	DateOfPurchase               string  `json:"date_of_purchase"`
 	Source                       string  `json:"source"`
@@ -66,8 +66,8 @@ type BasicInventoryInsertItem struct {
 	TargetUserProfileID          int                            `json:"target_user_profile_id"`
 	Unit                         string                         `json:"unit"`
 	Amount                       int                            `json:"amount"`
-	NetPrice                     float32                        `json:"net_price"`
-	GrossPrice                   float32                        `json:"gross_price"`
+	NetPrice                     float64                        `json:"net_price"`
+	GrossPrice                   float64                        `json:"gross_price"`
 	Description                  string                         `json:"description"`
 	DateOfPurchase               *string                        `json:"date_of_purchase"`
 	Source                       string                         `json:"source"`
@@ -90,7 +90,7 @@ type BasicInventoryInsertItem struct {
 	DonationDescription          string                         `json:"donation_description"`
 	DonationFiles                []int                          `json:"donation_files"`
 	IsExternalDonation           bool                           `json:"is_external_donation"`
-	AssessmentPrice              float32                        `json:"assessment_price"`
+	AssessmentPrice              float64                        `json:"assessment_price"`
 }
 
 type BasicInventoryItem struct {
@@ -106,7 +106,7 @@ type BasicInventoryItem struct {
 	TargetUserProfileID      int     `json:"target_user_profile_id"`
 	OrganizationUnitID       int     `json:"organization_unit_id"`
 	TargetOrganizationUnitID int     `json:"target_organization_unit_id"`
-	GrossPrice               float32 `json:"gross_price"`
+	GrossPrice               float64 `json:"gross_price"`
 	DateOfPurchase           string  `json:"date_of_purchase"`
 	Source                   string  `json:"source"`
 	Active                   bool    `json:"active"`
@@ -134,8 +134,8 @@ type InventoryReportStruct struct {
 	Title            string  `json:"title"`
 	InventoryNumber  string  `json:"inventory_number"`
 	Office           string  `json:"office"`
-	ProcurementPrice float32 `json:"procurement_price"`
-	LostValue        float32 `json:"lost_value"`
-	Price            float32 `json:"price"`
+	ProcurementPrice float64 `json:"procurement_price"`
+	LostValue        float64 `json:"lost_value"`
+	Price            float64 `json:"price"`
 	Date             string  `json:"date"`
 }

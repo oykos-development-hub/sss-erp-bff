@@ -52,7 +52,7 @@ type PublicProcurementArticle struct {
 	PublicProcurementID int            `json:"public_procurement_id"`
 	Title               string         `json:"title"`
 	Description         string         `json:"description"`
-	NetPrice            float32        `json:"net_price"`
+	NetPrice            float64        `json:"net_price"`
 	VatPercentage       string         `json:"vat_percentage"`
 	Manufacturer        string         `json:"manufacturer"`
 	Amount              int            `json:"amount"`
@@ -65,7 +65,7 @@ type PublicProcurementArticle struct {
 type ReadArticlesDonation struct {
 	ID           int     `json:"id"`
 	Title        string  `json:"title"`
-	GrossPrice   float32 `json:"gross_price"`
+	GrossPrice   float64 `json:"gross_price"`
 	SerialNumber string  `json:"serial_number"`
 	Description  string  `json:"description"`
 	ArticleID    int     `json:"article_id"`
@@ -106,9 +106,9 @@ type PublicProcurementContract struct {
 	SerialNumber        string   `json:"serial_number"`
 	DateOfSigning       string   `json:"date_of_signing"`
 	DateOfExpiry        *string  `json:"date_of_expiry"`
-	NetValue            *float32 `json:"net_value"`
-	GrossValue          *float32 `json:"gross_value"`
-	VatValue            *float32 `json:"vat_value"`
+	NetValue            *float64 `json:"net_value"`
+	GrossValue          *float64 `json:"gross_value"`
+	VatValue            *float64 `json:"vat_value"`
 	CreatedAt           string   `json:"created_at"`
 	UpdatedAt           string   `json:"updated_at"`
 	File                []int    `json:"file"`
@@ -118,8 +118,8 @@ type PublicProcurementContractArticle struct {
 	ID                          int     `json:"id"`
 	PublicProcurementArticleID  int     `json:"public_procurement_article_id"`
 	PublicProcurementContractID int     `json:"public_procurement_contract_id"`
-	NetValue                    float32 `json:"net_value"`
-	GrossValue                  float32 `json:"gross_value"`
+	NetValue                    float64 `json:"net_value"`
+	GrossValue                  float64 `json:"gross_value"`
 	VatPercentage               string  `json:"vat_percentage"`
 	UsedArticles                int     `json:"used_articles"`
 	CreatedAt                   string  `json:"created_at"`

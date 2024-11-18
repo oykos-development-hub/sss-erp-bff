@@ -23,7 +23,7 @@ type Contracts struct {
 	DateOfEnd                       *string `json:"date_of_end"`
 	CreatedAt                       string  `json:"created_at"`
 	UpdatedAt                       string  `json:"updated_at"`
-	FileID                          *int    `json:"file_id"`
+	FileIDs                         []int   `json:"file_ids"`
 }
 
 type ContractType struct {

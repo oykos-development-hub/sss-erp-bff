@@ -13,20 +13,20 @@ type AbsentType struct {
 }
 
 type Absent struct {
-	ID                       int                `json:"id"`
-	AbsentTypeID             int                `json:"absent_type_id"`
-	AbsentType               AbsentType         `json:"absent_type"`
-	UserProfileID            int                `json:"user_profile_id"`
-	Location                 string             `json:"location"`
-	TargetOrganizationUnitID *int               `json:"target_organization_unit_id"`
-	TargetOrganizationUnit   *OrganizationUnits `json:"target_organization_unit"`
-	Description              string             `json:"description"`
-	DateOfStart              string             `json:"date_of_start"`
-	DateOfEnd                string             `json:"date_of_end"`
-	CreatedAt                string             `json:"created_at"`
-	UpdatedAt                string             `json:"updated_at"`
-	FileID                   int                `json:"file_id"`
-	File                     FileDropdownSimple `json:"file"`
+	ID                       int                  `json:"id"`
+	AbsentTypeID             int                  `json:"absent_type_id"`
+	AbsentType               AbsentType           `json:"absent_type"`
+	UserProfileID            int                  `json:"user_profile_id"`
+	Location                 string               `json:"location"`
+	TargetOrganizationUnitID *int                 `json:"target_organization_unit_id"`
+	TargetOrganizationUnit   *OrganizationUnits   `json:"target_organization_unit"`
+	Description              string               `json:"description"`
+	DateOfStart              string               `json:"date_of_start"`
+	DateOfEnd                string               `json:"date_of_end"`
+	CreatedAt                string               `json:"created_at"`
+	UpdatedAt                string               `json:"updated_at"`
+	FileIDs                  []int                `json:"file_ids"`
+	Files                    []FileDropdownSimple `json:"files"`
 }
 
 type Vacation struct {

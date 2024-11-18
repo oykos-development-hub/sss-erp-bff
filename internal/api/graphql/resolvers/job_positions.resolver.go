@@ -180,6 +180,7 @@ func (r *Resolver) JobPositionInOrganizationUnitInsertResolver(params graphql.Re
 			input := &structs.EmployeesInOrganizationUnits{
 				PositionInOrganizationUnitID: jobPositionInOrganizationUnit.Data.ID,
 				UserProfileID:                employeeID,
+				Active:                       true,
 			}
 			res, err := r.Repo.CreateEmployeesInOrganizationUnits(input)
 			if err != nil {

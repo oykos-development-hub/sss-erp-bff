@@ -11,7 +11,7 @@ type Evaluation struct {
 	IsRelevant          bool             `json:"is_relevant"`
 	CreatedAt           string           `json:"created_at"`
 	UpdatedAt           string           `json:"updated_at"`
-	FileID              int              `json:"file_id"`
+	FileIDs             []int            `json:"file_ids"`
 	ReasonForEvaluation *string          `json:"reason_for_evaluation"`
 	EvaluationPeriod    *string          `json:"evaluation_period"`
 	DecisionNumber      *string          `json:"decision_number"`

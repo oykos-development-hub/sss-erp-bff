@@ -7,6 +7,7 @@ import (
 	"bff/shared"
 	"bff/structs"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/graphql-go/graphql"
@@ -143,16 +144,17 @@ func buildJobTenderResponse(r repository.MicroserviceRepositoryInterface, item *
 }
 
 func JobTenderIsActive(r repository.MicroserviceRepositoryInterface, item *structs.JobTenders) bool {
-
 	input := dto.GetJobTenderApplicationsInput{
 		JobTenderID: &item.ID,
 	}
 
 	jobTenderApplications, err := r.GetTenderApplicationList(&input)
-
 	if err != nil {
+		fmt.Println(err.Error(), "tender applications get error")
 		return false
 	}
+
+	fmt.Println(item.NumberOfVacantSeats, "number of vacant seats")
 
 	count := 0
 	for _, tenderApp := range jobTenderApplications.Data {
@@ -227,7 +229,7 @@ func buildJobTenderApplicationResponse(r repository.MicroserviceRepositoryInterf
 			res.LastName = userProfile.LastName
 			res.OfficialPersonalDocumentNumber = userProfile.OfficialPersonalDocumentNumber
 			res.DateOfBirth = userProfile.DateOfBirth
-			res.Nationality = userProfile.Citizenship
+			// res.Nationality = userProfile.Citizenship
 			res.UserProfile = userProfileDropdownItem
 		}
 	}

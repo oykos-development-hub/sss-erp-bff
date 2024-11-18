@@ -184,7 +184,7 @@ func (r *Resolver) InvoiceInsertResolver(params graphql.ResolveParams) (interfac
 					Amount:        article.Amount,
 					Title:         article.Title,
 					Description:   article.Description,
-					NetPrice:      float32(article.NetPrice),
+					NetPrice:      float64(article.NetPrice),
 					VatPercentage: article.VatPercentage,
 				})
 			}
@@ -549,7 +549,7 @@ func calculateCoefficientLess1000(item structs.TaxAuthorityCodebook, previousInc
 		return float64(0), float64(0), errors.Wrap(err, "calculate coefficient less 700")
 	}
 
-	coefficient := (maxNetAmount - float32(amount)) / 300
+	coefficient := (maxNetAmount - float64(amount)) / 300
 
 	return float64(coefficient), float64(maxNetAmount), nil
 }
@@ -660,8 +660,8 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 		if taxAuthorityCodebook.TaxPercentage != 0 {
 			taxAuthorityCodebook.Coefficient = calculateCoefficient(*taxAuthorityCodebook, float64(municipality.TaxPercentage), netPrice)
 			grossPrice = netPrice / taxAuthorityCodebook.Coefficient
-			helper := math.Round(grossPrice*100) / 100
-			grossPrice = float64(helper)
+			//helper := math.Round(grossPrice*100) / 100
+			//grossPrice = float64(helper)
 		} else if previousIncomeNetOK {
 			if !previousIncomeGrossOK {
 				sumNetPrice := previousIncomeNet + netPrice
@@ -669,38 +669,38 @@ func (r *Resolver) CalculateAdditionalExpensesResolver(params graphql.ResolvePar
 				//konvertuje neto u bruto
 				if sumNetPrice < taxAuthorityCodebook.AmountLess700 {
 					sumNetPrice = sumNetPrice / taxAuthorityCodebook.CoefficientLess700
-					helper := math.Round(sumNetPrice*100) / 100
-					sumNetPrice = float64(helper)
+					//helper := math.Round(sumNetPrice*100) / 100
+					//sumNetPrice = float64(helper)
 				} else if sumNetPrice > taxAuthorityCodebook.AmountLess1000 {
 					sumNetPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 						(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
 						(sumNetPrice-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
-					helper := math.Round(sumNetPrice*100) / 100
-					sumNetPrice = float64(helper)
+					//helper := math.Round(sumNetPrice*100) / 100
+					//sumNetPrice = float64(helper)
 				} else {
 					sumNetPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 						(sumNetPrice-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000)
-					helper := math.Round(sumNetPrice*100) / 100
-					sumNetPrice = float64(helper)
+					//helper := math.Round(sumNetPrice*100) / 100
+					//sumNetPrice = float64(helper)
 				}
 				grossPrice = sumNetPrice - previousIncomeGross
 			}
 		} else {
 			if netPrice < taxAuthorityCodebook.AmountLess700 {
 				grossPrice = netPrice / taxAuthorityCodebook.CoefficientLess700
-				helper := math.Round(grossPrice*100) / 100
-				grossPrice = float64(helper)
+				//helper := math.Round(grossPrice*100) / 100
+				//grossPrice = float64(helper)
 			} else if netPrice > taxAuthorityCodebook.AmountLess1000 {
 				grossPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 					(taxAuthorityCodebook.AmountLess1000-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000 +
 					(netPrice-taxAuthorityCodebook.AmountLess1000)/taxAuthorityCodebook.CoefficientMore1000)
-				helper := math.Round(grossPrice*100) / 100
-				grossPrice = float64(helper)
+				//helper := math.Round(grossPrice*100) / 100
+				//grossPrice = float64(helper)
 			} else {
 				grossPrice = (taxAuthorityCodebook.AmountLess700/taxAuthorityCodebook.CoefficientLess700 +
 					(netPrice-taxAuthorityCodebook.AmountLess700)/taxAuthorityCodebook.CoefficientLess1000)
-				helper := math.Round(grossPrice*100) / 100
-				grossPrice = float64(helper)
+				//helper := math.Round(grossPrice*100) / 100
+				//grossPrice = float64(helper)
 			}
 		}
 
@@ -733,12 +733,12 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	//oslobodjenje
 	if taxAuthorityCodebook.ReleasePercentage != 0 {
 		grossPrice = grossPrice - grossPrice*taxAuthorityCodebook.ReleasePercentage/100
-		helper := math.Round(grossPrice*100) / 100
-		grossPrice = float64(helper)
+		//helper := math.Round(grossPrice*100) / 100
+		//grossPrice = float64(helper)
 	} else if taxAuthorityCodebook.ReleaseAmount != 0 {
 		grossPrice = grossPrice - taxAuthorityCodebook.ReleaseAmount
-		helper := math.Round(grossPrice*100) / 100
-		grossPrice = float64(helper)
+		//helper := math.Round(grossPrice*100) / 100
+		//grossPrice = float64(helper)
 
 		if grossPrice < 0 {
 			grossPrice = 0
@@ -750,8 +750,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	if taxAuthorityCodebook.TaxPercentage != 0 {
 
 		taxPrice = grossPrice * taxAuthorityCodebook.TaxPercentage / 100
-		helper := math.Round(taxPrice*100) / 100
-		taxPrice = float64(helper)
+		//helper := math.Round(taxPrice*100) / 100
+		//taxPrice = float64(helper)
 
 		taxSupplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.TaxSupplierID)
 
@@ -761,7 +761,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ObligationTaxTitle,
-			Price:  float32(taxPrice),
+			Price:  float64(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -793,8 +793,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 		if firstGross > 0 {
 			taxPrice = firstGross * taxAuthorityCodebook.PreviousIncomePercentageMoreThan1000 / 100
 			remainGross -= firstGross
-			helper := math.Round(taxPrice*100) / 100
-			taxPrice = float64(helper)
+			//helper := math.Round(taxPrice*100) / 100
+			//taxPrice = float64(helper)
 		}
 
 		secondGross := remainGross - 700 + previousIncomeGross
@@ -807,8 +807,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		taxPrice += secondGross * taxAuthorityCodebook.PreviousIncomePercentageLessThan1000 / 100
 
-		helper := math.Round(taxPrice*100) / 100
-		taxPrice = float64(helper)
+		//helper := math.Round(taxPrice*100) / 100
+		//taxPrice = float64(helper)
 
 		taxPrice += remainGross * taxAuthorityCodebook.PreviousIncomePercentageLessThan700 / 100
 
@@ -824,12 +824,12 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 			}
 		}
 
-		helper = math.Round(taxPrice*100) / 100
-		taxPrice = float64(helper)
+		//helper = math.Round(taxPrice*100) / 100
+		//taxPrice = float64(helper)
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ObligationTaxTitle,
-			Price:  float32(taxPrice),
+			Price:  float64(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -847,12 +847,12 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	}
 
 	subTaxPrice := float64(taxPrice) * float64(municipality.TaxPercentage/100)
-	helper := math.Round(subTaxPrice*100) / 100
-	subTaxPrice = float64(helper)
+	//helper := math.Round(subTaxPrice*100) / 100
+	//subTaxPrice = float64(helper)
 
 	additionalExpenseTax := dto.AdditionalExpensesResponse{
 		Title:  structs.ObligationSubTaxTitle,
-		Price:  float32(subTaxPrice),
+		Price:  float64(subTaxPrice),
 		Status: string(structs.AdditionalExpenseStatusCreated),
 		OrganizationUnit: dto.DropdownSimple{
 			ID:    organizationUnit.ID,
@@ -872,8 +872,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	if taxAuthorityCodebook.LaborFund != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.LaborFund / 100
 
-		helper := math.Round(taxPrice*100) / 100
-		taxPrice = float64(helper)
+		//helper := math.Round(taxPrice*100) / 100
+		//taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.LaborFundSupplierID)
 
@@ -883,7 +883,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.LaborFundTitle,
-			Price:  float32(taxPrice),
+			Price:  float64(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -904,8 +904,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	if taxAuthorityCodebook.PioPercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentage / 100
 
-		helper := math.Round(taxPrice*100) / 100
-		taxPrice = float64(helper)
+		//helper := math.Round(taxPrice*100) / 100
+		//taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
@@ -915,7 +915,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForPIOTitle,
-			Price:  float32(taxPrice),
+			Price:  float64(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -936,8 +936,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	if taxAuthorityCodebook.PioPercentageEmployerPercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployerPercentage / 100
 
-		helper := math.Round(taxPrice*100) / 100
-		taxPrice = float64(helper)
+		//helper := math.Round(taxPrice*100) / 100
+		//taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
@@ -947,7 +947,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForPIOEmployeeTitle,
-			Price:  float32(taxPrice),
+			Price:  float64(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -968,8 +968,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	if taxAuthorityCodebook.PioPercentageEmployeePercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.PioPercentageEmployeePercentage / 100
 
-		helper := math.Round(taxPrice*100) / 100
-		taxPrice = float64(helper)
+		//helper := math.Round(taxPrice*100) / 100
+		//taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.PioSupplierID)
 
@@ -979,7 +979,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForPIOEmployerTitle,
-			Price:  float32(taxPrice),
+			Price:  float64(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -1000,8 +1000,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	if taxAuthorityCodebook.UnemploymentPercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentPercentage / 100
 
-		helper := math.Round(taxPrice*100) / 100
-		taxPrice = float64(helper)
+		//helper := math.Round(taxPrice*100) / 100
+		//taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
@@ -1011,7 +1011,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForUnemploymentTitle,
-			Price:  float32(taxPrice),
+			Price:  float64(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -1032,8 +1032,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	if taxAuthorityCodebook.UnemploymentEmployerPercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentEmployerPercentage / 100
 
-		helper := math.Round(taxPrice*100) / 100
-		taxPrice = float64(helper)
+		//helper := math.Round(taxPrice*100) / 100
+		//taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
@@ -1043,7 +1043,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForUnemploymentEmployerTitle,
-			Price:  float32(taxPrice),
+			Price:  float64(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -1064,8 +1064,8 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 	if taxAuthorityCodebook.UnemploymentEmployeePercentage != 0 {
 		taxPrice := grossPrice * taxAuthorityCodebook.UnemploymentEmployeePercentage / 100
 
-		helper := math.Round(taxPrice*100) / 100
-		taxPrice = float64(helper)
+		//helper := math.Round(taxPrice*100) / 100
+		//taxPrice = float64(helper)
 
 		supplier, err := r.Repo.GetSupplier(taxAuthorityCodebook.UnemploymentSupplierID)
 
@@ -1075,7 +1075,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 		additionalExpenseTax := dto.AdditionalExpensesResponse{
 			Title:  structs.ContributionForUnemploymentEmployeeTitle,
-			Price:  float32(taxPrice),
+			Price:  float64(taxPrice),
 			Status: string(structs.AdditionalExpenseStatusCreated),
 			OrganizationUnit: dto.DropdownSimple{
 				ID:    organizationUnit.ID,
@@ -1105,7 +1105,7 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 	additionalExpenseTax = dto.AdditionalExpensesResponse{
 		Title:  structs.NetTitle,
-		Price:  float32(nonReleasedGrossPrice),
+		Price:  float64(nonReleasedGrossPrice),
 		Status: string(structs.AdditionalExpenseStatusCreated),
 		OrganizationUnit: dto.DropdownSimple{
 			ID:    organizationUnit.ID,
@@ -1120,6 +1120,13 @@ func calculateAdditionalExpenses(taxAuthorityCodebook structs.TaxAuthorityCodebo
 
 	if additionalExpenseTax.Price > 0 {
 		additionalExpenses = append(additionalExpenses, additionalExpenseTax)
+	}
+
+	for i := 0; i < len(additionalExpenses); i++ {
+		oldPrice := float64(additionalExpenses[i].Price)
+		price := math.Round(oldPrice*100) / 100
+
+		additionalExpenses[i].Price = float64(price)
 	}
 
 	return additionalExpenses, nil

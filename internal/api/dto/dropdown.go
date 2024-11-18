@@ -33,9 +33,9 @@ type DropdownProcurementAvailableArticle struct {
 	Unit           string  `json:"unit"`
 	Available      int     `json:"available"`
 	Amount         int     `json:"amount"`
-	Price          float32 `json:"price"`
-	TotalPrice     float32 `json:"total_price"`
-	NetPrice       float32 `json:"net_price"`
+	Price          float64 `json:"price"`
+	TotalPrice     float64 `json:"total_price"`
+	NetPrice       float64 `json:"net_price"`
 	VatPercentage  string  `json:"vat_percentage"`
 }
 

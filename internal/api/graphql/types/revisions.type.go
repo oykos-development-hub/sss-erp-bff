@@ -283,11 +283,11 @@ var RevisionType = graphql.NewObject(graphql.ObjectConfig{
 		"revision_quartal": &graphql.Field{
 			Type: graphql.String,
 		},
-		"file": &graphql.Field{
-			Type: FileDropdownItemType,
+		"files": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
 		},
-		"tips_file": &graphql.Field{
-			Type: FileDropdownItemType,
+		"tips_files": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

@@ -5,7 +5,7 @@ import "time"
 type OrderListItem struct {
 	ID                    int        `json:"id"`
 	DateOrder             string     `json:"date_order"`
-	TotalPrice            float32    `json:"total_price"`
+	TotalPrice            float64    `json:"total_price"`
 	PublicProcurementID   *int       `json:"public_procurement_id"`
 	GroupOfArticlesID     *int       `json:"group_of_articles_id"`
 	SupplierID            *int       `json:"supplier_id"`
@@ -40,7 +40,7 @@ type OrderProcurementArticleItem struct {
 	Title         string  `json:"title"`
 	Description   string  `json:"description"`
 	Amount        int     `json:"amount"`
-	NetPrice      float32 `json:"net_price"`
+	NetPrice      float64 `json:"net_price"`
 	VatPercentage int     `json:"vat_percentage"`
 }
 
@@ -50,13 +50,14 @@ type OrderArticleItem struct {
 	PublicProcurementID int            `json:"public_procurement_id"`
 	Title               string         `json:"title"`
 	Description         string         `json:"description"`
-	NetPrice            float32        `json:"net_price"`
+	NetPrice            float64        `json:"net_price"`
 	VatPercentage       string         `json:"vat_percentage"`
 	Manufacturer        string         `json:"manufacturer"`
 	Amount              int            `json:"amount"`
+	ConsumedAmount      int            `json:"consumed_amount"`
 	Available           int            `json:"available"`
-	TotalPrice          float32        `json:"total_price"`
-	Price               float32        `json:"price"`
+	TotalPrice          float64        `json:"total_price"`
+	Price               float64        `json:"price"`
 	Unit                string         `json:"unit"`
 	VisibilityType      VisibilityType `json:"visibility_type"`
 }
@@ -83,7 +84,7 @@ type OrderArticleInsertItem struct {
 	Amount        int     `json:"amount"`
 	Title         string  `json:"title"`
 	Description   string  `json:"description"`
-	NetPrice      float32 `json:"net_price"`
+	NetPrice      float64 `json:"net_price"`
 	VatPercentage int     `json:"vat_percentage"`
 }
 
@@ -118,7 +119,7 @@ type StockArticle struct {
 	Description        string  `json:"description"`
 	Exception          bool    `json:"exception"`
 	OrganizationUnitID int     `json:"organization_unit_id"`
-	NetPrice           float32 `json:"net_price"`
+	NetPrice           float64 `json:"net_price"`
 	VatPercentage      int     `json:"vat_percentage"`
 	Year               string  `json:"year"`
 	Amount             int     `json:"amount"`

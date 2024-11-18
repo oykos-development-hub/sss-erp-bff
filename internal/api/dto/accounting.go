@@ -47,16 +47,16 @@ type GetAccountingOrderForObligations struct {
 type AccountingOrderForObligations struct {
 	OrganizationUnitID int                                  `json:"organization_unit_id"`
 	DateOfBooking      time.Time                            `json:"date_of_booking"`
-	CreditAmount       float32                              `json:"credit_amount"`
-	DebitAmount        float32                              `json:"debit_amount"`
+	CreditAmount       float64                              `json:"credit_amount"`
+	DebitAmount        float64                              `json:"debit_amount"`
 	Items              []AccountingOrderItemsForObligations `json:"items"`
 }
 
 type AccountingOrderItemsForObligations struct {
 	AccountID             int            `json:"account_id"`
 	Title                 string         `json:"title"`
-	CreditAmount          float32        `json:"credit_amount"`
-	DebitAmount           float32        `json:"debit_amount"`
+	CreditAmount          float64        `json:"credit_amount"`
+	DebitAmount           float64        `json:"debit_amount"`
 	Type                  string         `json:"type"`
 	SupplierID            int            `json:"supplier_id"`
 	Date                  time.Time      `json:"date"`
@@ -70,8 +70,8 @@ type AccountingOrderItemsForObligations struct {
 type AccountingOrderForObligationsResponse struct {
 	OrganizationUnit DropdownSimple                               `json:"organization_unit"`
 	DateOfBooking    time.Time                                    `json:"date_of_booking"`
-	CreditAmount     float32                                      `json:"credit_amount"`
-	DebitAmount      float32                                      `json:"debit_amount"`
+	CreditAmount     float64                                      `json:"credit_amount"`
+	DebitAmount      float64                                      `json:"debit_amount"`
 	Items            []AccountingOrderItemsForObligationsResponse `json:"items"`
 }
 
@@ -79,8 +79,8 @@ type AccountingOrderItemsForObligationsResponse struct {
 	ID                    int            `json:"id"`
 	Account               DropdownSimple `json:"account"`
 	Title                 string         `json:"title"`
-	CreditAmount          float32        `json:"credit_amount"`
-	DebitAmount           float32        `json:"debit_amount"`
+	CreditAmount          float64        `json:"credit_amount"`
+	DebitAmount           float64        `json:"debit_amount"`
 	Type                  string         `json:"type"`
 	SupplierID            int            `json:"supplier_id"`
 	Date                  time.Time      `json:"date"`

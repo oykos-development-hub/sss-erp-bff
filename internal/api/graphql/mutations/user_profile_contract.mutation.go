@@ -62,8 +62,8 @@ var UserProfileContractInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		"date_of_end": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"file_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
+		"file_ids": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
 		},
 	},
 })

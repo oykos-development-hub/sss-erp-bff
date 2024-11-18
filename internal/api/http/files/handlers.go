@@ -223,7 +223,7 @@ func (h *Handler) OverviewHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetFileData(fileID string) (*SingleFileResponse, int, error) {
-	backendURL := fmt.Sprintf(h.Config.Microservices.Files.Files + "/" + fileID)
+	backendURL := fmt.Sprintf("%s/%s", h.Config.Microservices.Files.Files, fileID)
 
 	response, status, err := makeBackendRequest(http.MethodGet, backendURL, nil, "")
 

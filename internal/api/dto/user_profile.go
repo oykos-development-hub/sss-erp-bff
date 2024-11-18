@@ -151,22 +151,22 @@ type UserProfileOverviewResponse struct {
 }
 
 type Education struct {
-	ID                  int                `json:"id"`
-	Title               string             `json:"title"`
-	Type                DropdownSimple     `json:"type_id"`
-	UserProfileID       int                `json:"user_profile_id"`
-	Description         string             `json:"description"`
-	DateOfCertification *string            `json:"date_of_certification"`
-	Price               float32            `json:"price"`
-	DateOfStart         *string            `json:"date_of_start"`
-	DateOfEnd           *string            `json:"date_of_end"`
-	AcademicTitle       string             `json:"academic_title"`
-	ExpertiseLevel      string             `json:"expertise_level"`
-	Score               *string            `json:"score"`
-	CertificateIssuer   string             `json:"certificate_issuer"`
-	CreatedAt           string             `json:"created_at"`
-	UpdatedAt           string             `json:"updated_at"`
-	File                FileDropdownSimple `json:"file"`
+	ID                  int                  `json:"id"`
+	Title               string               `json:"title"`
+	Type                DropdownSimple       `json:"type_id"`
+	UserProfileID       int                  `json:"user_profile_id"`
+	Description         string               `json:"description"`
+	DateOfCertification *string              `json:"date_of_certification"`
+	Price               float64              `json:"price"`
+	DateOfStart         *string              `json:"date_of_start"`
+	DateOfEnd           *string              `json:"date_of_end"`
+	AcademicTitle       string               `json:"academic_title"`
+	ExpertiseLevel      string               `json:"expertise_level"`
+	Score               *string              `json:"score"`
+	CertificateIssuer   string               `json:"certificate_issuer"`
+	CreatedAt           string               `json:"created_at"`
+	UpdatedAt           string               `json:"updated_at"`
+	Files               []FileDropdownSimple `json:"file"`
 }
 
 type EducationInput struct {
@@ -179,42 +179,40 @@ type GetRevisors struct {
 }
 
 type ExperienceResponseItem struct {
-	ID                        int                `json:"id"`
-	UserProfileID             int                `json:"user_profile_id"`
-	OrganizationUnitID        int                `json:"organization_unit_id,omitempty"`
-	OrganizationUnitTitle     string             `json:"organization_unit_title"`
-	Relevant                  bool               `json:"relevant"`
-	OrganizationUnit          string             `json:"organization_unit"`
-	YearsOfExperience         int                `json:"years_of_experience"`
-	YearsOfInsuredExperience  int                `json:"years_of_insured_experience"`
-	MonthsOfExperience        int                `json:"months_of_experience"`
-	MonthsOfInsuredExperience int                `json:"months_of_insured_experience"`
-	DaysOfExperience          int                `json:"days_of_experience"`
-	DaysOfInsuredExperience   int                `json:"days_of_insured_experience"`
-	DateOfStart               string             `json:"date_of_start"`
-	DateOfEnd                 string             `json:"date_of_end"`
-	CreatedAt                 string             `json:"created_at"`
-	UpdatedAt                 string             `json:"updated_at"`
-	ReferenceFileID           int                `json:"reference_file_id"`
-	File                      FileDropdownSimple `json:"file"`
+	ID                        int                  `json:"id"`
+	UserProfileID             int                  `json:"user_profile_id"`
+	OrganizationUnitID        int                  `json:"organization_unit_id,omitempty"`
+	OrganizationUnitTitle     string               `json:"organization_unit_title"`
+	Relevant                  bool                 `json:"relevant"`
+	OrganizationUnit          string               `json:"organization_unit"`
+	YearsOfExperience         int                  `json:"years_of_experience"`
+	YearsOfInsuredExperience  int                  `json:"years_of_insured_experience"`
+	MonthsOfExperience        int                  `json:"months_of_experience"`
+	MonthsOfInsuredExperience int                  `json:"months_of_insured_experience"`
+	DaysOfExperience          int                  `json:"days_of_experience"`
+	DaysOfInsuredExperience   int                  `json:"days_of_insured_experience"`
+	DateOfStart               string               `json:"date_of_start"`
+	DateOfEnd                 string               `json:"date_of_end"`
+	CreatedAt                 string               `json:"created_at"`
+	UpdatedAt                 string               `json:"updated_at"`
+	Files                     []FileDropdownSimple `json:"files"`
 }
 
 type EvaluationResponseItem struct {
-	ID                  int                `json:"id"`
-	UserProfileID       int                `json:"user_profile_id"`
-	EvaluationTypeID    int                `json:"evaluation_type_id"`
-	EvaluationType      DropdownSimple     `json:"evaluation_type"`
-	Score               string             `json:"score"`
-	DateOfEvaluation    *string            `json:"date_of_evaluation"`
-	Evaluator           string             `json:"evaluator"`
-	IsRelevant          bool               `json:"is_relevant"`
-	CreatedAt           string             `json:"created_at"`
-	UpdatedAt           string             `json:"updated_at"`
-	FileID              int                `json:"file_id"`
-	File                FileDropdownSimple `json:"file"`
-	ReasonForEvaluation *string            `json:"reason_for_evaluation"`
-	EvaluationPeriod    *string            `json:"evaluation_period"`
-	DecisionNumber      *string            `json:"decision_number"`
+	ID                  int                  `json:"id"`
+	UserProfileID       int                  `json:"user_profile_id"`
+	EvaluationTypeID    int                  `json:"evaluation_type_id"`
+	EvaluationType      DropdownSimple       `json:"evaluation_type"`
+	Score               string               `json:"score"`
+	DateOfEvaluation    *string              `json:"date_of_evaluation"`
+	Evaluator           string               `json:"evaluator"`
+	IsRelevant          bool                 `json:"is_relevant"`
+	CreatedAt           string               `json:"created_at"`
+	UpdatedAt           string               `json:"updated_at"`
+	Files               []FileDropdownSimple `json:"files"`
+	ReasonForEvaluation *string              `json:"reason_for_evaluation"`
+	EvaluationPeriod    *string              `json:"evaluation_period"`
+	DecisionNumber      *string              `json:"decision_number"`
 }
 
 type GetEvaluationListInputMS struct {

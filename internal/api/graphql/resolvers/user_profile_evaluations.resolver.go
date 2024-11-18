@@ -189,16 +189,16 @@ func buildJudgeEvaluationReportResponseItem(repo repository.MicroserviceReposito
 }
 
 func buildEvaluationResponseItem(repo repository.MicroserviceRepositoryInterface, item *structs.Evaluation) (*dto.EvaluationResponseItem, error) {
-	var fileDropdown dto.FileDropdownSimple
+	var fileDropdownList []dto.FileDropdownSimple
 
-	if item.FileID != 0 {
-		file, _ := repo.GetFileByID(item.FileID)
+	for i := range item.FileIDs {
+		var fileDropdown dto.FileDropdownSimple
+		file, _ := repo.GetFileByID(item.FileIDs[i])
 
 		/*if err != nil {
 			return nil, errors.Wrap(err, "repo get file by id")
 		}*/
 		if file != nil {
-
 			fileDropdown.ID = file.ID
 			fileDropdown.Name = file.Name
 
@@ -206,6 +206,8 @@ func buildEvaluationResponseItem(repo repository.MicroserviceRepositoryInterface
 				fileDropdown.Type = *file.Type
 			}
 		}
+
+		fileDropdownList = append(fileDropdownList, fileDropdown)
 	}
 
 	evaluationType, err := repo.GetDropdownSettingByID(item.EvaluationTypeID)
@@ -227,10 +229,9 @@ func buildEvaluationResponseItem(repo repository.MicroserviceRepositoryInterface
 		DateOfEvaluation:    item.DateOfEvaluation,
 		Evaluator:           item.Evaluator,
 		IsRelevant:          item.IsRelevant,
-		FileID:              item.FileID,
 		CreatedAt:           item.CreatedAt,
 		UpdatedAt:           item.UpdatedAt,
-		File:                fileDropdown,
+		Files:               fileDropdownList,
 		ReasonForEvaluation: item.ReasonForEvaluation,
 		DecisionNumber:      item.DecisionNumber,
 		EvaluationPeriod:    item.EvaluationPeriod,

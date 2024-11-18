@@ -72,12 +72,12 @@ func (r *Resolver) PublicProcurementContractArticlesOrganizationUnitResponseItem
 		amount += total
 		vatPercentageFloat, err := strconv.ParseFloat(articleData.VatPercentage, 32)
 
-		var grossValue float32
+		var grossValue float64
 
 		if err != nil {
 			grossValue = 0
 		} else {
-			grossValue = article.NetValue + article.NetValue*float32(vatPercentageFloat)/100
+			grossValue = article.NetValue + article.NetValue*float64(vatPercentageFloat)/100
 		}
 
 		if amount > 0 && articleData.VisibilityType == structs.VisibilityTypeInventory {
@@ -340,7 +340,7 @@ func buildProcurementContractArticlesResponseItem(context context.Context, r *Re
 		return nil, errors.Wrap(err, "strconv parse float")
 	}
 
-	grossPrice := item.NetValue + item.NetValue*float32(vatPercentage)/100
+	grossPrice := item.NetValue + item.NetValue*float64(vatPercentage)/100
 
 	res := dto.ProcurementContractArticlesResponseItem{
 		ID: item.ID,

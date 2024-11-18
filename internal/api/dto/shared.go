@@ -10,7 +10,7 @@ type Response struct {
 	Message     string      `json:"message"`
 	Data        interface{} `json:"data"`
 	Total       int         `json:"total"`
-	Price       float32     `json:"price"`
+	Price       float64     `json:"price"`
 	Items       interface{} `json:"items"`
 	Summary     interface{} `json:"summary"`
 	Version     int         `json:"version"`
@@ -32,8 +32,8 @@ type ResponseSingle struct {
 	Item           interface{} `json:"item,omitempty"`
 }
 
-// FormatToEuro takes a float32 and returns it in European currency format with the Euro symbol.
-func FormatToEuro(number float32) string {
+// FormatToEuro takes a float64 and returns it in European currency format with the Euro symbol.
+func FormatToEuro(number float64) string {
 	// Convert to European euro format with 2 decimal places
 	euroString := fmt.Sprintf("%.2f", number)
 	euroString = strings.ReplaceAll(euroString, ".", ",") // Replace dot with comma for European style

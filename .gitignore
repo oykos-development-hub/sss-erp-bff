@@ -5,3 +5,4 @@ vendor
 __debug_bin*
 reports
 /log/*
+.DS_Store

@@ -11,6 +11,7 @@ type GetProcurementContractArticleResponseMS struct {
 type GetProcurementContractArticlesInput struct {
 	ContractID *int `json:"contract_id"`
 	ArticleID  *int `json:"article_id"`
+	ID         *int `json:"id"`
 }
 
 type GetProcurementContractArticlesListResponseMS struct {

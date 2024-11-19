@@ -2,7 +2,6 @@ package resolvers
 
 import (
 	"bff/internal/api/dto"
-	"bff/internal/api/errors"
 	apierrors "bff/internal/api/errors"
 	"bff/internal/api/repository"
 	"bff/structs"
@@ -21,13 +20,13 @@ func (r *Resolver) PermissionsUpdateResolver(params graphql.ResolveParams) (inte
 	_, err := r.Repo.SyncPermissions(data.RoleID, data.PermissionList)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-		return errors.HandleAPPError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	permissions, err := r.Repo.GetPermissionList(data.RoleID)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-		return errors.HandleAPPError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	permissionsTree := buildTree(permissions)
@@ -45,7 +44,7 @@ func (r *Resolver) PermissionsForRoleResolver(params graphql.ResolveParams) (int
 	permissions, err := GetPermissionsForRole(params.Context, r.Repo, roleID)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-		return errors.HandleAPPError(err)
+		return apierrors.HandleAPPError(err)
 	}
 
 	permissionsTree := buildTree(permissions)

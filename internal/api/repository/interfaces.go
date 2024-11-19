@@ -62,7 +62,8 @@ type MicroserviceRepositoryInterface interface {
 	CreateRevisionTips(ctx context.Context, plan *structs.RevisionTips) (*structs.RevisionTips, error)
 	CreateRevisions(ctx context.Context, plan *structs.Revisions) (*structs.Revisions, error)
 	CreateRole(ctx context.Context, data structs.Roles) (*structs.Roles, error)
-	CreateStock(input dto.MovementArticle) error
+	CreateStock(input dto.MovementArticle) (int, error)
+	CreateStockOrderArticle(input dto.StockOrderArticle) error
 	CreateSupplier(supplier *structs.Suppliers) (*structs.Suppliers, error)
 	CreateSystematization(ctx context.Context, data *structs.Systematization) (*structs.Systematization, error)
 	CreateUserAccount(ctx context.Context, user structs.UserAccounts) (*structs.UserAccounts, error)
@@ -184,6 +185,7 @@ type MicroserviceRepositoryInterface interface {
 	GetProcurementContract(id int) (*structs.PublicProcurementContract, error)
 	GetProcurementContractArticleOverageList(input *dto.GetProcurementContractArticleOverageInput) ([]*structs.PublicProcurementContractArticleOverage, error)
 	GetProcurementContractArticlesList(input *dto.GetProcurementContractArticlesInput) (*dto.GetProcurementContractArticlesListResponseMS, error)
+	GetProcurementContractArticleByID(id int) (*structs.PublicProcurementContractArticle, error)
 	GetProcurementContractsList(input *dto.GetProcurementContractsInput) (*dto.GetProcurementContractListResponseMS, error)
 	GetProcurementItem(id int) (*structs.PublicProcurementItem, error)
 	GetProcurementItemList(input *dto.GetProcurementItemListInputMS) ([]*structs.PublicProcurementItem, error)

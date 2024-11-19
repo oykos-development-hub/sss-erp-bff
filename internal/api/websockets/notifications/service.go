@@ -69,7 +69,19 @@ func (s *Websockets) CreateNotification(notification *structs.Notifications) (*s
 		return nil, err
 	}
 
-	s.Wsmanager.BroadcastMessage(notificationJSON, res.ToUserID)
+	loggedInAccount, err := s.Repo.GetUserAccountByID(res.ToUserID)
+	if err != nil {
+		return nil, err
+	}
+
+	roleData, err := s.Repo.GetRole(*loggedInAccount.RoleID)
+	if err != nil {
+		return nil, err
+	}
+
+	if roleData.Active {
+		s.Wsmanager.BroadcastMessage(notificationJSON, res.ToUserID)
+	}
 
 	return res, nil
 }

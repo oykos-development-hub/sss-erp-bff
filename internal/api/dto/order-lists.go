@@ -154,6 +154,11 @@ type MovementArticle struct {
 	OrganizationUnitID int     `json:"organization_unit_id"`
 }
 
+type StockOrderArticle struct {
+	StockID   int `json:"stock_id"`
+	ArticleID int `json:"article_id"`
+}
+
 type GetMovementArticleResponseMS struct {
 	Data  []MovementArticle `json:"data"`
 	Total int               `json:"total"`

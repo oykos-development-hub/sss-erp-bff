@@ -6,6 +6,7 @@ import (
 	"bff/internal/api/errors"
 	"bff/structs"
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -165,6 +166,7 @@ func (repo *MicroserviceRepository) GetOrderLists(input *dto.GetOrderListInput) 
 func (repo *MicroserviceRepository) GetOrderProcurementArticleByID(id int) (*structs.OrderProcurementArticleItem, error) {
 	res := &dto.GetOrderProcurementArticleResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.Accounting.OrderProcurementArticles+"/"+strconv.Itoa(id), nil, res)
+	fmt.Println(repo.Config.Microservices.Accounting.OrderProcurementArticles + "/" + strconv.Itoa(id))
 	if err != nil {
 		return nil, errors.Wrap(err, "make api request")
 	}
@@ -184,6 +186,9 @@ func (repo *MicroserviceRepository) UpdateOrderProcurementArticle(item *structs.
 
 func (repo *MicroserviceRepository) AddOnStock(stock []structs.StockArticle, article structs.OrderProcurementArticleItem, organizationUnitID int, exception bool) error {
 
+	var id int
+	var err error
+
 	if len(stock) == 0 {
 		input := dto.MovementArticle{
 			Amount:             article.Amount,
@@ -196,16 +201,27 @@ func (repo *MicroserviceRepository) AddOnStock(stock []structs.StockArticle, art
 			Exception:          exception,
 		}
 
-		err := repo.CreateStock(input)
+		id, err = repo.CreateStock(input)
 		if err != nil {
 			return errors.Wrap(err, "repo create stock")
 		}
 	} else {
+		id = stock[0].ID
 		stock[0].Amount += article.Amount
 		err := repo.UpdateStock(stock[0])
 		if err != nil {
 			return errors.Wrap(err, "repo update stock")
 		}
 	}
+
+	err = repo.CreateStockOrderArticle(dto.StockOrderArticle{
+		StockID:   id,
+		ArticleID: article.ID,
+	})
+
+	if err != nil {
+		return errors.Wrap(err, "repo create stock order article")
+	}
+
 	return nil
 }

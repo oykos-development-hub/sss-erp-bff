@@ -347,6 +347,33 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 	} else {
 		listInsertItem.Status = "Created"
 		listInsertItem.IsUsed = false
+
+		for _, item := range data.Articles {
+
+			articles, err := GetProcurementArticles(params.Context, r, *listInsertItem.PublicProcurementID)
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+
+			for _, article := range articles {
+				if item.ID == article.ID {
+					processedArticle, err := ProcessOrderArticleItem(r.Repo, article, listInsertItem.OrganizationUnitID)
+					if err != nil {
+						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+						return errors.HandleAPPError(err)
+					}
+
+					if processedArticle.Available-item.Amount < 0 {
+						err = errors.New("there is not available articles")
+						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+						return errors.HandleAPPError(err)
+					}
+				}
+			}
+
+		}
+
 		res, err := r.Repo.CreateOrderListItem(params.Context, listInsertItem)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
@@ -507,8 +534,9 @@ func (r *Resolver) OrderProcurementAvailableResolver(params graphql.ResolveParam
 			return errors.HandleAPPError(err)
 		}
 
-		items = append(items, processedArticle)
-
+		if processedArticle.Available > 0 {
+			items = append(items, processedArticle)
+		}
 	}
 
 	total = len(items)

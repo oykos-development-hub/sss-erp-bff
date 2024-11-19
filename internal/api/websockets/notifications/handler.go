@@ -32,23 +32,31 @@ func (ws *Websockets) Handler(w http.ResponseWriter, r *http.Request) {
 
 	ws.Wsmanager.AddClient(client)
 
-	notificiations, err := ws.Repo.FetchNotifications(loggedInAccount.ID)
+	roleData, err := ws.Repo.GetRole(*loggedInAccount.RoleID)
 	if err != nil {
-		log.Logger.Println("Error fetching initial data:", err)
+		log.Logger.Println("Authentication failed:", err)
 		return
 	}
 
-	message := NotificationMessage{
-		Type: "initial_data",
-		Data: notificiations,
-	}
+	if roleData.Active {
+		notificiations, err := ws.Repo.FetchNotifications(loggedInAccount.ID)
+		if err != nil {
+			log.Logger.Println("Error fetching initial data:", err)
+			return
+		}
 
-	notificationsJSON, _ := json.Marshal(message)
+		message := NotificationMessage{
+			Type: "initial_data",
+			Data: notificiations,
+		}
 
-	err = client.Conn.WriteMessage(websocket.TextMessage, notificationsJSON)
-	if err != nil {
-		log.Logger.Println("Error sending initial data:", err)
-		return
+		notificationsJSON, _ := json.Marshal(message)
+
+		err = client.Conn.WriteMessage(websocket.TextMessage, notificationsJSON)
+		if err != nil {
+			log.Logger.Println("Error sending initial data:", err)
+			return
+		}
 	}
 
 	for {

@@ -228,6 +228,7 @@ type AccountingMS struct {
 	StockReport              string
 	Logs                     string
 	ErrorLogs                string
+	StockOrderArticle        string
 }
 
 type InventoryMS struct {
@@ -414,6 +415,7 @@ func LoadDefaultConfig() (*Config, error) {
 				StockReport:              accountingBase + "/get-all-stocks",
 				Logs:                     accountingBase + "/logs",
 				ErrorLogs:                accountingBase + "/error-logs",
+				StockOrderArticle:        accountingBase + "/stock-order-articles",
 			},
 			Finance: FinanceMS{
 				Base:                                     financeBase,

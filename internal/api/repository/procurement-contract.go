@@ -126,6 +126,16 @@ func (repo *MicroserviceRepository) GetProcurementContractArticlesList(input *dt
 	return res, nil
 }
 
+func (repo *MicroserviceRepository) GetProcurementContractArticleByID(id int) (*structs.PublicProcurementContractArticle, error) {
+	res := &dto.GetProcurementContractArticleResponseMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.Procurements.ContractArticle+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return &res.Data, nil
+}
+
 func (repo *MicroserviceRepository) CreateProcurementContractArticleOverage(articleOverage *structs.PublicProcurementContractArticleOverage) (*structs.PublicProcurementContractArticleOverage, error) {
 	res := &dto.GetProcurementContractArticleOverageResponseMS{}
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.Procurements.ContractArticleOverage, articleOverage, res)

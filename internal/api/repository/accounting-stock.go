@@ -65,8 +65,20 @@ func (repo *MicroserviceRepository) CreateMovements(ctx context.Context, input s
 	return &res.Data, nil
 }
 
-func (repo *MicroserviceRepository) CreateStock(input dto.MovementArticle) error {
-	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.Stock, input, nil)
+func (repo *MicroserviceRepository) CreateStock(input dto.MovementArticle) (int, error) {
+
+	res := &dto.GetSingleStockResponseMS{}
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.Stock, input, res)
+	if err != nil {
+		return 0, errors.Wrap(err, "make api request")
+	}
+
+	return res.Data.ID, nil
+}
+
+func (repo *MicroserviceRepository) CreateStockOrderArticle(input dto.StockOrderArticle) error {
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Accounting.StockOrderArticle, input, nil)
 	if err != nil {
 		return errors.Wrap(err, "make api request")
 	}

@@ -5,7 +5,7 @@ import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
 	"bff/internal/api/repository"
-	"bff/internal/api/websockets/notifications"
+	"bff/internal/api/sse/notifications"
 	"bff/structs"
 	"context"
 	"encoding/json"
@@ -200,7 +200,7 @@ func (r *Resolver) BasicInventoryDispatchInsertResolver(params graphql.ResolvePa
 func sendInventoryReturnReversDispatchNotification(
 	ctx context.Context,
 	r repository.MicroserviceRepositoryInterface,
-	notificationService *notifications.Websockets,
+	notificationService *notifications.NotificationService,
 	sourceOrganizationUnitID int,
 	targetOrganziationUnitID int,
 	itemID int,
@@ -241,7 +241,7 @@ func sendInventoryReturnReversDispatchNotification(
 func sendInventoryDispatchNotification(
 	ctx context.Context,
 	r repository.MicroserviceRepositoryInterface,
-	notificationService *notifications.Websockets,
+	notificationService *notifications.NotificationService,
 	sourceOrganizationUnitID int,
 	targetOrganziationUnitID int,
 ) error {
@@ -280,7 +280,7 @@ func sendInventoryDispatchNotification(
 func createInventoryDispatchApprovalnotification(
 	ctx context.Context,
 	r repository.MicroserviceRepositoryInterface,
-	notificationService *notifications.Websockets,
+	notificationService *notifications.NotificationService,
 	sourceOrganizationUnitID int,
 	targetOrganziationUnitID int,
 	isAccepted bool,

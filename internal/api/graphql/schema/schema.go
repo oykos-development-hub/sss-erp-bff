@@ -5,18 +5,20 @@ import (
 	"bff/internal/api/graphql/fields"
 	"bff/internal/api/graphql/resolvers"
 	"bff/internal/api/repository"
-	"bff/internal/api/websockets/notifications"
+	"bff/internal/api/sse/notifications"
 
 	"github.com/graphql-go/graphql"
 )
 
-func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repository.MicroserviceRepositoryInterface, cfg *config.Config) (*graphql.Schema, error) {
+func SetupGraphQLSchema(notificationService *notifications.NotificationService, repo repository.MicroserviceRepositoryInterface, cfg *config.Config) (*graphql.Schema, error) {
 	resolvers := resolvers.NewResolver(cfg, notificationService, repo)
 	fields := fields.NewFields(resolvers)
 
 	mutation := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootMutation",
 		Fields: graphql.Fields{
+			"notification_Read":                               fields.NotificationRead(),
+			"notification_Delete":                             fields.NotificationDelete(),
 			"mockCurrentBudget_Insert":                        fields.InsertCurrentBudgetMock(),
 			"role_Insert":                                     fields.RoleInsertField(),
 			"permissions_Update":                              fields.PermissionsUpdate(),
@@ -198,6 +200,7 @@ func SetupGraphQLSchema(notificationService *notifications.Websockets, repo repo
 	query := graphql.NewObject(graphql.ObjectConfig{
 		Name: "RootQuery",
 		Fields: graphql.Fields{
+			"notifications_Overview":                             fields.NotificationOverview(),
 			"role_Overview":                                      fields.RoleOverviewField(),
 			"role_Details":                                       fields.RoleDetailsField(),
 			"permissionsForRole":                                 fields.PermissionsForRoleField(),

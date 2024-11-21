@@ -114,7 +114,7 @@ type MicroserviceRepositoryInterface interface {
 	DeleteSystematization(ctx context.Context, id int) error
 	DeleteUserAccount(ctx context.Context, id int) error
 	DeleteUserProfile(ctx context.Context, id int) error
-	FetchNotifications(userID int) ([]*structs.Notifications, error)
+	FetchNotifications(userID int) ([]structs.Notifications, error)
 	ForgotPassword(email string) error
 	GetAbsentByID(absentID int) (*structs.Absent, error)
 	GetAbsentTypeByID(absentTypeID int) (*structs.AbsentType, error)

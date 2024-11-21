@@ -35,7 +35,7 @@ func (repo *MicroserviceRepository) DeleteNotification(notificationID int) error
 	return nil
 }
 
-func (repo *MicroserviceRepository) FetchNotifications(userID int) ([]*structs.Notifications, error) {
+func (repo *MicroserviceRepository) FetchNotifications(userID int) ([]structs.Notifications, error) {
 	input := dto.GetNotificationInputMS{}
 	input.ToUserID = &userID
 

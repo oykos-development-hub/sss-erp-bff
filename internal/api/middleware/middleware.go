@@ -156,6 +156,27 @@ func (m *Middleware) AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func (m *Middleware) AuthMiddlewareSSE(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.URL.Query().Get("token")
+		if token == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		loggedInAccount, err := m.Repo.GetLoggedInUser(token)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), config.TokenKey, token)
+		ctx = context.WithValue(ctx, config.LoggedInAccountKey, loggedInAccount)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func (m *Middleware) GetCorsMiddleware(next http.Handler) http.Handler {
 	corsMiddleware := handlers.CORS(
 		handlers.AllowedOrigins([]string{

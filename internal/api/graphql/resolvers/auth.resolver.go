@@ -15,6 +15,8 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 	email := p.Args["email"].(string)
 	password := p.Args["password"].(string)
 
+	r.NotificationsService.CreateNotification(&structs.Notifications{ID: 999, ToUserID: 1})
+
 	var (
 		engagement       *structs.SettingsDropdown
 		contractsResItem *dto.Contract
@@ -294,7 +296,7 @@ func (r *Resolver) RefreshTokenResolver(p graphql.ResolveParams) (interface{}, e
 
 func (r *Resolver) LogoutResolver(p graphql.ResolveParams) (interface{}, error) {
 	var authToken = p.Context.Value(config.TokenKey).(string)
-	user := p.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	// user := p.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
 	err := r.Repo.Logout(authToken)
 	if err != nil {
@@ -302,7 +304,7 @@ func (r *Resolver) LogoutResolver(p graphql.ResolveParams) (interface{}, error) 
 		return apierrors.HandleAPPError(err)
 	}
 
-	r.NotificationsService.Wsmanager.RemoveClientByUserID(user.ID)
+	// r.NotificationsService.Wsmanager.RemoveClientByUserID(user.ID)
 
 	return dto.ResponseSingle{
 		Status:  "success",

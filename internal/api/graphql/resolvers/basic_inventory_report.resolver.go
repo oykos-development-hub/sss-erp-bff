@@ -44,7 +44,8 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 
 	var filter dto.InventoryItemFilter
 
-	if organizationUnitIDParam, ok := params.Args["organization_unit_id"].(int); ok && organizationUnitIDParam != 0 {
+	organizationUnitIDParam, ok := params.Args["organization_unit_id"].(int)
+	if ok && organizationUnitIDParam != 0 {
 		filter.SourceOrganizationUnitID = &organizationUnitIDParam
 	}
 
@@ -64,24 +65,26 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 			sumClassPriceOfAssessment  float64
 		)
 		for _, inventory := range basicInventoryData.Data {
-			assessments, _ := r.Repo.GetMyInventoryAssessments(inventory.ID)
 
-			if len(assessments) > 0 {
-				assessment, err := BuildAssessmentResponse(r.Repo, &assessments[0])
-
-				if err != nil {
-					continue
-				}
-				sumClassPurchaseGrossPrice += inventory.GrossPrice
-				//amortization := calculateAmortizationPrice(r.Repo, &assessment.DepreciationType.ID, assessment.DateOfAssessment, &assessment.GrossPriceDifference) // nabavna vrijednost
-				amortization := inventory.AssessmentPrice
-				sumClassGrossPrice += (assessment.GrossPriceDifference - amortization) //ispravak vrijednosti
-				//
-
+			var organizationUnitID int
+			if organizationUnitIDParam != 0 {
+				organizationUnitID = organizationUnitIDParam
+			} else {
+				organizationUnitID = params.Context.Value("organization_unit_id").(int)
 			}
 
+			item, err := buildInventoryItemResponse(r.Repo, inventory, organizationUnitID)
+
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return apierrors.HandleAPPError(err)
+			}
+
+			sumClassPurchaseGrossPrice += item.PurchaseGrossPrice
+			sumClassGrossPrice += item.GrossPrice //ispravak vrijednosti
+
 		}
-		sumClassPriceOfAssessment = sumClassPurchaseGrossPrice - sumClassGrossPrice //trenutna vrijednost
+		sumClassPriceOfAssessment += sumClassPurchaseGrossPrice - sumClassGrossPrice //trenutna vrijednost
 		sumClassGrossPriceAllItem += sumClassGrossPrice
 		sumClassPurchaseGrossPriceAllItem += sumClassPurchaseGrossPrice
 		sumClassPriceOfAssessmentAllItem += sumClassPriceOfAssessment

@@ -3,16 +3,16 @@ package resolvers
 import (
 	"bff/config"
 	"bff/internal/api/repository"
-	"bff/internal/api/websockets/notifications"
+	"bff/internal/api/sse/notifications"
 )
 
 type Resolver struct {
 	Config               *config.Config
-	NotificationsService *notifications.Websockets
+	NotificationsService *notifications.NotificationService
 	Repo                 repository.MicroserviceRepositoryInterface
 }
 
-func NewResolver(cfg *config.Config, notificationService *notifications.Websockets, repo repository.MicroserviceRepositoryInterface) *Resolver {
+func NewResolver(cfg *config.Config, notificationService *notifications.NotificationService, repo repository.MicroserviceRepositoryInterface) *Resolver {
 	return &Resolver{
 		Config:               cfg,
 		NotificationsService: notificationService,

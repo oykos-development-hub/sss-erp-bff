@@ -14,15 +14,12 @@ require (
 require github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 
 require (
-	github.com/gorilla/websocket v1.5.1 // direct
 	github.com/stretchr/testify v1.8.4 // indirect
-	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 )
 
 require (
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-chi/chi/v5 v5.0.10
-	github.com/google/uuid v1.4.0
 	github.com/joho/godotenv v1.5.1
 )

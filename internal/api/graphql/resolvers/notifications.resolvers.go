@@ -12,6 +12,21 @@ import (
 func (r *Resolver) NotificationOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
+	role, err := r.Repo.GetRole(loggedInUser.ID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	if !role.Active {
+		return dto.Response{
+			Status:  "success",
+			Message: "Here's the list you asked for!",
+			Items:   []structs.Notifications{},
+			Total:   0,
+		}, nil
+	}
+
 	notificiations, err := r.Repo.FetchNotifications(loggedInUser.ID)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})

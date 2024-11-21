@@ -48,7 +48,7 @@ func (svc *NotificationService) CreateNotification(notification *structs.Notific
 
 	role, err := svc.Repo.GetRole(*user.RoleID)
 	if err != nil || !role.Active {
-		return nil, nil
+		return newNotification, nil
 	}
 
 	return newNotification, svc.sendNotificationToUser(notification.ToUserID, newNotification)

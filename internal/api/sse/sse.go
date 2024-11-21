@@ -5,6 +5,7 @@ import (
 	"bff/structs"
 	"net/http"
 	"sync"
+	"time"
 
 	"bff/internal/api/middleware"
 
@@ -72,12 +73,38 @@ func (sse *ServerSentEvent) Handler(w http.ResponseWriter, r *http.Request) {
 		close(clientChan)
 	}()
 
-	for msg := range clientChan {
-		_, err := w.Write([]byte("data: " + msg + "\n\n"))
-		if err != nil {
-			break
+	welcomeMessage := "Welcome to the SSE stream, " + user.FirstName + "!"
+	_, err := w.Write([]byte("data: " + welcomeMessage + "\n\n"))
+	if err != nil {
+		return
+	}
+	w.(http.Flusher).Flush()
+
+	heartbeatTicker := time.NewTicker(2*time.Second + 500*time.Millisecond)
+	defer heartbeatTicker.Stop()
+
+	for {
+		select {
+		case msg, ok := <-clientChan:
+			if !ok {
+				return
+			}
+			_, err := w.Write([]byte("data: " + msg + "\n\n"))
+			if err != nil {
+				return
+			}
+			w.(http.Flusher).Flush()
+
+		case <-heartbeatTicker.C:
+			_, err := w.Write([]byte(":\n\n"))
+			if err != nil {
+				return
+			}
+			w.(http.Flusher).Flush()
+
+		case <-r.Context().Done():
+			return
 		}
-		w.(http.Flusher).Flush()
 	}
 }
 

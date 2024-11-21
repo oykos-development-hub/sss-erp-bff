@@ -26,7 +26,12 @@ type NotificationMessage struct {
 }
 
 func (svc *NotificationService) sendNotificationToUser(userID int, notification *structs.Notifications) error {
-	messageJSON, err := json.Marshal(notification)
+	notMessage := NotificationMessage{
+		Type: "notification",
+		Data: notification,
+	}
+
+	messageJSON, err := json.Marshal(notMessage)
 	if err != nil {
 		return err
 	}

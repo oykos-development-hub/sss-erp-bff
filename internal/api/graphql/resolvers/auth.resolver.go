@@ -15,8 +15,6 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 	email := p.Args["email"].(string)
 	password := p.Args["password"].(string)
 
-	r.NotificationsService.CreateNotification(&structs.Notifications{ID: 999, ToUserID: 1})
-
 	var (
 		engagement       *structs.SettingsDropdown
 		contractsResItem *dto.Contract
@@ -25,6 +23,16 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 	)
 
 	loginRes, cookies, err := r.Repo.LoginUser(email, password)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return apierrors.HandleAPPError(err)
+	}
+
+	_, err = r.NotificationsService.CreateNotification(&structs.Notifications{
+		ToUserID:   1,
+		Content:    "Test notification on login to admin user",
+		FromUserID: loginRes.Data.ID,
+	})
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return apierrors.HandleAPPError(err)

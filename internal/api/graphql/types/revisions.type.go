@@ -462,6 +462,9 @@ var RevisionTipImplementationType = graphql.NewObject(graphql.ObjectConfig{
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"tip_id": &graphql.Field{
+			Type: graphql.Int,
+		},
 		"status": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -474,8 +477,8 @@ var RevisionTipImplementationType = graphql.NewObject(graphql.ObjectConfig{
 		"reasons_for_non_executing": &graphql.Field{
 			Type: graphql.String,
 		},
-		"revisor_id": &graphql.Field{
-			Type: graphql.Int,
+		"revisor": &graphql.Field{
+			Type: DropdownItemType,
 		},
 		"documents": &graphql.Field{
 			Type: graphql.String,

@@ -339,6 +339,7 @@ func LoadDefaultConfig() (*Config, error) {
 				RevisionPlan:                    hrBase + "/plans",
 				Revision:                        hrBase + "/revisions",
 				RevisionTips:                    hrBase + "/revision-tips",
+				RevisionTipImplementations:      hrBase + "/revision-tip-implementations",
 				Revisors:                        hrBase + "/get-revisors",
 				RevisionRevisors:                hrBase + "/revision-revisors",
 				RevisionOrgUnit:                 hrBase + "/revisions-in-organization-units",

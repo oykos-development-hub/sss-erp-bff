@@ -114,7 +114,7 @@ type RevisionTipsOverviewItem struct {
 	Documents              *string                  `json:"documents"`
 	ReasonsForNonExecuting *string                  `json:"reasons_for_non_executing"`
 	FileID                 *int                     `json:"file_id"`
-	File                   FileDropdownSimple       `json:"file"`
+	Files                  []FileDropdownSimple     `json:"files"`
 	CreatedAt              string                   `json:"created_at"`
 	UpdatedAt              string                   `json:"updated_at"`
 }

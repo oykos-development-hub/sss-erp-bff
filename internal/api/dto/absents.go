@@ -35,16 +35,16 @@ type EmployeeAbsentsInput struct {
 }
 
 type Vacation struct {
-	ID                int                `json:"id"`
-	UserProfile       DropdownSimple     `json:"user_profile"`
-	ResolutionType    DropdownSimple     `json:"resolution_type"`
-	ResolutionPurpose string             `json:"resolution_purpose"`
-	Year              int                `json:"year"`
-	NumberOfDays      int                `json:"number_of_days"`
-	CreatedAt         string             `json:"created_at"`
-	UpdatedAt         string             `json:"updated_at"`
-	FileID            int                `json:"file_id"`
-	File              FileDropdownSimple `json:"file"`
+	ID                int                  `json:"id"`
+	UserProfile       DropdownSimple       `json:"user_profile"`
+	ResolutionType    DropdownSimple       `json:"resolution_type"`
+	ResolutionPurpose string               `json:"resolution_purpose"`
+	Year              int                  `json:"year"`
+	NumberOfDays      int                  `json:"number_of_days"`
+	CreatedAt         string               `json:"created_at"`
+	UpdatedAt         string               `json:"updated_at"`
+	FileID            int                  `json:"file_id"`
+	Files             []FileDropdownSimple `json:"files"`
 }
 
 type VacationReportInput struct {

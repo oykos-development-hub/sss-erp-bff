@@ -256,7 +256,7 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 		OrganizationUnitID: systematization.OrganizationUnitID,
 		Description:        systematization.Description,
 		SerialNumber:       systematization.SerialNumber,
-		FileID:             systematization.FileID,
+		FileIDs:            systematization.FileIDs,
 		Active:             systematization.Active,
 		DateOfActivation:   systematization.DateOfActivation,
 		Sectors:            &[]dto.OrganizationUnitsSectorResponse{},
@@ -297,20 +297,24 @@ func buildSystematizationOverviewResponse(r repository.MicroserviceRepositoryInt
 		*result.Sectors = append(*result.Sectors, *dto.ToOrganizationUnitsSectorResponse(organizationUnit))
 	}
 
-	if systematization.FileID != 0 {
-		file, _ := r.GetFileByID(systematization.FileID)
+	var files []dto.FileDropdownSimple
+
+	for i := range systematization.FileIDs {
+		file, _ := r.GetFileByID(systematization.FileIDs[i])
 		/*if err != nil {
 			return result, errors.Wrap(err, "repo get file by id")
 		}*/
 
 		if file != nil {
-			result.File = dto.FileDropdownSimple{
+			files = append(files, dto.FileDropdownSimple{
 				ID:   file.ID,
 				Name: file.Name,
 				Type: *file.Type,
-			}
+			})
 		}
 	}
+
+	result.Files = files
 
 	// Getting Job positions
 	if result.Sectors != nil {

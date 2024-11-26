@@ -28,16 +28,6 @@ func (r *Resolver) LoginResolver(p graphql.ResolveParams) (interface{}, error) {
 		return apierrors.HandleAPPError(err)
 	}
 
-	_, err = r.NotificationsService.CreateNotification(&structs.Notifications{
-		ToUserID:   1,
-		Content:    "Test notification on login to admin user",
-		FromUserID: loginRes.Data.ID,
-	})
-	if err != nil {
-		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-		return apierrors.HandleAPPError(err)
-	}
-
 	var roleID int
 	if loginRes.Data.RoleID != nil {
 		roleID = int(*loginRes.Data.RoleID)

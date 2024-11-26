@@ -125,19 +125,21 @@ func buildResolutionResItem(r repository.MicroserviceRepositoryInterface, item *
 		return nil, errors.Wrap(err, "repo get dropdown setting by id")
 	}
 
-	var file dto.FileDropdownSimple
+	var files []dto.FileDropdownSimple
 
-	if item.FileID > 0 {
-		res, _ := r.GetFileByID(item.FileID)
+	for i := range item.FileIDs {
+		res, _ := r.GetFileByID(item.FileIDs[i])
 		/*
 			if err != nil {
 				return nil, errors.Wrap(err, "repo get file by id")
 			}
 		*/
 		if res != nil {
-			file.ID = res.ID
-			file.Name = res.Name
-			file.Type = *res.Type
+			files = append(files, dto.FileDropdownSimple{
+				ID:   res.ID,
+				Name: res.Name,
+				Type: *res.Type,
+			})
 		}
 
 	}
@@ -156,7 +158,7 @@ func buildResolutionResItem(r repository.MicroserviceRepositoryInterface, item *
 		DateOfStart: item.DateOfStart,
 		DateOfEnd:   item.DateOfEnd,
 		Value:       item.Value,
-		File:        file,
+		Files:       files,
 		Year:        item.Year,
 		CreatedAt:   item.CreatedAt,
 		UpdatedAt:   item.UpdatedAt,

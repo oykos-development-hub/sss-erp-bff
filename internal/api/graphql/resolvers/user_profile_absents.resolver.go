@@ -69,7 +69,7 @@ func (r *Resolver) UserProfileVacationResolutionInsertResolver(params graphql.Re
 	inputData.DateOfStart = time.Date(data.Year, time.January, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02T15:04:05Z")
 	inputData.DateOfEnd = &dateOfEnd
 	inputData.ID = data.ID
-	inputData.FileID = data.FileID
+	inputData.FileIDs = data.FileIDs
 	inputData.UserProfileID = data.UserProfileID
 	inputData.Value = strconv.Itoa(data.NumberOfDays)
 	inputData.ResolutionPurpose = data.ResolutionPurpose
@@ -188,10 +188,10 @@ func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *st
 	dataOfStart, _ := time.Parse("2006-01-02T15:04:05Z", item.DateOfStart)
 	numberOfDays, _ := strconv.Atoi(item.Value)
 
-	var file dto.FileDropdownSimple
+	var files []dto.FileDropdownSimple
 
-	if item.FileID > 0 {
-		res, _ := r.GetFileByID(item.FileID)
+	for i := range item.FileIDs {
+		res, _ := r.GetFileByID(item.FileIDs[i])
 		/*
 			if err != nil {
 				return nil, errors.Wrap(err, "repo get file by id")
@@ -199,9 +199,11 @@ func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *st
 		*/
 
 		if res != nil {
-			file.ID = res.ID
-			file.Name = res.Name
-			file.Type = *res.Type
+			files = append(files, dto.FileDropdownSimple{
+				ID:   res.ID,
+				Name: res.Name,
+				Type: *res.Type,
+			})
 		}
 	}
 	return &dto.Vacation{
@@ -217,8 +219,7 @@ func buildVacationResItem(r repository.MicroserviceRepositoryInterface, item *st
 		},
 		Year:         dataOfStart.Year(),
 		NumberOfDays: numberOfDays,
-		FileID:       item.FileID,
-		File:         file,
+		Files:        files,
 		CreatedAt:    item.CreatedAt,
 		UpdatedAt:    item.UpdatedAt,
 	}, nil
@@ -809,14 +810,14 @@ func (r *Resolver) TerminateEmployment(params graphql.ResolveParams) (interface{
 	}
 
 	now := time.Now()
-	fileID := params.Args["file_id"].(int)
+	fileIDs := params.Args["file_ids"].([]int)
 
 	_, err = r.Repo.CreateResolution(params.Context, &structs.Resolution{
 		UserProfileID:    userID,
 		ResolutionTypeID: terminateResolutionType.Data[0].ID,
 		IsAffect:         true,
 		DateOfStart:      now.Format(config.ISO8601Format),
-		FileID:           fileID,
+		FileIDs:          fileIDs,
 	})
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})

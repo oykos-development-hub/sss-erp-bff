@@ -417,8 +417,8 @@ var RevisionTipsType = graphql.NewObject(graphql.ObjectConfig{
 		"reasons_for_non_executing": &graphql.Field{
 			Type: graphql.String,
 		},
-		"file": &graphql.Field{
-			Type: FileDropdownItemType,
+		"files": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
 		},
 		"created_at": &graphql.Field{
 			Type: graphql.String,

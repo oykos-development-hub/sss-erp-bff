@@ -68,7 +68,7 @@ type RevisionTips struct {
 	Status                 *string `json:"status"`
 	Documents              *string `json:"documents"`
 	ReasonsForNonExecuting *string `json:"reasons_for_non_executing"`
-	FileID                 *int    `json:"file_id"`
+	FileIDs                []int   `json:"file_ids"`
 	CreatedAt              string  `json:"created_at"`
 	UpdatedAt              string  `json:"updated_at"`
 }

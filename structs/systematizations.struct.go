@@ -10,5 +10,5 @@ type Systematization struct {
 	DateOfActivation   *string `json:"date_of_activation"`
 	CreatedAt          string  `json:"created_at"`
 	UpdatedAt          string  `json:"updated_at"`
-	FileID             int     `json:"file_id"`
+	FileIDs            []int   `json:"file_ids"`
 }

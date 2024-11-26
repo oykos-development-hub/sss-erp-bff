@@ -209,6 +209,7 @@ type HrMS struct {
 	RevisionPlan                    string
 	Revision                        string
 	RevisionTips                    string
+	RevisionTipImplementations      string
 	Revisors                        string
 	RevisionRevisors                string
 	RevisionOrgUnit                 string

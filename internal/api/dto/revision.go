@@ -97,26 +97,22 @@ type GetRevisionTipFilter struct {
 }
 
 type RevisionTipsOverviewItem struct {
-	ID                     int                      `json:"id"`
-	RevisionID             int                      `json:"revision_id"`
-	UserProfile            structs.SettingsDropdown `json:"user_profile"`
-	ResponsiblePerson      *string                  `json:"responsible_person"`
-	DateOfAccept           *string                  `json:"date_of_accept"`
-	DueDate                int                      `json:"due_date"`
-	NewDueDate             *int                     `json:"new_due_date"`
-	DateOfReject           *string                  `json:"date_of_reject"`
-	EndDate                *string                  `json:"end_date"`
-	DateOfExecution        *string                  `json:"date_of_execution"`
-	NewDateOfExecution     *string                  `json:"new_date_of_execution"`
-	Recommendation         string                   `json:"recommendation"`
-	Status                 *string                  `json:"status"`
-	RevisionPriority       *string                  `json:"revision_priority"`
-	Documents              *string                  `json:"documents"`
-	ReasonsForNonExecuting *string                  `json:"reasons_for_non_executing"`
-	FileID                 *int                     `json:"file_id"`
-	Files                  []FileDropdownSimple     `json:"files"`
-	CreatedAt              string                   `json:"created_at"`
-	UpdatedAt              string                   `json:"updated_at"`
+	ID                int                      `json:"id"`
+	RevisionID        int                      `json:"revision_id"`
+	UserProfile       structs.SettingsDropdown `json:"user_profile"`
+	ResponsiblePerson *string                  `json:"responsible_person"`
+	DateOfAccept      *string                  `json:"date_of_accept"`
+	DueDate           int                      `json:"due_date"`
+	DateOfReject      *string                  `json:"date_of_reject"`
+	EndDate           *string                  `json:"end_date"`
+	DateOfExecution   *string                  `json:"date_of_execution"`
+	Recommendation    string                   `json:"recommendation"`
+	Status            *string                  `json:"status"`
+	RevisionPriority  *string                  `json:"revision_priority"`
+	FileID            *int                     `json:"file_id"`
+	Files             []FileDropdownSimple     `json:"files"`
+	CreatedAt         string                   `json:"created_at"`
+	UpdatedAt         string                   `json:"updated_at"`
 }
 
 type GetRevisionTipMS struct {
@@ -134,4 +130,37 @@ type RevisionTipsOverviewResponse struct {
 	Status   string                      `json:"status"`
 	Total    int                         `json:"total"`
 	Items    []RevisionTipsOverviewItem  `json:"items"`
+}
+
+type GetRevisionTipImplementationFilter struct {
+	TipID *int `json:"tip_id"`
+}
+
+type GetRevisionTipImplementationMS struct {
+	Data structs.RevisionTipImplementations `json:"data"`
+}
+
+type GetRevisionTipImplementationsResponseMS struct {
+	Data []*structs.RevisionTipImplementations `json:"data"`
+}
+
+type RevisionTipImplementationsOverviewResponse struct {
+	Message  string                                   `json:"message"`
+	Status   string                                   `json:"status"`
+	Items    []RevisionTipImplementationsOverviewItem `json:"items"`
+	Revisors []*structs.SettingsDropdown              `json:"revisors"`
+}
+
+type RevisionTipImplementationsOverviewItem struct {
+	ID                     int                  `json:"id,omitempty"`
+	TipID                  int                  `json:"tip_id"`
+	Status                 string               `json:"status"`
+	NewDueDate             *int                 `json:"new_due_date"`
+	NewDateOfExecution     *string              `json:"new_date_of_execution"`
+	ReasonsForNonExecuting *string              `json:"reasons_for_non_executing"`
+	Revisor                DropdownSimple       `json:"revisor"`
+	Documents              string               `json:"documents"`
+	Files                  []FileDropdownSimple `json:"files"`
+	CreatedAt              string               `json:"created_at"`
+	UpdatedAt              string               `json:"updated_at"`
 }

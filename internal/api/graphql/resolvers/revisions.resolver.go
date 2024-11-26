@@ -1015,25 +1015,21 @@ func buildRevisionTipItemResponse(r repository.MicroserviceRepositoryInterface, 
 		}
 	}
 	revisionTipItem := &dto.RevisionTipsOverviewItem{
-		ID:                     revision.ID,
-		RevisionID:             revision.RevisionID,
-		UserProfile:            revisorDropdown,
-		DateOfAccept:           revision.DateOfAccept,
-		DueDate:                revision.DueDate,
-		NewDueDate:             revision.NewDueDate,
-		EndDate:                revision.EndDate,
-		DateOfReject:           revision.DateOfReject,
-		DateOfExecution:        revision.DateOfExecution,
-		NewDateOfExecution:     revision.NewDateOfExecution,
-		Recommendation:         revision.Recommendation,
-		RevisionPriority:       revision.RevisionPriority,
-		Status:                 revision.Status,
-		ResponsiblePerson:      revision.ResponsiblePerson,
-		Documents:              revision.Documents,
-		ReasonsForNonExecuting: revision.ReasonsForNonExecuting,
-		Files:                  files,
-		CreatedAt:              revision.CreatedAt,
-		UpdatedAt:              revision.UpdatedAt,
+		ID:                revision.ID,
+		RevisionID:        revision.RevisionID,
+		UserProfile:       revisorDropdown,
+		DateOfAccept:      revision.DateOfAccept,
+		DueDate:           revision.DueDate,
+		EndDate:           revision.EndDate,
+		DateOfReject:      revision.DateOfReject,
+		DateOfExecution:   revision.DateOfExecution,
+		Recommendation:    revision.Recommendation,
+		RevisionPriority:  revision.RevisionPriority,
+		Status:            revision.Status,
+		ResponsiblePerson: revision.ResponsiblePerson,
+		Files:             files,
+		CreatedAt:         revision.CreatedAt,
+		UpdatedAt:         revision.UpdatedAt,
 	}
 
 	return revisionTipItem, nil
@@ -1165,4 +1161,133 @@ func (r *Resolver) RevisionTipsDeleteResolver(params graphql.ResolveParams) (int
 		Status:  "success",
 		Message: "You deleted this item!",
 	}, nil
+}
+
+//-------------------------------------------------------------------------
+
+func buildRevisionTipImplementationItemResponse(r repository.MicroserviceRepositoryInterface, tipImpl *structs.RevisionTipImplementations) (*dto.RevisionTipImplementationsOverviewItem, error) {
+	revisorDropdown := dto.DropdownSimple{}
+
+	if tipImpl.RevisorID != nil {
+		revisor, err := r.GetUserProfileByID(*tipImpl.RevisorID)
+		if err != nil {
+			return nil, errors.Wrap(err, "repo get user profile by id")
+		}
+
+		revisorDropdown = dto.DropdownSimple{
+			ID:    revisor.ID,
+			Title: revisor.FirstName + " " + revisor.LastName,
+		}
+	}
+
+	var files []dto.FileDropdownSimple
+
+	for i := range tipImpl.FileIDs {
+		res, _ := r.GetFileByID(tipImpl.FileIDs[i])
+
+		if res != nil {
+			files = append(files, dto.FileDropdownSimple{
+				ID:   res.ID,
+				Name: res.Name,
+				Type: *res.Type,
+			})
+		}
+	}
+
+	revisionTipImplementationItem := &dto.RevisionTipImplementationsOverviewItem{
+		ID:                     tipImpl.ID,
+		TipID:                  tipImpl.TipID,
+		Status:                 tipImpl.Status,
+		NewDueDate:             tipImpl.NewDueDate,
+		NewDateOfExecution:     tipImpl.NewDateOfExecution,
+		ReasonsForNonExecuting: tipImpl.ReasonsForNonExecuting,
+		Revisor:                revisorDropdown,
+		Documents:              tipImpl.Documents,
+		Files:                  files,
+		CreatedAt:              tipImpl.CreatedAt,
+		UpdatedAt:              tipImpl.UpdatedAt,
+	}
+
+	return revisionTipImplementationItem, nil
+}
+
+func (r *Resolver) RevisionTipImplementationOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
+	response := dto.RevisionTipImplementationsOverviewResponse{
+		Status:  "success",
+		Message: "Here's the list you asked for!",
+	}
+
+	tipID := params.Args["tip_id"]
+
+	input := dto.GetRevisionTipImplementationFilter{}
+	if tipID != nil && tipID.(int) > 0 {
+		temp := tipID.(int)
+		input.TipID = &temp
+	}
+
+	tipImplementations, err := r.Repo.GetRevisionTipImplementationList(&input)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	for _, tipImpl := range tipImplementations.Data {
+		item, err := buildRevisionTipImplementationItemResponse(r.Repo, tipImpl)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+		response.Items = append(response.Items, *item)
+	}
+
+	revisorDropdownList, err := getRevisorListDropdown(r.Repo)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	response.Revisors = revisorDropdownList
+
+	return response, nil
+}
+
+func (r *Resolver) RevisionTipImplementationInsertResolver(params graphql.ResolveParams) (any, error) {
+	var data structs.RevisionTipImplementations
+	dataBytes, _ := json.Marshal(params.Args["data"])
+	response := dto.ResponseSingle{
+		Status: "success",
+	}
+
+	_ = json.Unmarshal(dataBytes, &data)
+
+	itemID := data.ID
+	if itemID != 0 {
+		res, err := r.Repo.UpdateRevisionTipImplementation(params.Context, itemID, &data)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+		item, err := buildRevisionTipImplementationItemResponse(r.Repo, res)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+		response.Item = item
+		response.Message = "You updated this item!"
+	} else {
+		res, err := r.Repo.CreateRevisionTipImplementation(params.Context, &data)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+		item, err := buildRevisionTipImplementationItemResponse(r.Repo, res)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+		response.Item = item
+		response.Message = "You created this item!"
+	}
+
+	return response, nil
 }

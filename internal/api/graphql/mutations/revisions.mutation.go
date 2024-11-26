@@ -170,9 +170,6 @@ var RevisionTipsInsertMutation = graphql.NewInputObject(graphql.InputObjectConfi
 		"due_date": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"new_due_date": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
-		},
 		"date_of_reject": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
@@ -185,23 +182,47 @@ var RevisionTipsInsertMutation = graphql.NewInputObject(graphql.InputObjectConfi
 		"date_of_execution": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"new_date_of_execution": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"recommendation": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"status": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"documents": &graphql.InputObjectFieldConfig{
+		"user_profile_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"file_ids": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
+	},
+})
+
+var RevisionTipImplementationInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "RevisionTipImplementationInsertMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"tip_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"status": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"new_due_date": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"new_date_of_execution": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"reasons_for_non_executing": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"user_profile_id": &graphql.InputObjectFieldConfig{
+		"revisor_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
+		},
+		"documents": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 		"file_ids": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(graphql.Int),

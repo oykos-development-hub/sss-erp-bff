@@ -52,22 +52,32 @@ type Revisions struct {
 }
 
 type RevisionTips struct {
-	ID                     int     `json:"id"`
-	RevisionID             int     `json:"revision_id"`
-	UserProfileID          *int    `json:"user_profile_id"`
-	ResponsiblePerson      *string `json:"responsible_person"`
-	DateOfAccept           *string `json:"date_of_accept"`
-	DueDate                int     `json:"due_date"`
-	RevisionPriority       *string `json:"revision_priority"`
+	ID                int     `json:"id"`
+	RevisionID        int     `json:"revision_id"`
+	UserProfileID     *int    `json:"user_profile_id"`
+	DateOfAccept      *string `json:"date_of_accept"`
+	DueDate           int     `json:"due_date"`
+	RevisionPriority  *string `json:"revision_priority"`
+	EndDate           *string `json:"end_date"`
+	DateOfReject      *string `json:"date_of_reject"`
+	DateOfExecution   *string `json:"date_of_execution"`
+	Recommendation    string  `json:"recommendation"`
+	Status            *string `json:"status"`
+	ResponsiblePerson *string `json:"responsible_person"`
+	FileIDs           []int   `json:"file_ids"`
+	CreatedAt         string  `json:"created_at"`
+	UpdatedAt         string  `json:"updated_at"`
+}
+
+type RevisionTipImplementations struct {
+	ID                     int     `json:"id,omitempty"`
+	TipID                  int     `json:"tip_id"`
+	Status                 string  `json:"status"`
 	NewDueDate             *int    `json:"new_due_date"`
-	DateOfReject           *string `json:"date_of_reject"`
-	EndDate                *string `json:"end_date"`
-	DateOfExecution        *string `json:"date_of_execution"`
 	NewDateOfExecution     *string `json:"new_date_of_execution"`
-	Recommendation         string  `json:"recommendation"`
-	Status                 *string `json:"status"`
-	Documents              *string `json:"documents"`
 	ReasonsForNonExecuting *string `json:"reasons_for_non_executing"`
+	RevisorID              *int    `json:"revisor_id"`
+	Documents              string  `json:"documents"`
 	FileIDs                []int   `json:"file_ids"`
 	CreatedAt              string  `json:"created_at"`
 	UpdatedAt              string  `json:"updated_at"`

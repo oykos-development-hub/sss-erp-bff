@@ -387,9 +387,6 @@ var RevisionTipsType = graphql.NewObject(graphql.ObjectConfig{
 		"due_date": &graphql.Field{
 			Type: graphql.Int,
 		},
-		"new_due_date": &graphql.Field{
-			Type: graphql.Int,
-		},
 		"date_of_reject": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -399,9 +396,6 @@ var RevisionTipsType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_execution": &graphql.Field{
 			Type: graphql.String,
 		},
-		"new_date_of_execution": &graphql.Field{
-			Type: graphql.String,
-		},
 		"revision_priority": &graphql.Field{
 			Type: graphql.String,
 		},
@@ -409,12 +403,6 @@ var RevisionTipsType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"status": &graphql.Field{
-			Type: graphql.String,
-		},
-		"documents": &graphql.Field{
-			Type: graphql.String,
-		},
-		"reasons_for_non_executing": &graphql.Field{
 			Type: graphql.String,
 		},
 		"files": &graphql.Field{
@@ -443,6 +431,81 @@ var RevisionTipsDetailsType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"item": &graphql.Field{
 			Type: RevisionTipsType,
+		},
+	},
+})
+
+var RevisionTipImplementationOverviewType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "RevisionTipImplementationOverviewType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"items": &graphql.Field{
+			Type: graphql.NewList(RevisionTipImplementationType),
+		},
+		"revisors": &graphql.Field{
+			Type: graphql.NewList(DropdownItemType),
+		},
+	},
+})
+
+var RevisionTipImplementationType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "RevisionTipImplementation",
+	Fields: graphql.Fields{
+		"id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"new_due_date": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"new_date_of_execution": &graphql.Field{
+			Type: graphql.String,
+		},
+		"reasons_for_non_executing": &graphql.Field{
+			Type: graphql.String,
+		},
+		"revisor_id": &graphql.Field{
+			Type: graphql.Int,
+		},
+		"documents": &graphql.Field{
+			Type: graphql.String,
+		},
+		"files": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
+		},
+		"created_at": &graphql.Field{
+			Type: graphql.String,
+		},
+		"updated_at": &graphql.Field{
+			Type: graphql.String,
+		},
+	},
+})
+
+var RevisionTipsImplementationDetailsType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "RevisionTipsImplementationDetailsType",
+	Fields: graphql.Fields{
+		"status": &graphql.Field{
+			Type: graphql.String,
+		},
+		"data": &graphql.Field{
+			Type: JSON,
+		},
+		"message": &graphql.Field{
+			Type: graphql.String,
+		},
+		"item": &graphql.Field{
+			Type: RevisionTipImplementationType,
 		},
 	},
 })

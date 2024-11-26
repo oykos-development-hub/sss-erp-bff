@@ -335,3 +335,65 @@ func (repo *MicroserviceRepository) GetRevisionOrgUnitList(input *dto.RevisionOr
 
 	return res.Data, nil
 }
+
+func (repo *MicroserviceRepository) GetRevisionTipImplementationList(input *dto.GetRevisionTipImplementationFilter) (*dto.GetRevisionTipImplementationsResponseMS, error) {
+	res := &dto.GetRevisionTipImplementationsResponseMS{}
+
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.RevisionTipImplementations, input, res)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return res, nil
+}
+
+func (repo *MicroserviceRepository) GetRevisionTipImplementationByID(id int) (*structs.RevisionTipImplementations, error) {
+	res := &dto.GetRevisionTipImplementationMS{}
+	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.RevisionTipImplementations+"/"+strconv.Itoa(id), nil, res)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return &res.Data, nil
+}
+
+func (repo *MicroserviceRepository) DeleteRevisionTipImplementation(ctx context.Context, id int) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.RevisionTipImplementations+"/"+strconv.Itoa(id), nil, nil, header)
+	if err != nil {
+		return errors.Wrap(err, "make api request")
+	}
+
+	return nil
+}
+
+func (repo *MicroserviceRepository) CreateRevisionTipImplementation(ctx context.Context, tipImpl *structs.RevisionTipImplementations) (*structs.RevisionTipImplementations, error) {
+	res := &dto.GetRevisionTipImplementationMS{}
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.RevisionTipImplementations, tipImpl, res, header)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return &res.Data, nil
+}
+
+func (repo *MicroserviceRepository) UpdateRevisionTipImplementation(ctx context.Context, id int, tipImpl *structs.RevisionTipImplementations) (*structs.RevisionTipImplementations, error) {
+	res := &dto.GetRevisionTipImplementationMS{}
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.RevisionTipImplementations+"/"+strconv.Itoa(id), tipImpl, res, header)
+	if err != nil {
+		return nil, errors.Wrap(err, "make api request")
+	}
+
+	return &res.Data, nil
+}

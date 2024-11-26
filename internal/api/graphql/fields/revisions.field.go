@@ -251,3 +251,42 @@ func (f *Field) RevisionTipsDelete() *graphql.Field {
 		Resolve: f.Resolvers.RevisionTipsDeleteResolver,
 	}
 }
+
+func (f *Field) RevisionTipImplementationOverview() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.RevisionTipImplementationOverviewType,
+		Description: "Returns a data of Revision tip implementation",
+		Args: graphql.FieldConfigArgument{
+			"tip_id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+		},
+		Resolve: f.Resolvers.RevisionTipImplementationOverviewResolver,
+	}
+}
+
+func (f *Field) RevisionTipImplementationInsert() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.RevisionTipsImplementationDetailsType,
+		Description: "Creates new or alter existing revision tip implementation item",
+		Args: graphql.FieldConfigArgument{
+			"data": &graphql.ArgumentConfig{
+				Type: graphql.NewNonNull(mutations.RevisionTipImplementationInsertMutation),
+			},
+		},
+		Resolve: f.Resolvers.RevisionTipImplementationInsertResolver,
+	}
+}
+
+func (f *Field) RevisionTipImplementationDelete() *graphql.Field {
+	return &graphql.Field{
+		Type:        types.RevisionDeleteType,
+		Description: "Deletes existing revision tip implementation item",
+		Args: graphql.FieldConfigArgument{
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
+		},
+		Resolve: f.Resolvers.RevisionTipsDeleteResolver,
+	}
+}

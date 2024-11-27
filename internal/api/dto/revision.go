@@ -107,7 +107,7 @@ type RevisionTipsOverviewItem struct {
 	EndDate           *string                  `json:"end_date"`
 	DateOfExecution   *string                  `json:"date_of_execution"`
 	Recommendation    string                   `json:"recommendation"`
-	Status            *string                  `json:"status"`
+	Status            string                   `json:"status"`
 	RevisionPriority  *string                  `json:"revision_priority"`
 	FileID            *int                     `json:"file_id"`
 	Files             []FileDropdownSimple     `json:"files"`

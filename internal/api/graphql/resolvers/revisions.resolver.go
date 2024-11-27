@@ -984,15 +984,25 @@ func buildRevisionTipItemResponse(r repository.MicroserviceRepositoryInterface, 
 
 	revisorDropdown := structs.SettingsDropdown{}
 
-	if revision.UserProfileID != nil {
-		revisor, err := r.GetUserProfileByID(*revision.UserProfileID)
+	if revision.Status == "Sprovedena" {
+		revisionTips, err := r.GetRevisionTipImplementationList(&dto.GetRevisionTipImplementationFilter{TipID: &revision.ID})
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
-		revisorDropdown = structs.SettingsDropdown{
-			ID:    revisor.ID,
-			Title: revisor.FirstName + " " + revisor.LastName,
+		for _, tip := range revisionTips.Data {
+			if tip.Status == "Sproveden" {
+				revisor, err := r.GetUserProfileByID(*revision.UserProfileID)
+				if err != nil {
+					return nil, errors.Wrap(err, "repo get user profile by id")
+				}
+
+				revisorDropdown = structs.SettingsDropdown{
+					ID:    revisor.ID,
+					Title: revisor.FirstName + " " + revisor.LastName,
+				}
+				break
+			}
 		}
 	}
 

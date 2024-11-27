@@ -62,7 +62,7 @@ type RevisionTips struct {
 	DateOfReject      *string `json:"date_of_reject"`
 	DateOfExecution   *string `json:"date_of_execution"`
 	Recommendation    string  `json:"recommendation"`
-	Status            *string `json:"status"`
+	Status            string  `json:"status"`
 	ResponsiblePerson *string `json:"responsible_person"`
 	FileIDs           []int   `json:"file_ids"`
 	CreatedAt         string  `json:"created_at"`

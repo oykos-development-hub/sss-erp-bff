@@ -556,6 +556,7 @@ type MicroserviceRepositoryInterface interface {
 	GetListOfParameters() ([]structs.ListOfParameters, error)
 
 	GetRevisionTipImplementationList(input *dto.GetRevisionTipImplementationFilter) (*dto.GetRevisionTipImplementationsResponseMS, error)
+	GetRevisionTipImplementationByID(id int) (*structs.RevisionTipImplementations, error)
 	CreateRevisionTipImplementation(ctx context.Context, impl *structs.RevisionTipImplementations) (*structs.RevisionTipImplementations, error)
 	UpdateRevisionTipImplementation(ctx context.Context, id int, impl *structs.RevisionTipImplementations) (*structs.RevisionTipImplementations, error)
 	DeleteRevisionTipImplementation(ctx context.Context, id int) error

@@ -260,6 +260,9 @@ func (f *Field) RevisionTipImplementationOverview() *graphql.Field {
 			"tip_id": &graphql.ArgumentConfig{
 				Type: graphql.Int,
 			},
+			"id": &graphql.ArgumentConfig{
+				Type: graphql.Int,
+			},
 		},
 		Resolve: f.Resolvers.RevisionTipImplementationOverviewResolver,
 	}

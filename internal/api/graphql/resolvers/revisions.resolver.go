@@ -1217,27 +1217,43 @@ func (r *Resolver) RevisionTipImplementationOverviewResolver(params graphql.Reso
 		Message: "Here's the list you asked for!",
 	}
 
-	tipID := params.Args["tip_id"]
+	id := params.Args["id"]
+	if id != nil && id.(int) > 0 {
+		data, err := r.Repo.GetRevisionTipImplementationByID(id.(int))
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
 
-	input := dto.GetRevisionTipImplementationFilter{}
-	if tipID != nil && tipID.(int) > 0 {
-		temp := tipID.(int)
-		input.TipID = &temp
-	}
-
-	tipImplementations, err := r.Repo.GetRevisionTipImplementationList(&input)
-	if err != nil {
-		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-		return errors.HandleAPPError(err)
-	}
-
-	for _, tipImpl := range tipImplementations.Data {
-		item, err := buildRevisionTipImplementationItemResponse(r.Repo, tipImpl)
+		item, err := buildRevisionTipImplementationItemResponse(r.Repo, data)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 		response.Items = append(response.Items, *item)
+	} else {
+		tipID := params.Args["tip_id"]
+
+		input := dto.GetRevisionTipImplementationFilter{}
+		if tipID != nil && tipID.(int) > 0 {
+			temp := tipID.(int)
+			input.TipID = &temp
+		}
+
+		tipImplementations, err := r.Repo.GetRevisionTipImplementationList(&input)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		for _, tipImpl := range tipImplementations.Data {
+			item, err := buildRevisionTipImplementationItemResponse(r.Repo, tipImpl)
+			if err != nil {
+				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+				return errors.HandleAPPError(err)
+			}
+			response.Items = append(response.Items, *item)
+		}
 	}
 
 	revisorDropdownList, err := getRevisorListDropdown(r.Repo)

@@ -362,6 +362,7 @@ func (repo *MicroserviceRepository) DeleteRevisionTipImplementation(ctx context.
 
 	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	header["UserID"] = strconv.Itoa(account.ID)
+
 	_, err := makeAPIRequest("DELETE", repo.Config.Microservices.HR.RevisionTipImplementations+"/"+strconv.Itoa(id), nil, nil, header)
 	if err != nil {
 		return errors.Wrap(err, "make api request")
@@ -376,6 +377,7 @@ func (repo *MicroserviceRepository) CreateRevisionTipImplementation(ctx context.
 
 	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	header["UserID"] = strconv.Itoa(account.ID)
+
 	_, err := makeAPIRequest("POST", repo.Config.Microservices.HR.RevisionTipImplementations, tipImpl, res, header)
 	if err != nil {
 		return nil, errors.Wrap(err, "make api request")
@@ -390,6 +392,7 @@ func (repo *MicroserviceRepository) UpdateRevisionTipImplementation(ctx context.
 
 	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 	header["UserID"] = strconv.Itoa(account.ID)
+
 	_, err := makeAPIRequest("PUT", repo.Config.Microservices.HR.RevisionTipImplementations+"/"+strconv.Itoa(id), tipImpl, res, header)
 	if err != nil {
 		return nil, errors.Wrap(err, "make api request")

@@ -1014,6 +1014,7 @@ func buildRevisionTipItemResponse(r repository.MicroserviceRepositoryInterface, 
 			})
 		}
 	}
+
 	revisionTipItem := &dto.RevisionTipsOverviewItem{
 		ID:                revision.ID,
 		RevisionID:        revision.RevisionID,
@@ -1128,6 +1129,7 @@ func (r *Resolver) RevisionTipsInsertResolver(params graphql.ResolveParams) (int
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
+
 		response.Item = item
 		response.Message = "You updated this item!"
 	} else {

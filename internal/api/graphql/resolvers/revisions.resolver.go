@@ -992,7 +992,7 @@ func buildRevisionTipItemResponse(r repository.MicroserviceRepositoryInterface, 
 
 		for _, tip := range revisionTips.Data {
 			if tip.Status == "Sproveden" {
-				revisor, err := r.GetUserProfileByID(*revision.UserProfileID)
+				revisor, err := r.GetUserProfileByID(*tip.RevisorID)
 				if err != nil {
 					return nil, errors.Wrap(err, "repo get user profile by id")
 				}

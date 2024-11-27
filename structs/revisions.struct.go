@@ -1,5 +1,9 @@
 package structs
 
+const (
+	RevisionConducted string = "Sprovedena"
+)
+
 type Revision struct {
 	ID                              int     `json:"id"`
 	Name                            *string `json:"name"`

@@ -591,12 +591,12 @@ func buildRevisionItemResponse(r repository.MicroserviceRepositoryInterface, rev
 	}
 
 	if revision.ExternalRevisionsubject != nil {
-		organizationUnit, err := r.GetDropdownSettingByID(*revision.ExternalRevisionsubject)
+		supplier, err := r.GetSupplier(*revision.ExternalRevisionsubject)
 		if err != nil {
-			return nil, errors.Wrap(err, "repo get dropdown setting by id")
+			return nil, errors.Wrap(err, "repo get supplier")
 		}
-		externalUnitDropdown.ID = organizationUnit.ID
-		externalUnitDropdown.Title = organizationUnit.Title
+		externalUnitDropdown.ID = supplier.ID
+		externalUnitDropdown.Title = supplier.Title
 	}
 
 	var fileList []dto.FileDropdownSimple

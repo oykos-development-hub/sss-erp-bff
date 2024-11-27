@@ -1051,8 +1051,9 @@ func (r *Resolver) RevisionTipsOverviewResolver(params graphql.ResolveParams) (i
 		Status:  "success",
 		Message: "Here's the list you asked for!",
 	}
-	page := params.Args["page"]
 	size := params.Args["size"]
+	page := params.Args["page"]
+
 	revision := params.Args["revision_id"]
 
 	input := dto.GetRevisionTipFilter{}
@@ -1106,11 +1107,13 @@ func (r *Resolver) RevisionTipsDetailsResolver(params graphql.ResolveParams) (in
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
+
 	item, err := buildRevisionTipItemResponse(r.Repo, revision)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
 	}
+
 	return dto.ResponseSingle{
 		Status:  "success",
 		Message: "Here's the list you asked for!",

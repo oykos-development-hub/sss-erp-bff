@@ -10,6 +10,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	goerror "errors"
 
@@ -161,6 +162,7 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 				}
 
 				for _, itemOU := range articlesOU {
+					fmt.Println(strconv.Itoa(data.ID) + " " + firstStatus + " " + strconv.Itoa(itemOU.ID) + " " + itemOU.Status)
 					if firstStatus == "" {
 						firstStatus = itemOU.Status
 					} else if firstStatus != itemOU.Status {

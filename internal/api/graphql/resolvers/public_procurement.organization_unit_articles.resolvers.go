@@ -172,6 +172,8 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 			}
 		}
 
+		fmt.Println(same)
+
 		if same {
 			if oldRequest.Status != string(structs.ArticleStatusRejected) && data.IsRejected {
 				notificationContent = "Vaš zahtjev je odbijen. Molimo Vas da pregledate komentar i ponovno pošaljete plan."

@@ -121,31 +121,51 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 		same := true
 		var firstStatus string
 
-		articles, err := r.Repo.GetProcurementArticlesList(
-			&dto.GetProcurementArticleListInputMS{
-				ItemID: &oldArticle.PublicProcurementID})
+		publicProcurement, err := r.Repo.GetProcurementItem(oldArticle.PublicProcurementID)
 
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
 
-		for _, item := range articles {
-			articlesOU, err := r.Repo.GetOrganizationUnitArticlesList(dto.GetProcurementOrganizationUnitArticleListInputDTO{
-				OrganizationUnitID: &oldRequest.OrganizationUnitID,
-				ArticleID:          &item.ID,
-			})
+		publicProcurements, err := r.Repo.GetProcurementItemList(&dto.GetProcurementItemListInputMS{
+			PlanID: &publicProcurement.PlanID,
+		})
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		for _, item := range publicProcurements {
+
+			articles, err := r.Repo.GetProcurementArticlesList(
+				&dto.GetProcurementArticleListInputMS{
+					ItemID: &item.ID})
 
 			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
 			}
 
-			for _, itemOU := range articlesOU {
-				if firstStatus == "" {
-					firstStatus = itemOU.Status
-				} else if firstStatus != itemOU.Status {
-					same = false
+			for _, articleItem := range articles {
+
+				articlesOU, err := r.Repo.GetOrganizationUnitArticlesList(dto.GetProcurementOrganizationUnitArticleListInputDTO{
+					OrganizationUnitID: &oldRequest.OrganizationUnitID,
+					ArticleID:          &articleItem.ID,
+				})
+
+				if err != nil {
+					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+					return errors.HandleAPPError(err)
+				}
+
+				for _, itemOU := range articlesOU {
+					if firstStatus == "" {
+						firstStatus = itemOU.Status
+					} else if firstStatus != itemOU.Status {
+						same = false
+					}
 				}
 			}
 		}

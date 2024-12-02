@@ -12,10 +12,21 @@ import (
 func (r *Resolver) NotificationOverviewResolver(params graphql.ResolveParams) (interface{}, error) {
 	loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
 
-	role, err := r.Repo.GetRole(loggedInUser.ID)
+	user, err := r.Repo.GetUserAccountByID(loggedInUser.ID)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
+	}
+
+	var role *structs.Roles
+
+	if user.RoleID != nil {
+		role, err = r.Repo.GetRole(*user.RoleID)
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
 	}
 
 	if !role.Active {

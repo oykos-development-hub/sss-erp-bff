@@ -111,25 +111,59 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 
 		var notificationContent string
 
-		if oldRequest.Status != string(structs.ArticleStatusRejected) && data.IsRejected {
-			notificationContent = "Vaš zahtjev je odbijen. Molimo Vas da pregledate komentar i ponovno pošaljete plan."
-		} else if oldRequest.Status != string(structs.ArticleStatusAccepted) && !data.IsRejected {
-			notificationContent = "Vaš zahtjev za plan je odobren."
+		oldArticle, err := r.Repo.GetProcurementArticle(oldRequest.PublicProcurementArticleID)
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
 		}
 
-		if notificationContent != "" {
-			loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
-			employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, data.OrganizationUnitID)
-			/*if err != nil {
+		same := true
+		var firstStatus string
+
+		articles, err := r.Repo.GetProcurementArticlesList(
+			&dto.GetProcurementArticleListInputMS{
+				ItemID: &oldArticle.PublicProcurementID})
+
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		for _, item := range articles {
+			articlesOU, err := r.Repo.GetOrganizationUnitArticlesList(dto.GetProcurementOrganizationUnitArticleListInputDTO{
+				OrganizationUnitID: &oldRequest.OrganizationUnitID,
+				ArticleID:          &item.ID,
+			})
+
+			if err != nil {
 				_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 				return errors.HandleAPPError(err)
-			}*/
-			for _, employee := range employees {
-				employeeAccount, err := r.Repo.GetUserAccountByID(employee.UserAccountID)
-				if err != nil {
+			}
+
+			for _, itemOU := range articlesOU {
+				if firstStatus == "" {
+					firstStatus = itemOU.Status
+				} else if firstStatus != itemOU.Status {
+					same = false
+				}
+			}
+		}
+
+		if same {
+			if oldRequest.Status != string(structs.ArticleStatusRejected) && data.IsRejected {
+				notificationContent = "Vaš zahtjev je odbijen. Molimo Vas da pregledate komentar i ponovno pošaljete plan."
+			} else if oldRequest.Status != string(structs.ArticleStatusAccepted) && !data.IsRejected {
+				notificationContent = "Vaš zahtjev za plan je odobren."
+			}
+
+			if notificationContent != "" {
+				loggedInUser := params.Context.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+				employees, _ := GetEmployeesOfOrganizationUnit(r.Repo, data.OrganizationUnitID)
+				/*if err != nil {
 					_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 					return errors.HandleAPPError(err)
-				}
+				}*/
 
 				targetUsers, _ := r.Repo.GetUsersByPermission(config.PublicProcurementPlan, config.OperationRead)
 				/*if err != nil {
@@ -137,28 +171,36 @@ func (r *Resolver) PublicProcurementOrganizationUnitArticleInsertResolver(params
 					return errors.HandleAPPError(err)
 				}*/
 
-				for _, user := range targetUsers {
-					if user.ID == employee.UserAccountID && loggedInUser.ID != user.ID {
-						plan, _ := r.Repo.GetProcurementPlan(procurement.PlanID)
-						data := dto.ProcurementPlanNotification{
-							ID:          plan.ID,
-							IsPreBudget: plan.IsPreBudget,
-							Year:        plan.Year,
-						}
-						dataJSON, _ := json.Marshal(data)
-						_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
-							Content:     notificationContent,
-							Module:      "Javne nabavke",
-							FromUserID:  loggedInUser.ID,
-							ToUserID:    employeeAccount.ID,
-							FromContent: "Službenik za javne nabavke",
-							IsRead:      false,
-							Data:        dataJSON,
-							Path:        fmt.Sprintf("/procurements/plans/%d", procurement.PlanID),
-						})
-						if err != nil {
-							_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
-							return errors.HandleAPPError(err)
+				for _, employee := range employees {
+					employeeAccount, err := r.Repo.GetUserAccountByID(employee.UserAccountID)
+					if err != nil {
+						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+						return errors.HandleAPPError(err)
+					}
+
+					for _, user := range targetUsers {
+						if user.ID == employee.UserAccountID && loggedInUser.ID != user.ID {
+							plan, _ := r.Repo.GetProcurementPlan(procurement.PlanID)
+							data := dto.ProcurementPlanNotification{
+								ID:          plan.ID,
+								IsPreBudget: plan.IsPreBudget,
+								Year:        plan.Year,
+							}
+							dataJSON, _ := json.Marshal(data)
+							_, err := r.NotificationsService.CreateNotification(&structs.Notifications{
+								Content:     notificationContent,
+								Module:      "Javne nabavke",
+								FromUserID:  loggedInUser.ID,
+								ToUserID:    employeeAccount.ID,
+								FromContent: "Službenik za javne nabavke",
+								IsRead:      false,
+								Data:        dataJSON,
+								Path:        fmt.Sprintf("/procurements/plans/%d", procurement.PlanID),
+							})
+							if err != nil {
+								_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+								return errors.HandleAPPError(err)
+							}
 						}
 					}
 				}

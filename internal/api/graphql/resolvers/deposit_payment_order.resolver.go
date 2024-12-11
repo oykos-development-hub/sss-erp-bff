@@ -167,10 +167,52 @@ func (r *Resolver) PayDepositOrderResolver(params graphql.ResolveParams) (interf
 	dateOfStatement, err := parseDate(DateOfStatement)
 
 	if err != nil {
-		fmt.Printf("Paying the order failed because this error - %s.\n", err)
-		return dto.ResponseSingle{
-			Status: "failed",
-		}, nil
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	depositPaymentOrder, err := r.Repo.GetDepositPaymentOrderByID(itemID)
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	if depositPaymentOrder.DateOfPayment.After(dateOfStatement) {
+		err := errors.New("date of statement must be after date of payment")
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	boolFalse := false
+
+	items, err := r.Repo.GetInitialState(dto.DepositInitialStateFilter{
+		BankAccount:             &depositPaymentOrder.SourceBankAccount,
+		OrganizationUnitID:      &depositPaymentOrder.OrganizationUnitID,
+		Date:                    dateOfStatement,
+		TransitionalBankAccount: &boolFalse,
+	})
+
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	var price float64
+	for _, item := range depositPaymentOrder.AdditionalExpensesForPaying {
+		price += item.Price
+	}
+
+	if len(items) > 0 {
+		if items[0].Amount < price {
+			err := errors.New("you do not have enough funds in bank account for the requested day")
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+	} else {
+		err := errors.New("you do not have enough funds in bank account for the requested day")
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
 	}
 
 	paymentOrder := structs.DepositPaymentOrder{
@@ -181,10 +223,8 @@ func (r *Resolver) PayDepositOrderResolver(params graphql.ResolveParams) (interf
 
 	err = r.Repo.PayDepositPaymentOrder(params.Context, paymentOrder)
 	if err != nil {
-		fmt.Printf("Paying the order failed because this error - %s.\n", err)
-		return dto.ResponseSingle{
-			Status: "failed",
-		}, nil
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
 	}
 
 	return dto.ResponseSingle{

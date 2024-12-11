@@ -18,4 +18,5 @@ type Foreigners struct {
 	UpdatedAt                       string  `json:"updated_at,omitempty"`
 	WorkPermitFileID                int     `json:"work_permit_file_id"`
 	ResidencePermitFileID           int     `json:"residence_permit_file_id"`
+	FileIDs                         []int   `json:"file_ids"`
 }

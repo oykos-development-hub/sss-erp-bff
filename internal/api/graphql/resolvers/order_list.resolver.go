@@ -365,7 +365,7 @@ func (r *Resolver) OrderListInsertResolver(params graphql.ResolveParams) (interf
 					}
 
 					if processedArticle.Available-item.Amount < 0 {
-						err = errors.New("there is not available articles")
+						err = errors.New("there are not available articles")
 						_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 						return errors.HandleAPPError(err)
 					}
@@ -793,7 +793,17 @@ func GetEmployeesOfOrganizationUnit(r repository.MicroserviceRepositoryInterface
 
 	}
 
-	return userProfileList, nil
+	seen := make(map[int]bool)
+	var uniqueProfiles []*structs.UserProfiles
+
+	for _, profile := range userProfileList {
+		if !seen[profile.ID] {
+			seen[profile.ID] = true
+			uniqueProfiles = append(uniqueProfiles, profile)
+		}
+	}
+
+	return uniqueProfiles, nil
 }
 
 func deleteOrderArticles(r repository.MicroserviceRepositoryInterface, itemID int) error {

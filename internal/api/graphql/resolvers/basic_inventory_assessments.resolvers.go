@@ -130,15 +130,17 @@ func BuildAssessmentResponse(
 			userDropdown.Title = user.FirstName + " " + user.LastName
 		}
 	}
+	var grossPriceNew float64
+	var depreciationRateString string
 
 	if item.EstimatedDuration == 0 {
-		item.EstimatedDuration = 10000
+		grossPriceNew = item.GrossPriceDifference
+		depreciationRateString = "0"
+	} else {
+		depreciationRateInt := 100 / item.EstimatedDuration
+		depreciationRateString = strconv.Itoa(depreciationRateInt) + "%"
+		grossPriceNew = calculateMonthlyConsumption(*item.DateOfAssessment, item.GrossPriceDifference, item.EstimatedDuration)
 	}
-
-	depreciationRateInt := 100 / item.EstimatedDuration
-	depreciationRateString := strconv.Itoa(depreciationRateInt) + "%"
-
-	grossPriceNew := calculateMonthlyConsumption(*item.DateOfAssessment, item.GrossPriceDifference, item.EstimatedDuration)
 
 	res := dto.BasicInventoryResponseAssessment{
 		ID:                   item.ID,

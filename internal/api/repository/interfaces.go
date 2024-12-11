@@ -135,8 +135,8 @@ type MicroserviceRepositoryInterface interface {
 	GetEmployeeEducations(input dto.EducationInput) ([]structs.Education, error)
 	GetEmployeeEvaluations(userProfileID int) ([]*structs.Evaluation, error)
 	GetEmployeeExperiences(employeeID int) ([]*structs.Experience, error)
-	GetEmployeeFamilyMembers(employeeID int) ([]*structs.Family, error)
-	GetEmployeeForeigners(userProfileID int) ([]*structs.Foreigners, error)
+	GetEmployeeFamilyMembers(employeeID int) ([]structs.Family, error)
+	GetEmployeeForeigners(userProfileID int) ([]structs.Foreigners, error)
 	GetEmployeeResolution(id int) (*structs.Resolution, error)
 	GetEmployeeResolutions(employeeID int, input *dto.EmployeeResolutionListInput) ([]*structs.Resolution, error)
 	GetEmployeeSalaryParams(userProfileID int) ([]*structs.SalaryParams, error)
@@ -560,4 +560,6 @@ type MicroserviceRepositoryInterface interface {
 	CreateRevisionTipImplementation(ctx context.Context, impl *structs.RevisionTipImplementations) (*structs.RevisionTipImplementations, error)
 	UpdateRevisionTipImplementation(ctx context.Context, id int, impl *structs.RevisionTipImplementations) (*structs.RevisionTipImplementations, error)
 	DeleteRevisionTipImplementation(ctx context.Context, id int) error
+
+	CreateExcelInventoryItems(ctx context.Context, items []structs.ImportInventoryArticles) error
 }

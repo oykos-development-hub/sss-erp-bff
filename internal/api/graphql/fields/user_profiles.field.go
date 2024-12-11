@@ -39,19 +39,6 @@ func (f *Field) UserProfilesOverviewField() *graphql.Field {
 	}
 }
 
-func (f *Field) UserProfileContractsField() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.UserProfileContractsType,
-		Description: "Returns a data of User Profile's contracts",
-		Args: graphql.FieldConfigArgument{
-			"id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
-			},
-		},
-		Resolve: f.Resolvers.UserProfileContractsResolver,
-	}
-}
-
 func (f *Field) UserProfileBasicField() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.UserProfileBasicType,
@@ -88,32 +75,6 @@ func (f *Field) UserProfileUpdateField() *graphql.Field {
 			},
 		},
 		Resolve: f.Resolvers.UserProfileUpdateResolver,
-	}
-}
-
-func (f *Field) UserProfileContractInsertField() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.UserProfileContractInsertType,
-		Description: "Inserts or updates contract of User Profile",
-		Args: graphql.FieldConfigArgument{
-			"data": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(mutations.UserProfileContractInsertMutation),
-			},
-		},
-		Resolve: f.Resolvers.UserProfileContractInsertResolver,
-	}
-}
-
-func (f *Field) UserProfileContractDeleteField() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.UserProfileContractDeleteType,
-		Description: "Deletes existing User Profile's Contract",
-		Args: graphql.FieldConfigArgument{
-			"id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
-			},
-		},
-		Resolve: f.Resolvers.UserProfileContractDeleteResolver,
 	}
 }
 

@@ -29,7 +29,7 @@ func (r *Resolver) NotificationOverviewResolver(params graphql.ResolveParams) (i
 		}
 	}
 
-	if !role.Active {
+	if role == nil || !role.Active {
 		return dto.Response{
 			Status:  "success",
 			Message: "Here's the list you asked for!",

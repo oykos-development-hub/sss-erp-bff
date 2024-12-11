@@ -144,7 +144,7 @@ var InvoiceType = graphql.NewObject(graphql.ObjectConfig{
 			Type: graphql.String,
 		},
 		"description": &graphql.Field{
-			Type: graphql.Int,
+			Type: graphql.String,
 		},
 		"registred": &graphql.Field{
 			Type: graphql.Boolean,

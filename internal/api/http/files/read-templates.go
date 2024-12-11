@@ -215,19 +215,14 @@ func (h *Handler) ReadArticlesHandler(w http.ResponseWriter, r *http.Request) {
 						break
 					}
 
-					floatValue, err := strconv.ParseFloat(value, 32)
+					_, err := strconv.ParseFloat(value, 32)
 
 					if err != nil {
 						handleError(w, err, http.StatusInternalServerError)
 						return
 					}
 
-					vatPercentage := 100 * floatValue / float64(article.NetPrice)
-					round := math.Round(vatPercentage)
-
-					valueVat := strconv.Itoa(int(round))
-
-					article.VatPercentage = valueVat
+					article.VatPercentage = value
 				case 5:
 					if value == "Materijalno knjigovodstvo" {
 						article.VisibilityType = 2
@@ -1083,7 +1078,7 @@ func (h *Handler) ImportUserProfileVacationsHandler(w http.ResponseWriter, r *ht
 }
 
 func (h *Handler) ImportUserExpirienceHandler(w http.ResponseWriter, r *http.Request) {
-	var response ImportPS1Inventories
+	var response ImportUserExpiriences
 
 	xlsFile, err := openExcelFile(r)
 
@@ -1650,4 +1645,437 @@ func (h *Handler) ImportSAPHandler(w http.ResponseWriter, r *http.Request) {
 	response.Message = "File was read successfuly"
 	response.Status = "success"
 	_ = MarshalAndWriteJSON(w, response)
+}
+
+func (h *Handler) ImportExcelPS1(w http.ResponseWriter, r *http.Request) {
+	var response ImportPS1Inventories
+	organizationUnitIDStr := r.FormValue("organization_unit_id")
+
+	organizationUnitID, err := strconv.Atoi(organizationUnitIDStr)
+
+	if err != nil {
+		handleError(w, err, http.StatusBadRequest)
+		return
+	}
+
+	xlsFile, err := openExcelFile(r)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	var articles []structs.ImportInventoryArticles
+
+	sheetMap := xlsFile.GetSheetMap()
+	classTypes, err := h.Repo.GetDropdownSettings(&dto.GetSettingsInput{Entity: "inventory_class_type"})
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	mapOfClassTypes := make(map[string]int)
+
+	for _, obj := range classTypes.Data {
+		mapOfClassTypes[obj.Abbreviation] = obj.ID
+	}
+
+	deprecationTypes, err := h.Repo.GetDropdownSettings(&dto.GetSettingsInput{Entity: "deprecation_types"})
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	mapOfDeprecationTypes := make(map[string]int)
+
+	for _, obj := range deprecationTypes.Data {
+		mapOfDeprecationTypes[obj.Title] = obj.ID
+	}
+
+	offices, err := h.Repo.GetOfficeDropdownSettings(&dto.GetOfficesOfOrganizationInput{
+		Value: &organizationUnitIDStr,
+	})
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	mapOfOffices := make(map[string]int)
+
+	for _, obj := range offices.Data {
+		mapOfOffices[obj.Title] = obj.ID
+	}
+	var fals bool
+	organizationUnits, err := h.Repo.GetOrganizationUnits(
+		&dto.GetOrganizationUnitsInput{IsParent: &fals},
+	)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	mapOfOrganizationUnits := make(map[string]int)
+
+	for _, obj := range organizationUnits.Data {
+		mapOfOrganizationUnits[obj.Title] = obj.ID
+	}
+
+	suppliers, err := h.Repo.GetSupplierList(
+		&dto.GetSupplierInputMS{},
+	)
+
+	if err != nil {
+		handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	mapOfSuppliers := make(map[string]int)
+
+	for _, obj := range suppliers.Data {
+		mapOfSuppliers[obj.Title] = obj.ID
+	}
+
+	for _, sheetName := range sheetMap {
+
+		if sheetName != "PS -1" {
+			continue
+		}
+
+		rows, err := xlsFile.Rows(sheetName)
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+		rowindex := 0
+
+		for rows.Next() {
+			rowindex++
+
+			if rowindex < 10 {
+				continue
+			}
+
+			cols := rows.Columns()
+
+			var article structs.ImportInventoryArticles
+			for cellIndex, cellValue := range cols {
+				value := cellValue
+				switch cellIndex {
+				case 1:
+					article.Article.InventoryNumber = value
+				case 2:
+					id, exists := mapOfOffices[value]
+					if exists {
+						article.Dispatch.OfficeID = id
+						article.Article.OfficeID = article.Dispatch.OfficeID
+						article.Dispatch.Type = "allocation"
+					} else if value != "" {
+						//index := strings.Index(value, "-")
+						index := -1
+						if index == -1 {
+							id, exists = mapOfOrganizationUnits[value]
+							if !exists && value != "" {
+								newOffice := structs.SettingsDropdown{
+									Value:  strconv.Itoa(organizationUnitID),
+									Title:  value,
+									Entity: config.OfficeTypes,
+								}
+
+								itemRes, err := h.Repo.CreateDropdownSettings(&newOffice)
+
+								if err != nil {
+									responseMessage := ValidationResponse{
+										Column:  2,
+										Row:     rowindex,
+										Message: "Greska prilikom dodavanja kancelarije!",
+									}
+									response.Validation = append(response.Validation, responseMessage)
+								}
+								article.Dispatch.OfficeID = itemRes.ID
+								article.Article.OfficeID = itemRes.ID
+								article.Dispatch.Type = "allocation"
+								mapOfOffices[itemRes.Title] = itemRes.ID
+							}
+							article.Dispatch.IsAccepted = true
+							article.Dispatch.SourceOrganizationUnitID = organizationUnitID
+							article.Dispatch.TargetOrganizationUnitID = id
+							article.Dispatch.Type = "revers"
+						} else {
+							organizationUnit := value[:index-1]
+							office := value[index+2:]
+
+							id, exists = mapOfOrganizationUnits[organizationUnit]
+							if !exists && value != "" {
+								responseMessage := ValidationResponse{
+									Column:  2,
+									Row:     rowindex,
+									Message: "Lokacija nije validna!",
+								}
+								response.Validation = append(response.Validation, responseMessage)
+							}
+
+							article.ReversDispatch.IsAccepted = true
+							article.ReversDispatch.SourceOrganizationUnitID = organizationUnitID
+							article.ReversDispatch.TargetOrganizationUnitID = id
+							article.ReversDispatch.Type = "revers"
+							article.Article.TargetOrganizationUnitID = id
+
+							newOffice := structs.SettingsDropdown{
+								Value:  strconv.Itoa(id),
+								Title:  office,
+								Entity: config.OfficeTypes,
+							}
+
+							itemRes, err := h.Repo.CreateDropdownSettings(&newOffice)
+
+							if err != nil {
+								responseMessage := ValidationResponse{
+									Column:  2,
+									Row:     rowindex,
+									Message: "Greska prilikom dodavanja kancelarije!",
+								}
+								response.Validation = append(response.Validation, responseMessage)
+							}
+							article.Dispatch.OfficeID = itemRes.ID
+							article.Article.OfficeID = itemRes.ID
+							article.Dispatch.Type = "allocation"
+							mapOfOffices[itemRes.Title] = itemRes.ID
+						}
+					}
+				case 3:
+					article.Article.Title = value
+				case 5:
+					price, err := strconv.ParseFloat(value, 32)
+
+					if value != "" && err != nil {
+						responseMessage := ValidationResponse{
+							Column:  5,
+							Row:     rowindex,
+							Message: "Cijena nije validno unijeta!",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else {
+						article.Article.GrossPrice = float64(price)
+						article.FirstAmortization.GrossPriceDifference = float64(price)
+					}
+				case 14:
+					DateOfAssessment, err := parseDate(value)
+
+					if value != "" && err != nil {
+						responseMessage := ValidationResponse{
+							Column:  14,
+							Row:     rowindex,
+							Message: "Datum amortizacije nije validno unijet!",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else if value != "" {
+						dateOfAssessment := DateOfAssessment.Format("2006-01-02T15:04:05Z")
+						article.Article.DateOfAssessment = &dateOfAssessment
+						article.SecondAmortization.DateOfAssessment = &dateOfAssessment
+					}
+				case 15:
+					grossPriceNew, err := strconv.ParseFloat(value, 32)
+
+					if value != "" && err != nil {
+						responseMessage := ValidationResponse{
+							Column:  15,
+							Row:     rowindex,
+							Message: "Nova cijena nije validno unijeta!",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else if grossPriceNew > 0 {
+						article.SecondAmortization.GrossPriceDifference = float64(grossPriceNew)
+					}
+				case 16:
+					residualPrice, err := strconv.ParseFloat(value, 32)
+					if value != "" && err != nil {
+						responseMessage := ValidationResponse{
+							Column:  16,
+							Row:     rowindex,
+							Message: "Rezidualna cijena nije validno unijeta!",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else if value != "" {
+						residualPricefloat64 := float64(residualPrice)
+						article.SecondAmortization.ResidualPrice = &residualPricefloat64
+					}
+				case 22:
+					estimatedDuration, err := strconv.Atoi(value)
+					if value != "" && err != nil {
+						responseMessage := ValidationResponse{
+							Column:  22,
+							Row:     rowindex,
+							Message: "Vijek trajanja nije validno unijet!",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else if estimatedDuration > 0 {
+						article.SecondAmortization.EstimatedDuration = estimatedDuration
+					}
+				case 24:
+					article.Article.Description = value
+				case 25:
+					if _, exists := mapOfClassTypes[value]; !exists && value != "" && value != "0" {
+						responseMessage := ValidationResponse{
+							Column:  25,
+							Row:     rowindex,
+							Message: "Klasa sredstva " + value + " nije validna.",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else {
+						article.Article.ClassTypeID = mapOfClassTypes[value]
+					}
+				case 28:
+					dateOfPurchase, err := parseDate(value)
+
+					if value != "" && err != nil {
+						responseMessage := ValidationResponse{
+							Column:  28,
+							Row:     rowindex,
+							Message: "Datum nabavke nije validno unijet!",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else {
+						dateOfPurchaseString := dateOfPurchase.Format("2006-01-02T15:04:05Z")
+						article.Article.DateOfPurchase = &dateOfPurchaseString
+						article.Article.DateOfAssessment = &dateOfPurchaseString
+						article.FirstAmortization.DateOfAssessment = &dateOfPurchaseString
+					}
+				case 29:
+					if id, exists := mapOfDeprecationTypes[value]; !exists && value != "" {
+						responseMessage := ValidationResponse{
+							Column:  29,
+							Row:     rowindex,
+							Message: "Amortizaciona grupa " + value + " nije validna.",
+						}
+						response.Validation = append(response.Validation, responseMessage)
+					} else {
+						article.Article.DepreciationTypeID = id
+						article.FirstAmortization.DepreciationTypeID = id
+						article.SecondAmortization.DepreciationTypeID = id
+					}
+				case 31:
+					if len(value) > 0 {
+						modifiedValue := value[:len(value)-1]
+						estimatedDuration, err := strconv.Atoi(modifiedValue)
+						if value != "" && err != nil {
+							responseMessage := ValidationResponse{
+								Column:  31,
+								Row:     rowindex,
+								Message: "Vijek trajanja nije validno unijet!",
+							}
+							response.Validation = append(response.Validation, responseMessage)
+						} else if estimatedDuration > 0 {
+							article.FirstAmortization.EstimatedDuration = estimatedDuration / 100
+						}
+					}
+				case 36:
+					id, exists := mapOfSuppliers[value]
+					if !exists && value != "" && value != "NEPOZNATO" {
+						newSupplier := structs.Suppliers{
+							Title:  value,
+							Entity: "supplier",
+						}
+
+						itemRes, err := h.Repo.CreateSupplier(&newSupplier)
+
+						if err != nil {
+							responseMessage := ValidationResponse{
+								Column:  36,
+								Row:     rowindex,
+								Message: "Greska prilikom dodavanja dobavljaca!",
+							}
+							response.Validation = append(response.Validation, responseMessage)
+						}
+						article.Article.SupplierID = itemRes.ID
+						mapOfSuppliers[itemRes.Title] = itemRes.ID
+					} else if value != "NEPOZNATO" {
+						article.Article.SupplierID = id
+					}
+				}
+			}
+
+			if article.Article.Title != "" {
+				articles = append(articles, article)
+			}
+		}
+	}
+
+	if len(response.Validation) == 0 {
+		for i := 0; i < len(articles); i++ {
+			//zakomentarisati ako dobro procita datum, nedje ga cita dobro nedje ne
+			newDateOfPurchaseStr := *articles[i].Article.DateOfPurchase
+			newDateOfPurchase, err := parseDate(newDateOfPurchaseStr)
+
+			if err != nil {
+				handleError(w, err, http.StatusInternalServerError)
+			}
+			newDateOfPurchase = newDateOfPurchase.AddDate(0, 0, -1)
+			newDateOfPurchaseStr = newDateOfPurchase.Format("2006-01-02T15:04:05Z07:00")
+
+			articles[i].Article.DateOfPurchase = &newDateOfPurchaseStr
+
+			if articles[i].SecondAmortization.GrossPriceDifference != 0 {
+				newDateOfAssessmentStr := *articles[i].SecondAmortization.DateOfAssessment
+				newDateOfAssessment, err := parseDate(newDateOfAssessmentStr)
+
+				if err != nil {
+					handleError(w, err, http.StatusInternalServerError)
+				}
+				newDateOfAssessment = newDateOfAssessment.AddDate(0, 0, -1)
+				newDateOfAssessmentStr = newDateOfAssessment.Format("2006-01-02T15:04:05Z07:00")
+
+				articles[i].SecondAmortization.DateOfAssessment = &newDateOfAssessmentStr
+			}
+
+			articles[i].Article.OrganizationUnitID = organizationUnitID
+			articles[i].Article.Amount = 1
+			articles[i].Article.TargetOrganizationUnitID = articles[i].ReversDispatch.TargetOrganizationUnitID
+			articles[i].Article.Type = "movable"
+			articles[i].Article.Active = true
+			articles[i].Dispatch.IsAccepted = true
+			articles[i].Dispatch.Date = *articles[i].Article.DateOfPurchase
+			articles[i].ReversDispatch.Date = *articles[i].Article.DateOfPurchase
+			articles[i].ReversDispatch.Type = "revers"
+			articles[i].FirstAmortization.Type = "financial"
+			articles[i].FirstAmortization.DateOfAssessment = articles[i].Article.DateOfPurchase
+
+			articles[i].SecondAmortization.Type = "financial"
+			articles[i].FirstAmortization.GrossPriceDifference = articles[i].Article.GrossPrice
+
+			if articles[i].SecondAmortization.GrossPriceDifference != 0 {
+				articles[i].SecondAmortization.Active = true
+			} else {
+				articles[i].FirstAmortization.Active = true
+			}
+		}
+	}
+
+	batchSize := 100
+
+	for i := 0; i < len(articles); i += batchSize {
+		end := i + batchSize
+		if end > len(articles) {
+			end = len(articles)
+		}
+
+		batch := articles[i:end]
+		err = h.Repo.CreateExcelInventoryItems(r.Context(), batch)
+
+		if err != nil {
+			handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+
+	}
+
+	response.Status = "success"
+	response.Message = "The file was read successfully"
+
+	_ = MarshalAndWriteJSON(w, response)
+
 }

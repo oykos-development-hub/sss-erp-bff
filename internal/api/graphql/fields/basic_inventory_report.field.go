@@ -42,6 +42,10 @@ func (f *Field) ReportInventoryList() *graphql.Field {
 			"type": &graphql.ArgumentConfig{
 				Type: graphql.String,
 			},
+			"is_lager": &graphql.ArgumentConfig{
+				Type:         graphql.Boolean,
+				DefaultValue: false,
+			},
 		},
 		Resolve: f.Resolvers.ReportInventoryListResolver,
 	}

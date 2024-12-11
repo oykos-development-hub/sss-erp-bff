@@ -95,6 +95,14 @@ type ValidationResponse struct {
 }
 
 type ImportPS1Inventories struct {
+	Status     string                            `json:"status"`
+	Message    string                            `json:"message"`
+	Error      string                            `json:"error"`
+	Validation []ValidationResponse              `json:"validation"`
+	Data       []structs.ImportInventoryArticles `json:"data"`
+}
+
+type ImportUserExpiriences struct {
 	Status     string               `json:"status"`
 	Message    string               `json:"message"`
 	Error      string               `json:"error"`
@@ -130,14 +138,4 @@ type ImportUserProfileVacationsResponse struct {
 	Error      string                      `json:"error"`
 	Validation []ValidationResponse        `json:"validation"`
 	Data       []ImportUserProfileVacation `json:"data"`
-}
-
-type ImportInventoryArticles struct {
-	Article            structs.BasicInventoryInsertItem           `json:"article"`
-	FirstAmortization  structs.BasicInventoryAssessmentsTypesItem `json:"first_amortization"`
-	SecondAmortization structs.BasicInventoryAssessmentsTypesItem `json:"second_amortization"`
-	Dispatch           structs.BasicInventoryDispatchItem         `json:"dispatch"`
-	ReversDispatch     structs.BasicInventoryDispatchItem         `json:"revers_dispatch"`
-	DispatchItem       structs.BasicInventoryDispatchItemsItem    `json:"dispatch_item"`
-	ReversDispatchItem structs.BasicInventoryDispatchItemsItem    `json:"revers_dispatch_item"`
 }

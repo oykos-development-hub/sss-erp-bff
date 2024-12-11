@@ -235,6 +235,7 @@ type AccountingMS struct {
 type InventoryMS struct {
 	Base           string
 	Item           string
+	ExcelItems     string
 	RealEstates    string
 	Assessments    string
 	Dispatch       string
@@ -388,6 +389,7 @@ func LoadDefaultConfig() (*Config, error) {
 			Inventory: InventoryMS{
 				Base:           inventoryBase,
 				Item:           inventoryBase + "/items",
+				ExcelItems:     inventoryBase + "/excel-items",
 				RealEstates:    inventoryBase + "/real-estates",
 				Assessments:    inventoryBase + "/assessments",
 				Dispatch:       inventoryBase + "/dispatches",

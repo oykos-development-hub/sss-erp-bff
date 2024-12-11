@@ -48,6 +48,7 @@ type ItemReportFilterDTO struct {
 	OrganizationUnitID *int    `json:"organization_unit_id"`
 	OfficeID           *int    `json:"office_id"`
 	Date               *string `json:"date"`
+	IsLager            *bool   `json:"is_lager"`
 }
 
 type GetAllItemsInOrgUnits struct {
@@ -62,18 +63,19 @@ type GetAllItemsInOrgUnitsMS struct {
 }
 
 type ItemReportResponse struct {
-	ID               int     `json:"id"`
-	Title            string  `json:"title"`
-	SourceType       string  `json:"source_type"`
-	Type             string  `json:"type"`
-	InventoryNumber  string  `json:"inventory_number"`
-	OfficeID         int     `json:"office_id"`
-	Office           string  `json:"office"`
-	ProcurementPrice float64 `json:"procurement_price"`
-	LostValue        float64 `json:"lost_value"`
-	Price            float64 `json:"price"`
-	Date             string  `json:"date"`
-	DateOfPurchase   string  `json:"date_of_purchase"`
+	ID                       int     `json:"id"`
+	Title                    string  `json:"title"`
+	SourceType               string  `json:"source_type"`
+	Type                     string  `json:"type"`
+	InventoryNumber          string  `json:"inventory_number"`
+	OfficeID                 int     `json:"office_id"`
+	Office                   string  `json:"office"`
+	ProcurementPrice         float64 `json:"procurement_price"`
+	LostValue                float64 `json:"lost_value"`
+	Price                    float64 `json:"price"`
+	Date                     string  `json:"date"`
+	DateOfPurchase           string  `json:"date_of_purchase"`
+	TargetOrganizationUnitID int     `json:"target_organization_unit_id"`
 }
 
 type GetAllItemsReportMS struct {

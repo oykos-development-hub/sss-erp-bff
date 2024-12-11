@@ -3,6 +3,7 @@ package resolvers
 import (
 	"bff/internal/api/dto"
 	"bff/internal/api/errors"
+	"bff/internal/api/repository"
 	"bff/structs"
 	"encoding/json"
 
@@ -12,7 +13,13 @@ import (
 func (r *Resolver) UserProfileForeignerResolver(params graphql.ResolveParams) (interface{}, error) {
 	profileID := params.Args["user_profile_id"].(int)
 
-	UserProfilesData, err := r.Repo.GetEmployeeForeigners(profileID)
+	items, err := r.Repo.GetEmployeeForeigners(profileID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	resItems, err := buildForeignerResponseItemList(r.Repo, items)
 	if err != nil {
 		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 		return errors.HandleAPPError(err)
@@ -21,7 +28,7 @@ func (r *Resolver) UserProfileForeignerResolver(params graphql.ResolveParams) (i
 	return dto.Response{
 		Status:  "success",
 		Message: "Here's the item you asked for!",
-		Items:   UserProfilesData,
+		Items:   resItems,
 	}, nil
 }
 
@@ -48,16 +55,29 @@ func (r *Resolver) UserProfileForeignerInsertResolver(params graphql.ResolvePara
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
+		resItem, err := buildForeignerResponseItem(r.Repo, item)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		response.Item = resItem
 		response.Message = "You updated this item!"
-		response.Item = item
 	} else {
 		item, err := r.Repo.CreateEmployeeForeigner(&data)
 		if err != nil {
 			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
 			return errors.HandleAPPError(err)
 		}
+
+		resItem, err := buildForeignerResponseItem(r.Repo, item)
+		if err != nil {
+			_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+			return errors.HandleAPPError(err)
+		}
+
+		response.Item = resItem
 		response.Message = "You created this item!"
-		response.Item = item
 	}
 
 	return response, nil
@@ -76,4 +96,55 @@ func (r *Resolver) UserProfileForeignerDeleteResolver(params graphql.ResolvePara
 		Status:  "success",
 		Message: "You deleted this item!",
 	}, nil
+}
+
+func buildForeignerResponseItemList(r repository.MicroserviceRepositoryInterface, foreigners []structs.Foreigners) (foreignerResponseItemList []dto.Foreigner, err error) {
+	for _, foreigner := range foreigners {
+		memberResItem, err := buildForeignerResponseItem(r, &foreigner)
+		if err != nil {
+			return nil, errors.Wrap(err, "build contract response item")
+		}
+		foreignerResponseItemList = append(foreignerResponseItemList, *memberResItem)
+	}
+
+	return
+}
+
+func buildForeignerResponseItem(r repository.MicroserviceRepositoryInterface, foreigner *structs.Foreigners) (*dto.Foreigner, error) {
+	resItem := dto.Foreigner{
+		ID:                              foreigner.ID,
+		UserProfileID:                   foreigner.UserProfileID,
+		WorkPermitNumber:                foreigner.WorkPermitNumber,
+		WorkPermitIssuer:                foreigner.WorkPermitIssuer,
+		WorkPermitDateOfStart:           foreigner.WorkPermitDateOfStart,
+		WorkPermitDateOfEnd:             foreigner.WorkPermitDateOfEnd,
+		WorkPermitIndefiniteLength:      foreigner.WorkPermitIndefiniteLength,
+		ResidencePermitDateOfStart:      foreigner.ResidencePermitDateOfStart,
+		ResidencePermitDateOfEnd:        foreigner.ResidencePermitDateOfEnd,
+		ResidencePermitIndefiniteLength: foreigner.ResidencePermitIndefiniteLength,
+		ResidencePermitNumber:           foreigner.ResidencePermitNumber,
+		ResidencePermitIssuer:           foreigner.ResidencePermitIssuer,
+		CountryOfOrigin:                 foreigner.CountryOfOrigin,
+		CreatedAt:                       foreigner.CreatedAt,
+		UpdatedAt:                       foreigner.UpdatedAt,
+		WorkPermitFileID:                foreigner.WorkPermitFileID,
+		ResidencePermitFileID:           foreigner.ResidencePermitFileID,
+		Files:                           make([]dto.FileDropdownSimple, 0, len(foreigner.FileIDs)),
+	}
+
+	for i := range foreigner.FileIDs {
+		var file dto.FileDropdownSimple
+
+		res, _ := r.GetFileByID(foreigner.FileIDs[i])
+
+		if res != nil {
+			file.ID = res.ID
+			file.Name = res.Name
+			file.Type = *res.Type
+		}
+
+		resItem.Files = append(resItem.Files, file)
+	}
+
+	return &resItem, nil
 }

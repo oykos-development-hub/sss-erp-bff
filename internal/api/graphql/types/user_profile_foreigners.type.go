@@ -50,6 +50,9 @@ var UserProfileForeignerItemType = graphql.NewObject(graphql.ObjectConfig{
 		"residence_permit_file_id": &graphql.Field{
 			Type: graphql.Int,
 		},
+		"files": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
+		},
 	},
 })
 

@@ -44,5 +44,8 @@ var UserProfileForeignerInsertMutation = graphql.NewInputObject(graphql.InputObj
 		"residence_permit_file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
+		"file_ids": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
 	},
 })

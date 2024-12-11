@@ -984,25 +984,15 @@ func buildRevisionTipItemResponse(r repository.MicroserviceRepositoryInterface, 
 
 	revisorDropdown := structs.SettingsDropdown{}
 
-	if revision.Status == structs.RevisionConducted {
-		revisionTips, err := r.GetRevisionTipImplementationList(&dto.GetRevisionTipImplementationFilter{TipID: &revision.ID})
+	if revision.UserProfileID != nil && *revision.UserProfileID != 0 {
+		revisor, err := r.GetUserProfileByID(*revision.UserProfileID)
 		if err != nil {
 			return nil, errors.Wrap(err, "repo get user profile by id")
 		}
 
-		for _, tip := range revisionTips.Data {
-			if tip.Status == structs.RevisionConducted {
-				revisor, err := r.GetUserProfileByID(*tip.RevisorID)
-				if err != nil {
-					return nil, errors.Wrap(err, "repo get user profile by id")
-				}
-
-				revisorDropdown = structs.SettingsDropdown{
-					ID:    revisor.ID,
-					Title: revisor.FirstName + " " + revisor.LastName,
-				}
-				break
-			}
+		revisorDropdown = structs.SettingsDropdown{
+			ID:    revisor.ID,
+			Title: revisor.FirstName + " " + revisor.LastName,
 		}
 	}
 
@@ -1321,4 +1311,19 @@ func (r *Resolver) RevisionTipImplementationInsertResolver(params graphql.Resolv
 	}
 
 	return response, nil
+}
+
+func (r *Resolver) RevisionTipImplementationDeleteResolver(params graphql.ResolveParams) (interface{}, error) {
+	itemID := params.Args["id"].(int)
+
+	err := r.Repo.DeleteRevisionTipImplementation(params.Context, itemID)
+	if err != nil {
+		_ = r.Repo.CreateErrorLog(structs.ErrorLogs{Error: err.Error()})
+		return errors.HandleAPPError(err)
+	}
+
+	return dto.ResponseSingle{
+		Status:  "success",
+		Message: "You deleted this item!",
+	}, nil
 }

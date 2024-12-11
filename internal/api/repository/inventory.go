@@ -480,3 +480,17 @@ func (repo *MicroserviceRepository) CheckInsertInventoryData(input []structs.Bas
 	}
 	return items, nil
 }
+
+func (repo *MicroserviceRepository) CreateExcelInventoryItems(ctx context.Context, items []structs.ImportInventoryArticles) error {
+	header := make(map[string]string)
+
+	account := ctx.Value(config.LoggedInAccountKey).(*structs.UserAccounts)
+	header["UserID"] = strconv.Itoa(account.ID)
+
+	_, err := makeAPIRequest("POST", repo.Config.Microservices.Inventory.ExcelItems, items, nil, header)
+	if err != nil {
+		return errors.Wrap(err, "make api request")
+	}
+
+	return nil
+}

@@ -13,7 +13,7 @@ func (f *Field) PublicProcurementOrganizationUnitArticleInsertField() *graphql.F
 		Description: "Creates new or alter existing Public Procurement articles' amount set by Organization Units",
 		Args: graphql.FieldConfigArgument{
 			"data": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(mutations.PublicProcurementOrganizationUnitArticleInsertMutation),
+				Type: graphql.NewList(mutations.PublicProcurementOrganizationUnitArticleInsertMutation),
 			},
 		},
 		Resolve: f.Resolvers.PublicProcurementOrganizationUnitArticleInsertResolver,

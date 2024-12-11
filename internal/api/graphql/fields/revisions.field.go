@@ -290,6 +290,6 @@ func (f *Field) RevisionTipImplementationDelete() *graphql.Field {
 				Type: graphql.Int,
 			},
 		},
-		Resolve: f.Resolvers.RevisionTipsDeleteResolver,
+		Resolve: f.Resolvers.RevisionTipImplementationDeleteResolver,
 	}
 }

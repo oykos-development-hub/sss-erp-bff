@@ -65,5 +65,8 @@ var UserProfileFamilyInsertMutation = graphql.NewInputObject(graphql.InputObject
 		"employee_relationship": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
+		"file_ids": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewList(graphql.Int),
+		},
 	},
 })

@@ -133,6 +133,10 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 		filter.OfficeID = &officeParam
 	}
 
+	if isLager, ok := params.Args["is_lager"].(bool); ok {
+		filter.IsLager = &isLager
+	}
+
 	items, err := r.Repo.GetAllInventoryItemForReport(filter)
 
 	if err != nil {
@@ -162,6 +166,12 @@ func (r *Resolver) ReportInventoryListResolver(params graphql.ResolveParams) (in
 			items[i].Office = office.Title
 		} else {
 			items[i].Office = "Lager"
+		}
+
+		if items[i].TargetOrganizationUnitID != 0 {
+			orgUnit, _ := r.Repo.GetOrganizationUnitByID(items[i].TargetOrganizationUnitID)
+
+			items[i].Office = orgUnit.Title + " - " + items[i].Office
 		}
 	}
 

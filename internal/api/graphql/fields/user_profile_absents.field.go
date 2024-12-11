@@ -85,22 +85,6 @@ func (f *Field) UserProfileAbsentDeleteField() *graphql.Field {
 	}
 }
 
-func (f *Field) TerminateEmployment() *graphql.Field {
-	return &graphql.Field{
-		Type:        types.UserProfileAbsentDeleteType,
-		Description: "Terminate user employment",
-		Args: graphql.FieldConfigArgument{
-			"user_profile_id": &graphql.ArgumentConfig{
-				Type: graphql.Int,
-			},
-			"file_ids": &graphql.ArgumentConfig{
-				Type: graphql.NewList(graphql.Int),
-			},
-		},
-		Resolve: f.Resolvers.TerminateEmployment,
-	}
-}
-
 func (f *Field) ReportVacations() *graphql.Field {
 	return &graphql.Field{
 		Type:        types.UserProfileVacationReport,

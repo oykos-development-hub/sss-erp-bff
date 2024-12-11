@@ -24,4 +24,5 @@ type Family struct {
 	HandicappedPerson    bool   `json:"handicapped_person"`
 	CreatedAt            string `json:"created_at"`
 	UpdatedAt            string `json:"updated_at"`
+	FileIDs              []int  `json:"file_ids"`
 }

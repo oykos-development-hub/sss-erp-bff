@@ -73,12 +73,6 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		"housing_done": &graphql.InputObjectFieldConfig{
 			Type: graphql.Boolean,
 		},
-		"is_president": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
-		},
-		"is_judge": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
-		},
 		"housing_description": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
@@ -87,9 +81,6 @@ var UserProfileBasicInsertMutation = graphql.NewInputObject(graphql.InputObjectC
 		},
 		"date_of_taking_oath": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
-		},
-		"contract": &graphql.InputObjectFieldConfig{
-			Type: UserProfileContractInput,
 		},
 		"date_of_becoming_judge": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
@@ -205,26 +196,14 @@ var UserProfileUpdateMutation = graphql.NewInputObject(graphql.InputObjectConfig
 		"judge_application_submission_date": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
-		"is_president": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
-		},
-		"is_judge": &graphql.InputObjectFieldConfig{
-			Type: graphql.Boolean,
-		},
 		"engagement_type_id": &graphql.InputObjectFieldConfig{
-			Type: graphql.Int,
-		},
-		"contract": &graphql.InputObjectFieldConfig{
-			Type: UserProfileContractInsertMutation,
-		},
-		"file_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
 	},
 })
 
-var UserProfileContractInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
-	Name: "UserProfileContractInsertMutation",
+var ActiveContractInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "ActiveContractInsertMutation",
 	Fields: graphql.InputObjectConfigFieldMap{
 		"id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
@@ -244,31 +223,7 @@ var UserProfileContractInsertMutation = graphql.NewInputObject(graphql.InputObje
 		"job_position_in_organization_unit_id": &graphql.InputObjectFieldConfig{
 			Type: graphql.Int,
 		},
-		"abbreviation": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"number_of_conference": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"description": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"active": &graphql.InputObjectFieldConfig{
-			Type: graphql.NewNonNull(graphql.Boolean),
-		},
-		"serial_number": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"net_salary": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"gross_salary": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"bank_account": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
-		"bank_name": &graphql.InputObjectFieldConfig{
 			Type: graphql.String,
 		},
 		"date_of_signature": &graphql.InputObjectFieldConfig{
@@ -280,11 +235,48 @@ var UserProfileContractInsertMutation = graphql.NewInputObject(graphql.InputObje
 		"date_of_start": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
-		"date_of_end": &graphql.InputObjectFieldConfig{
-			Type: graphql.String,
-		},
 		"file_ids": &graphql.InputObjectFieldConfig{
 			Type: graphql.NewList(graphql.Int),
+		},
+		"is_judge": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
+		"is_president": &graphql.InputObjectFieldConfig{
+			Type: graphql.Boolean,
+		},
+		"judge_application_submission_date": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+	},
+})
+
+var ContractInsertMutation = graphql.NewInputObject(graphql.InputObjectConfig{
+	Name: "ContractInsertMutation",
+	Fields: graphql.InputObjectConfigFieldMap{
+		"id": &graphql.InputObjectFieldConfig{
+			Type: graphql.Int,
+		},
+		"user_profile_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"contract_type_id": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.Int),
+		},
+		"organization_unit_id": &graphql.InputObjectFieldConfig{
+			Type:         graphql.NewNonNull(graphql.Int),
+			DefaultValue: 0,
+		},
+		"external_organization_unit": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"amount_of_insured_experience": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
+		},
+		"date_of_start": &graphql.InputObjectFieldConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"date_of_end": &graphql.InputObjectFieldConfig{
+			Type: graphql.String,
 		},
 	},
 })

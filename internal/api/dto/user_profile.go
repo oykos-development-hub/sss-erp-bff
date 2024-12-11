@@ -63,7 +63,7 @@ type GetEvaluationResponse struct {
 }
 
 type GetEmployeeForeignersListResponseMS struct {
-	Data []*structs.Foreigners `json:"data"`
+	Data []structs.Foreigners `json:"data"`
 }
 
 type GetEmployeeForeignersResponseMS struct {
@@ -75,7 +75,7 @@ type GetEmployeeFamilyMemberResponseMS struct {
 }
 
 type GetEmployeeFamilyMemberListResponseMS struct {
-	Data []*structs.Family `json:"data"`
+	Data []structs.Family `json:"data"`
 }
 
 type GetEmployeeSalaryParamsListResponseMS struct {

@@ -139,3 +139,13 @@ type InventoryReportStruct struct {
 	Price            float64 `json:"price"`
 	Date             string  `json:"date"`
 }
+
+type ImportInventoryArticles struct {
+	Article            BasicInventoryInsertItem           `json:"article"`
+	FirstAmortization  BasicInventoryAssessmentsTypesItem `json:"first_amortization"`
+	SecondAmortization BasicInventoryAssessmentsTypesItem `json:"second_amortization"`
+	Dispatch           BasicInventoryDispatchItem         `json:"dispatch"`
+	ReversDispatch     BasicInventoryDispatchItem         `json:"revers_dispatch"`
+	DispatchItem       BasicInventoryDispatchItemsItem    `json:"dispatch_item"`
+	ReversDispatchItem BasicInventoryDispatchItemsItem    `json:"revers_dispatch_item"`
+}

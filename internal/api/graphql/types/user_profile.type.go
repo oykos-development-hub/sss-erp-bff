@@ -326,8 +326,8 @@ var UserProfileContractsType = graphql.NewObject(graphql.ObjectConfig{
 		"message": &graphql.Field{
 			Type: graphql.String,
 		},
-		"items": &graphql.Field{
-			Type: graphql.NewList(ContractItemType),
+		"item": &graphql.Field{
+			Type: ContractItemType,
 		},
 	},
 })
@@ -718,6 +718,9 @@ var UserProfileFamilyItemType = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"updated_at": &graphql.Field{
 			Type: graphql.String,
+		},
+		"files": &graphql.Field{
+			Type: graphql.NewList(FileDropdownItemType),
 		},
 	},
 })

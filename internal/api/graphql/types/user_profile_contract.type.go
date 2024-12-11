@@ -23,31 +23,7 @@ var ContractItemType = graphql.NewObject(graphql.ObjectConfig{
 		"job_position_in_organization_unit": &graphql.Field{
 			Type: DropdownItemType,
 		},
-		"abbreviation": &graphql.Field{
-			Type: graphql.String,
-		},
-		"description": &graphql.Field{
-			Type: graphql.String,
-		},
-		"active": &graphql.Field{
-			Type: graphql.Boolean,
-		},
-		"serial_number": &graphql.Field{
-			Type: graphql.String,
-		},
 		"number_of_conference": &graphql.Field{
-			Type: graphql.String,
-		},
-		"net_salary": &graphql.Field{
-			Type: graphql.String,
-		},
-		"gross_salary": &graphql.Field{
-			Type: graphql.String,
-		},
-		"bank_account": &graphql.Field{
-			Type: graphql.String,
-		},
-		"bank_name": &graphql.Field{
 			Type: graphql.String,
 		},
 		"date_of_signature": &graphql.Field{
@@ -59,11 +35,14 @@ var ContractItemType = graphql.NewObject(graphql.ObjectConfig{
 		"date_of_start": &graphql.Field{
 			Type: graphql.String,
 		},
-		"date_of_end": &graphql.Field{
-			Type: graphql.String,
+		"is_judge": &graphql.Field{
+			Type: graphql.Boolean,
 		},
-		"file_id": &graphql.Field{
-			Type: graphql.Int,
+		"is_president": &graphql.Field{
+			Type: graphql.Boolean,
+		},
+		"judge_application_submission_date": &graphql.Field{
+			Type: graphql.String,
 		},
 		"files": &graphql.Field{
 			Type: graphql.NewList(FileDropdownItemType),

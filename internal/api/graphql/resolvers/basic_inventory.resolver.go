@@ -225,7 +225,7 @@ func (r *Resolver) BasicInventoryInsertResolver(params graphql.ResolveParams) (i
 				if value != 0 {
 					estimatedDuration = 100 / value
 				} else {
-					estimatedDuration = 10000
+					estimatedDuration = 0
 				}
 
 				item.GrossPrice = float64(int(item.GrossPrice*100+0.5)) / 100
@@ -461,7 +461,7 @@ func buildInventoryResponse(r repository.MicroserviceRepositoryInterface, item *
 			if value != 0 {
 				estimatedDuration = 100 / value
 			} else {
-				estimatedDuration = 10000
+				estimatedDuration = 0
 			}
 		}
 	}
@@ -712,7 +712,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 
 	realEstateStruct := &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{}
 
-	if realEstate != nil {
+	if realEstate != nil && realEstate.ID != 0 {
 		realEstateStruct = &structs.BasicInventoryRealEstatesItemResponseForInventoryItem{
 			ID:                       realEstate.ID,
 			TypeID:                   realEstate.TypeID,
@@ -800,6 +800,12 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 			}
 			dispatch, _ := buildInventoryDispatchResponse(r, dispatchRes)
 			movements = append(movements, dispatch)
+
+			for i := 0; i < len(movements); i++ {
+				if movements[i].Type == "return-revers" {
+					movements[i].TargetOrganizationUnit = organizationUnitDropdown
+				}
+			}
 		}
 	}
 

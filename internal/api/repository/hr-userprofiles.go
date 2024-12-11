@@ -269,7 +269,7 @@ func (repo *MicroserviceRepository) DeleteEmployeeFamilyMember(id int) error {
 	return nil
 }
 
-func (repo *MicroserviceRepository) GetEmployeeFamilyMembers(employeeID int) ([]*structs.Family, error) {
+func (repo *MicroserviceRepository) GetEmployeeFamilyMembers(employeeID int) ([]structs.Family, error) {
 	res := &dto.GetEmployeeFamilyMemberListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(employeeID)+"/family-members", nil, res)
 	if err != nil {
@@ -454,7 +454,7 @@ func (repo *MicroserviceRepository) DeleteEvaluation(ctx context.Context, id int
 	return nil
 }
 
-func (repo *MicroserviceRepository) GetEmployeeForeigners(userProfileID int) ([]*structs.Foreigners, error) {
+func (repo *MicroserviceRepository) GetEmployeeForeigners(userProfileID int) ([]structs.Foreigners, error) {
 	res := dto.GetEmployeeForeignersListResponseMS{}
 	_, err := makeAPIRequest("GET", repo.Config.Microservices.HR.UserProfiles+"/"+strconv.Itoa(userProfileID)+"/foreigners", nil, &res)
 	if err != nil {

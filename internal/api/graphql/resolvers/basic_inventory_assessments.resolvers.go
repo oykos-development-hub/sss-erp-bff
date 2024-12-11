@@ -169,7 +169,7 @@ func calculateMonthlyConsumption(startDateStr string, initialPrice float64, esti
 	today := time.Now()
 	endDate := startDate.AddDate(estimatedDuration, 0, 0)
 
-	if endDate.Before(today) {
+	if endDate.Before(today) && estimatedDuration > 0 {
 		return initialPrice
 	}
 

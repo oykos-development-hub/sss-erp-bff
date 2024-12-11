@@ -911,6 +911,11 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		get invoice
 	*/
 
+	depreciationRateStr := "0"
+
+	if lifetimeOfAssessmentInMonths != 0 {
+		depreciationRateStr = fmt.Sprintf("%d", depreciationRate/lifetimeOfAssessmentInMonths)
+	}
 	res := dto.BasicInventoryResponseItem{
 		ID:                           item.ID,
 		InvoiceArticleID:             item.InvoiceArticleID,
@@ -950,7 +955,7 @@ func buildInventoryItemResponse(r repository.MicroserviceRepositoryInterface, it
 		DateOfAssessment:             &dateOfAssessment,
 		PriceOfAssessment:            item.PriceOfAssessment,
 		LifetimeOfAssessmentInMonths: lifetimeOfAssessmentInMonths,
-		DepreciationRate:             fmt.Sprintf("%d", depreciationRate/lifetimeOfAssessmentInMonths),
+		DepreciationRate:             depreciationRateStr,
 		AmortizationValue:            amortizationValue,
 		OrganizationUnit:             organizationUnitDropdown,
 		TargetOrganizationUnit:       targetOrganizationUnitDropdown,

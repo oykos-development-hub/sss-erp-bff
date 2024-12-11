@@ -185,7 +185,7 @@ func calculateMonthlyConsumption(startDateStr string, initialPrice float64, esti
 	totalConsumption := float64(0)
 	var percentage float64
 	if estimatedDuration == 0 {
-		return initialPrice
+		return 0
 	}
 	percentage = float64(100) / float64(estimatedDuration)
 

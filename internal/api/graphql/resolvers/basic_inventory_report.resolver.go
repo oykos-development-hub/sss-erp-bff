@@ -80,11 +80,12 @@ func (r *Resolver) ReportValueClassInventoryResolver(params graphql.ResolveParam
 				return apierrors.HandleAPPError(err)
 			}
 
-			sumClassPurchaseGrossPrice += item.PurchaseGrossPrice
-			sumClassGrossPrice += item.GrossPrice //ispravak vrijednosti
+			sumClassGrossPrice += item.GrossPrice
+			sumClassPriceOfAssessment += item.AmortizationValue
+			sumClassPurchaseGrossPrice += item.GrossPrice + item.AmortizationValue
 
 		}
-		sumClassPriceOfAssessment += sumClassPurchaseGrossPrice - sumClassGrossPrice //trenutna vrijednost
+
 		sumClassGrossPriceAllItem += sumClassGrossPrice
 		sumClassPurchaseGrossPriceAllItem += sumClassPurchaseGrossPrice
 		sumClassPriceOfAssessmentAllItem += sumClassPriceOfAssessment
